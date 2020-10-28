@@ -1,6 +1,6 @@
 {
   "name": "goldwallet",
-  "version": "5.0.10",
+  "version": "5.0.11",
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/preset-flow": "^7.9.0",
