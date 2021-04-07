@@ -26,6 +26,8 @@ import { selectors as walletsSelector } from 'app/state/wallets';
 import { createWallet as createWalletAction, CreateWalletAction } from 'app/state/wallets/actions';
 import { palette, typography } from 'app/styles';
 
+import SmartlookApp from '../../SmartlookApp';
+
 const i18n = require('../../loc');
 
 interface Props {
@@ -235,6 +237,9 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     }
 
     this.createWallet();
+    const smart = new SmartlookApp();
+
+    smart.eventRegister('CreateWallet', { prop: 'wallet' });
   };
 
   createWallet = async () => {

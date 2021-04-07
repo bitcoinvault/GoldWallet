@@ -10410,6 +10410,11 @@ slide@^1.1.5:
   resolved "https://registry.yarnpkg.com/slide/-/slide-1.1.6.tgz#56eb027d65b4d2dce6cb2e2d32c4d4afc9e1d707"
   integrity sha1-VusCfWW00tzmyy4tMsTUr8nh1wc=
 
+smartlook-react-native-wrapper@^0.39.0:
+  version "0.39.0"
+  resolved "https://registry.yarnpkg.com/smartlook-react-native-wrapper/-/smartlook-react-native-wrapper-0.39.0.tgz#fccd7296cf4d0eb2249790ea701fe9882f97b370"
+  integrity sha512-6YoY78TTEYieVMFl3sSw0WmcTCCmcXscNJwhl4bdeh1K/0brJCzP8Ll0s2D3na0W4+Wr3xR/GjvXgrvUxbDWXA==
+
 snapdragon-node@^2.0.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/snapdragon-node/-/snapdragon-node-2.1.1.tgz#6c175f86ff14bdb0724563e8f3c1b021a286853b"

@@ -191,6 +191,7 @@
     "reselect": "^4.0.0",
     "rn-fetch-blob": "^0.12.0",
     "secure-random": "1.1.2",
+    "smartlook-react-native-wrapper": "^0.39.0",
     "stream-browserify": "2.0.2",
     "url": "0.11.0",
     "util": "0.12.1",

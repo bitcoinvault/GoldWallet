@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/react-native';
 import React from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { View, StyleSheet, LogBox } from 'react-native';
+import { isEmulator } from 'react-native-device-info';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
@@ -10,6 +11,7 @@ import { AppStateManager } from 'app/services';
 import { AuthenticationAction } from 'app/state/authentication/actions';
 import { persistor, store } from 'app/state/store';
 
+import SmartlookApp from './SmartlookApp';
 import config from './src/config';
 
 const i18n = require('./loc');
@@ -30,6 +32,12 @@ export default class App extends React.PureComponent {
   state = {
     unlockKey: getNewKey(),
   };
+
+  componentDidMount() {
+    if (!isEmulator && !__DEV__) {
+      new SmartlookApp().init();
+    }
+  }
 
   lockScreen = () => {
     store.dispatch({

@@ -15,4 +15,5 @@ export default {
   explorerUrl: Config.EXPLORER_URL,
   sentryDsn: Config.SENTRY_DSN,
   emailNotificationsApi: Config.EMAIL_NOTIFICATIONS_API,
+  smartlookKey: Config.SMARTLOOK_API_KEY,
 };

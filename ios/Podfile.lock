@@ -439,6 +439,10 @@ PODS:
   - Sentry (6.0.9):
     - Sentry/Core (= 6.0.9)
   - Sentry/Core (6.0.9)
+  - Smartlook (1.7.3)
+  - smartlook-react-native-bridge (0.39.0):
+    - React
+    - Smartlook (>= 1.5.0)
   - ToolTipMenu (5.2.1):
     - React
   - Yoga (1.14.0)
@@ -513,6 +517,7 @@ DEPENDENCIES:
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
+  - smartlook-react-native-bridge (from `../node_modules/smartlook-react-native-wrapper`)
   - ToolTipMenu (from `../node_modules/react-native-tooltip`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -536,6 +541,7 @@ SPEC REPOS:
     - SDWebImage
     - SDWebImageWebPCoder
     - Sentry
+    - Smartlook
 
 EXTERNAL SOURCES:
   BVLinearGradient:
@@ -672,6 +678,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
+  smartlook-react-native-bridge:
+    :path: "../node_modules/smartlook-react-native-wrapper"
   ToolTipMenu:
     :path: "../node_modules/react-native-tooltip"
   Yoga:
@@ -763,6 +771,8 @@ SPEC CHECKSUMS:
   SDWebImage: a31ee8e90a97303529e03fb0c333eae0eacb88e9
   SDWebImageWebPCoder: d0dac55073088d24b2ac1b191a71a8f8d0adac21
   Sentry: 388c9dc093b2fd3a264466a5c5b21e25959610a9
+  Smartlook: 980e5999dbf339fd982b2870d8a54b5e6e52b0ee
+  smartlook-react-native-bridge: 61cd8beda0f6b659fb49eec028b143f529f870dc
   ToolTipMenu: 8ac61aded0fbc4acfe7e84a7d0c9479d15a9a382
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
 
