@@ -3,10 +3,9 @@ import 'react-native-gesture-handler';
 import 'intl';
 import 'intl/locale-data/jsonp/en';
 import './shim.js';
-import React from 'react';
-import { AppRegistry, StatusBar, LogBox } from 'react-native';
+import { AppRegistry, LogBox } from 'react-native';
 
-import App from './App';
+import Main from './Main';
 import config from './src/config';
 
 LogBox.ignoreLogs(['Non-serializable values were found in the navigation state']);
@@ -17,13 +16,4 @@ if (!Error.captureStackTrace) {
   Error.captureStackTrace = () => {};
 }
 
-const BlueAppComponent = () => {
-  return (
-    <>
-      <StatusBar backgroundColor="rgba(0,0,0,0)" translucent />
-      <App />
-    </>
-  );
-};
-
-AppRegistry.registerComponent(config.applicationName, () => BlueAppComponent);
+AppRegistry.registerComponent(config.applicationName, () => Main);

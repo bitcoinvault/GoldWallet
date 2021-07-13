@@ -6,6 +6,8 @@
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>GoldWallet</string>
+	<key>CodePushDeploymentKey</key>
+	<string>$(CODEPUSH_DEPLOYMENT_KEY_IOS)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleGetInfoString</key>

@@ -2,7 +2,8 @@
 
 The first ever Bitcoin Vault wallet.
 
-[![Playstore](https://bluewallet.io/img/play-store-badge.svg)](https://play.google.com/store/apps/details?id=io.goldwallet.wallet)
+[![Playstore](/img/GooglePlay.png)](https://play.google.com/store/apps/details?id=io.goldwallet.wallet)
+[![AppStore](/img/AppStore.svg)](https://apps.apple.com/pl/app/goldwallet-for-btcv/id1515116464)
 
 ## Prerequisites
 
