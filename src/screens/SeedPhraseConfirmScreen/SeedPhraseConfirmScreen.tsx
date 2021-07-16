@@ -113,7 +113,7 @@ const SeedPhraseConfirmScreen: FC<Props> = props => {
             disabled={!canSubmit()}
             onPress={handleNextButtonPress}
             title={i18n.wallets.confirmSeed.button}
-            testID="creates-wallet-button"
+            testID="confirm-seed-button"
           />
         </>
       }

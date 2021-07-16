@@ -3,7 +3,7 @@ import { by, element } from 'detox';
 import actions from '../../actions';
 
 const ConfirmSeedScreen = () => ({
-  confirmButton: element(by.id('creates-wallet-button')),
+  confirmButton: element(by.id('confirm-seed-button')),
 
   async confirmSeed(seed: string[]) {
     await Promise.all(seed.map(this.tapSeedWord));
@@ -15,7 +15,7 @@ const ConfirmSeedScreen = () => ({
   },
 
   async tapConfirmButton() {
-    await actions.tap(this.confirmButton.atIndex(1));
+    await actions.tap(this.confirmButton);
   },
 });
 
