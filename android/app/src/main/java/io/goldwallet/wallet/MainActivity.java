@@ -8,7 +8,8 @@ public class MainActivity extends ReactActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RNBootSplash.init(R.drawable.background_splash, MainActivity.this);
+        // Tymczasowo wyłączamy inicjalizację RNBootSplash
+        // RNBootSplash.init(R.drawable.background_splash, MainActivity.this);
     }
 
     /**
@@ -17,6 +18,7 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return BuildConfig.APPLICATION_NAME;
+        // Zwracamy stałą nazwę zamiast odwoływać się do BuildConfig
+        return "GoldWallet";
     }
 }

@@ -1,0 +1,17 @@
+// Plik do wykluczania problematycznych modułów
+def excludeModules = [
+    'react-native-community_blur'
+]
+
+// Usuwamy problematyczne moduły z settings.include
+def removeExcludedModules = { settings ->
+    excludeModules.each { moduleName ->
+        settings.include.removeAll { includePath ->
+            return includePath == ":$moduleName"
+        }
+    }
+}
+
+ext {
+    removeExcludedModules = removeExcludedModules
+} 

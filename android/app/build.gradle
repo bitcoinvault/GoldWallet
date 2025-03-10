@@ -1,8 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: 'com.google.firebase.crashlytics'
-
-
-import com.android.build.OutputFile
+apply plugin: "kotlin-android"
 
 project.ext.envConfigFiles = [
     // requires lowercase
@@ -16,13 +14,12 @@ project.ext.envConfigFiles = [
     betarelease: ".env.beta.mainnet",
 ]
 
-
-
 project.ext.react = [
     entryFile: "index.js",
     devDisabledInStaging: true,
-    enableHermes: false,
-    deleteDebugFilesForVariant: { false }
+    enableHermes: true,
+    deleteDebugFilesForVariant: { false },
+    enablePackageListGeneration: false
 ]
 
 project.ext.sentryCli = [
@@ -69,15 +66,17 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  * on project.ext.react, JavaScript will not be compiled to Hermes Bytecode
  * and the benefits of using Hermes will therefore be sharply reduced.
  */
-def enableHermes = project.ext.react.get("enableHermes", false);
+def enableHermes = project.ext.react.get("enableHermes", true);
 
 android {
+    namespace "io.goldwallet.wallet"
     ndkVersion rootProject.ext.ndkVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
     flavorDimensions "default" 
 
     lintOptions {
         checkReleaseBuilds false
+        abortOnError false
     }
 
     compileOptions {
@@ -85,8 +84,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     defaultConfig {
-        applicationId project.env.get("APP_ID")
+        applicationId "com.goldwallet"
         resValue "string", "build_config_package", "io.goldwallet.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -94,7 +97,7 @@ android {
         versionName "6.5.1"
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'general'
-        testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
+        testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
     }
@@ -155,35 +158,92 @@ android {
             // https://developer.android.com/studio/build/configure-apk-splits.html
             // Example: versionCode 1 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
             def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
-            def abi = output.getFilter(OutputFile.ABI)
+            def abi = output.getFilter("ABI")
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
                         defaultConfig.versionCode * 1000 + versionCodes.get(abi)
             }
         }
     }
+    packagingOptions {
+        exclude "lib/arm64-v8a/libreactnativeblurview.so"
+        exclude "lib/armeabi-v7a/libreactnativeblurview.so"
+        exclude "lib/x86/libreactnativeblurview.so"
+        exclude "lib/x86_64/libreactnativeblurview.so"
+        
+        // Dodajemy wykluczenia dla RNScreens
+        exclude "lib/arm64-v8a/librealm-jni.so"
+        exclude "lib/armeabi-v7a/librealm-jni.so"
+        exclude "lib/x86/librealm-jni.so"
+        exclude "lib/x86_64/librealm-jni.so"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    // Dodajemy sourceSets, aby wyłączyć automatyczne generowanie PackageList.java
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java']
+                exclude '**/com/facebook/react/PackageList.java'
+            }
+        }
+    }
+
+    // Dodajemy konfigurację, która wyłączy używanie react-native-screens
+    configurations.all {
+        exclude group: 'com.swmansion.rnscreens', module: 'react-native-screens'
+    }
 }
 
 repositories {
   mavenCentral()
+  maven { url "https://jitpack.io" }
+}
+
+// Dodajemy konfigurację do wykluczenia problematycznych modułów
+configurations.all {
+    exclude group: 'com.github.Dimezis', module: 'BlurView'
+    exclude group: 'com.swmansion.rnscreens', module: 'RNScreensPackage'
+    exclude module: 'react-native-community_blur'
+    exclude module: 'react-native-screens'
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-core:16.0.3'
-    implementation 'com.facebook.soloader:soloader:0.9.0+'
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    // Firebase dependencies
+    implementation platform("com.google.firebase:firebase-bom:${rootProject.ext.firebaseVersion}")
+    implementation "com.google.firebase:firebase-analytics"
+    implementation "com.google.firebase:firebase-messaging"
+    implementation "com.google.firebase:firebase-crashlytics"
+
+    // Google Play Services
+    implementation "com.google.android.gms:play-services-base:${rootProject.ext.googlePlayServicesVersion}"
+    implementation "com.google.android.gms:play-services-vision:${rootProject.ext.googlePlayServicesVisionVersion}"
+    implementation "com.google.android.gms:play-services-iid:${rootProject.ext.googlePlayServicesIidVersion}"
+
+    // AndroidX Core
+    implementation "androidx.core:core:1.12.0"
+    implementation "androidx.core:core-ktx:1.12.0"
+    
+    // BlurView - całkowicie wyłączone
+    // implementation "com.github.Dimezis:BlurView:2.0.6"
+    
     implementation project(':react-native-config')
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     implementation project(path: ":@react-native-firebase_analytics")
-    implementation platform('com.google.firebase:firebase-bom:28.2.0')
     implementation project(':@sentry_react-native')
     implementation project(':react-native-secure-key-store')
     androidTestImplementation('com.wix:detox:+')
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
-      exclude group:'com.facebook.fbjni'
+        exclude group:'com.facebook.fbjni'
     }
 
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {

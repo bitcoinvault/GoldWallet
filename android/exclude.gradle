@@ -1,0 +1,4 @@
+// Plik do wykluczania problematycznych modułów
+rootProject.ext.excludeModules = [
+    '@react-native-community/blur'
+] 
