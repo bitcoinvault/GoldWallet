@@ -266,7 +266,7 @@ class DashboardScreen extends Component<Props, State> {
     }
     return (
       <>
-        <ScreenTemplate noScroll contentContainer={styles.contentContainer} header={this.renderHeader()}>
+        <ScreenTemplate noScroll contentContainer={styles.contentContainer} header={this.renderHeader()} hasBottomTabBar={true}>
           {this.renderContent()}
           <View style={styles.footer}>
             {!this.hasWallets() && (

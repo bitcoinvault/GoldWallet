@@ -9,7 +9,6 @@ import {
   View,
   NativeScrollEvent,
 } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { palette } from 'app/styles';
 import { ifIphoneX, isIos } from 'app/styles/helpers';
@@ -31,6 +30,7 @@ interface Props {
   isCloseToBottom?: (nativeElement: NativeScrollEvent) => boolean;
   allowedUserClick?: () => void;
   keyboardShouldPersistTaps?: 'always' | 'never' | 'handled';
+  hasBottomTabBar?: boolean;
 }
 
 export class ScreenTemplate extends React.PureComponent<Props> {
@@ -55,11 +55,14 @@ export class ScreenTemplate extends React.PureComponent<Props> {
       isCloseToBottom,
       allowedUserClick,
       keyboardShouldPersistTaps,
+      hasBottomTabBar,
     } = this.props;
     const Container = noScroll ? View : ScrollView;
 
     return (
-      <SafeAreaProvider style={styles.container}>
+      <View
+        style={[styles.container, hasBottomTabBar ? styles.containerWithBottomTabs : styles.containerWithoutBottomTabs]}
+      >
         <StatusBar barStyle={statusBarStyle} />
         {header}
         <Container
@@ -87,7 +90,7 @@ export class ScreenTemplate extends React.PureComponent<Props> {
             {footer}
           </KeyboardAvoidingView>
         )}
-      </SafeAreaProvider>
+      </View>
     );
   }
 }
@@ -96,7 +99,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: palette.white,
-    paddingBottom: ifIphoneX(34, 0),
+  },
+  containerWithBottomTabs: {
+    paddingBottom: 50,
+  },
+  containerWithoutBottomTabs: {
+    paddingBottom: 0,
   },
   contentContainer: {
     flexGrow: 1,

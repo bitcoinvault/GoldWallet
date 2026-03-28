@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { View, StyleSheet, LogBox } from 'react-native';
 import codePush from 'react-native-code-push';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -77,16 +78,18 @@ class App extends React.PureComponent {
         {!__DEV__ && <WithCodePush />}
         <I18nextProvider i18n={i18n}>
           <Provider store={store}>
-            <AppStateManager
-              handleAppComesToForeground={this.setUnlockScreenKey}
-              handleAppComesToBackground={this.lockScreen}
-            />
-            <PersistGate loading={null} persistor={persistor}>
-              <View style={styles.wrapper}>
-                <Navigator unlockKey={this.state.unlockKey} />
-              </View>
-              <NotificationsServices />
-            </PersistGate>
+            <SafeAreaProvider>
+              <AppStateManager
+                handleAppComesToForeground={this.setUnlockScreenKey}
+                handleAppComesToBackground={this.lockScreen}
+              />
+              <PersistGate loading={null} persistor={persistor}>
+                <View style={styles.wrapper}>
+                  <Navigator unlockKey={this.state.unlockKey} />
+                </View>
+                <NotificationsServices />
+              </PersistGate>
+            </SafeAreaProvider>
           </Provider>
           <Toast ref={ref => Toast.setRef(ref)} />
         </I18nextProvider>

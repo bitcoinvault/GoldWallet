@@ -68,6 +68,7 @@ export class ContactListScreen extends PureComponent<Props, State> {
 
     return (
       <ScreenTemplate
+        hasBottomTabBar={true}
         header={
           <ContactListHeader
             onAddButtonPress={!params?.onContactPress ? this.navigateToAddContact : undefined}

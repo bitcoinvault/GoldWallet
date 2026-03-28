@@ -181,7 +181,7 @@ export const SettingsScreen = (props: Props) => {
         handleAppComesToBackground={closeModals}
       />
       <Header title={i18n.settings.header} />
-      <ScreenTemplate>
+      <ScreenTemplate hasBottomTabBar={true}>
         <Image testID="goldwallet-logo" source={logoSource} style={styles.logo} resizeMode="contain" />
         <LabeledSettingsRow label={i18n.settings.general}>{renderGeneralSettings()}</LabeledSettingsRow>
         <LabeledSettingsRow label={i18n.settings.security}>{renderSecuritySettings()}</LabeledSettingsRow>

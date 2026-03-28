@@ -186,6 +186,7 @@ class AuthenticatorListScreen extends Component<Props, State> {
     return (
       <ScreenTemplate
         noScroll={true}
+        hasBottomTabBar={true}
         header={
           <Header
             isBackArrow={false}

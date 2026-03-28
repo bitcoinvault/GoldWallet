@@ -245,7 +245,7 @@ class Navigator extends React.Component<Props, State> {
     }
   };
 
-  renderRoutes = () => {
+  renderRoutes = (): React.ReactElement | null => {
     const { isLoading, unlockKey, isAuthenticated, isTcAccepted, userVersion, isToast } = this.props;
 
     if (isLoading) {
@@ -253,15 +253,18 @@ class Navigator extends React.Component<Props, State> {
     }
 
     if (process.env.CHAMBER_OF_SECRETS === 'true' && !this.state.isChamberOfSecretsClosed) {
-      return <ChamberOfSecrets onButtonPress={this.handleOpenChamberOfSecrets} />;
+      return React.createElement(ChamberOfSecrets as React.ComponentType<any>, {
+        onButtonPress: this.handleOpenChamberOfSecrets,
+      });
     }
 
     if (!isTcAccepted) {
-      return <TermsConditionsScreen />;
+      return React.createElement(TermsConditionsScreen as React.ComponentType<any>);
     }
 
     if (!__DEV__ && JailMonkey.isJailBroken() && !this.state.isEmulator) {
-      return this.preventOpenAppWithRootedPhone();
+      const rootedPhoneMessage = this.preventOpenAppWithRootedPhone();
+      return rootedPhoneMessage || null;
     }
 
     if (!__DEV__ && config.isBeta && !this.state.isBetaVersionRiskAccepted) {
@@ -269,6 +272,9 @@ class Navigator extends React.Component<Props, State> {
     }
     return (
       <>
+        {this.shouldRenderConnectionIssues() && <ConnectionIssuesScreen />}
+        {this.shouldRenderUnlockScreen() &&
+          React.createElement(UnlockScreen as React.ComponentType<any>, { key: unlockKey })}
         <RootNavigator
           shouldRenderCredentialsCreation={this.shouldRenderCredentialsCreation()}
           shouldRenderNotification={this.shouldRenderNotification()}
@@ -276,8 +282,6 @@ class Navigator extends React.Component<Props, State> {
         />
         {isAuthenticated && <Toasts />}
         {isToast && <Toasts onClick={this.handleClickToast} />}
-        {this.shouldRenderConnectionIssues() && <ConnectionIssuesScreen />}
-        {this.shouldRenderUnlockScreen() && <UnlockScreen key={unlockKey} />}
       </>
     );
   };
