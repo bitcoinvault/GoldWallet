@@ -2,6 +2,9 @@ package io.goldwallet.wallet;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -43,7 +46,7 @@ import com.reactnativerate.RNRatePackage;
 import com.th3rdwave.safeareacontext.SafeAreaContextPackage;
 import com.reactlibrary.securekeystore.RNSecureKeyStorePackage;
 import cl.json.RNSharePackage;
-import com.horcrux.svg.SvgPackage;
+
 import com.asterinet.react.tcpsocket.TcpSocketPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.apsl.versionnumber.RNVersionNumberPackage;
@@ -57,8 +60,8 @@ public class MainApplication extends Application implements ReactApplication {
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
     public boolean getUseDeveloperSupport() {
-      // Zwracamy true dla trybu deweloperskiego
-      return true; // BuildConfig.DEBUG;
+      // Wyłączamy tryb deweloperski - aplikacja będzie używać bundled JS
+      return false;
     }
 
     @Override
@@ -97,7 +100,6 @@ public class MainApplication extends Application implements ReactApplication {
       // Pomijamy RNScreensPackage
       packages.add(new RNSecureKeyStorePackage());
       packages.add(new RNSharePackage());
-      packages.add(new SvgPackage());
       packages.add(new TcpSocketPackage());
       packages.add(new VectorIconsPackage());
       packages.add(new RNVersionNumberPackage());
@@ -131,7 +133,15 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
       super.onCreate();
       SoLoader.init(this, /* native exopackage */ false);
-      initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+      
+      // Usuwamy całkowicie inicjalizację Sentry, ponieważ wyłączyliśmy ją w AndroidManifest.xml
+      // io.sentry.android.core.SentryAndroid.init(this, options -> {
+      //   // Kod konfigurujący Sentry, bez użycia problematycznej metody setIntegrations
+      //   // Wyłączymy tę integrację w AndroidManifest.xml zamiast tego
+      // });
+      
+      // Wyłączamy inicjalizację Flippera w wersji produkcyjnej
+      // initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     }
   
     /**
@@ -143,8 +153,8 @@ public class MainApplication extends Application implements ReactApplication {
      */
     private static void initializeFlipper(
         Context context, ReactInstanceManager reactInstanceManager) {
-      // Zawsze używamy trybu deweloperskiego dla Flippera
-      boolean enableFlipper = true; // BuildConfig.DEBUG;
+      // Używamy Flippera tylko w trybie deweloperskim
+      boolean enableFlipper = false;
       if (enableFlipper) {
         try {
           /*
