@@ -40,3 +40,18 @@ Open follow-ups:
 - Confirm `electrumx.testnet.btcv.stage.rnd.land:443 tls` with DevOps.
 - Full wallet flow QA is still required.
 - Full Jest suite still needs stabilization because existing tests depend on network Electrum endpoints and local secrets/env.
+
+## Active Branches
+
+### BEM-34 - Setup branch + dependencies analysis
+
+- Branch: `feature/bem-34-baseline-analysis`
+- Parent branch: `upgrade/wallet-modernization`
+- Document: `docs/wallet-modernization-baseline.md`
+
+Scope:
+
+- Capture the current dependency and toolchain baseline.
+- Record known build, Metro, Android, and test constraints.
+- Add a repository-level Node version hint for the current React Native baseline.
+- Define the recommended sequencing for the larger wallet modernization.
