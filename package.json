@@ -129,7 +129,7 @@
     "@react-navigation/devtools": "^6.0.1",
     "@react-navigation/native": "^5.6.1",
     "@react-navigation/stack": "^5.6.1",
-    "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
+    "@remobile/react-native-qrcode-local-image": "1.0.4",
     "@sentry/react-native": "^3.1.0",
     "@std/esm": "^0.26.0",
     "axios": "^0.21.0",

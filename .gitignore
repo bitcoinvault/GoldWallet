@@ -79,6 +79,12 @@ sourcemap.android.js
 credentials.json
 token.json
 
+# MCP config (contains secrets)
+.mcp.json
+.claude
+
+# Local planning/proposal drafts
+analiza_wallet.html
 *.vim
 
 # e2e test data & secrets

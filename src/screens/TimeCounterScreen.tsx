@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, BackHandler } from 'react-native';
 
 import { Button, ScreenTemplate, FlatButton } from 'app/components';
@@ -35,18 +35,18 @@ export const TimeCounterScreen = (props: Props) => {
     seconds > 0 ? 1000 : null,
   );
 
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', exitApp);
-
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', exitApp);
-    };
-  });
-
-  const exitApp = () => {
+  const exitApp = useCallback(() => {
     BackHandler.exitApp();
     return true;
-  };
+  }, []);
+
+  useEffect(() => {
+    const backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', exitApp);
+
+    return () => {
+      backHandlerSubscription.remove();
+    };
+  }, [exitApp]);
 
   const onTryAgainPress = () => {
     onTryAgain();
