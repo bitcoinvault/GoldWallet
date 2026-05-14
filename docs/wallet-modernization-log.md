@@ -10,6 +10,20 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-34 - Setup branch + dependencies analysis
+
+- Branch: `feature/bem-34-baseline-analysis`
+- Merged into: `upgrade/wallet-modernization`
+- Feature commit: `84b56a65`
+- Document: `docs/wallet-modernization-baseline.md`
+
+Scope:
+
+- Captured the current dependency and toolchain baseline.
+- Recorded known build, Metro, Android, and test constraints.
+- Added a repository-level Node version hint for the current React Native baseline.
+- Defined the recommended sequencing for the larger wallet modernization.
+
 ### BEM-39 - RN API compatibility
 
 - Branch: `feature/bem-39-rn-api-compat`
@@ -43,15 +57,32 @@ Open follow-ups:
 
 ## Active Branches
 
-### BEM-34 - Setup branch + dependencies analysis
+### BEM-35 - React Native 0.68 upgrade step
 
-- Branch: `feature/bem-34-baseline-analysis`
+- Branch: `feature/bem-35-rn-068-upgrade`
 - Parent branch: `upgrade/wallet-modernization`
-- Document: `docs/wallet-modernization-baseline.md`
 
 Scope:
 
-- Capture the current dependency and toolchain baseline.
-- Record known build, Metro, Android, and test constraints.
-- Add a repository-level Node version hint for the current React Native baseline.
-- Define the recommended sequencing for the larger wallet modernization.
+- Upgrade the first React Native step from `0.65.3` to `0.68.7`.
+- Keep React pinned to `17.0.2`, which is the expected React peer for React Native `0.68.7`.
+- Align local Metro/codegen dependencies required by the RN 0.68 toolchain.
+- Regenerate `yarn.lock` with Node 16 and Yarn 1.
+
+Validation:
+
+- `corepack yarn install --ignore-scripts` passed on Node 16.
+- `corepack yarn run postinstall` passed and re-applied Jetifier.
+- `corepack yarn typescript:check` passed.
+- ESLint passed for touched source files.
+- Android `:app:assembleDevDebug -x lint` passed on JDK 11.
+- Dev debug APK installed and launched on an Android emulator with Metro running on Node 16.
+- Fixed initial splash handling so the current `AppState` is processed on mount, not only after later app state changes.
+- Confirmed the app reaches the Terms & Conditions screen after the RN 0.68 runtime starts.
+- Background/foreground smoke test passed without startup or `AppState` crashes in logcat.
+
+Open follow-ups:
+
+- Android build still reports legacy/manual module duplication warnings around Sentry and React Native Firebase; clean this in the native module modernization branch.
+- Electrum testnet connection still fails against `electrumx.testnet.btcv.stage.rnd.land:443 tls`; this remains a DevOps/environment follow-up.
+- Continue staged RN upgrades after this branch rather than jumping directly from `0.68.7` to the latest stable React Native.
