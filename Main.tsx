@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import React, { useEffect } from 'react';
-import { StatusBar, AppState, AppStateStatus } from 'react-native';
+import { StatusBar, AppState, AppStateStatus, NativeEventSubscription } from 'react-native';
 import RNBootSplash from 'react-native-bootsplash';
 
 import App from './App';
@@ -20,10 +20,21 @@ const Main = () => {
       }
     };
 
-    AppState.addEventListener('change', listener);
+    const addAppStateChangeListener = (AppState.addEventListener as unknown) as (
+      eventType: 'change',
+      listener: (state: AppStateStatus) => void,
+    ) => NativeEventSubscription;
+
+    let appStateSubscription: NativeEventSubscription | undefined;
+
+    try {
+      appStateSubscription = addAppStateChangeListener('change', listener);
+    } catch (error) {
+      Sentry.captureException(error);
+    }
 
     return () => {
-      AppState.removeEventListener('change', listener);
+      appStateSubscription && appStateSubscription.remove();
     };
   }, []);
 

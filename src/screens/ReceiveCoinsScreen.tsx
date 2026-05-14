@@ -35,6 +35,7 @@ class ReceiveCoinsScreen extends Component<Props, State> {
   };
 
   qrCodeSVG: any = null;
+  interactionHandle?: ReturnType<typeof InteractionManager.runAfterInteractions>;
 
   get bip21encoded() {
     const { amount } = this.state;
@@ -101,7 +102,7 @@ class ReceiveCoinsScreen extends Component<Props, State> {
         });
       });
     } else {
-      InteractionManager.runAfterInteractions(async () => {
+      this.interactionHandle = InteractionManager.runAfterInteractions(async () => {
         this.qrCodeSVG.toDataURL((data: any) => {
           const shareImageBase64 = {
             message,
@@ -118,6 +119,10 @@ class ReceiveCoinsScreen extends Component<Props, State> {
       });
     }
   };
+
+  componentWillUnmount() {
+    this.interactionHandle && this.interactionHandle.cancel();
+  }
 
   chooseItemFromModal = (index: number) => {
     const { wallets, navigation } = this.props;

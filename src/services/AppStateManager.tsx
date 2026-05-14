@@ -1,5 +1,5 @@
 import { PureComponent } from 'react';
-import { AppState } from 'react-native';
+import { AppState, AppStateStatus, NativeEventSubscription } from 'react-native';
 
 interface Props {
   handleAppComesToForeground?: () => void;
@@ -7,23 +7,34 @@ interface Props {
 }
 
 interface State {
-  appState: string;
+  appState: AppStateStatus | null;
 }
 
 export default class AppStateManager extends PureComponent<Props, State> {
+  appStateSubscription?: NativeEventSubscription;
+
   state = {
     appState: AppState.currentState,
   };
 
   componentDidMount() {
-    AppState.addEventListener('change', this.handleAppStateChange);
+    const addAppStateChangeListener = (AppState.addEventListener as unknown) as (
+      eventType: 'change',
+      listener: (state: AppStateStatus) => void,
+    ) => NativeEventSubscription;
+
+    try {
+      this.appStateSubscription = addAppStateChangeListener('change', this.handleAppStateChange);
+    } catch (error) {
+      this.appStateSubscription = undefined;
+    }
   }
 
   componentWillUnmount() {
-    AppState.removeEventListener('change', this.handleAppStateChange);
+    this.appStateSubscription && this.appStateSubscription.remove();
   }
 
-  handleAppStateChange = (nextAppState: string) => {
+  handleAppStateChange = (nextAppState: AppStateStatus) => {
     const { handleAppComesToForeground, handleAppComesToBackground } = this.props;
     const { appState } = this.state;
 

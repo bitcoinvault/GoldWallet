@@ -16,7 +16,7 @@ export const MessageScreen = (props: Props) => {
   useEffect(() => {
     const onBackPress = () => true;
 
-    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    const backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
     if (asyncTask) {
       const asynchrousTask = async () => {
@@ -28,7 +28,7 @@ export const MessageScreen = (props: Props) => {
     }
 
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      backHandlerSubscription.remove();
     };
   }, [asyncTask]);
 
