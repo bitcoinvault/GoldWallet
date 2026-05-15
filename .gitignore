@@ -84,7 +84,7 @@ token.json
 .claude
 
 # Local planning/proposal drafts
-analiza_wallet.html
+local-docs/
 *.vim
 
 # e2e test data & secrets

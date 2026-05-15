@@ -29,6 +29,7 @@ const Main = () => {
 
     try {
       appStateSubscription = addAppStateChangeListener('change', listener);
+      listener(AppState.currentState);
     } catch (error) {
       Sentry.captureException(error);
     }
