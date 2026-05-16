@@ -114,3 +114,24 @@ Open follow-ups:
 
 - Continue native module review in controlled groups before the next RN step.
 - Review remaining legacy warnings: deprecated `compile` configurations, `jcenter()`, old build tools declarations, and Flipper deprecations.
+
+### BEM-37 - Android Gradle configuration cleanup
+
+- Branch: `feature/bem-37-android-gradle-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove duplicate `org.gradle.jvmargs` declarations from `android/gradle.properties`.
+- Drop obsolete `MaxPermSize` JVM option from the Gradle daemon configuration.
+- Keep Gradle, Android Gradle Plugin, compile SDK, and target SDK versions unchanged in this branch to avoid mixing config cleanup with a toolchain upgrade.
+
+Validation:
+
+- Android `:app:assembleDevDebug -x lint --warning-mode all` passed on JDK 11 before the cleanup.
+- `corepack yarn typescript:check` passed after the cleanup.
+- Android `:app:assembleDevDebug -x lint --warning-mode all` passed on JDK 11 after the cleanup.
+
+Open follow-ups:
+
+- Plan Android Gradle Plugin / Gradle wrapper / SDK upgrades as separate branches because they have wider compatibility impact.
