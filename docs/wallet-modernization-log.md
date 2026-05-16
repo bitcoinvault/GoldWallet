@@ -135,3 +135,23 @@ Validation:
 Open follow-ups:
 
 - Plan Android Gradle Plugin / Gradle wrapper / SDK upgrades as separate branches because they have wider compatibility impact.
+
+### BEM-38 - Android test dependency pinning
+
+- Branch: `feature/bem-38-pin-android-test-deps`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace dynamic Android Detox artifact version `com.wix:detox:+` with `com.wix:detox:18.20.1`, matching the `detox` package version in `package.json`.
+- Keep Detox itself and the test configuration unchanged.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- Android `:app:assembleDevDebug -x lint --warning-mode all` passed on JDK 11.
+
+Open follow-ups:
+
+- Review the Detox stack separately before any Detox major upgrade.
+- Continue dependency cleanup for packages still emitting Android Gradle warnings from `node_modules`, including `react-native-rate`, `jcenter()` usage, obsolete `compile`, and old build tools declarations.
