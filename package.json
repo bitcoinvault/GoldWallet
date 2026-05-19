@@ -180,7 +180,7 @@
     "react-native-prompt-android": "git+https://github.com/marcosrdz/react-native-prompt-android.git",
     "react-native-qrcode-svg": "^6.0.6",
     "react-native-randombytes": "3.5.3",
-    "react-native-rate": "^1.2.4",
+    "react-native-rate": "1.2.12",
     "react-native-safe-area-context": "^3.0.6",
     "react-native-screens": "^3.6.0",
     "react-native-secure-key-store": "^2.0.10",

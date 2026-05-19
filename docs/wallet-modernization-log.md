@@ -136,6 +136,33 @@ Open follow-ups:
 
 - Plan Android Gradle Plugin / Gradle wrapper / SDK upgrades as separate branches because they have wider compatibility impact.
 
+### BEM-37.1 - Android Gradle Plugin 7 step
+
+- Branch: `feature/bem-37-agp-7-upgrade`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade Android Gradle Plugin from `4.2.1` to `7.0.4`.
+- Upgrade Gradle wrapper from `6.9` to `7.3.3`.
+- Keep compile SDK and target SDK unchanged in this step because local Android SDK has `android-30` and `android-36`, but not `android-34`.
+- Upgrade `react-native-rate` from the locked `1.2.6` package to `1.2.12` because the older Android Gradle file uses the removed `maven` plugin.
+- Disable Android autolinking for unused legacy modules `@remobile/react-native-qrcode-local-image` and `react-native-prompt-android`, which still depend on obsolete Android Gradle APIs / Android Support libraries.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- Android `:app:assembleDevDebug -x lint --warning-mode all` passed on JDK 11 with Gradle `7.3.3` and Android Gradle Plugin `7.0.4`.
+- `corepack yarn run postinstall` passed after dependency update and restored RN Node polyfill shims.
+- Emulator smoke test passed with Metro on Node 16: APK installs, JS bundle starts, and the app reaches onboarding `Create PIN`.
+- Known Electrum testnet connection failure still appears in Metro logs, but it does not block app startup.
+
+Open follow-ups:
+
+- Install/verify the intended Android platform SDK before the compile/target SDK bump.
+- Continue SDK/toolchain upgrade in the next controlled BEM-37 branch after this build passes.
+- Remaining Gradle 8 blockers are mostly dependency-level warnings from React Native native modules and should be handled by dependency upgrades rather than root Gradle config changes.
+
 ### BEM-38 - Android test dependency pinning
 
 - Branch: `feature/bem-38-pin-android-test-deps`

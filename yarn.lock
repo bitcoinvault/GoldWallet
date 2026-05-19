@@ -9888,10 +9888,10 @@ react-native-randombytes@3.5.3:
     buffer "^4.9.1"
     sjcl "^1.0.3"
 
-react-native-rate@^1.2.4:
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/react-native-rate/-/react-native-rate-1.2.6.tgz#85c817caf0feac459bf9d4eb8fd9a245932b0f4d"
-  integrity sha512-sCAwNo9DxM7TA6Dwc81WXboPu+UppXkkUiAxKuh31KF+VXbknhwKNw5sUzCaJUJ3M5PKV+WKgfYrAPoByQRVww==
+react-native-rate@1.2.12:
+  version "1.2.12"
+  resolved "https://registry.yarnpkg.com/react-native-rate/-/react-native-rate-1.2.12.tgz#d4307b2994f9c849b987eb65599ec467db4aee04"
+  integrity sha512-A/z3s7Zth08aXcJnru6S4p71NG8acx2w5LhIfItwTJUbQruNJugk8WrN51dLBCSDv8W33kbS5YoUT4M9jOP5gA==
 
 react-native-ratings@^7.2.0:
   version "7.6.1"
