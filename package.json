@@ -73,7 +73,7 @@
     "typescript": "^4.0.3"
   },
   "scripts": {
-    "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npx jetify",
+    "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack && npx jetify",
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; yarn cache clean --force; yarn install",
     "clean:ios": "rm -fr node_modules && rm -fr ios/Pods && yarn install && cd ios && pod update && cd ..; yarn start -- --reset-cache",
     "start": "react-native start",
@@ -182,7 +182,7 @@
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.2.12",
     "react-native-safe-area-context": "^3.0.6",
-    "react-native-screens": "^3.6.0",
+    "react-native-screens": "3.22.1",
     "react-native-secure-key-store": "^2.0.10",
     "react-native-share": "2.0.0",
     "react-native-snap-carousel": "3.9.1",
