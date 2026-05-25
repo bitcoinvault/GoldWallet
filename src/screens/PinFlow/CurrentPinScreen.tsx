@@ -34,7 +34,7 @@ interface State {
 }
 
 class CurrentPinScreen extends PureComponent<Props, State> {
-  unsubscribeFocusListener: Function = noop;
+  unsubscribeFocusListener: () => void = noop;
   state = {
     pin: '',
     error: '',

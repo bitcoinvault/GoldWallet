@@ -14,7 +14,7 @@ interface Props {
 
 export class PinInput extends PureComponent<Props> {
   codeFieldRef = React.createRef<any>();
-  unsubscribeFocusListener: Function = noop;
+  unsubscribeFocusListener: () => void = noop;
 
   componentDidMount() {
     setTimeout(() => {
