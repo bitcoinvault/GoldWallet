@@ -243,8 +243,8 @@ export interface WalletPayload {
 }
 
 export interface ActionMeta {
-  onSuccess?: Function;
-  onFailure?: Function;
+  onSuccess?: (...args: any[]) => void;
+  onFailure?: (...args: any[]) => void;
 }
 
 export interface Contact {
@@ -488,7 +488,7 @@ export type RootStackParams = {
   [Route.RecoveryTransactionList]: { wallet: Wallet };
   [Route.RecoverySend]: { transactions: Transaction[]; wallet: any };
   [Route.RecoverySeed]: {
-    onSubmit: Function;
+    onSubmit: (keyPair: ECPair.ECPairInterface, mnemonic?: Array<string>) => void;
     subtitle: string;
     description: string;
     buttonText: string;

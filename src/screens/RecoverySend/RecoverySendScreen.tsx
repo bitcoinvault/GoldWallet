@@ -235,7 +235,7 @@ export class RecoverySendScreen extends Component<Props, State> {
     const { wallet, transactions } = this.props.route.params;
 
     navigation.navigate(Route.RecoverySeed, {
-      onSubmit: (firstKeyPair: ECPair.ECPairInterface, receivedMnemonic: Array<string>) =>
+      onSubmit: (firstKeyPair: ECPair.ECPairInterface, receivedMnemonic?: Array<string>) =>
         this.navigateToProvideSecondRecoverySeedForAIR(firstKeyPair, receivedMnemonic),
       buttonText: i18n.send.recovery.recover,
       onBackArrow: () => navigation.navigate(Route.RecoverySend, { wallet, transactions }),
@@ -245,7 +245,7 @@ export class RecoverySendScreen extends Component<Props, State> {
     });
   };
 
-  navigateToProvideSecondRecoverySeedForAIR = (firstKeyPair: ECPair.ECPairInterface, mnemonic: Array<string>) => {
+  navigateToProvideSecondRecoverySeedForAIR = (firstKeyPair: ECPair.ECPairInterface, mnemonic?: Array<string>) => {
     const { navigation } = this.props;
 
     navigation.goBack();

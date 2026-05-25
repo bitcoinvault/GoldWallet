@@ -20,7 +20,7 @@ type State = {
 
 interface Props {
   navigation: StackNavigationProp<RootStackParams, Route.ConfirmPin>;
-  createPin: Function;
+  createPin: typeof createPinAction;
   route: RouteProp<RootStackParams, Route.ConfirmPin>;
 }
 

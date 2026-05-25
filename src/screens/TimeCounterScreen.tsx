@@ -13,7 +13,7 @@ const i18n = require('../../loc');
 
 interface Props {
   timestamp: number;
-  onTryAgain: Function;
+  onTryAgain: () => void;
 }
 
 export const TimeCounterScreen = (props: Props) => {

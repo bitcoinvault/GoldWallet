@@ -33,7 +33,7 @@ interface Props {
   setFailedAttempts: (attempt: number) => SetFailedAttemptsAction;
   setFailedAttemptStep: (failedAttempt: number) => SetFailedAttemptStepAction;
   timeCounter: TimeCounterState;
-  authenticate: Function;
+  authenticate: typeof authenticateAction;
   setIsAuthenticated: (isAuthenticated: boolean) => SetIsAuthenticatedAction;
 }
 
