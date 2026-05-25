@@ -198,6 +198,8 @@ Scope:
 - Add the AGP 7 compile SDK warning suppression for SDK 34.
 - Remove the need for a local AAPT2 path override by using a newer AGP 7.x toolchain that can link SDK 34 resources.
 - Upgrade `react-native-screens` from `3.6.0` to `3.22.1`, because the old Kotlin implementation fails against SDK 34 with nullable `Canvas` type changes.
+- Add the Android 13+ notification runtime permission flow required after raising `targetSdkVersion` to 33.
+- Declare `android.permission.POST_NOTIFICATIONS` in the Android manifest.
 - Defer `targetSdkVersion=34` until a later React Native / Android Gradle Plugin step, because the RN 0.68 debug AAR crashes on Android 14+ when dev support registers a broadcast receiver without the Android 14 receiver flags.
 
 Validation:
@@ -207,6 +209,9 @@ Validation:
 - Android `:app:assembleDevDebug -x lint` passed on JDK 11 after the compile SDK 34 / target SDK 33 / AGP 7.4.2 bump.
 - Emulator smoke test passed on `Medium_Phone_API_36.0`: dev APK installs, Metro bundles `index.js`, JS logs `Running "GoldWallet"`, and the app reaches the PIN/onboarding flow without the Android 14 DevSupport receiver crash.
 - Known Electrum testnet connection failure still appears in Metro logs, but it does not block app startup.
+- Follow-up review blocker fixed: Android 13+ now requests notification permission before using the FCM token flow.
+- Changed notification service lint passed.
+- Fresh dev APK reinstall/launch smoke passed after the permission fix; Android displayed the expected notification permission dialog for `GoldWallet Dev`.
 
 Open follow-ups:
 
