@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { icons } from 'app/assets';
 import { Header, InputItem, Image, ScreenTemplate, Button } from 'app/components';
 import { Route, CONST, RootStackParams } from 'app/consts';
-import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { getOnboardingAddEmailParams } from 'app/helpers/notifications';
 import {
   createTxPassword as createTxPasswordAction,
@@ -20,7 +19,7 @@ const i18n = require('../../../loc');
 
 interface Props {
   navigation: StackNavigationProp<RootStackParams, Route.ConfirmTransactionPassword>;
-  createTxPassword: Function;
+  createTxPassword: typeof createTxPasswordAction;
   setIsAuthenticated: (isAuthenticated: boolean) => SetIsAuthenticatedAction;
   route: RouteProp<RootStackParams, Route.ConfirmTransactionPassword>;
 }

@@ -15,7 +15,7 @@ import { palette, typography } from 'app/styles';
 const i18n = require('../../../loc');
 
 interface ActionProps {
-  createAuthenticator: Function;
+  createAuthenticator: typeof actions.createAuthenticator;
 }
 interface Props extends ActionProps {
   navigation: StackNavigationProp<RootStackParams, Route.CreateAuthenticator>;
