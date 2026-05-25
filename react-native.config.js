@@ -13,7 +13,9 @@ module.exports = {
   },
   project: {
     ios: {},
-    android: {},
+    android: {
+      packageName: 'io.goldwallet.wallet',
+    },
   },
   assets: ['./src/assets/fonts/'],
 };

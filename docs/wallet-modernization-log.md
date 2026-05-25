@@ -217,3 +217,29 @@ Open follow-ups:
 
 - Revisit `targetSdkVersion=34` after the next React Native step or after replacing the RN Android AAR with a version that handles Android 14 dynamic receiver flags.
 - Continue reducing remaining dependency-level Android warnings before the next React Native upgrade step.
+
+### BEM-37.3 - Android Gradle warning cleanup
+
+- Branch: `feature/bem-37-gradle-warning-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Audit Android Gradle warnings after the AGP 7.4.2 / SDK 34 step.
+- Move the app module package namespace from `AndroidManifest.xml` to `android/app/build.gradle`.
+- Set the Android package name explicitly in `react-native.config.js` because the current React Native CLI still needs it for autolinking config generation.
+- Opt in to the AGP Gradle 8 publishing behavior with `android.disableAutomaticComponentCreation=true`.
+- Keep dependency-owned warnings in `node_modules` for later package upgrade branches instead of patching installed packages directly.
+
+Validation:
+
+- Android `:app:assembleDevDebug -x lint --warning-mode all` passed on JDK 11.
+- Gradle warning audit confirmed the app namespace warning is removed.
+- `npx react-native config` still resolves `packageName`, `packageFolder`, and `mainFilePath` correctly after moving namespace out of the manifest.
+- `corepack yarn typescript:check` passed.
+- Emulator smoke test passed: dev APK installs, Metro bundles `index.js`, JS logs `Running "GoldWallet"`, and no crash log was emitted.
+
+Open follow-ups:
+
+- Upgrade or replace dependencies still emitting Gradle warnings from `node_modules`, including `@react-native-async-storage/async-storage`, `react-native-share`, and `@sentry/react-native`.
+- Align local Android command-line tools with the installed SDK XML format to remove the SDK XML version warning.
