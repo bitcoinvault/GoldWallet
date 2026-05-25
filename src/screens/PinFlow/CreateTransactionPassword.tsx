@@ -26,7 +26,7 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
   };
   backHandler?: NativeEventSubscription;
   inputRef = React.createRef<InputItem>();
-  focusListener: Function = noop;
+  focusListener: () => void = noop;
 
   updatePassword = (password: string) => {
     this.setState({ password });

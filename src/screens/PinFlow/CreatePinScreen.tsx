@@ -36,7 +36,7 @@ class CreatePinScreen extends PureComponent<Props, State> {
 
   pinInputRef = React.createRef<PinInput>();
   backHandler?: NativeEventSubscription;
-  focusListener: Function = noop;
+  focusListener: () => void = noop;
 
   componentDidMount() {
     const flowType = this.props.route.params?.flowType || '';
