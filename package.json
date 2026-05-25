@@ -232,7 +232,7 @@
   },
   "lint-staged": {
     "./**/*.{ts,tsx,js,jsx}": [
-      "yarn lint:fix"
+      "eslint --fix"
     ]
   },
   "husky": {

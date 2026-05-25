@@ -6,7 +6,7 @@ import { Button, ScreenTemplate, FlatButton } from 'app/components';
 import { TimeCounter } from 'app/components/TimeCounter';
 import { useInterval } from 'app/helpers/useInterval';
 import { AppStateManager } from 'app/services';
-import { typography } from 'app/styles';
+import { palette, typography } from 'app/styles';
 import { isIos } from 'app/styles/helpers';
 
 const i18n = require('../../loc');
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   description: {
     ...typography.caption,
-    color: '#949595',
+    color: palette.textGrey,
     textAlign: 'center',
   },
 });
