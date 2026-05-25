@@ -26,8 +26,8 @@ interface MapStateProps {
 }
 
 interface ActionProps {
-  deleteAuthenticator: Function;
-  updateAuthenticator: Function;
+  deleteAuthenticator: typeof actions.deleteAuthenticator;
+  updateAuthenticator: typeof actions.updateAuthenticator;
 }
 
 interface NavigationProps {
