@@ -21,11 +21,11 @@ interface LogConfig {
 const getSentryLevel = (level: LEVEL) => {
   switch (level) {
     case LEVEL.INFO:
-      return Sentry.Severity.Info;
+      return 'info';
     case LEVEL.WARNING:
-      return Sentry.Severity.Warning;
+      return 'warning';
     case LEVEL.ERROR:
-      return Sentry.Severity.Error;
+      return 'error';
     default:
       throw new Error(`Unknown level: ${level}`);
   }

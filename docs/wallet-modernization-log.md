@@ -243,3 +243,29 @@ Open follow-ups:
 
 - Upgrade or replace dependencies still emitting Gradle warnings from `node_modules`, including `@react-native-async-storage/async-storage`, `react-native-share`, and `@sentry/react-native`.
 - Align local Android command-line tools with the installed SDK XML format to remove the SDK XML version warning.
+
+### BEM-37.4 - Android dependency warning cleanup
+
+- Branch: `feature/bem-37-dependency-warning-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@react-native-async-storage/async-storage` from the locked `1.15.7` install to `1.24.0`.
+- Upgrade `react-native-share` from `2.0.0` to `7.9.1`.
+- Upgrade `@sentry/react-native` from `3.1.0` to `5.36.0`.
+- Remove obsolete `@types/react-native-share`, because `react-native-share` now ships its own TypeScript definitions.
+- Update the logger Sentry level mapping from the removed `Sentry.Severity` enum to literal Sentry severity levels.
+
+Validation:
+
+- `corepack yarn add` completed on Node 16 and re-ran the repository `postinstall`.
+- `corepack yarn typescript:check` passed.
+- ESLint passed for the changed logger and share call sites, with existing `Function` type warnings only in `OptionsAuthenticatorScreen`.
+- Android `:app:assembleDevDebug -x lint --warning-mode all` passed on JDK 11.
+- Emulator smoke test passed: dev APK installs, Metro bundles `index.js`, JS logs `Running "GoldWallet"`, no crash log was emitted, and Electrum connected.
+
+Open follow-ups:
+
+- Remaining Gradle warnings are still dependency-owned and should be handled by separate package upgrades or later RN/AGP moves: `react-native-biometrics` still uses `jcenter()`, several libraries still declare namespace through manifests, and Sentry's Gradle script still touches deprecated Gradle task properties during configuration.
+- Validate share sheet and Sentry native reporting manually in a QA pass, because this branch only smoke-tests app startup.
