@@ -1,8 +1,11 @@
-/* global describe, it */
 import config from '../../src/config';
 
 const assert = require('assert');
 const bitcoinjs = require('bitcoinjs-lib');
+
+jest.mock('../../BlueElectrum', () => ({
+  getDustValue: jest.fn().mockResolvedValue(546),
+}));
 
 describe('unit - signer', function() {
   describe('createSegwitTransaction()', function() {
