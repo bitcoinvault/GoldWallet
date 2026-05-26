@@ -517,3 +517,19 @@ Validation:
 - Settings tab rendered `General`, `Security`, `About`, and `Developer` sections.
 - UI hierarchy and filtered logcat check did not show `LogBox`, `ViewPropTypes`, Metro load errors, or fatal React Native/runtime exceptions.
 - Smoke screenshots and UI dumps were captured under `local-docs/may-smoke-*` for local evidence; `local-docs/` remains ignored.
+
+### BEM-37.25 - Browserslist data refresh
+
+- Branch: `feature/bem-37-browserslist-data-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the `caniuse-lite` browser compatibility data used by Browserslist.
+- Add a Yarn resolution so the older hoisted `browserslist@4.17.0` path and newer nested Browserslist path resolve to the same current `caniuse-lite` dataset.
+- Keep Babel, React Native, Metro, and app runtime dependencies unchanged.
+
+Validation:
+
+- `corepack yarn why caniuse-lite` resolves to `caniuse-lite@1.0.30001793`.
+- `corepack yarn test:storage` passed without the previous Browserslist outdated-data warning.
