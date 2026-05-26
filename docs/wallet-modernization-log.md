@@ -404,3 +404,21 @@ Validation:
 - `corepack yarn prepush` passed.
 - ESLint passed for `package.json`, `tests/unit/signer.test.js`, and `tests/integration/Storage.test.js`.
 - `git diff --check` passed.
+
+### BEM-37.21 - Offline authenticator test stabilization
+
+- Branch: `feature/bem-37-authenticator-test-stabilization`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove the Electrum connection wait from `tests/integration/authenticator.test.js`; the covered PSBT signing paths are offline.
+- Mock `BlueElectrum.getDustValue()` for authenticator coverage so the test does not open Electrum TCP connections.
+- Add a dedicated `test:authenticator` script and promote it into the `prepush` gate.
+
+Validation:
+
+- `node node_modules/jest/bin/jest.js tests/integration/authenticator.test.js --forceExit` passed.
+- `corepack yarn prepush` passed.
+- ESLint passed for `package.json` and `tests/integration/authenticator.test.js`.
+- `git diff --check` passed.
