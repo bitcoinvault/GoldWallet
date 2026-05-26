@@ -1,25 +1,16 @@
+/* global jasmine */
+
 import { Authenticator } from '../../class';
 import config from '../../src/config';
+
+jest.mock('../../BlueElectrum', () => ({
+  getDustValue: jest.fn().mockResolvedValue(546),
+}));
 
 const assert = require('assert');
 const bitcoinjs = require('bitcoinjs-lib');
 
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
-
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../BlueElectrum');
-
-afterAll(async () => {
-  // after all tests we close socket so the test suite can actually terminate
-  BlueElectrum.forceDisconnect();
-  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
-});
-
-beforeAll(async () => {
-  // awaiting for Electrum to be connected. For RN Electrum would naturally connect
-  // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
-});
 
 describe('authenticator', () => {
   describe('signAndFinalizePSBT()', () => {
