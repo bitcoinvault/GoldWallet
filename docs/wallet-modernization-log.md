@@ -386,3 +386,21 @@ Validation:
 - `corepack yarn prepush` passed.
 - `corepack yarn typescript:check` passed.
 - ESLint passed for `package.json` and `tests/unit/signer.test.js`.
+
+### BEM-37.20 - Offline storage test stabilization
+
+- Branch: `feature/bem-37-storage-test-stabilization`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Mock `BlueElectrum.getDustValue()` in `tests/integration/Storage.test.js` so storage coverage can run without starting Electrum.
+- Add a dedicated `test:storage` script for the offline storage integration test.
+- Promote the storage test into the `prepush` script after the unit suite.
+
+Validation:
+
+- `node node_modules/jest/bin/jest.js tests/integration/Storage.test.js --forceExit` passed.
+- `corepack yarn prepush` passed.
+- ESLint passed for `package.json`, `tests/unit/signer.test.js`, and `tests/integration/Storage.test.js`.
+- `git diff --check` passed.
