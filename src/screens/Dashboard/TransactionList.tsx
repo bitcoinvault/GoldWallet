@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Image, TransactionItem } from 'app/components';
-import { Route, Transaction, Filters, EnhancedTransaction } from 'app/consts';
+import { Route, Filters, EnhancedTransaction } from 'app/consts';
 import { filterTransaction, filterBySearch } from 'app/helpers/filters';
 import { getGroupedTransactions } from 'app/helpers/transactions';
 import { NavigationService } from 'app/services';
@@ -18,7 +18,7 @@ interface Props {
   label: string;
   search: string;
   filters: Filters;
-  transactions: Transaction[];
+  transactions: EnhancedTransaction[];
   transactionNotes: Record<string, string>;
   headerHeight: number;
   ListHeaderComponent: React.ReactElement;
@@ -28,7 +28,7 @@ interface Props {
 }
 
 class TransactionList extends PureComponent<Props> {
-  renderSectionTitle = ({ section }: { section: SectionListData<Transaction> }) => {
+  renderSectionTitle = ({ section }: { section: SectionListData<EnhancedTransaction> }) => {
     return (
       <View style={styles.sectionTitle}>
         <Text style={{ ...typography.caption, color: palette.textGrey }}>{section.title}</Text>
@@ -56,11 +56,11 @@ class TransactionList extends PureComponent<Props> {
       transactions,
       curry(filterBySearch)(search),
       curry(filterTransaction)(filters),
-      map((tx: Transaction) => ({ ...tx, note: transactionNotes[tx.hash] })),
+      map((tx: EnhancedTransaction) => ({ ...tx, note: transactionNotes[tx.hash] })),
     );
   };
 
-  renderItem = ({ item: transaction }: { item: Transaction }) => {
+  renderItem = ({ item: transaction }: { item: EnhancedTransaction }) => {
     return (
       <View style={styles.itemWrapper}>
         <TransactionItem
