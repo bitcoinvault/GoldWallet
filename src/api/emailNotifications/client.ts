@@ -12,6 +12,8 @@ import {
   SubscribeResponse,
   ModifyResponse,
   CheckSubscriptionResponse,
+  SubscribeDeviceFCMPayload,
+  RemoveDeviceFCMPayload,
 } from './types';
 
 export enum EmailNotificationsError {
@@ -50,6 +52,6 @@ export const checkSubscriptionEmail = (data: CheckSubscriptionPayload): Promise<
 export const verifyEmail = (data: VerifyEmailPayload): Promise<VerifyEmailResponse> =>
   httpClient.post(`/verify_email/`, data);
 
-export const subscribeDeviceFCM = (data: any): Promise<any> => httpClient.post(`/push/`, data);
+export const subscribeDeviceFCM = (data: SubscribeDeviceFCMPayload): Promise<void> => httpClient.post(`/push/`, data);
 
-export const removeDeviceFCM = (data: any): Promise<any> => httpClient.put(`/push/`, data);
+export const removeDeviceFCM = (data: RemoveDeviceFCMPayload): Promise<void> => httpClient.put(`/push/`, data);

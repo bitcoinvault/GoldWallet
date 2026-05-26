@@ -54,6 +54,16 @@ export interface VerifyEmailResponse {
   pin: string;
 }
 
+export interface SubscribeDeviceFCMPayload {
+  fcm: string;
+  wallets: string[];
+  language: string;
+}
+
+export interface RemoveDeviceFCMPayload {
+  fcm: string;
+}
+
 export interface UnsubscribePayload {
   hashes: string[];
   email: string;
