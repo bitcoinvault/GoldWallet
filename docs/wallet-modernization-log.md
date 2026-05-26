@@ -458,3 +458,21 @@ Validation:
 - `corepack yarn prepush` passed.
 - ESLint passed for `package.json` and `tests/integration/HDWallet.offline.test.js`.
 - `git diff --check` passed.
+
+### BEM-37.24 - Wallet core offline coverage
+
+- Branch: `feature/bem-37-wallet-core-offline-tests`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add deterministic offline wallet core coverage for legacy wallet serialization, address validation, and Segwit P2SH address derivation from WIF.
+- Keep existing network-backed `App.test.js` unchanged for Electrum balance and UTXO scenarios.
+- Add a dedicated `test:wallet-core:offline` script and promote it into the `prepush` gate.
+
+Validation:
+
+- `node node_modules/jest/bin/jest.js tests/integration/App.offline.test.js --forceExit` passed.
+- `corepack yarn prepush` passed.
+- ESLint passed for `package.json` and `tests/integration/App.offline.test.js`.
+- `git diff --check` passed.
