@@ -19,7 +19,7 @@ import { Wallet, Route, EnhancedTransaction, CONST, MainTabNavigatorParams, Root
 import { isAllWallets } from 'app/helpers/helpers';
 import { withCheckNetworkConnection, CheckNetworkConnectionCallback } from 'app/hocs';
 import { ApplicationState } from 'app/state';
-import { clearBadge } from 'app/state/appSettings/actions';
+import { clearBadge, ClearBadgeAction } from 'app/state/appSettings/actions';
 import { clearFilters, ClearFiltersAction } from 'app/state/filters/actions';
 import * as transactionsNotesSelectors from 'app/state/transactionsNotes/selectors';
 import { loadWallets, LoadWalletsAction } from 'app/state/wallets/actions';
@@ -46,7 +46,7 @@ interface Props {
   loadWallets: () => LoadWalletsAction;
   clearFilters: () => ClearFiltersAction;
   isFilteringOn?: boolean;
-  clearBadge: Function;
+  clearBadge: () => ClearBadgeAction;
   checkNetworkConnection: (callback: CheckNetworkConnectionCallback) => void;
 }
 
