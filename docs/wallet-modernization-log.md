@@ -367,3 +367,22 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `yarn eslint package.json` passed.
 - Existing Jest blocker was reproduced before this change: unit/integration tests still depend on Electrum connectivity and legacy signer expectations, so they are tracked as test-suite stabilization work rather than a push gate.
+
+### BEM-37.19 - Offline signer unit test stabilization
+
+- Branch: `feature/bem-37-jest-signer-stabilization`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Mock `BlueElectrum.getDustValue()` in `tests/unit/signer.test.js` so signer unit tests do not open Electrum TCP connections.
+- Promote the now-deterministic unit suite into the `prepush` script alongside TypeScript.
+- Keep integration/Electrum tests separate from the local push gate.
+
+Validation:
+
+- `node node_modules/jest/bin/jest.js tests/unit/signer.test.js --forceExit` passed.
+- `node node_modules/jest/bin/jest.js tests/unit --forceExit` passed.
+- `corepack yarn prepush` passed.
+- `corepack yarn typescript:check` passed.
+- ESLint passed for `package.json` and `tests/unit/signer.test.js`.

@@ -109,7 +109,7 @@
     "lint": "eslint '**/*.{js,ts,tsx}'",
     "lint:fix": "yarn lint --fix",
     "typescript:check": "tsc --noEmit",
-    "prepush": "yarn typescript:check",
+    "prepush": "yarn typescript:check && yarn test:unit",
     "prettier:fix": "prettier --write '**/*.{js,ts,tsx}'",
     "precommit": "yarn lint-staged && yarn typescript:check",
     "shake": "adb shell input keyevent 82",
