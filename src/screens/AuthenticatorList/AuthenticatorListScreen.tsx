@@ -32,8 +32,8 @@ interface MapStateProps {
 }
 
 interface ActionProps {
-  loadAuthenticators: Function;
-  signTransaction: Function;
+  loadAuthenticators: typeof actions.loadAuthenticators;
+  signTransaction: typeof actions.signTransaction;
 }
 
 interface State {
