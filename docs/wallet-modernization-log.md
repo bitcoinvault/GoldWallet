@@ -422,3 +422,21 @@ Validation:
 - `corepack yarn prepush` passed.
 - ESLint passed for `package.json` and `tests/integration/authenticator.test.js`.
 - `git diff --check` passed.
+
+### BEM-37.22 - Watch-only wallet offline coverage
+
+- Branch: `feature/bem-37-watchonly-offline-tests`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add deterministic watch-only wallet coverage for address validation, unsigned HW-wallet PSBT creation, and signed PSBT combination.
+- Keep the existing network-backed `WatchOnlyWallet.test.js` unchanged for Electrum-specific fetch scenarios.
+- Add a dedicated `test:watchonly:offline` script and promote it into the `prepush` gate.
+
+Validation:
+
+- `node node_modules/jest/bin/jest.js tests/integration/WatchOnlyWallet.offline.test.js --forceExit` passed.
+- `corepack yarn prepush` passed.
+- ESLint passed for `package.json` and `tests/integration/WatchOnlyWallet.offline.test.js`.
+- `git diff --check` passed.
