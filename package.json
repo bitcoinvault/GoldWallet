@@ -100,6 +100,8 @@
     "build:detox:android:debug": "detox build -c android.emu.dev.debug",
     "test": "yarn jest --forceExit --collectCoverage",
     "test:ci": "CI=true yarn jest --forceExit --collectCoverage",
+    "test:unit": "node node_modules/jest/bin/jest.js tests/unit --forceExit",
+    "test:integration": "node node_modules/jest/bin/jest.js tests/integration --forceExit --collectCoverage",
     "test:detox": "detox test",
     "test:detox:android:debug": "detox test -c android.emu.dev.debug",
     "merge-detox-reports": "jrm artifacts/testReport.xml \"artifacts/junit-*.xml\"",
@@ -107,6 +109,7 @@
     "lint": "eslint '**/*.{js,ts,tsx}'",
     "lint:fix": "yarn lint --fix",
     "typescript:check": "tsc --noEmit",
+    "prepush": "yarn typescript:check",
     "prettier:fix": "prettier --write '**/*.{js,ts,tsx}'",
     "precommit": "yarn lint-staged && yarn typescript:check",
     "shake": "adb shell input keyevent 82",
@@ -238,7 +241,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "yarn precommit",
-      "pre-push": "yarn test"
+      "pre-push": "yarn prepush"
     }
   },
   "config": {
