@@ -216,7 +216,8 @@
   "resolutions": {
     "node-fetch": "^2.6.1",
     "bl": "^4.0.3",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "caniuse-lite": "1.0.30001793"
   },
   "react-native": {
     "path": "path-browserify",
