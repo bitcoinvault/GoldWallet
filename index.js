@@ -11,6 +11,7 @@ import config from './src/config';
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
   '`new NativeEventEmitter()` was called with a non-null argument',
+  'ViewPropTypes will be removed from React Native',
 ]);
 
 if (!Error.captureStackTrace) {
