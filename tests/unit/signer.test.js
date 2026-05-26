@@ -7,6 +7,18 @@ jest.mock('../../BlueElectrum', () => ({
   getDustValue: jest.fn().mockResolvedValue(546),
 }));
 
+const suppressTransactionBuilderDeprecationWarning = () => {
+  const originalWarn = console.warn;
+
+  return jest.spyOn(console, 'warn').mockImplementation((...args) => {
+    if (String(args[0]).includes('TransactionBuilder will be removed')) {
+      return;
+    }
+
+    originalWarn(...args);
+  });
+};
+
 describe('unit - signer', function() {
   describe('createSegwitTransaction()', function() {
     it('should return valid tx hex for segwit transactions', async function(done) {
@@ -267,7 +279,14 @@ describe('unit - signer', function() {
       const fee = 0.0001;
       const WIF = 'KzbTHhzzZyVhkTYpuReMBkE7zUvvDEZtavq1DJV85MtBZyHK1TTF';
       const fromAddr = 'Yfy3915VPWXgnSxgs14em39uB7fXBy4MSE';
-      const { tx: txHex } = await signer.createTransaction(utxos, toAddr, value, fee, WIF, fromAddr);
+      const consoleWarnSpy = suppressTransactionBuilderDeprecationWarning();
+      let txHex;
+
+      try {
+        ({ tx: txHex } = await signer.createTransaction(utxos, toAddr, value, fee, WIF, fromAddr));
+      } finally {
+        consoleWarnSpy.mockRestore();
+      }
 
       assert.equal(
         txHex,

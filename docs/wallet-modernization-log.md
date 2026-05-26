@@ -533,3 +533,18 @@ Validation:
 
 - `corepack yarn why caniuse-lite` resolves to `caniuse-lite@1.0.30001793`.
 - `corepack yarn test:storage` passed without the previous Browserslist outdated-data warning.
+
+### BEM-37.26 - Legacy signer test warning cleanup
+
+- Branch: `feature/bem-37-transactionbuilder-test-noise-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Suppress the known `bitcoinjs-lib` `TransactionBuilder` deprecation warning only inside the legacy signer unit test that still covers `createTransaction()`.
+- Keep production transaction-building behavior unchanged.
+- Leave the real legacy-to-PSBT migration as a separate wallet-signing task, because legacy PSBT signing needs previous transaction data that this code path does not currently receive.
+
+Validation:
+
+- `corepack yarn test:unit` passed without the previous `TransactionBuilder` deprecation warning in the Jest console output.
