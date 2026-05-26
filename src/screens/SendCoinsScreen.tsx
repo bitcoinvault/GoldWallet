@@ -54,6 +54,13 @@ interface State {
   vaultTxType: number;
 }
 
+type CreateStandardTransaction = (
+  utxos: Utxo[],
+  amount: number,
+  fee: number,
+  address: string,
+) => Promise<{ tx: string; fee: number }>;
+
 class SendCoinsScreen extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -298,7 +305,7 @@ class SendCoinsScreen extends Component<Props, State> {
     });
   };
 
-  createStandardTransaction = async (createTx: Function) => {
+  createStandardTransaction = async (createTx: CreateStandardTransaction) => {
     const { fee: requestedSatPerByte, transaction, wallet } = this.state;
     const utxos = await wallet.fetchUtxos();
     const utxosUnspent = this.getUnspentUtxos(utxos);

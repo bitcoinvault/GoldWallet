@@ -90,6 +90,13 @@ Open follow-ups:
 
 ## Active Branches
 
+### Pending E2E follow-ups
+
+- Full `SendCoinsScreen` transaction-path E2E is pending until a funded testnet wallet is available.
+- Required test asset: BTCV testnet wallet with a small spendable balance, for example around `0.01 BTCV`, plus a testnet recipient address.
+- Target validation: UTXO fetch, fee calculation loop, confirmation screen, and optional testnet broadcast.
+- Mainnet funds are not required for this validation and should not be used for smoke/E2E automation.
+
 ### BEM-36 - Native modules upgrade
 
 - Branch: `feature/bem-36-native-modules-upgrade`
