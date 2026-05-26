@@ -109,6 +109,7 @@
     "test:integration": "node node_modules/jest/bin/jest.js tests/integration --forceExit --collectCoverage",
     "test:detox": "detox test",
     "test:detox:android:debug": "detox test -c android.emu.dev.debug",
+    "check:rn-nodeify-shims": "node scripts/checkRnNodeifyShims.mjs",
     "merge-detox-reports": "jrm artifacts/testReport.xml \"artifacts/junit-*.xml\"",
     "jest": "node node_modules/jest/bin/jest.js tests/*",
     "lint": "eslint '**/*.{js,ts,tsx}'",
