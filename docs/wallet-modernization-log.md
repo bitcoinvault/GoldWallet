@@ -476,3 +476,44 @@ Validation:
 - `corepack yarn prepush` passed.
 - ESLint passed for `package.json` and `tests/integration/App.offline.test.js`.
 - `git diff --check` passed.
+
+### May 2026 checkpoint - Baseline and hardening
+
+- Branch: `feature/bem-37-may-checkpoint`
+- Parent branch: `upgrade/wallet-modernization`
+
+Closed in the May baseline/hardening window:
+
+- Established `upgrade/wallet-modernization` as the integration branch for controlled wallet modernization work.
+- Completed the Android SDK/toolchain cleanup steps currently safe for the existing React Native baseline.
+- Added the Android 13 notification permission handling required after the target SDK bump.
+- Fixed runtime issues found during emulator checks, including the wallet selector background and the scoped ViewPropTypes warning suppression.
+- Replaced the unstable full Jest push gate with deterministic checks that run TypeScript plus offline wallet test coverage.
+- Added offline coverage for signer, storage, authenticator, watch-only wallet, HD wallet derivation, and core wallet behavior.
+
+Deferred to the next phases:
+
+- Stepwise React Native upgrade beyond the current baseline.
+- Larger native dependency replacements, including long-term removal of scoped warning suppressions.
+- iOS Podfile, scheme, and release configuration validation.
+- BTC support beside BTCV, explorer/API alignment, and rebrand work.
+- Full wallet QA on a funded testnet wallet, including send, receive, QR, history, authenticator, and recovery flows.
+- Security review and release readiness checks.
+
+Open risks:
+
+- Full network-backed Jest integration tests still depend on Electrum connectivity and local mnemonic/env secrets.
+- Emulator smoke testing can confirm UI/runtime stability, but funded-wallet transaction testing remains blocked until a usable testnet wallet is available.
+- `TransactionBuilder` deprecation remains visible in signer tests and should be addressed in a later PSBT-focused branch.
+- Browserslist data is outdated and should be refreshed in a low-risk tooling maintenance branch.
+
+Validation:
+
+- `corepack yarn prepush` passed.
+- `git diff --check` passed.
+- Android emulator smoke test passed on `Medium_Phone_API_36.0` with package `io.goldwallet.wallet.dev`.
+- Dashboard rendered with existing test wallet, `Send` and `Receive` actions, and bottom navigation.
+- Wallet selector opened with the dashboard visible under the dimmed modal background.
+- Settings tab rendered `General`, `Security`, `About`, and `Developer` sections.
+- UI hierarchy and filtered logcat check did not show `LogBox`, `ViewPropTypes`, Metro load errors, or fatal React Native/runtime exceptions.
+- Smoke screenshots and UI dumps were captured under `local-docs/may-smoke-*` for local evidence; `local-docs/` remains ignored.
