@@ -332,3 +332,20 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - ESLint passed for the changed dashboard transaction item and grouping helper files.
 - `git diff --check` passed.
+
+### BEM-37.17 - Action sheet background fix
+
+- Branch: `feature/bem-37-action-sheet-background-fix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep the previous dashboard screen mounted under the transparent `ActionSheet` route.
+- Restore the expected dimmed dashboard background when opening the wallet selector bottom sheet.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- ESLint passed for `src/navigators/RootNavigator.tsx`.
+- `git diff --check` passed.
+- Emulator smoke test passed: wallet selector opens with the dashboard visible under the dimmed overlay instead of a plain gray background.

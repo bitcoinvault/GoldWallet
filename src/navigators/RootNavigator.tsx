@@ -185,5 +185,6 @@ const modalOptions = {
   headerShown: false,
   cardStyle: { backgroundColor: 'transparent' },
   cardOverlayEnabled: true,
+  detachPreviousScreen: false,
   cardStyleInterpolator: () => ({}),
 } as StackNavigationOptions;
