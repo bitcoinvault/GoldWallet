@@ -7,14 +7,15 @@ import { formatDate } from 'app/helpers/date';
 const mapNoCap = map.convert({ cap: false });
 
 type FP = (...args: any[]) => any;
+type TransactionGroup<T extends Transaction> = { title: string; data: T[] };
 
-export const getGroupedTransactions = (transactions: Transaction[], ...fps: FP[]) =>
+export const getGroupedTransactions = <T extends Transaction>(transactions: T[], ...fps: FP[]) =>
   compose(
-    mapNoCap((txs: Transaction[], date: string) => ({
+    mapNoCap((txs: T[], date: string) => ({
       title: date,
       data: txs,
     })),
     groupBy(({ received }) => formatDate(received, 'll')),
     orderBy(['received'], ['desc']),
     ...fps,
-  )(transactions) as [{ title: string; data: Transaction[] }];
+  )(transactions) as TransactionGroup<T>[];

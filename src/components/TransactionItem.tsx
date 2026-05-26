@@ -23,13 +23,13 @@ const renderConfirmations = (txType: TxType, confirmations: number) =>
     }: ${getConfirmationsText(txType, confirmations)}`}</Text>
   );
 
-interface Props {
-  item: Transaction;
-  onPress: (item: any) => void;
+interface Props<T extends Transaction> {
+  item: T;
+  onPress: (item: T) => void;
   testID?: string;
 }
 
-export const TransactionItem = ({ item, onPress, testID }: Props) => {
+export const TransactionItem = <T extends Transaction>({ item, onPress, testID }: Props<T>) => {
   const isMinusValue = item.valueWithoutFee < 0;
 
   return (

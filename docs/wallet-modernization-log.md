@@ -315,3 +315,20 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - ESLint passed for the changed email notification API files.
 - `git diff --check` passed.
+
+### BEM-37.16 - Transaction item callback type cleanup
+
+- Branch: `feature/bem-37-transaction-item-type-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace the loose `any` callback argument in `TransactionItem` with a generic transaction item type, so dashboard and recovery lists keep their existing transaction shapes.
+- Preserve enhanced dashboard transaction typing through the grouped transaction helper.
+- Keep the rendered transaction list behavior unchanged.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- ESLint passed for the changed dashboard transaction item and grouping helper files.
+- `git diff --check` passed.
