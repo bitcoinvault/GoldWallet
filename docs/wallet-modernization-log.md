@@ -440,3 +440,21 @@ Validation:
 - `corepack yarn prepush` passed.
 - ESLint passed for `package.json` and `tests/integration/WatchOnlyWallet.offline.test.js`.
 - `git diff --check` passed.
+
+### BEM-37.23 - HD wallet offline derivation coverage
+
+- Branch: `feature/bem-37-hdwallet-offline-tests`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add deterministic offline HD wallet coverage for witness/script address conversion, BIP49 derivation, BIP84 derivation, legacy xpub address generation, and malformed mnemonic normalization.
+- Keep existing network-backed HD wallet tests unchanged for Electrum fetch and funded-wallet transaction scenarios.
+- Add a dedicated `test:hdwallet:offline` script and promote it into the `prepush` gate.
+
+Validation:
+
+- `node node_modules/jest/bin/jest.js tests/integration/HDWallet.offline.test.js --forceExit` passed.
+- `corepack yarn prepush` passed.
+- ESLint passed for `package.json` and `tests/integration/HDWallet.offline.test.js`.
+- `git diff --check` passed.
