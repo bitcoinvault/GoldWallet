@@ -73,7 +73,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     }
   };
 
-  showAlert = (onPress: Function, error?: string) => {
+  showAlert = (onPress: () => void, error?: string) => {
     Alert.alert('Error', error || i18n.wallets.add.publicKeyError, [
       {
         text: 'OK',
@@ -143,7 +143,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     });
   };
 
-  generateWallet = (wallet: Wallet, onError: Function) => {
+  generateWallet = (wallet: Wallet, onError: () => void) => {
     const { label } = this.state;
     const { navigation, createWallet, email } = this.props;
 
@@ -161,7 +161,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
   };
 
   // TODO: interface Wallet isn't compatible with all wallet classes thus any must stay here for now
-  createWalletMessage = (wallet: any, onError: Function) => {
+  createWalletMessage = (wallet: any, onError: () => void) => {
     CreateMessage({
       title: i18n.message.creatingWallet,
       description: i18n.message.creatingWalletDescription,
@@ -173,7 +173,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
   createAIRWalletAddRecoveryPublicKey = (wallet: HDSegwitP2SHAirWallet) => (recoveryPublicKey: string) => {
     const { navigation } = this.props;
 
-    const onError = (error: string) =>
+    const onError = (error?: string) =>
       this.showAlert(() => {
         this.navigateToIntegrateRecoveryPublicKeyForAIR(wallet);
       }, error);
