@@ -276,3 +276,42 @@ Open follow-ups:
 
 - Remaining Gradle warnings are still dependency-owned and should be handled by separate package upgrades or later RN/AGP moves: `react-native-biometrics` still uses `jcenter()`, several libraries still declare namespace through manifests, and Sentry's Gradle script still touches deprecated Gradle task properties during configuration.
 - Validate share sheet and Sentry native reporting manually in a QA pass, because this branch only smoke-tests app startup.
+
+### BEM-37.14 - ViewPropTypes warning cleanup
+
+- Branch: `feature/bem-37-viewproptypes-logbox-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Suppress the known `ViewPropTypes will be removed from React Native` LogBox warning emitted by the legacy `react-native-snap-carousel` dependency.
+- Keep warning handling scoped to the specific dependency warning instead of disabling LogBox globally.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- ESLint passed for `index.js`.
+- `git diff --check` passed.
+- Emulator smoke test passed after relaunch: dashboard rendered and the visible `ViewPropTypes` warning overlay was gone.
+- UI hierarchy check did not contain `ViewPropTypes`, `deprecated-react-native-prop-types`, or `LogBox`.
+
+Open follow-ups:
+
+- Replace or upgrade `react-native-snap-carousel` in a later UI dependency branch instead of carrying this warning suppression indefinitely.
+
+### BEM-37.15 - Notification API type cleanup
+
+- Branch: `feature/bem-37-notification-api-type-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add typed payload contracts for notification push token registration and removal.
+- Replace loose `any` types in `subscribeDeviceFCM` and `removeDeviceFCM`.
+- Keep the runtime `/push/` payload shape unchanged.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- ESLint passed for the changed email notification API files.
+- `git diff --check` passed.
