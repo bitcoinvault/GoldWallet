@@ -548,3 +548,21 @@ Scope:
 Validation:
 
 - `corepack yarn test:unit` passed without the previous `TransactionBuilder` deprecation warning in the Jest console output.
+
+### BEM-37.27 - RN node polyfill shim check
+
+- Branch: `feature/bem-37-rn-nodeify-shim-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a lightweight `check:rn-nodeify-shims` script that verifies the `rn-nodeify` stream/readable-stream patches needed by Metro.
+- Make the failure message point directly to `yarn postinstall`, because skipping postinstall can leave Metro unable to resolve `stream`.
+- Keep runtime code and dependency versions unchanged.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Android emulator smoke passed after relaunch: Metro served the bundle, dashboard rendered `E2EWalletTypeTest`, and logcat did not show the previous `Unable to resolve module stream` error.
