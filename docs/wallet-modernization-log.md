@@ -349,3 +349,21 @@ Validation:
 - ESLint passed for `src/navigators/RootNavigator.tsx`.
 - `git diff --check` passed.
 - Emulator smoke test passed: wallet selector opens with the dashboard visible under the dimmed overlay instead of a plain gray background.
+
+### BEM-37.18 - Pre-push check cleanup
+
+- Branch: `feature/bem-37-prepush-check-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace the `pre-push` hook's full Jest run with a deterministic TypeScript check.
+- Add explicit `test:unit` and `test:integration` scripts so wallet/Electrum tests can still be run intentionally.
+- Keep the existing full `test` and `test:ci` commands unchanged for full-suite runs.
+
+Validation:
+
+- `corepack yarn prepush` passed.
+- `corepack yarn typescript:check` passed.
+- `yarn eslint package.json` passed.
+- Existing Jest blocker was reproduced before this change: unit/integration tests still depend on Electrum connectivity and legacy signer expectations, so they are tracked as test-suite stabilization work rather than a push gate.
