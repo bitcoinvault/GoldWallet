@@ -21,9 +21,11 @@ import { checkDeviceSecurity } from 'app/services/DeviceSecurityService';
 import { ApplicationState } from 'app/state';
 import { selectors as appSettingsSelectors } from 'app/state/appSettings';
 import {
-  updateSelectedLanguage as updateSelectedLanguageAction,
-  setIsToast,
   countBadge,
+  CountBadgeAction,
+  setIsToast,
+  SetIsToastAction,
+  updateSelectedLanguage as updateSelectedLanguageAction,
 } from 'app/state/appSettings/actions';
 import { selectors as authenticationSelectors } from 'app/state/authentication';
 import {
@@ -64,16 +66,16 @@ interface MapStateToProps {
 }
 
 interface ActionsDispatch {
-  checkCredentials: Function;
+  checkCredentials: typeof checkCredentialsAction;
   startElectrumXListeners: () => StartListenersAction;
-  updateSelectedLanguage: Function;
-  checkTc: Function;
+  updateSelectedLanguage: typeof updateSelectedLanguageAction;
+  checkTc: typeof checkTcAction;
   checkConnection: () => CheckConnectionAction;
   checkUserVersion: () => CheckUserVersionAction;
   loadWallets: () => LoadWalletsAction;
-  setIsToast: Function;
-  addToastMessage: Function;
-  countBadge: (val: number) => void;
+  setIsToast: (value: boolean) => SetIsToastAction;
+  addToastMessage: typeof addToastMessage;
+  countBadge: (value: number) => CountBadgeAction;
 }
 
 interface OwnProps {
@@ -145,7 +147,7 @@ class Navigator extends React.Component<Props, State> {
     });
   };
 
-  async componentDidUpdate(prevProps: Props, prevState: State) {
+  async componentDidUpdate(prevProps: Props) {
     if (prevProps.isAuthenticated !== this.props.isAuthenticated) {
       messaging()
         .getInitialNotification()
