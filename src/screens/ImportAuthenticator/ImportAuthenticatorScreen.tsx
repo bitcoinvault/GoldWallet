@@ -20,7 +20,7 @@ interface MapStateProps {
 }
 
 interface ActionProps {
-  createAuthenticator: Function;
+  createAuthenticator: typeof actions.createAuthenticator;
 }
 
 interface State {
