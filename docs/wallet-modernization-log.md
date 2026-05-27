@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.45 - Storage/network usage guard
+
+- Branch: `feature/bem-storage-network-usage-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guard for current Group C storage/config/network/WebView usage.
+- Track imports for AsyncStorage, NetInfo, device-info, react-native-config, localization, randombytes, secure storage, TCP socket, and WebView.
+- Add fixture self-check coverage for accepted, missing, unexpected file, and unexpected package cases.
+- Include the guard in `android:dev:check-light`.
+- Update README, Android workflow, baseline, storage/network audit, and this modernization log.
+
+Why:
+
+- Group C dependencies touch wallet persistence, env loading, Electrum connectivity, secure storage, localization, crypto random bytes, and terms WebViews.
+- Before changing any package versions, the import surface should fail fast if it drifts.
+- `react-native-randombytes` is intentionally tracked with no direct source import, because current usage is indirect through wallet/crypto dependencies.
+
+Validation:
+
+- `corepack yarn check:storage-network-usage-guard`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.44 - iOS scheme config mapping guard
 
 - Branch: `feature/bem-ios-scheme-config-guard`

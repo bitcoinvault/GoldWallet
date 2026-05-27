@@ -30,6 +30,15 @@ Direct usage found in this audit:
 - `react-native-webview`: terms and conditions screens.
 - `react-native-randombytes`: tracked native dependency for crypto random byte behavior even though direct source usage is indirect through wallet/crypto dependencies.
 
+The current usage surface is guarded by:
+
+```powershell
+corepack yarn check:storage-network-usage-guard
+corepack yarn check:storage-network-usage
+```
+
+The guard covers source and test imports for this group before storage, config, network, secure storage, randombytes, or WebView dependencies are changed.
+
 ## Latest Npm Snapshot
 
 Latest package metadata checked during this audit:
