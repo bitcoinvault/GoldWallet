@@ -763,3 +763,35 @@ Validation:
 
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed and confirmed `react-native-camera` as the active `jcenter()` source.
 - No runtime code changed in this branch.
+
+### BEM-37.34 - Sentry Gradle warning audit
+
+- Branch: `feature/bem-37-sentry-warning-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Audit the active `execResult` warning source reported by `android:dev:audit-warnings`.
+- Check whether the warning can be removed by a safe `@sentry/react-native` upgrade or local configuration change.
+- Avoid changing Sentry source-map upload behavior in a small warning-audit branch.
+
+Findings:
+
+- The app currently uses `@sentry/react-native@5.36.0`.
+- The active warning is dependency-owned at `node_modules\@sentry\react-native\sentry.gradle:48`.
+- The warning is triggered by Sentry's Gradle script calling `bundleTask.getProperties()`, which enumerates Gradle's deprecated `AbstractExecTask.execResult` property.
+- Newer checked Sentry lines, including `6.22.0`, `7.13.0`, and `8.12.0`, still use `bundleTask.getProperties()` in the Gradle integration, so a blind SDK upgrade is not a proven targeted fix for this warning.
+- `SENTRY_DISABLE_AUTO_UPLOAD` only controls whether upload tasks run; it does not prevent the Gradle script from configuring bundle tasks and touching the deprecated property.
+
+Decision:
+
+- Do not patch `node_modules` or conditionally remove `sentry.gradle` from debug builds in this branch.
+- Keep Sentry behavior unchanged and treat the warning as a larger follow-up tied to Sentry Gradle integration/release-source-map behavior.
+- Revisit only with a dedicated Sentry branch that validates Android release bundling/source-map upload behavior, not just dev debug startup.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed and confirmed the active `execResult` source.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- No runtime code changed in this branch.
