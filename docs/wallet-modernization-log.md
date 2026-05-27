@@ -2457,6 +2457,37 @@ Validation:
 - `corepack yarn android:dev:check-light` passed and validated the README-documented lightweight gate.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.70 - Android warning audit refresh
+
+- Branch: `feature/bem-warning-audit-refresh-log`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Android warning audit evidence on JDK 17.
+- Record the current targeted warning baseline in this modernization log.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Findings:
+
+- The refreshed warning audit still reports exactly 2 targeted Android Gradle warning sources.
+- The remaining sources are unchanged:
+  - Sentry `execResult` from `node_modules\@sentry\react-native\sentry.gradle:48`.
+  - `react-native-camera` `jcenter()` from `node_modules\react-native-camera\android\build.gradle:59`.
+- Unexpected targeted Android Gradle warnings remain at `0`.
+
+Why:
+
+- After adding the lightweight guard self-checks, the real Gradle warning audit should still prove that the known-warning baseline did not drift.
+- This keeps the next camera/Sentry cleanup branches anchored to current Gradle evidence instead of only script-level checks.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The refreshed `local-docs/android-warning-audit-summary.txt` reports `Android Gradle audit exit code: 0`, `Android Gradle warning baseline guard exit code: 0`, `Targeted Android Gradle warnings: 2`, and `Unexpected targeted Android Gradle warnings: 0`.
+- `corepack yarn android:dev:check-artifacts` passed against the refreshed local warning summary and existing smoke artifact summary.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
