@@ -110,7 +110,7 @@ try {
   }
 
   if (!existsSync(apkPath)) {
-    throw new Error(`APK not found: ${apkPath}. Run corepack yarn android:dev:assemble first.`);
+    throw new Error(`APK not found: ${apkPath}. Run corepack yarn android:dev:verify to rebuild and smoke-test the dev APK.`);
   }
 
   append(`Using adb: ${adbCommand}`);
