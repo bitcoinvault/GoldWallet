@@ -795,3 +795,38 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims` passed.
 - `corepack yarn typescript:check` passed.
 - No runtime code changed in this branch.
+
+### BEM-37.35 - Android warning baseline
+
+- Branch: `feature/bem-37-warning-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Capture the current Android warning baseline after the BEM-37 warning cleanup branches.
+- Separate warning sources already removed from warning sources that remain as larger follow-ups.
+- Provide a concise status snapshot for Jira/status reporting.
+
+Resolved in this stream:
+
+- Android Build Tools `28.0.3` warning removed by upgrading `jail-monkey` to a version that reads the root build tools setting.
+- Clipboard `jcenter()` warning source removed by upgrading `@react-native-clipboard/clipboard` to `1.11.2`.
+- Biometrics `jcenter()` warning source removed by upgrading `react-native-biometrics` to `3.0.1` and adapting `BiometricService`.
+- Browserslist outdated data warning removed by pinning the refreshed `caniuse-lite` dataset.
+- Legacy signer `TransactionBuilder` Jest noise scoped to the one legacy test that still covers that path.
+- RN node polyfill drift is now guarded by `check:rn-nodeify-shims` and the pre-push gate.
+
+Remaining targeted Android warning sources:
+
+- `jcenter()` from `node_modules\react-native-camera\android\build.gradle:59`.
+- `execResult` from `node_modules\@sentry\react-native\sentry.gradle:48`.
+
+Follow-up decisions:
+
+- `react-native-camera` should be replaced in a dedicated QR/camera migration branch, because the latest `react-native-camera@4.2.1` still contains `jcenter()`.
+- Sentry Gradle cleanup should be handled in a dedicated Sentry/release-source-map branch, because the warning is caused by Sentry's Gradle integration enumerating `bundleTask.getProperties()`.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed and confirmed the current two targeted warning sources.
+- No runtime code changed in this branch.
