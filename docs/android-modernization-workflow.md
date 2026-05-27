@@ -26,10 +26,9 @@ Run these for normal mini-branches:
 
 ```powershell
 corepack yarn android:dev:check-light
-git diff --check
 ```
 
-`android:dev:check-light` runs the Android warning baseline guard, Android warning artifact guard, camera usage guard, Sentry usage guard, nodeify shim guard, and TypeScript check.
+`android:dev:check-light` runs the Android warning baseline guard, Android warning artifact guard, camera usage guard, Sentry usage guard, nodeify shim guard, TypeScript check, and diff whitespace check.
 
 `check:camera-usage-scope` keeps `react-native-camera` runtime usage isolated to `ScanQrCodeScreen` until the dedicated QR scanner migration branch replaces it.
 
