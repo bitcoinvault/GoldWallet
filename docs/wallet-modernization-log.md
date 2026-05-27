@@ -2149,6 +2149,34 @@ Validation:
 - `git diff --check` passed.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.58 - Android warning artifact source guard
+
+- Branch: `feature/bem-warning-artifact-source-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `scripts/checkAndroidValidationArtifacts.mjs` verify targeted warning summary entries with the shared Android warning baseline guard.
+- Fail artifact validation if the targeted warning count does not match the listed warning sources.
+- Refresh baseline and workflow documentation for the stronger artifact checker.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, and Metro behavior unchanged.
+
+Why:
+
+- The warning audit already blocks unexpected sources when it runs, but stored validation summaries should also stay internally consistent.
+- This keeps the remaining Sentry `execResult` and `react-native-camera` `jcenter()` warnings constrained while still allowing the desired future state of `0` targeted warnings.
+
+Validation:
+
+- `corepack yarn android:dev:check-artifacts` passed and verified the current warning summary sources against the shared Android warning baseline guard.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:sentry-usage-scope` passed.
+- `corepack yarn check:camera-usage-scope` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
