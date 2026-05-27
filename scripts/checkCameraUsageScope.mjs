@@ -1,11 +1,11 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { expectedCameraUsageFiles, getCameraUsageScopeErrors } from './cameraUsageGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const srcDir = path.join(root, 'src');
-const allowedRuntimeFiles = new Set([path.join(srcDir, 'screens', 'ScanQrCodeScreen.tsx')]);
 const usagePattern =
   /from ['"]react-native-camera['"]|require\(['"]react-native-camera['"]\)|import\(['"]react-native-camera['"]\)|\bRNCamera\b|\bBarCodeReadEvent\b/;
 const extensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
@@ -31,30 +31,20 @@ const getSourceFiles = dir => {
 };
 
 const relative = filePath => path.relative(root, filePath).replace(/\\/g, '/');
-const unexpectedFiles = getSourceFiles(srcDir)
-  .filter(filePath => !allowedRuntimeFiles.has(filePath))
-  .filter(filePath => usagePattern.test(readFileSync(filePath, 'utf8')));
+const usageFiles = new Set(
+  getSourceFiles(srcDir)
+    .filter(filePath => usagePattern.test(readFileSync(filePath, 'utf8')))
+    .map(relative),
+);
+const usageErrors = getCameraUsageScopeErrors(usageFiles);
 
-const missingAllowedUsage = [...allowedRuntimeFiles].filter(filePath => {
-  try {
-    return !usagePattern.test(readFileSync(filePath, 'utf8'));
-  } catch (error) {
-    return true;
-  }
-});
-
-if (unexpectedFiles.length > 0 || missingAllowedUsage.length > 0) {
-  if (unexpectedFiles.length > 0) {
-    console.error('Unexpected react-native-camera runtime usage found:');
-    unexpectedFiles.forEach(filePath => console.error(`- ${relative(filePath)}`));
-  }
-
-  if (missingAllowedUsage.length > 0) {
-    console.error('Expected react-native-camera runtime usage is missing:');
-    missingAllowedUsage.forEach(filePath => console.error(`- ${relative(filePath)}`));
-  }
+if (usageErrors.length > 0) {
+  usageErrors.forEach(error => {
+    console.error(`${error.label}:`);
+    error.files.forEach(filePath => console.error(`- ${filePath}`));
+  });
 
   process.exit(1);
 }
 
-console.log('react-native-camera runtime usage is scoped to ScanQrCodeScreen.');
+console.log(`react-native-camera runtime usage is scoped to ${[...expectedCameraUsageFiles].join(', ')}.`);
