@@ -77,6 +77,7 @@ Risk:
 Branch shape:
 
 - Prefer one dependency per mini-branch.
+- `docs/storage-network-native-compatibility-audit.md` records the current storage/config/network package compatibility snapshot and validation path.
 - Validate app startup, wallet list persistence, settings/env loading, and logcat for native module crashes.
 - For storage/secure-key-store changes, add or run focused storage/authenticator tests before emulator smoke.
 
@@ -153,6 +154,6 @@ Release-service change:
 
 1. Use `docs/svg-qr-render-compatibility-audit.md` before changing `react-native-svg` or `react-native-qrcode-svg`.
 2. Use `docs/navigation-native-compatibility-audit.md` before changing `react-native-gesture-handler`, `react-native-screens`, or `react-native-safe-area-context`.
-3. Review storage/config/network modules as individual branches.
+3. Use `docs/storage-network-native-compatibility-audit.md` before changing storage, config, secure storage, socket, NetInfo, device-info, localization, randombytes, or WebView dependencies.
 4. Keep Firebase and Sentry for dedicated release-service branches.
 5. Keep `react-native-camera` replacement for the dedicated QR scanner migration branch.

@@ -2760,6 +2760,36 @@ Validation:
 - `corepack yarn android:dev:check-light` passed.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
 
+### BEM-36.33 - Storage and network native compatibility audit
+
+- Branch: `feature/bem-storage-network-compat-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/storage-network-native-compatibility-audit.md`.
+- Record the current storage/config/network native dependency versions, usage surface, npm compatibility snapshot, and future validation path.
+- Link the audit from the native module upgrade plan.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Findings:
+
+- This package group touches persisted wallet data, encrypted storage, Electrum TLS sockets, env configuration, and terms WebViews.
+- `react-native-secure-key-store` is already at latest `2.0.10`.
+- `react-native-tcp-socket` has a newer `6.4.1`, but it directly affects Electrum connectivity and should be validated separately.
+- AsyncStorage and secure storage changes need focused tests before emulator smoke.
+- `react-native-config` changes must preserve Electrum, explorer, Sentry, CodePush, and flavor metadata.
+
+Why:
+
+- The native module upgrade plan listed storage/config/network modules as the next recommended review area.
+- These dependencies are wallet-sensitive, so they need a documented compatibility and validation path before package versions change.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
