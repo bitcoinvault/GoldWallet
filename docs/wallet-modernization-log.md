@@ -1684,6 +1684,30 @@ Validation:
 - `git diff --check`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` and writes `UI hierarchy path` to `local-docs/android-smoke-dev-summary.txt`.
 
+### BEM-37.45 - Android warning audit summary log path
+
+- Branch: `feature/bem-37-warning-audit-summary-log-path`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `Android Gradle audit log path` to `local-docs/android-warning-audit-summary.txt`.
+- Keep warning detection, timeout handling, diagnostics, and exit-code behavior unchanged.
+- Refresh workflow and baseline documentation for the audit summary fields.
+
+Why:
+
+- The warning audit summary should be a complete index of the corresponding verbose log artifact.
+- This mirrors the smoke summary's artifact-path fields and makes handoff easier.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passes and writes `Android Gradle audit log path` to `local-docs/android-warning-audit-summary.txt`.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554`.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`

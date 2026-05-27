@@ -83,6 +83,7 @@ lines.forEach((line, index) => {
 console.log(`Android Gradle warning audit written to ${outputPath}`);
 
 const summaryHeader = [
+  `Android Gradle audit log path: ${outputPath}`,
   `Android Gradle audit timeout: ${auditTimeoutMs}ms`,
   `Android Gradle audit exit code: ${auditExitCode}`,
   ...diagnosticLines,
