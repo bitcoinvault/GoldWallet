@@ -52,6 +52,16 @@ writeFileSync(outputPath, output);
 
 const lines = output.split(/\r?\n/);
 const findings = [];
+const expectedFindingPatterns = [
+  {
+    label: 'Sentry execResult',
+    pattern: /^execResult: .*node_modules\\@sentry\\react-native\\sentry\.gradle:48\)/,
+  },
+  {
+    label: 'react-native-camera jcenter',
+    pattern: /^jcenter\(\): .*node_modules\\react-native-camera\\android\\build\.gradle:59\)/,
+  },
+];
 
 const addFollowingStackFrame = (label, startIndex) => {
   const nearbyStack = lines.slice(startIndex + 1, startIndex + 16);
@@ -82,31 +92,52 @@ lines.forEach((line, index) => {
 
 console.log(`Android Gradle warning audit written to ${outputPath}`);
 
+const uniqueFindings = [...new Set(findings)].sort((left, right) => left.localeCompare(right));
+const unexpectedFindings = uniqueFindings.filter(finding => !expectedFindingPatterns.some(({ pattern }) => pattern.test(finding)));
+const guardExitCode = auditExitCode === 0 && unexpectedFindings.length > 0 ? 1 : auditExitCode;
 const summaryHeader = [
   `Generated at: ${new Date().toISOString()}`,
   `Android Gradle audit log path: ${outputPath}`,
   `Android Gradle audit timeout: ${auditTimeoutMs}ms`,
   `Android Gradle audit exit code: ${auditExitCode}`,
+  `Android Gradle warning baseline guard exit code: ${guardExitCode}`,
   ...diagnosticLines,
 ];
 
-if (findings.length === 0) {
-  writeFileSync(summaryOutputPath, `${summaryHeader.join('\n')}\nTargeted Android Gradle warnings: 0\n`);
-  diagnosticLines.forEach(line => console.log(line));
+const summaryLines = [
+  ...summaryHeader,
+  `Targeted Android Gradle warnings: ${uniqueFindings.length}`,
+  `Unexpected targeted Android Gradle warnings: ${unexpectedFindings.length}`,
+];
+
+if (uniqueFindings.length > 0) {
+  summaryLines.push(...uniqueFindings.map(finding => `- ${finding}`));
+}
+
+if (unexpectedFindings.length > 0) {
+  summaryLines.push('Unexpected targeted warning sources:');
+  summaryLines.push(...unexpectedFindings.map(finding => `! ${finding}`));
+}
+
+writeFileSync(summaryOutputPath, `${summaryLines.join('\n')}\n`);
+
+console.log(`Android Gradle audit timeout: ${auditTimeoutMs}ms`);
+console.log(`Android Gradle audit exit code: ${auditExitCode}`);
+console.log(`Android Gradle warning baseline guard exit code: ${guardExitCode}`);
+diagnosticLines.forEach(line => console.log(line));
+
+if (uniqueFindings.length === 0) {
   console.log('No targeted Android Gradle warnings found.');
 } else {
-  const uniqueFindings = [...new Set(findings)].sort((left, right) => left.localeCompare(right));
-  writeFileSync(
-    summaryOutputPath,
-    `${summaryHeader.join('\n')}\nTargeted Android Gradle warnings: ${uniqueFindings.length}\n${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`,
-  );
-  console.log(`Android Gradle audit timeout: ${auditTimeoutMs}ms`);
-  console.log(`Android Gradle audit exit code: ${auditExitCode}`);
-  diagnosticLines.forEach(line => console.log(line));
   console.log(`Targeted Android Gradle warnings: ${uniqueFindings.length}`);
   uniqueFindings.forEach(finding => console.log(`- ${finding}`));
 }
 
+if (unexpectedFindings.length > 0) {
+  console.error(`Unexpected targeted Android Gradle warnings: ${unexpectedFindings.length}`);
+  unexpectedFindings.forEach(finding => console.error(`! ${finding}`));
+}
+
 console.log(`Android Gradle warning audit summary written to ${summaryOutputPath}`);
 
-process.exit(auditExitCode);
+process.exit(guardExitCode);
