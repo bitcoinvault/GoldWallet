@@ -37,6 +37,9 @@ Current expectation:
 ### Group B - Navigation And Layout Native Surface
 
 - `react-native-gesture-handler`
+- `@react-native-community/blur`
+- `react-native-bootsplash`
+- `react-native-fast-image`
 - `react-native-safe-area-context`
 - `react-native-screens`
 - `react-native-svg`
@@ -44,7 +47,7 @@ Current expectation:
 
 Risk:
 
-- Navigation startup, tabs, modals, QR rendering, icon fonts, and layout insets can regress.
+- Navigation startup, tabs, modals, splash transitions, blur layers, cached images, QR rendering, icon fonts, and layout insets can regress.
 
 Branch shape:
 
@@ -58,13 +61,14 @@ Branch shape:
 - `react-native-device-info`
 - `react-native-config`
 - `react-native-localize`
+- `react-native-randombytes`
 - `react-native-secure-key-store`
 - `react-native-tcp-socket`
 - `react-native-webview`
 
 Risk:
 
-- Wallet persistence, environment loading, network status, Electrum connectivity, localization, secure key handling, and embedded web content can regress.
+- Wallet persistence, environment loading, network status, Electrum connectivity, localization, random byte generation, secure key handling, and embedded web content can regress.
 
 Branch shape:
 
