@@ -56,6 +56,7 @@ corepack yarn check:push-notification-ios-usage-scope
 The release-service env key surface is guarded by:
 
 ```powershell
+corepack yarn check:release-service-env-keys-guard
 corepack yarn check:release-service-env-keys
 ```
 

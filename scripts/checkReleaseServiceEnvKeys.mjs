@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getReleaseServiceEnvKeyErrors, parseEnvKeys } from './releaseServiceEnvKeysGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -16,22 +17,6 @@ const schemeFiles = [
   'GoldWallet Stage (Debug).xcscheme',
   'GoldWallet Stage (Release).xcscheme',
 ];
-const requiredKeys = [
-  'ENVIRONMENT',
-  'APPLICATION_NAME',
-  'APP_ID',
-  'BTCV_NETWORK',
-  'HOSTS',
-  'PROTOCOL',
-  'PORT',
-  'ELECTRUM_X_PROTOCOL_VERSION',
-  'EXPLORER_URL',
-  'SENTRY_DSN_IOS',
-  'SENTRY_DSN_ANDROID',
-  'EMAIL_NOTIFICATIONS_API',
-];
-const codePushKeys = ['CODEPUSH_DEPLOYMENT_KEY_ANDROID', 'CODEPUSH_DEPLOYMENT_KEY_IOS'];
-
 const read = filePath => readFileSync(filePath, 'utf8');
 const normalizeEnvName = envName => envName.replace(/&quot;/g, '"');
 
@@ -45,37 +30,11 @@ const iosEnvFiles = schemeFiles.flatMap(schemeFile => {
 });
 const referencedEnvFiles = [...new Set([...androidEnvFiles, ...iosEnvFiles])].sort();
 
-const parseEnvKeys = envFile => {
-  const content = read(path.join(root, envFile));
-  const keys = new Set();
-
-  content.split(/\r?\n/).forEach(line => {
-    const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=/);
-
-    if (match) {
-      keys.add(match[1]);
-    }
-  });
-
-  return keys;
-};
-
-const errors = [];
-
-if (referencedEnvFiles.length === 0) {
-  errors.push('No referenced .env files found in Android envConfigFiles or iOS schemes.');
-}
-
-referencedEnvFiles.forEach(envFile => {
-  const keys = parseEnvKeys(envFile);
-  const missingRequiredKeys = requiredKeys.filter(key => !keys.has(key));
-  const shouldRequireCodePush = !envFile.includes('.beta.');
-  const missingCodePushKeys = shouldRequireCodePush ? codePushKeys.filter(key => !keys.has(key)) : [];
-
-  [...missingRequiredKeys, ...missingCodePushKeys].forEach(key => {
-    errors.push(`${envFile} is missing ${key}`);
-  });
-});
+const envKeyEntries = referencedEnvFiles.map(envFile => ({
+  envFile,
+  keys: parseEnvKeys(read(path.join(root, envFile))),
+}));
+const errors = getReleaseServiceEnvKeyErrors(envKeyEntries);
 
 if (errors.length > 0) {
   console.error('Release-service env key guard failed:');
