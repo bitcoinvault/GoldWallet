@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.43 - Android env config mapping guard
+
+- Branch: `feature/bem-android-env-config-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guard for Android `project.ext.envConfigFiles` flavor/build-type to `.env` mapping.
+- Add fixture self-check coverage for accepted, mismatched, missing, unexpected, and missing-block cases.
+- Include the guard in `android:dev:check-light`.
+- Update README, Android workflow, baseline, and release-service audit docs.
+
+Why:
+
+- Android env selection is part of the release-service/native-module surface.
+- Rebranding, release-service, or flavor changes should not silently point a build variant at the wrong env file.
+- This keeps BEM-36 guard coverage aligned with the iOS scheme/env audit.
+
+Validation:
+
+- `corepack yarn check:android-env-config-files-guard`
+- `corepack yarn check:android-env-config-files`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.42 - iOS release config compatibility audit
 
 - Branch: `feature/bem-ios-scheme-release-config-audit`
