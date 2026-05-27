@@ -1636,6 +1636,31 @@ Validation:
 - `corepack yarn typescript:check`
 - `git diff --check`
 
+### BEM-36.16 - Android smoke summary Metro status
+
+- Branch: `feature/bem-36-smoke-summary-metro-status`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `Metro reachable: yes/no` to `local-docs/android-smoke-dev-summary.txt`.
+- Set the field from the existing Metro preflight result in `scripts/androidSmokeDev.mjs`.
+- Document the summary field in `docs/android-modernization-workflow.md` and `docs/wallet-modernization-baseline.md`.
+- Keep smoke pass/fail behavior unchanged.
+
+Why:
+
+- The summary already records the Metro endpoint, but the preflight result should be visible without reading the full transcript.
+- This makes the artifact clearer when smoke fails before an Android device is selected.
+
+Validation:
+
+- `ANDROID_SMOKE_METRO_PORT=65534 ANDROID_SMOKE_METRO_TIMEOUT_MS=500 node scripts/androidSmokeDev.mjs` exits with code `1` and writes `Metro reachable: no` to `local-docs/android-smoke-dev-summary.txt`.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` and writes `Metro reachable: yes` to `local-docs/android-smoke-dev-summary.txt`.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`

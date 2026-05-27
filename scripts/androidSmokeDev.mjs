@@ -44,6 +44,7 @@ let appPid = '';
 let capturedLogcatLines = 0;
 let uiAttempts = 0;
 let screenshotBytes = 0;
+let metroReachable = false;
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -100,6 +101,7 @@ const writeSummary = exitCode => {
     `Android serial: ${selectedAndroidSerial || 'not selected'}`,
     `Android package: ${packageName}`,
     `Metro endpoint: ${metroHost}:${metroPort}`,
+    `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
     `Expected UI texts: ${expectedTexts.length > 0 ? expectedTexts.join(', ') : 'none'}`,
     `App PID: ${appPid || 'not available'}`,
     `Captured logcat lines: ${capturedLogcatLines}`,
@@ -189,6 +191,7 @@ const verifyMetro = async () => {
 
   try {
     await checkTcpPort(metroHost, metroPort, metroTimeoutMs);
+    metroReachable = true;
   } catch (error) {
     throw new Error(`Metro is not reachable at ${metroHost}:${metroPort}: ${error.message}`);
   }
