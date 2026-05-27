@@ -68,8 +68,8 @@ if (findings.length === 0) {
   console.log('No targeted Android Gradle warnings found.');
 } else {
   const uniqueFindings = [...new Set(findings)].sort((left, right) => left.localeCompare(right));
-  writeFileSync(summaryOutputPath, `${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`);
-  console.log('Targeted Android Gradle warnings:');
+  writeFileSync(summaryOutputPath, `Targeted Android Gradle warnings: ${uniqueFindings.length}\n${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`);
+  console.log(`Targeted Android Gradle warnings: ${uniqueFindings.length}`);
   uniqueFindings.forEach(finding => console.log(`- ${finding}`));
 }
 

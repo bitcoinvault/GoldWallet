@@ -1478,3 +1478,32 @@ Validation:
 - `git diff --check` passed.
 - `corepack yarn android:dev:smoke` passed on the connected Android emulator.
 - The helper selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-37.41 - Android warning audit finding count
+
+- Branch: `feature/bem-37-warning-audit-count`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Include the targeted warning count in `local-docs/android-warning-audit-summary.txt`.
+- Print the same count in the audit helper console output.
+- Keep warning detection, sorting, and full Gradle log output unchanged.
+
+Why:
+
+- The summary artifact is now stable and compact.
+- A count line makes it quicker to see whether targeted Android warning debt changed after a mini-branch.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- `local-docs/android-warning-audit-summary.txt` starts with `Targeted Android Gradle warnings: 2`.
+- The current sorted targeted findings remain:
+  - `execResult` from `node_modules\@sentry\react-native\sentry.gradle:48`.
+  - `jcenter()` from `node_modules\react-native-camera\android\build.gradle:59`.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
