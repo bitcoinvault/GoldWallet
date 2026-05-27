@@ -2635,6 +2635,27 @@ Validation:
 - `corepack yarn android:dev:check-light` passed.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
 
+### BEM-36.28 - Native guard prepush evidence
+
+- Branch: `feature/bem-native-guard-prepush-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Record the full `prepush` validation after adding native module inventory and upgrade-plan guards to `android:dev:check-light`.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `BEM-36.23` through `BEM-36.27` expanded the lightweight gate with native module inventory and plan coverage checks.
+- The full pre-push gate should be proven after that expansion, because it also includes the promoted offline Jest suites used before pushing modernization work.
+
+Validation:
+
+- `corepack yarn prepush` passed on `upgrade/wallet-modernization` after `BEM-36.27`.
+- The run included `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
