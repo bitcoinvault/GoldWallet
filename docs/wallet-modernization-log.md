@@ -1916,6 +1916,34 @@ Validation:
 - `git diff --check` passed.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-36.21 - Android audit and smoke validation script
+
+- Branch: `feature/bem-36-android-dev-audit-smoke-script`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:audit-smoke` to run warning audit, emulator smoke, and artifact consistency check in one command.
+- Document the command in the Android modernization workflow.
+- Refresh the current validation baseline with the combined command.
+- Keep Android runtime, native code, Gradle configuration, and dependency versions unchanged.
+
+Why:
+
+- The repeated maintenance loop requires running `android:dev:audit-warnings`, `android:dev:smoke`, and `android:dev:check-artifacts` together.
+- A single script reduces the chance of refreshing audit/smoke artifacts but forgetting the final consistency checker.
+
+Validation:
+
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-smoke` passed.
+- The combined script refreshed warning audit, emulator smoke, and artifact checker evidence in one run.
+- Smoke summary recorded `Generated at: 2026-05-27T19:22:40.185Z`, `Android smoke outcome: passed`, `Metro reachable: yes`, and the expected dashboard texts on `emulator-5554`.
+- Warning audit summary recorded `Generated at: 2026-05-27T19:22:24.148Z`, `Android Gradle warning baseline guard exit code: 0`, `Targeted Android Gradle warnings: 2`, and `Unexpected targeted Android Gradle warnings: 0`.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`

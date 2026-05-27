@@ -73,6 +73,13 @@ For a fast check of the warning baseline guard patterns without running Gradle:
 corepack yarn android:dev:check-warning-guard
 ```
 
+To refresh the warning audit and emulator smoke artifacts in one pass:
+
+```powershell
+$env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
+corepack yarn android:dev:audit-smoke
+```
+
 ## Metro And Emulator Smoke
 
 After dependency, native, Metro, or runtime changes, restart Metro with a clean transform cache before testing:
