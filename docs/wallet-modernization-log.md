@@ -2044,6 +2044,31 @@ Validation:
 - `git diff --check` passed.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.54 - Camera usage guard require detection
+
+- Branch: `feature/bem-camera-usage-require-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend `scripts/checkCameraUsageScope.mjs` to detect `require('react-native-camera')` and dynamic `import('react-native-camera')`.
+- Keep the allowed runtime usage file unchanged: `src/screens/ScanQrCodeScreen.tsx`.
+- Keep package scripts, runtime code, native code, and dependencies unchanged.
+
+Why:
+
+- The camera usage guard should catch CommonJS and dynamic-import usage as well as static imports and `RNCamera` symbols.
+- This keeps the future QR scanner migration scope controlled even if a new file tries to load the camera dependency through a different import style.
+
+Validation:
+
+- `corepack yarn check:camera-usage-scope` passed.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`

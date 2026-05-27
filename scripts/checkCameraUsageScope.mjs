@@ -6,7 +6,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const srcDir = path.join(root, 'src');
 const allowedRuntimeFiles = new Set([path.join(srcDir, 'screens', 'ScanQrCodeScreen.tsx')]);
-const usagePattern = /from ['"]react-native-camera['"]|\bRNCamera\b|\bBarCodeReadEvent\b/;
+const usagePattern =
+  /from ['"]react-native-camera['"]|require\(['"]react-native-camera['"]\)|import\(['"]react-native-camera['"]\)|\bRNCamera\b|\bBarCodeReadEvent\b/;
 const extensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 
 const getSourceFiles = dir => {
