@@ -2332,6 +2332,32 @@ Validation:
 - `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.65 - QR scanner caller guard self-check
+
+- Branch: `feature/bem-qr-scan-caller-self-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract QR scanner caller inventory comparison into `scripts/qrScanCallerGuard.mjs`.
+- Add `scripts/checkQrScanCallerGuard.mjs` with positive and negative guard fixture checks.
+- Add `check:qr-scan-caller-guard` package script and include it in `android:dev:check-light`.
+- Refresh the camera replacement plan, Android workflow, and baseline documentation for the self-check.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `BEM-37.64` introduced a repo scanner for QR caller inventory; this branch gives the comparison logic a fast self-check.
+- The future camera migration should fail fast if either a caller is accidentally removed from the inventory or a new caller is introduced without updating the migration plan.
+
+Validation:
+
+- `corepack yarn check:qr-scan-caller-guard` passed.
+- `corepack yarn check:qr-scan-callers` passed and confirmed 8 current QR scanner callers.
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard self-check, QR scanner caller inventory guard, Sentry usage guard, nodeify shim guard, TypeScript, and diff whitespace check.
+- `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
