@@ -10,6 +10,7 @@ const outputPath = path.join(outputDir, 'android-smoke-dev.log');
 const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
 const apkPath =
   process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
+const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 8000);
 
 const sdkRoots = [process.env.ANDROID_HOME, process.env.ANDROID_SDK_ROOT, process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk')].filter(
   Boolean,
@@ -63,6 +64,10 @@ const finish = exitCode => {
   process.exit(exitCode);
 };
 
+const sleep = milliseconds => {
+  spawnSync(process.execPath, ['-e', `setTimeout(() => {}, ${milliseconds})`], { stdio: 'ignore' });
+};
+
 try {
   if (!adbCommand) {
     throw new Error('adb not found. Set ANDROID_HOME, ANDROID_SDK_ROOT, or add adb to PATH.');
@@ -93,10 +98,19 @@ try {
   run('force-stop app', ['shell', 'am', 'force-stop', packageName]);
   run('launch app', ['shell', 'monkey', '-p', packageName, '-c', 'android.intent.category.LAUNCHER', '1']);
 
-  append('\nWaiting 8 seconds for startup logs...');
-  spawnSync(process.execPath, ['-e', 'setTimeout(() => {}, 8000)'], { stdio: 'ignore' });
+  append(`\nWaiting ${startupWaitMs}ms for startup logs...`);
+  sleep(startupWaitMs);
 
-  const logcat = run('read startup logcat', ['logcat', '-d', '-t', '400'], { printOutput: false });
+  const pidOutput = run('read app pid', ['shell', 'pidof', packageName], { printOutput: false }).trim();
+  const appPid = pidOutput.split(/\s+/).find(Boolean);
+
+  if (!appPid) {
+    throw new Error(`Unable to find running process for ${packageName} after launch.`);
+  }
+
+  append(`App PID: ${appPid}`);
+
+  const logcat = run('read app startup logcat', ['logcat', '-d', '--pid', appPid, '-t', '400'], { printOutput: false });
   append(`Captured ${logcat.split(/\r?\n/).filter(Boolean).length} recent logcat lines.`);
   const failingLines = logcat
     .split(/\r?\n/)
