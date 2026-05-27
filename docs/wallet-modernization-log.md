@@ -565,6 +565,7 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims` passed.
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
+
 - Android emulator smoke passed after relaunch: Metro served the bundle, dashboard rendered `E2EWalletTypeTest`, and logcat did not show the previous `Unable to resolve module stream` error.
 
 ### BEM-37.28 - Pre-push RN node polyfill guard
@@ -1238,6 +1239,31 @@ Why:
 Validation:
 
 - Missing-APK check exited with code `1` and wrote the updated `corepack yarn android:dev:verify` recovery message.
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper installed the current dev APK, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+
+### BEM-36.14 - Android smoke wait validation
+
+- Branch: `feature/bem-36-smoke-wait-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Validate `ANDROID_SMOKE_WAIT_MS` before the helper reaches the startup wait.
+- Fail with a clear message when the value is not a non-negative millisecond count.
+- Clarify the expected value in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- The smoke helper now exposes wait-time tuning for slower emulator/dev-server startup.
+- Invalid wait values should fail at the helper level with an actionable message instead of surfacing as an indirect `node -e` sleep failure.
+
+Validation:
+
+- Invalid `ANDROID_SMOKE_WAIT_MS=abc` check exited with code `1` and wrote the expected non-negative-number error.
 - `corepack yarn android:dev:smoke` passed on the connected Android emulator.
 - The helper installed the current dev APK, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
 - `corepack yarn check:rn-nodeify-shims` passed.

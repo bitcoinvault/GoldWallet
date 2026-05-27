@@ -109,6 +109,10 @@ try {
     throw new Error('adb not found. Set ANDROID_HOME, ANDROID_SDK_ROOT, or add adb to PATH.');
   }
 
+  if (!Number.isFinite(startupWaitMs) || startupWaitMs < 0) {
+    throw new Error(`ANDROID_SMOKE_WAIT_MS must be a non-negative number of milliseconds. Received: ${process.env.ANDROID_SMOKE_WAIT_MS}`);
+  }
+
   if (!existsSync(apkPath)) {
     throw new Error(`APK not found: ${apkPath}. Run corepack yarn android:dev:verify to rebuild and smoke-test the dev APK.`);
   }
