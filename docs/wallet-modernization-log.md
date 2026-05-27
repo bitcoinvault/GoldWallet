@@ -1395,3 +1395,30 @@ Validation:
 - `corepack yarn android:dev:smoke` passed on the connected Android emulator.
 - The smoke transcript logged `Using startup wait: 8000ms`, `Using logcat line limit: 400`, and `Using expected UI text(s): Wallets, E2EWalletTypeTest, Send, Receive`.
 - The helper selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-36.20 - Android smoke adb timeout
+
+- Branch: `feature/bem-36-smoke-adb-timeout`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `ANDROID_SMOKE_ADB_TIMEOUT_MS` support to `scripts/androidSmokeDev.mjs`.
+- Validate that the value is a positive integer.
+- Apply the timeout to every `adb` command run by the helper, including binary screenshot capture.
+- Log the effective timeout at smoke startup.
+- Document the override in the Android modernization workflow.
+
+Why:
+
+- Emulator and `adb` failures should not leave smoke validation hanging indefinitely.
+- A configurable per-command timeout keeps the helper useful for both fast local checks and slower machines.
+
+Validation:
+
+- `ANDROID_SMOKE_ADB_TIMEOUT_MS=abc node scripts/androidSmokeDev.mjs` exited with code `1` and wrote the expected positive-integer error.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `ANDROID_SMOKE_ADB_TIMEOUT_MS=60000 corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The smoke transcript logged `Using adb command timeout: 60000ms`, selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
