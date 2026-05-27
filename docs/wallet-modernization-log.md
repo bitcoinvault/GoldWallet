@@ -2285,6 +2285,29 @@ Validation:
 - `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.63 - Android lightweight whitespace check
+
+- Branch: `feature/bem-check-light-whitespace`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:diff-whitespace` as a package script for `git diff --check`.
+- Include `check:diff-whitespace` in `android:dev:check-light`.
+- Refresh Android workflow and baseline documentation so the aggregate command fully covers the normal mini-branch checklist.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- The normal checklist still had `git diff --check` as a separate manual command after `BEM-37.62`.
+- Folding whitespace validation into `android:dev:check-light` keeps the lightweight branch gate and `prepush` aligned.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, Sentry usage guard, nodeify shim guard, TypeScript, and diff whitespace check.
+- `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
