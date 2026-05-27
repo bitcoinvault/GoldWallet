@@ -29,6 +29,7 @@ const result = spawnSync(
 );
 
 const output = `${result.stdout || ''}${result.stderr || ''}`;
+const auditExitCode = result.status ?? 1;
 writeFileSync(outputPath, output);
 
 const lines = output.split(/\r?\n/);
@@ -64,15 +65,19 @@ lines.forEach((line, index) => {
 console.log(`Android Gradle warning audit written to ${outputPath}`);
 
 if (findings.length === 0) {
-  writeFileSync(summaryOutputPath, 'No targeted Android Gradle warnings found.\n');
+  writeFileSync(summaryOutputPath, `Android Gradle audit exit code: ${auditExitCode}\nTargeted Android Gradle warnings: 0\n`);
   console.log('No targeted Android Gradle warnings found.');
 } else {
   const uniqueFindings = [...new Set(findings)].sort((left, right) => left.localeCompare(right));
-  writeFileSync(summaryOutputPath, `Targeted Android Gradle warnings: ${uniqueFindings.length}\n${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`);
+  writeFileSync(
+    summaryOutputPath,
+    `Android Gradle audit exit code: ${auditExitCode}\nTargeted Android Gradle warnings: ${uniqueFindings.length}\n${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`,
+  );
+  console.log(`Android Gradle audit exit code: ${auditExitCode}`);
   console.log(`Targeted Android Gradle warnings: ${uniqueFindings.length}`);
   uniqueFindings.forEach(finding => console.log(`- ${finding}`));
 }
 
 console.log(`Android Gradle warning audit summary written to ${summaryOutputPath}`);
 
-process.exit(result.status ?? 1);
+process.exit(auditExitCode);
