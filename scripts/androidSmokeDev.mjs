@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
 const outputPath = path.join(outputDir, 'android-smoke-dev.log');
+const summaryOutputPath = path.join(outputDir, 'android-smoke-dev-summary.txt');
 const uiOutputPath = path.join(outputDir, 'android-smoke-dev-ui.xml');
 const screenshotOutputPath = path.join(outputDir, 'android-smoke-dev.png');
 const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
@@ -37,6 +38,12 @@ const adbCandidates = [
 ];
 const adbCommand = adbCandidates.find(candidate => candidate === 'adb' || existsSync(candidate));
 const log = [];
+let smokeOutcome = 'failed';
+let smokeReason = 'not completed';
+let appPid = '';
+let capturedLogcatLines = 0;
+let uiAttempts = 0;
+let screenshotBytes = 0;
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -85,7 +92,28 @@ const run = (label, args, options = {}) => {
   return result.stdout || '';
 };
 
+const writeSummary = exitCode => {
+  const summary = [
+    `Android smoke outcome: ${smokeOutcome}`,
+    `Android smoke exit code: ${exitCode}`,
+    `Android smoke reason: ${smokeReason}`,
+    `Android serial: ${selectedAndroidSerial || 'not selected'}`,
+    `Android package: ${packageName}`,
+    `Metro endpoint: ${metroHost}:${metroPort}`,
+    `Expected UI texts: ${expectedTexts.length > 0 ? expectedTexts.join(', ') : 'none'}`,
+    `App PID: ${appPid || 'not available'}`,
+    `Captured logcat lines: ${capturedLogcatLines}`,
+    `UI hierarchy attempts: ${uiAttempts}`,
+    `Screenshot path: ${screenshotOutputPath}`,
+    `Screenshot bytes: ${screenshotBytes}`,
+  ].join('\n');
+
+  writeFileSync(summaryOutputPath, `${summary}\n`);
+};
+
 const finish = exitCode => {
+  writeSummary(exitCode);
+  append(`Android dev smoke summary written to ${summaryOutputPath}`);
   writeFileSync(outputPath, `${log.join('\n')}\n`);
   process.exit(exitCode);
 };
@@ -123,6 +151,9 @@ const runBinary = (label, args, outputFile) => {
   }
 
   writeFileSync(outputFile, result.stdout);
+  if (outputFile === screenshotOutputPath) {
+    screenshotBytes = result.stdout.length;
+  }
   append(`${label} written to ${outputFile} (${result.stdout.length} bytes)`);
 };
 
@@ -250,7 +281,7 @@ try {
   sleep(startupWaitMs);
 
   const pidOutput = run('read app pid', ['shell', 'pidof', packageName], { printOutput: false }).trim();
-  const appPid = pidOutput.split(/\s+/).find(Boolean);
+  appPid = pidOutput.split(/\s+/).find(Boolean);
 
   if (!appPid) {
     throw new Error(`Unable to find running process for ${packageName} after launch.`);
@@ -259,7 +290,8 @@ try {
   append(`App PID: ${appPid}`);
 
   const logcat = run('read app startup logcat', ['logcat', '-d', '--pid', appPid, '-t', String(logcatLineLimit)], { printOutput: false });
-  append(`Captured ${logcat.split(/\r?\n/).filter(Boolean).length} recent logcat lines.`);
+  capturedLogcatLines = logcat.split(/\r?\n/).filter(Boolean).length;
+  append(`Captured ${capturedLogcatLines} recent logcat lines.`);
   const failingLines = logcat
     .split(/\r?\n/)
     .filter(line => /AndroidRuntime|FATAL EXCEPTION|ReactNativeJS.*(Error|TypeError|ReferenceError)|E ReactNative/.test(line));
@@ -285,6 +317,7 @@ try {
 
   do {
     uiAttempt += 1;
+    uiAttempts = uiAttempt;
     run(`dump UI hierarchy attempt ${uiAttempt}`, ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml']);
     uiHierarchy = run(`read UI hierarchy attempt ${uiAttempt}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], { printOutput: false, recordOutput: false });
     writeFileSync(uiOutputPath, uiHierarchy);
@@ -312,9 +345,13 @@ try {
 
   runBinary('capture screenshot', ['exec-out', 'screencap', '-p'], screenshotOutputPath);
 
+  smokeOutcome = 'passed';
+  smokeReason = 'expected UI texts found and no fatal/runtime logcat findings';
   append('\nAndroid dev smoke helper completed without fatal/runtime logcat findings.');
   finish(0);
 } catch (error) {
+  smokeOutcome = 'failed';
+  smokeReason = error.message;
   append(`\n${error.message}`);
   tryCaptureFailureScreenshot();
   finish(1);
