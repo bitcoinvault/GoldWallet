@@ -26,10 +26,13 @@ Run these for normal mini-branches:
 
 ```powershell
 corepack yarn android:dev:check-warning-guard
+corepack yarn check:camera-usage-scope
 corepack yarn check:rn-nodeify-shims
 corepack yarn typescript:check
 git diff --check
 ```
+
+`check:camera-usage-scope` keeps `react-native-camera` runtime usage isolated to `ScanQrCodeScreen` until the dedicated QR scanner migration branch replaces it.
 
 For Android build validation:
 

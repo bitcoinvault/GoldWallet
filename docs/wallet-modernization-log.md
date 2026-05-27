@@ -2019,6 +2019,31 @@ Validation:
 - `git diff --check` passed.
 - `corepack yarn prepush` passed with Android warning guard, camera usage-scope guard, shim guard, TypeScript, unit tests, and the promoted offline integration suites.
 
+### BEM-37.53 - Camera usage scope workflow docs
+
+- Branch: `feature/bem-camera-usage-workflow-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:camera-usage-scope` to the normal mini-branch checks in `docs/android-modernization-workflow.md`.
+- Explain that the guard keeps `react-native-camera` runtime usage isolated to `ScanQrCodeScreen` until the QR scanner migration branch.
+- Keep package scripts, runtime code, native code, dependency versions, and validation behavior unchanged.
+
+Why:
+
+- The camera usage guard is now part of `prepush`.
+- The Android workflow should match the actual validation surface used by maintenance mini-branches.
+
+Validation:
+
+- `corepack yarn check:camera-usage-scope` passed.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
