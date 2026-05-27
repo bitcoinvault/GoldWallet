@@ -1,5 +1,10 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+def currentJavaMajorVersion = JavaVersion.current().majorVersion.toInteger()
+if (currentJavaMajorVersion > 17) {
+    throw new GradleException("GoldWallet Android build supports JDK 11-17. Current JDK is ${JavaVersion.current()}. Use JDK 11 or 17 before running Gradle.")
+}
+
 buildscript {
     ext {
         buildToolsVersion = "34.0.0"
