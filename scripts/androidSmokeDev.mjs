@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
 const outputPath = path.join(outputDir, 'android-smoke-dev.log');
 const uiOutputPath = path.join(outputDir, 'android-smoke-dev-ui.xml');
+const screenshotOutputPath = path.join(outputDir, 'android-smoke-dev.png');
 const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
 const apkPath =
   process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
@@ -75,6 +76,24 @@ const run = (label, args, options = {}) => {
 const finish = exitCode => {
   writeFileSync(outputPath, `${log.join('\n')}\n`);
   process.exit(exitCode);
+};
+
+const runBinary = (label, args, outputFile) => {
+  append(`\n> ${label}`);
+  const result = spawnSync(adbCommand, args, {
+    cwd: root,
+    encoding: 'buffer',
+    shell: adbCommand === 'adb' && process.platform === 'win32',
+  });
+
+  if (result.error || result.status !== 0) {
+    const stderr = result.stderr ? result.stderr.toString('utf8').trim() : '';
+    const reason = result.error?.message || stderr || `exit ${result.status}`;
+    throw new Error(`${label} failed: ${reason}`);
+  }
+
+  writeFileSync(outputFile, result.stdout);
+  append(`${label} written to ${outputFile}`);
 };
 
 const sleep = milliseconds => {
@@ -157,6 +176,8 @@ try {
   if (expectedTexts.length > 0) {
     append(`Found expected UI text(s): ${expectedTexts.join(', ')}`);
   }
+
+  runBinary('capture screenshot', ['exec-out', 'screencap', '-p'], screenshotOutputPath);
 
   append('\nAndroid dev smoke helper completed without fatal/runtime logcat findings.');
   finish(0);
