@@ -4,11 +4,13 @@
 
 - The app uses `react-native-camera` only in `src/screens/ScanQrCodeScreen.tsx`.
 - The screen uses `RNCamera` for QR scanning through `onBarCodeRead`.
+- The scanner is opened from 8 current callers: authenticator list, create contact, import authenticator, import wallet, integrate key, recovery seed, recovery send, and send coins.
 - Android requires `missingDimensionStrategy 'react-native-camera', 'general'`.
 - Android and iOS camera permissions are already present.
 - `react-native-camera` resolves to `3.44.3`; the latest package release is `4.2.1`.
 - The latest `react-native-camera` still contains `jcenter()` in its Android Gradle file, so a package bump does not remove the warning.
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface before the replacement work starts.
+- `corepack yarn check:qr-scan-callers` guards the current QR scanner caller inventory before the replacement work starts.
 
 ## Why Replace
 
@@ -45,6 +47,7 @@ Scope:
 
 - Replace `ScanQrCodeScreen` camera implementation.
 - Preserve the existing navigation contract: `route.params.onBarCodeScan(data)`.
+- Preserve all current scanner entry points guarded by `check:qr-scan-callers`.
 - Preserve the duplicate-scan guard.
 - Preserve the close button and crosshair overlay.
 - Keep scan formats limited to QR codes.
@@ -54,6 +57,7 @@ Scope:
 
 - `corepack yarn check:rn-nodeify-shims`.
 - `corepack yarn check:camera-usage-scope`.
+- `corepack yarn check:qr-scan-callers`.
 - `corepack yarn typescript:check`.
 - `git diff --check`.
 - Android debug build on JDK 17.
