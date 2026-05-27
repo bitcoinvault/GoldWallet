@@ -49,13 +49,19 @@ But to run the app with Metro server, this step isn't required.
 
 ## Running the app
 
-For Android development verification, use the dev build plus emulator smoke check:
+For Android development verification, start Metro first:
+
+```sh
+$ yarn start --reset-cache
+```
+
+Then use the dev build plus emulator smoke check from another shell:
 
 ```sh
 $ yarn android:dev:verify
 ```
 
-This builds the dev debug APK, installs it on a connected emulator/device, checks app startup logcat, verifies the dashboard UI, and writes local artifacts under `local-docs/`.
+This builds the dev debug APK, checks that Metro is reachable on `127.0.0.1:8081`, installs the APK on a connected emulator/device, checks app startup logcat, verifies the dashboard UI, and writes local artifacts under `local-docs/`.
 
 You can also launch the Android app in variants such as `prod` and `beta`:
 
@@ -71,7 +77,7 @@ $ yarn run ios:prod
 $ yarn run ios:beta
 ```
 
-by default, the app runs in `Debug` type which means you must run React packager/server first
+By default, the app runs in `Debug` type which means you must run React packager/server first:
 
 ```sh
 $ yarn start

@@ -1636,6 +1636,28 @@ Validation:
 - `corepack yarn typescript:check`
 - `git diff --check`
 
+### BEM-34.4 - README Metro smoke workflow
+
+- Branch: `feature/bem-34-readme-metro-smoke-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `README.md` Android development verification instructions to start Metro before `yarn android:dev:verify`.
+- Mention the smoke helper Metro preflight on `127.0.0.1:8081`.
+- Keep package scripts and runtime behavior unchanged.
+
+Why:
+
+- `android:dev:verify` runs the dev APK smoke check, and the smoke helper now fails fast if Metro is not reachable.
+- The README should explain the required shell order instead of leaving Metro as a later generic note.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-36.13 - Android smoke failure screenshot
 
 - Branch: `feature/bem-36-smoke-failure-screenshot`
