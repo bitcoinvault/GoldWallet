@@ -114,6 +114,7 @@ Passing:
 - `corepack yarn typescript:check`
 - ESLint on files changed by `BEM-39`, with existing warnings only
 - `corepack yarn android:dev:check-warning-guard`
+- `corepack yarn check:camera-usage-scope`
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn android:dev:assemble` on JDK 17
 - `corepack yarn android:dev:verify` on a connected Android emulator
@@ -124,7 +125,7 @@ Passing:
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries plus their referenced local artifacts
 - `corepack yarn android:dev:audit-smoke` refreshes warning audit, emulator smoke, and artifact checker evidence in one pass
-- `corepack yarn prepush` starts with the Android warning guard self-check before shim, TypeScript, and promoted offline Jest suites
+- `corepack yarn prepush` starts with Android warning guard and camera usage-scope checks before shim, TypeScript, and promoted offline Jest suites
 
 Known gaps:
 

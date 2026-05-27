@@ -1994,6 +1994,31 @@ Validation:
 - `git diff --check` passed.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.52 - Camera usage scope pre-push gate
+
+- Branch: `feature/bem-camera-usage-prepush`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:camera-usage-scope` to the `prepush` script after the Android warning guard.
+- Refresh `docs/wallet-modernization-baseline.md` so the current validation baseline includes the camera usage-scope guard and pre-push ordering.
+- Keep runtime code, native code, dependency versions, and existing Jest gates unchanged.
+
+Why:
+
+- `react-native-camera` replacement is planned as a dedicated QR scanner migration.
+- Running the usage-scope guard during pre-push keeps the dependency isolated to `ScanQrCodeScreen` until that migration starts.
+
+Validation:
+
+- `corepack yarn check:camera-usage-scope` passed.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn prepush` passed with Android warning guard, camera usage-scope guard, shim guard, TypeScript, unit tests, and the promoted offline integration suites.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
