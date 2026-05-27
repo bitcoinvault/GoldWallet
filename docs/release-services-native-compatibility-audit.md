@@ -32,6 +32,13 @@ corepack yarn check:sentry-usage-guard
 corepack yarn check:sentry-usage-scope
 ```
 
+The CodePush runtime/native integration scope is guarded by:
+
+```powershell
+corepack yarn check:codepush-usage-guard
+corepack yarn check:codepush-usage-scope
+```
+
 ## Current Native And Build Surface
 
 Android:

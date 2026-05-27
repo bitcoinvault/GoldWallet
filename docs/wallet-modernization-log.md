@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.35 - CodePush usage scope guard
+
+- Branch: `feature/bem-codepush-usage-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/codePushUsageGuard.mjs`, `scripts/checkCodePushUsageGuard.mjs`, and `scripts/checkCodePushUsageScope.mjs`.
+- Wire `check:codepush-usage-guard` and `check:codepush-usage-scope` into `android:dev:check-light`.
+- Document the guard in `docs/release-services-native-compatibility-audit.md`.
+
+Why:
+
+- CodePush is disabled in `__DEV__`, but it affects non-dev bundle loading and deployment keys.
+- The future CodePush upgrade should start from a guarded runtime/native integration surface.
+
+Validation:
+
+- `corepack yarn check:codepush-usage-guard`
+- `corepack yarn check:codepush-usage-scope`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.34 - Release service compatibility audit
 
 - Branch: `feature/bem-release-services-compat-audit`
