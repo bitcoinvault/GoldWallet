@@ -1,14 +1,10 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { expectedSentryUsageFiles, getSentryUsageScopeErrors } from './sentryUsageGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const allowedRuntimeFiles = new Set([
-  path.join(root, 'App.tsx'),
-  path.join(root, 'Main.tsx'),
-  path.join(root, 'logger', 'index.ts'),
-]);
 const ignoredDirs = new Set([
   '.git',
   'android/app/build',
@@ -51,30 +47,20 @@ const getSourceFiles = dir => {
   return files;
 };
 
-const unexpectedFiles = getSourceFiles(root)
-  .filter(filePath => !allowedRuntimeFiles.has(filePath))
-  .filter(filePath => usagePattern.test(readFileSync(filePath, 'utf8')));
+const usageFiles = new Set(
+  getSourceFiles(root)
+    .filter(filePath => usagePattern.test(readFileSync(filePath, 'utf8')))
+    .map(normalize),
+);
+const usageErrors = getSentryUsageScopeErrors(usageFiles);
 
-const missingAllowedUsage = [...allowedRuntimeFiles].filter(filePath => {
-  try {
-    return !usagePattern.test(readFileSync(filePath, 'utf8'));
-  } catch (error) {
-    return true;
-  }
-});
-
-if (unexpectedFiles.length > 0 || missingAllowedUsage.length > 0) {
-  if (unexpectedFiles.length > 0) {
-    console.error('Unexpected @sentry/react-native runtime usage found:');
-    unexpectedFiles.forEach(filePath => console.error(`- ${normalize(filePath)}`));
-  }
-
-  if (missingAllowedUsage.length > 0) {
-    console.error('Expected @sentry/react-native runtime usage is missing:');
-    missingAllowedUsage.forEach(filePath => console.error(`- ${normalize(filePath)}`));
-  }
+if (usageErrors.length > 0) {
+  usageErrors.forEach(error => {
+    console.error(`${error.label}:`);
+    error.files.forEach(filePath => console.error(`- ${filePath}`));
+  });
 
   process.exit(1);
 }
 
-console.log('@sentry/react-native runtime usage is scoped to App.tsx, Main.tsx, and logger/index.ts.');
+console.log(`@sentry/react-native runtime usage is scoped to ${[...expectedSentryUsageFiles].join(', ')}.`);

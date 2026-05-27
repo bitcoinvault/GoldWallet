@@ -126,7 +126,7 @@ Passing:
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
 - `corepack yarn android:dev:check-artifact-guard` verifies the warning-summary source guard with known-source, zero-warning, mismatched-count, and unexpected-source cases
-- `corepack yarn android:dev:check-light` runs the lightweight guard set, camera usage self-check, camera usage inventory guard, QR scanner caller self-check, QR scanner caller inventory guard, and diff whitespace check used before tests in `prepush`
+- `corepack yarn android:dev:check-light` runs the lightweight guard set, camera usage self-check, camera usage inventory guard, QR scanner caller self-check, QR scanner caller inventory guard, Sentry usage self-check, Sentry usage inventory guard, and diff whitespace check used before tests in `prepush`
 - `corepack yarn android:dev:audit-smoke` refreshes warning audit, emulator smoke, and artifact checker evidence in one pass
 - `corepack yarn prepush` starts with `android:dev:check-light` before promoted offline Jest suites
 
