@@ -120,7 +120,7 @@ Passing:
 - Android smoke helper polls UI readiness after startup so clean Metro-cache runs do not fail on a transient bootsplash hierarchy
 - Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with generated timestamp, outcome, exit code, selected serial, Metro endpoint/reachability, app PID, logcat count, UI attempts, UI hierarchy path, screenshot path, and screenshot byte count
 - `corepack yarn android:dev:audit-warnings`
-- Android warning audit records generated timestamp, full log path, timeout, exit code, targeted warning count, and subprocess spawn diagnostics
+- Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries plus their referenced local artifacts
 
 Known gaps:

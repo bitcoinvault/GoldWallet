@@ -75,7 +75,9 @@ assertExistingFile('Screenshot path', getLineValue(smokeSummary, 'Screenshot pat
 
 assertIsoTimestamp('Warning audit summary Generated at', getLineValue(warningSummary, 'Generated at'));
 assertLine(warningSummary, 'Android Gradle audit exit code: 0');
+assertLine(warningSummary, 'Android Gradle warning baseline guard exit code: 0');
 assertNonNegativeInteger('Targeted Android Gradle warnings', getLineValue(warningSummary, 'Targeted Android Gradle warnings'));
+assertLine(warningSummary, 'Unexpected targeted Android Gradle warnings: 0');
 assertExistingFile('Android Gradle audit log path', getLineValue(warningSummary, 'Android Gradle audit log path'), true);
 
 console.log('Android validation artifacts are consistent.');

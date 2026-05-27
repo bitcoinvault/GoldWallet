@@ -1789,6 +1789,33 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed on `emulator-5554`, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, and wrote `Generated at: 2026-05-27T18:57:23.687Z` to `local-docs/android-smoke-dev-summary.txt`.
 - `corepack yarn android:dev:check-artifacts` passed after fresh audit and smoke artifacts were written.
 
+### BEM-37.46 - Android warning baseline guard
+
+- Branch: `feature/bem-37-warning-baseline-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `scripts/auditAndroidGradleWarnings.mjs` fail when targeted Android Gradle warning sources appear outside the known baseline.
+- Keep the current known `@sentry/react-native` `execResult` and `react-native-camera` `jcenter()` sources allowed.
+- Add `Android Gradle warning baseline guard exit code` and `Unexpected targeted Android Gradle warnings` to `local-docs/android-warning-audit-summary.txt`.
+- Make `scripts/checkAndroidValidationArtifacts.mjs` verify the warning baseline guard result.
+- Refresh Android workflow and baseline documentation for the guard.
+
+Why:
+
+- The audit already identifies the remaining warning debt.
+- Failing only on new targeted sources keeps the current cleanup stream stable while preventing new Android Gradle warning debt from being added silently.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The warning audit summary recorded `Android Gradle warning baseline guard exit code: 0`, `Targeted Android Gradle warnings: 2`, and `Unexpected targeted Android Gradle warnings: 0`.
+- `corepack yarn android:dev:check-artifacts` passed with the refreshed warning audit summary and existing smoke summary artifacts.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
