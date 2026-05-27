@@ -92,8 +92,12 @@ const runBinary = (label, args, outputFile) => {
     throw new Error(`${label} failed: ${reason}`);
   }
 
+  if (!result.stdout || result.stdout.length === 0) {
+    throw new Error(`${label} produced an empty artifact.`);
+  }
+
   writeFileSync(outputFile, result.stdout);
-  append(`${label} written to ${outputFile}`);
+  append(`${label} written to ${outputFile} (${result.stdout.length} bytes)`);
 };
 
 const sleep = milliseconds => {

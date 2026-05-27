@@ -69,7 +69,7 @@ corepack yarn android:dev:smoke
 
 Use `android:dev:verify` when the APK freshness matters; `android:dev:smoke` only installs and tests the current dev APK artifact.
 
-The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a startup screenshot to `local-docs/android-smoke-dev.png`. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
+The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
 
 By default it also checks that the app is focused and that the UI hierarchy contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. Override that list with `ANDROID_SMOKE_EXPECT_TEXTS` when testing a different fixture.
 
