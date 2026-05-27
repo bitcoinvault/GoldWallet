@@ -2,13 +2,13 @@
 
 Baseline for `BEM-34 - Setup branch + dependencies analysis`.
 
-Updated on `upgrade/wallet-modernization` after the Android SDK/toolchain, warning-audit, and smoke-validation hardening branches.
+Updated on `upgrade/wallet-modernization` after the Android SDK/toolchain, warning-audit, smoke-validation hardening, and lightweight guard/self-check branches.
 
 ## Branch Model
 
 - Integration branch: `upgrade/wallet-modernization`
 - Current task branch model: focused feature branches merged locally into `upgrade/wallet-modernization`.
-- Latest completed stream: Android SDK/toolchain modernization, Android warning audit hardening, and Android smoke helper hardening.
+- Latest completed stream: Android SDK/toolchain modernization, Android warning audit hardening, Android smoke helper hardening, and lightweight validation guard/self-check hardening.
 
 All modernization work should be developed on focused task branches and merged into `upgrade/wallet-modernization`. The integration branch should be merged back to the main development line only after a tested modernization milestone.
 
@@ -111,12 +111,11 @@ Install/build risk:
 
 Passing:
 
+- `corepack yarn android:dev:check-light`
+- Android lightweight check runs the Android warning baseline guard, Android warning artifact guard, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, Sentry usage self-check/inventory guard, RN nodeify shim self-check/inventory guard, TypeScript check, and diff whitespace check.
+- `corepack yarn prepush` starts with `android:dev:check-light` before promoted offline Jest suites.
 - `corepack yarn typescript:check`
 - ESLint on files changed by `BEM-39`, with existing warnings only
-- `corepack yarn android:dev:check-warning-guard`
-- `corepack yarn check:camera-usage-scope`
-- `corepack yarn check:sentry-usage-scope`
-- `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn android:dev:assemble` on JDK 17
 - `corepack yarn android:dev:verify` on a connected Android emulator
 - Android smoke helper validates app PID logcat, foreground focus, dashboard UI text, UI hierarchy artifact, and startup screenshot
@@ -124,11 +123,11 @@ Passing:
 - Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with generated timestamp, outcome, exit code, selected serial, Metro endpoint/reachability, app PID, logcat count, UI attempts, UI hierarchy path, screenshot path, and screenshot byte count
 - `corepack yarn android:dev:audit-warnings`
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
+- The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 2` and `Unexpected targeted Android Gradle warnings: 0`.
+- Current targeted warning sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
 - `corepack yarn android:dev:check-artifact-guard` verifies the warning-summary source guard with known-source, zero-warning, mismatched-count, and unexpected-source cases
-- `corepack yarn android:dev:check-light` runs the lightweight guard set, camera usage self-check, camera usage inventory guard, QR scanner caller self-check, QR scanner caller inventory guard, Sentry usage self-check, Sentry usage inventory guard, nodeify shim self-check, nodeify shim inventory guard, and diff whitespace check used before tests in `prepush`
 - `corepack yarn android:dev:audit-smoke` refreshes warning audit, emulator smoke, and artifact checker evidence in one pass
-- `corepack yarn prepush` starts with `android:dev:check-light` before promoted offline Jest suites
 
 Known gaps:
 
@@ -137,7 +136,7 @@ Known gaps:
 - Some tests call public or staging Electrum endpoints.
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
 - Full wallet flow QA is still required: create/import wallet, PIN, biometrics, send, receive, QR scan, history, authenticator, recovery flows.
-- Remaining targeted Android warning sources are `react-native-camera` `jcenter()` and Sentry `execResult`.
+- Remaining targeted Android warning sources were last refreshed in `BEM-37.70`: `react-native-camera` `jcenter()` and Sentry `execResult`; unexpected targeted warning count was `0`.
 
 ## Recommended Upgrade Order
 

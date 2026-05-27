@@ -2488,6 +2488,30 @@ Validation:
 - `corepack yarn android:dev:check-artifacts` passed against the refreshed local warning summary and existing smoke artifact summary.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.71 - Modernization baseline lightweight guard refresh
+
+- Branch: `feature/bem-baseline-lightweight-guard-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/wallet-modernization-baseline.md` after the lightweight Android validation guard/self-check stream.
+- Record the current `android:dev:check-light` coverage as the primary fast validation gate before `prepush`.
+- Record the refreshed `BEM-37.70` Android warning audit evidence in the baseline.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and local artifacts unchanged.
+
+Why:
+
+- Plane currently tracks `BEM-37` as in progress, and the baseline should match the actual guard set now used by the branch.
+- The previous baseline still listed several older individual checks before the aggregate lightweight gate, making the current validation path harder to scan.
+- The remaining camera and Sentry warning sources should be tied to the latest audit evidence before the next cleanup/replacement branch.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
