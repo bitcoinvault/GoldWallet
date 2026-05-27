@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.41 - Release service env key guard self-check
+
+- Branch: `feature/bem-release-service-env-guard-self-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract release-service env key comparison logic into `scripts/releaseServiceEnvKeysGuard.mjs`.
+- Add `scripts/checkReleaseServiceEnvKeysGuard.mjs` fixture coverage.
+- Include `check:release-service-env-keys-guard` before the real env key check in `android:dev:check-light`.
+- Refresh workflow, baseline, release-service audit, and check-light docs guard wording.
+
+Why:
+
+- The env-key guard protects Sentry, CodePush, Firebase messaging, email notifications, and flavor env files.
+- Like the other usage/inventory guards, its allowlist behavior should be self-checked before the real repository scan runs.
+
+Validation:
+
+- `corepack yarn check:release-service-env-keys-guard`
+- `corepack yarn check:release-service-env-keys`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.40 - Release service env key guard
 
 - Branch: `feature/bem-release-service-env-guard`
