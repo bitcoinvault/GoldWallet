@@ -584,3 +584,24 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - Offline wallet tests passed individually: `test:unit`, `test:storage`, `test:authenticator`, `test:watchonly:offline`, `test:hdwallet:offline`, and `test:wallet-core:offline`.
 - Android emulator smoke passed: Metro bundled `index.js`, dashboard rendered `E2EWalletTypeTest`, and log output did not show the previous `Unable to resolve module stream` error.
+
+### BEM-36.1 - Android JDK guard
+
+- Branch: `feature/bem-36-android-jdk-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a root Gradle fail-fast guard for unsupported JDK versions above 17.
+- Preserve JDK 11 and JDK 17 support for the current AGP 7.4.2 / Gradle 7.5.1 toolchain.
+- Replace the confusing JDK 21 D8 `NullPointerException` failure with an actionable Gradle message.
+
+Validation:
+
+- JDK 21 `./gradlew help` fails fast with the new supported-JDK message instead of reaching D8.
+- JDK 17 `:app:assembleDevDebug -x lint --warning-mode all` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Fresh dev debug APK installed on Android emulator.
+- Android emulator smoke passed: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
