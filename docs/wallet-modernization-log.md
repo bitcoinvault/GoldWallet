@@ -1867,6 +1867,30 @@ Validation:
 - The warning audit summary recorded `Android Gradle warning baseline guard exit code: 0`, `Targeted Android Gradle warnings: 2`, and `Unexpected targeted Android Gradle warnings: 0`.
 - `corepack yarn android:dev:check-artifacts` passed with the refreshed warning audit summary.
 
+### BEM-37.49 - Android warning guard pre-push gate
+
+- Branch: `feature/bem-37-warning-guard-prepush`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:check-warning-guard` to the beginning of the `prepush` script.
+- Keep the existing TypeScript and Jest pre-push gates unchanged.
+- Keep Android runtime, Gradle build, and dependency versions unchanged.
+
+Why:
+
+- The warning baseline guard now protects the Android maintenance stream.
+- Running the cheap self-check before the heavier pre-push checks catches accidental guard drift early.
+
+Validation:
+
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn prepush` passed with the new warning guard first, followed by shim check, TypeScript, unit tests, and the promoted offline integration suites.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
