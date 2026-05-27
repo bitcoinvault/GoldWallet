@@ -25,6 +25,7 @@ The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to
 Run these for normal mini-branches:
 
 ```powershell
+corepack yarn android:dev:check-warning-guard
 corepack yarn check:rn-nodeify-shims
 corepack yarn typescript:check
 git diff --check
@@ -64,6 +65,12 @@ After running both warning audit and smoke, use the artifact checker for a quick
 
 ```powershell
 corepack yarn android:dev:check-artifacts
+```
+
+For a fast check of the warning baseline guard patterns without running Gradle:
+
+```powershell
+corepack yarn android:dev:check-warning-guard
 ```
 
 ## Metro And Emulator Smoke
