@@ -2732,6 +2732,34 @@ Validation:
 - `corepack yarn android:dev:check-light` passed.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
 
+### BEM-36.32 - Navigation native compatibility audit
+
+- Branch: `feature/bem-navigation-native-compat-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/navigation-native-compatibility-audit.md`.
+- Record the current `react-native-gesture-handler`, `react-native-screens`, and `react-native-safe-area-context` package state and npm compatibility snapshot.
+- Link the audit from the native module upgrade plan.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Findings:
+
+- `react-native-safe-area-context` is imported directly in `src/components/ScreenTemplate.tsx`.
+- `react-native-gesture-handler` and `react-native-screens` have no direct `src` imports, but remain native dependencies for the React Navigation/native autolinking stack.
+- Latest npm metadata checked for this branch reports `react-native-screens@4.25.2` with peer dependency `react-native >=0.82.0`, so it is not a direct latest-version target for the current RN `0.68.7` branch.
+
+Why:
+
+- The native module upgrade plan listed navigation behavior review as the next recommended branch after the SVG/QR audit.
+- Navigation/layout changes affect startup, tabs, stack transitions, safe-area spacing, scrolling templates, and keyboard/footer layout, so they need a dedicated validation path before package versions change.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
