@@ -82,6 +82,8 @@
     "android:stage": "react-native run-android --variant=stageDebug",
     "android:prod": "react-native run-android --variant=prodDebug",
     "android:beta": "react-native run-android --variant=betaDebug --appIdSuffix beta",
+    "android:dev:assemble": "node scripts/runAndroidGradle.mjs :app:assembleDevDebug -x lint",
+    "android:dev:assemble:warnings": "node scripts/runAndroidGradle.mjs :app:assembleDevDebug -x lint --warning-mode all",
     "android:dev:release": "react-native run-android --variant='devRelease'",
     "android:stage:release": "react-native run-android --variant=stageRelease",
     "android:prod:release": "react-native run-android --variant=prodRelease",

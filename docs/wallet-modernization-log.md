@@ -605,3 +605,24 @@ Validation:
 - `git diff --check` passed.
 - Fresh dev debug APK installed on Android emulator.
 - Android emulator smoke passed: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
+
+### BEM-36.2 - Android Gradle runner scripts
+
+- Branch: `feature/bem-36-android-gradle-runner`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a small cross-platform Gradle runner for Android commands.
+- Add `android:dev:assemble` for the standard dev debug APK build.
+- Add `android:dev:assemble:warnings` for the warning-mode Android audit used during modernization.
+- Keep existing React Native run scripts unchanged.
+
+Validation:
+
+- `android:dev:assemble` fails fast on JDK 21 with the runner-level supported-JDK message.
+- `android:dev:assemble:warnings` passed on JDK 17.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- Fresh dev debug APK from the new runner installed on Android emulator.
+- Android emulator smoke passed: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
