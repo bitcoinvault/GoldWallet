@@ -2656,6 +2656,32 @@ Validation:
 - The run included `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
 
+### BEM-36.29 - QR render usage inventory guard
+
+- Branch: `feature/bem-qr-render-inventory-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:qr-render-usage-guard` fixture checks for the current `react-native-qrcode-svg` render surface.
+- Add `check:qr-render-usage` to scan source files for `react-native-qrcode-svg` imports.
+- Include both QR render usage checks in `android:dev:check-light`.
+- Refresh the native module upgrade plan, Android workflow, and baseline documentation for the new guard.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- The native module upgrade plan recommends reviewing `react-native-svg` and QR rendering compatibility before camera migration.
+- A guarded QR render inventory makes the future `react-native-svg` upgrade surface explicit: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
+- This mirrors the existing QR scanner caller guard, but covers QR rendering instead of camera scanning entry points.
+
+Validation:
+
+- `corepack yarn check:qr-render-usage-guard` passed.
+- `corepack yarn check:qr-render-usage` passed and confirmed `5` QR render screens.
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, QR render usage guard, Sentry usage guard, native module inventory guard, native module upgrade-plan guard, RN nodeify shim guard, TypeScript, and diff whitespace check.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this guard/tooling update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
