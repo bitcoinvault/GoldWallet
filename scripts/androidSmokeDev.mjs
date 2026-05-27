@@ -40,7 +40,7 @@ const record = line => {
 
 const run = (label, args, options = {}) => {
   append(`\n> ${label}`);
-  const { printOutput = true, ...spawnOptions } = options;
+  const { printOutput = true, recordOutput = true, ...spawnOptions } = options;
   const result = spawnSync(adbCommand, args, {
     cwd: root,
     encoding: 'utf8',
@@ -49,11 +49,19 @@ const run = (label, args, options = {}) => {
   });
 
   if (result.stdout) {
-    (printOutput ? append : record)(result.stdout.trimEnd());
+    if (printOutput) {
+      append(result.stdout.trimEnd());
+    } else if (recordOutput) {
+      record(result.stdout.trimEnd());
+    }
   }
 
   if (result.stderr) {
-    (printOutput ? append : record)(result.stderr.trimEnd());
+    if (printOutput) {
+      append(result.stderr.trimEnd());
+    } else if (recordOutput) {
+      record(result.stderr.trimEnd());
+    }
   }
 
   if (result.error || result.status !== 0) {
@@ -127,7 +135,7 @@ try {
     finish(1);
   }
 
-  const windowOutput = run('read focused window', ['shell', 'dumpsys', 'window'], { printOutput: false });
+  const windowOutput = run('read focused window', ['shell', 'dumpsys', 'window'], { printOutput: false, recordOutput: false });
 
   if (!windowOutput.includes(packageName)) {
     throw new Error(`Focused window output does not include ${packageName}.`);
@@ -136,7 +144,7 @@ try {
   append(`Focused window includes ${packageName}.`);
 
   run('dump UI hierarchy', ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml']);
-  const uiHierarchy = run('read UI hierarchy', ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], { printOutput: false });
+  const uiHierarchy = run('read UI hierarchy', ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], { printOutput: false, recordOutput: false });
   writeFileSync(uiOutputPath, uiHierarchy);
   append(`UI hierarchy written to ${uiOutputPath}`);
 

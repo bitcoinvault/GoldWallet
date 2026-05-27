@@ -1020,3 +1020,30 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No app runtime code changed in this branch.
+
+### BEM-36.9 - Android smoke log trimming
+
+- Branch: `feature/bem-android-smoke-log-trim`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep `local-docs/android-smoke-dev.log` readable during emulator smoke validation.
+- Stop recording full `dumpsys window` output in the smoke transcript.
+- Stop duplicating the full UI hierarchy XML into the smoke transcript.
+- Preserve the dedicated UI hierarchy artifact at `local-docs/android-smoke-dev-ui.xml`.
+
+Why:
+
+- The previous helper wrote the UI XML and focused-window dump into `android-smoke-dev.log`.
+- That made the operational log noisy and harder to scan.
+- The XML artifact is still available separately when the exact rendered UI tree is needed.
+
+Validation:
+
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper still found the app PID, scanned app-process logcat, confirmed foreground focus, wrote the UI hierarchy artifact, and found the default dashboard texts.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No app runtime code changed in this branch.
