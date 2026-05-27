@@ -1,6 +1,7 @@
+import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp } from '@react-navigation/native';
 import React, { PureComponent } from 'react';
-import { Text, View, StyleSheet, Linking, Clipboard } from 'react-native';
+import { Text, View, StyleSheet, Linking } from 'react-native';
 
 import { Header, Chip, ScreenTemplate, Button } from 'app/components';
 import { RootStackParams, Route } from 'app/consts';
