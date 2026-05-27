@@ -86,6 +86,7 @@
     "android:dev:assemble:warnings": "node scripts/runAndroidGradle.mjs :app:assembleDevDebug -x lint --warning-mode all",
     "android:dev:audit-warnings": "node scripts/auditAndroidGradleWarnings.mjs",
     "android:dev:smoke": "node scripts/androidSmokeDev.mjs",
+    "android:dev:verify": "yarn android:dev:assemble && yarn android:dev:smoke",
     "android:dev:release": "react-native run-android --variant='devRelease'",
     "android:stage:release": "react-native run-android --variant=stageRelease",
     "android:prod:release": "react-native run-android --variant=prodRelease",

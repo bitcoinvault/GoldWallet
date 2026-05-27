@@ -994,3 +994,29 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No app runtime code changed in this branch.
+
+### BEM-36.8 - Android dev verify command
+
+- Branch: `feature/bem-android-dev-verify-command`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:verify` package script.
+- Chain the dev debug APK build and emulator smoke check into one command.
+- Document when to use `android:dev:verify` versus `android:dev:smoke`.
+
+Why:
+
+- `android:dev:smoke` intentionally installs and launches the current APK artifact.
+- During runtime/native/dependency work, a stale APK can make smoke results look better than the current source state.
+- `android:dev:verify` forces `android:dev:assemble` first, then runs the focused/logcat/UI smoke helper.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:verify` passed on the connected Android emulator.
+- The command built `:app:assembleDevDebug`, installed the fresh dev APK, launched `io.goldwallet.wallet.dev`, verified focused foreground state, scanned app-process logcat, and found the default dashboard texts.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No app runtime code changed in this branch.

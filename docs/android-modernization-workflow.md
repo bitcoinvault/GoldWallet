@@ -37,6 +37,13 @@ $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 corepack yarn android:dev:assemble
 ```
 
+For a full dev build plus emulator startup check:
+
+```powershell
+$env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
+corepack yarn android:dev:verify
+```
+
 For Android warning work:
 
 ```powershell
@@ -59,6 +66,8 @@ Then install and launch the dev APK:
 ```powershell
 corepack yarn android:dev:smoke
 ```
+
+Use `android:dev:verify` when the APK freshness matters; `android:dev:smoke` only installs and tests the current dev APK artifact.
 
 The smoke helper writes the full command output to `local-docs/android-smoke-dev.log` and the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
 
