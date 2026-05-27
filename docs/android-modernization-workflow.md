@@ -85,7 +85,9 @@ Useful smoke overrides:
 - `ANDROID_SERIAL`: select a specific emulator/device from `adb devices`.
 - `ANDROID_SMOKE_APK`: install a non-default APK path.
 - `ANDROID_SMOKE_PACKAGE`: launch a non-default package name.
-- `ANDROID_SMOKE_WAIT_MS`: non-negative milliseconds to wait before reading startup state.
+- `ANDROID_SMOKE_WAIT_MS`: non-negative milliseconds to wait before reading startup logs.
+- `ANDROID_SMOKE_UI_WAIT_MS`: non-negative milliseconds to poll UI hierarchy for expected text after startup state is available; default is `20000`.
+- `ANDROID_SMOKE_UI_POLL_INTERVAL_MS`: positive milliseconds between UI hierarchy polling attempts; default is `1000`.
 - `ANDROID_SMOKE_LOGCAT_LINES`: positive integer line limit for app-process startup logcat.
 - `ANDROID_SMOKE_ADB_TIMEOUT_MS`: positive integer timeout for each `adb` command.
 - `ANDROID_SMOKE_EXPECT_TEXTS`: comma-separated UI texts expected after launch.

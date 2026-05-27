@@ -15,6 +15,8 @@ let selectedAndroidSerial = androidSerial;
 const apkPath =
   process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
 const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 8000);
+const uiWaitMs = Number(process.env.ANDROID_SMOKE_UI_WAIT_MS || 20000);
+const uiPollIntervalMs = Number(process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS || 1000);
 const logcatLineLimit = Number(process.env.ANDROID_SMOKE_LOGCAT_LINES || 400);
 const adbCommandTimeoutMs = Number(process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS || 60000);
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
@@ -121,6 +123,14 @@ try {
     throw new Error(`ANDROID_SMOKE_WAIT_MS must be a non-negative number of milliseconds. Received: ${process.env.ANDROID_SMOKE_WAIT_MS}`);
   }
 
+  if (!Number.isFinite(uiWaitMs) || uiWaitMs < 0) {
+    throw new Error(`ANDROID_SMOKE_UI_WAIT_MS must be a non-negative number of milliseconds. Received: ${process.env.ANDROID_SMOKE_UI_WAIT_MS}`);
+  }
+
+  if (!Number.isFinite(uiPollIntervalMs) || uiPollIntervalMs <= 0) {
+    throw new Error(`ANDROID_SMOKE_UI_POLL_INTERVAL_MS must be a positive number of milliseconds. Received: ${process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS}`);
+  }
+
   if (!Number.isInteger(logcatLineLimit) || logcatLineLimit <= 0) {
     throw new Error(`ANDROID_SMOKE_LOGCAT_LINES must be a positive integer. Received: ${process.env.ANDROID_SMOKE_LOGCAT_LINES}`);
   }
@@ -137,6 +147,8 @@ try {
   append(`Using APK: ${apkPath}`);
   append(`Using package: ${packageName}`);
   append(`Using startup wait: ${startupWaitMs}ms`);
+  append(`Using UI readiness wait: ${uiWaitMs}ms`);
+  append(`Using UI poll interval: ${uiPollIntervalMs}ms`);
   append(`Using logcat line limit: ${logcatLineLimit}`);
   append(`Using adb command timeout: ${adbCommandTimeoutMs}ms`);
   append(expectedTexts.length > 0 ? `Using expected UI text(s): ${expectedTexts.join(', ')}` : 'Using expected UI text(s): none');
@@ -205,12 +217,29 @@ try {
 
   append(`Focused window includes ${packageName}.`);
 
-  run('dump UI hierarchy', ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml']);
-  const uiHierarchy = run('read UI hierarchy', ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], { printOutput: false, recordOutput: false });
-  writeFileSync(uiOutputPath, uiHierarchy);
-  append(`UI hierarchy written to ${uiOutputPath}`);
+  let uiHierarchy = '';
+  let missingTexts = expectedTexts;
+  const uiDeadline = Date.now() + uiWaitMs;
+  let uiAttempt = 0;
 
-  const missingTexts = expectedTexts.filter(text => !uiHierarchy.includes(`text="${text}"`));
+  do {
+    uiAttempt += 1;
+    run(`dump UI hierarchy attempt ${uiAttempt}`, ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml']);
+    uiHierarchy = run(`read UI hierarchy attempt ${uiAttempt}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], { printOutput: false, recordOutput: false });
+    writeFileSync(uiOutputPath, uiHierarchy);
+    missingTexts = expectedTexts.filter(text => !uiHierarchy.includes(`text="${text}"`));
+
+    if (missingTexts.length === 0) {
+      break;
+    }
+
+    if (Date.now() < uiDeadline) {
+      append(`UI hierarchy attempt ${uiAttempt} missing expected text(s): ${missingTexts.join(', ')}; retrying...`);
+      sleep(uiPollIntervalMs);
+    }
+  } while (Date.now() < uiDeadline);
+
+  append(`UI hierarchy written to ${uiOutputPath}`);
 
   if (missingTexts.length > 0) {
     throw new Error(`UI hierarchy is missing expected text(s): ${missingTexts.join(', ')}`);

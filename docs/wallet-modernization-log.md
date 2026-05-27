@@ -1562,3 +1562,29 @@ Validation:
 - `corepack yarn typescript:check`
 - `git diff --check`
 - `ANDROID_SMOKE_WAIT_MS=20000 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554`, with expected UI text `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+
+### BEM-36.12 - Android smoke UI readiness polling
+
+- Branch: `feature/bem-36-smoke-startup-wait`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add UI hierarchy polling to `scripts/androidSmokeDev.mjs` after the app process and focused window are available.
+- Keep `ANDROID_SMOKE_WAIT_MS` as the startup-log delay and add `ANDROID_SMOKE_UI_WAIT_MS` plus `ANDROID_SMOKE_UI_POLL_INTERVAL_MS` for UI readiness.
+- Keep writing the latest UI hierarchy to `local-docs/android-smoke-dev-ui.xml`.
+- Document the new smoke overrides in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- A clean Metro cache can leave the app on the native bootsplash during the first UI hierarchy read.
+- Polling expected UI text avoids false negatives without turning every smoke run into a longer fixed sleep.
+
+Validation:
+
+- `ANDROID_SMOKE_UI_WAIT_MS=abc node scripts/androidSmokeDev.mjs` exits with the expected non-negative-number validation error.
+- `ANDROID_SMOKE_UI_POLL_INTERVAL_MS=0 node scripts/androidSmokeDev.mjs` exits with the expected positive-number validation error.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` with startup wait `8000ms`, UI readiness wait `20000ms`, and expected UI text `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
