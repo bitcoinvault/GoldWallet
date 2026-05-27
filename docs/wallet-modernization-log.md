@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.39 - Android lightweight docs guard
+
+- Branch: `feature/bem-check-light-docs-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/checkAndroidLightDocs.mjs`.
+- Add `android:dev:check-light-docs` and include it in `android:dev:check-light`.
+- Guard the README, Android workflow, and wallet modernization baseline descriptions for the main lightweight check groups.
+
+Why:
+
+- `android:dev:check-light` has grown into the main maintenance gate and now includes multiple release-service guards.
+- Future check additions should fail fast if the public maintenance docs drift from the actual gate.
+
+Validation:
+
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:diff-whitespace`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.38 - Release service guard baseline docs
 
 - Branch: `feature/bem-baseline-release-service-guards`
