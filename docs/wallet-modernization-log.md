@@ -2384,6 +2384,32 @@ Validation:
 - `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.67 - Sentry usage guard self-check
+
+- Branch: `feature/bem-sentry-usage-self-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract `@sentry/react-native` usage scope comparison into `scripts/sentryUsageGuard.mjs`.
+- Add `scripts/checkSentryUsageGuard.mjs` with positive and negative guard fixture checks.
+- Add `check:sentry-usage-guard` package script and include it in `android:dev:check-light`.
+- Refresh the Sentry release/source-map plan, Android workflow, and baseline documentation for the self-check.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- The Sentry usage inventory guard is part of the lightweight gate; this branch gives the allowlist comparison logic a fast self-check.
+- The future Sentry release/source-map upgrade should fail fast if Sentry imports move outside `App.tsx`, `Main.tsx`, and `logger/index.ts`.
+
+Validation:
+
+- `corepack yarn check:sentry-usage-guard` passed.
+- `corepack yarn check:sentry-usage-scope` passed and confirmed `@sentry/react-native` runtime usage is scoped to `App.tsx`, `Main.tsx`, and `logger/index.ts`.
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard self-check, camera usage inventory guard, QR scanner caller guard self-check, QR scanner caller inventory guard, Sentry usage guard self-check, Sentry usage inventory guard, nodeify shim guard, TypeScript, and diff whitespace check.
+- `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
