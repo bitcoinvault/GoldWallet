@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { getUnexpectedAndroidWarningFindings } from './androidWarningBaselineGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -52,16 +53,6 @@ writeFileSync(outputPath, output);
 
 const lines = output.split(/\r?\n/);
 const findings = [];
-const expectedFindingPatterns = [
-  {
-    label: 'Sentry execResult',
-    pattern: /^execResult: .*node_modules[\\/]@sentry[\\/]react-native[\\/]sentry\.gradle:48\)/,
-  },
-  {
-    label: 'react-native-camera jcenter',
-    pattern: /^jcenter\(\): .*node_modules[\\/]react-native-camera[\\/]android[\\/]build\.gradle:59\)/,
-  },
-];
 
 const addFollowingStackFrame = (label, startIndex) => {
   const nearbyStack = lines.slice(startIndex + 1, startIndex + 16);
@@ -93,7 +84,7 @@ lines.forEach((line, index) => {
 console.log(`Android Gradle warning audit written to ${outputPath}`);
 
 const uniqueFindings = [...new Set(findings)].sort((left, right) => left.localeCompare(right));
-const unexpectedFindings = uniqueFindings.filter(finding => !expectedFindingPatterns.some(({ pattern }) => pattern.test(finding)));
+const unexpectedFindings = getUnexpectedAndroidWarningFindings(uniqueFindings);
 const guardExitCode = auditExitCode === 0 && unexpectedFindings.length > 0 ? 1 : auditExitCode;
 const summaryHeader = [
   `Generated at: ${new Date().toISOString()}`,

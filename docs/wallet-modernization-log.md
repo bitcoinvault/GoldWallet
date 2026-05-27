@@ -1840,6 +1840,33 @@ Validation:
 - The warning audit summary recorded `Android Gradle warning baseline guard exit code: 0`, `Targeted Android Gradle warnings: 2`, and `Unexpected targeted Android Gradle warnings: 0` after the separator-tolerant patterns.
 - `corepack yarn android:dev:check-artifacts` passed with the refreshed warning audit summary.
 
+### BEM-37.48 - Android warning baseline guard self-check
+
+- Branch: `feature/bem-37-warning-guard-self-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract Android warning baseline guard classification into `scripts/androidWarningBaselineGuard.mjs`.
+- Add `scripts/checkAndroidWarningBaselineGuard.mjs` to validate known Windows and Unix warning paths.
+- Add `android:dev:check-warning-guard` as a fast local check for the warning baseline patterns.
+- Keep the Gradle audit output and allowed warning sources unchanged.
+
+Why:
+
+- The warning baseline guard now protects the Android modernization stream.
+- A cheap self-check catches accidental pattern drift without requiring a full Gradle warning audit every time.
+
+Validation:
+
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed after the guard extraction.
+- The warning audit summary recorded `Android Gradle warning baseline guard exit code: 0`, `Targeted Android Gradle warnings: 2`, and `Unexpected targeted Android Gradle warnings: 0`.
+- `corepack yarn android:dev:check-artifacts` passed with the refreshed warning audit summary.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`

@@ -85,6 +85,7 @@
     "android:dev:assemble": "node scripts/runAndroidGradle.mjs :app:assembleDevDebug -x lint",
     "android:dev:assemble:warnings": "node scripts/runAndroidGradle.mjs :app:assembleDevDebug -x lint --warning-mode all",
     "android:dev:audit-warnings": "node scripts/auditAndroidGradleWarnings.mjs",
+    "android:dev:check-warning-guard": "node scripts/checkAndroidWarningBaselineGuard.mjs",
     "android:dev:check-artifacts": "node scripts/checkAndroidValidationArtifacts.mjs",
     "android:clean": "node scripts/runAndroidGradle.mjs clean",
     "android:dev:smoke": "node scripts/androidSmokeDev.mjs",
