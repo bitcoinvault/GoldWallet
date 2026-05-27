@@ -27,12 +27,15 @@ Run these for normal mini-branches:
 ```powershell
 corepack yarn android:dev:check-warning-guard
 corepack yarn check:camera-usage-scope
+corepack yarn check:sentry-usage-scope
 corepack yarn check:rn-nodeify-shims
 corepack yarn typescript:check
 git diff --check
 ```
 
 `check:camera-usage-scope` keeps `react-native-camera` runtime usage isolated to `ScanQrCodeScreen` until the dedicated QR scanner migration branch replaces it.
+
+`check:sentry-usage-scope` keeps `@sentry/react-native` runtime usage isolated to `App.tsx`, `Main.tsx`, and `logger/index.ts` until the dedicated Sentry release/source-map validation branch handles the remaining Gradle warning and release tooling behavior.
 
 For Android build validation:
 
