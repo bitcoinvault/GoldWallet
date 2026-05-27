@@ -1736,6 +1736,32 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
 - `corepack yarn android:dev:check-artifacts` passes again after fresh audit and smoke artifacts are written.
 
+### BEM-36.19 - Android artifact checker zero-warning support
+
+- Branch: `feature/bem-36-artifact-check-warning-zero`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Allow `Targeted Android Gradle warnings: 0` in `scripts/checkAndroidValidationArtifacts.mjs`.
+- Keep positive-integer checks for smoke counters such as app PID, logcat lines, UI attempts, and screenshot bytes.
+- Document that zero targeted warning findings is a valid future state.
+
+Why:
+
+- The checker should not block the desired cleanup outcome where Sentry and camera warning sources are eventually removed.
+- The current branch still validates against the existing count of `2`, but the check should be future-proof.
+
+Validation:
+
+- `corepack yarn android:dev:check-artifacts` passes on the existing artifacts.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-artifacts` passes again after fresh audit and smoke artifacts are written.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`

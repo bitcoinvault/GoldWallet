@@ -33,6 +33,12 @@ const assertPositiveInteger = (label, value) => {
   }
 };
 
+const assertNonNegativeInteger = (label, value) => {
+  if (!/^\d+$/.test(value)) {
+    throw new Error(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
+  }
+};
+
 const assertExistingFile = (label, filePath, requireNonEmpty = false) => {
   if (!filePath) {
     throw new Error(`${label} is missing from validation summary.`);
@@ -61,7 +67,7 @@ assertExistingFile('UI hierarchy path', getLineValue(smokeSummary, 'UI hierarchy
 assertExistingFile('Screenshot path', getLineValue(smokeSummary, 'Screenshot path'), true);
 
 assertLine(warningSummary, 'Android Gradle audit exit code: 0');
-assertPositiveInteger('Targeted Android Gradle warnings', getLineValue(warningSummary, 'Targeted Android Gradle warnings'));
+assertNonNegativeInteger('Targeted Android Gradle warnings', getLineValue(warningSummary, 'Targeted Android Gradle warnings'));
 assertExistingFile('Android Gradle audit log path', getLineValue(warningSummary, 'Android Gradle audit log path'), true);
 
 console.log('Android validation artifacts are consistent.');
