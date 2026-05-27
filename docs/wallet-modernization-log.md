@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.36 - Firebase usage scope guard
+
+- Branch: `feature/bem-firebase-usage-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/firebaseUsageGuard.mjs`, `scripts/checkFirebaseUsageGuard.mjs`, and `scripts/checkFirebaseUsageScope.mjs`.
+- Wire `check:firebase-usage-guard` and `check:firebase-usage-scope` into `android:dev:check-light`.
+- Document the guard in `docs/release-services-native-compatibility-audit.md`.
+
+Why:
+
+- Firebase currently spans runtime messaging, Android Gradle plugins/config files, iOS plist selection, and Xcode RNFB phases.
+- The future Firebase family upgrade should start from a guarded runtime/native integration surface.
+
+Validation:
+
+- `corepack yarn check:firebase-usage-guard`
+- `corepack yarn check:firebase-usage-scope`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.35 - CodePush usage scope guard
 
 - Branch: `feature/bem-codepush-usage-guard`

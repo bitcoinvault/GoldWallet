@@ -39,6 +39,13 @@ corepack yarn check:codepush-usage-guard
 corepack yarn check:codepush-usage-scope
 ```
 
+The Firebase runtime/native integration scope is guarded by:
+
+```powershell
+corepack yarn check:firebase-usage-guard
+corepack yarn check:firebase-usage-scope
+```
+
 ## Current Native And Build Surface
 
 Android:
