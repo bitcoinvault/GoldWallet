@@ -2,17 +2,16 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { expectedNativeModuleDependencies } from './nativeModuleInventoryGuard.mjs';
+import { formatNativeModuleUpgradePlanErrors, getNativeModuleUpgradePlanErrors } from './nativeModuleUpgradePlanGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const planPath = path.join(root, 'docs', 'native-module-upgrade-plan.md');
 const plan = readFileSync(planPath, 'utf8');
+const errors = getNativeModuleUpgradePlanErrors(plan);
 
-const missingPackages = [...expectedNativeModuleDependencies.keys()].filter(packageName => !plan.includes(`\`${packageName}\``));
-
-if (missingPackages.length > 0) {
-  console.error('Native module upgrade plan is missing inventory packages:');
-  missingPackages.forEach(packageName => console.error(`- ${packageName}`));
+if (errors.length > 0) {
+  console.error(formatNativeModuleUpgradePlanErrors(errors));
   process.exit(1);
 }
 

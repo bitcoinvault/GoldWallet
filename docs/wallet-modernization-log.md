@@ -2589,6 +2589,32 @@ Validation:
 - `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, Sentry usage guard, native module inventory guard, native module upgrade-plan coverage guard, RN nodeify shim guard, TypeScript, and diff whitespace check.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this guard/tooling update.
 
+### BEM-36.26 - Native module upgrade plan guard self-check
+
+- Branch: `feature/bem-native-plan-coverage-self-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract native module upgrade-plan coverage comparison into `scripts/nativeModuleUpgradePlanGuard.mjs`.
+- Add `check:native-module-upgrade-plan-guard` with complete-plan and missing-package fixture checks.
+- Include the self-check before the real `check:native-module-upgrade-plan` in `android:dev:check-light`.
+- Refresh Android workflow and baseline documentation for the self-check.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `BEM-36.25` made the native module upgrade plan mechanically checked against the dependency inventory.
+- The comparison logic itself should have a fast positive/negative fixture check before grouped native dependency upgrades continue.
+- This matches the existing lightweight guard pattern used for camera, QR scanner callers, Sentry, and RN nodeify shims.
+
+Validation:
+
+- `corepack yarn check:native-module-upgrade-plan-guard` passed.
+- `corepack yarn check:native-module-upgrade-plan` passed and confirmed the plan covers `28` tracked native dependencies.
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, Sentry usage guard, native module inventory guard, native module upgrade-plan self-check, native module upgrade-plan coverage guard, RN nodeify shim guard, TypeScript, and diff whitespace check.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this guard/tooling update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
