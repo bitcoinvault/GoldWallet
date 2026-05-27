@@ -2436,6 +2436,27 @@ Validation:
 - `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.69 - README lightweight Android check docs
+
+- Branch: `feature/bem-readme-check-light-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Document `yarn android:dev:check-light` in the README Android running section.
+- Explain that the command is a fast maintenance check before build/emulator validation.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `android:dev:check-light` is now the main lightweight gate used by `prepush`.
+- The README should expose it as the first local maintenance check before heavier Android smoke/audit commands.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed and validated the README-documented lightweight gate.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
