@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
 const outputPath = path.join(outputDir, 'android-warning-audit.log');
+const summaryOutputPath = path.join(outputDir, 'android-warning-audit-summary.txt');
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -63,10 +64,15 @@ lines.forEach((line, index) => {
 console.log(`Android Gradle warning audit written to ${outputPath}`);
 
 if (findings.length === 0) {
+  writeFileSync(summaryOutputPath, 'No targeted Android Gradle warnings found.\n');
   console.log('No targeted Android Gradle warnings found.');
 } else {
+  const uniqueFindings = [...new Set(findings)];
+  writeFileSync(summaryOutputPath, `${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`);
   console.log('Targeted Android Gradle warnings:');
-  [...new Set(findings)].forEach(finding => console.log(`- ${finding}`));
+  uniqueFindings.forEach(finding => console.log(`- ${finding}`));
 }
+
+console.log(`Android Gradle warning audit summary written to ${summaryOutputPath}`);
 
 process.exit(result.status ?? 1);

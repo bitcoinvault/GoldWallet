@@ -1422,3 +1422,32 @@ Validation:
 - `git diff --check` passed.
 - `ANDROID_SMOKE_ADB_TIMEOUT_MS=60000 corepack yarn android:dev:smoke` passed on the connected Android emulator.
 - The smoke transcript logged `Using adb command timeout: 60000ms`, selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-37.39 - Android warning audit summary artifact
+
+- Branch: `feature/bem-37-warning-audit-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Write a compact `local-docs/android-warning-audit-summary.txt` artifact from `scripts/auditAndroidGradleWarnings.mjs`.
+- Keep the full `local-docs/android-warning-audit.log` artifact unchanged.
+- Document the summary artifact in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- The full Gradle warning audit log is intentionally verbose.
+- A stable small summary makes targeted warning deltas easier to review between mini-branches.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The audit wrote `local-docs/android-warning-audit.log` and `local-docs/android-warning-audit-summary.txt`.
+- The summary artifact contains the two current targeted warning sources:
+  - `jcenter()` from `node_modules\react-native-camera\android\build.gradle:59`.
+  - `execResult` from `node_modules\@sentry\react-native\sentry.gradle:48`.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
