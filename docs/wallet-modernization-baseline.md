@@ -124,7 +124,7 @@ Passing:
 - Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with generated timestamp, outcome, exit code, selected serial, Metro endpoint/reachability, app PID, logcat count, UI attempts, UI hierarchy path, screenshot path, and screenshot byte count
 - `corepack yarn android:dev:audit-warnings`
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
-- `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries plus their referenced local artifacts
+- `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
 - `corepack yarn android:dev:audit-smoke` refreshes warning audit, emulator smoke, and artifact checker evidence in one pass
 - `corepack yarn prepush` starts with Android warning guard, camera usage-scope, and Sentry usage-scope checks before shim, TypeScript, and promoted offline Jest suites
 

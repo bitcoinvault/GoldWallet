@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getUnexpectedAndroidWarningFindings } from './androidWarningBaselineGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -45,6 +46,12 @@ const assertNonNegativeInteger = (label, value) => {
   }
 };
 
+const assertIntegerEquals = (label, actual, expected) => {
+  if (Number(actual) !== expected) {
+    throw new Error(`${label} must be ${expected}. Received: ${actual || 'missing'}`);
+  }
+};
+
 const assertExistingFile = (label, filePath, requireNonEmpty = false) => {
   if (!filePath) {
     throw new Error(`${label} is missing from validation summary.`);
@@ -79,5 +86,22 @@ assertLine(warningSummary, 'Android Gradle warning baseline guard exit code: 0')
 assertNonNegativeInteger('Targeted Android Gradle warnings', getLineValue(warningSummary, 'Targeted Android Gradle warnings'));
 assertLine(warningSummary, 'Unexpected targeted Android Gradle warnings: 0');
 assertExistingFile('Android Gradle audit log path', getLineValue(warningSummary, 'Android Gradle audit log path'), true);
+
+const warningFindings = warningSummary
+  .split(/\r?\n/)
+  .filter(line => line.startsWith('- '))
+  .map(line => line.slice(2));
+const targetedWarningCount = getLineValue(warningSummary, 'Targeted Android Gradle warnings');
+const unexpectedWarningFindings = getUnexpectedAndroidWarningFindings(warningFindings);
+
+assertIntegerEquals('Targeted Android Gradle warnings', targetedWarningCount, warningFindings.length);
+
+if (unexpectedWarningFindings.length > 0) {
+  throw new Error(
+    `Unexpected targeted Android warning source(s) in validation summary:\n${unexpectedWarningFindings
+      .map(finding => `- ${finding}`)
+      .join('\n')}`,
+  );
+}
 
 console.log('Android validation artifacts are consistent.');
