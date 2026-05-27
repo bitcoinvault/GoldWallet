@@ -143,6 +143,7 @@
     "test:unit": "node node_modules/jest/bin/jest.js tests/unit --forceExit",
     "test:storage": "node node_modules/jest/bin/jest.js tests/integration/Storage.test.js --forceExit",
     "test:authenticator": "node node_modules/jest/bin/jest.js tests/integration/authenticator.test.js --forceExit",
+    "test:storage-network:focused": "yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline",
     "test:watchonly:offline": "node node_modules/jest/bin/jest.js tests/integration/WatchOnlyWallet.offline.test.js --forceExit",
     "test:hdwallet:offline": "node node_modules/jest/bin/jest.js tests/integration/HDWallet.offline.test.js --forceExit",
     "test:wallet-core:offline": "node node_modules/jest/bin/jest.js tests/integration/App.offline.test.js --forceExit",
