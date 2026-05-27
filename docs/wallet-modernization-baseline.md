@@ -95,6 +95,7 @@ High-risk native dependencies:
 - `react-native-svg` is old and can affect QR/icon rendering after RN upgrades.
 - `react-native-share`, `react-native-vector-icons`, `react-native-webview`, `react-native-fast-image` need native compatibility checks.
 - `react-native-prompt-android` still requires Jetifier because it uses old Android support imports before transformation.
+- Native module upgrade sequencing is tracked in `docs/native-module-upgrade-plan.md`, with the current package inventory guarded by `corepack yarn check:native-module-inventory`.
 
 Crypto/network dependencies that need extra care:
 
@@ -143,7 +144,7 @@ Known gaps:
 1. Keep Android validation tooling green and use `android:dev:verify` for app-affecting changes.
 2. Replace deprecated `react-native-camera` in a dedicated QR scanner migration branch.
 3. Handle Sentry Gradle/source-map behavior in a dedicated release tooling branch.
-4. Upgrade native modules in controlled groups.
+4. Upgrade native modules in controlled groups using `docs/native-module-upgrade-plan.md`.
 5. Continue RN stepwise from `0.68` toward newer supported lines.
 6. Defer target SDK 34 until the RN/toolchain path can support Android 14+ debug receiver requirements.
 7. Upgrade iOS Podfile/deployment target and validate schemes.
