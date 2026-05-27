@@ -1635,3 +1635,28 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn typescript:check`
 - `git diff --check`
+
+### BEM-36.13 - Android smoke failure screenshot
+
+- Branch: `feature/bem-36-smoke-failure-screenshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Try to capture `local-docs/android-smoke-dev.png` when `scripts/androidSmokeDev.mjs` fails after selecting an Android serial.
+- Keep existing smoke pass/fail criteria unchanged.
+- Keep successful smoke screenshot capture unchanged.
+- Document failure screenshot behavior in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- UI hierarchy failures can be easier to diagnose from the visible screen than from XML alone.
+- The helper should preserve the same screenshot artifact even when expected text validation fails.
+
+Validation:
+
+- `ANDROID_SMOKE_EXPECT_TEXTS=__missing_for_failure_artifact__ ANDROID_SMOKE_UI_WAIT_MS=1000 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` exits with code `1` and refreshes `local-docs/android-smoke-dev.png`.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` and refreshes the successful startup screenshot.
