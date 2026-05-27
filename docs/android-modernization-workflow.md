@@ -25,14 +25,11 @@ The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to
 Run these for normal mini-branches:
 
 ```powershell
-corepack yarn android:dev:check-warning-guard
-corepack yarn android:dev:check-artifact-guard
-corepack yarn check:camera-usage-scope
-corepack yarn check:sentry-usage-scope
-corepack yarn check:rn-nodeify-shims
-corepack yarn typescript:check
+corepack yarn android:dev:check-light
 git diff --check
 ```
+
+`android:dev:check-light` runs the Android warning baseline guard, Android warning artifact guard, camera usage guard, Sentry usage guard, nodeify shim guard, and TypeScript check.
 
 `check:camera-usage-scope` keeps `react-native-camera` runtime usage isolated to `ScanQrCodeScreen` until the dedicated QR scanner migration branch replaces it.
 
