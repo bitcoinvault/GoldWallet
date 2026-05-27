@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import path from 'path';
+import net from 'net';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
@@ -19,6 +20,9 @@ const uiWaitMs = Number(process.env.ANDROID_SMOKE_UI_WAIT_MS || 20000);
 const uiPollIntervalMs = Number(process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS || 1000);
 const logcatLineLimit = Number(process.env.ANDROID_SMOKE_LOGCAT_LINES || 400);
 const adbCommandTimeoutMs = Number(process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS || 60000);
+const metroHost = process.env.ANDROID_SMOKE_METRO_HOST || '127.0.0.1';
+const metroPort = Number(process.env.ANDROID_SMOKE_METRO_PORT || 8081);
+const metroTimeoutMs = Number(process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS || 3000);
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
   .map(text => text.trim())
@@ -126,6 +130,39 @@ const sleep = milliseconds => {
   spawnSync(process.execPath, ['-e', `setTimeout(() => {}, ${milliseconds})`], { stdio: 'ignore' });
 };
 
+const checkTcpPort = (host, port, timeoutMs) =>
+  new Promise((resolve, reject) => {
+    const socket = net.createConnection({ host, port });
+    const cleanup = () => {
+      socket.removeAllListeners();
+      socket.destroy();
+    };
+
+    socket.setTimeout(timeoutMs);
+    socket.once('connect', () => {
+      cleanup();
+      resolve();
+    });
+    socket.once('timeout', () => {
+      cleanup();
+      reject(new Error(`Timed out after ${timeoutMs}ms`));
+    });
+    socket.once('error', error => {
+      cleanup();
+      reject(error);
+    });
+  });
+
+const verifyMetro = async () => {
+  append(`Checking Metro at ${metroHost}:${metroPort} with timeout ${metroTimeoutMs}ms`);
+
+  try {
+    await checkTcpPort(metroHost, metroPort, metroTimeoutMs);
+  } catch (error) {
+    throw new Error(`Metro is not reachable at ${metroHost}:${metroPort}: ${error.message}`);
+  }
+};
+
 try {
   if (!adbCommand) {
     throw new Error('adb not found. Set ANDROID_HOME, ANDROID_SDK_ROOT, or add adb to PATH.');
@@ -151,6 +188,14 @@ try {
     throw new Error(`ANDROID_SMOKE_ADB_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS}`);
   }
 
+  if (!Number.isInteger(metroPort) || metroPort <= 0 || metroPort > 65535) {
+    throw new Error(`ANDROID_SMOKE_METRO_PORT must be an integer between 1 and 65535. Received: ${process.env.ANDROID_SMOKE_METRO_PORT}`);
+  }
+
+  if (!Number.isInteger(metroTimeoutMs) || metroTimeoutMs <= 0) {
+    throw new Error(`ANDROID_SMOKE_METRO_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS}`);
+  }
+
   if (!existsSync(apkPath)) {
     throw new Error(`APK not found: ${apkPath}. Run corepack yarn android:dev:verify to rebuild and smoke-test the dev APK.`);
   }
@@ -163,10 +208,14 @@ try {
   append(`Using UI poll interval: ${uiPollIntervalMs}ms`);
   append(`Using logcat line limit: ${logcatLineLimit}`);
   append(`Using adb command timeout: ${adbCommandTimeoutMs}ms`);
+  append(`Using Metro endpoint: ${metroHost}:${metroPort}`);
+  append(`Using Metro check timeout: ${metroTimeoutMs}ms`);
   append(expectedTexts.length > 0 ? `Using expected UI text(s): ${expectedTexts.join(', ')}` : 'Using expected UI text(s): none');
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
   }
+
+  await verifyMetro();
 
   const devicesOutput = run('adb devices', ['devices'], { useSelectedDevice: false });
   const devices = devicesOutput

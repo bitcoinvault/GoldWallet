@@ -76,7 +76,7 @@ corepack yarn android:dev:smoke
 
 Use `android:dev:verify` when the APK freshness matters; `android:dev:smoke` only installs and tests the current dev APK artifact.
 
-The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. On failures after an Android serial is selected, it also tries to refresh the same screenshot artifact before exiting. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
+The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. It checks that Metro is reachable before installing and launching the dev APK. On failures after an Android serial is selected, it also tries to refresh the same screenshot artifact before exiting. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
 
 By default it also checks that the app is focused and that the UI hierarchy contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. Override that list with `ANDROID_SMOKE_EXPECT_TEXTS` when testing a different fixture.
 
@@ -90,6 +90,9 @@ Useful smoke overrides:
 - `ANDROID_SMOKE_UI_POLL_INTERVAL_MS`: positive milliseconds between UI hierarchy polling attempts; default is `1000`.
 - `ANDROID_SMOKE_LOGCAT_LINES`: positive integer line limit for app-process startup logcat.
 - `ANDROID_SMOKE_ADB_TIMEOUT_MS`: positive integer timeout for each `adb` command.
+- `ANDROID_SMOKE_METRO_HOST`: Metro host checked before launch; default is `127.0.0.1`.
+- `ANDROID_SMOKE_METRO_PORT`: Metro port checked before launch; default is `8081`.
+- `ANDROID_SMOKE_METRO_TIMEOUT_MS`: positive integer timeout for the Metro preflight check; default is `3000`.
 - `ANDROID_SMOKE_EXPECT_TEXTS`: comma-separated UI texts expected after launch.
 
 Smoke pass means:
