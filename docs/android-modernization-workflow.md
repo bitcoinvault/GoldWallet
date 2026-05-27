@@ -28,7 +28,7 @@ Run these for normal mini-branches:
 corepack yarn android:dev:check-light
 ```
 
-`android:dev:check-light` runs the Android warning baseline guard, Android warning artifact guard, camera usage guard self-check, camera usage inventory guard, QR scanner caller guard self-check, QR scanner caller inventory guard, QR render usage self-check, QR render usage inventory guard, Sentry usage guard self-check, Sentry usage inventory guard, CodePush usage guard self-check, CodePush usage inventory guard, Firebase usage guard self-check, Firebase usage inventory guard, iOS push notification usage guard self-check, iOS push notification usage inventory guard, native module inventory self-check, native module inventory guard, native module upgrade-plan self-check, native module upgrade-plan coverage guard, nodeify shim guard self-check, nodeify shim inventory guard, TypeScript check, and diff whitespace check.
+`android:dev:check-light` runs the Android warning baseline guard, Android warning artifact guard, camera usage guard self-check, camera usage inventory guard, QR scanner caller guard self-check, QR scanner caller inventory guard, QR render usage self-check, QR render usage inventory guard, Sentry usage guard self-check, Sentry usage inventory guard, CodePush usage guard self-check, CodePush usage inventory guard, Firebase usage guard self-check, Firebase usage inventory guard, iOS push notification usage guard self-check, iOS push notification usage inventory guard, native module inventory self-check, native module inventory guard, native module upgrade-plan self-check, native module upgrade-plan coverage guard, nodeify shim guard self-check, nodeify shim inventory guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
 
 `check:camera-usage-scope` keeps `react-native-camera` runtime usage isolated to `ScanQrCodeScreen` until the dedicated QR scanner migration branch replaces it.
 
@@ -43,6 +43,8 @@ corepack yarn android:dev:check-light
 `check:push-notification-ios-usage-scope` keeps the iOS push notification bridge isolated to the current badge/notification runtime file and AppDelegate/background-mode wiring before changing `@react-native-community/push-notification-ios`.
 
 `check:native-module-inventory` keeps the current BEM-36 native dependency inventory explicit before grouped native module upgrades. `check:native-module-upgrade-plan-guard` self-checks the plan coverage comparison logic, and `check:native-module-upgrade-plan` verifies that every tracked native dependency appears in `docs/native-module-upgrade-plan.md`. If a native dependency version changes, update the inventory, the plan, and the related upgrade notes in the same branch.
+
+`android:dev:check-light-docs` keeps README, this workflow, and `docs/wallet-modernization-baseline.md` aligned with the main lightweight check groups when the gate changes.
 
 For Android build validation:
 
