@@ -86,6 +86,18 @@ const finish = exitCode => {
   process.exit(exitCode);
 };
 
+const tryCaptureFailureScreenshot = () => {
+  if (!adbCommand || !selectedAndroidSerial) {
+    return;
+  }
+
+  try {
+    runBinary('capture failure screenshot', ['exec-out', 'screencap', '-p'], screenshotOutputPath);
+  } catch (screenshotError) {
+    append(`capture failure screenshot skipped: ${screenshotError.message}`);
+  }
+};
+
 const runBinary = (label, args, outputFile) => {
   append(`\n> ${label}`);
   const adbArgs = selectedAndroidSerial ? ['-s', selectedAndroidSerial, ...args] : args;
@@ -255,5 +267,6 @@ try {
   finish(0);
 } catch (error) {
   append(`\n${error.message}`);
+  tryCaptureFailureScreenshot();
   finish(1);
 }
