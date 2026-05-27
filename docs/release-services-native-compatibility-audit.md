@@ -53,6 +53,14 @@ corepack yarn check:push-notification-ios-usage-guard
 corepack yarn check:push-notification-ios-usage-scope
 ```
 
+The release-service env key surface is guarded by:
+
+```powershell
+corepack yarn check:release-service-env-keys
+```
+
+This validates key presence only. It does not print or guess DSN/deployment-key values. Beta env files currently do not require CodePush deployment keys until the beta release/update strategy is confirmed.
+
 ## Current Native And Build Surface
 
 Android:
