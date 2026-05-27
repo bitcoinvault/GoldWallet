@@ -1944,6 +1944,30 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims` passed.
 - `corepack yarn typescript:check` passed.
 
+### BEM-36.22 - README Android audit-smoke command
+
+- Branch: `feature/bem-36-readme-audit-smoke-command`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:audit-smoke` to the README Android development verification section.
+- Explain that the command runs warning audit, emulator smoke, and validation-artifact checker in sequence.
+- Keep package scripts, runtime code, native code, and dependencies unchanged.
+
+Why:
+
+- `android:dev:audit-smoke` is now the shortest reliable validation path for Android maintenance branches that need both warning and runtime smoke evidence.
+- The README should expose that command next to the existing `android:dev:verify` flow.
+
+Validation:
+
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
