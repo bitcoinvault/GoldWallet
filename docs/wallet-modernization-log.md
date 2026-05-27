@@ -2703,6 +2703,35 @@ Validation:
 - `corepack yarn android:dev:check-light` passed.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
 
+### BEM-36.31 - SVG QR compatibility audit
+
+- Branch: `feature/bem-svg-qr-compat-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/svg-qr-render-compatibility-audit.md`.
+- Record the current `react-native-svg` / `react-native-qrcode-svg` package state and npm compatibility snapshot.
+- Link the audit from the native module upgrade plan.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Findings:
+
+- The repo currently pins `react-native-svg` to `9.5.1`.
+- `react-native-qrcode-svg@6.0.6` declares `react-native-svg ^9.6.4`.
+- Latest npm metadata checked for this branch reports `react-native-svg@15.15.5` and `react-native-qrcode-svg@6.3.21`; the latest QR package declares `react-native-svg >=14.0.0`.
+- Future QR rendering dependency work should treat `react-native-svg` and `react-native-qrcode-svg` as a coupled compatibility pair.
+
+Why:
+
+- The native module upgrade plan listed `react-native-svg` / QR rendering review as the next recommended branch before camera migration.
+- The QR render surface is now guarded, so this audit records the dependency compatibility risk and the future validation path before changing package versions.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
