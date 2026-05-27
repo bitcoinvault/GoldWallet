@@ -52,7 +52,9 @@ Risk:
 Branch shape:
 
 - One mini-branch per package or a very small compatible pair.
+- `check:qr-render-usage` keeps the current `react-native-qrcode-svg` render surface explicit before `react-native-svg` changes.
 - Validate TypeScript, Android build, emulator dashboard smoke, wallet list, send/receive navigation, and QR display.
+- For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
 
 ### Group C - Device, Storage, Network, And Runtime Integrations
 
