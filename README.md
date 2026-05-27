@@ -49,6 +49,14 @@ But to run the app with Metro server, this step isn't required.
 
 ## Running the app
 
+For a fast Android maintenance check that does not build or launch the app, run:
+
+```sh
+$ yarn android:dev:check-light
+```
+
+This runs the lightweight Android warning, validation artifact, camera/QR/Sentry usage, node polyfill shim, TypeScript, and diff whitespace guards used before the offline suites in `prepush`.
+
 For Android development verification, start Metro first:
 
 ```sh
