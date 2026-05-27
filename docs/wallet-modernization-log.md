@@ -2261,6 +2261,30 @@ Validation:
 - `git diff --check` passed.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.62 - Android lightweight check script
+
+- Branch: `feature/bem-android-lightweight-check-script`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:check-light` as the aggregate lightweight validation command for Android maintenance branches.
+- Make `prepush` run `android:dev:check-light` before the promoted offline Jest suites.
+- Refresh Android workflow and baseline documentation to use the aggregate command.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- The normal maintenance checklist and `prepush` had started duplicating the same guard sequence.
+- A single aggregate command makes future mini-branches easier to validate consistently before commits.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, Sentry usage guard, nodeify shim guard, and TypeScript.
+- `git diff --check` passed.
+- `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
