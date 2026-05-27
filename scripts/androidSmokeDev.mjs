@@ -106,6 +106,7 @@ const writeSummary = exitCode => {
     `App PID: ${appPid || 'not available'}`,
     `Captured logcat lines: ${capturedLogcatLines}`,
     `UI hierarchy attempts: ${uiAttempts}`,
+    `UI hierarchy path: ${uiOutputPath}`,
     `Screenshot path: ${screenshotOutputPath}`,
     `Screenshot bytes: ${screenshotBytes}`,
   ].join('\n');
