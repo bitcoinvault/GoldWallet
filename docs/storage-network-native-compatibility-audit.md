@@ -13,7 +13,7 @@ Tracked package versions:
 - `react-native-device-info`: manifest `^6.0.2`, lockfile `6.2.1`
 - `react-native-config`: manifest and lockfile `1.4.4`
 - `react-native-localize`: manifest `^1.4.0`, lockfile `1.4.3`
-- `react-native-randombytes`: manifest and lockfile `3.5.3`
+- `react-native-randombytes`: manifest and lockfile `3.6.2`
 - `react-native-secure-key-store`: manifest `^2.0.10`, lockfile `2.0.10`
 - `react-native-tcp-socket`: manifest `^6.0.6`, lockfile `6.0.6`
 - `react-native-webview`: manifest `^11.26.1`, lockfile `11.26.1`
@@ -28,7 +28,7 @@ Direct usage found in this audit:
 - `react-native-secure-key-store`: `SecureStorageService`.
 - `react-native-tcp-socket`: TLS Electrum socket implementation.
 - `react-native-webview`: terms and conditions screens.
-- `react-native-randombytes`: tracked native dependency for crypto random byte behavior even though direct source usage is indirect through wallet/crypto dependencies.
+- `react-native-randombytes`: tracked native dependency for crypto random byte behavior even though direct source usage is indirect through wallet/crypto dependencies. Updated from `3.5.3` to `3.6.2` in `BEM-36.49`.
 
 The current usage surface is guarded by:
 
@@ -80,6 +80,10 @@ peerDependencies:
 - react-native-macos: *
 
 react-native-randombytes latest: 3.6.2
+
+Note: npm marks `react-native-randombytes@3.6.2` as deprecated with a recommendation to use `react-native-get-random-values`. This audit keeps the existing package and treats replacement as a separate crypto/runtime migration.
+
+Windows validation for `BEM-36.49` covered Android build and emulator smoke. `ios/Podfile.lock` still needs a Mac `pod install` refresh before iOS validation is claimed for the `react-native-randombytes` bump.
 
 react-native-secure-key-store latest: 2.0.10
 

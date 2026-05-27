@@ -9892,10 +9892,10 @@ react-native-qrcode-svg@^6.0.6:
     prop-types "^15.7.2"
     qrcode "^1.4.4"
 
-react-native-randombytes@3.5.3:
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/react-native-randombytes/-/react-native-randombytes-3.5.3.tgz#b3bdcd11473cce106551a586244b98855e443cd1"
-  integrity sha512-n/7QwMrRJxHr+/3mt2KxqqacGylM+ssW+FfBTgXGzvwq5KzSohooEWf6Z6MTSByuJ/izP9VbSPtwomPwzvupKQ==
+react-native-randombytes@3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/react-native-randombytes/-/react-native-randombytes-3.6.2.tgz#dd8efecd15ff6173ba9010579da983ecdec47ced"
+  integrity sha512-28gK2ludbNN41MHtr0dVNHQbkunAbMZmgjPQqxPK68osCjG9VkdDGCM+Eqk0ZyZ7hwWd9MUCIgEpK7z2865hXQ==
   dependencies:
     buffer "^4.9.1"
     sjcl "^1.0.3"
