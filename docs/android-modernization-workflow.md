@@ -77,6 +77,7 @@ For a fast check of the warning baseline guard patterns without running Gradle:
 
 ```powershell
 corepack yarn android:dev:check-warning-guard
+corepack yarn android:dev:check-artifact-guard
 ```
 
 To refresh the warning audit and emulator smoke artifacts in one pass:

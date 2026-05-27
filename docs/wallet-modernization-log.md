@@ -2177,6 +2177,36 @@ Validation:
 - `git diff --check` passed.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.59 - Android warning artifact guard self-check
+
+- Branch: `feature/bem-warning-artifact-guard-self-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract warning-summary source validation into `scripts/androidValidationArtifactsGuard.mjs`.
+- Add `scripts/checkAndroidValidationArtifactGuard.mjs` with positive checks for known sources and zero-warning target state.
+- Add negative checks for mismatched warning count and unexpected warning sources.
+- Add `android:dev:check-artifact-guard` package script and document it in the Android workflow/baseline.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `BEM-37.58` made artifact validation stricter; this branch gives that stricter logic a fast self-check that does not require Gradle, Metro, or emulator state.
+- The guard should continue allowing the desired future cleanup outcome where targeted warning count becomes `0`.
+
+Validation:
+
+- `corepack yarn android:dev:check-artifact-guard` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:sentry-usage-scope` passed.
+- `corepack yarn check:camera-usage-scope` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
