@@ -2358,6 +2358,32 @@ Validation:
 - `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.66 - Camera usage guard self-check
+
+- Branch: `feature/bem-camera-usage-self-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract `react-native-camera` usage scope comparison into `scripts/cameraUsageGuard.mjs`.
+- Add `scripts/checkCameraUsageGuard.mjs` with positive and negative guard fixture checks.
+- Add `check:camera-usage-guard` package script and include it in `android:dev:check-light`.
+- Refresh the camera replacement plan, Android workflow, and baseline documentation for the self-check.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- The camera usage inventory guard is now part of the lightweight gate; this branch gives the allowlist comparison logic a fast self-check.
+- The future camera migration should fail fast if `react-native-camera` usage moves outside `ScanQrCodeScreen` or disappears before the planned replacement branch.
+
+Validation:
+
+- `corepack yarn check:camera-usage-guard` passed.
+- `corepack yarn check:camera-usage-scope` passed and confirmed `react-native-camera` runtime usage is scoped to `src/screens/ScanQrCodeScreen.tsx`.
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard self-check, camera usage inventory guard, QR scanner caller guard self-check, QR scanner caller inventory guard, Sentry usage guard, nodeify shim guard, TypeScript, and diff whitespace check.
+- `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`

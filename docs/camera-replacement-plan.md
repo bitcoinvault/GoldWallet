@@ -9,6 +9,7 @@
 - Android and iOS camera permissions are already present.
 - `react-native-camera` resolves to `3.44.3`; the latest package release is `4.2.1`.
 - The latest `react-native-camera` still contains `jcenter()` in its Android Gradle file, so a package bump does not remove the warning.
+- `corepack yarn check:camera-usage-guard` verifies the camera usage guard fixtures.
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface before the replacement work starts.
 - `corepack yarn check:qr-scan-caller-guard` verifies the caller-inventory guard fixtures.
 - `corepack yarn check:qr-scan-callers` guards the current QR scanner caller inventory before the replacement work starts.
@@ -57,6 +58,7 @@ Scope:
 ## Validation Plan
 
 - `corepack yarn check:rn-nodeify-shims`.
+- `corepack yarn check:camera-usage-guard`.
 - `corepack yarn check:camera-usage-scope`.
 - `corepack yarn check:qr-scan-caller-guard`.
 - `corepack yarn check:qr-scan-callers`.
