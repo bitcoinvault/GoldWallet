@@ -830,3 +830,21 @@ Validation:
 
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed and confirmed the current two targeted warning sources.
 - No runtime code changed in this branch.
+
+### BEM-36.4 - Android modernization workflow docs
+
+- Branch: `feature/bem-36-android-workflow-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/android-modernization-workflow.md`.
+- Document the local Android modernization workflow for mini-branches.
+- Capture the JDK 17 setup, standard checks, Android build commands, warning audit command, Metro reset, emulator smoke, and known limits.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime code changed in this branch.
