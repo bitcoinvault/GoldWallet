@@ -95,6 +95,7 @@ const run = (label, args, options = {}) => {
 
 const writeSummary = exitCode => {
   const summary = [
+    `Generated at: ${new Date().toISOString()}`,
     `Android smoke outcome: ${smokeOutcome}`,
     `Android smoke exit code: ${exitCode}`,
     `Android smoke reason: ${smokeReason}`,

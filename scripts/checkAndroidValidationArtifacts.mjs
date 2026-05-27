@@ -27,6 +27,12 @@ const assertLine = (content, expectedLine) => {
   }
 };
 
+const assertIsoTimestamp = (label, value) => {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) {
+    throw new Error(`${label} must be an ISO timestamp. Received: ${value || 'missing'}`);
+  }
+};
+
 const assertPositiveInteger = (label, value) => {
   if (!/^\d+$/.test(value) || Number(value) <= 0) {
     throw new Error(`${label} must be a positive integer. Received: ${value || 'missing'}`);
@@ -56,6 +62,7 @@ const assertExistingFile = (label, filePath, requireNonEmpty = false) => {
 const smokeSummary = readSummary(smokeSummaryPath);
 const warningSummary = readSummary(warningSummaryPath);
 
+assertIsoTimestamp('Smoke summary Generated at', getLineValue(smokeSummary, 'Generated at'));
 assertLine(smokeSummary, 'Android smoke outcome: passed');
 assertLine(smokeSummary, 'Android smoke exit code: 0');
 assertLine(smokeSummary, 'Metro reachable: yes');
@@ -66,6 +73,7 @@ assertPositiveInteger('Screenshot bytes', getLineValue(smokeSummary, 'Screenshot
 assertExistingFile('UI hierarchy path', getLineValue(smokeSummary, 'UI hierarchy path'), true);
 assertExistingFile('Screenshot path', getLineValue(smokeSummary, 'Screenshot path'), true);
 
+assertIsoTimestamp('Warning audit summary Generated at', getLineValue(warningSummary, 'Generated at'));
 assertLine(warningSummary, 'Android Gradle audit exit code: 0');
 assertNonNegativeInteger('Targeted Android Gradle warnings', getLineValue(warningSummary, 'Targeted Android Gradle warnings'));
 assertExistingFile('Android Gradle audit log path', getLineValue(warningSummary, 'Android Gradle audit log path'), true);
