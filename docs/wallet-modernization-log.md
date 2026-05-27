@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.37 - iOS push notification usage scope guard
+
+- Branch: `feature/bem-push-notification-ios-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/pushNotificationIosUsageGuard.mjs`, `scripts/checkPushNotificationIosUsageGuard.mjs`, and `scripts/checkPushNotificationIosUsageScope.mjs`.
+- Wire `check:push-notification-ios-usage-guard` and `check:push-notification-ios-usage-scope` into `android:dev:check-light`.
+- Document the guard in `docs/release-services-native-compatibility-audit.md`.
+
+Why:
+
+- `@react-native-community/push-notification-ios` touches runtime badge handling and native iOS notification forwarding.
+- The future iOS push bridge upgrade should start from a guarded runtime/native integration surface.
+
+Validation:
+
+- `corepack yarn check:push-notification-ios-usage-guard`
+- `corepack yarn check:push-notification-ios-usage-scope`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.36 - Firebase usage scope guard
 
 - Branch: `feature/bem-firebase-usage-guard`
