@@ -1891,6 +1891,31 @@ Validation:
 - `git diff --check` passed.
 - `corepack yarn prepush` passed with the new warning guard first, followed by shim check, TypeScript, unit tests, and the promoted offline integration suites.
 
+### BEM-37.50 - Android warning guard workflow docs
+
+- Branch: `feature/bem-37-warning-guard-workflow-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:check-warning-guard` to the normal Android mini-branch checks in `docs/android-modernization-workflow.md`.
+- Document the warning guard self-check as the fast non-Gradle validation path for warning baseline patterns.
+- Refresh `docs/wallet-modernization-baseline.md` so the current validation baseline includes the warning guard and pre-push ordering.
+- Keep package scripts, runtime code, and dependency versions unchanged.
+
+Why:
+
+- The warning guard is now part of the actual `prepush` gate.
+- The workflow and baseline docs should match the current validation surface so future mini-branches run the same checks consistently.
+
+Validation:
+
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
