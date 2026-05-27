@@ -1613,3 +1613,25 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn typescript:check`
 - `git diff --check`
+
+### BEM-34.2 - Baseline current-state refresh
+
+- Branch: `feature/bem-34-baseline-current-state-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/wallet-modernization-baseline.md` after the latest Android warning-audit and smoke-helper hardening branches.
+- Replace the stale single current-task branch reference with the current focused-branch model.
+- Add the current smoke UI readiness polling and warning-audit diagnostic behavior to the validation baseline.
+
+Why:
+
+- The baseline document is used as a current maintenance snapshot, so it should match the actual helper behavior on `upgrade/wallet-modernization`.
+- Keeping this in docs avoids overstating that a stale branch is still the active task branch.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
