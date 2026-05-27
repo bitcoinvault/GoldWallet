@@ -84,7 +84,7 @@ Useful smoke overrides:
 
 - `ANDROID_SMOKE_APK`: install a non-default APK path.
 - `ANDROID_SMOKE_PACKAGE`: launch a non-default package name.
-- `ANDROID_SMOKE_WAIT_MS`: wait longer or shorter before reading startup state.
+- `ANDROID_SMOKE_WAIT_MS`: non-negative milliseconds to wait before reading startup state.
 - `ANDROID_SMOKE_EXPECT_TEXTS`: comma-separated UI texts expected after launch.
 
 Smoke pass means:
