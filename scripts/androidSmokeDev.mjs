@@ -11,6 +11,7 @@ const uiOutputPath = path.join(outputDir, 'android-smoke-dev-ui.xml');
 const screenshotOutputPath = path.join(outputDir, 'android-smoke-dev.png');
 const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
 const androidSerial = process.env.ANDROID_SERIAL?.trim();
+let selectedAndroidSerial = androidSerial;
 const apkPath =
   process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
 const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 8000);
@@ -44,7 +45,7 @@ const record = line => {
 const run = (label, args, options = {}) => {
   append(`\n> ${label}`);
   const { printOutput = true, recordOutput = true, useSelectedDevice = true, ...spawnOptions } = options;
-  const adbArgs = useSelectedDevice && androidSerial ? ['-s', androidSerial, ...args] : args;
+  const adbArgs = useSelectedDevice && selectedAndroidSerial ? ['-s', selectedAndroidSerial, ...args] : args;
   const result = spawnSync(adbCommand, adbArgs, {
     cwd: root,
     encoding: 'utf8',
@@ -83,7 +84,7 @@ const finish = exitCode => {
 
 const runBinary = (label, args, outputFile) => {
   append(`\n> ${label}`);
-  const adbArgs = androidSerial ? ['-s', androidSerial, ...args] : args;
+  const adbArgs = selectedAndroidSerial ? ['-s', selectedAndroidSerial, ...args] : args;
   const result = spawnSync(adbCommand, adbArgs, {
     cwd: root,
     encoding: 'buffer',
@@ -129,7 +130,7 @@ try {
   append(`Using APK: ${apkPath}`);
   append(`Using package: ${packageName}`);
   if (androidSerial) {
-    append(`Using Android serial: ${androidSerial}`);
+    append(`Requested Android serial: ${androidSerial}`);
   }
 
   const devicesOutput = run('adb devices', ['devices'], { useSelectedDevice: false });
@@ -151,6 +152,9 @@ try {
   if (!androidSerial && deviceSerials.length > 1) {
     throw new Error(`Multiple Android devices/emulators connected: ${deviceSerials.join(', ')}. Set ANDROID_SERIAL to choose one.`);
   }
+
+  selectedAndroidSerial = androidSerial || deviceSerials[0];
+  append(`Using Android serial: ${selectedAndroidSerial}`);
 
   run('install dev APK', ['install', '-r', apkPath]);
   run('reverse Metro port', ['reverse', 'tcp:8081', 'tcp:8081']);

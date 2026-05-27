@@ -1347,3 +1347,27 @@ Validation:
 - `git diff --check` passed.
 - `ANDROID_SMOKE_LOGCAT_LINES=250 corepack yarn android:dev:smoke` passed on the connected Android emulator.
 - The helper used the configured app-process logcat line limit, installed the current dev APK, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-36.18 - Android smoke selected device
+
+- Branch: `feature/bem-36-smoke-selected-device`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Select a concrete Android serial after `adb devices` validation even when `ANDROID_SERIAL` is not set and only one device is connected.
+- Route all device-specific smoke commands through the selected serial.
+- Log both a requested serial and the effective selected serial when applicable.
+
+Why:
+
+- The helper already fails fast when multiple devices are connected without `ANDROID_SERIAL`.
+- Using the single detected device serial explicitly makes install, shell, logcat, and screenshot commands deterministic and easier to audit from `local-docs/android-smoke-dev.log`.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator without `ANDROID_SERIAL` set.
+- The helper detected the single connected device, logged `Using Android serial: emulator-5554`, routed device-specific `adb` commands through that serial, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
