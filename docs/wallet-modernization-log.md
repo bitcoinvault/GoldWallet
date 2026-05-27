@@ -1321,3 +1321,29 @@ Validation:
 - `git diff --check` passed.
 - `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke` passed on the connected Android emulator.
 - The helper routed device-specific `adb` commands through the selected serial, installed the current dev APK, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-36.17 - Android smoke logcat line limit
+
+- Branch: `feature/bem-36-smoke-logcat-lines`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `ANDROID_SMOKE_LOGCAT_LINES` support to `scripts/androidSmokeDev.mjs`.
+- Validate that the value is a positive integer before reading logcat.
+- Use the configured value for the app-process `adb logcat -t` startup scan.
+- Document the override in the Android modernization workflow.
+
+Why:
+
+- The helper previously hardcoded `400` startup logcat lines.
+- Some emulator/Metro startup investigations need a wider or narrower app-process log window without editing the script.
+
+Validation:
+
+- `ANDROID_SMOKE_LOGCAT_LINES=abc node scripts/androidSmokeDev.mjs` exited with code `1` and wrote the expected positive-integer error.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `ANDROID_SMOKE_LOGCAT_LINES=250 corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper used the configured app-process logcat line limit, installed the current dev APK, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.

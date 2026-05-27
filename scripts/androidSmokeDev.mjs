@@ -14,6 +14,7 @@ const androidSerial = process.env.ANDROID_SERIAL?.trim();
 const apkPath =
   process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
 const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 8000);
+const logcatLineLimit = Number(process.env.ANDROID_SMOKE_LOGCAT_LINES || 400);
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
   .map(text => text.trim())
@@ -116,6 +117,10 @@ try {
     throw new Error(`ANDROID_SMOKE_WAIT_MS must be a non-negative number of milliseconds. Received: ${process.env.ANDROID_SMOKE_WAIT_MS}`);
   }
 
+  if (!Number.isInteger(logcatLineLimit) || logcatLineLimit <= 0) {
+    throw new Error(`ANDROID_SMOKE_LOGCAT_LINES must be a positive integer. Received: ${process.env.ANDROID_SMOKE_LOGCAT_LINES}`);
+  }
+
   if (!existsSync(apkPath)) {
     throw new Error(`APK not found: ${apkPath}. Run corepack yarn android:dev:verify to rebuild and smoke-test the dev APK.`);
   }
@@ -165,7 +170,7 @@ try {
 
   append(`App PID: ${appPid}`);
 
-  const logcat = run('read app startup logcat', ['logcat', '-d', '--pid', appPid, '-t', '400'], { printOutput: false });
+  const logcat = run('read app startup logcat', ['logcat', '-d', '--pid', appPid, '-t', String(logcatLineLimit)], { printOutput: false });
   append(`Captured ${logcat.split(/\r?\n/).filter(Boolean).length} recent logcat lines.`);
   const failingLines = logcat
     .split(/\r?\n/)
