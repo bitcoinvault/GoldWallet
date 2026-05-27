@@ -2539,6 +2539,30 @@ Validation:
 - `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, Sentry usage guard, native module inventory guard, RN nodeify shim guard, TypeScript, and diff whitespace check.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this guard/tooling update.
 
+### BEM-36.24 - Native module upgrade plan
+
+- Branch: `feature/bem-native-module-upgrade-plan`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/native-module-upgrade-plan.md`.
+- Group the current native dependency inventory into controlled upgrade streams.
+- Record branch shape and validation expectations for docs/tooling-only, dependency/native, and release-service changes.
+- Link the plan from the modernization baseline.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `BEM-36` remains in progress and now has a guarded native dependency inventory.
+- The next dependency branches should have an explicit sequencing plan so camera, Sentry/Firebase, navigation/layout, and storage/network changes do not get mixed.
+- This keeps the small-branch workflow aligned with the larger wallet modernization roadmap in Plane.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
