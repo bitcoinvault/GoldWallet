@@ -55,11 +55,11 @@ const findings = [];
 const expectedFindingPatterns = [
   {
     label: 'Sentry execResult',
-    pattern: /^execResult: .*node_modules\\@sentry\\react-native\\sentry\.gradle:48\)/,
+    pattern: /^execResult: .*node_modules[\\/]@sentry[\\/]react-native[\\/]sentry\.gradle:48\)/,
   },
   {
     label: 'react-native-camera jcenter',
-    pattern: /^jcenter\(\): .*node_modules\\react-native-camera\\android\\build\.gradle:59\)/,
+    pattern: /^jcenter\(\): .*node_modules[\\/]react-native-camera[\\/]android[\\/]build\.gradle:59\)/,
   },
 ];
 

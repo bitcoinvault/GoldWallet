@@ -1816,6 +1816,30 @@ Validation:
 - The warning audit summary recorded `Android Gradle warning baseline guard exit code: 0`, `Targeted Android Gradle warnings: 2`, and `Unexpected targeted Android Gradle warnings: 0`.
 - `corepack yarn android:dev:check-artifacts` passed with the refreshed warning audit summary and existing smoke summary artifacts.
 
+### BEM-37.47 - Android warning baseline guard path separators
+
+- Branch: `feature/bem-37-warning-baseline-guard-paths`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Android warning baseline guard accept both Windows `\` and Unix `/` path separators for known warning sources.
+- Keep the allowed warning sources unchanged: Sentry `execResult` and `react-native-camera` `jcenter()`.
+- Keep audit output and artifact checker behavior unchanged.
+
+Why:
+
+- The warning audit runs locally on Windows now, but the same guard should not fail falsely on CI or another developer machine that prints Gradle stack paths with `/`.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The warning audit summary recorded `Android Gradle warning baseline guard exit code: 0`, `Targeted Android Gradle warnings: 2`, and `Unexpected targeted Android Gradle warnings: 0` after the separator-tolerant patterns.
+- `corepack yarn android:dev:check-artifacts` passed with the refreshed warning audit summary.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
