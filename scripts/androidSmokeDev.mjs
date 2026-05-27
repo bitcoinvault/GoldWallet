@@ -129,6 +129,9 @@ try {
   append(`Using adb: ${adbCommand}`);
   append(`Using APK: ${apkPath}`);
   append(`Using package: ${packageName}`);
+  append(`Using startup wait: ${startupWaitMs}ms`);
+  append(`Using logcat line limit: ${logcatLineLimit}`);
+  append(expectedTexts.length > 0 ? `Using expected UI text(s): ${expectedTexts.join(', ')}` : 'Using expected UI text(s): none');
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
   }

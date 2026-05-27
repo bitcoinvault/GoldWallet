@@ -1371,3 +1371,27 @@ Validation:
 - `git diff --check` passed.
 - `corepack yarn android:dev:smoke` passed on the connected Android emulator without `ANDROID_SERIAL` set.
 - The helper detected the single connected device, logged `Using Android serial: emulator-5554`, routed device-specific `adb` commands through that serial, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-36.19 - Android smoke config logging
+
+- Branch: `feature/bem-36-smoke-config-log`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Log the effective startup wait, logcat line limit, and expected UI text list at the start of `scripts/androidSmokeDev.mjs`.
+- Keep smoke behavior unchanged.
+
+Why:
+
+- The smoke helper now supports multiple environment overrides.
+- Recording the effective configuration in `local-docs/android-smoke-dev.log` makes smoke artifacts easier to audit without reconstructing the command environment.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The smoke transcript logged `Using startup wait: 8000ms`, `Using logcat line limit: 400`, and `Using expected UI text(s): Wallets, E2EWalletTypeTest, Send, Receive`.
+- The helper selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
