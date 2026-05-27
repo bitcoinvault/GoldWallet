@@ -2563,6 +2563,32 @@ Validation:
 - `corepack yarn android:dev:check-light` passed.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
 
+### BEM-36.25 - Native module upgrade plan coverage guard
+
+- Branch: `feature/bem-native-plan-coverage-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:native-module-upgrade-plan` to verify that every dependency tracked by the native module inventory appears in `docs/native-module-upgrade-plan.md`.
+- Include the upgrade-plan coverage guard in `android:dev:check-light`.
+- Update the native module upgrade plan to cover the missing tracked packages: `@react-native-community/blur`, `react-native-bootsplash`, `react-native-fast-image`, and `react-native-randombytes`.
+- Refresh Android workflow and baseline documentation for the new guard.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `BEM-36.23` introduced a guarded dependency inventory and `BEM-36.24` introduced the upgrade sequencing plan.
+- The plan should stay mechanically aligned with the inventory so future native dependency branches do not accidentally omit a module category.
+- This keeps grouped native upgrades auditable before package versions start changing.
+
+Validation:
+
+- `corepack yarn check:native-module-upgrade-plan` passed and confirmed the plan covers `28` tracked native dependencies.
+- `corepack yarn check:native-module-inventory` passed and confirmed the current inventory is stable.
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, Sentry usage guard, native module inventory guard, native module upgrade-plan coverage guard, RN nodeify shim guard, TypeScript, and diff whitespace check.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this guard/tooling update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
