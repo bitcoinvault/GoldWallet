@@ -26,6 +26,7 @@ Run these for normal mini-branches:
 
 ```powershell
 corepack yarn android:dev:check-warning-guard
+corepack yarn android:dev:check-artifact-guard
 corepack yarn check:camera-usage-scope
 corepack yarn check:sentry-usage-scope
 corepack yarn check:rn-nodeify-shims
