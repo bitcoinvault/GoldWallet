@@ -1535,3 +1535,30 @@ Validation:
 - `git diff --check` passed.
 - `corepack yarn android:dev:smoke` passed on the connected Android emulator.
 - The helper selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-37.43 - Android warning audit timeout
+
+- Branch: `feature/bem-37-warning-audit-timeout`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `ANDROID_WARNING_AUDIT_TIMEOUT_MS` support to `scripts/auditAndroidGradleWarnings.mjs`.
+- Validate that the timeout is a positive integer before starting Gradle.
+- Apply the timeout to the Gradle audit subprocess.
+- Record the effective timeout in `local-docs/android-warning-audit-summary.txt`.
+- Document the override in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- Android warning audit runs Gradle with `--warning-mode all --stacktrace`, which can hang if the local Gradle/JDK environment wedges.
+- A configurable timeout keeps the audit usable as a repeatable maintenance gate.
+
+Validation:
+
+- `ANDROID_WARNING_AUDIT_TIMEOUT_MS=abc node scripts/auditAndroidGradleWarnings.mjs` exits with the expected positive-integer validation error.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passes and records `Android Gradle audit timeout: 300000ms`, exit code `0`, and the two remaining targeted warnings.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `ANDROID_SMOKE_WAIT_MS=20000 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554`, with expected UI text `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.

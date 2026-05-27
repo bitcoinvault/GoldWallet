@@ -8,8 +8,14 @@ const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
 const outputPath = path.join(outputDir, 'android-warning-audit.log');
 const summaryOutputPath = path.join(outputDir, 'android-warning-audit-summary.txt');
+const auditTimeoutMs = Number(process.env.ANDROID_WARNING_AUDIT_TIMEOUT_MS || 300000);
 
 mkdirSync(outputDir, { recursive: true });
+
+if (!Number.isInteger(auditTimeoutMs) || auditTimeoutMs <= 0) {
+  console.error(`ANDROID_WARNING_AUDIT_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_WARNING_AUDIT_TIMEOUT_MS}`);
+  process.exit(1);
+}
 
 const result = spawnSync(
   process.execPath,
@@ -25,6 +31,7 @@ const result = spawnSync(
   {
     cwd: root,
     encoding: 'utf8',
+    timeout: auditTimeoutMs,
   },
 );
 
@@ -65,14 +72,15 @@ lines.forEach((line, index) => {
 console.log(`Android Gradle warning audit written to ${outputPath}`);
 
 if (findings.length === 0) {
-  writeFileSync(summaryOutputPath, `Android Gradle audit exit code: ${auditExitCode}\nTargeted Android Gradle warnings: 0\n`);
+  writeFileSync(summaryOutputPath, `Android Gradle audit timeout: ${auditTimeoutMs}ms\nAndroid Gradle audit exit code: ${auditExitCode}\nTargeted Android Gradle warnings: 0\n`);
   console.log('No targeted Android Gradle warnings found.');
 } else {
   const uniqueFindings = [...new Set(findings)].sort((left, right) => left.localeCompare(right));
   writeFileSync(
     summaryOutputPath,
-    `Android Gradle audit exit code: ${auditExitCode}\nTargeted Android Gradle warnings: ${uniqueFindings.length}\n${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`,
+    `Android Gradle audit timeout: ${auditTimeoutMs}ms\nAndroid Gradle audit exit code: ${auditExitCode}\nTargeted Android Gradle warnings: ${uniqueFindings.length}\n${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`,
   );
+  console.log(`Android Gradle audit timeout: ${auditTimeoutMs}ms`);
   console.log(`Android Gradle audit exit code: ${auditExitCode}`);
   console.log(`Targeted Android Gradle warnings: ${uniqueFindings.length}`);
   uniqueFindings.forEach(finding => console.log(`- ${finding}`));
