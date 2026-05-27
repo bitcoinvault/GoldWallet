@@ -1507,3 +1507,31 @@ Validation:
 - `git diff --check` passed.
 - `corepack yarn android:dev:smoke` passed on the connected Android emulator.
 - The helper selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-37.42 - Android warning audit exit code summary
+
+- Branch: `feature/bem-37-warning-audit-exit-code`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Include the Android Gradle audit exit code in `local-docs/android-warning-audit-summary.txt`.
+- Print the same exit code in the audit helper console output when targeted warnings are found.
+- Use the captured exit code consistently for the helper process exit.
+- Keep warning detection, sorting, and full Gradle log output unchanged.
+
+Why:
+
+- The compact summary should prove both what targeted warnings were found and whether the Gradle audit itself succeeded.
+- This makes the artifact safer to read in isolation during maintenance handoff.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- `local-docs/android-warning-audit-summary.txt` starts with `Android Gradle audit exit code: 0`.
+- The summary still reports `Targeted Android Gradle warnings: 2` with the sorted Sentry `execResult` and `react-native-camera` `jcenter()` findings.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper selected `emulator-5554`, found the expected dashboard texts, scanned app-process logcat, and captured a non-empty screenshot.
