@@ -87,6 +87,7 @@
     "android:dev:audit-warnings": "node scripts/auditAndroidGradleWarnings.mjs",
     "android:dev:audit-smoke": "yarn android:dev:audit-warnings && yarn android:dev:smoke && yarn android:dev:check-artifacts",
     "android:dev:check-warning-guard": "node scripts/checkAndroidWarningBaselineGuard.mjs",
+    "android:dev:check-artifact-guard": "node scripts/checkAndroidValidationArtifactGuard.mjs",
     "android:dev:check-artifacts": "node scripts/checkAndroidValidationArtifacts.mjs",
     "check:camera-usage-scope": "node scripts/checkCameraUsageScope.mjs",
     "check:sentry-usage-scope": "node scripts/checkSentryUsageScope.mjs",

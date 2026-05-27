@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getUnexpectedAndroidWarningFindings } from './androidWarningBaselineGuard.mjs';
+import { assertWarningSummarySources, getLineValue } from './androidValidationArtifactsGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -15,11 +15,6 @@ const readSummary = summaryPath => {
   }
 
   return readFileSync(summaryPath, 'utf8');
-};
-
-const getLineValue = (content, label) => {
-  const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
-  return line ? line.slice(label.length + 2).trim() : '';
 };
 
 const assertLine = (content, expectedLine) => {
@@ -43,12 +38,6 @@ const assertPositiveInteger = (label, value) => {
 const assertNonNegativeInteger = (label, value) => {
   if (!/^\d+$/.test(value)) {
     throw new Error(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
-  }
-};
-
-const assertIntegerEquals = (label, actual, expected) => {
-  if (Number(actual) !== expected) {
-    throw new Error(`${label} must be ${expected}. Received: ${actual || 'missing'}`);
   }
 };
 
@@ -87,21 +76,6 @@ assertNonNegativeInteger('Targeted Android Gradle warnings', getLineValue(warnin
 assertLine(warningSummary, 'Unexpected targeted Android Gradle warnings: 0');
 assertExistingFile('Android Gradle audit log path', getLineValue(warningSummary, 'Android Gradle audit log path'), true);
 
-const warningFindings = warningSummary
-  .split(/\r?\n/)
-  .filter(line => line.startsWith('- '))
-  .map(line => line.slice(2));
-const targetedWarningCount = getLineValue(warningSummary, 'Targeted Android Gradle warnings');
-const unexpectedWarningFindings = getUnexpectedAndroidWarningFindings(warningFindings);
-
-assertIntegerEquals('Targeted Android Gradle warnings', targetedWarningCount, warningFindings.length);
-
-if (unexpectedWarningFindings.length > 0) {
-  throw new Error(
-    `Unexpected targeted Android warning source(s) in validation summary:\n${unexpectedWarningFindings
-      .map(finding => `- ${finding}`)
-      .join('\n')}`,
-  );
-}
+assertWarningSummarySources(warningSummary);
 
 console.log('Android validation artifacts are consistent.');
