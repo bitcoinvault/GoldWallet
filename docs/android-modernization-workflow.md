@@ -60,6 +60,12 @@ corepack yarn android:dev:audit-warnings
 
 The warning audit writes the full log to `local-docs/android-warning-audit.log`, writes the compact targeted summary to `local-docs/android-warning-audit-summary.txt`, and prints targeted warning sources. The compact summary includes the full log path, timeout, exit code, targeted warning count, and remaining targeted sources. Set `ANDROID_WARNING_AUDIT_TIMEOUT_MS` to override the per-audit Gradle timeout. If the Gradle subprocess fails before producing output, the audit records the spawn error or signal in both artifacts.
 
+After running both warning audit and smoke, use the artifact checker for a quick consistency check:
+
+```powershell
+corepack yarn android:dev:check-artifacts
+```
+
 ## Metro And Emulator Smoke
 
 After dependency, native, Metro, or runtime changes, restart Metro with a clean transform cache before testing:

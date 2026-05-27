@@ -1708,6 +1708,34 @@ Validation:
 - `git diff --check`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554`.
 
+### BEM-36.18 - Android validation artifact checker
+
+- Branch: `feature/bem-36-android-validation-artifact-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/checkAndroidValidationArtifacts.mjs`.
+- Add `android:dev:check-artifacts` package script.
+- Validate that the latest smoke summary passed, Metro was reachable, referenced UI/screenshot artifacts exist, and logcat/screenshot counters are positive.
+- Validate that the latest Android warning audit summary has exit code `0`, a positive targeted warning count, and a non-empty full log artifact.
+- Document the checker in the Android workflow and baseline.
+
+Why:
+
+- Smoke and warning-audit now produce compact summaries, but repeated maintenance work benefits from a single sanity command.
+- This catches stale or missing local validation artifacts before a branch is treated as ready.
+
+Validation:
+
+- `corepack yarn android:dev:check-artifacts` passes on the existing smoke and warning-audit summaries.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-artifacts` passes again after fresh audit and smoke artifacts are written.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
