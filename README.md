@@ -63,6 +63,14 @@ $ yarn android:dev:verify
 
 This builds the dev debug APK, checks that Metro is reachable on `127.0.0.1:8081`, installs the APK on a connected emulator/device, checks app startup logcat, verifies the dashboard UI, and writes local artifacts under `local-docs/`.
 
+For Android maintenance branches that also need the warning baseline audit and artifact consistency check, use:
+
+```sh
+$ yarn android:dev:audit-smoke
+```
+
+This runs the Android Gradle warning audit, emulator smoke check, and local validation-artifact checker in sequence.
+
 You can also launch the Android app in variants such as `prod` and `beta`:
 
 ```sh
