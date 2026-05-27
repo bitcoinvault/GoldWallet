@@ -714,3 +714,23 @@ Validation:
 - Android warning stacktrace moved the active `jcenter()` source from `react-native-biometrics` to `react-native-camera`, confirming this branch removed the biometrics warning source.
 - Fresh dev debug APK installed on Android emulator.
 - Android emulator smoke passed after Metro cache reset: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
+
+### BEM-37.32 - Android Gradle warning audit helper
+
+- Branch: `feature/bem-37-gradle-warning-audit-helper`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditAndroidGradleWarnings.mjs`.
+- Add `android:dev:audit-warnings` to run the warning-mode Android build with stacktraces and write the full log to `local-docs/android-warning-audit.log`.
+- Print a concise summary of targeted Gradle warning sources so the next cleanup branches can start from exact files instead of manual log scanning.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The audit helper identified the current active targeted warnings:
+  - `jcenter()` from `node_modules\react-native-camera\android\build.gradle:59`.
+  - `execResult` from `node_modules\@sentry\react-native\sentry.gradle:48`.
