@@ -10,6 +10,7 @@ const outputPath = path.join(outputDir, 'android-smoke-dev.log');
 const uiOutputPath = path.join(outputDir, 'android-smoke-dev-ui.xml');
 const screenshotOutputPath = path.join(outputDir, 'android-smoke-dev.png');
 const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
+const androidSerial = process.env.ANDROID_SERIAL?.trim();
 const apkPath =
   process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
 const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 8000);
@@ -41,8 +42,9 @@ const record = line => {
 
 const run = (label, args, options = {}) => {
   append(`\n> ${label}`);
-  const { printOutput = true, recordOutput = true, ...spawnOptions } = options;
-  const result = spawnSync(adbCommand, args, {
+  const { printOutput = true, recordOutput = true, useSelectedDevice = true, ...spawnOptions } = options;
+  const adbArgs = useSelectedDevice && androidSerial ? ['-s', androidSerial, ...args] : args;
+  const result = spawnSync(adbCommand, adbArgs, {
     cwd: root,
     encoding: 'utf8',
     shell: adbCommand === 'adb' && process.platform === 'win32',
@@ -80,7 +82,8 @@ const finish = exitCode => {
 
 const runBinary = (label, args, outputFile) => {
   append(`\n> ${label}`);
-  const result = spawnSync(adbCommand, args, {
+  const adbArgs = androidSerial ? ['-s', androidSerial, ...args] : args;
+  const result = spawnSync(adbCommand, adbArgs, {
     cwd: root,
     encoding: 'buffer',
     shell: adbCommand === 'adb' && process.platform === 'win32',
@@ -120,16 +123,28 @@ try {
   append(`Using adb: ${adbCommand}`);
   append(`Using APK: ${apkPath}`);
   append(`Using package: ${packageName}`);
+  if (androidSerial) {
+    append(`Using Android serial: ${androidSerial}`);
+  }
 
-  const devicesOutput = run('adb devices', ['devices']);
+  const devicesOutput = run('adb devices', ['devices'], { useSelectedDevice: false });
   const devices = devicesOutput
     .split(/\r?\n/)
     .slice(1)
     .map(line => line.trim())
     .filter(line => /\tdevice$/.test(line));
+  const deviceSerials = devices.map(line => line.split(/\s+/)[0]).filter(Boolean);
 
   if (devices.length === 0) {
     throw new Error('No connected Android device/emulator in device state.');
+  }
+
+  if (androidSerial && !deviceSerials.includes(androidSerial)) {
+    throw new Error(`ANDROID_SERIAL=${androidSerial} is not connected. Connected device(s): ${deviceSerials.join(', ')}`);
+  }
+
+  if (!androidSerial && deviceSerials.length > 1) {
+    throw new Error(`Multiple Android devices/emulators connected: ${deviceSerials.join(', ')}. Set ANDROID_SERIAL to choose one.`);
   }
 
   run('install dev APK', ['install', '-r', apkPath]);

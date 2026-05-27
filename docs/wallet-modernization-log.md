@@ -1295,3 +1295,29 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
 - `corepack yarn android:dev:smoke` passed on the connected Android emulator.
 - The helper installed the current dev APK, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-36.16 - Android smoke device selection
+
+- Branch: `feature/bem-36-smoke-device-selection`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `ANDROID_SERIAL` support to `scripts/androidSmokeDev.mjs`.
+- Validate that the selected serial is connected before install/launch commands run.
+- Fail fast with a clear message if multiple devices are connected and no serial is selected.
+- Document `ANDROID_SERIAL` in the Android modernization workflow.
+
+Why:
+
+- The smoke helper now runs all device-specific `adb` commands through a selected device when `ANDROID_SERIAL` is set.
+- This avoids ambiguous `adb install` / `adb shell` failures when more than one emulator or phone is connected.
+
+Validation:
+
+- `ANDROID_SERIAL=missing-emulator node scripts/androidSmokeDev.mjs` exited with code `1` and reported the connected device list.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper routed device-specific `adb` commands through the selected serial, installed the current dev APK, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.

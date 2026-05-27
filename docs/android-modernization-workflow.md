@@ -82,6 +82,7 @@ By default it also checks that the app is focused and that the UI hierarchy cont
 
 Useful smoke overrides:
 
+- `ANDROID_SERIAL`: select a specific emulator/device from `adb devices`.
 - `ANDROID_SMOKE_APK`: install a non-default APK path.
 - `ANDROID_SMOKE_PACKAGE`: launch a non-default package name.
 - `ANDROID_SMOKE_WAIT_MS`: non-negative milliseconds to wait before reading startup state.
