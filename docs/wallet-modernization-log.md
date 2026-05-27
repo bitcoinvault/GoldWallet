@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.46 - Storage/network validation script guard
+
+- Branch: `feature/bem-storage-validation-script-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guard for the focused storage/network validation scripts used before Group C dependency changes.
+- Verify `test:storage`, `test:authenticator`, and `test:wallet-core:offline` still point at the expected Jest files.
+- Verify `prepush` still runs the focused storage/authenticator/wallet-core offline validation scripts.
+- Include the guard in `android:dev:check-light`.
+- Update README, Android workflow, baseline, storage/network audit, and this modernization log.
+
+Why:
+
+- AsyncStorage and secure-storage dependency changes need focused tests before emulator smoke.
+- The focused test entry points should fail fast if they are renamed, retargeted, or removed from the pre-push path.
+- This keeps Group C validation explicit before actual dependency updates.
+
+Validation:
+
+- `corepack yarn check:storage-network-validation-scripts-guard`
+- `corepack yarn check:storage-network-validation-scripts`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.45 - Storage/network usage guard
 
 - Branch: `feature/bem-storage-network-usage-guard`

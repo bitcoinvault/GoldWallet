@@ -39,6 +39,15 @@ corepack yarn check:storage-network-usage
 
 The guard covers source and test imports for this group before storage, config, network, secure storage, randombytes, or WebView dependencies are changed.
 
+Focused storage/network validation scripts are guarded by:
+
+```powershell
+corepack yarn check:storage-network-validation-scripts-guard
+corepack yarn check:storage-network-validation-scripts
+```
+
+The guard verifies that `test:storage`, `test:authenticator`, and `test:wallet-core:offline` keep pointing at the focused Jest files and remain part of `prepush`.
+
 ## Latest Npm Snapshot
 
 Latest package metadata checked during this audit:
