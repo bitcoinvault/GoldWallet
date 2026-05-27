@@ -566,3 +566,21 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - Android emulator smoke passed after relaunch: Metro served the bundle, dashboard rendered `E2EWalletTypeTest`, and logcat did not show the previous `Unable to resolve module stream` error.
+
+### BEM-37.28 - Pre-push RN node polyfill guard
+
+- Branch: `feature/bem-37-prepush-shim-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:rn-nodeify-shims` to the beginning of the `prepush` gate.
+- Fail fast before TypeScript/Jest if the local RN node polyfill patches are missing after dependency install.
+- Keep the existing TypeScript and offline wallet test coverage unchanged.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- Offline wallet tests passed individually: `test:unit`, `test:storage`, `test:authenticator`, `test:watchonly:offline`, `test:hdwallet:offline`, and `test:wallet-core:offline`.
+- Android emulator smoke passed: Metro bundled `index.js`, dashboard rendered `E2EWalletTypeTest`, and log output did not show the previous `Unable to resolve module stream` error.
