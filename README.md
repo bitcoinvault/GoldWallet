@@ -7,9 +7,10 @@ The first ever Bitcoin Vault wallet.
 
 ## Prerequisites
 
-* Node.js v.12.14.1 or greater is required
+* Node.js `16.20.2` is the current development runtime. Use the version from `.nvmrc`.
+* Yarn `1.22.x` via Corepack.
 * For Android: 
-    * version 8 of the Java SE Development Kit (JDK)
+    * Java SE Development Kit (JDK) 17 for local modernization work. The Android build guard allows JDK 11-17.
     * Android SDK
     * Android SDK Platform
     * Android Virtual Device
@@ -27,6 +28,7 @@ The first ever Bitcoin Vault wallet.
 ```sh
 $ git clone https://github.com/bitcoinvault/GoldWallet.git
 $ cd GoldWallet
+$ corepack enable
 $ yarn install
 ```
 
@@ -47,7 +49,15 @@ But to run the app with Metro server, this step isn't required.
 
 ## Running the app
 
-You can launch the Android app in two variants - `prod` and `beta`:
+For Android development verification, use the dev build plus emulator smoke check:
+
+```sh
+$ yarn android:dev:verify
+```
+
+This builds the dev debug APK, installs it on a connected emulator/device, checks app startup logcat, verifies the dashboard UI, and writes local artifacts under `local-docs/`.
+
+You can also launch the Android app in variants such as `prod` and `beta`:
 
 ```sh
 $ yarn run android:prod

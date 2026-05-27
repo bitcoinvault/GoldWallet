@@ -1150,3 +1150,22 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No runtime code changed in this branch.
+
+### BEM-34.4 - README tooling refresh
+
+- Branch: `feature/bem-34-readme-tooling-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh README development prerequisites.
+- Replace stale Node `12.14.1+` and Android JDK 8 guidance with the current Node 16 / Corepack Yarn / JDK 17 workflow.
+- Add `android:dev:verify` as the Android development verification command.
+- Keep this branch documentation-only.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime code changed in this branch.
