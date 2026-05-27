@@ -58,7 +58,7 @@ $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 corepack yarn android:dev:audit-warnings
 ```
 
-The warning audit writes the full log to `local-docs/android-warning-audit.log` and prints targeted warning sources.
+The warning audit writes the full log to `local-docs/android-warning-audit.log`, writes the compact targeted summary to `local-docs/android-warning-audit-summary.txt`, and prints targeted warning sources.
 
 ## Metro And Emulator Smoke
 
