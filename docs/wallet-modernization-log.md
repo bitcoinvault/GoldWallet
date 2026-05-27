@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.49 - React Native RandomBytes 3.6.2
+
+- Branch: `feature/bem-randombytes-3-6-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-randombytes` from `3.5.3` to `3.6.2`.
+- Refresh `yarn.lock`.
+- Update the native module inventory guard and storage/network audit baseline.
+- Keep source imports unchanged; the package remains indirectly used by wallet/crypto dependencies.
+
+Why:
+
+- This is the smallest Group C native dependency update after adding storage/network usage and validation guards.
+- `3.6.2` is the latest npm version checked by Yarn metadata.
+- The package is deprecated upstream in favor of `react-native-get-random-values`, but replacing the random-value provider is a larger crypto/runtime migration and should not be mixed into this version bump.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn check:storage-network-validation-scripts`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+
+Follow-up:
+
+- `ios/Podfile.lock` still records the previous pod lock entry until `pod install` is run on a Mac/iOS environment. Do not claim iOS validation for this branch until that is refreshed and the affected scheme builds.
+
 ### BEM-36.48 - Storage/network focused validation script
 
 - Branch: `feature/bem-storage-focused-validation-script`
