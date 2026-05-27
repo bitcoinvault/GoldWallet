@@ -53,6 +53,7 @@ Branch shape:
 
 - One mini-branch per package or a very small compatible pair.
 - `check:qr-render-usage` keeps the current `react-native-qrcode-svg` render surface explicit before `react-native-svg` changes.
+- `docs/svg-qr-render-compatibility-audit.md` records the current npm compatibility snapshot and future validation path.
 - Validate TypeScript, Android build, emulator dashboard smoke, wallet list, send/receive navigation, and QR display.
 - For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
 
@@ -149,7 +150,7 @@ Release-service change:
 
 ## Next Recommended Branches
 
-1. Review `react-native-svg` and QR rendering compatibility before camera migration.
+1. Use `docs/svg-qr-render-compatibility-audit.md` before changing `react-native-svg` or `react-native-qrcode-svg`.
 2. Review `react-native-gesture-handler` and navigation behavior before the next RN core step.
 3. Review storage/config/network modules as individual branches.
 4. Keep Firebase and Sentry for dedicated release-service branches.
