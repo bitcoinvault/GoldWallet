@@ -67,7 +67,7 @@ if (findings.length === 0) {
   writeFileSync(summaryOutputPath, 'No targeted Android Gradle warnings found.\n');
   console.log('No targeted Android Gradle warnings found.');
 } else {
-  const uniqueFindings = [...new Set(findings)];
+  const uniqueFindings = [...new Set(findings)].sort((left, right) => left.localeCompare(right));
   writeFileSync(summaryOutputPath, `${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`);
   console.log('Targeted Android Gradle warnings:');
   uniqueFindings.forEach(finding => console.log(`- ${finding}`));
