@@ -913,3 +913,31 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No runtime code changed in this branch.
+
+### BEM-36.5 - Android dev smoke helper
+
+- Branch: `feature/bem-android-smoke-helper`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/androidSmokeDev.mjs`.
+- Add `android:dev:smoke` package script.
+- Update `docs/android-modernization-workflow.md` to use the smoke helper instead of manual `adb` commands.
+
+Behavior:
+
+- Finds `adb` through `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `PATH`.
+- Installs `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk`.
+- Runs `adb reverse tcp:8081 tcp:8081`.
+- Clears logcat, force-stops the dev package, launches it, waits for startup logs, and scans recent logcat output for fatal Android or React Native runtime errors.
+- Writes the command transcript to `local-docs/android-smoke-dev.log`.
+
+Validation:
+
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper installed the dev APK, configured Metro port reverse, launched `io.goldwallet.wallet.dev`, and found no fatal Android or React Native runtime errors in startup logcat.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No app runtime code changed in this branch.

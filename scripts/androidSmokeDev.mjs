@@ -1,0 +1,116 @@
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import path from 'path';
+import { spawnSync } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, '..');
+const outputDir = path.join(root, 'local-docs');
+const outputPath = path.join(outputDir, 'android-smoke-dev.log');
+const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
+const apkPath =
+  process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
+
+const sdkRoots = [process.env.ANDROID_HOME, process.env.ANDROID_SDK_ROOT, process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk')].filter(
+  Boolean,
+);
+const adbCandidates = [
+  ...sdkRoots.map(sdkRoot => path.join(sdkRoot, 'platform-tools', process.platform === 'win32' ? 'adb.exe' : 'adb')),
+  'adb',
+];
+const adbCommand = adbCandidates.find(candidate => candidate === 'adb' || existsSync(candidate));
+const log = [];
+
+mkdirSync(outputDir, { recursive: true });
+
+const append = line => {
+  log.push(line);
+  console.log(line);
+};
+
+const record = line => {
+  log.push(line);
+};
+
+const run = (label, args, options = {}) => {
+  append(`\n> ${label}`);
+  const { printOutput = true, ...spawnOptions } = options;
+  const result = spawnSync(adbCommand, args, {
+    cwd: root,
+    encoding: 'utf8',
+    shell: adbCommand === 'adb' && process.platform === 'win32',
+    ...spawnOptions,
+  });
+
+  if (result.stdout) {
+    (printOutput ? append : record)(result.stdout.trimEnd());
+  }
+
+  if (result.stderr) {
+    (printOutput ? append : record)(result.stderr.trimEnd());
+  }
+
+  if (result.error || result.status !== 0) {
+    const reason = result.error?.message || `exit ${result.status}`;
+    throw new Error(`${label} failed: ${reason}`);
+  }
+
+  return result.stdout || '';
+};
+
+const finish = exitCode => {
+  writeFileSync(outputPath, `${log.join('\n')}\n`);
+  process.exit(exitCode);
+};
+
+try {
+  if (!adbCommand) {
+    throw new Error('adb not found. Set ANDROID_HOME, ANDROID_SDK_ROOT, or add adb to PATH.');
+  }
+
+  if (!existsSync(apkPath)) {
+    throw new Error(`APK not found: ${apkPath}. Run corepack yarn android:dev:assemble first.`);
+  }
+
+  append(`Using adb: ${adbCommand}`);
+  append(`Using APK: ${apkPath}`);
+  append(`Using package: ${packageName}`);
+
+  const devicesOutput = run('adb devices', ['devices']);
+  const devices = devicesOutput
+    .split(/\r?\n/)
+    .slice(1)
+    .map(line => line.trim())
+    .filter(line => /\tdevice$/.test(line));
+
+  if (devices.length === 0) {
+    throw new Error('No connected Android device/emulator in device state.');
+  }
+
+  run('install dev APK', ['install', '-r', apkPath]);
+  run('reverse Metro port', ['reverse', 'tcp:8081', 'tcp:8081']);
+  run('clear logcat', ['logcat', '-c']);
+  run('force-stop app', ['shell', 'am', 'force-stop', packageName]);
+  run('launch app', ['shell', 'monkey', '-p', packageName, '-c', 'android.intent.category.LAUNCHER', '1']);
+
+  append('\nWaiting 8 seconds for startup logs...');
+  spawnSync(process.execPath, ['-e', 'setTimeout(() => {}, 8000)'], { stdio: 'ignore' });
+
+  const logcat = run('read startup logcat', ['logcat', '-d', '-t', '400'], { printOutput: false });
+  append(`Captured ${logcat.split(/\r?\n/).filter(Boolean).length} recent logcat lines.`);
+  const failingLines = logcat
+    .split(/\r?\n/)
+    .filter(line => /AndroidRuntime|FATAL EXCEPTION|ReactNativeJS.*(Error|TypeError|ReferenceError)|E ReactNative/.test(line));
+
+  if (failingLines.length > 0) {
+    append('\nStartup smoke found fatal/runtime logcat lines:');
+    failingLines.forEach(line => append(line));
+    finish(1);
+  }
+
+  append('\nAndroid dev smoke helper completed without fatal/runtime logcat findings.');
+  finish(0);
+} catch (error) {
+  append(`\n${error.message}`);
+  finish(1);
+}

@@ -57,13 +57,10 @@ D:\tmp\node\node-v16.20.2-win-x64\npx.cmd react-native start --reset-cache --por
 Then install and launch the dev APK:
 
 ```powershell
-$adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
-& $adb install -r android\app\build\outputs\apk\dev\debug\app-dev-debug.apk
-& $adb reverse tcp:8081 tcp:8081
-& $adb logcat -c
-& $adb shell am force-stop io.goldwallet.wallet.dev
-& $adb shell monkey -p io.goldwallet.wallet.dev -c android.intent.category.LAUNCHER 1
+corepack yarn android:dev:smoke
 ```
+
+The smoke helper writes the full command output to `local-docs/android-smoke-dev.log`. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`.
 
 Smoke pass means:
 
