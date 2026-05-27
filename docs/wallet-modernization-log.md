@@ -2410,6 +2410,32 @@ Validation:
 - `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.68 - RN nodeify shim guard self-check
+
+- Branch: `feature/bem-rn-nodeify-shim-self-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract RN nodeify shim marker validation into `scripts/rnNodeifyShimGuard.mjs`.
+- Add `scripts/checkRnNodeifyShimGuard.mjs` with positive and negative guard fixture checks.
+- Add `check:rn-nodeify-shim-guard` package script and include it in `android:dev:check-light`.
+- Refresh Android workflow and baseline documentation for the self-check.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `rn-nodeify` patches are required for existing Node polyfill behavior after install.
+- The real shim scanner should have a fast self-check for missing files and missing markers before dependency work continues.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shim-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed and confirmed the required polyfill markers exist in `node_modules`.
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard self-check, camera usage inventory guard, QR scanner caller guard self-check, QR scanner caller inventory guard, Sentry usage guard self-check, Sentry usage inventory guard, nodeify shim guard self-check, nodeify shim inventory guard, TypeScript, and diff whitespace check.
+- `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
