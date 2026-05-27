@@ -1269,3 +1269,29 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims` passed.
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
+
+### BEM-36.15 - Android Gradle runner usage guard
+
+- Branch: `feature/bem-36-gradle-runner-usage`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Check `scripts/runAndroidGradle.mjs` arguments before probing Java.
+- Keep the existing JDK 11-17 guard and Gradle execution behavior unchanged.
+
+Why:
+
+- Calling the runner without Gradle arguments is a usage error.
+- The runner should show the usage message immediately even if a local `JAVA_HOME` is missing or invalid.
+
+Validation:
+
+- `JAVA_HOME=D:\does-not-exist node scripts/runAndroidGradle.mjs` exited with code `1` and printed the usage message before probing Java.
+- `JAVA_HOME=D:\does-not-exist node scripts/runAndroidGradle.mjs help` exited with code `1` and kept the existing invalid-Java error path.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper installed the current dev APK, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.

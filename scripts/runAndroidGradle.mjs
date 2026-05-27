@@ -7,6 +7,12 @@ const root = path.resolve(__dirname, '..');
 const androidDir = path.join(root, 'android');
 const gradleCommand = process.platform === 'win32' ? 'gradlew.bat' : './gradlew';
 const args = process.argv.slice(2);
+
+if (args.length === 0) {
+  console.error('Usage: node scripts/runAndroidGradle.mjs <gradle-args...>');
+  process.exit(1);
+}
+
 const javaCommand = process.env.JAVA_HOME
   ? path.join(process.env.JAVA_HOME, 'bin', process.platform === 'win32' ? 'java.exe' : 'java')
   : 'java';
@@ -27,11 +33,6 @@ if (javaVersion.error || !javaMajorVersion) {
 if (Number(javaMajorVersion) < 11 || Number(javaMajorVersion) > 17) {
   console.error(`GoldWallet Android build supports JDK 11-17. Current JDK major version is ${javaMajorVersion}.`);
   console.error('Set JAVA_HOME to JDK 11 or JDK 17 before running Android Gradle.');
-  process.exit(1);
-}
-
-if (args.length === 0) {
-  console.error('Usage: node scripts/runAndroidGradle.mjs <gradle-args...>');
   process.exit(1);
 }
 
