@@ -127,7 +127,7 @@ Passing:
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
 - `corepack yarn android:dev:check-artifact-guard` verifies the warning-summary source guard with known-source, zero-warning, mismatched-count, and unexpected-source cases
 - `corepack yarn android:dev:audit-smoke` refreshes warning audit, emulator smoke, and artifact checker evidence in one pass
-- `corepack yarn prepush` starts with Android warning guard, camera usage-scope, and Sentry usage-scope checks before shim, TypeScript, and promoted offline Jest suites
+- `corepack yarn prepush` starts with Android warning guard, Android warning artifact guard, camera usage-scope, and Sentry usage-scope checks before shim, TypeScript, and promoted offline Jest suites
 
 Known gaps:
 
