@@ -1105,3 +1105,30 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No runtime code changed in this branch.
+
+### BEM-34.2 - Modernization baseline refresh
+
+- Branch: `feature/bem-34-baseline-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/wallet-modernization-baseline.md` after the Android SDK/toolchain modernization work.
+- Align the baseline document with the current branch state instead of the older RN 0.65 / AGP 4.2 / SDK 30 snapshot.
+- Keep this branch documentation-only.
+
+Current baseline captured:
+
+- React Native `0.68.7`.
+- Android Gradle Plugin `7.4.2`.
+- Gradle wrapper `7.5.1`.
+- Android compile SDK `34`, target SDK `33`, build tools `34.0.0`.
+- Local Android modernization JDK: `D:\tmp\jdks\temurin17\jdk-17.0.19+10`.
+- Standard validation command for app-affecting Android work: `corepack yarn android:dev:verify`.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime code changed in this branch.
