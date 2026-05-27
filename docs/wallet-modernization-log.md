@@ -1194,3 +1194,28 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No app runtime code changed in this branch.
+
+### BEM-36.12 - Android clean runner script
+
+- Branch: `feature/bem-36-android-clean-runner`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:clean` as a guarded package script.
+- Route Android clean through `scripts/runAndroidGradle.mjs` so it uses the same `JAVA_HOME` Java selection and JDK 11-17 guard as the assemble/audit commands.
+- Document the clean command in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- The existing broad `clean` script calls `gradlew` directly and also removes dependencies/caches.
+- Android-only cleanup during modernization should have a smaller command that follows the same JDK guard as the rest of the Android workflow.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:clean` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:verify` passed on the connected Android emulator.
+- The verify command rebuilt the dev APK after clean, installed it, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
