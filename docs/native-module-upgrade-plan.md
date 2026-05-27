@@ -100,6 +100,7 @@ Branch shape:
 - Do not do a blind Firebase or Sentry major upgrade inside generic cleanup.
 - Keep Sentry release/source-map validation in a dedicated branch.
 - Keep Firebase grouped by package family only when Android and iOS config changes are understood.
+- `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, CodePush, and Sentry package snapshot, native build surface, and release validation path.
 - Validate Android debug startup first, then release tooling separately when secrets and store/release config are available.
 
 ### Group E - Camera And QR Scanning
@@ -155,5 +156,5 @@ Release-service change:
 1. Use `docs/svg-qr-render-compatibility-audit.md` before changing `react-native-svg` or `react-native-qrcode-svg`.
 2. Use `docs/navigation-native-compatibility-audit.md` before changing `react-native-gesture-handler`, `react-native-screens`, or `react-native-safe-area-context`.
 3. Use `docs/storage-network-native-compatibility-audit.md` before changing storage, config, secure storage, socket, NetInfo, device-info, localization, randombytes, or WebView dependencies.
-4. Keep Firebase and Sentry for dedicated release-service branches.
+4. Use `docs/release-services-native-compatibility-audit.md` before changing Firebase, push notification, CodePush, or Sentry release-service dependencies.
 5. Keep `react-native-camera` replacement for the dedicated QR scanner migration branch.

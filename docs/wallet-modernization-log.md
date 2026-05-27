@@ -10,6 +10,27 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.34 - Release service compatibility audit
+
+- Branch: `feature/bem-release-services-compat-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/release-services-native-compatibility-audit.md` for Firebase, push notification, CodePush, and Sentry release-service dependencies.
+- Record current package versions, latest npm snapshot checked on 2026-05-27, runtime usage, Android/iOS native build surface, and validation requirements.
+- Link the audit from `docs/native-module-upgrade-plan.md`.
+
+Why:
+
+- Firebase, CodePush, Sentry, and notification dependencies touch release builds, source maps, dSYMs, push permissions, tokens, Crashlytics, analytics, and environment-specific config.
+- These packages should be upgraded in dedicated branches instead of being mixed into a generic native-module bump.
+
+Validation:
+
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this docs/audit-only branch.
+
 ### BEM-34 - Setup branch + dependencies analysis
 
 - Branch: `feature/bem-34-baseline-analysis`
