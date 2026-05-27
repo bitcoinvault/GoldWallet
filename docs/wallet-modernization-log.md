@@ -1219,3 +1219,27 @@ Validation:
 - `git diff --check` passed.
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:verify` passed on the connected Android emulator.
 - The verify command rebuilt the dev APK after clean, installed it, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
+
+### BEM-36.13 - Android smoke helper messages
+
+- Branch: `feature/bem-36-smoke-helper-messages`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the missing-APK error to point at `corepack yarn android:dev:verify`, because that command rebuilds and smoke-tests the APK.
+- Document the smoke helper environment overrides in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- The helper now supports a full verify workflow, custom APK/package paths, startup wait tuning, and expected UI text overrides.
+- The documentation should make those controls discoverable during emulator QA.
+
+Validation:
+
+- Missing-APK check exited with code `1` and wrote the updated `corepack yarn android:dev:verify` recovery message.
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper installed the current dev APK, launched `io.goldwallet.wallet.dev`, confirmed the focused app, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, scanned app-process logcat, and captured a non-empty screenshot.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.

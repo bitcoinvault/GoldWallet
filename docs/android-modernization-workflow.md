@@ -80,6 +80,13 @@ The smoke helper writes the command transcript and app-process logcat to `local-
 
 By default it also checks that the app is focused and that the UI hierarchy contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. Override that list with `ANDROID_SMOKE_EXPECT_TEXTS` when testing a different fixture.
 
+Useful smoke overrides:
+
+- `ANDROID_SMOKE_APK`: install a non-default APK path.
+- `ANDROID_SMOKE_PACKAGE`: launch a non-default package name.
+- `ANDROID_SMOKE_WAIT_MS`: wait longer or shorter before reading startup state.
+- `ANDROID_SMOKE_EXPECT_TEXTS`: comma-separated UI texts expected after launch.
+
 Smoke pass means:
 
 - The dashboard renders `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
