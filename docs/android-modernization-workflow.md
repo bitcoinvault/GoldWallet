@@ -28,7 +28,7 @@ Run these for normal mini-branches:
 corepack yarn android:dev:check-light
 ```
 
-`android:dev:check-light` runs the Android warning baseline guard, Android warning artifact guard, camera usage guard, Sentry usage guard, nodeify shim guard, TypeScript check, and diff whitespace check.
+`android:dev:check-light` runs the Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, Sentry usage guard, nodeify shim guard, TypeScript check, and diff whitespace check.
 
 `check:camera-usage-scope` keeps `react-native-camera` runtime usage isolated to `ScanQrCodeScreen` until the dedicated QR scanner migration branch replaces it.
 

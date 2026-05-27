@@ -2308,6 +2308,30 @@ Validation:
 - `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.64 - QR scanner caller guard
+
+- Branch: `feature/bem-qr-scan-caller-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/checkQrScanCallers.mjs` to guard the current `Route.ScanQrCode` navigation caller inventory.
+- Add `check:qr-scan-callers` package script and include it in `android:dev:check-light`.
+- Refresh the camera replacement plan, Android workflow, and baseline documentation for the caller guard.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- The future camera/QR scanner migration must preserve all scanner entry points, not just the `ScanQrCodeScreen` implementation.
+- A lightweight caller inventory guard makes the migration surface explicit before replacing `react-native-camera`.
+
+Validation:
+
+- `corepack yarn check:qr-scan-callers` passed and confirmed 8 current QR scanner callers.
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, Sentry usage guard, nodeify shim guard, TypeScript, and diff whitespace check.
+- `corepack yarn prepush` passed, including `android:dev:check-light`, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
