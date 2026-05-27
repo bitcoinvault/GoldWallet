@@ -124,6 +124,7 @@ corepack yarn android:dev:smoke
 
 Focused tests by dependency:
 
+- Group C focused validation: `corepack yarn test:storage-network:focused`.
 - AsyncStorage: `corepack yarn test:storage`, `corepack yarn test:wallet-core:offline`.
 - Secure storage: `corepack yarn test:authenticator`.
 - TCP socket / NetInfo: Android smoke plus Electrum connectivity observation; funded transaction flow remains blocked until a funded BTCV testnet wallet is available.

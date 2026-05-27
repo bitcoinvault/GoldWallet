@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.48 - Storage/network focused validation script
+
+- Branch: `feature/bem-storage-focused-validation-script`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `test:storage-network:focused` as a single command for the focused Group C validation set.
+- Extend the storage/network validation script guard so the aggregate command must run `test:storage`, `test:authenticator`, and `test:wallet-core:offline`.
+- Document the aggregate command in the storage/network audit.
+
+Why:
+
+- Future storage/config/network dependency branches should have a short, repeatable command before Android assemble and emulator smoke.
+- The aggregate command keeps the focused storage, authenticator, and wallet-core offline checks visible without replacing the existing individual `prepush` coverage.
+
+Validation:
+
+- `corepack yarn check:storage-network-validation-scripts-guard`
+- `corepack yarn check:storage-network-validation-scripts`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.47 - Storage/network validation file guard
 
 - Branch: `feature/bem-storage-validation-file-guard`

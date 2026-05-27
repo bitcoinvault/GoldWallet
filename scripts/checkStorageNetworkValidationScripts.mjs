@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {
+  aggregateStorageNetworkValidationScript,
   getStorageNetworkValidationFileErrors,
   getStorageNetworkValidationScriptErrors,
   requiredStorageNetworkValidationScripts,
@@ -22,4 +23,6 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`Storage/network validation scripts are guarded for ${requiredStorageNetworkValidationScripts.size} focused tests.`);
+console.log(
+  `Storage/network validation scripts are guarded for ${requiredStorageNetworkValidationScripts.size} focused tests and ${aggregateStorageNetworkValidationScript}.`,
+);

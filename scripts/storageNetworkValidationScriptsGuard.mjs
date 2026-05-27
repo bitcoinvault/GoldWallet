@@ -4,10 +4,17 @@ export const requiredStorageNetworkValidationScripts = new Map([
   ['test:wallet-core:offline', 'tests/integration/App.offline.test.js'],
 ]);
 
+export const aggregateStorageNetworkValidationScript = 'test:storage-network:focused';
+
 export const getStorageNetworkValidationScriptErrors = scripts => {
   const errors = [];
   const scriptMap = scripts instanceof Map ? scripts : new Map(Object.entries(scripts || {}));
   const prepushScript = scriptMap.get('prepush') || '';
+  const aggregateScript = scriptMap.get(aggregateStorageNetworkValidationScript) || '';
+
+  if (!aggregateScript) {
+    errors.push(`${aggregateStorageNetworkValidationScript} is missing from package scripts.`);
+  }
 
   requiredStorageNetworkValidationScripts.forEach((requiredTestPath, scriptName) => {
     const scriptValue = scriptMap.get(scriptName);
@@ -23,6 +30,10 @@ export const getStorageNetworkValidationScriptErrors = scripts => {
 
     if (!prepushScript.includes(`yarn ${scriptName}`)) {
       errors.push(`prepush does not run yarn ${scriptName}.`);
+    }
+
+    if (aggregateScript && !aggregateScript.includes(`yarn ${scriptName}`)) {
+      errors.push(`${aggregateStorageNetworkValidationScript} does not run yarn ${scriptName}.`);
     }
   });
 
