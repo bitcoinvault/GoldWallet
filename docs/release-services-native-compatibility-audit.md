@@ -80,6 +80,7 @@ iOS:
 - Xcode project settings reference flavor-specific `FIREBASE_CONFIG_FILE` values.
 - Xcode project has Sentry React Native bundling and dSYM upload build phases.
 - iOS Info.plist uses `$(CODEPUSH_DEPLOYMENT_KEY_IOS)`.
+- `docs/ios-release-config-compatibility-audit.md` records the current iOS scheme-to-env/Firebase plist mapping before release-service or rebranding changes.
 
 Shared env/config:
 
@@ -104,6 +105,7 @@ Recommended branches:
 2. `feature/bem-sentry-release-source-map-upgrade` for Sentry SDK and source-map/dSYM validation.
 3. `feature/bem-codepush-release-path-audit` for CodePush runtime and release update validation.
 4. `feature/bem-ios-push-notification-bridge-audit` for `@react-native-community/push-notification-ios` if iOS notification behavior is changed.
+5. `feature/bem-ios-scheme-config-guard` after confirming Stage/Beta scheme env and Firebase plist behavior.
 
 ## Minimum Validation Before Dependency Changes
 

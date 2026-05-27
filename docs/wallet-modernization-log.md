@@ -10,6 +10,27 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.42 - iOS release config compatibility audit
+
+- Branch: `feature/bem-ios-scheme-release-config-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/ios-release-config-compatibility-audit.md`.
+- Record current iOS scheme pre-actions, env file selection, Firebase plist selection, Info.plist usage, bundle identifiers, Sentry/CodePush key surface, and rebranding/release risks.
+- Link the audit from `docs/release-services-native-compatibility-audit.md`.
+
+Why:
+
+- iOS release-service and rebranding work spans schemes, env files, Firebase plists, Info.plist files, CodePush deployment keys, and Sentry/Firebase behavior.
+- The current mapping should be explicit before adding guards or changing release configuration.
+
+Validation:
+
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this docs/audit-only branch.
+
 ### BEM-36.41 - Release service env key guard self-check
 
 - Branch: `feature/bem-release-service-env-guard-self-check`
