@@ -2,13 +2,13 @@
 
 Baseline for `BEM-34 - Setup branch + dependencies analysis`.
 
-Updated on `upgrade/wallet-modernization` after the Android SDK/toolchain and smoke-validation branches.
+Updated on `upgrade/wallet-modernization` after the Android SDK/toolchain, warning-audit, and smoke-validation hardening branches.
 
 ## Branch Model
 
 - Integration branch: `upgrade/wallet-modernization`
-- Current task branch: `feature/bem-34-baseline-refresh`
-- Previous completed stream: Android SDK/toolchain modernization and Android smoke helper hardening.
+- Current task branch model: focused feature branches merged locally into `upgrade/wallet-modernization`.
+- Latest completed stream: Android SDK/toolchain modernization, Android warning audit hardening, and Android smoke helper hardening.
 
 All modernization work should be developed on focused task branches and merged into `upgrade/wallet-modernization`. The integration branch should be merged back to the main development line only after a tested modernization milestone.
 
@@ -117,7 +117,9 @@ Passing:
 - `corepack yarn android:dev:assemble` on JDK 17
 - `corepack yarn android:dev:verify` on a connected Android emulator
 - Android smoke helper validates app PID logcat, foreground focus, dashboard UI text, UI hierarchy artifact, and startup screenshot
+- Android smoke helper polls UI readiness after startup so clean Metro-cache runs do not fail on a transient bootsplash hierarchy
 - `corepack yarn android:dev:audit-warnings`
+- Android warning audit records timeout, exit code, targeted warning count, and subprocess spawn diagnostics
 
 Known gaps:
 
