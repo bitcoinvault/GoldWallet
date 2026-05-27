@@ -46,6 +46,13 @@ corepack yarn check:firebase-usage-guard
 corepack yarn check:firebase-usage-scope
 ```
 
+The iOS push notification bridge scope is guarded by:
+
+```powershell
+corepack yarn check:push-notification-ios-usage-guard
+corepack yarn check:push-notification-ios-usage-scope
+```
+
 ## Current Native And Build Surface
 
 Android:
