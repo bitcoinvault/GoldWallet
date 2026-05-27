@@ -1762,6 +1762,33 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
 - `corepack yarn android:dev:check-artifacts` passes again after fresh audit and smoke artifacts are written.
 
+### BEM-36.20 - Android validation summary timestamps
+
+- Branch: `feature/bem-36-validation-summary-timestamps`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `Generated at` ISO timestamps to `local-docs/android-smoke-dev-summary.txt` and `local-docs/android-warning-audit-summary.txt`.
+- Validate those timestamp fields in `scripts/checkAndroidValidationArtifacts.mjs`.
+- Refresh workflow and baseline documentation for the summary timestamp fields.
+- Keep smoke and warning-audit pass/fail behavior unchanged.
+
+Why:
+
+- The local artifacts are overwritten repeatedly during maintenance work.
+- Timestamps make it easier to see whether a summary belongs to the latest validation run.
+
+Validation:
+
+- `corepack yarn android:dev:check-artifacts` failed against the previous local summaries as expected because they did not yet include `Generated at`.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed and wrote `Generated at: 2026-05-27T18:56:56.337Z` to `local-docs/android-warning-audit-summary.txt`.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed on `emulator-5554`, found `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, and wrote `Generated at: 2026-05-27T18:57:23.687Z` to `local-docs/android-smoke-dev-summary.txt`.
+- `corepack yarn android:dev:check-artifacts` passed after fresh audit and smoke artifacts were written.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
