@@ -881,3 +881,35 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No runtime code changed in this branch.
+
+### BEM-37.37 - Sentry release source-map plan
+
+- Branch: `feature/bem-sentry-release-plan`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/sentry-release-source-map-plan.md`.
+- Document the safe follow-up path for the remaining Sentry Gradle warning.
+- Keep Sentry runtime, release bundling, and source-map upload behavior unchanged in this docs-only branch.
+
+Findings:
+
+- The app uses `@sentry/react-native@5.36.0`.
+- Android applies `node_modules/@sentry/react-native/sentry.gradle` from `android/app/build.gradle`.
+- iOS has Sentry React Native bundling and dSYM upload build phases in the Xcode project.
+- Sentry DSNs are currently injected through `react-native-config`.
+- The latest npm release checked for `@sentry/react-native` is `8.12.0`, so a real cleanup is a major SDK upgrade and must not be mixed into a warning-only branch.
+
+Decision:
+
+- Do not patch `node_modules` or remove `sentry.gradle` in this branch.
+- Use a separate `feature/bem-sentry-release-source-map-upgrade` branch for any Sentry SDK upgrade.
+- Treat the upgrade as Android/iOS release tooling work, with source-map/dSYM validation and explicit handling of missing Sentry secrets.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime code changed in this branch.
