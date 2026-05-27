@@ -692,3 +692,25 @@ Validation:
 - `android:dev:assemble:warnings` passed on JDK 17.
 - Fresh dev debug APK installed on Android emulator.
 - Android emulator smoke passed after Metro cache reset: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
+
+### BEM-37.31 - Biometrics Android Gradle warning cleanup
+
+- Branch: `feature/bem-37-biometrics-gradle-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-biometrics` from `2.1.4` to `3.0.1`.
+- Adapt `BiometricService` from the legacy static API to the current instance API.
+- Remove the active `jcenter()` warning source from `react-native-biometrics`.
+- Keep the app-facing biometric wrapper API unchanged for screens and settings code.
+
+Validation:
+
+- `react-native-biometrics@2.2.2` was rejected because it still emitted the `jcenter()` warning.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `android:dev:assemble:warnings` passed on JDK 17.
+- Android warning stacktrace moved the active `jcenter()` source from `react-native-biometrics` to `react-native-camera`, confirming this branch removed the biometrics warning source.
+- Fresh dev debug APK installed on Android emulator.
+- Android emulator smoke passed after Metro cache reset: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.

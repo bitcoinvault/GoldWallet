@@ -1,4 +1,4 @@
-import ReactNativeBiometrics, { BiometryType } from 'react-native-biometrics';
+import ReactNativeBiometrics, { Biometrics, BiometryType, FaceID, TouchID } from 'react-native-biometrics';
 
 import logger from '../../logger';
 
@@ -7,9 +7,11 @@ const i18n = require('../../loc');
 type Biometry = BiometryType | undefined;
 
 export default class BiometricService {
-  static FaceID = ReactNativeBiometrics.FaceID;
-  static TouchID = ReactNativeBiometrics.TouchID;
-  static Biometrics = ReactNativeBiometrics.Biometrics;
+  static FaceID = FaceID;
+  static TouchID = TouchID;
+  static Biometrics = Biometrics;
+
+  private biometrics = new ReactNativeBiometrics();
 
   constructor() {
     this.setBiometricsAvailability();
@@ -18,7 +20,7 @@ export default class BiometricService {
   biometryType: Biometry;
 
   setBiometricsAvailability = async () => {
-    const biometricsResult = await ReactNativeBiometrics.isSensorAvailable();
+    const biometricsResult = await this.biometrics.isSensorAvailable();
     const { available, biometryType } = biometricsResult;
 
     if (!available) {
@@ -30,7 +32,7 @@ export default class BiometricService {
 
   unlockWithBiometrics = async () => {
     try {
-      const checkResult = await ReactNativeBiometrics.simplePrompt({
+      const checkResult = await this.biometrics.simplePrompt({
         promptMessage: i18n.unlock.touchID,
         cancelButtonText: i18n.unlock.enter,
       });
@@ -54,6 +56,6 @@ export default class BiometricService {
   };
 
   deleteBiometrics = async () => {
-    ReactNativeBiometrics.deleteKeys();
+    this.biometrics.deleteKeys();
   };
 }
