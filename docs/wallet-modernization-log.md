@@ -2512,6 +2512,33 @@ Validation:
 - `corepack yarn android:dev:check-artifacts` passed.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
 
+### BEM-36.23 - Native module inventory guard
+
+- Branch: `feature/bem-native-module-inventory-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guarded inventory for the current native module dependency versions in `package.json`.
+- Add `check:native-module-inventory-guard` fixture checks for missing and changed native dependency versions.
+- Add `check:native-module-inventory` for the real repository `package.json`.
+- Include both native inventory checks in `android:dev:check-light`.
+- Refresh Android workflow and baseline documentation for the new guard.
+- Keep runtime code, native code, Gradle configuration, dependencies, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- Plane tracks `BEM-36` as in progress for native module modernization.
+- The next native dependency upgrades should start from an explicit inventory instead of relying on an informal package list.
+- If a future branch changes a native module version, the guard forces the branch to update the inventory and related upgrade notes deliberately.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory-guard` passed.
+- `corepack yarn check:native-module-inventory` passed and confirmed `28` tracked native module dependencies.
+- `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, Sentry usage guard, native module inventory guard, RN nodeify shim guard, TypeScript, and diff whitespace check.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this guard/tooling update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`

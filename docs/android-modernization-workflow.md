@@ -28,11 +28,13 @@ Run these for normal mini-branches:
 corepack yarn android:dev:check-light
 ```
 
-`android:dev:check-light` runs the Android warning baseline guard, Android warning artifact guard, camera usage guard self-check, camera usage inventory guard, QR scanner caller guard self-check, QR scanner caller inventory guard, Sentry usage guard self-check, Sentry usage inventory guard, nodeify shim guard self-check, nodeify shim inventory guard, TypeScript check, and diff whitespace check.
+`android:dev:check-light` runs the Android warning baseline guard, Android warning artifact guard, camera usage guard self-check, camera usage inventory guard, QR scanner caller guard self-check, QR scanner caller inventory guard, Sentry usage guard self-check, Sentry usage inventory guard, native module inventory self-check, native module inventory guard, nodeify shim guard self-check, nodeify shim inventory guard, TypeScript check, and diff whitespace check.
 
 `check:camera-usage-scope` keeps `react-native-camera` runtime usage isolated to `ScanQrCodeScreen` until the dedicated QR scanner migration branch replaces it.
 
 `check:sentry-usage-scope` keeps `@sentry/react-native` runtime usage isolated to `App.tsx`, `Main.tsx`, and `logger/index.ts` until the dedicated Sentry release/source-map validation branch handles the remaining Gradle warning and release tooling behavior.
+
+`check:native-module-inventory` keeps the current BEM-36 native dependency inventory explicit before grouped native module upgrades. If a native dependency version changes, update the inventory and the related upgrade notes in the same branch.
 
 For Android build validation:
 
