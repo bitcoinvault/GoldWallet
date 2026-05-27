@@ -1,0 +1,67 @@
+import { existsSync, readFileSync, statSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, '..');
+const localDocsDir = path.join(root, 'local-docs');
+const smokeSummaryPath = path.join(localDocsDir, 'android-smoke-dev-summary.txt');
+const warningSummaryPath = path.join(localDocsDir, 'android-warning-audit-summary.txt');
+
+const readSummary = summaryPath => {
+  if (!existsSync(summaryPath)) {
+    throw new Error(`Missing validation artifact: ${summaryPath}`);
+  }
+
+  return readFileSync(summaryPath, 'utf8');
+};
+
+const getLineValue = (content, label) => {
+  const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
+  return line ? line.slice(label.length + 2).trim() : '';
+};
+
+const assertLine = (content, expectedLine) => {
+  if (!content.split(/\r?\n/).includes(expectedLine)) {
+    throw new Error(`Expected line not found: ${expectedLine}`);
+  }
+};
+
+const assertPositiveInteger = (label, value) => {
+  if (!/^\d+$/.test(value) || Number(value) <= 0) {
+    throw new Error(`${label} must be a positive integer. Received: ${value || 'missing'}`);
+  }
+};
+
+const assertExistingFile = (label, filePath, requireNonEmpty = false) => {
+  if (!filePath) {
+    throw new Error(`${label} is missing from validation summary.`);
+  }
+
+  if (!existsSync(filePath)) {
+    throw new Error(`${label} does not exist: ${filePath}`);
+  }
+
+  if (requireNonEmpty && statSync(filePath).size <= 0) {
+    throw new Error(`${label} is empty: ${filePath}`);
+  }
+};
+
+const smokeSummary = readSummary(smokeSummaryPath);
+const warningSummary = readSummary(warningSummaryPath);
+
+assertLine(smokeSummary, 'Android smoke outcome: passed');
+assertLine(smokeSummary, 'Android smoke exit code: 0');
+assertLine(smokeSummary, 'Metro reachable: yes');
+assertPositiveInteger('App PID', getLineValue(smokeSummary, 'App PID'));
+assertPositiveInteger('Captured logcat lines', getLineValue(smokeSummary, 'Captured logcat lines'));
+assertPositiveInteger('UI hierarchy attempts', getLineValue(smokeSummary, 'UI hierarchy attempts'));
+assertPositiveInteger('Screenshot bytes', getLineValue(smokeSummary, 'Screenshot bytes'));
+assertExistingFile('UI hierarchy path', getLineValue(smokeSummary, 'UI hierarchy path'), true);
+assertExistingFile('Screenshot path', getLineValue(smokeSummary, 'Screenshot path'), true);
+
+assertLine(warningSummary, 'Android Gradle audit exit code: 0');
+assertPositiveInteger('Targeted Android Gradle warnings', getLineValue(warningSummary, 'Targeted Android Gradle warnings'));
+assertExistingFile('Android Gradle audit log path', getLineValue(warningSummary, 'Android Gradle audit log path'), true);
+
+console.log('Android validation artifacts are consistent.');
