@@ -72,7 +72,7 @@ corepack yarn android:dev:verify
 
 ## Current Metro Setup
 
-Metro should be started with Node 16 for the current React Native 0.65 stack:
+Metro should be started with Node 16 for the current React Native 0.68 stack:
 
 ```powershell
 $env:Path='D:\tmp\node\node-v16.20.2-win-x64;' + $env:Path

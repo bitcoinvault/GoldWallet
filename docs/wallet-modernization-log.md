@@ -1132,3 +1132,21 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No runtime code changed in this branch.
+
+### BEM-34.3 - Baseline Metro wording correction
+
+- Branch: `feature/bem-34-baseline-metro-wording`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Correct the Metro section in `docs/wallet-modernization-baseline.md`.
+- Replace the stale `React Native 0.65 stack` wording with the current `React Native 0.68 stack`.
+- Keep this branch documentation-only.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime code changed in this branch.
