@@ -1712,3 +1712,25 @@ Validation:
 - `corepack yarn typescript:check`
 - `git diff --check`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` and writes `Android smoke outcome: passed`, app PID, logcat count, UI attempt count, and screenshot byte count to `local-docs/android-smoke-dev-summary.txt`.
+
+### BEM-34.3 - Baseline smoke summary refresh
+
+- Branch: `feature/bem-34-baseline-smoke-summary-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/wallet-modernization-baseline.md` after adding the Android smoke summary artifact.
+- Record `local-docs/android-smoke-dev-summary.txt` as part of the current validation baseline.
+- Keep runtime and tooling behavior unchanged.
+
+Why:
+
+- The baseline should reflect the current smoke evidence set used for maintenance branches.
+- This keeps the high-level status document aligned with the branch-by-branch modernization log.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`

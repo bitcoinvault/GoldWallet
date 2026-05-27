@@ -118,6 +118,7 @@ Passing:
 - `corepack yarn android:dev:verify` on a connected Android emulator
 - Android smoke helper validates app PID logcat, foreground focus, dashboard UI text, UI hierarchy artifact, and startup screenshot
 - Android smoke helper polls UI readiness after startup so clean Metro-cache runs do not fail on a transient bootsplash hierarchy
+- Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with outcome, exit code, selected serial, Metro endpoint, app PID, logcat count, UI attempts, and screenshot byte count
 - `corepack yarn android:dev:audit-warnings`
 - Android warning audit records timeout, exit code, targeted warning count, and subprocess spawn diagnostics
 
