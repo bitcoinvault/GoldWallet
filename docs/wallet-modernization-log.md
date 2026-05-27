@@ -2096,6 +2096,33 @@ Validation:
 - `git diff --check` passed.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.56 - Sentry usage prepush guard
+
+- Branch: `feature/bem-sentry-usage-prepush`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:sentry-usage-scope` to the `prepush` script after the Android warning and camera usage guards.
+- Refresh `docs/wallet-modernization-baseline.md` so the current passing checklist includes the Sentry usage guard.
+- Keep runtime code, native code, Gradle configuration, dependencies, and Metro behavior unchanged.
+
+Why:
+
+- Sentry remains a dedicated release/source-map tooling follow-up, so accidental new runtime imports should fail before push.
+- Keeping the guard in `prepush` makes the Sentry migration surface stable while larger dependency work continues in later branches.
+
+Validation:
+
+- `corepack yarn check:sentry-usage-scope` passed and confirmed `@sentry/react-native` runtime usage is scoped to `App.tsx`, `Main.tsx`, and `logger/index.ts`.
+- `corepack yarn check:camera-usage-scope` passed.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn prepush` passed, including Android warning guard, camera usage guard, Sentry usage guard, nodeify shim guard, TypeScript, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
