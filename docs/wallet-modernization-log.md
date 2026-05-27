@@ -2235,6 +2235,32 @@ Validation:
 - `corepack yarn prepush` passed, including Android warning guard, Android warning artifact guard, camera usage guard, Sentry usage guard, nodeify shim guard, TypeScript, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.61 - Android warning artifact workflow checklist
+
+- Branch: `feature/bem-warning-artifact-workflow-checklist`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:check-artifact-guard` to the normal mini-branch checklist in `docs/android-modernization-workflow.md`.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `BEM-37.60` made the artifact guard part of `prepush`; the human workflow checklist should match the enforced gate.
+- This keeps future Android warning cleanup branches running the same lightweight validation locally before commit.
+
+Validation:
+
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn android:dev:check-artifact-guard` passed.
+- `corepack yarn check:camera-usage-scope` passed.
+- `corepack yarn check:sentry-usage-scope` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
