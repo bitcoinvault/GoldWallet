@@ -62,6 +62,15 @@ corepack yarn check:release-service-env-keys
 
 This validates key presence only. It does not print or guess DSN/deployment-key values. Beta env files currently do not require CodePush deployment keys until the beta release/update strategy is confirmed.
 
+The Android flavor-to-env mapping is guarded by:
+
+```powershell
+corepack yarn check:android-env-config-files-guard
+corepack yarn check:android-env-config-files
+```
+
+This verifies the current `android/app/build.gradle` `envConfigFiles` matrix for dev, stage, prod, and beta debug/release variants before release-service or rebranding changes alter Android env selection.
+
 ## Current Native And Build Surface
 
 Android:
