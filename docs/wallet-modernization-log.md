@@ -2069,6 +2069,33 @@ Validation:
 - `git diff --check` passed.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.55 - Sentry usage scope guard
+
+- Branch: `feature/bem-sentry-usage-scope-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/checkSentryUsageScope.mjs` to guard current `@sentry/react-native` runtime imports.
+- Add `check:sentry-usage-scope` package script.
+- Update `docs/sentry-release-source-map-plan.md` so the future Sentry upgrade starts from an enforced usage scope.
+- Keep runtime code, native code, Gradle configuration, and dependencies unchanged.
+
+Why:
+
+- The remaining Sentry Gradle warning is a dedicated release/source-map tooling follow-up.
+- Before that upgrade, Sentry runtime usage should stay limited to `App.tsx`, `Main.tsx`, and `logger/index.ts` so the migration surface is clear.
+
+Validation:
+
+- `corepack yarn check:sentry-usage-scope` passed and confirmed `@sentry/react-native` runtime usage is scoped to `App.tsx`, `Main.tsx`, and `logger/index.ts`.
+- `corepack yarn check:camera-usage-scope` passed.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
