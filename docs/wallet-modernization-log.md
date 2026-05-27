@@ -669,3 +669,26 @@ Validation:
 - Fresh dev debug APK installed on Android emulator.
 - Android emulator smoke passed after Metro cache reset: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
 - Remaining Android warnings are dependency-owned follow-ups: `jcenter()`, Sentry `execResult`, Android manifest namespace/package attributes, and native dependency deprecation notes.
+
+### BEM-37.30 - Clipboard Android Gradle warning cleanup
+
+- Branch: `feature/bem-37-clipboard-gradle-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@react-native-clipboard/clipboard` from `1.8.4` to `1.11.2`.
+- Remove the Clipboard package's Android `jcenter()` usage by moving to a version that uses `mavenCentral()`.
+- Keep the upgrade below the newer codegen/new-architecture metadata line that breaks the current RN 0.68 autolinker.
+- Replace the remaining deprecated `Clipboard` import from `react-native` in `SendTransactionDetailsScreen`.
+
+Validation:
+
+- `@react-native-clipboard/clipboard@1.16.3` was rejected because its type definitions require newer TypeScript syntax.
+- `@react-native-clipboard/clipboard@1.15.0` was rejected because the current RN autolinker generated `import undefined.ClipboardPackage`.
+- `@react-native-clipboard/clipboard@1.11.2` passed compatibility checks.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `android:dev:assemble:warnings` passed on JDK 17.
+- Fresh dev debug APK installed on Android emulator.
+- Android emulator smoke passed after Metro cache reset: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.

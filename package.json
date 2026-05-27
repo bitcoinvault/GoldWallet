@@ -125,7 +125,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.24.0",
-    "@react-native-clipboard/clipboard": "^1.8.4",
+    "@react-native-clipboard/clipboard": "1.11.2",
     "@react-native-community/blur": "^4.3.0",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/netinfo": "^6.0.2",
