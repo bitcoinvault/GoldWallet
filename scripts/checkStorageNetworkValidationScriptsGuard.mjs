@@ -1,4 +1,5 @@
 import {
+  getStorageNetworkValidationFileErrors,
   getStorageNetworkValidationScriptErrors,
   requiredStorageNetworkValidationScripts,
 } from './storageNetworkValidationScriptsGuard.mjs';
@@ -43,6 +44,21 @@ assertAccepted('Complete storage/network validation script fixture', validScript
 assertRejected('Missing storage test script fixture', missingScriptFixture);
 assertRejected('Wrong authenticator test target fixture', wrongTargetFixture);
 assertRejected('Missing prepush validation fixture', missingPrepushFixture);
+
+const existingFilesFixture = new Set(requiredStorageNetworkValidationScripts.values());
+const missingFilesFixture = new Set(existingFilesFixture);
+missingFilesFixture.delete('tests/integration/Storage.test.js');
+const fileExists = fileSet => filePath => fileSet.has(filePath);
+
+if (getStorageNetworkValidationFileErrors(fileExists(existingFilesFixture)).length > 0) {
+  console.error('Complete storage/network validation file fixture should be accepted.');
+  process.exit(1);
+}
+
+if (getStorageNetworkValidationFileErrors(fileExists(missingFilesFixture)).length === 0) {
+  console.error('Missing storage/network validation file fixture should be rejected.');
+  process.exit(1);
+}
 
 if (requiredStorageNetworkValidationScripts.size !== 3) {
   console.error(`Expected 3 storage/network validation scripts, got ${requiredStorageNetworkValidationScripts.size}.`);

@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.47 - Storage/network validation file guard
+
+- Branch: `feature/bem-storage-validation-file-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the storage/network validation script guard so it also verifies that the referenced focused Jest files exist.
+- Add self-check coverage for an accepted file set and a missing test-file case.
+- Refresh the storage/network audit wording.
+
+Why:
+
+- Guarding package script names is not enough if a future cleanup removes or renames the target test file.
+- Group C dependency updates need the focused storage, authenticator, and wallet-core offline tests to remain concrete runnable files.
+
+Validation:
+
+- `corepack yarn check:storage-network-validation-scripts-guard`
+- `corepack yarn check:storage-network-validation-scripts`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.46 - Storage/network validation script guard
 
 - Branch: `feature/bem-storage-validation-script-guard`

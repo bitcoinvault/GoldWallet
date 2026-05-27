@@ -28,3 +28,15 @@ export const getStorageNetworkValidationScriptErrors = scripts => {
 
   return errors;
 };
+
+export const getStorageNetworkValidationFileErrors = (fileExists, root = '') => {
+  const errors = [];
+
+  requiredStorageNetworkValidationScripts.forEach(requiredTestPath => {
+    if (!fileExists(requiredTestPath, root)) {
+      errors.push(`${requiredTestPath} does not exist.`);
+    }
+  });
+
+  return errors;
+};

@@ -46,7 +46,7 @@ corepack yarn check:storage-network-validation-scripts-guard
 corepack yarn check:storage-network-validation-scripts
 ```
 
-The guard verifies that `test:storage`, `test:authenticator`, and `test:wallet-core:offline` keep pointing at the focused Jest files and remain part of `prepush`.
+The guard verifies that `test:storage`, `test:authenticator`, and `test:wallet-core:offline` keep pointing at existing focused Jest files and remain part of `prepush`.
 
 ## Latest Npm Snapshot
 

@@ -1,7 +1,8 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {
+  getStorageNetworkValidationFileErrors,
   getStorageNetworkValidationScriptErrors,
   requiredStorageNetworkValidationScripts,
 } from './storageNetworkValidationScriptsGuard.mjs';
@@ -9,7 +10,11 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
-const errors = getStorageNetworkValidationScriptErrors(packageJson.scripts);
+const fileExists = (filePath, baseDir) => existsSync(path.join(baseDir, filePath));
+const errors = [
+  ...getStorageNetworkValidationScriptErrors(packageJson.scripts),
+  ...getStorageNetworkValidationFileErrors(fileExists, root),
+];
 
 if (errors.length > 0) {
   console.error('Storage/network validation script guard failed:');
