@@ -37,6 +37,13 @@ $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 corepack yarn android:dev:assemble
 ```
 
+For a guarded Android clean that uses the same JDK selection and version checks:
+
+```powershell
+$env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
+corepack yarn android:clean
+```
+
 For a full dev build plus emulator startup check:
 
 ```powershell
