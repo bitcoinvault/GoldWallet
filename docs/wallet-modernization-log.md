@@ -848,3 +848,36 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No runtime code changed in this branch.
+
+### BEM-37.36 - Camera replacement plan
+
+- Branch: `feature/bem-camera-replacement-plan`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/camera-replacement-plan.md`.
+- Document the migration path away from deprecated `react-native-camera`.
+- Preserve the current QR scanner behavior requirements before changing runtime code.
+- Compare replacement candidates at planning level without introducing a new native camera dependency in this branch.
+
+Findings:
+
+- The app uses `react-native-camera` only in `src/screens/ScanQrCodeScreen.tsx`.
+- Android still has `missingDimensionStrategy 'react-native-camera', 'general'` while the current package remains installed.
+- The latest `react-native-camera@4.2.1` still contains `jcenter()`, so bumping the existing package does not remove the active Android Gradle warning.
+- VisionCamera is the preferred migration target, but the current latest line has additional native dependencies and needs a proof branch against this React Native 0.68 app.
+- Camera Kit remains a possible fallback if VisionCamera compatibility or validation cost is too high.
+
+Decision:
+
+- Do not replace the scanner in this docs-only branch.
+- Use a separate `feature/bem-camera-qr-scanner-migration` branch for runtime work.
+- Treat the migration as native/runtime work requiring Android emulator smoke and iOS validation before calling it complete.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime code changed in this branch.
