@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.44 - iOS scheme config mapping guard
+
+- Branch: `feature/bem-ios-scheme-config-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guard for shared iOS Xcode scheme pre-action `.env` and Firebase plist mapping.
+- Add fixture self-check coverage for accepted, changed env, changed Firebase plist, missing scheme, unexpected scheme, and empty mapping cases.
+- Include the guard in `android:dev:check-light`.
+- Update README, Android workflow, baseline, release-service audit, iOS release-config audit, and this modernization log.
+
+Why:
+
+- iOS env/Firebase selection is part of the release-service/native-module surface.
+- Rebranding, release-service, or scheme changes should not silently point an iOS scheme at the wrong env file or Firebase plist.
+- This converts the BEM-36 iOS release-config audit into a mechanically checked baseline.
+
+Validation:
+
+- `corepack yarn check:ios-scheme-config-guard`
+- `corepack yarn check:ios-scheme-config`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.43 - Android env config mapping guard
 
 - Branch: `feature/bem-android-env-config-guard`
