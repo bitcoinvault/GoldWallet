@@ -1073,3 +1073,35 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No app runtime code changed in this branch.
+
+### BEM-37.38 - Android warning audit refresh
+
+- Branch: `feature/bem-37-warning-audit-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the Android warning audit after the Android smoke tooling work.
+- Confirm whether the targeted warning baseline changed.
+- Keep this branch documentation-only.
+
+Current targeted warnings:
+
+- `jcenter()` from `node_modules\react-native-camera\android\build.gradle:59`.
+- `execResult` from `node_modules\@sentry\react-native\sentry.gradle:48`.
+
+Decision:
+
+- The Android smoke tooling changes did not introduce new targeted warning sources.
+- Keep the two remaining warning cleanups as already planned larger follow-ups:
+  - Replace deprecated `react-native-camera` in a dedicated QR scanner migration branch.
+  - Handle Sentry Gradle/source-map behavior in a dedicated Sentry release tooling branch.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The full audit log was written to `local-docs/android-warning-audit.log`.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime code changed in this branch.
