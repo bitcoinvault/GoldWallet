@@ -734,3 +734,32 @@ Validation:
 - The audit helper identified the current active targeted warnings:
   - `jcenter()` from `node_modules\react-native-camera\android\build.gradle:59`.
   - `execResult` from `node_modules\@sentry\react-native\sentry.gradle:48`.
+
+### BEM-37.33 - React Native Camera warning audit
+
+- Branch: `feature/bem-37-camera-warning-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Audit the active `jcenter()` warning source reported by `android:dev:audit-warnings`.
+- Confirm the app's `react-native-camera` usage surface.
+- Check whether a small `react-native-camera` version bump can remove the warning without changing QR scanner runtime behavior.
+
+Findings:
+
+- The app uses `react-native-camera` only in `ScanQrCodeScreen` for QR code scanning through `RNCamera`.
+- Android still needs `missingDimensionStrategy 'react-native-camera', 'general'` for the current package.
+- The installed package resolves to `react-native-camera@3.44.3` from the `^3.33.0` manifest range.
+- The latest available `react-native-camera@4.2.1` still contains `jcenter()` in its Android Gradle file, so a package bump does not remove the warning.
+- The active warning is dependency-owned at `node_modules\react-native-camera\android\build.gradle:59`.
+
+Decision:
+
+- Do not patch `node_modules` or change QR scanner runtime behavior in this branch.
+- Treat camera cleanup as a larger follow-up: replace deprecated `react-native-camera` with a maintained QR/camera stack and test Android/iOS permissions, QR scanning, and navigation callback behavior.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed and confirmed `react-native-camera` as the active `jcenter()` source.
+- No runtime code changed in this branch.
