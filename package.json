@@ -125,7 +125,7 @@
     "lint": "eslint '**/*.{js,ts,tsx}'",
     "lint:fix": "yarn lint --fix",
     "typescript:check": "tsc --noEmit",
-    "prepush": "yarn android:dev:check-warning-guard && yarn check:rn-nodeify-shims && yarn typescript:check && yarn test:unit && yarn test:storage && yarn test:authenticator && yarn test:watchonly:offline && yarn test:hdwallet:offline && yarn test:wallet-core:offline",
+    "prepush": "yarn android:dev:check-warning-guard && yarn check:camera-usage-scope && yarn check:rn-nodeify-shims && yarn typescript:check && yarn test:unit && yarn test:storage && yarn test:authenticator && yarn test:watchonly:offline && yarn test:hdwallet:offline && yarn test:wallet-core:offline",
     "prettier:fix": "prettier --write '**/*.{js,ts,tsx}'",
     "precommit": "yarn lint-staged && yarn typescript:check",
     "shake": "adb shell input keyevent 82",
