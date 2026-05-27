@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.40 - Release service env key guard
+
+- Branch: `feature/bem-release-service-env-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/checkReleaseServiceEnvKeys.mjs`.
+- Add `check:release-service-env-keys` and include it in `android:dev:check-light`.
+- Check env files referenced by Android `envConfigFiles` and iOS schemes for release-service keys without printing secret values.
+- Refresh README, Android workflow, baseline, release-service audit, and check-light docs guard expectations.
+
+Why:
+
+- Sentry, Firebase messaging, email notifications, and CodePush depend on `react-native-config` env keys.
+- Rebranding/release work should fail fast if a referenced app env loses required release-service keys.
+
+Validation:
+
+- `corepack yarn check:release-service-env-keys`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:diff-whitespace`
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this tooling/documentation branch.
+
 ### BEM-36.39 - Android lightweight docs guard
 
 - Branch: `feature/bem-check-light-docs-guard`
