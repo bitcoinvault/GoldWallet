@@ -1660,3 +1660,30 @@ Validation:
 - `corepack yarn typescript:check`
 - `git diff --check`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` and refreshes the successful startup screenshot.
+
+### BEM-36.14 - Android smoke Metro preflight
+
+- Branch: `feature/bem-36-smoke-metro-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Check that Metro is reachable before installing and launching the dev APK in `scripts/androidSmokeDev.mjs`.
+- Add `ANDROID_SMOKE_METRO_HOST`, `ANDROID_SMOKE_METRO_PORT`, and `ANDROID_SMOKE_METRO_TIMEOUT_MS` overrides.
+- Keep existing ADB, logcat, UI hierarchy, and screenshot validation behavior unchanged.
+- Document the Metro preflight in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- The dev APK depends on Metro during smoke validation.
+- A clear preflight failure is faster to diagnose than launching the app into a bundle-loading screen and debugging it as a UI failure.
+
+Validation:
+
+- `ANDROID_SMOKE_METRO_PORT=65534 ANDROID_SMOKE_METRO_TIMEOUT_MS=500 node scripts/androidSmokeDev.mjs` exits with code `1` and records `Metro is not reachable`.
+- `ANDROID_SMOKE_METRO_PORT=abc node scripts/androidSmokeDev.mjs` exits with the expected integer-range validation error.
+- `ANDROID_SMOKE_METRO_TIMEOUT_MS=0 node scripts/androidSmokeDev.mjs` exits with the expected positive-integer validation error.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` after checking Metro at `127.0.0.1:8081`.
