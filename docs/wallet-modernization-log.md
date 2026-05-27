@@ -626,3 +626,25 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - Fresh dev debug APK from the new runner installed on Android emulator.
 - Android emulator smoke passed: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
+
+### BEM-36.3 - Android JDK guard review fix
+
+- Branch: `feature/bem-36-gradle-jdk-guard-review-fix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Android Gradle runner check `JAVA_HOME/bin/java` before falling back to `java` from `PATH`, matching Gradle's Java selection on Windows.
+- Reject JDK versions below 11 as well as above 17 in the root Gradle guard.
+- Keep the existing supported range at JDK 11-17.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `android:dev:assemble` passed with `JAVA_HOME` set to JDK 17 while `PATH` pointed first to JDK 21, confirming the runner follows Gradle's Java selection.
+- `android:dev:assemble` failed fast with the supported-JDK message for JDK 21.
+- `android:dev:assemble` failed fast with the supported-JDK message for Java 8.
+- Fresh dev debug APK installed on Android emulator.
+- Android emulator smoke passed: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
