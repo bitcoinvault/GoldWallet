@@ -7,10 +7,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
 const outputPath = path.join(outputDir, 'android-smoke-dev.log');
+const uiOutputPath = path.join(outputDir, 'android-smoke-dev-ui.xml');
 const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
 const apkPath =
   process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
 const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 8000);
+const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
+  .split(',')
+  .map(text => text.trim())
+  .filter(Boolean);
 
 const sdkRoots = [process.env.ANDROID_HOME, process.env.ANDROID_SDK_ROOT, process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk')].filter(
   Boolean,
@@ -120,6 +125,29 @@ try {
     append('\nStartup smoke found fatal/runtime logcat lines:');
     failingLines.forEach(line => append(line));
     finish(1);
+  }
+
+  const windowOutput = run('read focused window', ['shell', 'dumpsys', 'window'], { printOutput: false });
+
+  if (!windowOutput.includes(packageName)) {
+    throw new Error(`Focused window output does not include ${packageName}.`);
+  }
+
+  append(`Focused window includes ${packageName}.`);
+
+  run('dump UI hierarchy', ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml']);
+  const uiHierarchy = run('read UI hierarchy', ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], { printOutput: false });
+  writeFileSync(uiOutputPath, uiHierarchy);
+  append(`UI hierarchy written to ${uiOutputPath}`);
+
+  const missingTexts = expectedTexts.filter(text => !uiHierarchy.includes(`text="${text}"`));
+
+  if (missingTexts.length > 0) {
+    throw new Error(`UI hierarchy is missing expected text(s): ${missingTexts.join(', ')}`);
+  }
+
+  if (expectedTexts.length > 0) {
+    append(`Found expected UI text(s): ${expectedTexts.join(', ')}`);
   }
 
   append('\nAndroid dev smoke helper completed without fatal/runtime logcat findings.');

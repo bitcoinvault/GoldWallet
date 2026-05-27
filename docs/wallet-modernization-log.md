@@ -967,3 +967,30 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No app runtime code changed in this branch.
+
+### BEM-36.7 - Android smoke UI hierarchy check
+
+- Branch: `feature/bem-android-smoke-ui-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend `scripts/androidSmokeDev.mjs` beyond install/launch/logcat.
+- Verify the launched app remains the focused foreground package.
+- Dump the Android UI hierarchy to `local-docs/android-smoke-dev-ui.xml`.
+- Check the default dashboard smoke texts: `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+
+Behavior:
+
+- Uses `adb shell dumpsys window` to confirm focus contains `io.goldwallet.wallet.dev`.
+- Uses `adb shell uiautomator dump` and `adb exec-out cat` to capture the UI hierarchy.
+- Supports `ANDROID_SMOKE_EXPECT_TEXTS` to override or disable the expected text list for other fixtures.
+
+Validation:
+
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper found the app PID, scanned app-process logcat, confirmed foreground focus, wrote the UI hierarchy, and found the default dashboard texts.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No app runtime code changed in this branch.

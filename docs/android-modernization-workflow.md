@@ -60,7 +60,9 @@ Then install and launch the dev APK:
 corepack yarn android:dev:smoke
 ```
 
-The smoke helper writes the full command output to `local-docs/android-smoke-dev.log`. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
+The smoke helper writes the full command output to `local-docs/android-smoke-dev.log` and the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
+
+By default it also checks that the app is focused and that the UI hierarchy contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. Override that list with `ANDROID_SMOKE_EXPECT_TEXTS` when testing a different fixture.
 
 Smoke pass means:
 
