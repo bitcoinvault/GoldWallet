@@ -2123,6 +2123,32 @@ Validation:
 - `corepack yarn prepush` passed, including Android warning guard, camera usage guard, Sentry usage guard, nodeify shim guard, TypeScript, unit tests, storage, authenticator, watch-only offline, HD wallet offline, and wallet-core offline suites.
 - No runtime, native, dependency, or Metro code changed in this branch.
 
+### BEM-37.57 - Sentry usage workflow docs
+
+- Branch: `feature/bem-sentry-usage-workflow-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:sentry-usage-scope` to the normal mini-branch checklist in `docs/android-modernization-workflow.md`.
+- Document the current allowed Sentry runtime usage files.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, and Metro behavior unchanged.
+
+Why:
+
+- The workflow document should match the enforced `prepush` gate after `BEM-37.56`.
+- The dedicated future Sentry release/source-map branch should start from a documented and guarded runtime usage surface.
+
+Validation:
+
+- `corepack yarn check:sentry-usage-scope` passed.
+- `corepack yarn check:camera-usage-scope` passed.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, or Metro code changed in this branch.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
