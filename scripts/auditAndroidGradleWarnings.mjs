@@ -35,7 +35,18 @@ const result = spawnSync(
   },
 );
 
-const output = `${result.stdout || ''}${result.stderr || ''}`;
+const diagnosticLines = [];
+
+if (result.error) {
+  diagnosticLines.push(`Android Gradle audit spawn error: ${result.error.message}`);
+}
+
+if (result.signal) {
+  diagnosticLines.push(`Android Gradle audit signal: ${result.signal}`);
+}
+
+const diagnosticOutput = diagnosticLines.length > 0 ? `${diagnosticLines.join('\n')}\n` : '';
+const output = `${result.stdout || ''}${result.stderr || ''}${diagnosticOutput}`;
 const auditExitCode = result.status ?? 1;
 writeFileSync(outputPath, output);
 
@@ -71,17 +82,25 @@ lines.forEach((line, index) => {
 
 console.log(`Android Gradle warning audit written to ${outputPath}`);
 
+const summaryHeader = [
+  `Android Gradle audit timeout: ${auditTimeoutMs}ms`,
+  `Android Gradle audit exit code: ${auditExitCode}`,
+  ...diagnosticLines,
+];
+
 if (findings.length === 0) {
-  writeFileSync(summaryOutputPath, `Android Gradle audit timeout: ${auditTimeoutMs}ms\nAndroid Gradle audit exit code: ${auditExitCode}\nTargeted Android Gradle warnings: 0\n`);
+  writeFileSync(summaryOutputPath, `${summaryHeader.join('\n')}\nTargeted Android Gradle warnings: 0\n`);
+  diagnosticLines.forEach(line => console.log(line));
   console.log('No targeted Android Gradle warnings found.');
 } else {
   const uniqueFindings = [...new Set(findings)].sort((left, right) => left.localeCompare(right));
   writeFileSync(
     summaryOutputPath,
-    `Android Gradle audit timeout: ${auditTimeoutMs}ms\nAndroid Gradle audit exit code: ${auditExitCode}\nTargeted Android Gradle warnings: ${uniqueFindings.length}\n${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`,
+    `${summaryHeader.join('\n')}\nTargeted Android Gradle warnings: ${uniqueFindings.length}\n${uniqueFindings.map(finding => `- ${finding}`).join('\n')}\n`,
   );
   console.log(`Android Gradle audit timeout: ${auditTimeoutMs}ms`);
   console.log(`Android Gradle audit exit code: ${auditExitCode}`);
+  diagnosticLines.forEach(line => console.log(line));
   console.log(`Targeted Android Gradle warnings: ${uniqueFindings.length}`);
   uniqueFindings.forEach(finding => console.log(`- ${finding}`));
 }

@@ -1588,3 +1588,28 @@ Validation:
 - `corepack yarn typescript:check`
 - `git diff --check`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` with startup wait `8000ms`, UI readiness wait `20000ms`, and expected UI text `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+
+### BEM-37.44 - Android warning audit spawn diagnostics
+
+- Branch: `feature/bem-37-warning-audit-spawn-diagnostics`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Record `spawnSync` errors from `scripts/auditAndroidGradleWarnings.mjs` in `local-docs/android-warning-audit.log`.
+- Include the same spawn error or signal lines in `local-docs/android-warning-audit-summary.txt`.
+- Keep existing warning detection, timeout handling, and exit-code behavior unchanged.
+- Document the diagnostic behavior in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- A failed Gradle/JDK subprocess can otherwise leave an empty full log with only exit code `1` in the summary.
+- The warning audit is a maintenance gate, so failed setup needs actionable local diagnostics.
+
+Validation:
+
+- `ANDROID_WARNING_AUDIT_TIMEOUT_MS=1 node scripts/auditAndroidGradleWarnings.mjs` exits with code `1` and records `ETIMEDOUT` plus `SIGTERM` in both `local-docs/android-warning-audit.log` and `local-docs/android-warning-audit-summary.txt`.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passes and restores the normal summary with exit code `0` plus the two remaining targeted warnings.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
