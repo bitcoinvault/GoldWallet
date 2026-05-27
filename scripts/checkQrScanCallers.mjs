@@ -1,22 +1,13 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { expectedQrScanCallerFiles, getQrScanCallerInventoryErrors } from './qrScanCallerGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const srcDir = path.join(root, 'src');
 const extensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 const navigatePattern = /\bnavigate\(\s*Route\.ScanQrCode\b/g;
-const expectedCallerFiles = new Set([
-  'src/screens/AuthenticatorList/AuthenticatorListScreen.tsx',
-  'src/screens/CreateContactScreen.tsx',
-  'src/screens/ImportAuthenticator/ImportAuthenticatorScreen.tsx',
-  'src/screens/ImportWalletScreen.tsx',
-  'src/screens/IntegrateKeyScreen.tsx',
-  'src/screens/RecoverySeed/RecoverySeedScreen.tsx',
-  'src/screens/RecoverySend/RecoverySendScreen.tsx',
-  'src/screens/SendCoinsScreen.tsx',
-]);
 
 const getSourceFiles = dir => {
   const files = [];
@@ -51,21 +42,15 @@ getSourceFiles(srcDir).forEach(filePath => {
   navigatePattern.lastIndex = 0;
 });
 
-const missingCallers = [...expectedCallerFiles].filter(filePath => !callerFiles.has(filePath));
-const unexpectedCallers = [...callerFiles].filter(filePath => !expectedCallerFiles.has(filePath));
+const inventoryErrors = getQrScanCallerInventoryErrors(callerFiles);
 
-if (missingCallers.length > 0 || unexpectedCallers.length > 0) {
-  if (missingCallers.length > 0) {
-    console.error('Expected QR scanner caller(s) are missing:');
-    missingCallers.forEach(filePath => console.error(`- ${filePath}`));
-  }
-
-  if (unexpectedCallers.length > 0) {
-    console.error('Unexpected QR scanner caller(s) found:');
-    unexpectedCallers.forEach(filePath => console.error(`- ${filePath}`));
-  }
+if (inventoryErrors.length > 0) {
+  inventoryErrors.forEach(error => {
+    console.error(`${error.label}:`);
+    error.files.forEach(filePath => console.error(`- ${filePath}`));
+  });
 
   process.exit(1);
 }
 
-console.log(`QR scanner caller inventory is stable (${callerFiles.size} callers).`);
+console.log(`QR scanner caller inventory is stable (${expectedQrScanCallerFiles.size} callers).`);
