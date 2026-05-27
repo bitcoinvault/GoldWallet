@@ -123,6 +123,7 @@ Passing:
 - `corepack yarn android:dev:audit-warnings`
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries plus their referenced local artifacts
+- `corepack yarn android:dev:audit-smoke` refreshes warning audit, emulator smoke, and artifact checker evidence in one pass
 - `corepack yarn prepush` starts with the Android warning guard self-check before shim, TypeScript, and promoted offline Jest suites
 
 Known gaps:
