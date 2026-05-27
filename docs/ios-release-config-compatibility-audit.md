@@ -42,6 +42,8 @@ Referenced iOS env files carry the current release-service keys as follows:
 
 `check:release-service-env-keys` validates required key presence for referenced env files and intentionally does not print secret values. Beta env files currently do not require CodePush deployment keys until beta release/update behavior is confirmed.
 
+`check:ios-scheme-config-guard` and `check:ios-scheme-config` now guard the scheme-to-env/Firebase plist matrix above. The guard preserves the currently documented Stage Debug and Beta behavior as an explicit baseline; changing that behavior should happen in a release-config branch with iOS validation.
+
 ## Current Native App Metadata Surface
 
 - `ios/GoldWallet/Info.plist`, `ios/GoldWalletDev-Info.plist`, and `ios/GoldWalletStage-Info.plist` contain `CodePushDeploymentKey`.

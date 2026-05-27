@@ -71,6 +71,15 @@ corepack yarn check:android-env-config-files
 
 This verifies the current `android/app/build.gradle` `envConfigFiles` matrix for dev, stage, prod, and beta debug/release variants before release-service or rebranding changes alter Android env selection.
 
+The iOS scheme env/Firebase mapping is guarded by:
+
+```powershell
+corepack yarn check:ios-scheme-config-guard
+corepack yarn check:ios-scheme-config
+```
+
+This verifies the current shared Xcode scheme pre-action matrix for dev, stage, prod, and beta debug/release schemes before release-service or rebranding changes alter iOS env selection.
+
 ## Current Native And Build Surface
 
 Android:
