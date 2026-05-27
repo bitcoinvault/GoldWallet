@@ -648,3 +648,24 @@ Validation:
 - `android:dev:assemble` failed fast with the supported-JDK message for Java 8.
 - Fresh dev debug APK installed on Android emulator.
 - Android emulator smoke passed: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
+
+### BEM-37.29 - JailMonkey Android Gradle warning cleanup
+
+- Branch: `feature/bem-37-jail-monkey-gradle-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `jail-monkey` from the resolved `2.6.0` package to `2.8.5`.
+- Remove the hardcoded dependency-owned Android `buildToolsVersion "28.0.3"` warning by using a package version that reads the root Android build tools setting.
+- Keep the public JailMonkey API used by the app unchanged; GoldWallet only calls `JailMonkey.isJailBroken()`.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `android:dev:assemble:warnings` passed on JDK 17.
+- Android warning audit no longer reports `Build Tools version (28.0.3)`.
+- Fresh dev debug APK installed on Android emulator.
+- Android emulator smoke passed after Metro cache reset: dashboard rendered `E2EWalletTypeTest`, `Send`, `Receive`, and logcat did not show runtime errors.
+- Remaining Android warnings are dependency-owned follow-ups: `jcenter()`, Sentry `execResult`, Android manifest namespace/package attributes, and native dependency deprecation notes.
