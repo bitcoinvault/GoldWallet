@@ -1687,3 +1687,28 @@ Validation:
 - `corepack yarn typescript:check`
 - `git diff --check`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` after checking Metro at `127.0.0.1:8081`.
+
+### BEM-36.15 - Android smoke summary artifact
+
+- Branch: `feature/bem-36-smoke-summary-artifact`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Write `local-docs/android-smoke-dev-summary.txt` from `scripts/androidSmokeDev.mjs`.
+- Include outcome, exit code, reason, selected serial, package, Metro endpoint, expected UI texts, app PID, logcat count, UI attempts, screenshot path, and screenshot byte count.
+- Keep the existing full smoke transcript, UI hierarchy, screenshot, and pass/fail criteria unchanged.
+- Document the summary artifact in `docs/android-modernization-workflow.md`.
+
+Why:
+
+- The full smoke log is useful for debugging, but a compact summary is faster to scan during repeated maintenance branch validation.
+- A stable summary artifact mirrors the Android warning audit summary pattern.
+
+Validation:
+
+- `ANDROID_SMOKE_METRO_PORT=65534 ANDROID_SMOKE_METRO_TIMEOUT_MS=500 node scripts/androidSmokeDev.mjs` exits with code `1` and writes `Android smoke outcome: failed` plus the Metro failure reason to `local-docs/android-smoke-dev-summary.txt`.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` and writes `Android smoke outcome: passed`, app PID, logcat count, UI attempt count, and screenshot byte count to `local-docs/android-smoke-dev-summary.txt`.
