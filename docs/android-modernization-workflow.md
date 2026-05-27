@@ -60,7 +60,7 @@ Then install and launch the dev APK:
 corepack yarn android:dev:smoke
 ```
 
-The smoke helper writes the full command output to `local-docs/android-smoke-dev.log`. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`.
+The smoke helper writes the full command output to `local-docs/android-smoke-dev.log`. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
 
 Smoke pass means:
 

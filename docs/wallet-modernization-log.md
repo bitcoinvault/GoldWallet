@@ -941,3 +941,29 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No app runtime code changed in this branch.
+
+### BEM-36.6 - Android smoke PID logcat filter
+
+- Branch: `feature/bem-android-smoke-pid-logcat`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refine `scripts/androidSmokeDev.mjs` to read the launched app process ID after startup.
+- Filter the startup logcat scan to that process with `adb logcat --pid`.
+- Keep the full command transcript in `local-docs/android-smoke-dev.log` while keeping console output concise.
+
+Why:
+
+- The first smoke helper version scanned recent global logcat lines.
+- Global logcat can contain permission controller, keyboard, launcher, and system-service stack traces unrelated to GoldWallet.
+- PID-filtered logcat makes the helper stricter for app crashes and less noisy for unrelated emulator output.
+
+Validation:
+
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper installed the dev APK, launched `io.goldwallet.wallet.dev`, found the app PID, scanned app-process startup logcat, and found no fatal Android or React Native runtime errors.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No app runtime code changed in this branch.
