@@ -87,6 +87,7 @@ Useful smoke overrides:
 - `ANDROID_SMOKE_PACKAGE`: launch a non-default package name.
 - `ANDROID_SMOKE_WAIT_MS`: non-negative milliseconds to wait before reading startup state.
 - `ANDROID_SMOKE_LOGCAT_LINES`: positive integer line limit for app-process startup logcat.
+- `ANDROID_SMOKE_ADB_TIMEOUT_MS`: positive integer timeout for each `adb` command.
 - `ANDROID_SMOKE_EXPECT_TEXTS`: comma-separated UI texts expected after launch.
 
 Smoke pass means:

@@ -16,6 +16,7 @@ const apkPath =
   process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
 const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 8000);
 const logcatLineLimit = Number(process.env.ANDROID_SMOKE_LOGCAT_LINES || 400);
+const adbCommandTimeoutMs = Number(process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS || 60000);
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
   .map(text => text.trim())
@@ -50,6 +51,7 @@ const run = (label, args, options = {}) => {
     cwd: root,
     encoding: 'utf8',
     shell: adbCommand === 'adb' && process.platform === 'win32',
+    timeout: adbCommandTimeoutMs,
     ...spawnOptions,
   });
 
@@ -89,6 +91,7 @@ const runBinary = (label, args, outputFile) => {
     cwd: root,
     encoding: 'buffer',
     shell: adbCommand === 'adb' && process.platform === 'win32',
+    timeout: adbCommandTimeoutMs,
   });
 
   if (result.error || result.status !== 0) {
@@ -122,6 +125,10 @@ try {
     throw new Error(`ANDROID_SMOKE_LOGCAT_LINES must be a positive integer. Received: ${process.env.ANDROID_SMOKE_LOGCAT_LINES}`);
   }
 
+  if (!Number.isInteger(adbCommandTimeoutMs) || adbCommandTimeoutMs <= 0) {
+    throw new Error(`ANDROID_SMOKE_ADB_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS}`);
+  }
+
   if (!existsSync(apkPath)) {
     throw new Error(`APK not found: ${apkPath}. Run corepack yarn android:dev:verify to rebuild and smoke-test the dev APK.`);
   }
@@ -131,6 +138,7 @@ try {
   append(`Using package: ${packageName}`);
   append(`Using startup wait: ${startupWaitMs}ms`);
   append(`Using logcat line limit: ${logcatLineLimit}`);
+  append(`Using adb command timeout: ${adbCommandTimeoutMs}ms`);
   append(expectedTexts.length > 0 ? `Using expected UI text(s): ${expectedTexts.join(', ')}` : 'Using expected UI text(s): none');
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
