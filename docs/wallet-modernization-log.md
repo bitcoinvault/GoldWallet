@@ -1661,6 +1661,29 @@ Validation:
 - `git diff --check`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` and writes `Metro reachable: yes` to `local-docs/android-smoke-dev-summary.txt`.
 
+### BEM-36.17 - Android smoke summary UI hierarchy path
+
+- Branch: `feature/bem-36-smoke-summary-ui-path`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `UI hierarchy path` to `local-docs/android-smoke-dev-summary.txt`.
+- Keep smoke runtime behavior and artifact locations unchanged.
+- Refresh the baseline description of smoke summary fields.
+
+Why:
+
+- The summary already points to the screenshot artifact.
+- Adding the UI hierarchy path makes the summary a complete index of the two primary visual/debug artifacts.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passes on `emulator-5554` and writes `UI hierarchy path` to `local-docs/android-smoke-dev-summary.txt`.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
