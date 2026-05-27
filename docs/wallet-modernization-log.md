@@ -1169,3 +1169,28 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No runtime code changed in this branch.
+
+### BEM-36.11 - Android smoke screenshot artifact guard
+
+- Branch: `feature/bem-android-smoke-screenshot-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden `scripts/androidSmokeDev.mjs` screenshot capture.
+- Fail the smoke helper if `adb exec-out screencap -p` returns an empty artifact.
+- Print the screenshot artifact byte size in the smoke transcript.
+
+Why:
+
+- The smoke helper already writes `local-docs/android-smoke-dev.png`.
+- A non-empty artifact guard makes the visual evidence check explicit instead of assuming `screencap` returned valid data.
+
+Validation:
+
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper captured a non-empty startup screenshot and printed its byte size.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No app runtime code changed in this branch.
