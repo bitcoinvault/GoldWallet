@@ -1047,3 +1047,29 @@ Validation:
 - `corepack yarn typescript:check` passed.
 - `git diff --check` passed.
 - No app runtime code changed in this branch.
+
+### BEM-36.10 - Android smoke screenshot artifact
+
+- Branch: `feature/bem-android-smoke-screenshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend `scripts/androidSmokeDev.mjs` to capture a startup screenshot after the UI hierarchy check.
+- Write the screenshot to `local-docs/android-smoke-dev.png`.
+- Document the screenshot artifact in the Android modernization workflow.
+
+Why:
+
+- The smoke helper already proves foreground focus, expected UI text, and app-process logcat health.
+- A screenshot gives a quick visual artifact for manual review without keeping the emulator window in focus.
+- Keeping the screenshot in `local-docs/` avoids committing generated validation artifacts.
+
+Validation:
+
+- `corepack yarn android:dev:smoke` passed on the connected Android emulator.
+- The helper still found the app PID, scanned app-process logcat, confirmed foreground focus, found the default dashboard texts, and wrote `local-docs/android-smoke-dev.png`.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- No app runtime code changed in this branch.
