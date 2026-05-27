@@ -2615,6 +2615,26 @@ Validation:
 - `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, Sentry usage guard, native module inventory guard, native module upgrade-plan self-check, native module upgrade-plan coverage guard, RN nodeify shim guard, TypeScript, and diff whitespace check.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this guard/tooling update.
 
+### BEM-36.27 - README native guard docs
+
+- Branch: `feature/bem-readme-native-guard-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the README `android:dev:check-light` description after adding native module inventory and upgrade-plan guards.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- The repository-level quickstart should match the actual lightweight gate now used by `prepush`.
+- The BEM-36 native module guard work should be visible from the normal Android maintenance instructions, not only from deeper docs.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
