@@ -10,6 +10,26 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.38 - Release service guard baseline docs
+
+- Branch: `feature/bem-baseline-release-service-guards`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh README, Android workflow, and wallet modernization baseline descriptions of `android:dev:check-light`.
+- Include the new CodePush, Firebase, and iOS push notification usage guards in the documented lightweight gate.
+
+Why:
+
+- `BEM-36.35` through `BEM-36.37` expanded the release-service guard surface.
+- The documented Android maintenance workflow should match the actual `package.json` gate before further dependency work.
+
+Validation:
+
+- `corepack yarn android:dev:check-light`
+- Emulator smoke not required for this docs-only branch.
+
 ### BEM-36.37 - iOS push notification usage scope guard
 
 - Branch: `feature/bem-push-notification-ios-guard`
