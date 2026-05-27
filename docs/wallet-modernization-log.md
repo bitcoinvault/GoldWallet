@@ -2682,6 +2682,27 @@ Validation:
 - `corepack yarn android:dev:check-light` passed and ran Android warning baseline guard, Android warning artifact guard, camera usage guard, QR scanner caller guard, QR render usage guard, Sentry usage guard, native module inventory guard, native module upgrade-plan guard, RN nodeify shim guard, TypeScript, and diff whitespace check.
 - No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this guard/tooling update.
 
+### BEM-36.30 - README QR render guard docs
+
+- Branch: `feature/bem-readme-qr-render-guard-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the README `android:dev:check-light` wording after adding QR render usage checks.
+- Distinguish camera usage, QR scanner caller, and QR render usage guards in the repository-level quickstart.
+- Keep runtime code, native code, Gradle configuration, dependencies, package scripts, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- `BEM-36.29` added a QR render usage inventory guard for future `react-native-svg` and QR rendering dependency upgrades.
+- The README should reflect the actual lightweight guard set rather than grouping scan and render risks under a generic QR label.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` passed.
+- No runtime, native, dependency, or Metro code changed in this branch, so emulator smoke is not required for this documentation-only update.
+
 ### BEM-34.4 - README Metro smoke workflow
 
 - Branch: `feature/bem-34-readme-metro-smoke-docs`
