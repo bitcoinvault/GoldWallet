@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.93 - Sentry Android warning summary artifact
+
+- Branch: `feature/bem-37-sentry-warning-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `sentry:android-warning:audit` write `local-docs/sentry-android-warning-summary.txt`.
+- Add `sentry:android-warning:check-summary` and `check:sentry-android-warning-summary-guard`.
+- Add Sentry Android warning summary checker files and package scripts to the Android dev environment audit guard.
+- Include the generated Sentry Android warning summary checker in `rn:baseline:preflight` immediately after `sentry:android-warning:audit`.
+- Refresh Sentry release/source-map, release-services, workflow, and baseline documentation with the generated local artifact path.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The future Sentry release/source-map cleanup branch should start from a repeatable local artifact that captures the current dependency-owned `execResult` warning source and baseline stability.
+
+Validation:
+
+- `corepack yarn check:sentry-android-warning-summary-guard` passed.
+- `corepack yarn sentry:android-warning:audit` passed and wrote `local-docs/sentry-android-warning-summary.txt`.
+- `corepack yarn sentry:android-warning:check-summary` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Re-run the Sentry Android warning audit before changing `@sentry/react-native`, then validate source-map/dSYM behavior on the implementation branch.
+
 ### BEM-37.92 - Camera QR migration summary artifact
 
 - Branch: `feature/bem-37-camera-qr-migration-summary`

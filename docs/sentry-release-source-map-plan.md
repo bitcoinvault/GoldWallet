@@ -13,7 +13,8 @@
 - `corepack yarn check:sentry-release-integration-guard` verifies the Sentry release integration guard fixtures.
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties` files and `SENTRY_AUTH_TOKEN` are available before release source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary.
-- `corepack yarn sentry:android-warning:audit` verifies the current dependency-owned Android `execResult` warning source before any Sentry cleanup branch.
+- `corepack yarn sentry:android-warning:audit` verifies the current dependency-owned Android `execResult` warning source before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
+- `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
 - The active Android Gradle warning comes from Sentry's Gradle script enumerating bundle task properties.
 - The latest npm release checked for `@sentry/react-native` is `8.12.0`, so a real cleanup would be a major SDK upgrade.
 
@@ -48,6 +49,7 @@ Scope:
 - `corepack yarn sentry:release:prereq-check-summary`.
 - `corepack yarn check:sentry-release-prereq-summary-guard`.
 - `corepack yarn sentry:android-warning:audit`.
+- `corepack yarn sentry:android-warning:check-summary`.
 - `corepack yarn typescript:check`.
 - `git diff --check`.
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`.
