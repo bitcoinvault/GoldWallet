@@ -161,7 +161,7 @@ Known gaps:
 - Full wallet flow QA is still required: create/import wallet, PIN, biometrics, send, receive, QR scan, history, authenticator, recovery flows.
 - Remaining targeted Android warning sources were last refreshed from `local-docs/android-warning-audit-summary.txt` generated on `2026-05-28T19:37:42.051Z`: `react-native-camera` `jcenter()` and Sentry `execResult`; unexpected targeted warning count was `0`.
 - `BEM-37.78` records the camera/QR migration readiness audit for the `react-native-camera` warning source.
-- `BEM-37.72` records the Sentry Android warning audit for the Sentry `execResult` warning source.
+- `BEM-37.99` records the Sentry Android warning audit for the Sentry `execResult` warning source.
 - `BEM-36.81` records the current React Native baseline preflight refresh before the next RN baseline branch.
 
 ## Recommended Upgrade Order
