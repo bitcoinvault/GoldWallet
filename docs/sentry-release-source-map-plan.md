@@ -9,6 +9,8 @@
 - DSNs are injected through `react-native-config` as `SENTRY_DSN_IOS` and `SENTRY_DSN_ANDROID`.
 - `@sentry/react-native` runtime imports are currently scoped to `App.tsx`, `Main.tsx`, and `logger/index.ts`; `corepack yarn check:sentry-usage-scope` guards that surface before the upgrade branch.
 - `corepack yarn check:sentry-usage-guard` verifies the Sentry usage guard fixtures.
+- `corepack yarn check:sentry-release-integration` guards the current Android Sentry Gradle integration and iOS source-map/dSYM upload phases.
+- `corepack yarn check:sentry-release-integration-guard` verifies the Sentry release integration guard fixtures.
 - The active Android Gradle warning comes from Sentry's Gradle script enumerating bundle task properties.
 - The latest npm release checked for `@sentry/react-native` is `8.12.0`, so a real cleanup would be a major SDK upgrade.
 
@@ -37,6 +39,8 @@ Scope:
 - `corepack yarn check:rn-nodeify-shims`.
 - `corepack yarn check:sentry-usage-guard`.
 - `corepack yarn check:sentry-usage-scope`.
+- `corepack yarn check:sentry-release-integration-guard`.
+- `corepack yarn check:sentry-release-integration`.
 - `corepack yarn typescript:check`.
 - `git diff --check`.
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`.

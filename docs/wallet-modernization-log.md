@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.72 - Sentry release integration guard
+
+- Branch: `feature/bem-sentry-release-integration-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a Sentry release integration guard that verifies Android still applies `@sentry/react-native/sentry.gradle`.
+- Verify that iOS project settings still include Sentry React Native source-map bundling and dSYM upload phases.
+- Add a self-check fixture for the guard and include both checks in `android:dev:check-light`.
+- Refresh the Sentry release/source-map plan, Android workflow, README, and modernization baseline.
+- Keep Sentry SDK version, DSN wiring, source-map upload commands, and native project behavior unchanged.
+
+Why:
+
+- Sentry remains a dedicated release/source-map follow-up because the active Gradle warning is in Sentry's Gradle integration.
+- Before any SDK or release tooling upgrade, the current Android/iOS release integration points should be mechanically guarded.
+
+Validation:
+
+- `corepack yarn check:sentry-release-integration-guard` passed.
+- `corepack yarn check:sentry-release-integration` passed and confirmed Android Gradle plus iOS source-map/dSYM Sentry integration points.
+- `corepack yarn android:dev:check-light` passed and ran the new Sentry release integration checks with the existing guard suite, TypeScript, and diff whitespace checks.
+- Emulator smoke was not required because this branch adds validation tooling and documentation only; it does not change runtime source, native project integration, dependency versions, or lockfile content.
+
+Follow-up:
+
+- Use this guard as a precondition for the future Sentry SDK/source-map upgrade branch and validate non-dev Android release behavior plus iOS symbol/source-map upload on a Mac runner/device.
+
 ### BEM-36.71 - iOS Push Notification manifest pin
 
 - Branch: `feature/bem-push-notification-ios-1-10-0-manifest`
