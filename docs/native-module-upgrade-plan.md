@@ -124,6 +124,7 @@ Branch shape:
 - Do not do a blind Firebase or Sentry major upgrade inside generic cleanup.
 - Keep Sentry release/source-map validation in a dedicated branch.
 - Keep Firebase grouped by package family only when Android and iOS config changes are understood.
+- `corepack yarn firebase:release-services:audit` checks current Firebase package family alignment, Android config, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade.
 - `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, CodePush, and Sentry package snapshot, native build surface, and release validation path.
 - `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; future CodePush work should validate a non-dev release/update path and deployment-key loading.
 - `corepack yarn codepush:release:path-audit` checks the current CodePush non-dev runtime/native/env wiring before any release-path change.
