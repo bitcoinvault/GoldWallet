@@ -141,7 +141,7 @@ Then use the dev build plus emulator smoke check from another shell:
 $ yarn android:dev:verify
 ```
 
-This builds the dev debug APK, checks that Metro is reachable on `127.0.0.1:8081`, installs the APK on a connected emulator/device, checks app startup logcat, verifies the dashboard UI, and writes local artifacts under `local-docs/`.
+This builds the dev debug APK, checks that Metro is reachable on `127.0.0.1:8081`, installs the APK on a connected emulator/device, checks app startup logcat, verifies the dashboard UI, writes local artifacts under `local-docs/`, and validates the generated smoke summary.
 
 For Android maintenance branches that also need the warning baseline audit and artifact consistency check, use:
 

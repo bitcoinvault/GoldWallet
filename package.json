@@ -172,7 +172,7 @@
     "check:native-module-upgrade-plan": "node scripts/checkNativeModuleUpgradePlan.mjs",
     "android:clean": "node scripts/runAndroidGradle.mjs clean",
     "android:dev:smoke": "node scripts/androidSmokeDev.mjs",
-    "android:dev:verify": "yarn android:dev:assemble && yarn android:dev:smoke",
+    "android:dev:verify": "yarn android:dev:assemble && yarn android:dev:smoke && yarn android:dev:check-smoke-summary",
     "android:dev:release": "react-native run-android --variant='devRelease'",
     "android:stage:release": "react-native run-android --variant=stageRelease",
     "android:prod:release": "react-native run-android --variant=prodRelease",
