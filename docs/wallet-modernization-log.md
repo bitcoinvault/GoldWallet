@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.85 - Android audit-smoke command content guard
+
+- Branch: `feature/bem-36-audit-smoke-command-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Android dev environment audit required-script and command-snippet guards to cover `android:dev:audit-smoke`.
+- Guard `android:dev:audit-smoke` so it must include `android:dev:audit-warnings`, `android:dev:smoke`, and `android:dev:check-artifacts`.
+- Add self-check fixtures that reject `android:dev:audit-smoke` when the warning audit, smoke, or artifact checker step is removed.
+- Keep runtime app code, native project files, dependency versions, Gradle configuration, Metro behavior, release secrets, package scripts, and validation artifact formats unchanged.
+
+Why:
+
+- Maintenance branches use `android:dev:audit-smoke` to refresh warning evidence and emulator smoke evidence together.
+- The environment guard should catch accidental command drift in the combined maintenance validation path before a branch relies on incomplete evidence.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn android:dev:env-audit` passed with JDK 17.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, Android/iOS source, package-script behavior, or Metro behavior changed in this branch, so emulator smoke is not required for this guard-only update.
+
 ### BEM-36.84 - Android verify command content guard
 
 - Branch: `feature/bem-36-verify-script-content-guard`

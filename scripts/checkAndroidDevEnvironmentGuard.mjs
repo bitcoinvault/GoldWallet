@@ -443,6 +443,39 @@ assertRejected(
   'package.json script android:dev:verify must include android:dev:check-smoke-summary',
 );
 assertRejected(
+  'Audit-smoke missing warning audit fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:audit-smoke', 'yarn android:dev:smoke && yarn android:dev:check-artifacts'],
+    ]),
+  },
+  'package.json script android:dev:audit-smoke must include android:dev:audit-warnings',
+);
+assertRejected(
+  'Audit-smoke missing smoke fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:audit-smoke', 'yarn android:dev:audit-warnings && yarn android:dev:check-artifacts'],
+    ]),
+  },
+  'package.json script android:dev:audit-smoke must include android:dev:smoke',
+);
+assertRejected(
+  'Audit-smoke missing artifact checker fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:audit-smoke', 'yarn android:dev:audit-warnings && yarn android:dev:smoke'],
+    ]),
+  },
+  'package.json script android:dev:audit-smoke must include android:dev:check-artifacts',
+);
+assertRejected(
   'Missing RN upgrade path package script fixture',
   {
     ...validEnvironment,
