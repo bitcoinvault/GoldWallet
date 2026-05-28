@@ -22,7 +22,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-randombytes', '3.6.2'],
   ['react-native-safe-area-context', '3.4.1'],
   ['react-native-screens', '3.22.1'],
-  ['react-native-secure-key-store', '^2.0.10'],
+  ['react-native-secure-key-store', '2.0.10'],
   ['react-native-share', '7.9.1'],
   ['react-native-svg', '12.5.1'],
   ['react-native-tcp-socket', '6.4.1'],
