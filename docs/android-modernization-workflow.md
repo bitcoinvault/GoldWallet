@@ -96,6 +96,13 @@ After running both warning audit and smoke, use the artifact checker for a quick
 corepack yarn android:dev:check-artifacts
 ```
 
+Use the dedicated warning-source audits before starting the larger cleanup branches:
+
+```powershell
+corepack yarn sentry:android-warning:audit
+corepack yarn camera:qr-migration:audit
+```
+
 For a fast check of the warning baseline guard patterns without running Gradle:
 
 ```powershell
@@ -157,3 +164,4 @@ Smoke pass means:
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
 - `react-native-camera` cleanup is a larger QR/camera migration, not a small warning cleanup.
 - Sentry `execResult` cleanup should be handled in a dedicated release/source-map validation branch.
+- The current warning baseline remains exactly two targeted sources: Sentry `execResult` and `react-native-camera` `jcenter()`.
