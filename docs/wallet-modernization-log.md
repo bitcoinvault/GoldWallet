@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.83 - Android warning audit refresh after RN path guards
+
+- Branch: `feature/bem-37-warning-audit-refresh-rn-guards`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the Android Gradle warning audit on JDK 17 after adding the RN upgrade path audit guards to the lightweight validation surface.
+- Refresh `docs/wallet-modernization-baseline.md` with the latest warning-audit summary timestamp.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- `android:dev:check-light` now includes the RN upgrade path self-check and worktree audit, but the real Gradle warning audit remains the authoritative evidence for the current Android warning baseline.
+- The current warning baseline should remain anchored to fresh Gradle output after validation tooling changes.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The refreshed `local-docs/android-warning-audit-summary.txt` was generated on `2026-05-28T14:08:26.667Z`.
+- The refreshed audit reported `Android Gradle audit exit code: 0`.
+- The refreshed audit reported `Android Gradle warning baseline guard exit code: 0`.
+- The refreshed audit reported `Targeted Android Gradle warnings: 2`.
+- The refreshed audit reported `Unexpected targeted Android Gradle warnings: 0`.
+- Remaining targeted sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.
+- `corepack yarn android:dev:check-artifacts` passed.
+- `corepack yarn sentry:android-warning:audit` passed.
+- `corepack yarn camera:qr-migration:audit` passed.
+
+Follow-up:
+
+- Keep Sentry Gradle/source-map behavior in a dedicated release tooling branch.
+- Keep `react-native-camera` replacement in the dedicated QR scanner migration branch.
+
 ### BEM-36.92 - Android dev environment audit covers RN upgrade path files
 
 - Branch: `feature/bem-36-android-env-audit-rn-path-files`
