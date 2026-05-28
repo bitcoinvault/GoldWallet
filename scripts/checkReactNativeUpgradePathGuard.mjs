@@ -23,6 +23,8 @@ const validEnvironment = {
     'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
     'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
     'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
+    'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
+    'check:react19-impact-guard': 'node scripts/checkReact19ImpactGuard.mjs',
     'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
   },
   nvmrc: expectedReactNativeUpgradePathBaseline.nodeRuntime,
@@ -86,6 +88,8 @@ assertRejected(
       'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
       'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
       'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
+      'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
+      'check:react19-impact-guard': 'node scripts/checkReact19ImpactGuard.mjs',
     },
   },
   'rn:baseline:preflight',
@@ -97,10 +101,26 @@ assertRejected(
     scripts: {
       'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
       'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
+      'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
+      'check:react19-impact-guard': 'node scripts/checkReact19ImpactGuard.mjs',
       'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
     },
   },
   'rn:target-snapshot:audit',
+);
+assertRejected(
+  'Missing React 19 impact package script fixture',
+  {
+    ...validEnvironment,
+    scripts: {
+      'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+      'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
+      'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
+      'check:react19-impact-guard': 'node scripts/checkReact19ImpactGuard.mjs',
+      'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
+    },
+  },
+  'react19:impact:audit',
 );
 assertRejected(
   'Missing docs fixture',

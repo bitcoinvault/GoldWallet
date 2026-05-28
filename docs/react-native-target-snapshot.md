@@ -2,6 +2,8 @@
 
 This document records the current external React Native target snapshot for the wallet modernization stream.
 
+React 19 impact audit is tracked in `docs/react19-impact-audit.md`.
+
 ## Snapshot
 
 - NPM snapshot date: `2026-05-28`

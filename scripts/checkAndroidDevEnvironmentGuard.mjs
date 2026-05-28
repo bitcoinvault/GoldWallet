@@ -86,6 +86,22 @@ assertRejected(
   'React Native target snapshot live npm guard helper is missing',
 );
 assertRejected(
+  'Missing React 19 impact audit file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/auditReact19Impact.mjs')),
+  },
+  'React 19 impact audit helper is missing',
+);
+assertRejected(
+  'Missing React 19 impact guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkReact19ImpactGuard.mjs')),
+  },
+  'React 19 impact audit guard helper is missing',
+);
+assertRejected(
   'Missing dev verification package script fixture',
   {
     ...validEnvironment,
@@ -132,6 +148,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:rn-target-snapshot-current-guard')),
   },
   'package.json is missing check:rn-target-snapshot-current-guard',
+);
+assertRejected(
+  'Missing React 19 impact package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'react19:impact:audit')),
+  },
+  'package.json is missing react19:impact:audit',
+);
+assertRejected(
+  'Missing React 19 impact guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:react19-impact-guard')),
+  },
+  'package.json is missing check:react19-impact-guard',
 );
 
 console.log('Android dev environment audit guard checks are valid.');

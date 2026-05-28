@@ -29,6 +29,8 @@ export const requiredAndroidDevFiles = [
   ['scripts/checkReactNativeTargetSnapshotGuard.mjs', 'React Native target snapshot audit guard helper'],
   ['scripts/checkReactNativeTargetSnapshotCurrent.mjs', 'React Native target snapshot live npm check helper'],
   ['scripts/checkReactNativeTargetSnapshotCurrentGuard.mjs', 'React Native target snapshot live npm guard helper'],
+  ['scripts/auditReact19Impact.mjs', 'React 19 impact audit helper'],
+  ['scripts/checkReact19ImpactGuard.mjs', 'React 19 impact audit guard helper'],
 ];
 
 export const requiredAndroidDevPackageScripts = [
@@ -43,6 +45,8 @@ export const requiredAndroidDevPackageScripts = [
   'rn:target-snapshot:audit',
   'rn:target-snapshot:current',
   'check:rn-target-snapshot-current-guard',
+  'react19:impact:audit',
+  'check:react19-impact-guard',
   'rn:baseline:preflight',
 ];
 

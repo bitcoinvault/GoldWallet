@@ -97,6 +97,12 @@ To compare that snapshot with live npm metadata before a real RN baseline branch
 $ yarn rn:target-snapshot:current
 ```
 
+To audit React 19 impact areas implied by the RN target snapshot:
+
+```sh
+$ yarn react19:impact:audit
+```
+
 To verify the live snapshot comparison rules without network access:
 
 ```sh

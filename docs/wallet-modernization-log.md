@@ -3600,6 +3600,50 @@ Notes:
 - The run still reports the known readiness warnings for Node 22 versus the Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
 - No emulator smoke was required because this branch only changes package scripts, audit expectations, and documentation.
 
+### BEM-36.98 - React 19 impact audit
+
+- Branch: `feature/bem-36-react19-impact-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/react19-impact-audit.md` for the React 19 impact implied by the RN target snapshot.
+- Add `react19:impact:audit` and `check:react19-impact-guard`.
+- Include the React 19 impact guard and audit in `rn:baseline:preflight`.
+- Guard the new helper files and package scripts through the Android dev environment audit.
+- Link the React 19 impact audit from the RN upgrade path, RN target snapshot, baseline, Android workflow, and README.
+
+Why:
+
+- The current RN target snapshot points at React peer `^19.2.3`, while the app is still on React `17.0.2`, `@types/react@^16.9.31`, and `react-test-renderer@17.0.2`.
+- Before changing React/RN packages, the class-component, default-props, refs, hook, and renderer/type-package surfaces should be explicit.
+
+Observed inventory:
+
+- Source files scanned: `320`
+- Class component files: `23`
+- `componentWillUnmount` files: `16`
+- `static defaultProps` files: `1`
+- Function component type files: `8`
+- `createRef` files: `8`
+
+Validation:
+
+- `corepack yarn check:react19-impact-guard`
+- `corepack yarn react19:impact:audit`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn android:dev:check-light-docs`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=%LOCALAPPDATA%\Android\Sdk ANDROID_HOME=%ANDROID_SDK_ROOT% corepack yarn android:dev:verify`
+
+Notes:
+
+- The RN preflight passed with the new React 19 impact guard and audit.
+- The preflight still reports the existing readiness warnings for Node 22 versus the Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
+- Android dev verify built the dev APK, installed it on `emulator-5554`, and smoke validated `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive` with no fatal AndroidRuntime or React Native runtime logcat findings.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`
