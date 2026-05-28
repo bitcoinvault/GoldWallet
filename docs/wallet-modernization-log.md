@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.72 - Legacy Android autolink guard
+
+- Branch: `feature/bem-legacy-android-autolink-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guard for the legacy Android autolinking disables in `react-native.config.js`.
+- Keep Android autolinking disabled only for `@remobile/react-native-qrcode-local-image` and `react-native-prompt-android`.
+- Add a self-check fixture for the guard and include both checks in `android:dev:check-light`.
+- Refresh README, Android modernization workflow, native module upgrade plan, and modernization baseline documentation.
+- Keep runtime source, native project files, dependency versions, and lockfile content unchanged.
+
+Why:
+
+- These legacy packages are intentionally kept out of Android autolinking because they depend on obsolete Android/Gradle support paths.
+- The future QR/camera migration should remove or replace them deliberately, not accidentally re-enable them during unrelated native cleanup.
+
+Validation:
+
+- `corepack yarn check:legacy-android-autolink-guard` passed.
+- `corepack yarn check:legacy-android-autolink` passed and confirmed only the guarded QR/prompt packages disable Android autolinking.
+- `corepack yarn android:dev:check-light` passed and ran the new legacy Android autolink checks with the existing guard suite, TypeScript, and diff whitespace checks.
+- Emulator smoke was not required because this branch adds validation tooling and documentation only; it does not change runtime source, native project files, dependency versions, or lockfile content.
+
+Follow-up:
+
+- Remove or replace the guarded legacy packages in the dedicated QR/camera migration branch after QR scan/import behavior is validated.
+
 ### BEM-37.72 - Sentry release integration guard
 
 - Branch: `feature/bem-sentry-release-integration-guard`
