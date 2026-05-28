@@ -47,7 +47,8 @@ Referenced iOS env files carry the current release-service keys as follows:
 ## Current Native App Metadata Surface
 
 - `ios/GoldWallet/Info.plist`, `ios/GoldWalletDev-Info.plist`, and `ios/GoldWalletStage-Info.plist` contain `CodePushDeploymentKey`.
-- Dev and Stage Info.plist files include `UIBackgroundModes` with `remote-notification`.
+- Production, Dev, and Stage Info.plist files include `UIBackgroundModes` with `remote-notification`.
+- `ios/GoldWallet/AppDelegate.m` assigns `UNUserNotificationCenter` delegate for foreground notification presentation callbacks.
 - `GoldWallet-beta.plist` exists and is used by beta configurations, but beta scheme pre-actions do not currently copy a `GoogleService-Info-*.plist` file.
 - The Xcode project contains build phases that copy `${FIREBASE_CONFIG_FILE}.plist` to `GoogleService-Info.plist` for some configurations.
 
@@ -82,5 +83,5 @@ Release-config implementation:
 - Validate at least one non-dev build path for CodePush and Sentry source-map behavior.
 - Start CodePush release-path validation with `corepack yarn codepush:release:path-audit`; it checks wiring and key presence only, without printing deployment-key values.
 - Start Firebase release-service validation with `corepack yarn firebase:release-services:audit`; it checks package alignment, Android config, iOS plist files, and Messaging runtime wiring.
-- Start iOS push notification bridge validation with `corepack yarn push-notification:bridge-audit`; it checks bridge wiring and reports static readiness issues before device validation.
+- Start iOS push notification bridge validation with `corepack yarn push-notification:bridge-audit`; after `BEM-37.79` it should report no static readiness issues, but device validation is still required for APNs/token/delivery behavior.
 - Do not guess missing DSNs, Firebase files, or CodePush deployment keys; report exact missing key/file names instead.
