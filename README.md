@@ -85,6 +85,12 @@ Before changing React Native package versions, run the grouped baseline prefligh
 $ yarn rn:baseline:preflight
 ```
 
+To verify the recorded npm target snapshot for the staged RN upgrade:
+
+```sh
+$ yarn rn:target-snapshot:audit
+```
+
 To verify that the documented Metro runtime baseline is still aligned with the repo:
 
 ```sh
