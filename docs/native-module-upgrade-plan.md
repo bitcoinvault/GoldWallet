@@ -67,7 +67,7 @@ Branch shape:
 - `react-native-localize`
 - `react-native-randombytes`
 - `react-native-secure-key-store`
-- `react-native-tcp-socket`
+- `react-native-tcp-socket` -> `6.4.1`
 - `react-native-webview`
 
 Risk:
@@ -80,6 +80,7 @@ Branch shape:
 - `docs/storage-network-native-compatibility-audit.md` records the current storage/config/network package compatibility snapshot and validation path.
 - Validate app startup, wallet list persistence, settings/env loading, and logcat for native module crashes.
 - For storage/secure-key-store changes, add or run focused storage/authenticator tests before emulator smoke.
+- `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 
 ### Group D - Notifications And Release Services
 
