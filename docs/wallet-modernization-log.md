@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.98 - Android warning baseline refresh
+
+- Branch: `feature/bem-37-warning-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Android Gradle warning baseline evidence after the latest type-definition maintenance branches.
+- Update `docs/wallet-modernization-baseline.md` to point at the latest local warning-audit summary timestamp.
+- Keep runtime code, dependency versions, native project files, env files, package scripts, Metro behavior, release secrets, and ignored `local-docs/` artifacts unchanged.
+
+Why:
+
+- The integration branch should keep its high-level baseline aligned with the newest Gradle warning audit evidence.
+- The remaining warning surface should stay constrained to the known dependency-owned sources before dedicated Sentry and camera replacement work.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The refreshed summary reported `Generated at: 2026-05-28T18:17:11.944Z`.
+- The refreshed summary reported `Android Gradle audit exit code: 0`.
+- The refreshed summary reported `Android Gradle warning baseline guard exit code: 0`.
+- The refreshed summary reported `Targeted Android Gradle warnings: 2`.
+- The refreshed summary reported `Unexpected targeted Android Gradle warnings: 0`.
+- Remaining targeted sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.
+- `corepack yarn android:dev:check-warning-audit-summary` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+
 ### BEM-36.87 - BIP21 types 2.0.3
 
 - Branch: `feature/bem-36-bip21-types-2-0-3`
