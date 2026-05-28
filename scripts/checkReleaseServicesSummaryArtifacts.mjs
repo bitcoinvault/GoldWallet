@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
 import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';
+import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +15,11 @@ const summaries = [
     label: 'Sentry release prerequisite',
     relativePath: 'local-docs/sentry-release-prereq-summary.txt',
     getErrors: getSentryReleasePrereqSummaryErrors,
+  },
+  {
+    label: 'Sentry Android warning',
+    relativePath: 'local-docs/sentry-android-warning-summary.txt',
+    getErrors: getSentryAndroidWarningSummaryErrors,
   },
   {
     label: 'Firebase release-services',

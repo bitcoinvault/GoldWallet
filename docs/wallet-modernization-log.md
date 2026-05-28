@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.94 - Aggregate Sentry warning release-services summary
+
+- Branch: `feature/bem-37-release-services-sentry-warning-aggregate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `local-docs/sentry-android-warning-summary.txt` to `release-services:check-summaries`.
+- Extend `check:release-services-summary-guard` so it verifies the aggregate checker imports and validates the Sentry Android warning summary.
+- Refresh release-services, workflow, and baseline documentation to state that both Sentry summary artifacts are covered by the aggregate checker.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- Sentry readiness now has two local artifacts: Android warning baseline and release prerequisite summary. The aggregate release-services checker should validate both before larger Sentry or RN baseline branches.
+
+Validation:
+
+- `corepack yarn check:release-services-summary-guard` passed.
+- `corepack yarn release-services:check-summaries` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Keep `release-services:check-summaries` aligned with any future release-service summary artifacts.
+
 ### BEM-37.93 - Sentry Android warning summary artifact
 
 - Branch: `feature/bem-37-sentry-warning-summary`
