@@ -126,6 +126,7 @@ Branch shape:
 - Keep Firebase grouped by package family only when Android and iOS config changes are understood.
 - `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, CodePush, and Sentry package snapshot, native build surface, and release validation path.
 - `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; future CodePush work should validate a non-dev release/update path and deployment-key loading.
+- `corepack yarn codepush:release:path-audit` checks the current CodePush non-dev runtime/native/env wiring before any release-path change.
 - `@react-native-community/push-notification-ios` is pinned to the already-resolved `1.10.0` after `BEM-36.71`; future iOS notification bridge work should validate badge handling, remote-notification forwarding, and iOS permission/token flows.
 - Validate Android debug startup first, then release tooling separately when secrets and store/release config are available.
 

@@ -80,4 +80,5 @@ Release-config implementation:
 - Run Android build/smoke if shared env or runtime config changes affect Android.
 - Validate iOS schemes on a Mac runner/device or simulator.
 - Validate at least one non-dev build path for CodePush and Sentry source-map behavior.
+- Start CodePush release-path validation with `corepack yarn codepush:release:path-audit`; it checks wiring and key presence only, without printing deployment-key values.
 - Do not guess missing DSNs, Firebase files, or CodePush deployment keys; report exact missing key/file names instead.

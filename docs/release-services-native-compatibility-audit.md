@@ -111,6 +111,7 @@ Shared env/config:
 - Firebase changes can affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
 - `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; this is not a CodePush runtime upgrade and does not replace the dedicated non-dev release-path validation branch.
+- `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, Android bundle resolution, iOS deployment-key placeholders, and referenced env keys without printing deployment-key values.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and the existing Android Gradle warning source.
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties` files and `SENTRY_AUTH_TOKEN` are available before Sentry release/source-map validation.
 - Push notification changes need Android 13+ permission checks, Firebase Messaging token checks, and iOS permission/token validation.
@@ -152,7 +153,7 @@ Release-service-specific validation:
 - Firebase Messaging: confirm Android 13+ notification permission, FCM token retrieval, and notification handling path.
 - Crashlytics: confirm Android Crashlytics Gradle task configuration and iOS pod/build integration.
 - Analytics: confirm app startup does not crash and analytics package initialization remains compatible.
-- CodePush: validate a non-dev build path because CodePush is disabled under `__DEV__`.
+- CodePush: validate a non-dev build path because CodePush is disabled under `__DEV__`; start with `corepack yarn codepush:release:path-audit`.
 - Sentry: validate Android release bundling/source maps and iOS dSYM/source-map upload path.
 - Secrets: do not guess `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, CodePush deployment keys, or Firebase config values. If missing locally, record the exact missing variable/file.
 
