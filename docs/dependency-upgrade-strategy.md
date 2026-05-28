@@ -8,6 +8,7 @@ This project should not upgrade dependencies one package at a time unless the pa
 - If latest fails, capture the exact blocker and choose the highest compatible version only as a temporary stopgap.
 - Do not commit a dependency change that only passes TypeScript or Android assemble; runtime dependencies also need Metro reset and emulator smoke.
 - Do not mix unrelated runtime families in the same branch.
+- Validate the strategy guard with `corepack yarn upgrade:strategy:audit` before starting a foundation or cohort upgrade branch.
 
 ## Upgrade Layers
 

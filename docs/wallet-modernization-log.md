@@ -6679,3 +6679,26 @@ Validation:
 
 - npm metadata checks for `react-native@0.76.9`, `@react-native/babel-preset@0.76.9`, `@react-native/metro-config@0.76.9`, and `@react-native/typescript-config@0.76.9`
 - `corepack yarn rn:076-foundation:audit`
+
+### BEM-36.118 - Dependency upgrade strategy guard
+
+- Branch: `feature/bem-36-upgrade-strategy-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditDependencyUpgradeStrategy.mjs`.
+- Add `upgrade:strategy:audit` to `package.json`.
+- Include the strategy audit in `rn:baseline:preflight` before RN/package-specific checks.
+- Refresh Android workflow and RN upgrade path guard wiring so the layered strategy remains machine-checkable.
+
+Decision:
+
+- Keep the upgrade tactic as layer-first and milestone-first: try the latest feasible target for a layer, record the exact blocker if it fails, then choose the highest compatible fallback.
+- Do not return to one-minor-at-a-time RN upgrades unless a concrete blocker proves a smaller prerequisite branch is required.
+- Continue with RN `0.76.9` as the first foundation milestone, then RN `0.82.x`, then the current RN `0.85.x` line if branch-time evidence still supports it.
+
+Validation:
+
+- `corepack yarn upgrade:strategy:audit`
+- `corepack yarn rn:upgrade-path:audit`

@@ -50,6 +50,8 @@ Use `corepack yarn node:runtime-transition:audit` to verify that the current Nod
 
 Use `corepack yarn rn:target-snapshot:audit` to verify that the recorded npm target snapshot still matches the current repo baseline and supporting documentation. Use `corepack yarn rn:target-snapshot:current` when network access is available to compare the recorded snapshot against current npm metadata. Use `corepack yarn check:rn-target-snapshot-current-guard` for an offline self-check of the live comparison rules. Refresh `docs/react-native-target-snapshot.md` at the start of an actual RN baseline branch if npm/latest has moved.
 
+Use `corepack yarn upgrade:strategy:audit` before dependency/RN baseline branches to keep the upgrade strategy aligned with layered milestone jumps. The default rule is to try the latest feasible target for the chosen layer, capture the exact blocker if it fails, then pick the highest compatible fallback instead of walking every minor version by default.
+
 `check:rn-upgrade-path-audit-guard` verifies the React Native upgrade path audit fixtures before the real audit checks the current worktree.
 
 `check:metro-dev-runtime-audit-guard` verifies the Metro dev runtime audit fixtures without depending on the current terminal's Node version.
