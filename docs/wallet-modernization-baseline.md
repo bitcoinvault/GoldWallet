@@ -2,13 +2,13 @@
 
 Baseline for `BEM-34 - Setup branch + dependencies analysis`.
 
-Updated on `upgrade/wallet-modernization` after the Android SDK/toolchain, warning-audit, smoke-validation hardening, and lightweight guard/self-check branches.
+Updated on `upgrade/wallet-modernization` after the Android SDK/toolchain, warning-audit, smoke-validation hardening, lightweight guard/self-check, and React Native baseline preflight branches.
 
 ## Branch Model
 
 - Integration branch: `upgrade/wallet-modernization`
 - Current task branch model: focused feature branches merged locally into `upgrade/wallet-modernization`.
-- Latest completed stream: Android SDK/toolchain modernization, Android warning audit hardening, Android smoke helper hardening, lightweight validation guard/self-check hardening, and current camera/Sentry warning-source audits.
+- Latest completed stream: Android SDK/toolchain modernization, Android warning audit hardening, Android smoke helper hardening, lightweight validation guard/self-check hardening, current camera/Sentry warning-source audits, and React Native baseline preflight evidence.
 
 All modernization work should be developed on focused task branches and merged into `upgrade/wallet-modernization`. The integration branch should be merged back to the main development line only after a tested modernization milestone.
 
@@ -54,6 +54,7 @@ Target direction:
 - Defer `targetSdkVersion 34` until a later React Native/toolchain step, because the current branch intentionally stays on target SDK 33.
 - React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue stepwise from RN `0.68.7` toward a current supported line instead of jumping directly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
+- The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
 - React 19 impact audit is tracked in `docs/react19-impact-audit.md`; use it before changing React/RN package versions.
 - React package coupling audit is tracked in `docs/react-package-coupling-audit.md`; use it to keep React, renderer, and type packages moving together.
@@ -124,6 +125,8 @@ Passing:
 - `corepack yarn rn:upgrade-path:audit`
 - `corepack yarn check:rn-target-snapshot-guard`
 - `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
 - `corepack yarn rn:baseline:preflight`
 - `corepack yarn android:dev:check-light`
 - Metro dev runtime audit verifies the Node 16 `.nvmrc`, React Native `0.68.7`, Metro preset `0.67.0`, start script, and documentation baseline.
@@ -143,6 +146,7 @@ Passing:
 - The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 2` and `Unexpected targeted Android Gradle warnings: 0`.
 - Current targeted warning sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.
 - The current `react-native-camera` warning source is covered by `corepack yarn camera:qr-migration:audit`; the current Sentry warning source is covered by `corepack yarn sentry:android-warning:audit`.
+- The latest live RN target snapshot check reports `Live check outcome: matched` with `Mismatches: 0`.
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
 - `corepack yarn android:dev:check-artifact-guard` verifies the warning-summary source guard with known-source, zero-warning, mismatched-count, and unexpected-source cases
 - `corepack yarn android:dev:audit-smoke` refreshes warning audit, emulator smoke, and artifact checker evidence in one pass
@@ -154,9 +158,10 @@ Known gaps:
 - Some tests call public or staging Electrum endpoints.
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
 - Full wallet flow QA is still required: create/import wallet, PIN, biometrics, send, receive, QR scan, history, authenticator, recovery flows.
-- Remaining targeted Android warning sources were last refreshed from `local-docs/android-warning-audit-summary.txt` generated on `2026-05-28T14:08:26.667Z`: `react-native-camera` `jcenter()` and Sentry `execResult`; unexpected targeted warning count was `0`.
+- Remaining targeted Android warning sources were last refreshed from `local-docs/android-warning-audit-summary.txt` generated on `2026-05-28T17:18:23.991Z`: `react-native-camera` `jcenter()` and Sentry `execResult`; unexpected targeted warning count was `0`.
 - `BEM-37.78` records the camera/QR migration readiness audit for the `react-native-camera` warning source.
 - `BEM-37.81` records the Sentry Android warning audit for the Sentry `execResult` warning source.
+- `BEM-36.81` records the current React Native baseline preflight refresh before the next RN baseline branch.
 
 ## Recommended Upgrade Order
 
