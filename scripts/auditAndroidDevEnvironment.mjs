@@ -23,6 +23,8 @@ export const requiredAndroidDevFiles = [
   ['scripts/runAndroidGradle.mjs', 'guarded Gradle runner'],
   ['scripts/androidSmokeDev.mjs', 'Android emulator smoke helper'],
   ['scripts/auditAndroidGradleWarnings.mjs', 'Android warning audit helper'],
+  ['scripts/auditReactNativeUpgradePath.mjs', 'React Native upgrade path audit helper'],
+  ['scripts/checkReactNativeUpgradePathGuard.mjs', 'React Native upgrade path audit guard helper'],
 ];
 
 export const requiredAndroidDevPackageScripts = [
