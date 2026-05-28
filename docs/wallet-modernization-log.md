@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.59 - React Native NetInfo 6.2.1
+
+- Branch: `feature/bem-netinfo-6-2-1`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `@react-native-community/netinfo` from manifest `^6.0.2` and lockfile `6.0.2` to `6.2.1`.
+- Pin the manifest to `6.2.1` and refresh `yarn.lock`.
+- Update the native module inventory guard, native module upgrade plan, and storage/network compatibility audit.
+- Keep Electrum sagas, connectivity handling code, native project files, and runtime behavior unchanged.
+
+Why:
+
+- `6.2.1` is the latest checked 6.x NetInfo line and declares React Native `>=0.59`.
+- NetInfo affects Electrum saga connectivity checks and network listeners, so this stays isolated from socket/config/storage changes and requires focused storage/network validation plus Android emulator smoke.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:storage-network-usage-guard`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn check:storage-network-validation-scripts-guard`
+- `corepack yarn check:storage-network-validation-scripts`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+- Additional logcat observation after smoke showed BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443` and reporting `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no targeted NetInfo, Electrum, Android runtime, or React Native runtime errors were found.
+
+Follow-up:
+
+- Funded transaction flow and deeper Electrum send-path validation remain blocked until a funded BTCV testnet wallet is available.
+- `ios/Podfile.lock` was not refreshed in this Windows branch. Do not claim iOS validation until `pod install` and the affected iOS scheme build pass on a Mac/iOS environment.
+
 ### BEM-36.58 - SVG QR render documentation consistency
 
 - Branch: `feature/bem-36-svg-qr-doc-consistency`

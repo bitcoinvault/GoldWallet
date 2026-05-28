@@ -68,7 +68,7 @@ Branch shape:
 ### Group C - Device, Storage, Network, And Runtime Integrations
 
 - `@react-native-async-storage/async-storage`
-- `@react-native-community/netinfo`
+- `@react-native-community/netinfo` -> `6.2.1`
 - `react-native-device-info`
 - `react-native-config`
 - `react-native-localize`
@@ -87,6 +87,7 @@ Branch shape:
 - `docs/storage-network-native-compatibility-audit.md` records the current storage/config/network package compatibility snapshot and validation path.
 - Validate app startup, wallet list persistence, settings/env loading, and logcat for native module crashes.
 - For storage/secure-key-store changes, add or run focused storage/authenticator tests before emulator smoke.
+- `@react-native-community/netinfo` is on latest checked 6.x `6.2.1` after `BEM-36.59`; future NetInfo work should focus on Electrum/network behavior and RN baseline changes rather than another blind package bump.
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 
 ### Group D - Notifications And Release Services
