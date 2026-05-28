@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.80 - React Redux types 7.1.34
+
+- Branch: `feature/bem-36-react-redux-types-7-1-34`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `@types/react-redux` from the broad `^7.1.7` manifest range to `7.1.34`.
+- Refresh `yarn.lock`.
+- Keep runtime `react-redux`, Redux state code, wallet screens, native project files, env files, and Android project files unchanged.
+
+Why:
+
+- Keep the TypeScript definitions for the current React Redux `7.x` runtime current while preserving the runtime package.
+- React Redux is used across navigation, dashboard, settings, notifications, wallet, and transaction screens, so the branch validates the app's connected component and hook type surface without changing runtime behavior.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with Node 16 and `react-native start --reset-cache --port 8081`.
+- `adb reverse tcp:8081 tcp:8081` passed on `emulator-5554`.
+- `corepack yarn android:dev:smoke` passed on `emulator-5554`.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- Android emulator smoke passed: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+
+Follow-up:
+
+- Runtime `react-redux` remains on the existing `7.2.x` line; any runtime Redux/React Redux upgrade should be a separate branch with navigation and wallet-flow validation.
+
 ### BEM-36.79 - Ecurve types 1.0.3
 
 - Branch: `feature/bem-36-ecurve-types-1-0-3`
