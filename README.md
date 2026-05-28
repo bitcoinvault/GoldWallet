@@ -151,7 +151,7 @@ $ yarn android:dev:audit-smoke
 
 This runs the Android Gradle warning audit, emulator smoke check, and local validation-artifact checker in sequence.
 
-The lightweight Android check also includes the modernization log ID guard, so duplicated `BEM-*` entries are caught before a maintenance branch is committed.
+The lightweight Android check also includes the modernization log ID guard self-check and the modernization log ID guard, so duplicated `BEM-*` entries are caught before a maintenance branch is committed.
 
 You can also launch the Android app in variants such as `prod` and `beta`:
 

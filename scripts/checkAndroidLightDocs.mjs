@@ -48,6 +48,7 @@ const requiredCheckLightScripts = [
   'check:native-module-upgrade-plan',
   'check:rn-nodeify-shim-guard',
   'check:rn-nodeify-shims',
+  'check:modernization-log-id-guard',
   'check:modernization-log-ids',
   'typescript:check',
   'check:diff-whitespace',
@@ -77,6 +78,7 @@ const docs = [
       'storage/network validation scripts',
       'native module inventory and upgrade-plan',
       'modernization log ID guard',
+      'modernization log ID guard self-check',
     ],
   },
   {
@@ -107,6 +109,7 @@ const docs = [
       'check:storage-network-usage',
       'storage/network validation script guard self-check',
       'check:storage-network-validation-scripts',
+      'check:modernization-log-id-guard',
       'check:modernization-log-ids',
     ],
   },
@@ -131,6 +134,7 @@ const docs = [
       'storage/network validation script self-check/guard',
       'Android lightweight check runs',
       'modernization log ID guard',
+      'modernization log ID guard self-check',
     ],
   },
 ];
