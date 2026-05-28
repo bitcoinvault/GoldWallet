@@ -221,7 +221,7 @@
     "react-native-drag-sort": "^2.4.2",
     "react-native-elements": "2.3.2",
     "react-native-exit-app": "^1.1.0",
-    "react-native-fast-image": "^8.1.5",
+    "react-native-fast-image": "8.6.3",
     "react-native-gesture-handler": "^1.6.1",
     "react-native-json-tree": "^1.3.0",
     "react-native-level-fs": "^3.0.1",

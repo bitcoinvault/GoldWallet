@@ -9,6 +9,7 @@ Checked on: 2026-05-27
 - `react-native`: `0.68.7`
 - `react`: `17.0.2`
 - `react-native-gesture-handler`: manifest `^1.6.1`, lockfile `1.10.3`
+- `react-native-fast-image`: manifest and lockfile `8.6.3`
 - `react-native-screens`: `3.22.1`
 - `react-native-safe-area-context`: manifest `^3.0.6`, lockfile `3.3.2`
 - `react-native-vector-icons`: manifest and lockfile `6.7.0`
@@ -18,6 +19,7 @@ Direct source usage found in this audit:
 
 - `react-native-safe-area-context` is imported directly in `src/components/ScreenTemplate.tsx`.
 - `react-native-gesture-handler` has no direct source import in `src`; it is still a native dependency for the current React Navigation stack and native autolinking.
+- `react-native-fast-image` is re-exported from `src/components/Image.tsx` and used through shared button, list item, tab icon, and model types.
 - `react-native-screens` has no direct source import in `src`; it is still a native dependency for the current React Navigation stack and native autolinking.
 - `react-native-vector-icons` is used by the UI icon layer and copied native font assets.
 - `@react-native-community/toolbar-android` is required by `react-native-vector-icons@6.7.0` at Metro bundle time even though the app has no direct toolbar source import.
@@ -39,6 +41,11 @@ react-native-screens@3.22.1
 peerDependencies:
 - react: *
 - react-native: *
+
+react-native-fast-image@8.6.3
+peerDependencies:
+- react: ^17 || ^18
+- react-native: >=0.60.0
 
 react-native-safe-area-context@3.3.2
 peerDependencies:
@@ -72,6 +79,11 @@ peerDependencies:
 - react: *
 - react-native: >=0.82.0
 
+react-native-fast-image latest checked in this stream: 8.6.3
+peerDependencies:
+- react: ^17 || ^18
+- react-native: >=0.60.0
+
 react-native-safe-area-context latest: 5.8.0
 peerDependencies:
 - react: *
@@ -84,6 +96,7 @@ react-native-vector-icons latest checked in this stream: 6.7.0 for the current 6
 
 - `react-native-screens@4.25.2` is not compatible with the current RN `0.68.7` baseline because its npm peer dependency requires `react-native >=0.82.0`.
 - The current `react-native-screens@3.22.1` was already stabilized earlier in the modernization stream to satisfy Android SDK 34 build compatibility.
+- `react-native-fast-image` is now on latest checked `8.6.3` after `BEM-36.53`; it still fits the current React 17 and RN 0.68 baseline.
 - `react-native-vector-icons` is now on the latest checked 6.x package line after `BEM-36.52`; `@react-native-community/toolbar-android@0.2.1` is present because Metro otherwise fails to resolve the vector-icons toolbar module. The declared `^0.1.0-rc.1` peer line failed Android compilation against the current baseline, while `0.2.1` compiled and passed smoke. Newer ecosystem guidance moves toward per-icon-family packages and should be handled as a separate icon-font migration rather than a blind major update.
 - `react-native-gesture-handler` and `react-native-safe-area-context` latest metadata does not express a strict RN lower bound, but they still touch core navigation/layout behavior and should not be upgraded blindly.
 - The directly guarded source surface is small for safe area, but navigation behavior is mostly integration-level: app startup, stack transitions, tabs, modal screens, scrolling templates, and keyboard/footer layout.
@@ -93,6 +106,7 @@ react-native-vector-icons latest checked in this stream: 6.7.0 for the current 6
 - Do not bump `react-native-screens` to latest on the current RN `0.68.7` branch.
 - Do not combine `react-native-gesture-handler`, `react-native-screens`, and `react-native-safe-area-context` upgrades in one broad branch.
 - Keep `react-native-screens@3.22.1` fixed until a later RN baseline can support newer `react-native-screens` major versions.
+- Keep `react-native-fast-image@8.6.3` fixed until a later RN baseline or image-cache replacement branch requires another change.
 - Keep `react-native-vector-icons@6.7.0` fixed until a dedicated icon-font migration branch is planned.
 - Use dedicated mini-branches for any `react-native-gesture-handler` or `react-native-safe-area-context` changes.
 
