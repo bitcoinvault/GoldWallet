@@ -1,4 +1,5 @@
 import {
+  expectedReactNativeBaselinePreflight,
   expectedReactNativeUpgradePathBaseline,
   getReactNativeUpgradePathIssues,
   requiredReactNativeUpgradePathDocs,
@@ -20,6 +21,7 @@ const validEnvironment = {
   },
   scripts: {
     'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+    'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
   },
   nvmrc: expectedReactNativeUpgradePathBaseline.nodeRuntime,
   androidBuildGradle: `
@@ -73,6 +75,14 @@ assertRejected(
   'Wrong Gradle wrapper fixture',
   { ...validEnvironment, gradleWrapperProperties: 'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-all.zip' },
   'Gradle wrapper 7.5.1',
+);
+assertRejected(
+  'Missing RN baseline preflight package script fixture',
+  {
+    ...validEnvironment,
+    scripts: { 'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs' },
+  },
+  'rn:baseline:preflight',
 );
 assertRejected(
   'Missing docs fixture',

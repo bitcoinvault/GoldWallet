@@ -10,7 +10,7 @@ corepack yarn check:native-module-inventory
 
 If a native dependency version changes, update `scripts/nativeModuleInventoryGuard.mjs`, this plan, and the branch notes in `docs/wallet-modernization-log.md` in the same mini-branch.
 
-React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.68.7` branch.
+React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.68.7` branch. Run `corepack yarn rn:baseline:preflight` before an RN baseline branch so the current native-module, release-service, Metro, and warning-source audits are checked together.
 
 ## Current Constraints
 

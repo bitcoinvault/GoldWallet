@@ -42,6 +42,8 @@ Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Nativ
 
 Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.68.7` package baseline, target-SDK deferral, and related documentation still agree.
 
+Use `corepack yarn rn:baseline:preflight` before changing React Native package versions. It runs the lightweight Android gate plus the Metro runtime, RN upgrade path, QR camera migration, Sentry warning/source-map readiness, Firebase release-service, CodePush release-path, and push-notification bridge audits as a single RN-baseline readiness pass.
+
 `check:rn-upgrade-path-audit-guard` verifies the React Native upgrade path audit fixtures before the real audit checks the current worktree.
 
 `check:metro-dev-runtime-audit-guard` verifies the Metro dev runtime audit fixtures without depending on the current terminal's Node version.
