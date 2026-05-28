@@ -10,6 +10,7 @@ const checkLightScript = packageJson.scripts['android:dev:check-light'] || '';
 const requiredCheckLightScripts = [
   'android:dev:check-warning-guard',
   'android:dev:check-artifact-guard',
+  'check:android-dev-env-audit-guard',
   'check:camera-usage-guard',
   'check:camera-usage-scope',
   'check:qr-scan-caller-guard',
@@ -54,6 +55,7 @@ const docs = [
     terms: [
       'android:dev:env-audit',
       'android:dev:check-light',
+      'Android dev environment audit',
       'Java/SDK/ADB toolchain',
       'CodePush usage',
       'Firebase usage',
@@ -73,6 +75,7 @@ const docs = [
     terms: [
       'android:dev:env-audit',
       'active Node version',
+      'environment audit checks',
       'CodePush usage guard self-check',
       'Firebase usage guard self-check',
       'iOS push notification usage guard self-check',
@@ -98,6 +101,7 @@ const docs = [
     path: 'docs/wallet-modernization-baseline.md',
     terms: [
       'android:dev:env-audit',
+      'Android dev environment audit',
       'CodePush usage self-check/inventory guard',
       'Firebase usage self-check/inventory guard',
       'iOS push notification usage self-check/inventory guard',
