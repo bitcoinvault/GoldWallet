@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.57 - SVG QR render dependency pair
+
+- Branch: `feature/bem-svg-qr-render-12-5-1`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-svg` from `9.5.1` to `12.5.1`.
+- Pin `react-native-qrcode-svg` to the existing compatible `6.1.1` lockfile line.
+- Add a root `resolutions` pin for `qrcode@1.4.4`.
+- Refresh `yarn.lock` and update the native module inventory guard, QR render compatibility audit, and native module upgrade plan baseline.
+- Keep QR render screen code, camera scanning code, native project files, and runtime behavior unchanged.
+
+Why:
+
+- The previous lockfile resolved `react-native-qrcode-svg@6.1.1`, which declares `react-native-svg ^12.1.0`, while the app still pinned `react-native-svg@9.5.1`.
+- `react-native-svg@12.5.1` is the latest checked 12.x SVG line and declares React Native `>=0.50.0`.
+- `react-native-qrcode-svg@6.1.1` stays on the compatible 6.1.x line for SVG 12.x.
+- A trial with `react-native-qrcode-svg@6.1.2` and freshly resolved `qrcode@1.5.4` was rejected because the Android Receive screen raised `ReferenceError: Can't find variable: TextEncoder`.
+- Newer QR package lines require SVG 13/14+ and should wait for a later RN baseline branch.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:qr-render-usage-guard`
+- `corepack yarn check:qr-render-usage`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+- Additional Android Receive-screen smoke passed: `Receive coins`, `qr-code-icon`, `Wallet address`, and the wallet address rendered; targeted logcat check found no fatal Android runtime errors, React Native runtime exceptions, SVG errors, or `TextEncoder` regression.
+
+Follow-up:
+
+- Manually verify QR rendering screens with a funded or populated wallet when available: Receive, contact QR, export wallet secret, export xpub, and authenticator options.
+- `ios/Podfile.lock` was not refreshed in this Windows branch. Do not claim iOS validation until `pod install` and the affected iOS scheme build pass on a Mac/iOS environment.
+
 ### BEM-36.56 - React Native Safe Area Context 3.4.1
 
 - Branch: `feature/bem-safe-area-context-3-4-1`
