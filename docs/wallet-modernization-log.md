@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.85 - Android dev environment audit guard
+
+- Branch: `feature/bem-36-android-env-audit-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refactor `scripts/auditAndroidDevEnvironment.mjs` so the environment readiness rules are testable.
+- Add `scripts/checkAndroidDevEnvironmentGuard.mjs`.
+- Add `check:android-dev-env-audit-guard` package script and include it in `android:dev:check-light`.
+- Refresh README, Android workflow, baseline, lightweight docs guard, and this modernization log.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The environment audit should fail fast when Java/SDK/ADB prerequisites drift, but its validation rules also need a terminal-independent self-check.
+- Adding the self-check keeps `android:dev:check-light` useful even when the full environment audit is not appropriate for every branch.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- With `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10`, `ANDROID_SDK_ROOT`, and `ANDROID_HOME` set, `corepack yarn android:dev:env-audit` passed.
+- The real environment audit still reported Node `22.18.0` as a warning because Metro/dev runtime remains documented for Node `16.20.2`.
+- `corepack yarn android:dev:check-light-docs` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed and ran `check:android-dev-env-audit-guard`.
+
+Follow-up:
+
+- Keep running the real `android:dev:env-audit` before Android build/smoke work; the new guard only validates the audit rules.
+
 ### BEM-36.84 - Android env audit README guard
 
 - Branch: `feature/bem-36-android-env-audit-readme-guard`
