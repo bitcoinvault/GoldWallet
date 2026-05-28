@@ -1,6 +1,13 @@
 import { execSync } from 'child_process';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import path from 'path';
 import { pathToFileURL } from 'url';
+import { fileURLToPath } from 'url';
 import { expectedReactNativeTargetSnapshot } from './auditReactNativeTargetSnapshot.mjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, '..');
+const summaryPath = path.join(root, 'local-docs', 'rn-target-snapshot-current-summary.txt');
 
 const npmView = (pkg, field) =>
   execSync(`npm view ${pkg} ${field} --json`, {
@@ -31,6 +38,25 @@ export const getReactNativeTargetSnapshotCurrentIssues = ({ latest, next, reactP
   return { checks, errors };
 };
 
+export const formatReactNativeTargetSnapshotCurrentSummary = ({ checks, errors, generatedAt = new Date().toISOString() }) => [
+  'React Native target snapshot live npm check',
+  `Generated at: ${generatedAt}`,
+  `Snapshot date: ${expectedReactNativeTargetSnapshot.snapshotDate}`,
+  `Live check outcome: ${errors.length > 0 ? 'stale' : 'matched'}`,
+  ...checks.map(([label, actual, expected]) => `${label}: ${actual || '<missing>'} (snapshot: ${expected})`),
+  `Mismatches: ${errors.length}`,
+  ...errors.map(error => `- ${error}`),
+  '',
+].join('\n');
+
+const writeSummary = summary => {
+  const summaryDir = path.dirname(summaryPath);
+  if (!existsSync(summaryDir)) {
+    mkdirSync(summaryDir, { recursive: true });
+  }
+  writeFileSync(summaryPath, summary);
+};
+
 const collectCurrentNpmMetadata = () => {
   const latest = readString('react-native', 'version');
   const distTags = readObject('react-native', 'dist-tags');
@@ -47,9 +73,11 @@ const collectCurrentNpmMetadata = () => {
 
 const printReport = current => {
   const { checks, errors } = getReactNativeTargetSnapshotCurrentIssues(current);
+  writeSummary(formatReactNativeTargetSnapshotCurrentSummary({ checks, errors }));
 
   console.log('React Native target snapshot live npm check');
   checks.forEach(([label, actual]) => console.log(`${label}: ${actual || '<missing>'}`));
+  console.log(`Summary written to ${summaryPath}`);
 
   if (errors.length > 0) {
     console.log('React Native target snapshot is stale against current npm metadata:');
