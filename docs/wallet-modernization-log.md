@@ -6650,3 +6650,32 @@ Validation:
 
 - `corepack yarn rn:target-snapshot:current`
 - `corepack yarn rn:target-snapshot:check-summary`
+
+### BEM-36.117 - React Native 0.76 foundation plan audit
+
+- Branch: `feature/bem-36-rn-076-foundation-plan`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/react-native-076-foundation-plan.md` as the concrete first-milestone branch plan.
+- Add `rn:076-foundation:audit` to guard the RN `0.76.9` plan before package changes.
+- Include the audit in `rn:baseline:preflight` immediately after the general RN upgrade path audit.
+- Refresh RN upgrade path, Android workflow, and baseline documentation to point at the new plan.
+
+Findings:
+
+- Current baseline remains `react-native@0.68.7`, React `17.0.2`, Metro preset `0.67.0`, and Node `16.20.2`.
+- npm metadata checked for `react-native@0.76.9` reports React peer `^18.2.0`, `@types/react ^18.2.6`, and Node engine `>=18`.
+- npm metadata checked for `@react-native/babel-preset@0.76.9` and `@react-native/metro-config@0.76.9` also requires Node `>=18`.
+- The plan explicitly rejects repeating the package-only RN `0.76.9` probe from `BEM-36.114`; the next attempt must include template/native migration.
+
+Decision:
+
+- Treat RN `0.76.9` as a full foundation branch with React 18, Node 18, Metro/Babel, Android template/Gradle/autolinking/codegen, and iOS Podfile/template scope.
+- Keep release-service upgrades, camera replacement, rebranding, explorer/Electrum work, and funded BTCV QA out of the RN foundation branch.
+
+Validation:
+
+- npm metadata checks for `react-native@0.76.9`, `@react-native/babel-preset@0.76.9`, `@react-native/metro-config@0.76.9`, and `@react-native/typescript-config@0.76.9`
+- `corepack yarn rn:076-foundation:audit`

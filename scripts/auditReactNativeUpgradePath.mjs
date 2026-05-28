@@ -23,11 +23,12 @@ export const expectedReactNativeUpgradePathBaseline = {
 };
 
 export const expectedReactNativeBaselinePreflight =
-  'yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn check:node-runtime-transition-guard && yarn node:runtime-transition:audit && yarn rn:upgrade-path:audit && yarn check:rn-target-snapshot-guard && yarn check:rn-target-snapshot-current-guard && yarn rn:target-snapshot:audit && yarn check:react19-impact-guard && yarn react19:impact:audit && yarn check:react-package-coupling-guard && yarn react:package-coupling:audit && yarn check:test-type-coupling-guard && yarn test:type-coupling:audit && yarn camera:qr-migration:audit && yarn camera:qr-migration:check-summary && yarn sentry:android-warning:audit && yarn sentry:android-warning:check-summary && yarn check:android-warning-source-summaries-guard && yarn android:dev:check-warning-source-summaries && yarn check:android-warning-audit-summary-guard && yarn android:dev:check-warning-audit-summary && yarn check:android-smoke-summary-guard && yarn android:dev:check-smoke-summary && yarn sentry:release:prereq-audit && yarn sentry:release:prereq-check-summary && yarn firebase:release-services:audit && yarn firebase:release-services:check-summary && yarn codepush:release:path-audit && yarn codepush:release:path-check-summary && yarn push-notification:bridge-audit && yarn push-notification:bridge-check-summary && yarn check:release-services-summary-guard && yarn release-services:check-summaries';
+  'yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn check:node-runtime-transition-guard && yarn node:runtime-transition:audit && yarn rn:upgrade-path:audit && yarn rn:076-foundation:audit && yarn check:rn-target-snapshot-guard && yarn check:rn-target-snapshot-current-guard && yarn rn:target-snapshot:audit && yarn check:react19-impact-guard && yarn react19:impact:audit && yarn check:react-package-coupling-guard && yarn react:package-coupling:audit && yarn check:test-type-coupling-guard && yarn test:type-coupling:audit && yarn camera:qr-migration:audit && yarn camera:qr-migration:check-summary && yarn sentry:android-warning:audit && yarn sentry:android-warning:check-summary && yarn check:android-warning-source-summaries-guard && yarn android:dev:check-warning-source-summaries && yarn check:android-warning-audit-summary-guard && yarn android:dev:check-warning-audit-summary && yarn check:android-smoke-summary-guard && yarn android:dev:check-smoke-summary && yarn sentry:release:prereq-audit && yarn sentry:release:prereq-check-summary && yarn firebase:release-services:audit && yarn firebase:release-services:check-summary && yarn codepush:release:path-audit && yarn codepush:release:path-check-summary && yarn push-notification:bridge-audit && yarn push-notification:bridge-check-summary && yarn check:release-services-summary-guard && yarn release-services:check-summaries';
 
 export const requiredReactNativeUpgradePathDocs = [
   'docs/react-native-upgrade-path.md',
   'docs/react-native-foundation-target-matrix.md',
+  'docs/react-native-076-foundation-plan.md',
   'docs/node-runtime-transition-audit.md',
   'docs/react-native-target-snapshot.md',
   'docs/react19-impact-audit.md',
@@ -61,7 +62,11 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/react-native-upgrade-path.md', 'Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`'],
   ['docs/react-native-upgrade-path.md', 'Re-check the latest stable React Native release during the actual RN baseline branch'],
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:upgrade-path:audit'],
+  ['docs/react-native-upgrade-path.md', 'corepack yarn rn:076-foundation:audit'],
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:baseline:preflight'],
+  ['docs/react-native-076-foundation-plan.md', 'react-native@0.76.9'],
+  ['docs/react-native-076-foundation-plan.md', 'Do not repeat a package-only RN 0.76 branch'],
+  ['docs/react-native-076-foundation-plan.md', 'Metro restart with Node 18 and `--reset-cache`'],
   ['docs/react-native-foundation-target-matrix.md', 'Milestone A: RN 0.76.9 Foundation'],
   ['docs/react-native-foundation-target-matrix.md', 'Milestone B: RN 0.82.x Foundation'],
   ['docs/react-native-foundation-target-matrix.md', 'Milestone C: RN 0.85.x Current Line'],
