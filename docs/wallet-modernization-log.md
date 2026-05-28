@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.78 - Camera QR migration audit
+
+- Branch: `feature/bem-camera-qr-migration-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditCameraQrMigration.mjs`.
+- Add `camera:qr-migration:audit` package script.
+- Document the audit in the camera replacement plan, native module upgrade plan, and this modernization log.
+- Keep scanner runtime, camera dependency versions, native project files, lockfile content, and Android/iOS behavior unchanged.
+
+Why:
+
+- `react-native-camera` remains the active deprecated scanner dependency and still owns one targeted Android `jcenter()` warning.
+- Before replacing the QR scanner implementation, the current permission, runtime, autolink, warning-baseline, and documentation state should be auditable from one command.
+
+Validation:
+
+- `corepack yarn camera:qr-migration:audit` passed.
+- The audit confirmed Android/iOS camera permissions, current scanner runtime, guarded legacy QR image autolinking, warning-baseline context, and migration documentation are present.
+- The audit reported `react-native-camera` remains installed and deprecated; this branch is a readiness check, not the scanner replacement.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Use this audit before the dedicated `feature/bem-camera-qr-scanner-migration` runtime branch.
+
 ### BEM-37.77 - iOS push notification bridge audit
 
 - Branch: `feature/bem-ios-push-notification-bridge-audit`
