@@ -233,7 +233,7 @@
     "react-native-qrcode-svg": "^6.0.6",
     "react-native-randombytes": "3.6.2",
     "react-native-rate": "1.2.12",
-    "react-native-safe-area-context": "^3.0.6",
+    "react-native-safe-area-context": "3.4.1",
     "react-native-screens": "3.22.1",
     "react-native-secure-key-store": "^2.0.10",
     "react-native-share": "7.9.1",

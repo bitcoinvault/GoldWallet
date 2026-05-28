@@ -13,7 +13,7 @@ Checked on: 2026-05-27
 - `react-native-gesture-handler`: manifest `^1.6.1`, lockfile `1.10.3`
 - `react-native-fast-image`: manifest and lockfile `8.6.3`
 - `react-native-screens`: `3.22.1`
-- `react-native-safe-area-context`: manifest `^3.0.6`, lockfile `3.3.2`
+- `react-native-safe-area-context`: manifest and lockfile `3.4.1`
 - `react-native-vector-icons`: manifest and lockfile `6.7.0`
 - `@react-native-community/toolbar-android`: manifest and lockfile `0.2.1`
 
@@ -64,7 +64,7 @@ peerDependencies:
 - react: ^17 || ^18
 - react-native: >=0.60.0
 
-react-native-safe-area-context@3.3.2
+react-native-safe-area-context@3.4.1
 peerDependencies:
 - react: *
 - react-native: *
@@ -103,7 +103,7 @@ peerDependencies:
 - react: ^17 || ^18
 - react-native: >=0.60.0
 
-react-native-safe-area-context latest: 5.8.0
+react-native-safe-area-context latest checked in this stream: 3.4.1 for the current 3.x line
 peerDependencies:
 - react: *
 - react-native: *
@@ -121,7 +121,8 @@ react-native-bootsplash latest checked in this stream: 3.2.7 for the current 3.x
 - The current `react-native-screens@3.22.1` was already stabilized earlier in the modernization stream to satisfy Android SDK 34 build compatibility.
 - `react-native-fast-image` is now on latest checked `8.6.3` after `BEM-36.53`; it still fits the current React 17 and RN 0.68 baseline.
 - `react-native-vector-icons` is now on the latest checked 6.x package line after `BEM-36.52`; `@react-native-community/toolbar-android@0.2.1` is present because Metro otherwise fails to resolve the vector-icons toolbar module. The declared `^0.1.0-rc.1` peer line failed Android compilation against the current baseline, while `0.2.1` compiled and passed smoke. Newer ecosystem guidance moves toward per-icon-family packages and should be handled as a separate icon-font migration rather than a blind major update.
-- `react-native-gesture-handler` and `react-native-safe-area-context` latest metadata does not express a strict RN lower bound, but they still touch core navigation/layout behavior and should not be upgraded blindly.
+- `react-native-safe-area-context` is now on latest checked `3.4.1` after `BEM-36.56`; it still fits the current React 17 and RN 0.68 baseline according to npm peer metadata.
+- `react-native-gesture-handler` latest metadata does not express a strict RN lower bound, but it still touches core navigation behavior and should not be upgraded blindly.
 - The directly guarded source surface is small for safe area, but navigation behavior is mostly integration-level: app startup, stack transitions, tabs, modal screens, scrolling templates, and keyboard/footer layout.
 
 ## Decision
@@ -133,7 +134,8 @@ react-native-bootsplash latest checked in this stream: 3.2.7 for the current 3.x
 - Keep `react-native-screens@3.22.1` fixed until a later RN baseline can support newer `react-native-screens` major versions.
 - Keep `react-native-fast-image@8.6.3` fixed until a later RN baseline or image-cache replacement branch requires another change.
 - Keep `react-native-vector-icons@6.7.0` fixed until a dedicated icon-font migration branch is planned.
-- Use dedicated mini-branches for any `react-native-gesture-handler` or `react-native-safe-area-context` changes.
+- Keep `react-native-safe-area-context@3.4.1` fixed until a later RN baseline or layout branch requires another change.
+- Use dedicated mini-branches for any `react-native-gesture-handler` changes.
 
 ## Required Validation For Future Upgrade
 
