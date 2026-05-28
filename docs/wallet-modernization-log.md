@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.79 - Ecurve types 1.0.3
+
+- Branch: `feature/bem-36-ecurve-types-1-0-3`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `@types/ecurve` from the broad `^1.0.0` manifest range to `1.0.3`.
+- Refresh `yarn.lock`.
+- Keep runtime `ecurve`, wallet code, native project files, env files, and Android project files unchanged.
+
+Why:
+
+- Keep Ecurve TypeScript metadata current inside the same `1.0.x` API family.
+- Keep cryptography runtime packages unchanged while refreshing the dev-only type surface.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with Node 16 and `react-native start --reset-cache --port 8081`.
+- `adb reverse tcp:8081 tcp:8081` passed on `emulator-5554`.
+- `corepack yarn android:dev:smoke` passed on `emulator-5554`.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- Android emulator smoke passed: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+
+Follow-up:
+
+- Runtime `ecurve` remains `1.0.6`; any runtime cryptography dependency movement should stay on a separate branch with wallet-flow validation.
+
 ### BEM-36.78 - Bigi types 1.4.5
 
 - Branch: `feature/bem-36-bigi-types-1-4-5`
