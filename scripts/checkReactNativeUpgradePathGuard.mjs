@@ -21,6 +21,8 @@ const validEnvironment = {
   },
   scripts: {
     'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+    'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
+    'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
     'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
   },
   nvmrc: expectedReactNativeUpgradePathBaseline.nodeRuntime,
@@ -80,9 +82,25 @@ assertRejected(
   'Missing RN baseline preflight package script fixture',
   {
     ...validEnvironment,
-    scripts: { 'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs' },
+    scripts: {
+      'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+      'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
+      'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
+    },
   },
   'rn:baseline:preflight',
+);
+assertRejected(
+  'Missing RN target snapshot package script fixture',
+  {
+    ...validEnvironment,
+    scripts: {
+      'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+      'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
+      'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
+    },
+  },
+  'rn:target-snapshot:audit',
 );
 assertRejected(
   'Missing docs fixture',

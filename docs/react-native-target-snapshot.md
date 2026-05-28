@@ -1,0 +1,26 @@
+# React Native Target Snapshot
+
+This document records the current external React Native target snapshot for the wallet modernization stream.
+
+## Snapshot
+
+- NPM snapshot date: `2026-05-28`
+- Current repo React Native: `0.68.7`
+- Current repo React: `17.0.2`
+- Current repo Metro/dev Node runtime: `16.20.2`
+- npm `latest`: `0.85.3`
+- npm `next`: `0.86.0-rc.2`
+- React peer for `react-native@0.85.3`: `^19.2.3`
+- Node engine for `react-native@0.85.3`: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
+
+## Meaning
+
+This snapshot is not a direct-upgrade instruction. It shows the current target line and the minimum ecosystem shift implied by that line: React 19, a newer Node runtime for RN tooling, newer Metro behavior, Android/iOS template changes, and native dependency compatibility work.
+
+Use it to size and sequence the RN modernization path. Re-check npm and the official React Native release page at the start of the actual RN baseline branch, then update this snapshot in that branch if the target line has changed.
+
+## Validation
+
+```powershell
+corepack yarn rn:target-snapshot:audit
+```

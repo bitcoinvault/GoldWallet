@@ -25,6 +25,8 @@ export const requiredAndroidDevFiles = [
   ['scripts/auditAndroidGradleWarnings.mjs', 'Android warning audit helper'],
   ['scripts/auditReactNativeUpgradePath.mjs', 'React Native upgrade path audit helper'],
   ['scripts/checkReactNativeUpgradePathGuard.mjs', 'React Native upgrade path audit guard helper'],
+  ['scripts/auditReactNativeTargetSnapshot.mjs', 'React Native target snapshot audit helper'],
+  ['scripts/checkReactNativeTargetSnapshotGuard.mjs', 'React Native target snapshot audit guard helper'],
 ];
 
 export const requiredAndroidDevPackageScripts = [
@@ -35,6 +37,8 @@ export const requiredAndroidDevPackageScripts = [
   'android:dev:check-light',
   'check:rn-upgrade-path-audit-guard',
   'rn:upgrade-path:audit',
+  'check:rn-target-snapshot-guard',
+  'rn:target-snapshot:audit',
   'rn:baseline:preflight',
 ];
 

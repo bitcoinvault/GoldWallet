@@ -3464,6 +3464,42 @@ Notes:
 - The preflight passed with existing readiness warnings for Node 22 in the current shell versus the documented Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
 - No emulator smoke was required because this branch only changes package scripts, audit guards, and documentation.
 
+### BEM-36.94 - React Native target snapshot audit
+
+- Branch: `feature/bem-36-rn-target-snapshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/react-native-target-snapshot.md` with the npm target snapshot checked on `2026-05-28`.
+- Record `react-native@latest` as `0.85.3`, `next` as `0.86.0-rc.2`, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- Add `rn:target-snapshot:audit` and `check:rn-target-snapshot-guard`.
+- Include the target snapshot guard/audit in `rn:baseline:preflight`.
+- Guard the new scripts through the RN upgrade path audit and Android dev environment audit.
+
+Why:
+
+- The modernization target should be explicit without pretending the current branch can jump directly from RN `0.68.7` to the latest npm line.
+- The target snapshot makes the React 19 and newer Node/tooling implications visible before package changes start.
+
+Validation:
+
+- `corepack yarn check:rn-target-snapshot-guard`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=%LOCALAPPDATA%\Android\Sdk ANDROID_HOME=%ANDROID_SDK_ROOT% corepack yarn android:dev:env-audit`
+- `corepack yarn android:dev:check-light-docs`
+- `git diff --check`
+- `corepack yarn rn:baseline:preflight`
+
+Notes:
+
+- Snapshot source was npm metadata checked during the branch: `react-native@latest` -> `0.85.3`, `react-native@next` -> `0.86.0-rc.2`, `react-native@0.85.3` peer React -> `^19.2.3`, and Node engine -> `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- The preflight passed with the same existing readiness warnings for Node 22 in the current shell versus the documented Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
+- No emulator smoke was required because this branch only changes package scripts, audit guards, and documentation.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`
