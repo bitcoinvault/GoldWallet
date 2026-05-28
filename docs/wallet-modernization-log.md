@@ -6511,3 +6511,33 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
 - `corepack yarn android:dev:check-warning-audit-summary`
 - `corepack yarn android:dev:check-artifacts`
+
+### BEM-37.102 - Camera replacement target refresh
+
+- Branch: `feature/bem-37-camera-replacement-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the camera replacement plan against current npm metadata.
+- Keep runtime and dependency state unchanged.
+
+Findings:
+
+- Current `react-native-camera` dependency remains `^3.33.0`, resolving to `3.44.3`.
+- Latest checked `react-native-camera` remains `4.2.1`; it still does not solve the dependency-owned Android `jcenter()` warning as a clean package bump.
+- Latest checked `react-native-vision-camera` is `5.0.11` and now pulls the Nitro module stack through peer dependencies.
+- Highest checked VisionCamera v4 line is `4.7.3`, which still needs additional native/worklet proof.
+- Latest checked `react-native-camera-kit` is `18.0.0` and declares `node >=18`, while the current RN `0.68.7` Metro/dev baseline remains Node 16.
+
+Decision:
+
+- Do not replace `react-native-camera` as a small warning-only cleanup.
+- Keep the scanner replacement as a dedicated proof branch aligned with the RN foundation/Node runtime path.
+- Preserve the current `ScanQrCodeScreen` contract and QR-only scanner behavior until a candidate passes build and emulator scanner validation.
+
+Validation:
+
+- npm metadata checks for `react-native-camera`, `react-native-vision-camera`, and `react-native-camera-kit`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
