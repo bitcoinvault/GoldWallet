@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.84 - Sentry release prerequisite summary artifact
+
+- Branch: `feature/bem-37-sentry-prereq-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `sentry:release:prereq-audit` write `local-docs/sentry-release-prereq-summary.txt`.
+- Add `sentry:release:prereq-check-summary` and `check:sentry-release-prereq-summary-guard`.
+- Add the Sentry prerequisite summary checker files and package scripts to the Android dev environment audit guard.
+- Refresh Sentry release/source-map documentation with the generated local artifact path.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- Sentry release validation is currently blocked locally by missing `sentry.properties` files and `SENTRY_AUTH_TOKEN`.
+- The blocker should be captured in a repeatable local artifact without printing or guessing secrets.
+
+Validation:
+
+- `corepack yarn check:sentry-release-prereq-summary-guard` passed.
+- `corepack yarn sentry:release:prereq-audit` passed and wrote `local-docs/sentry-release-prereq-summary.txt`.
+- `corepack yarn sentry:release:prereq-check-summary` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes tooling and documentation.
+
+Follow-up:
+
+- Re-run the prerequisite audit after Sentry secrets/properties are available, then validate release source-map upload behavior.
+
 ### BEM-37.83 - Android warning audit refresh after RN path guards
 
 - Branch: `feature/bem-37-warning-audit-refresh-rn-guards`

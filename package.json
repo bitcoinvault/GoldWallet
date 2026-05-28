@@ -110,6 +110,8 @@
     "camera:qr-migration:audit": "node scripts/auditCameraQrMigration.mjs",
     "sentry:android-warning:audit": "node scripts/auditSentryAndroidWarning.mjs",
     "sentry:release:prereq-audit": "node scripts/auditSentryReleasePrerequisites.mjs",
+    "sentry:release:prereq-check-summary": "node scripts/checkSentryReleasePrereqSummary.mjs",
+    "check:sentry-release-prereq-summary-guard": "node scripts/checkSentryReleasePrereqSummaryGuard.mjs",
     "android:dev:check-warning-guard": "node scripts/checkAndroidWarningBaselineGuard.mjs",
     "android:dev:check-artifact-guard": "node scripts/checkAndroidValidationArtifactGuard.mjs",
     "check:android-dev-env-audit-guard": "node scripts/checkAndroidDevEnvironmentGuard.mjs",

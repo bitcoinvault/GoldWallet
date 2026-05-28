@@ -40,6 +40,9 @@ export const requiredAndroidDevFiles = [
   ['scripts/checkReactPackageCouplingGuard.mjs', 'React package coupling guard helper'],
   ['scripts/auditTestTypeCoupling.mjs', 'test/type coupling audit helper'],
   ['scripts/checkTestTypeCouplingGuard.mjs', 'test/type coupling guard helper'],
+  ['scripts/sentryReleasePrereqSummaryGuard.mjs', 'Sentry release prerequisite summary guard helper'],
+  ['scripts/checkSentryReleasePrereqSummary.mjs', 'Sentry release prerequisite summary artifact checker'],
+  ['scripts/checkSentryReleasePrereqSummaryGuard.mjs', 'Sentry release prerequisite summary guard self-check helper'],
 ];
 
 export const requiredAndroidDevPackageScripts = [
@@ -64,6 +67,8 @@ export const requiredAndroidDevPackageScripts = [
   'check:react-package-coupling-guard',
   'test:type-coupling:audit',
   'check:test-type-coupling-guard',
+  'sentry:release:prereq-check-summary',
+  'check:sentry-release-prereq-summary-guard',
   'rn:baseline:preflight',
 ];
 

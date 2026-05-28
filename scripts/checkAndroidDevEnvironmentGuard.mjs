@@ -174,6 +174,30 @@ assertRejected(
   'test/type coupling guard helper is missing',
 );
 assertRejected(
+  'Missing Sentry release prerequisite summary guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/sentryReleasePrereqSummaryGuard.mjs')),
+  },
+  'Sentry release prerequisite summary guard helper is missing',
+);
+assertRejected(
+  'Missing Sentry release prerequisite summary checker file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkSentryReleasePrereqSummary.mjs')),
+  },
+  'Sentry release prerequisite summary artifact checker is missing',
+);
+assertRejected(
+  'Missing Sentry release prerequisite summary guard self-check file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkSentryReleasePrereqSummaryGuard.mjs')),
+  },
+  'Sentry release prerequisite summary guard self-check helper is missing',
+);
+assertRejected(
   'Missing dev verification package script fixture',
   {
     ...validEnvironment,
@@ -300,6 +324,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:test-type-coupling-guard')),
   },
   'package.json is missing check:test-type-coupling-guard',
+);
+assertRejected(
+  'Missing Sentry release prerequisite summary package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'sentry:release:prereq-check-summary')),
+  },
+  'package.json is missing sentry:release:prereq-check-summary',
+);
+assertRejected(
+  'Missing Sentry release prerequisite summary guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:sentry-release-prereq-summary-guard')),
+  },
+  'package.json is missing check:sentry-release-prereq-summary-guard',
 );
 
 console.log('Android dev environment audit guard checks are valid.');
