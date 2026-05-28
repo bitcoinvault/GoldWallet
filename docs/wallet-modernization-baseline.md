@@ -129,7 +129,7 @@ Passing:
 - Android smoke helper polls UI readiness after startup so clean Metro-cache runs do not fail on a transient bootsplash hierarchy
 - Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with generated timestamp, outcome, exit code, selected serial, Metro endpoint/reachability, app PID, logcat count, UI attempts, UI hierarchy path, screenshot path, and screenshot byte count
 - `corepack yarn android:dev:audit-warnings`
-- Android dev environment audit verifies the local Java range, adb access, Gradle wrappers, and Android validation scripts before build/smoke work.
+- Android dev environment audit verifies the local Java range, adb access, Gradle wrappers, Android validation scripts, and RN upgrade path audit scripts before build/smoke work.
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 2` and `Unexpected targeted Android Gradle warnings: 0`.
 - Current targeted warning sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.

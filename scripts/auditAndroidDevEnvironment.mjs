@@ -31,6 +31,8 @@ export const requiredAndroidDevPackageScripts = [
   'android:dev:verify',
   'android:dev:audit-warnings',
   'android:dev:check-light',
+  'check:rn-upgrade-path-audit-guard',
+  'rn:upgrade-path:audit',
 ];
 
 export const getAndroidDevEnvironmentIssues = ({
