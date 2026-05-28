@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.63 - React Native Secure Key Store manifest pin
+
+- Branch: `feature/bem-secure-key-store-2-0-10-manifest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `react-native-secure-key-store` manifest from `^2.0.10` to the already-resolved lockfile version `2.0.10`.
+- Refresh the lockfile selector for the exact dependency.
+- Update the native module inventory guard, native module upgrade plan, and storage/network compatibility audit.
+- Keep source usage, Android/iOS native project files, and runtime behavior unchanged.
+
+Why:
+
+- The repo was already installing `react-native-secure-key-store@2.0.10`, but the manifest allowed dependency drift.
+- This package protects secure storage behavior, so the branch stays limited to deterministic pinning and keeps replacement work separate.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+- Additional logcat observation after smoke showed BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443` and reporting `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no targeted secure storage, Electrum, Android runtime, or React Native runtime errors were found.
+
+Follow-up:
+
+- Real-device secure storage and biometric/keychain behavior should be checked during release-candidate validation; emulator smoke only proves startup and dashboard runtime stability.
+
 ### BEM-36.62 - React Native Localize manifest pin
 
 - Branch: `feature/bem-localize-1-4-3-manifest`

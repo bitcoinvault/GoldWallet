@@ -14,7 +14,7 @@ Tracked package versions:
 - `react-native-config`: manifest and lockfile `1.5.9`
 - `react-native-localize`: manifest and lockfile `1.4.3`
 - `react-native-randombytes`: manifest and lockfile `3.6.2`
-- `react-native-secure-key-store`: manifest `^2.0.10`, lockfile `2.0.10`
+- `react-native-secure-key-store`: manifest and lockfile `2.0.10`
 - `react-native-tcp-socket`: manifest and lockfile `6.4.1`
 - `react-native-webview`: manifest `^11.26.1`, lockfile `11.26.1`
 
@@ -112,7 +112,7 @@ peerDependencies:
 - `react-native-config` is now on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected because Android compile failed on current RN `0.68.7` APIs (`BaseReactPackage` / `WritableMap.putLong`).
 - `react-native-device-info` is now pinned to the already-resolved `6.2.1` after `BEM-36.61`; it still fits the current React Native baseline according to npm peer metadata.
 - `react-native-localize` is now pinned to the already-resolved `1.4.3` after `BEM-36.62`; it still fits the current React Native baseline according to npm peer metadata.
-- `react-native-secure-key-store` is already at latest `2.0.10`; it should not be changed unless replacing the package entirely.
+- `react-native-secure-key-store` is now pinned to latest checked `2.0.10` after `BEM-36.63`; it should not be changed unless replacing the package entirely.
 - `react-native-tcp-socket` is on latest `6.4.1`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
 - Future config/env changes must preserve all current env variables used in `src/config/index.ts`.
 - AsyncStorage changes must keep Redux persist, `StoreService`, fee cache, and storage encryption tests green.
