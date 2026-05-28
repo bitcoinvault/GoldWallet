@@ -13,7 +13,8 @@
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface before the replacement work starts.
 - `corepack yarn check:qr-scan-caller-guard` verifies the caller-inventory guard fixtures.
 - `corepack yarn check:qr-scan-callers` guards the current QR scanner caller inventory before the replacement work starts.
-- `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state before the replacement branch starts.
+- `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state before the replacement branch starts, and writes `local-docs/camera-qr-migration-summary.txt`.
+- `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
 
 ## Why Replace
 
@@ -64,6 +65,7 @@ Scope:
 - `corepack yarn check:qr-scan-caller-guard`.
 - `corepack yarn check:qr-scan-callers`.
 - `corepack yarn camera:qr-migration:audit`.
+- `corepack yarn camera:qr-migration:check-summary`.
 - `corepack yarn typescript:check`.
 - `git diff --check`.
 - Android debug build on JDK 17.
