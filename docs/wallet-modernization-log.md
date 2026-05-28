@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.74 - AsyncStorage 2.2.0
+
+- Branch: `feature/bem-36-async-storage-2-2-0`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `@react-native-async-storage/async-storage` from `1.24.0` to `2.2.0`.
+- Refresh `yarn.lock`.
+- Update the native module inventory guard, native module upgrade plan, and storage/network compatibility audit baseline.
+- Keep AsyncStorage call sites unchanged.
+
+Why:
+
+- `2.2.0` is the latest checked `2.x` AsyncStorage line and declares React Native peer compatibility with `>=0.65 <1.0`, which fits the current RN `0.68.7` baseline.
+- Latest npm `3.1.0` is a larger storage/RN-baseline step, so this branch avoids jumping directly to it.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn check:native-module-upgrade-plan` passed.
+- `corepack yarn check:storage-network-usage` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn test:storage-network:focused` passed.
+- `corepack yarn typescript:check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- `corepack yarn android:dev:check-light` passed.
+- Metro was restarted with Node 16 and `react-native start --reset-cache --port 8081`.
+- `adb reverse tcp:8081 tcp:8081` passed on `emulator-5554`.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+- `git diff --check` passed.
+
+Follow-up:
+
+- Full wallet persistence QA still needs manual create/import wallet and restart checks beyond the dashboard smoke.
+
 ### BEM-36.73 - Native upgrade plan version coverage
 
 - Branch: `feature/bem-36-native-plan-version-coverage`
