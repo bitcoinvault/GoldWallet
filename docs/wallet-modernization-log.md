@@ -6451,7 +6451,7 @@ Validation:
 - `corepack yarn android:dev:assemble`
 - Android emulator smoke: app focused `io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity`, React Native logged `Running "GoldWallet"`, storage logged `loaded from disk`, Electrum connected, and logcat did not show `SyntaxError`, missing module, fatal exception, or `getRandomValues() not supported`.
 
-### BEM-37.72 - Sentry Android warning audit refresh
+### BEM-37.99 - Sentry Android warning audit refresh
 
 - Branch: `feature/bem-37-sentry-warning-audit-2`
 - Parent branch: `upgrade/wallet-modernization`
@@ -6482,7 +6482,7 @@ Validation:
 - `corepack yarn sentry:android-warning:check-summary`
 - npm metadata check for `@sentry/react-native@8.13.0`
 
-### BEM-37.73 - Android warning baseline refresh
+### BEM-37.100 - Android warning baseline refresh
 
 - Branch: `feature/bem-37-warning-baseline-refresh-2`
 - Parent branch: `upgrade/wallet-modernization`
