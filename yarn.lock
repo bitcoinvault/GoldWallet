@@ -3572,10 +3572,10 @@
   resolved "https://registry.yarnpkg.com/@types/bigi/-/bigi-1.4.5.tgz#58914ce8ee9c0ac77eb6005f8bb56d8e23bb0bac"
   integrity sha512-fb5MUzazrD2GRnwlStm91HVu3cZbvolX9kJruqpUBdc24eHBWrLLfyt8XN1/C5JpI0stP/MbaFQp+cJh5WOFfw==
 
-"@types/bip21@^1.1.30":
-  version "1.1.31"
-  resolved "https://registry.yarnpkg.com/@types/bip21/-/bip21-1.1.31.tgz#537828d1281ca1b01a42ae7ba1bbd6ac30c5dd28"
-  integrity sha512-UK6e18IfiTM7b/g57UWsm+ky3X8wMgKfnl8Jh2tRK7Mtvj+F5FT9KnHNB9IMMNX8SlrJ5ssmeYIOpWzomR0uKg==
+"@types/bip21@2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@types/bip21/-/bip21-2.0.3.tgz#2aa753e7decc881cd53028dac2249c1567802ac0"
+  integrity sha512-ZgxK01VEjLU08sf5zz2aZeSMp0aki6yOSdQ3xuLO/KgNjdCujYzvkxUH6a2eOB/HOYtu2qOxr/KpWajuV1naIw==
 
 "@types/crypto-js@^3.1.47":
   version "3.1.47"

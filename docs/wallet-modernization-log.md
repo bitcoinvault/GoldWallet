@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.87 - BIP21 types 2.0.3
+
+- Branch: `feature/bem-36-bip21-types-2-0-3`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `@types/bip21` from the old `^1.1.30` range, currently resolved as `1.1.31`, to `2.0.3`.
+- Align the type package major with the current runtime package `bip21@2.0.2`.
+- Refresh `yarn.lock`.
+- Keep runtime `bip21`, payment URI parsing/generation code, wallet screens, native project files, env files, Android Gradle files, Metro config, and package scripts unchanged.
+
+Why:
+
+- BIP21 sits on the wallet payment URI surface, so its TypeScript definitions should match the runtime major before larger TypeScript, Jest, React, or React Native baseline changes.
+- This is a type-only maintenance step; it does not change the runtime package used by the app.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with Node 16 and `--reset-cache`.
+- `adb reverse tcp:8081 tcp:8081` passed on `emulator-5554`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `git diff --check` passed.
+
 ### BEM-36.86 - PBKDF2 types 3.1.2
 
 - Branch: `feature/bem-36-pbkdf2-types-3-1-2`
