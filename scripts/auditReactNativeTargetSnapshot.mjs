@@ -29,6 +29,8 @@ export const requiredReactNativeTargetSnapshotSnippets = [
   ['docs/react-native-target-snapshot.md', 'This snapshot is not a direct-upgrade instruction'],
   ['docs/react-native-target-snapshot.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],
   ['docs/react-native-target-snapshot.md', 'corepack yarn rn:target-snapshot:current'],
+  ['docs/react-native-target-snapshot.md', 'corepack yarn rn:target-snapshot:check-summary'],
+  ['docs/react-native-target-snapshot.md', 'corepack yarn check:rn-target-snapshot-summary-guard'],
   ['docs/react-native-upgrade-path.md', 'React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`'],
   ['docs/wallet-modernization-baseline.md', 'React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`'],
 ];
