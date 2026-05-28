@@ -8,9 +8,9 @@ Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.
 ## Snapshot
 
 - NPM snapshot date: `2026-05-28`
-- Current repo React Native: `0.68.7`
-- Current repo React: `17.0.2`
-- Current repo Metro/dev Node runtime: `16.20.2`
+- Current repo React Native: `0.76.9`
+- Current repo React: `18.2.0`
+- Current repo Metro/dev Node runtime: `22.18.0`
 - npm `latest`: `0.85.3`
 - npm `next`: `0.86.0-rc.2`
 - React peer for `react-native@0.85.3`: `^19.2.3`

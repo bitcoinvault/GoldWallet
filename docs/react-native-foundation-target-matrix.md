@@ -4,14 +4,15 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 ## Current Baseline
 
-- React Native: `0.68.7`
-- React: `17.0.2`
-- Metro Babel preset: `0.67.0`
-- Metro/dev Node runtime: `16.20.2`
+- React Native: `0.76.9`
+- React: `18.2.0`
+- RN Babel preset: `0.76.9`
+- RN Metro config: `0.76.9`
+- Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `34`
 - Android target SDK: `33`
-- Android Gradle Plugin: `7.4.2`
-- Gradle wrapper: `7.5.1`
+- Android Gradle Plugin: `8.6.0`
+- Gradle wrapper: `8.10.2`
 
 ## Latest Snapshot
 
@@ -31,17 +32,17 @@ Do not walk every RN minor version. Use milestone jumps and validate each one as
 - `@types/react` peer: `^18.2.6`
 - Node engine: `>=18`
 
-Why this is the first target:
+Status:
 
-- It jumps meaningfully beyond `0.68.7`.
-- It avoids the React 19 jump during the first foundation branch.
-- It moves the app to a newer Metro/Babel/runtime family that should unlock more modern package syntax and exports than the current RN 0.68 baseline.
+- This is now the current foundation checkpoint.
+- It moved the app beyond the old RN 0.68 baseline without taking the React 19 jump.
+- It moved the app to a newer Metro/Babel/runtime family that should unlock more modern package syntax and exports than the old RN 0.68 baseline.
 
 Expected branch scope:
 
 - React Native, React, React Test Renderer, React types.
 - Metro/Babel preset/runtime packages required by RN 0.76.
-- Node dev runtime move from 16 to 18 for this branch.
+- Node dev runtime move from 16 to 22 for this branch.
 - Android template, Gradle, Kotlin, AGP, manifest, and native autolinking changes required by RN 0.76.
 - iOS Podfile/template drift documented separately if it cannot be validated on this Windows machine.
 

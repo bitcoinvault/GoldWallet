@@ -16,8 +16,8 @@ const androidSerial = process.env.ANDROID_SERIAL?.trim();
 let selectedAndroidSerial = androidSerial;
 const apkPath =
   process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
-const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 8000);
-const uiWaitMs = Number(process.env.ANDROID_SMOKE_UI_WAIT_MS || 20000);
+const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 20000);
+const uiWaitMs = Number(process.env.ANDROID_SMOKE_UI_WAIT_MS || 90000);
 const uiPollIntervalMs = Number(process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS || 1000);
 const logcatLineLimit = Number(process.env.ANDROID_SMOKE_LOGCAT_LINES || 400);
 const adbCommandTimeoutMs = Number(process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS || 60000);

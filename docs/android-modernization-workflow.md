@@ -34,19 +34,19 @@ For a quick local toolchain sanity check before Android build/smoke work:
 corepack yarn android:dev:env-audit
 ```
 
-The environment audit checks the active Node version, `.nvmrc`, `JAVA_HOME`/Java major version, Android SDK/ADB discovery, Gradle wrappers, required validation helper files, and the package scripts used by the Android validation workflow, including the RN upgrade path audit scripts. It warns when Metro/dev runtime is not on Node 16 and fails when Java/ADB or required helper files are missing.
+The environment audit checks the active Node version, `.nvmrc`, `JAVA_HOME`/Java major version, Android SDK/ADB discovery, Gradle wrappers, required validation helper files, and the package scripts used by the Android validation workflow, including the RN upgrade path audit scripts. It warns when Metro/dev runtime is not on Node 22 and fails when Java/ADB or required helper files are missing.
 
 `check:android-dev-env-audit-guard` verifies the environment audit guard fixtures without depending on the current terminal's Java, Node, SDK, or ADB state.
 
-Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Native, Metro preset, README, workflow, and baseline docs still agree on the Node 16 Metro/dev runtime baseline.
+Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Native, RN Babel/Metro config packages, README, workflow, and baseline docs still agree on the Node 22 Metro/dev runtime baseline.
 
-Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.68.7` package baseline, target-SDK deferral, and related documentation still agree.
+Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.76.9` package baseline, target-SDK deferral, and related documentation still agree.
 
-Use `corepack yarn rn:076-foundation:audit` before the first React Native foundation branch to verify that the RN `0.76.9` milestone plan still includes React 18, Node 18, Metro/Babel, Android template, iOS Podfile, and package-only blocker scope.
+Use `corepack yarn rn:076-foundation:audit` before the first React Native foundation branch to verify that the RN `0.76.9` milestone plan still includes React 18, Node 22, Metro/Babel, Android template, iOS Podfile, and package-only blocker scope.
 
 Use `corepack yarn rn:baseline:preflight` before changing React Native package versions. It runs the lightweight Android gate plus the Metro runtime, Node runtime transition audit, RN upgrade path, RN target snapshot, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration with generated summary validation, Sentry warning/source-map readiness with generated Android-warning and prerequisite-summary validation, the aggregate warning-source summary checker, standalone Android warning-audit and smoke-summary checkers, Firebase release-service with generated summary validation, CodePush release-path with generated summary validation, push-notification bridge audit with generated summary validation, the aggregate release-services summary guard self-check, and the aggregate release-services summary checker covering both Sentry summary artifacts as a single RN-baseline readiness pass.
 
-Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 16 Metro/dev runtime remains aligned with React Native `0.68.7` while the recorded RN target snapshot still implies a later Node engine move. Do not change `.nvmrc` as a standalone cleanup; keep it tied to the dedicated React Native baseline branch.
+Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 22 Metro/dev runtime remains aligned with React Native `0.76.9` while the recorded RN target snapshot still implies a later Node engine move. Do not change `.nvmrc` as a standalone cleanup; keep it tied to the dedicated React Native baseline branch.
 
 Use `corepack yarn rn:target-snapshot:audit` to verify that the recorded npm target snapshot still matches the current repo baseline and supporting documentation. Use `corepack yarn rn:target-snapshot:current` when network access is available to compare the recorded snapshot against current npm metadata. Use `corepack yarn check:rn-target-snapshot-current-guard` for an offline self-check of the live comparison rules. Refresh `docs/react-native-target-snapshot.md` at the start of an actual RN baseline branch if npm/latest has moved.
 
@@ -159,7 +159,7 @@ corepack yarn android:dev:audit-smoke
 After dependency, native, Metro, or runtime changes, restart Metro with a clean transform cache before testing:
 
 ```powershell
-D:\tmp\node\node-v16.20.2-win-x64\npx.cmd react-native start --reset-cache --port 8081
+D:\tmp\node\node-v22.18.0-win-x64\npx.cmd react-native start --reset-cache --port 8081
 ```
 
 Then install and launch the dev APK:
@@ -179,8 +179,8 @@ Useful smoke overrides:
 - `ANDROID_SERIAL`: select a specific emulator/device from `adb devices`.
 - `ANDROID_SMOKE_APK`: install a non-default APK path.
 - `ANDROID_SMOKE_PACKAGE`: launch a non-default package name.
-- `ANDROID_SMOKE_WAIT_MS`: non-negative milliseconds to wait before reading startup logs.
-- `ANDROID_SMOKE_UI_WAIT_MS`: non-negative milliseconds to poll UI hierarchy for expected text after startup state is available; default is `20000`.
+- `ANDROID_SMOKE_WAIT_MS`: non-negative milliseconds to wait before reading startup logs; default is `20000`.
+- `ANDROID_SMOKE_UI_WAIT_MS`: non-negative milliseconds to poll UI hierarchy for expected text after startup state is available; default is `90000`.
 - `ANDROID_SMOKE_UI_POLL_INTERVAL_MS`: positive milliseconds between UI hierarchy polling attempts; default is `1000`.
 - `ANDROID_SMOKE_LOGCAT_LINES`: positive integer line limit for app-process startup logcat.
 - `ANDROID_SMOKE_ADB_TIMEOUT_MS`: positive integer timeout for each `adb` command.

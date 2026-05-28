@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const runtimeRoots = ['App.tsx', 'Main.tsx', 'src'].map(entry => path.join(root, entry));
 const nativeRoots = ['android', 'ios'].map(entry => path.join(root, entry));
-const ignoredDirs = new Set(['android/app/build', 'ios/Pods']);
+const ignoredDirs = new Set(['android/build', 'android/app/build', 'ios/Pods']);
 const runtimeExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 const nativeExtensions = new Set(['.gradle', '.java', '.json', '.plist', '.pbxproj', '.xcscheme']);
 const runtimePattern =

@@ -16,12 +16,13 @@ All modernization work should be developed on focused task branches and merged i
 
 - App name/package: `goldwallet`
 - App version: `6.5.1`
-- React Native: `0.68.7`
-- React: `17.0.2`
+- React Native: `0.76.9`
+- React: `18.2.0`
 - TypeScript: `^4.0.3`
 - Jest: `26.6.3`
 - Detox: `18.20.1`
-- Metro Babel preset: `0.67.0`
+- RN Babel preset: `0.76.9`
+- RN Metro config: `0.76.9`
 - Hermes: disabled
 - JSC: `org.webkit:android-jsc:+`
 
@@ -29,12 +30,12 @@ All modernization work should be developed on focused task branches and merged i
 
 Current stack:
 
-- Node.js for Metro/dev runtime: Node 16 LTS
-- Repository Node hint: `.nvmrc` -> `16.20.2`
+- Node.js for Metro/dev runtime: Node 22 LTS-compatible runtime
+- Repository Node hint: `.nvmrc` -> `22.18.0`
 - Yarn: `1.22.22` via Corepack
 - Android build JDK: JDK 17 locally, with build guard allowing JDK 11-17
-- Android Gradle Plugin: `7.4.2`
-- Gradle wrapper: `7.5.1`
+- Android Gradle Plugin: `8.6.0`
+- Gradle wrapper: `8.10.2`
 - Android compile SDK: `34`
 - Android target SDK: `33`
 - Android min SDK: `26`
@@ -49,10 +50,10 @@ Observed incompatibilities:
 
 Target direction:
 
-- Keep the current Metro/dev runtime on Node 16.
+- Keep the current Metro/dev runtime aligned with `.nvmrc` and RN package engine requirements.
 - Use JDK 17 for local Android modernization work.
 - Defer `targetSdkVersion 34` until a later React Native/toolchain step, because the current branch intentionally stays on target SDK 33.
-- React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.68.7` toward a current supported line instead of walking every minor version or jumping blindly to latest.
+- React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.76.9` toward a current supported line instead of walking every minor version or jumping blindly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
 - RN `0.76.9` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; use `corepack yarn rn:076-foundation:audit` before changing RN packages.
 - The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
@@ -63,7 +64,7 @@ Target direction:
 
 ## Current Android Build Setup
 
-- Root Android Gradle Plugin: `com.android.tools.build:gradle:7.4.2`
+- Root Android Gradle Plugin: `com.android.tools.build:gradle:8.6.0`
 - Firebase Crashlytics Gradle plugin: `2.9.0`
 - Google Services Gradle plugin: `4.3.15`
 - Build tools configured as `34.0.0`
@@ -80,10 +81,10 @@ corepack yarn android:dev:verify
 
 ## Current Metro Setup
 
-Metro should be started with Node 16 for the current React Native 0.68 stack:
+Metro should be started with Node 22 for the current React Native 0.76 stack:
 
 ```powershell
-$env:Path='D:\tmp\node\node-v16.20.2-win-x64;' + $env:Path
+$env:Path='D:\tmp\node\node-v22.18.0-win-x64;' + $env:Path
 corepack yarn start --reset-cache
 ```
 
@@ -130,7 +131,7 @@ Passing:
 - `corepack yarn rn:target-snapshot:check-summary`
 - `corepack yarn rn:baseline:preflight`
 - `corepack yarn android:dev:check-light`
-- Metro dev runtime audit verifies the Node 16 `.nvmrc`, React Native `0.68.7`, Metro preset `0.67.0`, start script, and documentation baseline.
+- Metro dev runtime audit verifies the Node 22 `.nvmrc`, React Native `0.76.9`, RN Babel/Metro config packages, start script, and documentation baseline.
 - Android lightweight check runs the Android warning baseline guard, Android warning artifact guard, Android dev environment audit self-check, Metro dev runtime audit self-check, React Native upgrade path audit self-check, React Native upgrade path audit, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, QR render usage self-check/inventory guard, legacy Android autolink self-check/guard, Sentry usage self-check/inventory guard, Sentry release integration self-check/guard, CodePush usage self-check/inventory guard, Firebase usage self-check/inventory guard, iOS push notification usage self-check/inventory guard, release-service env key self-check/guard, Android env mapping self-check/guard, iOS scheme config self-check/guard, storage/network usage self-check/guard, storage/network validation script self-check/guard, native module inventory self-check/inventory guard, native module upgrade-plan self-check/coverage guard, RN nodeify shim self-check/inventory guard, modernization log ID guard self-check, modernization log ID guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
 - `corepack yarn prepush` starts with `android:dev:check-light` before promoted offline Jest suites.
 - `corepack yarn typescript:check`
@@ -172,7 +173,7 @@ Known gaps:
 2. Replace deprecated `react-native-camera` in a dedicated QR scanner migration branch.
 3. Handle Sentry Gradle/source-map behavior in a dedicated release tooling branch.
 4. Upgrade native modules in controlled groups using `docs/native-module-upgrade-plan.md`.
-5. Continue RN with milestone jumps from `0.68` toward newer supported lines.
+5. Continue RN with milestone jumps from `0.76` toward newer supported lines.
 6. Defer target SDK 34 until the RN/toolchain path can support Android 14+ debug receiver requirements.
 7. Upgrade iOS Podfile/deployment target and validate schemes.
 8. Add BTC network support and UI switching.

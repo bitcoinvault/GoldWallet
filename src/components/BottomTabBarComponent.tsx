@@ -15,7 +15,7 @@ export const BottomTabBarComponent = ({ state, descriptors, navigation }: Bottom
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
         const { options } = descriptors[route.key];
-        const label = options.tabBarLabel;
+        const label = typeof options.tabBarLabel === 'string' ? options.tabBarLabel : options.title || route.name;
         const onPress = () => {
           const event = navigation.emit({
             type: 'tabPress',

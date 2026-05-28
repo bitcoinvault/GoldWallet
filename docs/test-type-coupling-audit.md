@@ -4,11 +4,11 @@ Test/type coupling audit for the staged React/RN baseline path.
 
 ## Current Baseline
 
-- Current TypeScript: `^4.0.3`
+- Current TypeScript: `4.9.5`
 - Current Jest: `26.6.3`
 - Current babel-jest: `^26.6.3`
 - Current ts-jest: `^26.4.1`
-- Current react-test-renderer: `17.0.2`
+- Current react-test-renderer: `18.2.0`
 - Current TS target: `ES2019`
 - Current TS JSX mode: `react-native`
 - Current TS skipLibCheck: `true`

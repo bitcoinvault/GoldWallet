@@ -21,7 +21,7 @@ export const requiredDependencyUpgradeStrategySnippets = [
   ['docs/react-native-foundation-target-matrix.md', 'Milestone C: RN 0.85.x Current Line'],
   ['docs/react-native-upgrade-path.md', 'Prefer milestone jumps over version-by-version package work'],
   ['docs/react-native-upgrade-path.md', 'If a milestone fails, isolate the blocker before falling back to a lower milestone'],
-  ['docs/wallet-modernization-baseline.md', 'continue with milestone jumps from RN `0.68.7` toward a current supported line'],
+  ['docs/wallet-modernization-baseline.md', 'continue with milestone jumps from RN `0.76.9` toward a current supported line'],
   ['docs/android-modernization-workflow.md', 'corepack yarn upgrade:strategy:audit'],
 ];
 

@@ -33,9 +33,9 @@ export const requiredReact19ImpactDocs = [
 ];
 
 export const requiredReact19ImpactSnippets = [
-  ['docs/react19-impact-audit.md', 'Current React: `17.0.2`'],
-  ['docs/react19-impact-audit.md', 'Current React types: `^16.9.31`'],
-  ['docs/react19-impact-audit.md', 'Current react-test-renderer: `17.0.2`'],
+  ['docs/react19-impact-audit.md', 'Current React: `18.2.0`'],
+  ['docs/react19-impact-audit.md', 'Current React types: `18.2.6`'],
+  ['docs/react19-impact-audit.md', 'Current react-test-renderer: `18.2.0`'],
   ['docs/react19-impact-audit.md', 'Target React peer from RN target snapshot: `^19.2.3`'],
   ['docs/react19-impact-audit.md', 'Class component surfaces exist and must be smoke-tested after the React/RN baseline changes.'],
   ['docs/react19-impact-audit.md', 'Default props on class components exist and should be checked against the updated TypeScript/React type behavior.'],
@@ -48,16 +48,16 @@ export const requiredReact19ImpactSnippets = [
 export const getReact19ImpactIssues = ({ dependencies, devDependencies, scripts, docs, existingDocs, inventory }) => {
   const errors = [];
 
-  if (dependencies.react !== '17.0.2') {
-    errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current React baseline 17.0.2`);
+  if (dependencies.react !== '18.2.0') {
+    errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current React baseline 18.2.0`);
   }
 
-  if (devDependencies['@types/react'] !== '^16.9.31') {
-    errors.push(`package.json has @types/react@${devDependencies['@types/react'] || '<missing>'}; expected current React types baseline ^16.9.31`);
+  if (devDependencies['@types/react'] !== '18.2.6') {
+    errors.push(`package.json has @types/react@${devDependencies['@types/react'] || '<missing>'}; expected current React types baseline 18.2.6`);
   }
 
-  if (devDependencies['react-test-renderer'] !== '17.0.2') {
-    errors.push(`package.json has react-test-renderer@${devDependencies['react-test-renderer'] || '<missing>'}; expected current renderer baseline 17.0.2`);
+  if (devDependencies['react-test-renderer'] !== '18.2.0') {
+    errors.push(`package.json has react-test-renderer@${devDependencies['react-test-renderer'] || '<missing>'}; expected current renderer baseline 18.2.0`);
   }
 
   if (scripts['react19:impact:audit'] !== 'node scripts/auditReact19Impact.mjs') {
@@ -161,7 +161,7 @@ const printReport = environment => {
     process.exit(1);
   }
 
-  console.log('React 19 impact audit matches the current React 17 baseline and RN target snapshot.');
+  console.log('React 19 impact audit matches the current React 18 baseline and RN target snapshot.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

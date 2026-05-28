@@ -16,7 +16,8 @@ const validEnvironment = {
     'react-native': expectedMetroDevRuntime.reactNative,
   },
   devDependencies: {
-    'metro-react-native-babel-preset': expectedMetroDevRuntime.metroPreset,
+    '@react-native/babel-preset': expectedMetroDevRuntime.babelPreset,
+    '@react-native/metro-config': expectedMetroDevRuntime.metroConfig,
   },
   scripts: {
     start: expectedMetroDevRuntime.startScript,
@@ -56,7 +57,7 @@ const assertWarned = (label, environment, expectedWarning) => {
 };
 
 assertAccepted('Valid Metro dev runtime fixture', validEnvironment);
-assertWarned('Non-Metro Node fixture', { ...validEnvironment, nodeVersion: '22.18.0' }, 'Current Node is 22.18.0');
+assertWarned('Non-Metro Node fixture', { ...validEnvironment, nodeVersion: '20.19.4' }, 'Current Node is 20.19.4');
 assertRejected('Wrong .nvmrc fixture', { ...validEnvironment, nvmrc: '18.20.0' }, '.nvmrc is 18.20.0');
 assertRejected(
   'Wrong React Native fixture',
@@ -64,9 +65,9 @@ assertRejected(
   'react-native@0.69.0',
 );
 assertRejected(
-  'Wrong Metro preset fixture',
-  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'metro-react-native-babel-preset': '0.68.0' } },
-  'metro-react-native-babel-preset@0.68.0',
+  'Wrong RN Babel preset fixture',
+  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@react-native/babel-preset': '0.75.0' } },
+  '@react-native/babel-preset@0.75.0',
 );
 assertRejected(
   'Wrong start script fixture',

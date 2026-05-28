@@ -25,7 +25,7 @@ const requiredPlanSnippets = [
   'corepack yarn rn:baseline:preflight',
   'corepack yarn rn:target-snapshot:current',
   'corepack yarn rn:076-foundation:audit',
-  'Metro restart with Node 18 and `--reset-cache`',
+  'Metro restart with Node 22 and `--reset-cache`',
 ];
 
 const requiredMatrixSnippets = [
@@ -40,17 +40,23 @@ const warnings = [];
 const plan = read('docs/react-native-076-foundation-plan.md');
 const matrix = read('docs/react-native-foundation-target-matrix.md');
 
-if (dependencies['react-native'] !== '0.68.7') {
-  errors.push(`package.json has react-native@${dependencies['react-native'] || '<missing>'}; expected current baseline 0.68.7`);
+if (dependencies['react-native'] !== '0.76.9') {
+  errors.push(`package.json has react-native@${dependencies['react-native'] || '<missing>'}; expected current baseline 0.76.9`);
 }
 
-if (dependencies.react !== '17.0.2') {
-  errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current baseline 17.0.2`);
+if (dependencies.react !== '18.2.0') {
+  errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current baseline 18.2.0`);
 }
 
-if (devDependencies['metro-react-native-babel-preset'] !== '0.67.0') {
+if (devDependencies['@react-native/babel-preset'] !== '0.76.9') {
   errors.push(
-    `package.json has metro-react-native-babel-preset@${devDependencies['metro-react-native-babel-preset'] || '<missing>'}; expected current baseline 0.67.0`,
+    `package.json has @react-native/babel-preset@${devDependencies['@react-native/babel-preset'] || '<missing>'}; expected current baseline 0.76.9`,
+  );
+}
+
+if (devDependencies['@react-native/metro-config'] !== '0.76.9') {
+  errors.push(
+    `package.json has @react-native/metro-config@${devDependencies['@react-native/metro-config'] || '<missing>'}; expected current baseline 0.76.9`,
   );
 }
 

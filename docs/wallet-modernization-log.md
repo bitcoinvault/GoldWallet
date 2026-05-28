@@ -6702,3 +6702,39 @@ Validation:
 
 - `corepack yarn upgrade:strategy:audit`
 - `corepack yarn rn:upgrade-path:audit`
+
+### BEM-36.119 - React Native 0.76 Android runtime foundation
+
+- Branch: `feature/bem-36-rn-076-foundation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the Android dev runtime foundation from RN `0.68.7` to RN `0.76.9` with React `18.2.0`.
+- Replace the legacy Metro/Babel setup with RN `0.76` packages: `@react-native/babel-preset`, `@react-native/metro-config`, `@react-native/gradle-plugin`, CLI, and codegen.
+- Move Android from the old `native_modules.gradle` autolinking path to the RN settings/app Gradle plugin path.
+- Move Android build tooling to AGP `8.6.0`, Gradle `8.10.2`, Kotlin `1.9.25`, and JDK 17 validation.
+- Update native UI compatibility packages needed by the RN jump: `react-native-safe-area-context`, `react-native-screens`, and `react-native-svg`.
+- Add a tracked legacy prop-types compatibility shim for `react-native-snap-carousel` without patching `node_modules`.
+- Update Android SoLoader initialization for RN merged native libraries and disable the legacy debug Flipper bootstrap that crashes against the RN `0.76` dependency graph.
+- Keep CodePush debug builds moving by disabling its legacy debug resource-hash tasks that assume pre-AGP-8 merged resource paths.
+
+Findings:
+
+- The old `native_modules.gradle` path can hang during RN `0.76` configuration because it waits on the config process before draining the large JSON output.
+- `react-native-code-push@7.0.2` still uses old Gradle task/resource assumptions; debug is unblocked, but release CodePush validation remains a separate branch.
+- `react-native-screens@4.5.0` is the highest validated version in this branch so far; later 4.x versions tested locally introduced Kotlin/safe-area incompatibilities on RN `0.76`.
+- `react-native-snap-carousel` still relies on removed RN prop-types; the local shim is a compatibility bridge until the carousel/navigation layer is replaced.
+- The RN `0.76` dev runtime can stay on the native bootsplash longer than the previous smoke defaults while Metro serves a cold dev bundle, so the smoke helper now waits longer before reading startup logs and UI readiness.
+- The app reaches the dashboard on the emulator after a fresh dev install.
+- Remaining runtime warnings are legacy-library warnings, CodePush network/report failures in the local dev environment, Sentry promise duplication warning, and old React Navigation warning from `react-native-screens`.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn react-native bundle --platform android --dev true --entry-file index.js --bundle-output local-docs\rn076-proptypes-check.android.bundle --assets-dest local-docs\rn076-proptypes-check-assets --reset-cache`
+- `corepack yarn android:dev:assemble`
+- Fresh install of `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk` on `emulator-5554`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke` passes after Metro reset: dashboard UI contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+- Emulator smoke screenshot: `local-docs/android-smoke-dev.png`
+- Smoke summary: `local-docs/android-smoke-dev-summary.txt`

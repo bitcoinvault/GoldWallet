@@ -153,8 +153,8 @@ export const getAndroidDevEnvironmentIssues = ({
     warnings.push('JAVA_HOME is not set; Gradle runner will fall back to java from PATH.');
   }
 
-  if (nodeMajor !== 16) {
-    warnings.push(`Current Node is ${nodeVersion}; Metro/dev runtime is documented for Node 16 (${nvmrc || 'no .nvmrc found'}).`);
+  if (nodeMajor !== 22) {
+    warnings.push(`Current Node is ${nodeVersion}; Metro/dev runtime is documented for Node 22 (${nvmrc || 'no .nvmrc found'}).`);
   }
 
   if (!androidSdkRoot) {
