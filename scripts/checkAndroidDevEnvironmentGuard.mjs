@@ -78,6 +78,14 @@ assertRejected(
   'React Native target snapshot live npm check helper is missing',
 );
 assertRejected(
+  'Missing RN target snapshot live npm guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkReactNativeTargetSnapshotCurrentGuard.mjs')),
+  },
+  'React Native target snapshot live npm guard helper is missing',
+);
+assertRejected(
   'Missing dev verification package script fixture',
   {
     ...validEnvironment,
@@ -116,6 +124,14 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'rn:target-snapshot:current')),
   },
   'package.json is missing rn:target-snapshot:current',
+);
+assertRejected(
+  'Missing RN target snapshot live npm guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:rn-target-snapshot-current-guard')),
+  },
+  'package.json is missing check:rn-target-snapshot-current-guard',
 );
 
 console.log('Android dev environment audit guard checks are valid.');

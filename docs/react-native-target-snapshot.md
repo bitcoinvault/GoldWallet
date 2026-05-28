@@ -32,3 +32,9 @@ corepack yarn rn:target-snapshot:current
 ```
 
 The live check requires network access and is intentionally not part of the default offline preflight.
+
+For an offline self-check of the live npm comparison rules, use:
+
+```powershell
+corepack yarn check:rn-target-snapshot-current-guard
+```
