@@ -117,6 +117,7 @@ Shared env/config:
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties` files and `SENTRY_AUTH_TOKEN` are available before Sentry release/source-map validation.
 - Push notification changes need Android 13+ permission checks, Firebase Messaging token checks, and iOS permission/token validation.
 - `@react-native-community/push-notification-ios` is pinned to the already-resolved `1.10.0` after `BEM-36.71`; this is not an iOS notification behavior upgrade and does not replace dedicated iOS push validation.
+- `corepack yarn push-notification:bridge-audit` verifies current iOS push notification bridge wiring and reports static readiness issues before real iOS push validation.
 
 ## Branching Decision
 

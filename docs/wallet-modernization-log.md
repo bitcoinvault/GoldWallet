@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.77 - iOS push notification bridge audit
+
+- Branch: `feature/bem-ios-push-notification-bridge-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditPushNotificationBridge.mjs`.
+- Add `push-notification:bridge-audit` package script.
+- Document the audit in release-services, iOS release config, native module upgrade plan, and this modernization log.
+- Keep push notification dependency version, runtime behavior, native project files, env files, and lockfile content unchanged.
+
+Why:
+
+- Android debug smoke cannot validate iOS badge handling, remote-notification forwarding, or iOS notification presentation.
+- Before any real iOS push notification bridge change, the current runtime/native/plist wiring should be auditable from one command.
+
+Validation:
+
+- `corepack yarn push-notification:bridge-audit` passed.
+- The audit confirmed package manifest, runtime badge handling, AppDelegate forwarding methods, and foreground presentation hooks are wired.
+- The audit reported static readiness issues before claiming full iOS push validation: `AppDelegate.m` does not set `UNUserNotificationCenter` delegate in the audited source, and `ios/GoldWallet/Info.plist` does not declare `UIBackgroundModes` `remote-notification`.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Use this audit before iOS device/simulator notification validation or any iOS push notification bridge behavior change.
+
 ### BEM-37.76 - Firebase release-services audit
 
 - Branch: `feature/bem-firebase-release-services-audit`
