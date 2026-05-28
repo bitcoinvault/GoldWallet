@@ -6253,3 +6253,40 @@ Validation:
 - Metro restarted with `react-native start --reset-cache --port 8081`.
 - Emulator smoke on `emulator-5554`: installed `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk`, ran `adb reverse tcp:8081 tcp:8081`, launched `io.goldwallet.wallet.dev`, confirmed `MainActivity` foreground, Metro bundled `./index.js`, and logcat showed no fatal AndroidRuntime or React Native bundle/runtime errors for the app.
 - Smoke artifacts: `local-docs/uuid14-smoke.png`, `local-docs/uuid11-smoke.png`, `local-docs/metro-uuid14.log`, `local-docs/metro-uuid11.log`.
+
+### BEM-36.109 - BIP39 latest runtime audit
+
+- Branch: `feature/bem-36-bip39-3-1-0`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Test the current `bip39@3.1.0` release before accepting a wallet mnemonic dependency upgrade.
+- Keep the committed dependency baseline unchanged because the runtime smoke failed.
+- Record the blocker for a later React Native/Metro/Babel modernization branch.
+
+Findings:
+
+- `bip39@3.1.0` is the current latest release and keeps the same `src/index.js` package entry plus bundled TypeScript declarations.
+- The package update adds `@noble/hashes@1.8.0`.
+- TypeScript, rn-nodeify shims, and Android assemble all pass, but they do not prove runtime compatibility for this dependency.
+- Emulator smoke with Metro reset bundles `./index.js`, launches `MainActivity`, then fails the JS runtime with `Unexpected token '?'`.
+- The stack is emitted as `Exception in native call from JS`, followed by bad-bundle calls to `HMRClient.setup()` and `AppRegistry.runApplication()`.
+- The current React Native 0.68 runtime/bundler baseline is not ready for this latest dependency path.
+
+Why:
+
+- This is the expected latest-first workflow: try latest, capture the concrete failure, and avoid committing a broken wallet runtime state.
+- A future retry should happen after the React Native/Metro/Babel baseline can handle the syntax shipped by the latest mnemonic dependency chain.
+
+Validation:
+
+- Attempted `corepack yarn add bip39@3.1.0`.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `react-native start --reset-cache --port 8081`.
+- Emulator smoke on `emulator-5554`: installed `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk`, ran `adb reverse tcp:8081 tcp:8081`, launched `io.goldwallet.wallet.dev`, confirmed `MainActivity` foreground, then rejected the dependency update because logcat reported `Unexpected token '?'`.
+- Restored `package.json` and `yarn.lock`, then ran `corepack yarn install --frozen-lockfile` to return `node_modules` to the committed dependency baseline.
+- Smoke artifacts: `local-docs/bip39-3-1-smoke.png`, `local-docs/metro-bip39-3-1.log`.
