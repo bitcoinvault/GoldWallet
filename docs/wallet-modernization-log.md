@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.90 - React Native upgrade path audit guard
+
+- Branch: `feature/bem-36-rn-upgrade-path-audit-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refactor `scripts/auditReactNativeUpgradePath.mjs` so the RN upgrade path checks can be exercised by fixture tests.
+- Add `scripts/checkReactNativeUpgradePathGuard.mjs`.
+- Add `check:rn-upgrade-path-audit-guard` package script and include it before the real `rn:upgrade-path:audit` in `android:dev:check-light`.
+- Refresh README, Android workflow, baseline, lightweight docs guard, and this modernization log.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The RN upgrade path audit now guards several repository baselines, so fixture coverage should catch incorrect acceptance and rejection cases before the real worktree audit runs.
+- This keeps the future RN baseline branch from silently drifting Node, Gradle, target SDK, or documentation assumptions.
+
+Validation:
+
+- `corepack yarn check:rn-upgrade-path-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn android:dev:check-light-docs` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed and ran `check:rn-upgrade-path-audit-guard` before `rn:upgrade-path:audit`.
+
+Follow-up:
+
+- Update the fixture expectations in the same branch as any intentional RN baseline, Node runtime, Gradle, or Android target SDK move.
+
 ### BEM-36.89 - React Native upgrade path Android baseline guard
 
 - Branch: `feature/bem-36-rn-upgrade-path-android-baseline`
