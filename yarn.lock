@@ -10952,7 +10952,7 @@ react-native-default-preference@1.4.1:
   resolved "https://registry.yarnpkg.com/react-native-default-preference/-/react-native-default-preference-1.4.1.tgz#3baccbc50ff3eff57d0c86128239667203405f63"
   integrity sha512-UHX8Hsgq2AwEI8SA1IkjU+u6y+Uroht0sCP70UVLhEZWyqRnn8elrcEjRSInWFNUwxSeFF/c7Tnf17fWFHZEcw==
 
-react-native-device-info@^6.0.2:
+react-native-device-info@6.2.1:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-6.2.1.tgz#6b63faeef833d8959d636c0413ccd5066eada2bf"
   integrity sha512-+9Li07jD+7IiSIn9VVmb1YWYfJtgERVMsgO/hG+aUzsFD6uFklpM2TOEBlfKPWP/8J6s8MZgpGfA/Dl1WZrn2g==
