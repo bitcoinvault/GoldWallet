@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.60 - React Native Config 1.5.9
+
+- Branch: `feature/bem-react-native-config-1-5-9`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-config` from `1.4.4` to `1.5.9`.
+- Refresh `yarn.lock`.
+- Update the native module inventory guard, native module upgrade plan, and storage/network compatibility audit.
+- Add a local React Native CLI Android override for `react-native-config`, because the newer package manifest shape is not detected by this repo's RN `0.68.7` CLI without an explicit Android `sourceDir`.
+- Type required env values defensively in `src/config/index.ts` after the newer package types changed env values to `string | undefined`.
+- Keep Android `envConfigFiles`, iOS scheme env-copy scripts, `src/config/index.ts`, Electrum configuration, explorer configuration, Sentry DSNs, and CodePush keys unchanged.
+
+Why:
+
+- `1.5.9` is the latest checked compatible `react-native-config` release for the current RN `0.68.7` Android baseline.
+- `1.6.1` was checked and rejected because Android compile failed on newer React Native Android APIs that are not present in RN `0.68.7`.
+- This package controls app flavor/env loading, Electrum host/protocol values, explorer URLs, Sentry DSNs, CodePush keys, and release-service configuration, so it stays isolated from storage, socket, and WebView changes.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:release-service-env-keys`
+- `corepack yarn check:android-env-config-files`
+- `corepack yarn check:ios-scheme-config`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+- Additional logcat observation after smoke showed BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443` and reporting `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no targeted config, Electrum, Android runtime, or React Native runtime errors were found.
+- Rejected `react-native-config@1.6.1` during this branch because Android compile failed on RN `0.68.7` with missing `BaseReactPackage` and `WritableMap.putLong` APIs.
+
+Follow-up:
+
+- `ios/Podfile.lock` was not refreshed in this Windows branch. Do not claim iOS validation until `pod install` and the affected iOS scheme build pass on a Mac/iOS environment.
+
 ### BEM-36.59 - React Native NetInfo 6.2.1
 
 - Branch: `feature/bem-netinfo-6-2-1`

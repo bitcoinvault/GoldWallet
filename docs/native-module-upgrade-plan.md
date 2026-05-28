@@ -70,7 +70,7 @@ Branch shape:
 - `@react-native-async-storage/async-storage`
 - `@react-native-community/netinfo` -> `6.2.1`
 - `react-native-device-info`
-- `react-native-config`
+- `react-native-config` -> `1.5.9`
 - `react-native-localize`
 - `react-native-randombytes`
 - `react-native-secure-key-store`
@@ -88,6 +88,7 @@ Branch shape:
 - Validate app startup, wallet list persistence, settings/env loading, and logcat for native module crashes.
 - For storage/secure-key-store changes, add or run focused storage/authenticator tests before emulator smoke.
 - `@react-native-community/netinfo` is on latest checked 6.x `6.2.1` after `BEM-36.59`; future NetInfo work should focus on Electrum/network behavior and RN baseline changes rather than another blind package bump.
+- `react-native-config` is on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected on the current RN `0.68.7` Android baseline because it requires newer React Native Android APIs. Future config work should focus on flavor/env behavior, release-service keys, and platform validation rather than another package bump.
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 
 ### Group D - Notifications And Release Services
