@@ -24,3 +24,11 @@ Use it to size and sequence the RN modernization path. Re-check npm and the offi
 ```powershell
 corepack yarn rn:target-snapshot:audit
 ```
+
+For a live npm check against the recorded snapshot, use:
+
+```powershell
+corepack yarn rn:target-snapshot:current
+```
+
+The live check requires network access and is intentionally not part of the default offline preflight.

@@ -3500,6 +3500,39 @@ Notes:
 - The preflight passed with the same existing readiness warnings for Node 22 in the current shell versus the documented Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
 - No emulator smoke was required because this branch only changes package scripts, audit guards, and documentation.
 
+### BEM-36.95 - React Native target live npm check
+
+- Branch: `feature/bem-36-rn-target-live-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `rn:target-snapshot:current` as an explicit network-backed check for the recorded React Native target snapshot.
+- Compare current npm metadata for `react-native@latest`, `react-native@next`, the recorded target React peer, and the recorded target Node engine.
+- Keep the live npm check out of `rn:baseline:preflight` so the normal preflight remains usable offline.
+- Guard the helper file and package script through the Android dev environment audit.
+- Document the live check in README, Android workflow, and `docs/react-native-target-snapshot.md`.
+
+Why:
+
+- The target snapshot is intentionally date-stamped and can drift quickly.
+- Before a real RN baseline branch, we need a single command that says whether the recorded target still matches npm or needs a refresh.
+
+Validation:
+
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn check:rn-target-snapshot-guard`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn android:dev:check-light-docs`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=%LOCALAPPDATA%\Android\Sdk ANDROID_HOME=%ANDROID_SDK_ROOT% corepack yarn android:dev:env-audit`
+
+Notes:
+
+- The live npm check confirmed `react-native@latest` is still `0.85.3`, `react-native@next` is still `0.86.0-rc.2`, `react-native@0.85.3` still has React peer `^19.2.3`, and its Node engine still matches the recorded snapshot.
+- No emulator smoke was required because this branch only adds a network-backed audit helper, package script, guard coverage, and documentation.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`
