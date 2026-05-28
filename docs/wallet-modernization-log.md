@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.55 - React Native Community Blur 4.4.1
+
+- Branch: `feature/bem-blur-4-4-1`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `@react-native-community/blur` from manifest `^4.3.0` and lockfile `4.3.0` to `4.4.1`.
+- Pin the manifest to `4.4.1` and refresh `yarn.lock`.
+- Update the native module inventory guard, navigation/layout audit, and native module upgrade plan baseline.
+- Keep UI component code, native project files, and runtime behavior unchanged.
+
+Why:
+
+- `4.4.1` is the latest checked 4.x Blur package version and declares broad React/React Native peer compatibility.
+- Blur affects layered visual surfaces, so the package bump stays isolated from safe-area, gesture, icon, and splash changes and requires Android smoke after a clean Metro cache.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+
+Follow-up:
+
+- `ios/Podfile.lock` was not refreshed in this Windows branch. Do not claim iOS validation until `pod install` and the affected iOS scheme build pass on a Mac/iOS environment.
+
 ### BEM-36.54 - React Native BootSplash 3.2.7
 
 - Branch: `feature/bem-bootsplash-3-2-7`
