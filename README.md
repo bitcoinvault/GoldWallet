@@ -97,6 +97,12 @@ To compare that snapshot with live npm metadata before a real RN baseline branch
 $ yarn rn:target-snapshot:current
 ```
 
+To verify the live snapshot comparison rules without network access:
+
+```sh
+$ yarn check:rn-target-snapshot-current-guard
+```
+
 To verify that the documented Metro runtime baseline is still aligned with the repo:
 
 ```sh
