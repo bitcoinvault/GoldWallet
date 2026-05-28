@@ -3562,10 +3562,15 @@
   resolved "https://registry.yarnpkg.com/@types/base16/-/base16-1.0.2.tgz#eb3a07db52309bfefb9ba010dfdb3c0784971f65"
   integrity sha512-oYO/U4VD1DavwrKuCSQWdLG+5K22SLPem2OQaHmFcQuwHoVeGC+JGVRji2MUqZUAIQZHEonOeVfAX09hYiLsdg==
 
-"@types/bigi@*", "@types/bigi@^1.4.2":
+"@types/bigi@*":
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@types/bigi/-/bigi-1.4.2.tgz#8dda60612e689e5769047568d0ce8b8fa83db953"
   integrity sha512-St8Vm0x1ApYlU9yNaFx3jBis5JVU6oR/5Xtgvn8+N8Ts8f3ze6kOvAAg0aNkbGMGhhG6PrP0nMOgDI9NMFETkA==
+
+"@types/bigi@1.4.5":
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/@types/bigi/-/bigi-1.4.5.tgz#58914ce8ee9c0ac77eb6005f8bb56d8e23bb0bac"
+  integrity sha512-fb5MUzazrD2GRnwlStm91HVu3cZbvolX9kJruqpUBdc24eHBWrLLfyt8XN1/C5JpI0stP/MbaFQp+cJh5WOFfw==
 
 "@types/bip21@^1.1.30":
   version "1.1.31"
