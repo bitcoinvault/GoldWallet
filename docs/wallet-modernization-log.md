@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.53 - React Native Fast Image 8.6.3
+
+- Branch: `feature/bem-fast-image-8-6-3`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-fast-image` from locked `8.3.7` to `8.6.3`.
+- Pin the manifest to `8.6.3` and refresh `yarn.lock`.
+- Update the native module inventory guard, navigation/layout audit, and native module upgrade plan baseline.
+- Keep shared image component exports, call sites, Android Gradle files, iOS project files, and runtime code unchanged.
+
+Why:
+
+- `8.6.3` is the latest checked 8.x FastImage version and declares compatibility with React `^17 || ^18` and React Native `>=0.60.0`.
+- FastImage is used through the shared image abstraction, button/list/tab icon surfaces, and model types, so this stays isolated from unrelated navigation or QR work.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+
+Follow-up:
+
+- `ios/Podfile.lock` was not refreshed in this Windows branch. Do not claim iOS validation until `pod install` and the affected iOS scheme build pass on a Mac/iOS environment.
+
 ### BEM-36.52 - React Native Vector Icons 6.7.0
 
 - Branch: `feature/bem-vector-icons-6-7-0`
