@@ -148,6 +148,7 @@ Passing:
 - Removed Android warning sources include the stale app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, and Biometrics `jcenter()` cleanup branches.
 - The current `react-native-camera` warning source is covered by `corepack yarn camera:qr-migration:audit`; the current Sentry warning source is covered by `corepack yarn sentry:android-warning:audit`.
 - The latest live RN target snapshot check reports `Live check outcome: matched` with `Mismatches: 0`.
+- Latest live RN target snapshot summary was refreshed from npm on `2026-05-28T19:55:51.486Z` and still matches `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
 - `corepack yarn android:dev:check-artifact-guard` verifies the warning-summary source guard with known-source, zero-warning, mismatched-count, and unexpected-source cases
 - `corepack yarn android:dev:audit-smoke` refreshes warning audit, emulator smoke, and artifact checker evidence in one pass

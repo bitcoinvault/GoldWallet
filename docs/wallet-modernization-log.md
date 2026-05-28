@@ -6620,3 +6620,33 @@ Validation:
 
 - `corepack yarn check:modernization-log-id-guard`
 - `corepack yarn check:modernization-log-ids`
+
+### BEM-36.116 - React Native target live snapshot refresh
+
+- Branch: `feature/bem-36-rn-target-live-refresh-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the network-backed live npm check for the recorded React Native target snapshot.
+- Refresh the ignored local summary artifact under `local-docs/rn-target-snapshot-current-summary.txt`.
+- Record whether the current RN target line changed before the next RN foundation branch.
+
+Findings:
+
+- Live npm check outcome remains `matched`.
+- Mismatches remain `0`.
+- npm latest `react-native` remains `0.85.3`.
+- npm next `react-native` remains `0.86.0-rc.2`.
+- `react-native@0.85.3` still declares React peer `^19.2.3`.
+- `react-native@0.85.3` still declares Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+
+Decision:
+
+- Keep the existing RN target snapshot unchanged.
+- Continue to treat RN `0.76.9 -> 0.82.x -> 0.85.x` as the current milestone path, with another live check at the start of the actual RN foundation branch.
+
+Validation:
+
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
