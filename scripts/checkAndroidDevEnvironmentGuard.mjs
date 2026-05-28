@@ -254,6 +254,30 @@ assertRejected(
   'Android warning audit summary guard self-check helper is missing',
 );
 assertRejected(
+  'Missing Android smoke summary guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/androidSmokeSummaryGuard.mjs')),
+  },
+  'Android smoke summary guard helper is missing',
+);
+assertRejected(
+  'Missing Android smoke summary checker file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkAndroidSmokeSummary.mjs')),
+  },
+  'Android smoke summary artifact checker is missing',
+);
+assertRejected(
+  'Missing Android smoke summary guard self-check file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkAndroidSmokeSummaryGuard.mjs')),
+  },
+  'Android smoke summary guard self-check helper is missing',
+);
+assertRejected(
   'Missing Sentry release prerequisite summary guard file fixture',
   {
     ...validEnvironment,
@@ -556,6 +580,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:android-warning-audit-summary-guard')),
   },
   'package.json is missing check:android-warning-audit-summary-guard',
+);
+assertRejected(
+  'Missing Android smoke summary package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'android:dev:check-smoke-summary')),
+  },
+  'package.json is missing android:dev:check-smoke-summary',
+);
+assertRejected(
+  'Missing Android smoke summary guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:android-smoke-summary-guard')),
+  },
+  'package.json is missing check:android-smoke-summary-guard',
 );
 assertRejected(
   'Missing Sentry release prerequisite summary package script fixture',

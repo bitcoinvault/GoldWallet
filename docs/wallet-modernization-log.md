@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.97 - Android smoke summary checker
+
+- Branch: `feature/bem-37-smoke-summary-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:check-smoke-summary` to validate `local-docs/android-smoke-dev-summary.txt` independently from the combined warning/smoke artifact checker.
+- Add `check:android-smoke-summary-guard` to self-check the smoke-summary validation rules.
+- Reuse the smoke-summary guard in `android:dev:check-artifacts` so combined artifact validation and standalone smoke validation share the same pass criteria.
+- Include the smoke-summary checker in `rn:baseline:preflight` after the warning-audit summary checker.
+- Add the checker files and package scripts to the Android dev environment audit guard.
+- Refresh workflow and baseline documentation with the standalone smoke-summary checker command.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- App-affecting branches require emulator smoke evidence. A standalone smoke-summary checker makes that evidence easy to validate without re-running the warning audit.
+
+Validation:
+
+- `corepack yarn check:android-smoke-summary-guard` passed.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not re-run because this branch only changes validation tooling and documentation; it validates the latest existing smoke artifact.
+
+Follow-up:
+
+- Re-run `android:dev:verify` or `android:dev:smoke` before using the smoke-summary checker as evidence for a runtime, native, dependency, or Metro branch.
+
 ### BEM-37.96 - Android warning audit summary checker
 
 - Branch: `feature/bem-37-warning-baseline-summary-check`

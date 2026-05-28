@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { assertAndroidSmokeSummary } from './androidSmokeSummaryGuard.mjs';
 import { assertWarningSummarySources, getLineValue } from './androidValidationArtifactsGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -29,12 +30,6 @@ const assertIsoTimestamp = (label, value) => {
   }
 };
 
-const assertPositiveInteger = (label, value) => {
-  if (!/^\d+$/.test(value) || Number(value) <= 0) {
-    throw new Error(`${label} must be a positive integer. Received: ${value || 'missing'}`);
-  }
-};
-
 const assertNonNegativeInteger = (label, value) => {
   if (!/^\d+$/.test(value)) {
     throw new Error(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
@@ -58,16 +53,7 @@ const assertExistingFile = (label, filePath, requireNonEmpty = false) => {
 const smokeSummary = readSummary(smokeSummaryPath);
 const warningSummary = readSummary(warningSummaryPath);
 
-assertIsoTimestamp('Smoke summary Generated at', getLineValue(smokeSummary, 'Generated at'));
-assertLine(smokeSummary, 'Android smoke outcome: passed');
-assertLine(smokeSummary, 'Android smoke exit code: 0');
-assertLine(smokeSummary, 'Metro reachable: yes');
-assertPositiveInteger('App PID', getLineValue(smokeSummary, 'App PID'));
-assertPositiveInteger('Captured logcat lines', getLineValue(smokeSummary, 'Captured logcat lines'));
-assertPositiveInteger('UI hierarchy attempts', getLineValue(smokeSummary, 'UI hierarchy attempts'));
-assertPositiveInteger('Screenshot bytes', getLineValue(smokeSummary, 'Screenshot bytes'));
-assertExistingFile('UI hierarchy path', getLineValue(smokeSummary, 'UI hierarchy path'), true);
-assertExistingFile('Screenshot path', getLineValue(smokeSummary, 'Screenshot path'), true);
+assertAndroidSmokeSummary(smokeSummary);
 
 assertIsoTimestamp('Warning audit summary Generated at', getLineValue(warningSummary, 'Generated at'));
 assertLine(warningSummary, 'Android Gradle audit exit code: 0');
