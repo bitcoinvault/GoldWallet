@@ -1,90 +1,138 @@
-import { readFileSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { parseEnvKeys } from './releaseServiceEnvKeysGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
+const summaryPath = path.join(root, 'local-docs', 'codepush-release-path-summary.txt');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
-const androidBuildGradle = read('android/app/build.gradle');
-const androidMainApplication = read('android/app/src/main/java/io/goldwallet/wallet/MainApplication.java');
-const androidStrings = read('android/app/src/main/res/values/strings.xml');
-const appSource = read('App.tsx');
-const configSource = read('src/config/index.ts');
-const iosInfoPlists = [
+export const codePushIosInfoPlists = [
   'ios/GoldWallet/Info.plist',
   'ios/GoldWalletDev-Info.plist',
   'ios/GoldWalletStage-Info.plist',
 ];
-const envFiles = ['.env.dev.testnet', '.env.stage.mainnet', '.env.prod.mainnet', '.env.beta.testnet', '.env.beta.mainnet'];
-const requiredEnvKeys = ['CODEPUSH_DEPLOYMENT_KEY_ANDROID', 'CODEPUSH_DEPLOYMENT_KEY_IOS'];
-const errors = [];
-const readinessIssues = [];
-const warnings = [];
+export const codePushEnvFiles = ['.env.dev.testnet', '.env.stage.mainnet', '.env.prod.mainnet', '.env.beta.testnet', '.env.beta.mainnet'];
+export const requiredCodePushEnvKeys = ['CODEPUSH_DEPLOYMENT_KEY_ANDROID', 'CODEPUSH_DEPLOYMENT_KEY_IOS'];
 
-const requireSnippet = (label, content, snippet) => {
+const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {
     errors.push(`${label} is missing "${snippet}"`);
   }
 };
 
-requireSnippet('App.tsx', appSource, 'react-native-code-push');
-requireSnippet('App.tsx', appSource, 'checkFrequency: codePush.CheckFrequency.ON_APP_RESUME');
-requireSnippet('App.tsx', appSource, 'installMode: codePush.InstallMode.IMMEDIATE');
-requireSnippet('App.tsx', appSource, 'deploymentKey: isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid');
-requireSnippet('App.tsx', appSource, '!__DEV__ && <WithCodePush />');
-requireSnippet('src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_IOS');
-requireSnippet('src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_ANDROID');
-requireSnippet('android/app/build.gradle', androidBuildGradle, 'react-native-code-push/android/codepush.gradle');
-requireSnippet('MainApplication.java', androidMainApplication, 'CodePush.getJSBundleFile()');
-requireSnippet('android strings.xml', androidStrings, 'CodePushDeploymentKey');
+export const collectCodePushReleasePathAudit = () => {
+  const androidBuildGradle = read('android/app/build.gradle');
+  const androidMainApplication = read('android/app/src/main/java/io/goldwallet/wallet/MainApplication.java');
+  const androidStrings = read('android/app/src/main/res/values/strings.xml');
+  const appSource = read('App.tsx');
+  const configSource = read('src/config/index.ts');
+  const errors = [];
+  const readinessIssues = [];
+  const warnings = [];
 
-iosInfoPlists.forEach(relativePath => {
-  requireSnippet(relativePath, read(relativePath), '$(CODEPUSH_DEPLOYMENT_KEY_IOS)');
-});
+  requireSnippet(errors, 'App.tsx', appSource, 'react-native-code-push');
+  requireSnippet(errors, 'App.tsx', appSource, 'checkFrequency: codePush.CheckFrequency.ON_APP_RESUME');
+  requireSnippet(errors, 'App.tsx', appSource, 'installMode: codePush.InstallMode.IMMEDIATE');
+  requireSnippet(errors, 'App.tsx', appSource, 'deploymentKey: isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid');
+  requireSnippet(errors, 'App.tsx', appSource, '!__DEV__ && <WithCodePush />');
+  requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_IOS');
+  requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_ANDROID');
+  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'react-native-code-push/android/codepush.gradle');
+  requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'CodePush.getJSBundleFile()');
+  requireSnippet(errors, 'android strings.xml', androidStrings, 'CodePushDeploymentKey');
 
-envFiles.forEach(relativePath => {
-  const content = read(relativePath);
-  const keys = parseEnvKeys(content);
-
-  requiredEnvKeys.forEach(key => {
-    if (!keys.has(key)) {
-      if (relativePath.startsWith('.env.beta.')) {
-        warnings.push(`${relativePath} does not define ${key}; beta release update strategy is still unconfirmed`);
-      } else {
-        readinessIssues.push(`${relativePath} is missing ${key}`);
-      }
-    }
-
-    const line = content
-      .split(/\r?\n/)
-      .find(entry => entry.trim().startsWith(`${key}=`));
-
-    if (line !== undefined && line.trim() === `${key}=`) {
-      readinessIssues.push(`${relativePath} has a blank ${key}`);
-    }
+  codePushIosInfoPlists.forEach(relativePath => {
+    requireSnippet(errors, relativePath, read(relativePath), '$(CODEPUSH_DEPLOYMENT_KEY_IOS)');
   });
-});
 
-console.log('CodePush release path audit');
+  codePushEnvFiles.forEach(relativePath => {
+    const content = read(relativePath);
+    const keys = parseEnvKeys(content);
 
-if (warnings.length > 0) {
-  console.log('Warnings:');
-  warnings.forEach(warning => console.log(`- ${warning}`));
+    requiredCodePushEnvKeys.forEach(key => {
+      if (!keys.has(key)) {
+        if (relativePath.startsWith('.env.beta.')) {
+          warnings.push(`${relativePath} does not define ${key}; beta release update strategy is still unconfirmed`);
+        } else {
+          readinessIssues.push(`${relativePath} is missing ${key}`);
+        }
+      }
+
+      const line = content
+        .split(/\r?\n/)
+        .find(entry => entry.trim().startsWith(`${key}=`));
+
+      if (line !== undefined && line.trim() === `${key}=`) {
+        readinessIssues.push(`${relativePath} has a blank ${key}`);
+      }
+    });
+  });
+
+  return {
+    errors,
+    readinessIssues,
+    warnings,
+    ready: errors.length === 0 && readinessIssues.length === 0,
+  };
+};
+
+export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date().toISOString()) => {
+  const lines = [
+    'CodePush release path audit',
+    `Generated at: ${generatedAt}`,
+    `Release path wiring valid: ${audit.errors.length === 0 ? 'yes' : 'no'}`,
+    `Release path ready for update validation: ${audit.ready ? 'yes' : 'no'}`,
+    `Warnings: ${audit.warnings.length}`,
+  ];
+
+  audit.warnings.forEach(warning => lines.push(`- ${warning}`));
+  lines.push(`Readiness issues: ${audit.readinessIssues.length}`);
+  audit.readinessIssues.forEach(issue => lines.push(`- ${issue}`));
+  lines.push(`Wiring errors: ${audit.errors.length}`);
+  audit.errors.forEach(error => lines.push(`- ${error}`));
+  lines.push('Secret values printed: no');
+  lines.push(
+    audit.ready
+      ? 'Required action: none; non-beta CodePush release path env keys are present locally.'
+      : 'Required action: provide non-empty non-beta CodePush deployment keys before claiming release update validation.',
+  );
+
+  return `${lines.join('\n')}\n`;
+};
+
+const printReport = audit => {
+  console.log('CodePush release path audit');
+
+  if (audit.warnings.length > 0) {
+    console.log('Warnings:');
+    audit.warnings.forEach(warning => console.log(`- ${warning}`));
+  }
+
+  if (audit.errors.length > 0) {
+    console.log('Release path wiring is invalid:');
+    audit.errors.forEach(error => console.log(`- ${error}`));
+    process.exitCode = 1;
+    return;
+  }
+
+  if (audit.readinessIssues.length > 0) {
+    console.log('Release path is not ready for update validation:');
+    audit.readinessIssues.forEach(issue => console.log(`- ${issue}`));
+  } else {
+    console.log('Release path env keys are present for non-beta update validation.');
+  }
+
+  console.log('CodePush release path wiring is present for non-dev runtime, Android, iOS, and env key references.');
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const audit = collectCodePushReleasePathAudit();
+  const summary = formatCodePushReleasePathSummary(audit);
+
+  mkdirSync(path.dirname(summaryPath), { recursive: true });
+  writeFileSync(summaryPath, summary);
+  printReport(audit);
+  console.log(`CodePush release path summary written to ${path.relative(root, summaryPath)}`);
 }
-
-if (errors.length > 0) {
-  console.log('Release path wiring is invalid:');
-  errors.forEach(error => console.log(`- ${error}`));
-  process.exit(1);
-}
-
-if (readinessIssues.length > 0) {
-  console.log('Release path is not ready for update validation:');
-  readinessIssues.forEach(issue => console.log(`- ${issue}`));
-} else {
-  console.log('Release path env keys are present for non-beta update validation.');
-}
-
-console.log('CodePush release path wiring is present for non-dev runtime, Android, iOS, and env key references.');

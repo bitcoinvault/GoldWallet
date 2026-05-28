@@ -43,6 +43,9 @@ export const requiredAndroidDevFiles = [
   ['scripts/sentryReleasePrereqSummaryGuard.mjs', 'Sentry release prerequisite summary guard helper'],
   ['scripts/checkSentryReleasePrereqSummary.mjs', 'Sentry release prerequisite summary artifact checker'],
   ['scripts/checkSentryReleasePrereqSummaryGuard.mjs', 'Sentry release prerequisite summary guard self-check helper'],
+  ['scripts/codePushReleasePathSummaryGuard.mjs', 'CodePush release path summary guard helper'],
+  ['scripts/checkCodePushReleasePathSummary.mjs', 'CodePush release path summary artifact checker'],
+  ['scripts/checkCodePushReleasePathSummaryGuard.mjs', 'CodePush release path summary guard self-check helper'],
 ];
 
 export const requiredAndroidDevPackageScripts = [
@@ -69,6 +72,8 @@ export const requiredAndroidDevPackageScripts = [
   'check:test-type-coupling-guard',
   'sentry:release:prereq-check-summary',
   'check:sentry-release-prereq-summary-guard',
+  'codepush:release:path-check-summary',
+  'check:codepush-release-path-summary-guard',
   'rn:baseline:preflight',
 ];
 
