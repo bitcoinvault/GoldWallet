@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.87 - Metro dev runtime audit guard
+
+- Branch: `feature/bem-36-metro-runtime-audit-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refactor `scripts/auditMetroDevRuntime.mjs` so the Metro baseline rules can be exercised by fixture tests.
+- Add `scripts/checkMetroDevRuntimeGuard.mjs`.
+- Add `check:metro-dev-runtime-audit-guard` package script and include it in `android:dev:check-light`.
+- Refresh README, Android workflow, baseline, lightweight docs guard, and this modernization log.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The real Metro audit warns when the active shell is on Node 22, which is useful before emulator smoke work but not enough as a stable lightweight gate.
+- Adding the self-check keeps the Metro baseline guard covered without requiring every branch to start from a Node 16 terminal.
+
+Validation:
+
+- `corepack yarn check:metro-dev-runtime-audit-guard` passed.
+- `corepack yarn metro:dev-runtime:audit` passed.
+- The real audit reported Node `22.18.0` as a warning because Metro/dev runtime remains documented for Node `16.20.2`.
+- `corepack yarn android:dev:check-light-docs` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed and ran `check:metro-dev-runtime-audit-guard`.
+
+Follow-up:
+
+- Use Node 16 for actual Metro sessions and emulator smoke even when command-line tooling checks run under a newer Node.
+
 ### BEM-36.86 - Metro dev runtime audit
 
 - Branch: `feature/bem-36-metro-runtime-audit`
