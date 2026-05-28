@@ -15,7 +15,7 @@ Tracked package versions:
 - `react-native-localize`: manifest `^1.4.0`, lockfile `1.4.3`
 - `react-native-randombytes`: manifest and lockfile `3.6.2`
 - `react-native-secure-key-store`: manifest `^2.0.10`, lockfile `2.0.10`
-- `react-native-tcp-socket`: manifest `^6.0.6`, lockfile `6.0.6`
+- `react-native-tcp-socket`: manifest and lockfile `6.4.1`
 - `react-native-webview`: manifest `^11.26.1`, lockfile `11.26.1`
 
 Direct usage found in this audit:
@@ -26,7 +26,7 @@ Direct usage found in this audit:
 - `react-native-config`: app environment, Electrum host/protocol, explorer URL, Sentry DSNs, CodePush keys.
 - `react-native-localize`: mocked in tests and used through localization runtime.
 - `react-native-secure-key-store`: `SecureStorageService`.
-- `react-native-tcp-socket`: TLS Electrum socket implementation.
+- `react-native-tcp-socket`: TLS Electrum socket implementation. Updated from `6.0.6` to `6.4.1` in `BEM-36.50`.
 - `react-native-webview`: terms and conditions screens.
 - `react-native-randombytes`: tracked native dependency for crypto random byte behavior even though direct source usage is indirect through wallet/crypto dependencies. Updated from `3.5.3` to `3.6.2` in `BEM-36.49`.
 
@@ -101,7 +101,7 @@ peerDependencies:
 
 - This group has high wallet risk because it touches persisted wallet data, encrypted storage, Electrum TLS sockets, env configuration, and terms WebViews.
 - `react-native-secure-key-store` is already at latest `2.0.10`; it should not be changed unless replacing the package entirely.
-- `react-native-tcp-socket` has a newer `6.4.1`, but it is directly tied to Electrum connectivity and needs emulator/device smoke plus network checks.
+- `react-native-tcp-socket` is on latest `6.4.1`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
 - `react-native-config` upgrades must preserve all current env variables used in `src/config/index.ts`.
 - AsyncStorage changes must keep Redux persist, `StoreService`, fee cache, and storage encryption tests green.
 - WebView changes need manual terms-screen checks because WebView loading is asynchronous and UI-driven.

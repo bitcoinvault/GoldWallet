@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.50 - React Native TCP Socket 6.4.1
+
+- Branch: `feature/bem-tcp-socket-6-4-1`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-tcp-socket` from locked `6.0.6` to `6.4.1`.
+- Refresh `yarn.lock`.
+- Update the native module inventory guard and storage/network audit baseline.
+- Keep Electrum socket source code unchanged.
+
+Why:
+
+- `react-native-tcp-socket` is a Group C dependency directly used by the Electrum TLS socket implementation.
+- `6.4.1` is the latest same-major version and still declares `react-native >=0.60.0`.
+- This branch keeps the update isolated from Electrum logic changes and funded transaction flow work.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+
+Follow-up:
+
+- `ios/Podfile.lock` still records the previous pod lock entry until `pod install` is run on a Mac/iOS environment. Do not claim iOS validation for this branch until that is refreshed and the affected scheme builds.
+- Funded transaction flow remains blocked until a funded BTCV testnet wallet is available; this branch only validates startup/UI and preserves existing Electrum socket source.
+
 ### BEM-36.49 - React Native RandomBytes 3.6.2
 
 - Branch: `feature/bem-randombytes-3-6-2`

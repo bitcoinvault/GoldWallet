@@ -24,7 +24,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-secure-key-store', '^2.0.10'],
   ['react-native-share', '7.9.1'],
   ['react-native-svg', '9.5.1'],
-  ['react-native-tcp-socket', '^6.0.6'],
+  ['react-native-tcp-socket', '6.4.1'],
   ['react-native-vector-icons', '6.6.0'],
   ['react-native-webview', '^11.26.1'],
 ]);
