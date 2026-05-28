@@ -8,7 +8,7 @@ Checked on: 2026-05-28
 
 Tracked package versions:
 
-- `@react-native-async-storage/async-storage`: manifest and lockfile `1.24.0`
+- `@react-native-async-storage/async-storage`: manifest and lockfile `2.2.0`
 - `@react-native-community/netinfo`: manifest and lockfile `6.2.1`
 - `react-native-device-info`: manifest and lockfile `6.2.1`
 - `react-native-config`: manifest and lockfile `1.5.9`
@@ -57,6 +57,10 @@ Latest package metadata checked during this audit:
 peerDependencies:
 - react: *
 - react-native: *
+
+@react-native-async-storage/async-storage latest checked compatible for current RN 0.68.7 Android baseline: 2.2.0
+peerDependencies:
+- react-native: ^0.0.0-0 || >=0.65 <1.0
 
 @react-native-community/netinfo latest: 12.0.1
 peerDependencies:
@@ -108,6 +112,7 @@ peerDependencies:
 ## Findings
 
 - This group has high wallet risk because it touches persisted wallet data, encrypted storage, Electrum TLS sockets, env configuration, and terms WebViews.
+- `@react-native-async-storage/async-storage` is now on checked compatible `2.2.0` after `BEM-36.74`; the latest `3.1.0` remains a separate RN-baseline/storage validation branch.
 - `@react-native-community/netinfo` is now on latest checked 6.x `6.2.1` after `BEM-36.59`; it still fits the current React Native `0.68.7` baseline according to npm peer metadata.
 - `react-native-config` is now on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected because Android compile failed on current RN `0.68.7` APIs (`BaseReactPackage` / `WritableMap.putLong`).
 - `react-native-device-info` is now pinned to the already-resolved `6.2.1` after `BEM-36.61`; it still fits the current React Native baseline according to npm peer metadata.
