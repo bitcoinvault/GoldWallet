@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.80 - iOS push readiness documentation refresh
+
+- Branch: `feature/bem-ios-push-readiness-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh release-service, iOS release-config, and native-module documentation after `BEM-37.79`.
+- Record that static iOS push bridge readiness is now clean.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- `BEM-37.79` fixed the static iOS push bridge readiness gaps, but broader planning docs still described the older pre-fix state.
+- The docs should distinguish static readiness from full APNs/token/notification behavior validation on iOS hardware or simulator.
+
+Validation:
+
+- `corepack yarn push-notification:bridge-audit` passed and reported no static readiness issues.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+
+Follow-up:
+
+- Run iOS simulator/device validation before claiming iOS push notification behavior complete.
+
 ### BEM-37.79 - iOS push notification bridge readiness
 
 - Branch: `feature/bem-ios-push-notification-bridge-readiness`

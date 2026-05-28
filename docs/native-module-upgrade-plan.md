@@ -129,7 +129,7 @@ Branch shape:
 - `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; future CodePush work should validate a non-dev release/update path and deployment-key loading.
 - `corepack yarn codepush:release:path-audit` checks the current CodePush non-dev runtime/native/env wiring before any release-path change.
 - `@react-native-community/push-notification-ios` is pinned to the already-resolved `1.10.0` after `BEM-36.71`; future iOS notification bridge work should validate badge handling, remote-notification forwarding, and iOS permission/token flows.
-- `corepack yarn push-notification:bridge-audit` checks the current iOS push notification bridge wiring before any notification bridge behavior change.
+- `corepack yarn push-notification:bridge-audit` checks the current iOS push notification bridge wiring before any notification bridge behavior change; after `BEM-37.79`, the static bridge readiness gaps are closed, while iOS runtime validation remains required on a Mac runner/device.
 - Validate Android debug startup first, then release tooling separately when secrets and store/release config are available.
 
 ### Group E - Camera And QR Scanning
