@@ -24,8 +24,6 @@
     "@types/react-native-snap-carousel": "^3.8.1",
     "@types/react-navigation": "^3.4.0",
     "@types/react-redux": "7.1.34",
-    "@types/redux-saga": "^0.10.5",
-    "@types/reselect": "^2.2.0",
     "@types/uuid": "^3.4.8",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
