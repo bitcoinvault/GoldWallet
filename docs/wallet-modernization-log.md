@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.107 - Background timer types 2.0.2
+
+- Branch: `feature/bem-36-background-timer-types-2-0-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `@types/react-native-background-timer` from the broad `^2.0.0` range, currently resolved as `2.0.0`, to `2.0.2`.
+- Refresh `yarn.lock`.
+- Keep runtime `react-native-background-timer`, `TimeoutButton` behavior, native project files, env files, Android Gradle files, Metro config, and package scripts unchanged.
+
+Why:
+
+- `react-native-background-timer` is part of the timeout-button runtime surface, so its type package should be explicit and current before larger TypeScript, Jest, React, or React Native baseline changes.
+- This is a type-only maintenance step; it does not change the runtime package used by the app.
+
+Validation:
+
+- `corepack yarn add --dev @types/react-native-background-timer@2.0.2` passed and ran postinstall.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with Node 16 and `--reset-cache`.
+- `adb reverse tcp:8081 tcp:8081` passed on `emulator-5554`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light` passed.
+
 ### BEM-36.106 - Snap carousel types 3.8.12
 
 - Branch: `feature/bem-36-snap-carousel-types-3-8-12`
