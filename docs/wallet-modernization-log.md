@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.94 - May warning baseline refresh
+
+- Branch: `feature/bem-37-warning-baseline-refresh-may-close`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Android Gradle warning audit evidence after the latest May maintenance branches.
+- Keep code, dependency versions, native project files, env files, and runtime behavior unchanged.
+- Use the generated local warning-audit artifacts in `local-docs/` as evidence only; they remain ignored and are not committed.
+
+Why:
+
+- The May maintenance baseline should close with current Gradle evidence, not only older audit output.
+- The known remaining Android warning sources should stay constrained to Sentry `execResult` and `react-native-camera` `jcenter()` before the larger follow-up branches.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The refreshed summary reported `Android Gradle audit exit code: 0`.
+- The refreshed summary reported `Android Gradle warning baseline guard exit code: 0`.
+- The refreshed summary reported `Targeted Android Gradle warnings: 2`.
+- The refreshed summary reported `Unexpected targeted Android Gradle warnings: 0`.
+- Remaining targeted sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.
+- `corepack yarn android:dev:check-warning-audit-summary` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+
+Follow-up:
+
+- Keep Sentry warning cleanup in the dedicated release/source-map validation branch.
+- Keep `react-native-camera` cleanup in the dedicated QR/camera migration branch.
+
 ### BEM-36.80 - React Redux types 7.1.34
 
 - Branch: `feature/bem-36-react-redux-types-7-1-34`
