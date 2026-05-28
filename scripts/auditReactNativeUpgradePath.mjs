@@ -11,15 +11,16 @@ const gradleWrapperProperties = read('android/gradle/wrapper/gradle-wrapper.prop
 const nvmrc = read('.nvmrc').trim();
 
 export const expectedReactNativeUpgradePathBaseline = {
-  reactNative: '0.68.7',
-  react: '17.0.2',
-  metroPreset: '0.67.0',
-  nodeRuntime: '16.20.2',
+  reactNative: '0.76.9',
+  react: '18.2.0',
+  babelPreset: '0.76.9',
+  metroConfig: '0.76.9',
+  nodeRuntime: '22.18.0',
   buildToolsVersion: '34.0.0',
   compileSdkVersion: '34',
   targetSdkVersion: '33',
-  androidGradlePlugin: '7.4.2',
-  gradleWrapper: '7.5.1',
+  androidGradlePlugin: '8.6.0',
+  gradleWrapper: '8.10.2',
 };
 
 export const expectedReactNativeBaselinePreflight =
@@ -41,15 +42,16 @@ export const requiredReactNativeUpgradePathDocs = [
 ];
 
 export const requiredReactNativeUpgradePathSnippets = [
-  ['docs/react-native-upgrade-path.md', 'React Native: `0.68.7`'],
-  ['docs/react-native-upgrade-path.md', 'React: `17.0.2`'],
-  ['docs/react-native-upgrade-path.md', 'Metro Babel preset: `0.67.0`'],
-  ['docs/react-native-upgrade-path.md', 'Metro/dev Node runtime: `16.20.2`'],
+  ['docs/react-native-upgrade-path.md', 'React Native: `0.76.9`'],
+  ['docs/react-native-upgrade-path.md', 'React: `18.2.0`'],
+  ['docs/react-native-upgrade-path.md', 'RN Babel preset: `0.76.9`'],
+  ['docs/react-native-upgrade-path.md', 'RN Metro config: `0.76.9`'],
+  ['docs/react-native-upgrade-path.md', 'Metro/dev Node runtime: `22.18.0`'],
   ['docs/react-native-upgrade-path.md', 'Android compile SDK: `34`'],
   ['docs/react-native-upgrade-path.md', 'Android target SDK: `33`'],
-  ['docs/react-native-upgrade-path.md', 'Android Gradle Plugin: `7.4.2`'],
-  ['docs/react-native-upgrade-path.md', 'Gradle wrapper: `7.5.1`'],
-  ['docs/react-native-upgrade-path.md', 'The current branch does not target a blind direct jump to the latest React Native release'],
+  ['docs/react-native-upgrade-path.md', 'Android Gradle Plugin: `8.6.0`'],
+  ['docs/react-native-upgrade-path.md', 'Gradle wrapper: `8.10.2`'],
+  ['docs/react-native-upgrade-path.md', 'The current baseline is the first RN foundation checkpoint, not the final modernization target'],
   ['docs/react-native-upgrade-path.md', 'milestone-jump path'],
   ['docs/react-native-upgrade-path.md', 'React Native foundation milestone targets are tracked in `docs/react-native-foundation-target-matrix.md`'],
   ['docs/react-native-upgrade-path.md', 'Current milestone targets are `0.76.9`, then `0.82.x`, then the current `0.85.x` line'],
@@ -69,12 +71,12 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/dependency-upgrade-strategy.md', 'The first planned milestone jump is RN `0.76.9`, not every intermediate RN minor'],
   ['docs/react-native-076-foundation-plan.md', 'react-native@0.76.9'],
   ['docs/react-native-076-foundation-plan.md', 'Do not repeat a package-only RN 0.76 branch'],
-  ['docs/react-native-076-foundation-plan.md', 'Metro restart with Node 18 and `--reset-cache`'],
+  ['docs/react-native-076-foundation-plan.md', 'Metro restart with Node 22 and `--reset-cache`'],
   ['docs/react-native-foundation-target-matrix.md', 'Milestone A: RN 0.76.9 Foundation'],
   ['docs/react-native-foundation-target-matrix.md', 'Milestone B: RN 0.82.x Foundation'],
   ['docs/react-native-foundation-target-matrix.md', 'Milestone C: RN 0.85.x Current Line'],
-  ['docs/wallet-modernization-baseline.md', 'continue with milestone jumps from RN `0.68.7` toward a current supported line'],
-  ['docs/wallet-modernization-baseline.md', 'Continue RN with milestone jumps from `0.68` toward newer supported lines'],
+  ['docs/wallet-modernization-baseline.md', 'continue with milestone jumps from RN `0.76.9` toward a current supported line'],
+  ['docs/wallet-modernization-baseline.md', 'Continue RN with milestone jumps from `0.76` toward newer supported lines'],
   ['docs/wallet-modernization-baseline.md', 'React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`'],
   ['docs/wallet-modernization-baseline.md', 'React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`'],
   ['docs/wallet-modernization-baseline.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],
@@ -120,11 +122,19 @@ export const getReactNativeUpgradePathIssues = ({
     errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current React baseline ${expectedReactNativeUpgradePathBaseline.react}`);
   }
 
-  if (devDependencies['metro-react-native-babel-preset'] !== expectedReactNativeUpgradePathBaseline.metroPreset) {
+  if (devDependencies['@react-native/babel-preset'] !== expectedReactNativeUpgradePathBaseline.babelPreset) {
     errors.push(
-      `package.json has metro-react-native-babel-preset@${
-        devDependencies['metro-react-native-babel-preset'] || '<missing>'
-      }; expected current Metro preset baseline ${expectedReactNativeUpgradePathBaseline.metroPreset}`,
+      `package.json has @react-native/babel-preset@${
+        devDependencies['@react-native/babel-preset'] || '<missing>'
+      }; expected current RN Babel preset baseline ${expectedReactNativeUpgradePathBaseline.babelPreset}`,
+    );
+  }
+
+  if (devDependencies['@react-native/metro-config'] !== expectedReactNativeUpgradePathBaseline.metroConfig) {
+    errors.push(
+      `package.json has @react-native/metro-config@${
+        devDependencies['@react-native/metro-config'] || '<missing>'
+      }; expected current RN Metro config baseline ${expectedReactNativeUpgradePathBaseline.metroConfig}`,
     );
   }
 
@@ -254,7 +264,8 @@ const printReport = environment => {
   console.log('React Native upgrade path audit');
   console.log(`react-native: ${environment.dependencies['react-native'] || '<missing>'}`);
   console.log(`react: ${environment.dependencies.react || '<missing>'}`);
-  console.log(`metro-react-native-babel-preset: ${environment.devDependencies['metro-react-native-babel-preset'] || '<missing>'}`);
+  console.log(`@react-native/babel-preset: ${environment.devDependencies['@react-native/babel-preset'] || '<missing>'}`);
+  console.log(`@react-native/metro-config: ${environment.devDependencies['@react-native/metro-config'] || '<missing>'}`);
   console.log(`.nvmrc: ${environment.nvmrc || '<missing>'}`);
   console.log(`Android build tools: ${buildToolsVersion || '<missing>'}`);
   console.log(`Android compile SDK: ${compileSdkVersion || '<missing>'}`);

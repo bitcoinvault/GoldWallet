@@ -12,7 +12,8 @@ export const expectedNodeRuntimeTransition = {
   currentNode: expectedMetroDevRuntime.nodeVersion,
   currentNodeMajor: expectedMetroDevRuntime.nodeMajor,
   currentReactNative: expectedMetroDevRuntime.reactNative,
-  currentMetroPreset: expectedMetroDevRuntime.metroPreset,
+  currentBabelPreset: expectedMetroDevRuntime.babelPreset,
+  currentMetroConfig: expectedMetroDevRuntime.metroConfig,
   targetReactNative: expectedReactNativeTargetSnapshot.npmLatestReactNative,
   targetNodeEngine: expectedReactNativeTargetSnapshot.targetNodeEngine,
 };
@@ -27,12 +28,13 @@ export const requiredNodeRuntimeTransitionDocs = [
 
 export const requiredNodeRuntimeTransitionSnippets = [
   ['docs/node-runtime-transition-audit.md', 'Node runtime transition audit'],
-  ['docs/node-runtime-transition-audit.md', 'Current Metro/dev Node runtime: `16.20.2`'],
-  ['docs/node-runtime-transition-audit.md', 'Current React Native: `0.68.7`'],
-  ['docs/node-runtime-transition-audit.md', 'Current Metro Babel preset: `0.67.0`'],
+  ['docs/node-runtime-transition-audit.md', 'Current Metro/dev Node runtime: `22.18.0`'],
+  ['docs/node-runtime-transition-audit.md', 'Current React Native: `0.76.9`'],
+  ['docs/node-runtime-transition-audit.md', 'Current RN Babel preset: `0.76.9`'],
+  ['docs/node-runtime-transition-audit.md', 'Current RN Metro config: `0.76.9`'],
   ['docs/node-runtime-transition-audit.md', 'Target React Native snapshot: `0.85.3`'],
   ['docs/node-runtime-transition-audit.md', 'Target RN Node engine snapshot: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`'],
-  ['docs/node-runtime-transition-audit.md', 'Do not change `.nvmrc` away from `16.20.2` until the dedicated React Native baseline branch owns the Metro/tooling migration.'],
+  ['docs/node-runtime-transition-audit.md', 'Keep `.nvmrc` on `22.18.0` for the RN 0.76 foundation checkpoint until the next RN milestone owns another Node/tooling move.'],
   ['docs/node-runtime-transition-audit.md', 'corepack yarn node:runtime-transition:audit'],
   ['docs/react-native-target-snapshot.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],
   ['docs/react-native-upgrade-path.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],
@@ -55,11 +57,19 @@ export const getNodeRuntimeTransitionIssues = ({ nvmrc, dependencies, devDepende
     );
   }
 
-  if (devDependencies['metro-react-native-babel-preset'] !== expectedNodeRuntimeTransition.currentMetroPreset) {
+  if (devDependencies['@react-native/babel-preset'] !== expectedNodeRuntimeTransition.currentBabelPreset) {
     errors.push(
-      `package.json has metro-react-native-babel-preset@${devDependencies['metro-react-native-babel-preset'] || '<missing>'}; expected current baseline ${
-        expectedNodeRuntimeTransition.currentMetroPreset
-      }`,
+      `package.json has @react-native/babel-preset@${
+        devDependencies['@react-native/babel-preset'] || '<missing>'
+      }; expected current baseline ${expectedNodeRuntimeTransition.currentBabelPreset}`,
+    );
+  }
+
+  if (devDependencies['@react-native/metro-config'] !== expectedNodeRuntimeTransition.currentMetroConfig) {
+    errors.push(
+      `package.json has @react-native/metro-config@${
+        devDependencies['@react-native/metro-config'] || '<missing>'
+      }; expected current baseline ${expectedNodeRuntimeTransition.currentMetroConfig}`,
     );
   }
 
@@ -108,7 +118,8 @@ const printReport = environment => {
   console.log('Node runtime transition audit');
   console.log(`Current .nvmrc: ${environment.nvmrc || '<missing>'}`);
   console.log(`Current react-native: ${environment.dependencies['react-native'] || '<missing>'}`);
-  console.log(`Current metro-react-native-babel-preset: ${environment.devDependencies['metro-react-native-babel-preset'] || '<missing>'}`);
+  console.log(`Current @react-native/babel-preset: ${environment.devDependencies['@react-native/babel-preset'] || '<missing>'}`);
+  console.log(`Current @react-native/metro-config: ${environment.devDependencies['@react-native/metro-config'] || '<missing>'}`);
   console.log(`Target React Native snapshot: ${expectedNodeRuntimeTransition.targetReactNative}`);
   console.log(`Target RN Node engine snapshot: ${expectedNodeRuntimeTransition.targetNodeEngine}`);
 
@@ -118,7 +129,7 @@ const printReport = environment => {
     process.exit(1);
   }
 
-  console.log('Node runtime transition audit matches the current Metro Node 16 baseline and RN target snapshot.');
+  console.log('Node runtime transition audit matches the current Metro Node 22 baseline and RN target snapshot.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

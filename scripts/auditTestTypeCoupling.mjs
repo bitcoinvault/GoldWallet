@@ -8,11 +8,11 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 const exists = relativePath => existsSync(path.join(root, relativePath));
 
 export const expectedTestTypeCoupling = {
-  typescript: '^4.0.3',
+  typescript: '4.9.5',
   jest: '26.6.3',
   babelJest: '^26.6.3',
   tsJest: '^26.4.1',
-  reactTestRenderer: '17.0.2',
+  reactTestRenderer: '18.2.0',
   tsTarget: 'ES2019',
   tsJsx: 'react-native',
   tsSkipLibCheck: true,
@@ -47,11 +47,11 @@ export const requiredTestTypeValidationFiles = [
 
 export const requiredTestTypeCouplingSnippets = [
   ['docs/test-type-coupling-audit.md', 'Test/type coupling audit'],
-  ['docs/test-type-coupling-audit.md', 'Current TypeScript: `^4.0.3`'],
+  ['docs/test-type-coupling-audit.md', 'Current TypeScript: `4.9.5`'],
   ['docs/test-type-coupling-audit.md', 'Current Jest: `26.6.3`'],
   ['docs/test-type-coupling-audit.md', 'Current babel-jest: `^26.6.3`'],
   ['docs/test-type-coupling-audit.md', 'Current ts-jest: `^26.4.1`'],
-  ['docs/test-type-coupling-audit.md', 'Current react-test-renderer: `17.0.2`'],
+  ['docs/test-type-coupling-audit.md', 'Current react-test-renderer: `18.2.0`'],
   ['docs/test-type-coupling-audit.md', 'Current TS JSX mode: `react-native`'],
   ['docs/test-type-coupling-audit.md', 'Current TS skipLibCheck: `true`'],
   ['docs/test-type-coupling-audit.md', 'Do not update TypeScript/Jest separately from the React/RN baseline branch that owns type/runtime behavior.'],

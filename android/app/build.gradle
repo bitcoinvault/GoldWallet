@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "com.facebook.react"
 apply plugin: 'com.google.firebase.crashlytics'
 
 
@@ -25,14 +26,51 @@ project.ext.react = [
     deleteDebugFilesForVariant: { false }
 ]
 
+react {
+    entryFile = file("../../index.js")
+    autolinkLibrariesWithApp()
+}
+
+android.applicationVariants.all { variant ->
+    if (variant.buildType.name != "debug") {
+        return
+    }
+    def targetName = variant.name.capitalize()
+    def legacyBundleTaskName = "bundle${targetName}JsAndAssets"
+    def rnBundleTaskName = "createBundle${targetName}JsAndAssets"
+    if (tasks.findByName(legacyBundleTaskName) == null) {
+        tasks.register(legacyBundleTaskName) {
+            dependsOn(rnBundleTaskName)
+        }
+    }
+}
+
+tasks.configureEach { task ->
+    if (task.name.startsWith("createBundle") && task.name.endsWith("JsAndAssets")) {
+        task.ext.root = project.objects.directoryProperty().convention(rootProject.layout.projectDirectory.dir(".."))
+    }
+}
+
 project.ext.sentryCli = [
     logLevel: "debug"
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
 apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
 apply from: "../../node_modules/@sentry/react-native/sentry.gradle"
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+
+gradle.projectsEvaluated {
+    tasks.matching { task ->
+        task.name.startsWith("recordFilesBeforeBundleCommand") && task.name.endsWith("Debug")
+    }.configureEach { task ->
+        task.enabled = false
+    }
+    tasks.matching { task ->
+        task.name.startsWith("generateBundledResourcesHash") && task.name.endsWith("Debug")
+    }.configureEach { task ->
+        task.enabled = false
+    }
+}
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -171,9 +209,8 @@ repositories {
 
 dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.3'
-    implementation 'com.facebook.soloader:soloader:0.9.0+'
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation("com.facebook.react:react-android")
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     implementation platform('com.google.firebase:firebase-bom:28.2.0')
     androidTestImplementation('com.wix:detox:18.20.1')
@@ -208,4 +245,3 @@ task copyDownloadableDepsToLibs(type: Copy) {
 }
 
 apply plugin: 'com.google.gms.google-services'
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

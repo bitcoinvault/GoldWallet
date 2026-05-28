@@ -19,6 +19,8 @@ import config from './src/config';
 
 const i18n = require('./loc');
 
+const TypedI18nextProvider = I18nextProvider as React.ComponentType<React.PropsWithChildren<{ i18n: typeof i18n }>>;
+
 LogBox.ignoreAllLogs(process.env.LOG_BOX_IGNORE === 'true');
 
 const sentryOptions = {
@@ -75,7 +77,7 @@ class App extends React.PureComponent {
     return (
       <>
         {!__DEV__ && <WithCodePush />}
-        <I18nextProvider i18n={i18n}>
+        <TypedI18nextProvider i18n={i18n}>
           <Provider store={store}>
             <AppStateManager
               handleAppComesToForeground={this.setUnlockScreenKey}
@@ -89,7 +91,7 @@ class App extends React.PureComponent {
             </PersistGate>
           </Provider>
           <Toast ref={ref => Toast.setRef(ref)} />
-        </I18nextProvider>
+        </TypedI18nextProvider>
       </>
     );
   }

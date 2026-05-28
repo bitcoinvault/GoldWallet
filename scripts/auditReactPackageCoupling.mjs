@@ -8,10 +8,10 @@ const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
 export const expectedReactPackageCoupling = {
-  react: '17.0.2',
-  reactTypes: '^16.9.31',
+  react: '18.2.0',
+  reactTypes: '18.2.6',
   reactNativeTypes: '^0.63.37',
-  reactTestRenderer: '17.0.2',
+  reactTestRenderer: '18.2.0',
   targetReactPeer: '^19.2.3',
 };
 
@@ -24,10 +24,10 @@ export const requiredReactPackageCouplingDocs = [
 
 export const requiredReactPackageCouplingSnippets = [
   ['docs/react-package-coupling-audit.md', 'React package coupling audit'],
-  ['docs/react-package-coupling-audit.md', 'Current React: `17.0.2`'],
-  ['docs/react-package-coupling-audit.md', 'Current React types: `^16.9.31`'],
+  ['docs/react-package-coupling-audit.md', 'Current React: `18.2.0`'],
+  ['docs/react-package-coupling-audit.md', 'Current React types: `18.2.6`'],
   ['docs/react-package-coupling-audit.md', 'Current React Native types: `^0.63.37`'],
-  ['docs/react-package-coupling-audit.md', 'Current react-test-renderer: `17.0.2`'],
+  ['docs/react-package-coupling-audit.md', 'Current react-test-renderer: `18.2.0`'],
   ['docs/react-package-coupling-audit.md', 'Target React peer from RN target snapshot: `^19.2.3`'],
   ['docs/react-package-coupling-audit.md', 'Do not update React without updating `react-test-renderer` and `@types/react` in the same React/RN baseline branch.'],
   ['docs/react-package-coupling-audit.md', 'corepack yarn react:package-coupling:audit'],
@@ -136,7 +136,7 @@ const printReport = environment => {
     process.exit(1);
   }
 
-  console.log('React package coupling audit matches the current React 17 baseline and RN target snapshot.');
+  console.log('React package coupling audit matches the current React 18 baseline and RN target snapshot.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

@@ -8,9 +8,11 @@ import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
+import com.facebook.react.soloader.OpenSourceMergedSoMapping;
 import com.microsoft.codepush.react.CodePush;
 import com.facebook.soloader.SoLoader;
 import io.goldwallet.PreventScreenshotPackage;
+import java.io.IOException;
 import java.util.List;
 import java.lang.reflect.InvocationTargetException;
 import okhttp3.OkHttpClient;
@@ -51,8 +53,13 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
       super.onCreate();
-      SoLoader.init(this, /* native exopackage */ false);
-      initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+      try {
+        SoLoader.init(this, OpenSourceMergedSoMapping.INSTANCE);
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to initialize SoLoader", e);
+      }
+      // The legacy Flipper bootstrap references Fresco classes that are no longer
+      // bundled by the RN 0.76 debug runtime.
     }
   
     /**

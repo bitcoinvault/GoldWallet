@@ -8,9 +8,9 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 export const expectedReactNativeTargetSnapshot = {
   snapshotDate: '2026-05-28',
-  currentReactNative: '0.68.7',
-  currentReact: '17.0.2',
-  currentNode: '16.20.2',
+  currentReactNative: '0.76.9',
+  currentReact: '18.2.0',
+  currentNode: '22.18.0',
   npmLatestReactNative: '0.85.3',
   npmNextReactNative: '0.86.0-rc.2',
   targetReactPeer: '^19.2.3',
@@ -19,9 +19,9 @@ export const expectedReactNativeTargetSnapshot = {
 
 export const requiredReactNativeTargetSnapshotSnippets = [
   ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-05-28`'],
-  ['docs/react-native-target-snapshot.md', 'Current repo React Native: `0.68.7`'],
-  ['docs/react-native-target-snapshot.md', 'Current repo React: `17.0.2`'],
-  ['docs/react-native-target-snapshot.md', 'Current repo Metro/dev Node runtime: `16.20.2`'],
+  ['docs/react-native-target-snapshot.md', 'Current repo React Native: `0.76.9`'],
+  ['docs/react-native-target-snapshot.md', 'Current repo React: `18.2.0`'],
+  ['docs/react-native-target-snapshot.md', 'Current repo Metro/dev Node runtime: `22.18.0`'],
   ['docs/react-native-target-snapshot.md', 'npm `latest`: `0.85.3`'],
   ['docs/react-native-target-snapshot.md', 'npm `next`: `0.86.0-rc.2`'],
   ['docs/react-native-target-snapshot.md', 'React peer for `react-native@0.85.3`: `^19.2.3`'],

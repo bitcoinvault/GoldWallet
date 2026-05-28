@@ -1,6 +1,9 @@
-const defaultSourceExts = require('metro-config/src/defaults/defaults').sourceExts;
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 
-module.exports = {
+const defaultConfig = getDefaultConfig(__dirname);
+const defaultSourceExts = defaultConfig.resolver.sourceExts;
+
+module.exports = mergeConfig(defaultConfig, {
   resolver: {
     sourceExts: process.env.RN_SRC_EXT
       ? process.env.RN_SRC_EXT.split(',').concat(defaultSourceExts)
@@ -22,4 +25,4 @@ module.exports = {
       },
     },
   },
-};
+});

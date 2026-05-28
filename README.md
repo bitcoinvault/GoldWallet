@@ -7,7 +7,7 @@ The first ever Bitcoin Vault wallet.
 
 ## Prerequisites
 
-* Node.js `16.20.2` is the current development runtime. Use the version from `.nvmrc`.
+* Node.js `22.18.0` is the current development runtime. Use the version from `.nvmrc`.
 * Yarn `1.22.x` via Corepack.
 * For Android: 
     * Java SE Development Kit (JDK) 17 for local modernization work. The Android build guard allows JDK 11-17.
@@ -127,7 +127,7 @@ To verify that the documented Metro runtime baseline is still aligned with the r
 $ yarn metro:dev-runtime:audit
 ```
 
-The lightweight check includes a Metro dev runtime audit self-check so fixture coverage stays stable even when the active shell is not using Node 16.
+The lightweight check includes a Metro dev runtime audit self-check so fixture coverage stays stable even when the active shell is not using Node 22.
 
 For Android development verification, start Metro first:
 

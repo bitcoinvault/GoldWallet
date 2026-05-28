@@ -4,10 +4,25 @@ import 'react-native-get-random-values';
 import 'intl';
 import 'intl/locale-data/jsonp/en';
 import './shim.js';
-import { AppRegistry, LogBox } from 'react-native';
+import { ImagePropTypes, TextPropTypes, ViewPropTypes } from 'deprecated-react-native-prop-types';
+import { AppRegistry, Image, LogBox, Text, View } from 'react-native';
 
-import Main from './Main';
 import config from './src/config';
+
+const defineLegacyPropTypes = (Component, propTypes) => {
+  if (!Component.propTypes) {
+    Object.defineProperty(Component, 'propTypes', {
+      configurable: true,
+      get: () => propTypes,
+    });
+  }
+};
+
+defineLegacyPropTypes(View, ViewPropTypes);
+defineLegacyPropTypes(Text, TextPropTypes);
+defineLegacyPropTypes(Image, ImagePropTypes);
+
+const Main = require('./Main').default;
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',

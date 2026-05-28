@@ -11,11 +11,11 @@ const validDocs = requiredReact19ImpactSnippets.reduce((docs, [relativePath, sni
 
 const validEnvironment = {
   dependencies: {
-    react: '17.0.2',
+    react: '18.2.0',
   },
   devDependencies: {
-    '@types/react': '^16.9.31',
-    'react-test-renderer': '17.0.2',
+    '@types/react': '18.2.6',
+    'react-test-renderer': '18.2.0',
   },
   scripts: {
     'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',

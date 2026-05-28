@@ -1,6 +1,6 @@
 # Native Module Upgrade Plan
 
-This plan scopes `BEM-36 - Native modules upgrade` after the React Native `0.68.7` step.
+This plan scopes `BEM-36 - Native modules upgrade` after the React Native `0.76.9` step.
 
 The current dependency inventory is guarded by:
 
@@ -10,11 +10,11 @@ corepack yarn check:native-module-inventory
 
 If a native dependency version changes, update `scripts/nativeModuleInventoryGuard.mjs`, this plan, and the branch notes in `docs/wallet-modernization-log.md` in the same mini-branch.
 
-React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.68.7` branch. Run `corepack yarn rn:baseline:preflight` before an RN baseline branch so the current native-module, release-service, Metro, RN target snapshot, and warning-source audits are checked together.
+React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.76.9` branch. Run `corepack yarn rn:baseline:preflight` before an RN baseline branch so the current native-module, release-service, Metro, RN target snapshot, and warning-source audits are checked together.
 
 ## Current Constraints
 
-- Keep Metro/dev runtime on Node 16.
+- Keep Metro/dev runtime on Node 22.
 - Use JDK 17 for Android build and smoke validation.
 - Keep `react-native-camera` replacement separate from small native module cleanup branches.
 - Keep Sentry SDK/release source-map changes separate from small native module cleanup branches.
@@ -27,7 +27,7 @@ React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use
 
 - `@react-native-clipboard/clipboard` -> `1.11.2`
 - `react-native-biometrics` -> `3.0.1`
-- `react-native-screens` -> `3.22.1`
+- `react-native-screens` -> `4.5.0`
 - `react-native-share` -> `7.9.1`
 - `jail-monkey` -> `2.8.5`
 
@@ -43,9 +43,9 @@ Current expectation:
 - `@react-native-community/masked-view` -> `0.1.11`
 - `react-native-bootsplash` -> `3.2.7`
 - `react-native-fast-image` -> `8.6.3`
-- `react-native-safe-area-context` -> `3.4.1`
+- `react-native-safe-area-context` -> `5.8.0`
 - `react-native-screens`
-- `react-native-svg` -> `12.5.1`
+- `react-native-svg` -> `15.15.5`
 - `react-native-vector-icons` -> `6.7.0`
 - `@react-native-community/toolbar-android` -> `0.2.1` as the bundle-time peer dependency needed by `react-native-vector-icons@6.7.0`
 
@@ -63,8 +63,8 @@ Branch shape:
 - Validate TypeScript, Android build, emulator dashboard smoke, wallet list, send/receive navigation, and QR display.
 - `react-native-bootsplash` is on latest checked `3.2.7` after `BEM-36.54`; future splash work should focus on launch-screen behavior and RN baseline changes, not another 3.x bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
-- `react-native-safe-area-context` is on latest checked `3.4.1` after `BEM-36.56`; future safe-area work should focus on RN baseline changes and layout validation.
-- `react-native-svg` is on checked `12.5.1` after `BEM-36.57`, paired with `react-native-qrcode-svg@6.1.1` and root `qrcode@1.4.4` resolution to keep the QR renderer peer dependency aligned on the current RN baseline without the `TextEncoder` runtime regression found with freshly resolved `qrcode@1.5.4`.
+- `react-native-safe-area-context` is on checked `5.8.0` after `BEM-36.119`; future safe-area work should focus on layout validation and the next RN baseline.
+- `react-native-svg` is on checked `15.15.5` after `BEM-36.119`, paired with `react-native-qrcode-svg@6.1.1` and root `qrcode@1.4.4` resolution to keep the QR renderer peer dependency aligned without the `TextEncoder` runtime regression found with freshly resolved `qrcode@1.5.4`.
 - For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
 - `react-native-fast-image` is on latest checked `8.6.3` after `BEM-36.53`; future image work should focus on cached image behavior and any RN baseline-driven replacement rather than another 8.x package bump.
 - `react-native-vector-icons` is already on the latest checked 6.x line after `BEM-36.52`; `@react-native-community/toolbar-android` is tracked because that package line requires it at bundle time. The declared `^0.1.0-rc.1` peer did not compile on the current Android baseline, while `0.2.1` did; a future per-icon-family migration should be a dedicated branch.
@@ -99,7 +99,7 @@ Branch shape:
 - `@react-native-community/netinfo` is on latest checked 6.x `6.2.1` after `BEM-36.59`; future NetInfo work should focus on Electrum/network behavior and RN baseline changes rather than another blind package bump.
 - `@react-native-async-storage/async-storage` is on checked compatible `2.2.0` after `BEM-36.74`; future AsyncStorage work should focus on persistence behavior and RN baseline changes rather than a direct jump to latest `3.x`.
 - `react-native-background-timer` is pinned to the already-resolved `2.4.1` after `BEM-36.67`; future timer work should validate timeout-button behavior and wait for a broader RN/runtime baseline.
-- `react-native-config` is on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected on the current RN `0.68.7` Android baseline because it requires newer React Native Android APIs. Future config work should focus on flavor/env behavior, release-service keys, and platform validation rather than another package bump.
+- `react-native-config` is on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected on the current RN `0.76.9` Android baseline because it requires newer React Native Android APIs. Future config work should focus on flavor/env behavior, release-service keys, and platform validation rather than another package bump.
 - `react-native-device-info` is pinned to the already-resolved `6.2.1` after `BEM-36.61`; future device metadata work should focus on emulator/device detection behavior and RN baseline changes.
 - `react-native-exit-app` is pinned to the already-resolved `1.1.0` after `BEM-36.68`; future exit-app work should validate factory reset and terms rejection behavior.
 - `react-native-localize` is pinned to the already-resolved `1.4.3` after `BEM-36.62`; future localization work should focus on app language behavior and RN baseline changes.

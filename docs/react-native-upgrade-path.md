@@ -15,17 +15,18 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 
 ## Current Baseline
 
-- React Native: `0.68.7`
-- React: `17.0.2`
-- Metro Babel preset: `0.67.0`
-- Metro/dev Node runtime: `16.20.2`
+- React Native: `0.76.9`
+- React: `18.2.0`
+- RN Babel preset: `0.76.9`
+- RN Metro config: `0.76.9`
+- Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `34`
 - Android target SDK: `33`
 - Android build tools: `34.0.0`
-- Android Gradle Plugin: `7.4.2`
-- Gradle wrapper: `7.5.1`
+- Android Gradle Plugin: `8.6.0`
+- Gradle wrapper: `8.10.2`
 
-The current branch does not target a blind direct jump to the latest React Native release. It also should not walk every minor version one by one. The goal is a controlled milestone-jump path toward a current supported React Native line after the dependency and native tooling blockers are understood.
+The current baseline is the first RN foundation checkpoint, not the final modernization target. It also should not walk every minor version one by one. The goal is a controlled milestone-jump path toward a current supported React Native line after the dependency and native tooling blockers are understood.
 
 Current Android template/toolchain baseline intentionally compiles with SDK 34 while keeping target SDK 33. Target SDK 34 should move only with the React Native/toolchain path that resolves Android 14+ debug receiver requirements.
 
@@ -45,7 +46,7 @@ Current Android template/toolchain baseline intentionally compiles with SDK 34 w
 3. Keep Sentry Gradle/source-map cleanup scoped to a dedicated release tooling branch.
 4. Keep Firebase major-family upgrade scoped to a dedicated release-service branch.
 5. Keep native module groups aligned with `docs/native-module-upgrade-plan.md`.
-6. Keep Node 16 as the Metro/dev runtime until the RN baseline step intentionally changes it.
+6. Keep the Metro/dev runtime aligned with `.nvmrc` and RN package engine requirements before each RN milestone jump.
 
 ## Proposed RN Step Shape
 

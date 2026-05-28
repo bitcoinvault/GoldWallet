@@ -17,7 +17,8 @@ const validEnvironment = {
     'react-native': expectedReactNativeUpgradePathBaseline.reactNative,
   },
   devDependencies: {
-    'metro-react-native-babel-preset': expectedReactNativeUpgradePathBaseline.metroPreset,
+    '@react-native/babel-preset': expectedReactNativeUpgradePathBaseline.babelPreset,
+    '@react-native/metro-config': expectedReactNativeUpgradePathBaseline.metroConfig,
   },
   scripts: {
     'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
@@ -72,7 +73,7 @@ assertRejected(
   { ...validEnvironment, dependencies: { ...validEnvironment.dependencies, 'react-native': '0.69.0' } },
   'react-native@0.69.0',
 );
-assertRejected('Wrong Node runtime fixture', { ...validEnvironment, nvmrc: '18.20.0' }, '.nvmrc is 18.20.0');
+assertRejected('Wrong Node runtime fixture', { ...validEnvironment, nvmrc: '20.19.4' }, '.nvmrc is 20.19.4');
 assertRejected(
   'Wrong target SDK fixture',
   {
@@ -84,7 +85,7 @@ assertRejected(
 assertRejected(
   'Wrong Gradle wrapper fixture',
   { ...validEnvironment, gradleWrapperProperties: 'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-all.zip' },
-  'Gradle wrapper 7.5.1',
+  'Gradle wrapper 8.10.2',
 );
 assertRejected(
   'Missing RN baseline preflight package script fixture',

@@ -4,14 +4,15 @@ This plan scopes the first React Native foundation milestone. It must be treated
 
 ## Current Baseline
 
-- React Native: `0.68.7`
-- React: `17.0.2`
-- Metro Babel preset: `0.67.0`
-- Metro/dev Node runtime: `16.20.2`
+- React Native: `0.76.9`
+- React: `18.2.0`
+- RN Babel preset: `0.76.9`
+- RN Metro config: `0.76.9`
+- Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `34`
 - Android target SDK: `33`
-- Android Gradle Plugin: `7.4.2`
-- Gradle wrapper: `7.5.1`
+- Android Gradle Plugin: `8.6.0`
+- Gradle wrapper: `8.10.2`
 
 ## Target Package Set
 
@@ -38,7 +39,7 @@ Important metadata:
 
 The RN `0.76.9` branch must include the template/native migration that was missing from the package-only probe:
 
-- Node/dev runtime move from Node 16 to Node 18 for Metro and RN tooling.
+- Node/dev runtime move from the old Node 16 baseline to Node 22 for Metro and RN tooling.
 - Babel config migration from `metro-react-native-babel-preset` to the RN 0.76 preset stack.
 - Metro config migration to the RN 0.76 Metro config package.
 - Android Gradle settings and plugin wiring for `@react-native/gradle-plugin`.
@@ -83,7 +84,7 @@ Then apply the RN `0.76.9` package and template changes in one branch. If the br
 - `corepack yarn typescript:check`
 - `git diff --check`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
-- Metro restart with Node 18 and `--reset-cache`.
+- Metro restart with Node 22 and `--reset-cache`.
 - Install dev APK on emulator, run `adb reverse tcp:8081 tcp:8081`, launch the app, and inspect UI/logcat.
 - Smoke pass: dashboard renders `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no AndroidRuntime crash; no React Native runtime/bundle error.
 

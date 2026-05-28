@@ -16,7 +16,8 @@ const validEnvironment = {
     'react-native': expectedNodeRuntimeTransition.currentReactNative,
   },
   devDependencies: {
-    'metro-react-native-babel-preset': expectedNodeRuntimeTransition.currentMetroPreset,
+    '@react-native/babel-preset': expectedNodeRuntimeTransition.currentBabelPreset,
+    '@react-native/metro-config': expectedNodeRuntimeTransition.currentMetroConfig,
   },
   scripts: {
     'node:runtime-transition:audit': 'node scripts/auditNodeRuntimeTransition.mjs',
@@ -46,16 +47,16 @@ const assertRejected = (label, environment, expectedError) => {
 };
 
 assertAccepted('Valid Node runtime transition fixture', validEnvironment);
-assertRejected('Wrong current Node fixture', { ...validEnvironment, nvmrc: '22.18.0' }, '.nvmrc is 22.18.0');
+assertRejected('Wrong current Node fixture', { ...validEnvironment, nvmrc: '20.19.4' }, '.nvmrc is 20.19.4');
 assertRejected(
   'Wrong React Native fixture',
   { ...validEnvironment, dependencies: { ...validEnvironment.dependencies, 'react-native': expectedNodeRuntimeTransition.targetReactNative } },
   `react-native@${expectedNodeRuntimeTransition.targetReactNative}`,
 );
 assertRejected(
-  'Wrong Metro preset fixture',
-  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'metro-react-native-babel-preset': '0.85.0' } },
-  'metro-react-native-babel-preset@0.85.0',
+  'Wrong RN Babel preset fixture',
+  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@react-native/babel-preset': '0.85.0' } },
+  '@react-native/babel-preset@0.85.0',
 );
 assertRejected(
   'Missing package script fixture',
