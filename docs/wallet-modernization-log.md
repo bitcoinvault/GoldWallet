@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.84 - Android env audit README guard
+
+- Branch: `feature/bem-36-android-env-audit-readme-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Document `android:dev:env-audit` in `README.md`.
+- Extend `scripts/checkAndroidLightDocs.mjs` so README, workflow, and baseline docs must mention the environment audit.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- `BEM-36.83` added an executable Android environment audit, but README is the first place developers check before build/smoke work.
+- The lightweight docs guard should catch future documentation drift around the new preflight command.
+
+Validation:
+
+- `corepack yarn android:dev:check-light-docs` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Keep using `android:dev:env-audit` before Android build/smoke work when the active terminal or machine changes.
+
 ### BEM-36.83 - Android dev environment audit
 
 - Branch: `feature/bem-36-android-dev-env-audit`

@@ -52,7 +52,9 @@ const docs = [
   {
     path: 'README.md',
     terms: [
+      'android:dev:env-audit',
       'android:dev:check-light',
+      'Java/SDK/ADB toolchain',
       'CodePush usage',
       'Firebase usage',
       'iOS push notification bridge',
@@ -69,6 +71,8 @@ const docs = [
   {
     path: 'docs/android-modernization-workflow.md',
     terms: [
+      'android:dev:env-audit',
+      'active Node version',
       'CodePush usage guard self-check',
       'Firebase usage guard self-check',
       'iOS push notification usage guard self-check',
@@ -93,6 +97,7 @@ const docs = [
   {
     path: 'docs/wallet-modernization-baseline.md',
     terms: [
+      'android:dev:env-audit',
       'CodePush usage self-check/inventory guard',
       'Firebase usage self-check/inventory guard',
       'iOS push notification usage self-check/inventory guard',
