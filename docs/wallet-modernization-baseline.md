@@ -137,7 +137,7 @@ Known gaps:
 - Some tests call public or staging Electrum endpoints.
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
 - Full wallet flow QA is still required: create/import wallet, PIN, biometrics, send, receive, QR scan, history, authenticator, recovery flows.
-- Remaining targeted Android warning sources were last refreshed in `BEM-37.70`: `react-native-camera` `jcenter()` and Sentry `execResult`; unexpected targeted warning count was `0`.
+- Remaining targeted Android warning sources were last refreshed in `BEM-37.73`: `react-native-camera` `jcenter()` and Sentry `execResult`; unexpected targeted warning count was `0`.
 
 ## Recommended Upgrade Order
 

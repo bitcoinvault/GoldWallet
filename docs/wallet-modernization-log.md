@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.73 - Android warning audit refresh after guard updates
+
+- Branch: `feature/bem-warning-audit-refresh-after-guards`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the Android Gradle warning audit on JDK 17 after adding the Sentry release integration guard and legacy Android autolink guard.
+- Refresh the modernization baseline note for the latest warning-audit evidence.
+- Keep code, dependency versions, native project files, and runtime behavior unchanged.
+
+Why:
+
+- `android:dev:check-light` now covers additional guard groups, but the real Gradle warning audit remains the authoritative evidence for the current Android warning baseline.
+- The next camera/Sentry cleanup work should start from current Gradle output after the latest guard changes.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed.
+- The refreshed audit reported `Targeted Android Gradle warnings: 2`.
+- Remaining targeted sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.
+- The audit reported `Android Gradle warning baseline guard exit code: 0`, so no unexpected targeted warning source was introduced.
+
+Follow-up:
+
+- Keep Sentry Gradle/source-map behavior in a dedicated release tooling branch.
+- Keep `react-native-camera` replacement in the dedicated QR scanner migration branch.
+
 ### BEM-36.72 - Legacy Android autolink guard
 
 - Branch: `feature/bem-legacy-android-autolink-guard`
