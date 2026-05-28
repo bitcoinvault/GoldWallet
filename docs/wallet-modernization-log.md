@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.66 - Masked View manifest pin
+
+- Branch: `feature/bem-masked-view-0-1-11-manifest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `@react-native-community/masked-view` manifest from `^0.1.10` to the already-resolved lockfile version `0.1.11`.
+- Refresh the lockfile selector for the exact dependency.
+- Add `@react-native-community/masked-view` to the native module inventory guard.
+- Update the native module upgrade plan and navigation compatibility audit.
+- Keep source usage, Android/iOS native project files, and runtime behavior unchanged.
+
+Why:
+
+- The repo was already installing `@react-native-community/masked-view@0.1.11`, but the manifest allowed dependency drift in the navigation/layout native surface.
+- The community package line is deprecated in favor of `@react-native-masked-view/masked-view`; this branch deliberately avoids that package migration and only freezes the current working version.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn android:dev:check-light` passed, including TypeScript, native module guards, RN nodeify shims, and whitespace checks.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed with `BUILD SUCCESSFUL`.
+- Metro was restarted with `--reset-cache` before emulator validation.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed on emulator `emulator-5554`; UI contained `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+- Targeted logcat check found no fatal Android/React Native/Masked View runtime errors; Electrum connected to `electrumx.testnet.btcv.stage.rnd.land`.
+
+Follow-up:
+
+- Treat migration to `@react-native-masked-view/masked-view` as a dedicated navigation validation branch with stack/header transition checks.
+
 ### BEM-36.65 - React Native Gesture Handler manifest pin
 
 - Branch: `feature/bem-gesture-handler-1-10-3-manifest`
