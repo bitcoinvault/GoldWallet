@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.86 - Metro dev runtime audit
+
+- Branch: `feature/bem-36-metro-runtime-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditMetroDevRuntime.mjs`.
+- Add `metro:dev-runtime:audit` package script.
+- Document the audit in README, Android workflow, baseline, and this modernization log.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The current React Native/Metro dev runtime is documented for Node 16, while the active shell can drift to Node 22.
+- Before Android emulator smoke work, the Metro runtime baseline should be auditable without starting Metro.
+
+Validation:
+
+- `corepack yarn metro:dev-runtime:audit` passed.
+- The audit reported Node `22.18.0` as a warning because Metro/dev runtime remains documented for Node `16.20.2`.
+- The audit confirmed `.nvmrc` `16.20.2`, `react-native@0.68.7`, `metro-react-native-babel-preset@0.67.0`, and `start` script `react-native start`.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Use Node 16 for actual Metro sessions and emulator smoke even when command-line tooling checks run under a newer Node.
+
 ### BEM-36.85 - Android dev environment audit guard
 
 - Branch: `feature/bem-36-android-env-audit-guard`
