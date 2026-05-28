@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.77 - Lodash types 4.14.202
+
+- Branch: `feature/bem-36-lodash-types-4-14-202`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `@types/lodash` from the broad `^4.14.162` manifest range to `4.14.202`.
+- Refresh `yarn.lock`.
+- Keep runtime `lodash`, application code, native project files, env files, and Android project files unchanged.
+
+Why:
+
+- Keep the TypeScript metadata for Lodash current within the newest compatible `4.14.x` line for this repo's TypeScript `4.4.2` compiler.
+- Reduce future lockfile drift by pinning the dev-only type package to the validated version.
+- `@types/lodash@4.17.24` was tested first and rejected because it requires newer TypeScript syntax than the current compiler accepts.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes dev type metadata and the lockfile, with no runtime, native, Metro, or application-code changes.
+
+Follow-up:
+
+- Runtime `lodash` remains `4.17.21`; any runtime package update should be handled as a separate, validated branch.
+
 ### BEM-36.76 - Calendar types pin
 
 - Branch: `feature/bem-36-calendar-types-cleanup`
