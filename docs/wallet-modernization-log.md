@@ -6327,3 +6327,27 @@ Validation:
 - Metro restarted with `react-native start --reset-cache --port 8081`.
 - Emulator smoke on `emulator-5554`: installed `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk`, ran `adb reverse tcp:8081 tcp:8081`, launched `io.goldwallet.wallet.dev`, confirmed `MainActivity` foreground, Metro bundled `./index.js`, React Native logged `Running "GoldWallet"`, and logcat showed no fatal AndroidRuntime or React Native bundle/runtime errors for the app.
 - Smoke artifacts: `local-docs/uuid9-compat-smoke.png`, `local-docs/metro-uuid9-compat.log`.
+
+### BEM-36.111 - Layered dependency upgrade strategy
+
+- Branch: `feature/bem-36-upgrade-strategy`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/dependency-upgrade-strategy.md`.
+- Replace one-package-at-a-time upgrade selection with a layered strategy.
+- Define foundation, native module, wallet/crypto runtime, pure JS, and tooling cohorts.
+
+Why:
+
+- The `uuid` and `bip39` latest checks show that current blockers are often caused by the old React Native/Metro/Babel/runtime baseline, not by a single library's API.
+- Jumping dependency by dependency wastes time when many latest versions require the same foundation upgrade first.
+- Cohort branches make validation stronger and faster because related packages share the same risk profile.
+
+Validation:
+
+- Documentation-only strategy branch.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
