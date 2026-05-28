@@ -3582,10 +3582,10 @@
   resolved "https://registry.yarnpkg.com/@types/crypto-js/-/crypto-js-3.1.47.tgz#36e549dd3f1322742a3a738e7c113ebe48221860"
   integrity sha512-eI6gvpcGHLk3dAuHYnRCAjX+41gMv1nz/VP55wAe5HtmAKDOoPSfr3f6vkMc08ov1S0NsjvUBxDtHHxqQY1LGA==
 
-"@types/ecurve@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@types/ecurve/-/ecurve-1.0.0.tgz#0d1fce022d8bab2bc4bab28c5d781b64210018c4"
-  integrity sha1-DR/OAi2LqyvEurKMXXgbZCEAGMQ=
+"@types/ecurve@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@types/ecurve/-/ecurve-1.0.3.tgz#b8e43bbfca4e3c433d557d5bd030d6797b5587ef"
+  integrity sha512-u4vAyBNeKKyPbrXEOaJ83XOHp5korRsNUR1zmN8Uc99+QTb3Dwg3h7agf9fBIRdPagEG9rkphC8hCk2qSi3/Gg==
   dependencies:
     "@types/bigi" "*"
     "@types/node" "*"
