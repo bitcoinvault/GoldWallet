@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.89 - React Native upgrade path Android baseline guard
+
+- Branch: `feature/bem-36-rn-upgrade-path-android-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend `scripts/auditReactNativeUpgradePath.mjs` to check `.nvmrc`, Android build tools, compile SDK, target SDK, Android Gradle Plugin, and Gradle wrapper baselines.
+- Refresh `docs/react-native-upgrade-path.md` with the Android template/toolchain baseline used before the next RN step.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The RN upgrade path should be tied to real repository values, not only documentation snippets.
+- `compileSdkVersion 34` with `targetSdkVersion 33` is intentional for the current RN `0.68.7` branch; target SDK 34 remains a later RN/toolchain step.
+
+Validation:
+
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn android:dev:check-light-docs` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed and ran the expanded RN upgrade path audit.
+
+Follow-up:
+
+- Re-check and intentionally update this audit when a dedicated RN baseline branch changes Node, Gradle, Android target SDK, or React Native versions.
+
 ### BEM-36.88 - React Native upgrade path audit
 
 - Branch: `feature/bem-36-rn-upgrade-path-audit`
