@@ -52,7 +52,7 @@ Target direction:
 - Keep the current Metro/dev runtime on Node 16.
 - Use JDK 17 for local Android modernization work.
 - Defer `targetSdkVersion 34` until a later React Native/toolchain step, because the current branch intentionally stays on target SDK 33.
-- React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue stepwise from RN `0.68.7` toward a current supported line instead of jumping directly to latest.
+- React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.68.7` toward a current supported line instead of walking every minor version or jumping blindly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
 - The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
@@ -169,7 +169,7 @@ Known gaps:
 2. Replace deprecated `react-native-camera` in a dedicated QR scanner migration branch.
 3. Handle Sentry Gradle/source-map behavior in a dedicated release tooling branch.
 4. Upgrade native modules in controlled groups using `docs/native-module-upgrade-plan.md`.
-5. Continue RN stepwise from `0.68` toward newer supported lines.
+5. Continue RN with milestone jumps from `0.68` toward newer supported lines.
 6. Defer target SDK 34 until the RN/toolchain path can support Android 14+ debug receiver requirements.
 7. Upgrade iOS Podfile/deployment target and validate schemes.
 8. Add BTC network support and UI switching.
