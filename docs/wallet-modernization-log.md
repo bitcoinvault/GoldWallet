@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.82 - Wallet modernization baseline refresh
+
+- Branch: `feature/bem-36-modernization-baseline-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/wallet-modernization-baseline.md` after the latest warning-audit, RN baseline preflight, and live RN target snapshot checks.
+- Record the current live RN target snapshot evidence: `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`, and `Mismatches: 0`.
+- Update the baseline's latest Android warning-audit timestamp to `2026-05-28T17:18:23.991Z`.
+- Keep runtime code, dependencies, native project files, package scripts, Metro behavior, release secrets, and ignored `local-docs/` artifacts unchanged.
+
+Why:
+
+- The high-level modernization baseline should match the evidence produced by the latest May maintenance checkpoints.
+- The next RN/native upgrade branch needs a concise current baseline in addition to the detailed branch-by-branch log.
+
+Validation:
+
+- `corepack yarn rn:target-snapshot:current` passed and wrote a matched local summary.
+- `corepack yarn rn:target-snapshot:check-summary` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, Android/iOS source, or Metro code changed in this branch, so emulator smoke is not required for this documentation/evidence checkpoint.
+
 ### BEM-37.94 - May warning baseline refresh
 
 - Branch: `feature/bem-37-warning-baseline-refresh-may-close`
