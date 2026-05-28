@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.86 - PBKDF2 types 3.1.2
+
+- Branch: `feature/bem-36-pbkdf2-types-3-1-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `@types/pbkdf2` from the broad `^3.0.0` range, currently resolved as `3.1.0`, to `3.1.2`.
+- Refresh `yarn.lock`.
+- Keep runtime `pbkdf2`, wallet crypto code, native project files, env files, Android Gradle files, Metro config, and package scripts unchanged.
+
+Why:
+
+- `pbkdf2` is part of the wallet crypto/runtime dependency surface, so its type package should be current and pinned before larger TypeScript, Jest, React, or React Native baseline changes.
+- This is a type-only maintenance step; it does not change the runtime package used by the app.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was reachable on `127.0.0.1:8081`; `adb reverse tcp:8081 tcp:8081` passed on `emulator-5554`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `git diff --check` passed.
+
 ### BEM-36.85 - Android audit-smoke command content guard
 
 - Branch: `feature/bem-36-audit-smoke-command-guard`
