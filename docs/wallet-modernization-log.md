@@ -3433,6 +3433,37 @@ Validation:
 - `corepack yarn typescript:check`
 - `git diff --check`
 
+### BEM-36.93 - React Native baseline preflight script
+
+- Branch: `feature/bem-36-rn-baseline-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `rn:baseline:preflight` as the grouped readiness command before larger React Native baseline branches.
+- Include the lightweight Android gate, Metro runtime audit, RN upgrade path audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit in that preflight.
+- Guard the preflight script through the RN upgrade path audit and Android dev environment audit.
+- Document the preflight in README, Android workflow, RN upgrade path, native-module plan, and baseline docs.
+
+Why:
+
+- Future RN baseline branches should start from one explicit readiness command instead of a manually remembered list of separate audits.
+- This keeps the larger RN upgrade path staged without touching runtime, native dependencies, or Metro behavior in this branch.
+
+Validation:
+
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=%LOCALAPPDATA%\Android\Sdk ANDROID_HOME=%ANDROID_SDK_ROOT% corepack yarn android:dev:env-audit`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn rn:baseline:preflight`
+
+Notes:
+
+- The preflight passed with existing readiness warnings for Node 22 in the current shell versus the documented Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
+- No emulator smoke was required because this branch only changes package scripts, audit guards, and documentation.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`

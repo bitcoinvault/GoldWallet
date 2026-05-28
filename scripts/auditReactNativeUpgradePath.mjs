@@ -22,6 +22,9 @@ export const expectedReactNativeUpgradePathBaseline = {
   gradleWrapper: '7.5.1',
 };
 
+export const expectedReactNativeBaselinePreflight =
+  'yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn rn:upgrade-path:audit && yarn camera:qr-migration:audit && yarn sentry:android-warning:audit && yarn sentry:release:prereq-audit && yarn firebase:release-services:audit && yarn codepush:release:path-audit && yarn push-notification:bridge-audit';
+
 export const requiredReactNativeUpgradePathDocs = [
   'docs/react-native-upgrade-path.md',
   'docs/wallet-modernization-baseline.md',
@@ -44,10 +47,14 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/react-native-upgrade-path.md', 'Current Android template/toolchain baseline'],
   ['docs/react-native-upgrade-path.md', 'Re-check the latest stable React Native release during the actual RN baseline branch'],
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:upgrade-path:audit'],
+  ['docs/react-native-upgrade-path.md', 'corepack yarn rn:baseline:preflight'],
   ['docs/wallet-modernization-baseline.md', 'Continue RN stepwise from `0.68` toward newer supported lines'],
   ['docs/wallet-modernization-baseline.md', 'React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`'],
+  ['docs/wallet-modernization-baseline.md', 'corepack yarn rn:baseline:preflight'],
   ['docs/native-module-upgrade-plan.md', 'React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`'],
+  ['docs/native-module-upgrade-plan.md', 'corepack yarn rn:baseline:preflight'],
   ['docs/android-modernization-workflow.md', 'corepack yarn rn:upgrade-path:audit'],
+  ['docs/android-modernization-workflow.md', 'corepack yarn rn:baseline:preflight'],
 ];
 
 const readGradleExtString = (androidBuildGradleContent, propertyName) =>
@@ -92,6 +99,10 @@ export const getReactNativeUpgradePathIssues = ({
 
   if (scripts['rn:upgrade-path:audit'] !== 'node scripts/auditReactNativeUpgradePath.mjs') {
     errors.push('package.json is missing rn:upgrade-path:audit script');
+  }
+
+  if (scripts['rn:baseline:preflight'] !== expectedReactNativeBaselinePreflight) {
+    errors.push('package.json is missing rn:baseline:preflight script with the expected RN baseline preflight command');
   }
 
   if (nvmrc !== expectedReactNativeUpgradePathBaseline.nodeRuntime) {

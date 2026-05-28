@@ -77,5 +77,13 @@ assertRejected(
   },
   'package.json is missing rn:upgrade-path:audit',
 );
+assertRejected(
+  'Missing RN baseline preflight package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'rn:baseline:preflight')),
+  },
+  'package.json is missing rn:baseline:preflight',
+);
 
 console.log('Android dev environment audit guard checks are valid.');

@@ -35,6 +35,7 @@ export const requiredAndroidDevPackageScripts = [
   'android:dev:check-light',
   'check:rn-upgrade-path-audit-guard',
   'rn:upgrade-path:audit',
+  'rn:baseline:preflight',
 ];
 
 export const getAndroidDevEnvironmentIssues = ({

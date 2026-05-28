@@ -117,6 +117,7 @@ Passing:
 - `corepack yarn metro:dev-runtime:audit`
 - `corepack yarn check:rn-upgrade-path-audit-guard`
 - `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:baseline:preflight`
 - `corepack yarn android:dev:check-light`
 - Metro dev runtime audit verifies the Node 16 `.nvmrc`, React Native `0.68.7`, Metro preset `0.67.0`, start script, and documentation baseline.
 - Android lightweight check runs the Android warning baseline guard, Android warning artifact guard, Android dev environment audit self-check, Metro dev runtime audit self-check, React Native upgrade path audit self-check, React Native upgrade path audit, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, QR render usage self-check/inventory guard, legacy Android autolink self-check/guard, Sentry usage self-check/inventory guard, Sentry release integration self-check/guard, CodePush usage self-check/inventory guard, Firebase usage self-check/inventory guard, iOS push notification usage self-check/inventory guard, release-service env key self-check/guard, Android env mapping self-check/guard, iOS scheme config self-check/guard, storage/network usage self-check/guard, storage/network validation script self-check/guard, native module inventory self-check/inventory guard, native module upgrade-plan self-check/coverage guard, RN nodeify shim self-check/inventory guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
@@ -130,6 +131,7 @@ Passing:
 - Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with generated timestamp, outcome, exit code, selected serial, Metro endpoint/reachability, app PID, logcat count, UI attempts, UI hierarchy path, screenshot path, and screenshot byte count
 - `corepack yarn android:dev:audit-warnings`
 - Android dev environment audit verifies the local Java range, adb access, Gradle wrappers, Android validation helper files, and RN upgrade path audit scripts before build/smoke work.
+- RN baseline preflight groups the current lightweight Android gate, Metro runtime audit, RN upgrade path audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit before larger React Native baseline branches.
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 2` and `Unexpected targeted Android Gradle warnings: 0`.
 - Current targeted warning sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.

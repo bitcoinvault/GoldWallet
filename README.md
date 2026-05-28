@@ -79,6 +79,12 @@ To verify that the staged React Native upgrade direction still matches the curre
 $ yarn rn:upgrade-path:audit
 ```
 
+Before changing React Native package versions, run the grouped baseline preflight:
+
+```sh
+$ yarn rn:baseline:preflight
+```
+
 To verify that the documented Metro runtime baseline is still aligned with the repo:
 
 ```sh

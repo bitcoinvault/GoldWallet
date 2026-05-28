@@ -89,6 +89,7 @@
     "android:dev:audit-smoke": "yarn android:dev:audit-warnings && yarn android:dev:smoke && yarn android:dev:check-artifacts",
     "metro:dev-runtime:audit": "node scripts/auditMetroDevRuntime.mjs",
     "rn:upgrade-path:audit": "node scripts/auditReactNativeUpgradePath.mjs",
+    "rn:baseline:preflight": "yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn rn:upgrade-path:audit && yarn camera:qr-migration:audit && yarn sentry:android-warning:audit && yarn sentry:release:prereq-audit && yarn firebase:release-services:audit && yarn codepush:release:path-audit && yarn push-notification:bridge-audit",
     "codepush:release:path-audit": "node scripts/auditCodePushReleasePath.mjs",
     "firebase:release-services:audit": "node scripts/auditFirebaseReleaseServices.mjs",
     "push-notification:bridge-audit": "node scripts/auditPushNotificationBridge.mjs",
