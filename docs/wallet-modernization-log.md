@@ -6227,7 +6227,7 @@ Validation:
 Scope:
 
 - Try the current `uuid@14.0.0` release first, then fall back only after runtime evidence.
-- Upgrade the direct app dependency from `uuid@3.4.0` to `uuid@11.1.1`.
+- Upgrade the direct app dependency from `uuid@3.4.0` to the highest runtime-compatible tested release.
 - Remove `@types/uuid`; supported `uuid` releases now ship their own TypeScript declarations.
 - Keep existing app call sites unchanged: `v4` is still imported as `uuidv4`.
 
@@ -6236,13 +6236,13 @@ Findings:
 - `uuid@14.0.0` is the current latest release, but it is ESM/export-map only and has no classic `main` entry for this React Native 0.68 Metro baseline.
 - Android assemble and TypeScript were not enough to catch that issue.
 - Emulator smoke with Metro reset failed on `uuid@14.0.0`: Metro returned a bundle error while resolving `uuid` from `src/state/toastMessages/actions.ts`.
-- `uuid@11.1.1` is the highest tested compatible line for the current Metro baseline because it still exposes a CommonJS `main` entry while shipping its own types.
-- Moving beyond `uuid@11.1.1` should be re-tested after the React Native/Metro baseline is upgraded.
+- `uuid@11.1.1` still exposes a CommonJS `main` entry and ships its own types, but later validation found that its CommonJS output still contains optional chaining/nullish coalescing syntax that the current runtime does not parse.
+- `uuid@9.0.1` is the highest tested compatible line for the current Metro/runtime baseline; moving beyond it should be re-tested after the React Native/Metro/Babel baseline is upgraded.
 
 Why:
 
 - This moves an old runtime dependency forward without hiding a latest-version blocker.
-- The branch keeps the app working now while preserving the real latest target as a follow-up tied to React Native/Metro modernization.
+- The branch keeps the app working now while preserving the real latest target as a follow-up tied to React Native/Metro/Babel modernization.
 
 Validation:
 
@@ -6290,3 +6290,40 @@ Validation:
 - Emulator smoke on `emulator-5554`: installed `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk`, ran `adb reverse tcp:8081 tcp:8081`, launched `io.goldwallet.wallet.dev`, confirmed `MainActivity` foreground, then rejected the dependency update because logcat reported `Unexpected token '?'`.
 - Restored `package.json` and `yarn.lock`, then ran `corepack yarn install --frozen-lockfile` to return `node_modules` to the committed dependency baseline.
 - Smoke artifacts: `local-docs/bip39-3-1-smoke.png`, `local-docs/metro-bip39-3-1.log`.
+
+### BEM-36.110 - UUID runtime compatibility correction
+
+- Branch: `feature/bem-36-uuid-runtime-9-compat`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Correct the previous `uuid@11.1.1` dependency step after a stricter post-audit smoke exposed a runtime parser failure.
+- Pin the app's direct `uuid` dependency to `9.0.1`.
+- Add `@types/uuid@9.0.8` because the `uuid@9` package line does not expose declarations for this TypeScript setup.
+
+Findings:
+
+- `uuid@14.0.0` fails Metro resolution on React Native 0.68 because the package has no classic `main` entry.
+- `uuid@11.1.1` resolves through `main`, but its CommonJS files still contain optional chaining/nullish coalescing syntax.
+- The emulator reports that failure as `Unexpected token '?'`, followed by bad-bundle calls to `HMRClient.setup()` and `AppRegistry.runApplication()`.
+- `uuid@9.0.1` has a classic CommonJS `main` and its distributed files do not contain `?.` or `??`.
+- `@types/uuid@9.0.8` is required for `typescript:check`; without it the app imports are treated as implicit `any`.
+- `uuid@9.0.1` is deprecated upstream, so this is a compatibility stopgap, not the final modernization target.
+
+Why:
+
+- The integration branch must stay runnable after every mini-branch merge.
+- This keeps the wallet moving forward from `uuid@3.4.0` while documenting exactly why the newer lines are blocked by the current RN/Metro/runtime baseline.
+
+Validation:
+
+- `node -e "require('./node_modules/uuid/package.json')"` confirmed `uuid@9.0.1` with `main: ./dist/index.js`.
+- `rg "\?\.|\?\?" node_modules/uuid/dist` returned no matches.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `react-native start --reset-cache --port 8081`.
+- Emulator smoke on `emulator-5554`: installed `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk`, ran `adb reverse tcp:8081 tcp:8081`, launched `io.goldwallet.wallet.dev`, confirmed `MainActivity` foreground, Metro bundled `./index.js`, React Native logged `Running "GoldWallet"`, and logcat showed no fatal AndroidRuntime or React Native bundle/runtime errors for the app.
+- Smoke artifacts: `local-docs/uuid9-compat-smoke.png`, `local-docs/metro-uuid9-compat.log`.
