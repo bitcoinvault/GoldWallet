@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.88 - React Native upgrade path audit
+
+- Branch: `feature/bem-36-rn-upgrade-path-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/react-native-upgrade-path.md`.
+- Add `scripts/auditReactNativeUpgradePath.mjs`.
+- Add `rn:upgrade-path:audit` package script and include it in `android:dev:check-light`.
+- Refresh README, Android workflow, baseline, native module plan, lightweight docs guard, and this modernization log.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The modernization target is to move from RN `0.68.7` toward a current supported RN line, but only through staged baseline steps.
+- The repo should guard against accidentally presenting the next RN branch as a blind jump to latest or mixing it with camera, Sentry, Firebase, Electrum, explorer, or rebranding work.
+
+Validation:
+
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn android:dev:check-light-docs` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed and ran `rn:upgrade-path:audit`.
+
+Follow-up:
+
+- Re-check the current latest stable React Native release when the dedicated RN baseline branch starts.
+
 ### BEM-36.87 - Metro dev runtime audit guard
 
 - Branch: `feature/bem-36-metro-runtime-audit-guard`
