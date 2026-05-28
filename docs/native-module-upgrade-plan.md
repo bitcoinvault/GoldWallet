@@ -73,7 +73,7 @@ Branch shape:
 
 ### Group C - Device, Storage, Network, And Runtime Integrations
 
-- `@react-native-async-storage/async-storage`
+- `@react-native-async-storage/async-storage` -> `1.24.0`
 - `@react-native-community/netinfo` -> `6.2.1`
 - `react-native-background-timer` -> `2.4.1`
 - `react-native-device-info` -> `6.2.1`
@@ -110,13 +110,13 @@ Branch shape:
 
 ### Group D - Notifications And Release Services
 
-- `@react-native-firebase/app`
-- `@react-native-firebase/analytics`
-- `@react-native-firebase/crashlytics`
-- `@react-native-firebase/messaging`
+- `@react-native-firebase/app` -> `12.7`
+- `@react-native-firebase/analytics` -> `12.7`
+- `@react-native-firebase/crashlytics` -> `12.7`
+- `@react-native-firebase/messaging` -> `12.7`
 - `@react-native-community/push-notification-ios` -> `1.10.0`
 - `react-native-code-push` -> `7.0.2`
-- `@sentry/react-native`
+- `@sentry/react-native` -> `5.36.0`
 
 Risk:
 
@@ -137,7 +137,7 @@ Branch shape:
 
 ### Group E - Camera And QR Scanning
 
-- `react-native-camera`
+- `react-native-camera` -> `^3.33.0`
 - `@remobile/react-native-qrcode-local-image`
 - `react-native-qrcode-svg`
 

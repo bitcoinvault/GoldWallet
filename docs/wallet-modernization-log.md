@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.73 - Native upgrade plan version coverage
+
+- Branch: `feature/bem-36-native-plan-version-coverage`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the native module upgrade-plan guard so every package from `scripts/nativeModuleInventoryGuard.mjs` must be listed with its guarded version in `docs/native-module-upgrade-plan.md`.
+- Update the native module upgrade plan with missing guarded versions for AsyncStorage, Firebase packages, Sentry, and `react-native-camera`.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The plan already required package coverage, but it could still drift from the guarded dependency versions. Version coverage makes future dependency branches update the plan deliberately.
+
+Validation:
+
+- `corepack yarn check:native-module-upgrade-plan-guard` passed.
+- `corepack yarn check:native-module-upgrade-plan` passed.
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn typescript:check` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- When a native dependency version changes, update the inventory guard and the native module upgrade plan in the same mini-branch.
+
 ### BEM-36.72 - RandomBytes plan alignment
 
 - Branch: `feature/bem-36-randombytes-plan-alignment`
