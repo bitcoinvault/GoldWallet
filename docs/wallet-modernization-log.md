@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.92 - Camera QR migration summary artifact
+
+- Branch: `feature/bem-37-camera-qr-migration-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `camera:qr-migration:audit` write `local-docs/camera-qr-migration-summary.txt`.
+- Add `camera:qr-migration:check-summary` and `check:camera-qr-migration-summary-guard`.
+- Add camera QR summary checker files and package scripts to the Android dev environment audit guard.
+- Include the generated camera QR migration summary checker in `rn:baseline:preflight` immediately after `camera:qr-migration:audit`.
+- Refresh camera replacement, workflow, and baseline documentation with the generated local artifact path.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The future `react-native-camera` replacement branch should start from a repeatable local artifact that captures scanner dependency baseline, QR renderer baseline, permission/runtime wiring, and migration readiness.
+
+Validation:
+
+- `corepack yarn check:camera-qr-migration-summary-guard` passed.
+- `corepack yarn camera:qr-migration:audit` passed and wrote `local-docs/camera-qr-migration-summary.txt`.
+- `corepack yarn camera:qr-migration:check-summary` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Re-run the camera QR migration audit before replacing `react-native-camera`, then validate Android QR permission/scanning behavior and iOS camera behavior on the implementation branch.
+
 ### BEM-37.91 - Aggregate release-services summary guard
 
 - Branch: `feature/bem-37-release-services-summary-guard`

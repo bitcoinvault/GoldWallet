@@ -174,6 +174,30 @@ assertRejected(
   'test/type coupling guard helper is missing',
 );
 assertRejected(
+  'Missing camera QR migration summary guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/cameraQrMigrationSummaryGuard.mjs')),
+  },
+  'camera QR migration summary guard helper is missing',
+);
+assertRejected(
+  'Missing camera QR migration summary checker file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkCameraQrMigrationSummary.mjs')),
+  },
+  'camera QR migration summary artifact checker is missing',
+);
+assertRejected(
+  'Missing camera QR migration summary guard self-check file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkCameraQrMigrationSummaryGuard.mjs')),
+  },
+  'camera QR migration summary guard self-check helper is missing',
+);
+assertRejected(
   'Missing Sentry release prerequisite summary guard file fixture',
   {
     ...validEnvironment,
@@ -412,6 +436,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:test-type-coupling-guard')),
   },
   'package.json is missing check:test-type-coupling-guard',
+);
+assertRejected(
+  'Missing camera QR migration summary package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'camera:qr-migration:check-summary')),
+  },
+  'package.json is missing camera:qr-migration:check-summary',
+);
+assertRejected(
+  'Missing camera QR migration summary guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:camera-qr-migration-summary-guard')),
+  },
+  'package.json is missing check:camera-qr-migration-summary-guard',
 );
 assertRejected(
   'Missing Sentry release prerequisite summary package script fixture',
