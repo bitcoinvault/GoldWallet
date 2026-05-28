@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.71 - iOS Push Notification manifest pin
+
+- Branch: `feature/bem-push-notification-ios-1-10-0-manifest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `@react-native-community/push-notification-ios` manifest from `^1.8.0` to the already-resolved lockfile version `1.10.0`.
+- Refresh the lockfile selector for the exact dependency.
+- Update the native module inventory guard, native module upgrade plan, and release services compatibility audit.
+- Keep source usage, Android/iOS native project files, notification permissions, Firebase messaging behavior, and runtime behavior unchanged.
+
+Why:
+
+- The repo was already installing `@react-native-community/push-notification-ios@1.10.0`, but the manifest allowed dependency drift in the iOS notification bridge used by `Navigator.tsx` and `AppDelegate.m`.
+- This branch freezes the current working version and keeps real iOS notification behavior validation for a dedicated iOS push/release-service branch.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `corepack yarn android:dev:assemble` passed with JDK 17 (`D:\tmp\jdks\temurin17\jdk-17.0.19+10`).
+- Metro was restarted with `--reset-cache`; Android emulator smoke passed via `corepack yarn android:dev:smoke`.
+- Targeted logcat check found no fatal runtime errors, React Native JS exceptions, or push-notification bridge errors; Electrum testnet connection completed successfully.
+- Limitation: Android debug smoke does not validate real iOS push permission, token, badge, or AppDelegate notification forwarding behavior.
+
+Follow-up:
+
+- Validate iOS badge handling, remote-notification forwarding, permission/token behavior, and AppDelegate integration before any real iOS push notification bridge upgrade.
+
 ### BEM-36.70 - CodePush manifest pin
 
 - Branch: `feature/bem-code-push-7-0-2-manifest`
