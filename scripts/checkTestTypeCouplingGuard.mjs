@@ -3,6 +3,8 @@ import {
   getTestTypeCouplingIssues,
   requiredTestTypeCouplingDocs,
   requiredTestTypeCouplingSnippets,
+  requiredTestTypeValidationFiles,
+  requiredTestTypeValidationScripts,
 } from './auditTestTypeCoupling.mjs';
 
 const validDocs = requiredTestTypeCouplingSnippets.reduce((docs, [relativePath, snippet]) => {
@@ -21,6 +23,8 @@ const validEnvironment = {
   scripts: {
     'test:type-coupling:audit': 'node scripts/auditTestTypeCoupling.mjs',
     'check:test-type-coupling-guard': 'node scripts/checkTestTypeCouplingGuard.mjs',
+    ...Object.fromEntries(requiredTestTypeValidationScripts),
+    prepush: [...requiredTestTypeValidationScripts.keys()].map(scriptName => `yarn ${scriptName}`).join(' && '),
   },
   tsconfig: {
     compilerOptions: {
@@ -32,6 +36,7 @@ const validEnvironment = {
   jestConfigContent: "module.exports = { preset: 'react-native', transform: { '^.+\\\\.tsx?$': 'babel-jest' } };",
   docs: validDocs,
   existingDocs: new Set(requiredTestTypeCouplingDocs),
+  existingTestFiles: new Set(requiredTestTypeValidationFiles),
 };
 
 const assertAccepted = (label, environment) => {
@@ -61,6 +66,24 @@ assertRejected('Wrong renderer fixture', { ...validEnvironment, devDependencies:
 assertRejected('Wrong JSX fixture', { ...validEnvironment, tsconfig: { compilerOptions: { ...validEnvironment.tsconfig.compilerOptions, jsx: 'react-jsx' } } }, 'jsx is react-jsx');
 assertRejected('Missing Jest preset fixture', { ...validEnvironment, jestConfigContent: 'module.exports = { transform: {} };' }, 'react-native preset');
 assertRejected('Missing script fixture', { ...validEnvironment, scripts: {} }, 'test:type-coupling:audit');
+assertRejected(
+  'Wrong focused script fixture',
+  { ...validEnvironment, scripts: { ...validEnvironment.scripts, 'test:wallet-core:offline': 'node node_modules/jest/bin/jest.js tests/integration/App.test.js --forceExit' } },
+  'test:wallet-core:offline',
+);
+assertRejected(
+  'Missing focused script from prepush fixture',
+  { ...validEnvironment, scripts: { ...validEnvironment.scripts, prepush: 'yarn test:unit && yarn test:storage' } },
+  'prepush is missing yarn test:wallet-core:offline',
+);
+assertRejected(
+  'Missing focused test file fixture',
+  {
+    ...validEnvironment,
+    existingTestFiles: new Set(requiredTestTypeValidationFiles.filter(relativePath => relativePath !== 'tests/integration/App.offline.test.js')),
+  },
+  'tests/integration/App.offline.test.js is missing',
+);
 assertRejected(
   'Missing docs fixture',
   {
