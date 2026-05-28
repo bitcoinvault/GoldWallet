@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.56 - React Native Safe Area Context 3.4.1
+
+- Branch: `feature/bem-safe-area-context-3-4-1`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-safe-area-context` from manifest `^3.0.6` and lockfile `3.3.2` to `3.4.1`.
+- Pin the manifest to `3.4.1` and refresh `yarn.lock`.
+- Update the native module inventory guard, navigation/layout audit, and native module upgrade plan baseline.
+- Keep `ScreenTemplate`, navigation code, native project files, and runtime behavior unchanged.
+
+Why:
+
+- `3.4.1` is the latest checked 3.x Safe Area Context package version and declares broad React/React Native peer compatibility.
+- Safe-area behavior affects screen spacing and footer/keyboard layout, so this stays isolated from gesture, screen, blur, icon, and splash changes and requires Android smoke after a clean Metro cache.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+
+Follow-up:
+
+- `ios/Podfile.lock` was not refreshed in this Windows branch. Do not claim iOS validation until `pod install` and the affected iOS scheme build pass on a Mac/iOS environment.
+
 ### BEM-36.55 - React Native Community Blur 4.4.1
 
 - Branch: `feature/bem-blur-4-4-1`

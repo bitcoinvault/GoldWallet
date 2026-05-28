@@ -40,7 +40,7 @@ Current expectation:
 - `@react-native-community/blur` -> `4.4.1`
 - `react-native-bootsplash` -> `3.2.7`
 - `react-native-fast-image` -> `8.6.3`
-- `react-native-safe-area-context`
+- `react-native-safe-area-context` -> `3.4.1`
 - `react-native-screens`
 - `react-native-svg`
 - `react-native-vector-icons` -> `6.7.0`
@@ -59,6 +59,7 @@ Branch shape:
 - Validate TypeScript, Android build, emulator dashboard smoke, wallet list, send/receive navigation, and QR display.
 - `react-native-bootsplash` is on latest checked `3.2.7` after `BEM-36.54`; future splash work should focus on launch-screen behavior and RN baseline changes, not another 3.x bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
+- `react-native-safe-area-context` is on latest checked `3.4.1` after `BEM-36.56`; future safe-area work should focus on RN baseline changes and layout validation.
 - For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
 - `react-native-fast-image` is on latest checked `8.6.3` after `BEM-36.53`; future image work should focus on cached image behavior and any RN baseline-driven replacement rather than another 8.x package bump.
 - `react-native-vector-icons` is already on the latest checked 6.x line after `BEM-36.52`; `@react-native-community/toolbar-android` is tracked because that package line requires it at bundle time. The declared `^0.1.0-rc.1` peer did not compile on the current Android baseline, while `0.2.1` did; a future per-icon-family migration should be a dedicated branch.
