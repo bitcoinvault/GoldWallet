@@ -3751,13 +3751,12 @@
     "@types/react-native" "*"
     "@types/xdate" "*"
 
-"@types/react-native-snap-carousel@^3.8.1":
-  version "3.8.4"
-  resolved "https://registry.yarnpkg.com/@types/react-native-snap-carousel/-/react-native-snap-carousel-3.8.4.tgz#0ffa154d29df2f09b4d2d1dd331fc678915918f7"
-  integrity sha512-gBcMQyb7WztctzjAgr7RFzM5/59FDhcrsc7S2KibQbKyghzRE5dTJ61HfETmjgeIsJw/Ahgw3iKR1QSzpRwDvg==
+"@types/react-native-snap-carousel@3.8.12":
+  version "3.8.12"
+  resolved "https://registry.yarnpkg.com/@types/react-native-snap-carousel/-/react-native-snap-carousel-3.8.12.tgz#887d1a49b8b35b2247fea46f5fc8136d0d4f1399"
+  integrity sha512-J840OqAvfeZpNgBO9dDyJi8rUgC6UzMRBhfPSkqV4EpkQsBXB8EYgRNCQmT282yGO6HLywKql1Wijvuuf9Zx8w==
   dependencies:
     "@types/react" "*"
-    "@types/react-native" "*"
 
 "@types/react-native-vector-icons@^6.4.5":
   version "6.4.8"

@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.106 - Snap carousel types 3.8.12
+
+- Branch: `feature/bem-36-snap-carousel-types-3-8-12`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `@types/react-native-snap-carousel` from the broad `^3.8.1` range, currently resolved as `3.8.4`, to `3.8.12`.
+- Refresh `yarn.lock`.
+- Keep runtime `react-native-snap-carousel`, carousel UI code, ViewPropTypes LogBox handling, native project files, env files, Android Gradle files, Metro config, and package scripts unchanged.
+
+Why:
+
+- `react-native-snap-carousel` remains a legacy UI dependency with a known ViewPropTypes warning; this branch only narrows the TypeScript surface without changing runtime carousel behavior.
+- Keeping compatible type packages current reduces noise before larger UI/RN dependency work.
+
+Validation:
+
+- `corepack yarn add --dev @types/react-native-snap-carousel@3.8.12` passed and ran postinstall.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with Node 16 and `--reset-cache`.
+- `adb reverse tcp:8081 tcp:8081` passed on `emulator-5554`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light` passed.
+
 ### BEM-36.105 - Redux stub type cleanup
 
 - Branch: `feature/bem-36-redux-type-cleanup`
