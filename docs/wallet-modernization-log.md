@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.74 - Sentry release prerequisite audit
+
+- Branch: `feature/bem-sentry-release-prereq-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditSentryReleasePrerequisites.mjs`.
+- Add `sentry:release:prereq-audit` package script.
+- Document the audit command in README, Sentry release/source-map plan, release-services audit, and this modernization log.
+- Keep Sentry SDK version, Sentry Gradle integration, Xcode Sentry phases, runtime code, native project files, dependency versions, and lockfile content unchanged.
+
+Why:
+
+- The future Sentry release/source-map branch must not claim release validation without local Sentry prerequisites.
+- `sentry.properties` files are ignored and local, so missing files should be reported explicitly instead of guessed or silently ignored.
+
+Validation:
+
+- `corepack yarn sentry:release:prereq-audit` passed and reported local Sentry release validation is not ready.
+- Missing local files: `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties`.
+- `create-sentry-properties.sh` is present and requires `SENTRY_AUTH_TOKEN`.
+- `SENTRY_AUTH_TOKEN` is not available in the current shell.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Generate local `sentry.properties` with `SENTRY_AUTH_TOKEN` before validating Android release source-map upload or iOS dSYM/source-map upload.
+
 ### BEM-37.73 - Android warning audit refresh after guard updates
 
 - Branch: `feature/bem-warning-audit-refresh-after-guards`
