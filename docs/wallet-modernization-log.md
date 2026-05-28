@@ -3792,6 +3792,39 @@ Notes:
 - The preflight still reports the existing warning that this shell is Node `22.18.0` while the current Metro/dev baseline remains documented as Node `16.20.2`.
 - No dependency, runtime, native, or Metro behavior was changed in this branch.
 
+### BEM-36.103 - RN target live summary artifact
+
+- Branch: `feature/bem-36-rn-target-live-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `rn:target-snapshot:current` write `local-docs/rn-target-snapshot-current-summary.txt`.
+- Include generated timestamp, recorded snapshot date, live check outcome, compared npm fields, and mismatch count.
+- Extend `check:rn-target-snapshot-current-guard` so the summary formatter is covered by matched and stale fixtures.
+- Document the local summary artifact in `docs/react-native-target-snapshot.md`.
+
+Why:
+
+- The RN target snapshot depends on npm metadata that can drift; a short local artifact makes the live verification result reviewable without re-running the command.
+- This keeps the external RN target evidence aligned with the rest of the modernization audit artifacts under `local-docs/`.
+
+Validation:
+
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn rn:target-snapshot:current`
+- `Get-Content local-docs\rn-target-snapshot-current-summary.txt`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
+Notes:
+
+- The generated summary reported `Live check outcome: matched` and `Mismatches: 0`.
+- The live npm check still matched `react-native@latest` `0.85.3`, `next` `0.86.0-rc.2`, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- No dependency, runtime, native, or Metro behavior was changed in this branch.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`

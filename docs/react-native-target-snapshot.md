@@ -34,7 +34,7 @@ For a live npm check against the recorded snapshot, use:
 corepack yarn rn:target-snapshot:current
 ```
 
-The live check requires network access and is intentionally not part of the default offline preflight.
+The live check requires network access and is intentionally not part of the default offline preflight. It writes the latest result to `local-docs/rn-target-snapshot-current-summary.txt`.
 
 For an offline self-check of the live npm comparison rules, use:
 
