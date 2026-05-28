@@ -9709,10 +9709,10 @@ react-native-biometrics@3.0.1:
   resolved "https://registry.yarnpkg.com/react-native-biometrics/-/react-native-biometrics-3.0.1.tgz#23c5a0bdbae1fcb1e08b22936223fe0fc4af846e"
   integrity sha512-Ru80gXRa9KG04sl5AB9HyjLjVbduhqZVjA+AiOSGqr+fNqCDmCu9y5WEksnjbnniNLmq1yGcw+qcLXmR1ddLDQ==
 
-react-native-bootsplash@^3.2.4:
-  version "3.2.5"
-  resolved "https://registry.yarnpkg.com/react-native-bootsplash/-/react-native-bootsplash-3.2.5.tgz#88da62d0d77d1b11d9b36473b6e9df94b749abef"
-  integrity sha512-W7mxJdXMTere27JSSGPYqHpLac2oHCNZTaUlOgu8Glxhde/R087MF9FTFPdJi8rZSJxx0vVDcdbRVrSjUsZLxQ==
+react-native-bootsplash@3.2.7:
+  version "3.2.7"
+  resolved "https://registry.yarnpkg.com/react-native-bootsplash/-/react-native-bootsplash-3.2.7.tgz#c14a3314069105ae2cb08d07dff65de4dbad9827"
+  integrity sha512-jc46lBuKeZerdUndY0yJw2mIbvX0kMHpkKsayxqJfjCiMorklSPZt0dyvaM9KyebCVop54udMJAySbnZVCEvIQ==
   dependencies:
     chalk "^4.1.2"
     fs-extra "^10.0.0"

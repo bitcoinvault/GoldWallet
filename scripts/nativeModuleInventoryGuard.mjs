@@ -11,7 +11,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['@react-native-firebase/messaging', '12.7'],
   ['@sentry/react-native', '5.36.0'],
   ['react-native-biometrics', '3.0.1'],
-  ['react-native-bootsplash', '^3.2.4'],
+  ['react-native-bootsplash', '3.2.7'],
   ['react-native-camera', '^3.33.0'],
   ['react-native-code-push', '^7.0.2'],
   ['react-native-config', '1.4.4'],
