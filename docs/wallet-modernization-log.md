@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.81 - Sentry Android warning audit
+
+- Branch: `feature/bem-sentry-android-warning-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditSentryAndroidWarning.mjs`.
+- Add `sentry:android-warning:audit` package script.
+- Document the audit in the Sentry release/source-map plan, release-services audit, and this modernization log.
+- Keep Sentry SDK version, Android Gradle integration, iOS Sentry phases, runtime code, native project files, dependency versions, and lockfile content unchanged.
+
+Why:
+
+- The remaining Sentry Android `execResult` warning is dependency-owned in `node_modules/@sentry/react-native/sentry.gradle`.
+- Removing it safely is release-tooling work, not a small warning-only cleanup, because Sentry source-map and dSYM upload behavior must remain intact.
+
+Validation:
+
+- `corepack yarn sentry:android-warning:audit` passed.
+- The audit confirmed `@sentry/react-native@5.36.0`, Android Sentry Gradle integration, and dependency-owned `bundleTask.getProperties()` warning source at `sentry.gradle:48`.
+- The audit reported that removing the warning safely requires a dedicated release/source-map validation branch.
+- `corepack yarn sentry:release:prereq-audit` passed and reported local release validation is not ready because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are not available.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Use this audit before the dedicated Sentry release/source-map cleanup or SDK upgrade branch.
+
 ### BEM-37.80 - iOS push readiness documentation refresh
 
 - Branch: `feature/bem-ios-push-readiness-docs`
