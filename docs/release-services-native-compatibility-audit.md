@@ -109,6 +109,7 @@ Shared env/config:
 
 - Firebase RN `12.7` to `24.0.0` is a major family upgrade and must keep all Firebase packages aligned.
 - Firebase changes can affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
+- `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
 - `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; this is not a CodePush runtime upgrade and does not replace the dedicated non-dev release-path validation branch.
 - `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, Android bundle resolution, iOS deployment-key placeholders, and referenced env keys without printing deployment-key values.
@@ -150,9 +151,9 @@ corepack yarn android:dev:smoke
 
 Release-service-specific validation:
 
-- Firebase Messaging: confirm Android 13+ notification permission, FCM token retrieval, and notification handling path.
-- Crashlytics: confirm Android Crashlytics Gradle task configuration and iOS pod/build integration.
-- Analytics: confirm app startup does not crash and analytics package initialization remains compatible.
+- Firebase Messaging: confirm Android 13+ notification permission, FCM token retrieval, and notification handling path; start with `corepack yarn firebase:release-services:audit`.
+- Crashlytics: confirm Android Crashlytics Gradle task configuration and iOS pod/build integration; start with `corepack yarn firebase:release-services:audit`.
+- Analytics: confirm app startup does not crash and analytics package initialization remains compatible; start with `corepack yarn firebase:release-services:audit`.
 - CodePush: validate a non-dev build path because CodePush is disabled under `__DEV__`; start with `corepack yarn codepush:release:path-audit`.
 - Sentry: validate Android release bundling/source maps and iOS dSYM/source-map upload path.
 - Secrets: do not guess `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, CodePush deployment keys, or Firebase config values. If missing locally, record the exact missing variable/file.

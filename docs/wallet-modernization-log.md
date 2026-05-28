@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.76 - Firebase release-services audit
+
+- Branch: `feature/bem-firebase-release-services-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditFirebaseReleaseServices.mjs`.
+- Add `firebase:release-services:audit` package script.
+- Document the audit in release-services, iOS release config, native module upgrade plan, and this modernization log.
+- Keep Firebase dependency versions, runtime behavior, native project files, env files, Google service files, and lockfile content unchanged.
+
+Why:
+
+- Firebase must be upgraded as an aligned package family, not as isolated package bumps.
+- Before any Firebase family upgrade, the current Android/iOS config files and Messaging runtime paths should be auditable from one command.
+
+Validation:
+
+- `corepack yarn firebase:release-services:audit` passed.
+- The audit confirmed Firebase package family alignment, Android Gradle/config files, iOS plist files, and Messaging runtime paths are wired.
+- The audit reported React Native Firebase remains on `12.7`; the next `23+`/`24.x` move remains a major family upgrade.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Use this audit before a Firebase app/analytics/crashlytics/messaging family upgrade or release-config change.
+
 ### BEM-37.75 - CodePush release path audit
 
 - Branch: `feature/bem-codepush-release-path-audit`

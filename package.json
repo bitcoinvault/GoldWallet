@@ -87,6 +87,7 @@
     "android:dev:audit-warnings": "node scripts/auditAndroidGradleWarnings.mjs",
     "android:dev:audit-smoke": "yarn android:dev:audit-warnings && yarn android:dev:smoke && yarn android:dev:check-artifacts",
     "codepush:release:path-audit": "node scripts/auditCodePushReleasePath.mjs",
+    "firebase:release-services:audit": "node scripts/auditFirebaseReleaseServices.mjs",
     "sentry:release:prereq-audit": "node scripts/auditSentryReleasePrerequisites.mjs",
     "android:dev:check-warning-guard": "node scripts/checkAndroidWarningBaselineGuard.mjs",
     "android:dev:check-artifact-guard": "node scripts/checkAndroidValidationArtifactGuard.mjs",
