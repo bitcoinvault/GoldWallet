@@ -8,6 +8,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 const exists = relativePath => existsSync(path.join(root, relativePath));
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
+const scripts = packageJson.scripts || {};
 const sentryVersion = dependencies['@sentry/react-native'];
 const sentryGradlePath = 'node_modules/@sentry/react-native/sentry.gradle';
 const androidBuildGradle = read('android/app/build.gradle');
@@ -30,6 +31,18 @@ if (sentryVersion !== '5.36.0') {
   readinessIssues.push(`package.json has @sentry/react-native@${sentryVersion || '<missing>'}; expected current baseline 5.36.0`);
 }
 
+if (scripts['sentry:release:prereq-audit'] !== 'node scripts/auditSentryReleasePrerequisites.mjs') {
+  errors.push('package.json is missing sentry:release:prereq-audit script');
+}
+
+if (scripts['sentry:release:prereq-check-summary'] !== 'node scripts/checkSentryReleasePrereqSummary.mjs') {
+  errors.push('package.json is missing sentry:release:prereq-check-summary script');
+}
+
+if (scripts['check:sentry-release-prereq-summary-guard'] !== 'node scripts/checkSentryReleasePrereqSummaryGuard.mjs') {
+  errors.push('package.json is missing check:sentry-release-prereq-summary-guard script');
+}
+
 if (!exists(sentryGradlePath)) {
   errors.push(`${sentryGradlePath} is missing; install dependencies before auditing the Android Sentry warning source`);
 }
@@ -39,7 +52,10 @@ requireSnippet('android/app/build.gradle', androidBuildGradle, 'project.ext.sent
 requireSnippet('sentry.gradle', sentryGradle, 'bundleTask.getProperties()');
 requireSnippet('docs/sentry-release-source-map-plan.md', plan, 'Branch: `feature/bem-sentry-release-source-map-upgrade`');
 requireSnippet('docs/sentry-release-source-map-plan.md', plan, 'corepack yarn sentry:release:prereq-audit');
+requireSnippet('docs/sentry-release-source-map-plan.md', plan, 'corepack yarn sentry:release:prereq-check-summary');
+requireSnippet('docs/sentry-release-source-map-plan.md', plan, 'corepack yarn check:sentry-release-prereq-summary-guard');
 requireSnippet('docs/release-services-native-compatibility-audit.md', releaseServicesPlan, 'corepack yarn sentry:release:prereq-audit');
+requireSnippet('docs/release-services-native-compatibility-audit.md', releaseServicesPlan, 'corepack yarn sentry:release:prereq-check-summary');
 
 const sentryGradleLines = sentryGradle.split(/\r?\n/);
 const getPropertiesLines = sentryGradleLines

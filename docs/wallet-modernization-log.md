@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.86 - Sentry warning audit guards prerequisite summary wiring
+
+- Branch: `feature/bem-37-sentry-warning-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `sentry:android-warning:audit` require the Sentry prerequisite audit, generated-summary checker, and summary guard package scripts.
+- Make the Sentry warning audit require the release/source-map docs to mention `sentry:release:prereq-check-summary` and `check:sentry-release-prereq-summary-guard`.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The Sentry Android warning audit is the entry point before a larger Sentry cleanup branch, so it should fail early if the prerequisite-summary validation wiring or docs drift.
+
+Validation:
+
+- `corepack yarn sentry:android-warning:audit` passed.
+- `corepack yarn check:sentry-release-prereq-summary-guard` passed.
+- `corepack yarn sentry:release:prereq-audit` passed and wrote `local-docs/sentry-release-prereq-summary.txt`.
+- `corepack yarn sentry:release:prereq-check-summary` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Keep Sentry warning-source checks and Sentry prerequisite-summary checks together until a dedicated Sentry SDK/release tooling branch runs full release validation.
+
 ### BEM-37.85 - Sentry prerequisite summary in RN preflight
 
 - Branch: `feature/bem-37-sentry-prereq-preflight`
