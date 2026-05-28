@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.83 - Android dev environment audit
+
+- Branch: `feature/bem-36-android-dev-env-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditAndroidDevEnvironment.mjs`.
+- Add `android:dev:env-audit` package script.
+- Document the environment audit in the Android workflow, baseline, and this modernization log.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- Android modernization work depends on the correct JDK range, Android SDK/ADB availability, Gradle wrappers, and local validation scripts.
+- The workflow already documents these requirements; this branch makes the local preflight check executable.
+
+Validation:
+
+- `corepack yarn android:dev:env-audit` correctly failed in the default shell because `JAVA_HOME` was unset and `java` resolved to JDK 21.
+- With `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10`, `ANDROID_SDK_ROOT`, and `ANDROID_HOME` set, `corepack yarn android:dev:env-audit` passed.
+- The audit reported Node `22.18.0` as a warning because Metro/dev runtime remains documented for Node `16.20.2`.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Use `corepack yarn android:dev:env-audit` before Android build/smoke work when switching terminals, JDKs, Node versions, or machines.
+
 ### BEM-37.82 - Android warning baseline refresh after source audits
 
 - Branch: `feature/bem-37-warning-baseline-refresh`
