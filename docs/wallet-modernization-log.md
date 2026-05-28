@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.76 - Calendar types pin
+
+- Branch: `feature/bem-36-calendar-types-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `@types/react-native-calendars` from the broad `^1.20.7` manifest range to the currently working `1.1264.2` lockfile version.
+- Refresh the transitive `@types/xdate` lockfile entry from `0.8.32` to `0.8.35`.
+- Keep `react-native-calendars` runtime package unchanged.
+- Keep runtime code, native project files, dependency versions, env files, and Android project files unchanged.
+
+Why:
+
+- Removing `@types/react-native-calendars` failed TypeScript because the current runtime package does not expose declarations in a way this repo can consume.
+- Updating `@types/react-native-calendars` to latest `1.1267.0` failed TypeScript because the latest package is a stub and no longer provides the module declaration this repo currently needs.
+- Pinning the known working type package prevents future lockfile drift to the broken stub while keeping calendar imports typed.
+- `react-native-calendars@1.1314.0` is deferred because its npm metadata requires Node `>=18`, while the current Metro/dev runtime baseline remains Node 16 for RN `0.68.7`.
+
+Validation:
+
+- `corepack yarn typescript:check` passed after restoring/pinning `@types/react-native-calendars@1.1264.2`.
+- `corepack yarn check:rn-nodeify-shims` passed after rerunning `corepack yarn postinstall`.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes dev type metadata and documentation, with no runtime package or native project changes.
+
+Follow-up:
+
+- Revisit the runtime calendar package during the RN/Metro Node runtime transition instead of as an isolated Node 16 cleanup.
+
 ### BEM-36.75 - Push Notification iOS 1.12.0
 
 - Branch: `feature/bem-36-push-notification-ios-1-12-0`
