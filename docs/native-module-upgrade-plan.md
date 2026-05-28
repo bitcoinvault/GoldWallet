@@ -111,7 +111,7 @@ Branch shape:
 - `@react-native-firebase/crashlytics`
 - `@react-native-firebase/messaging`
 - `@react-native-community/push-notification-ios`
-- `react-native-code-push`
+- `react-native-code-push` -> `7.0.2`
 - `@sentry/react-native`
 
 Risk:
@@ -124,6 +124,7 @@ Branch shape:
 - Keep Sentry release/source-map validation in a dedicated branch.
 - Keep Firebase grouped by package family only when Android and iOS config changes are understood.
 - `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, CodePush, and Sentry package snapshot, native build surface, and release validation path.
+- `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; future CodePush work should validate a non-dev release/update path and deployment-key loading.
 - Validate Android debug startup first, then release tooling separately when secrets and store/release config are available.
 
 ### Group E - Camera And QR Scanning
