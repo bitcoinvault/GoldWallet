@@ -198,6 +198,30 @@ assertRejected(
   'camera QR migration summary guard self-check helper is missing',
 );
 assertRejected(
+  'Missing Sentry Android warning summary guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/sentryAndroidWarningSummaryGuard.mjs')),
+  },
+  'Sentry Android warning summary guard helper is missing',
+);
+assertRejected(
+  'Missing Sentry Android warning summary checker file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkSentryAndroidWarningSummary.mjs')),
+  },
+  'Sentry Android warning summary artifact checker is missing',
+);
+assertRejected(
+  'Missing Sentry Android warning summary guard self-check file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkSentryAndroidWarningSummaryGuard.mjs')),
+  },
+  'Sentry Android warning summary guard self-check helper is missing',
+);
+assertRejected(
   'Missing Sentry release prerequisite summary guard file fixture',
   {
     ...validEnvironment,
@@ -452,6 +476,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:camera-qr-migration-summary-guard')),
   },
   'package.json is missing check:camera-qr-migration-summary-guard',
+);
+assertRejected(
+  'Missing Sentry Android warning summary package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'sentry:android-warning:check-summary')),
+  },
+  'package.json is missing sentry:android-warning:check-summary',
+);
+assertRejected(
+  'Missing Sentry Android warning summary guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:sentry-android-warning-summary-guard')),
+  },
+  'package.json is missing check:sentry-android-warning-summary-guard',
 );
 assertRejected(
   'Missing Sentry release prerequisite summary package script fixture',
