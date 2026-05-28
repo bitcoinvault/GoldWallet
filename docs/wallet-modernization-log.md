@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.89 - Push notification bridge summary artifact
+
+- Branch: `feature/bem-37-push-bridge-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `push-notification:bridge-audit` write `local-docs/push-notification-bridge-summary.txt`.
+- Add `push-notification:bridge-check-summary` and `check:push-notification-bridge-summary-guard`.
+- Add the push notification bridge summary checker files and package scripts to the Android dev environment audit guard.
+- Include the generated push notification bridge summary checker in `rn:baseline:preflight` immediately after `push-notification:bridge-audit`.
+- Refresh release-services, iOS release-config, workflow, and baseline documentation with the generated local artifact path.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- iOS push bridge validation should leave a repeatable local artifact before any notification dependency or release-config branch.
+
+Validation:
+
+- `corepack yarn check:push-notification-bridge-summary-guard` passed.
+- `corepack yarn push-notification:bridge-audit` passed and wrote `local-docs/push-notification-bridge-summary.txt`.
+- `corepack yarn push-notification:bridge-check-summary` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Device-level APNs registration, token, foreground/background delivery, badge reset, and tap-through behavior remain required on a Mac runner/device before changing iOS notification behavior.
+
 ### BEM-37.88 - Firebase release-services summary artifact
 
 - Branch: `feature/bem-37-firebase-release-summary`

@@ -246,6 +246,30 @@ assertRejected(
   'Firebase release-services summary guard self-check helper is missing',
 );
 assertRejected(
+  'Missing push notification bridge summary guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/pushNotificationBridgeSummaryGuard.mjs')),
+  },
+  'push notification bridge summary guard helper is missing',
+);
+assertRejected(
+  'Missing push notification bridge summary checker file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkPushNotificationBridgeSummary.mjs')),
+  },
+  'push notification bridge summary artifact checker is missing',
+);
+assertRejected(
+  'Missing push notification bridge summary guard self-check file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkPushNotificationBridgeSummaryGuard.mjs')),
+  },
+  'push notification bridge summary guard self-check helper is missing',
+);
+assertRejected(
   'Missing dev verification package script fixture',
   {
     ...validEnvironment,
@@ -420,6 +444,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:firebase-release-services-summary-guard')),
   },
   'package.json is missing check:firebase-release-services-summary-guard',
+);
+assertRejected(
+  'Missing push notification bridge summary package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'push-notification:bridge-check-summary')),
+  },
+  'package.json is missing push-notification:bridge-check-summary',
+);
+assertRejected(
+  'Missing push notification bridge summary guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:push-notification-bridge-summary-guard')),
+  },
+  'package.json is missing check:push-notification-bridge-summary-guard',
 );
 
 console.log('Android dev environment audit guard checks are valid.');

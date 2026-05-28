@@ -122,7 +122,8 @@ Shared env/config:
 - `corepack yarn sentry:android-warning:audit` confirms the current Android Sentry `execResult` warning remains dependency-owned before a dedicated Sentry release/source-map cleanup branch.
 - Push notification changes need Android 13+ permission checks, Firebase Messaging token checks, and iOS permission/token validation.
 - `@react-native-community/push-notification-ios` is pinned to the already-resolved `1.10.0` after `BEM-36.71`; this is not an iOS notification behavior upgrade and does not replace dedicated iOS push validation.
-- `corepack yarn push-notification:bridge-audit` verifies current iOS push notification bridge wiring and static readiness. After `BEM-37.79`, the audit reports no static readiness issues, but APNs registration, token, foreground/background delivery, badge, and tap-through behavior still require iOS simulator/device validation.
+- `corepack yarn push-notification:bridge-audit` verifies current iOS push notification bridge wiring and static readiness. It writes `local-docs/push-notification-bridge-summary.txt`.
+- `corepack yarn push-notification:bridge-check-summary` validates the generated local push notification bridge summary. After `BEM-37.79`, the audit reports no static readiness issues, but APNs registration, token, foreground/background delivery, badge, and tap-through behavior still require iOS simulator/device validation.
 
 ## Branching Decision
 
@@ -162,7 +163,7 @@ Release-service-specific validation:
 - Analytics: confirm app startup does not crash and analytics package initialization remains compatible; start with `corepack yarn firebase:release-services:audit` and `corepack yarn firebase:release-services:check-summary`.
 - CodePush: validate a non-dev build path because CodePush is disabled under `__DEV__`; start with `corepack yarn codepush:release:path-audit` and `corepack yarn codepush:release:path-check-summary`.
 - Sentry: start with `corepack yarn sentry:android-warning:audit` and `corepack yarn sentry:release:prereq-audit`, then validate Android release bundling/source maps and iOS dSYM/source-map upload path.
-- iOS push: start with `corepack yarn push-notification:bridge-audit`, then validate APNs registration, token, foreground/background delivery, badge reset, and tap-through behavior on a Mac runner/device.
+- iOS push: start with `corepack yarn push-notification:bridge-audit` and `corepack yarn push-notification:bridge-check-summary`, then validate APNs registration, token, foreground/background delivery, badge reset, and tap-through behavior on a Mac runner/device.
 - Secrets: do not guess `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, CodePush deployment keys, or Firebase config values. If missing locally, record the exact missing variable/file.
 
 ## Current Conclusion
