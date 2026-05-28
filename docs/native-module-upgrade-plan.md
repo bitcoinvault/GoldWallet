@@ -38,6 +38,7 @@ Current expectation:
 
 - `react-native-gesture-handler` -> `1.10.3`
 - `@react-native-community/blur` -> `4.4.1`
+- `@react-native-community/masked-view` -> `0.1.11`
 - `react-native-bootsplash` -> `3.2.7`
 - `react-native-fast-image` -> `8.6.3`
 - `react-native-safe-area-context` -> `3.4.1`
@@ -65,6 +66,7 @@ Branch shape:
 - `react-native-fast-image` is on latest checked `8.6.3` after `BEM-36.53`; future image work should focus on cached image behavior and any RN baseline-driven replacement rather than another 8.x package bump.
 - `react-native-vector-icons` is already on the latest checked 6.x line after `BEM-36.52`; `@react-native-community/toolbar-android` is tracked because that package line requires it at bundle time. The declared `^0.1.0-rc.1` peer did not compile on the current Android baseline, while `0.2.1` did; a future per-icon-family migration should be a dedicated branch.
 - `react-native-gesture-handler` is pinned to the already-resolved `1.10.3` after `BEM-36.65`; future gesture-handler work should validate navigation transitions and wait for a broader RN baseline step.
+- `@react-native-community/masked-view` is pinned to the already-resolved `0.1.11` after `BEM-36.66`; future masked-view work should validate stack/header masking and wait for a broader navigation package baseline.
 
 ### Group C - Device, Storage, Network, And Runtime Integrations
 
