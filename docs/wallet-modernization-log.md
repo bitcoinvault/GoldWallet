@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.72 - RandomBytes plan alignment
+
+- Branch: `feature/bem-36-randombytes-plan-alignment`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align `docs/native-module-upgrade-plan.md` with the existing `react-native-randombytes@3.6.2` package and inventory baseline from `BEM-36.49`.
+- Record that future random-value work should be a dedicated crypto/runtime replacement branch for `react-native-get-random-values`.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The guarded package inventory and storage/network compatibility audit already track `react-native-randombytes@3.6.2`, but the Group C plan still showed the package without its stabilized version.
+
+Validation:
+
+- `corepack yarn check:native-module-upgrade-plan` passed.
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn check:storage-network-usage` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes documentation.
+
+Follow-up:
+
+- Do not replace the random-value provider without focused wallet/crypto validation and emulator smoke.
+
 ### BEM-37.97 - Android smoke summary checker
 
 - Branch: `feature/bem-37-smoke-summary-check`
