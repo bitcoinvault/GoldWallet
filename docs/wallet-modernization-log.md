@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.91 - Aggregate release-services summary guard
+
+- Branch: `feature/bem-37-release-services-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:release-services-summary-guard` to self-check the aggregate release-services summary checker wiring.
+- Include the aggregate guard immediately before `release-services:check-summaries` in `rn:baseline:preflight`.
+- Add the aggregate guard file and package script to the Android dev environment audit guard.
+- Refresh release-services, workflow, and baseline documentation with the aggregate guard command.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The aggregate checker now gates multiple release-service summary artifacts. A small self-check keeps its imported guard modules, local artifact paths, labels, and pass/fail output from drifting before larger release-service or RN branches.
+
+Validation:
+
+- `corepack yarn check:release-services-summary-guard` passed.
+- `corepack yarn release-services:check-summaries` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Keep the aggregate guard and checker together when adding any new release-service summary artifact.
+
 ### BEM-37.90 - Aggregate release-services summary checker
 
 - Branch: `feature/bem-37-release-services-summary-check`
