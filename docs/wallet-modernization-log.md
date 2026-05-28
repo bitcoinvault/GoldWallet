@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.96 - Android warning audit summary checker
+
+- Branch: `feature/bem-37-warning-baseline-summary-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:check-warning-audit-summary` to validate `local-docs/android-warning-audit-summary.txt` without requiring smoke artifacts.
+- Add `check:android-warning-audit-summary-guard` to self-check the targeted warning source/count validation.
+- Include the warning audit summary checker in `rn:baseline:preflight` after the aggregate warning-source summary checker.
+- Add the checker files and package scripts to the Android dev environment audit guard.
+- Refresh workflow and baseline documentation with the standalone warning-audit summary checker command.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The real Gradle warning audit remains the authoritative warning baseline, but it should be quick to validate its local summary independently from emulator smoke artifacts.
+
+Validation:
+
+- `corepack yarn check:android-warning-audit-summary-guard` passed.
+- `corepack yarn android:dev:check-warning-audit-summary` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Re-run `android:dev:audit-warnings` when the warning baseline changes, then validate the refreshed summary with `android:dev:check-warning-audit-summary`.
+
 ### BEM-37.95 - Android warning-source summary aggregate
 
 - Branch: `feature/bem-37-warning-source-summaries`
