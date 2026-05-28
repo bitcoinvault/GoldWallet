@@ -3,6 +3,7 @@ export const expectedPushNotificationIosRuntimeUsageFiles = new Set(['src/naviga
 export const expectedPushNotificationIosNativeUsageFiles = new Set([
   'ios/GoldWallet/AppDelegate.h',
   'ios/GoldWallet/AppDelegate.m',
+  'ios/GoldWallet/Info.plist',
   'ios/GoldWalletDev-Info.plist',
   'ios/GoldWalletStage-Info.plist',
 ]);
