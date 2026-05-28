@@ -80,6 +80,7 @@ Branch shape:
 - `react-native-randombytes`
 - `react-native-secure-key-store` -> `2.0.10`
 - `react-native-tcp-socket` -> `6.4.1`
+- `react-native-version-number` -> `0.3.6`
 - `react-native-webview` -> `11.26.1`
 
 Risk:
@@ -100,6 +101,7 @@ Branch shape:
 - `react-native-localize` is pinned to the already-resolved `1.4.3` after `BEM-36.62`; future localization work should focus on app language behavior and RN baseline changes.
 - `react-native-secure-key-store` is pinned to latest checked `2.0.10` after `BEM-36.63`; future secure-storage work should focus on behavior validation or replacement, not another package bump.
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
+- `react-native-version-number` is pinned to the already-resolved `0.3.6` after `BEM-36.69`; future app metadata work should validate displayed/build version behavior on both platforms.
 - `react-native-webview` is pinned to the already-resolved `11.26.1` after `BEM-36.64`; future WebView work should be a dedicated major upgrade with Terms screens validation.
 
 ### Group D - Notifications And Release Services
