@@ -193,6 +193,7 @@ Smoke pass means:
 ## Known Limits
 
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
+- Removed Android warning sources: app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, and Biometrics `jcenter()`.
 - `react-native-camera` cleanup is a larger QR/camera migration, not a small warning cleanup.
 - Sentry `execResult` cleanup should be handled in a dedicated release/source-map validation branch.
 - The current warning baseline remains exactly two targeted sources: Sentry `execResult` and `react-native-camera` `jcenter()`.

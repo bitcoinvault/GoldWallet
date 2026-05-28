@@ -6481,3 +6481,33 @@ Validation:
 - `corepack yarn sentry:android-warning:audit`
 - `corepack yarn sentry:android-warning:check-summary`
 - npm metadata check for `@sentry/react-native@8.13.0`
+
+### BEM-37.73 - Android warning baseline refresh
+
+- Branch: `feature/bem-37-warning-baseline-refresh-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Android Gradle warning audit evidence after the Sentry warning-source audit.
+- Document the removed warning sources and the current known remaining baseline.
+
+Findings:
+
+- The refreshed Android warning audit reports `Targeted Android Gradle warnings: 2`.
+- Unexpected targeted Android Gradle warnings remain `0`.
+- Removed warning sources include the stale app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, and Biometrics `jcenter()` cleanup work.
+- Remaining warning source 1: Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48`.
+- Remaining warning source 2: `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.
+
+Decision:
+
+- Keep both remaining warnings as guarded known sources.
+- Remove Sentry warning only in the dedicated release/source-map validation branch.
+- Remove camera warning only in the dedicated QR scanner replacement branch.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn android:dev:check-artifacts`

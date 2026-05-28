@@ -145,6 +145,7 @@ Passing:
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 2` and `Unexpected targeted Android Gradle warnings: 0`.
 - Current targeted warning sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.
+- Removed Android warning sources include the stale app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, and Biometrics `jcenter()` cleanup branches.
 - The current `react-native-camera` warning source is covered by `corepack yarn camera:qr-migration:audit`; the current Sentry warning source is covered by `corepack yarn sentry:android-warning:audit`.
 - The latest live RN target snapshot check reports `Live check outcome: matched` with `Mismatches: 0`.
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
@@ -158,9 +159,9 @@ Known gaps:
 - Some tests call public or staging Electrum endpoints.
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
 - Full wallet flow QA is still required: create/import wallet, PIN, biometrics, send, receive, QR scan, history, authenticator, recovery flows.
-- Remaining targeted Android warning sources were last refreshed from `local-docs/android-warning-audit-summary.txt` generated on `2026-05-28T18:17:11.944Z`: `react-native-camera` `jcenter()` and Sentry `execResult`; unexpected targeted warning count was `0`.
+- Remaining targeted Android warning sources were last refreshed from `local-docs/android-warning-audit-summary.txt` generated on `2026-05-28T19:37:42.051Z`: `react-native-camera` `jcenter()` and Sentry `execResult`; unexpected targeted warning count was `0`.
 - `BEM-37.78` records the camera/QR migration readiness audit for the `react-native-camera` warning source.
-- `BEM-37.81` records the Sentry Android warning audit for the Sentry `execResult` warning source.
+- `BEM-37.72` records the Sentry Android warning audit for the Sentry `execResult` warning source.
 - `BEM-36.81` records the current React Native baseline preflight refresh before the next RN baseline branch.
 
 ## Recommended Upgrade Order
