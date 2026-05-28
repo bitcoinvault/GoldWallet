@@ -20,6 +20,12 @@ Test/type coupling audit for the staged React/RN baseline path.
 - Re-run focused Jest suites and emulator smoke after TypeScript, Jest, React, or React Native package changes.
 - Treat `skipLibCheck` changes as high-risk because the current repo depends on older React and React Native type packages.
 
+## Focused Validation
+
+- Required focused scripts: `test:unit`, `test:storage`, `test:authenticator`, `test:watchonly:offline`, `test:hdwallet:offline`, `test:wallet-core:offline`
+- Required focused files: `tests/unit/signer.test.js`, `tests/unit/encryption.test.js`, `tests/integration/Storage.test.js`, `tests/integration/authenticator.test.js`, `tests/integration/WatchOnlyWallet.offline.test.js`, `tests/integration/HDWallet.offline.test.js`, `tests/integration/App.offline.test.js`
+- The focused scripts must remain in `prepush` so TypeScript/Jest/RN baseline work keeps the deterministic offline coverage in front of emulator smoke.
+
 ## Validation
 
 ```powershell

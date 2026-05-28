@@ -1,10 +1,11 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
+const exists = relativePath => existsSync(path.join(root, relativePath));
 
 export const expectedTestTypeCoupling = {
   typescript: '^4.0.3',
@@ -25,6 +26,25 @@ export const requiredTestTypeCouplingDocs = [
   'docs/wallet-modernization-baseline.md',
 ];
 
+export const requiredTestTypeValidationScripts = new Map([
+  ['test:unit', 'node node_modules/jest/bin/jest.js tests/unit --forceExit'],
+  ['test:storage', 'node node_modules/jest/bin/jest.js tests/integration/Storage.test.js --forceExit'],
+  ['test:authenticator', 'node node_modules/jest/bin/jest.js tests/integration/authenticator.test.js --forceExit'],
+  ['test:watchonly:offline', 'node node_modules/jest/bin/jest.js tests/integration/WatchOnlyWallet.offline.test.js --forceExit'],
+  ['test:hdwallet:offline', 'node node_modules/jest/bin/jest.js tests/integration/HDWallet.offline.test.js --forceExit'],
+  ['test:wallet-core:offline', 'node node_modules/jest/bin/jest.js tests/integration/App.offline.test.js --forceExit'],
+]);
+
+export const requiredTestTypeValidationFiles = [
+  'tests/unit/signer.test.js',
+  'tests/unit/encryption.test.js',
+  'tests/integration/Storage.test.js',
+  'tests/integration/authenticator.test.js',
+  'tests/integration/WatchOnlyWallet.offline.test.js',
+  'tests/integration/HDWallet.offline.test.js',
+  'tests/integration/App.offline.test.js',
+];
+
 export const requiredTestTypeCouplingSnippets = [
   ['docs/test-type-coupling-audit.md', 'Test/type coupling audit'],
   ['docs/test-type-coupling-audit.md', 'Current TypeScript: `^4.0.3`'],
@@ -35,6 +55,8 @@ export const requiredTestTypeCouplingSnippets = [
   ['docs/test-type-coupling-audit.md', 'Current TS JSX mode: `react-native`'],
   ['docs/test-type-coupling-audit.md', 'Current TS skipLibCheck: `true`'],
   ['docs/test-type-coupling-audit.md', 'Do not update TypeScript/Jest separately from the React/RN baseline branch that owns type/runtime behavior.'],
+  ['docs/test-type-coupling-audit.md', 'Required focused scripts: `test:unit`, `test:storage`, `test:authenticator`, `test:watchonly:offline`, `test:hdwallet:offline`, `test:wallet-core:offline`'],
+  ['docs/test-type-coupling-audit.md', 'Required focused files: `tests/unit/signer.test.js`, `tests/unit/encryption.test.js`, `tests/integration/Storage.test.js`, `tests/integration/authenticator.test.js`, `tests/integration/WatchOnlyWallet.offline.test.js`, `tests/integration/HDWallet.offline.test.js`, `tests/integration/App.offline.test.js`'],
   ['docs/test-type-coupling-audit.md', 'corepack yarn test:type-coupling:audit'],
   ['docs/react-package-coupling-audit.md', 'Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`'],
   ['docs/react19-impact-audit.md', 'Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`'],
@@ -42,7 +64,7 @@ export const requiredTestTypeCouplingSnippets = [
   ['docs/wallet-modernization-baseline.md', 'Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`'],
 ];
 
-export const getTestTypeCouplingIssues = ({ devDependencies, scripts, tsconfig, jestConfigContent, docs, existingDocs }) => {
+export const getTestTypeCouplingIssues = ({ devDependencies, scripts, tsconfig, jestConfigContent, docs, existingDocs, existingTestFiles }) => {
   const errors = [];
 
   if (devDependencies.typescript !== expectedTestTypeCoupling.typescript) {
@@ -76,6 +98,24 @@ export const getTestTypeCouplingIssues = ({ devDependencies, scripts, tsconfig, 
   if (scripts['check:test-type-coupling-guard'] !== 'node scripts/checkTestTypeCouplingGuard.mjs') {
     errors.push('package.json is missing check:test-type-coupling-guard script');
   }
+
+  requiredTestTypeValidationScripts.forEach((expectedCommand, scriptName) => {
+    if (scripts[scriptName] !== expectedCommand) {
+      errors.push(`package.json has ${scriptName}="${scripts[scriptName] || '<missing>'}"; expected "${expectedCommand}"`);
+    }
+  });
+
+  requiredTestTypeValidationScripts.forEach((_expectedCommand, scriptName) => {
+    if (!scripts.prepush?.includes(`yarn ${scriptName}`)) {
+      errors.push(`package.json prepush is missing yarn ${scriptName}`);
+    }
+  });
+
+  requiredTestTypeValidationFiles.forEach(relativePath => {
+    if (!existingTestFiles.has(relativePath)) {
+      errors.push(`${relativePath} is missing`);
+    }
+  });
 
   if (tsconfig.compilerOptions?.target !== expectedTestTypeCoupling.tsTarget) {
     errors.push(`tsconfig target is ${tsconfig.compilerOptions?.target || '<missing>'}; expected ${expectedTestTypeCoupling.tsTarget}`);
@@ -134,6 +174,7 @@ const collectEnvironment = () => {
     jestConfigContent: read('jest.config.js'),
     docs,
     existingDocs,
+    existingTestFiles: new Set(requiredTestTypeValidationFiles.filter(exists)),
   };
 };
 
@@ -149,6 +190,8 @@ const printReport = environment => {
   console.log(`TS target: ${environment.tsconfig.compilerOptions?.target || '<missing>'}`);
   console.log(`TS JSX mode: ${environment.tsconfig.compilerOptions?.jsx || '<missing>'}`);
   console.log(`TS skipLibCheck: ${environment.tsconfig.compilerOptions?.skipLibCheck}`);
+  console.log(`Focused validation scripts: ${[...requiredTestTypeValidationScripts.keys()].join(', ')}`);
+  console.log(`Focused validation files: ${environment.existingTestFiles.size}/${requiredTestTypeValidationFiles.length}`);
 
   if (errors.length > 0) {
     console.log('Test/type coupling audit is invalid:');

@@ -3718,6 +3718,42 @@ Notes:
 - The preflight still reports the existing readiness warnings for Node 22 versus the Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
 - Android dev verify built the dev APK, installed it on `emulator-5554`, and smoke validated `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive` with no fatal AndroidRuntime or React Native runtime logcat findings.
 
+### BEM-36.101 - Test/type focused validation guard
+
+- Branch: `feature/bem-36-test-type-focused-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend `test:type-coupling:audit` so it also guards the deterministic focused Jest coverage required before TypeScript/Jest/React/RN baseline changes.
+- Guard package scripts and existing files for `test:unit`, `test:storage`, `test:authenticator`, `test:watchonly:offline`, `test:hdwallet:offline`, and `test:wallet-core:offline`.
+- Guard that those focused scripts remain in `prepush`.
+- Document the focused validation contract in `docs/test-type-coupling-audit.md`.
+
+Why:
+
+- Version coupling alone is not enough for the next RN/React/TypeScript step; the branch should also prove that the offline tests used for wallet core, storage, authenticators, watch-only, and HD wallet behavior remain runnable.
+- Keeping the focused scripts in `prepush` preserves a deterministic gate while the full legacy Jest suite still has known network/env blockers.
+
+Validation:
+
+- `corepack yarn check:test-type-coupling-guard`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn test:unit`
+- `corepack yarn test:storage`
+- `corepack yarn test:authenticator`
+- `corepack yarn test:watchonly:offline`
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
+Notes:
+
+- The focused test audit reports `Focused validation files: 7/7`.
+- The guarded focused Jest scripts all passed.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`
