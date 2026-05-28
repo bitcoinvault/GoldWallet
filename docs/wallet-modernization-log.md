@@ -6391,3 +6391,26 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn typescript:check`
 - `git diff --check`
+
+### BEM-36.113 - React Native milestone guard alignment
+
+- Branch: `feature/bem-36-rn-path-milestone-guards`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `scripts/auditReactNativeUpgradePath.mjs` to require the new foundation target matrix and milestone-jump wording.
+- Update `docs/wallet-modernization-baseline.md` so the baseline no longer says to continue RN stepwise.
+
+Why:
+
+- `corepack yarn rn:baseline:preflight` still enforced the old wording after the strategy changed.
+- The guard should prevent a return to one-minor-at-a-time upgrade planning and require the RN `0.76.9 -> 0.82.x -> 0.85.x` milestone path.
+
+Validation:
+
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
