@@ -7,7 +7,7 @@
 - The scanner is opened from 8 current callers: authenticator list, create contact, import authenticator, import wallet, integrate key, recovery seed, recovery send, and send coins.
 - Android requires `missingDimensionStrategy 'react-native-camera', 'general'`.
 - Android and iOS camera permissions are already present.
-- `react-native-camera` resolves to `3.44.3`; the latest package release is `4.2.1`.
+- `react-native-camera` resolves to `3.44.3`; the latest package release checked on 2026-05-28 is `4.2.1`.
 - The latest `react-native-camera` still contains `jcenter()` in its Android Gradle file, so a package bump does not remove the warning.
 - `corepack yarn check:camera-usage-guard` verifies the camera usage guard fixtures.
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface before the replacement work starts.
@@ -26,16 +26,19 @@
 
 ### Preferred: VisionCamera Barcode Scanner
 
-- Package path: `react-native-vision-camera` plus its barcode scanner package.
+- Package path: `react-native-vision-camera`.
 - Upstream docs describe barcode/QR scanning for both Android and iOS.
 - The modern API can scan only `qr-code`, which matches GoldWallet's current use.
-- Risk: current latest VisionCamera line has additional native dependencies and may require React Native/toolchain compatibility checks beyond RN 0.68.
+- Current latest package checked on 2026-05-28 is `react-native-vision-camera@5.0.11`.
+- Risk: the current latest line depends on the Nitro module stack (`react-native-nitro-modules` and `react-native-nitro-image`), so it should be aligned with the RN foundation upgrade path rather than attempted as a small RN `0.68.7` warning cleanup.
+- Highest checked v4 line is `react-native-vision-camera@4.7.3`; it still requires additional native/worklet dependencies and needs a proof build before selection.
 
 ### Alternative: Camera Kit
 
 - Package path: `react-native-camera-kit`.
 - Smaller API surface for scanner use cases.
-- Risk: still requires native permission and scanner behavior validation; feature parity and maintenance need a separate proof build.
+- Current latest package checked on 2026-05-28 is `react-native-camera-kit@18.0.0`.
+- Risk: the latest package declares `node >=18`, while the current RN `0.68.7` Metro/dev baseline remains Node 16. Treat this as a post-Node/RN-foundation candidate unless a compatible older line is deliberately selected and proof-built.
 
 ### Not Recommended: Patch `react-native-camera`
 
@@ -49,6 +52,7 @@ Branch: `feature/bem-camera-qr-scanner-migration`
 
 Scope:
 
+- Start with a proof branch that installs the chosen candidate, builds Android, and opens the scanner before deleting `react-native-camera`.
 - Replace `ScanQrCodeScreen` camera implementation.
 - Preserve the existing navigation contract: `route.params.onBarCodeScan(data)`.
 - Preserve all current scanner entry points guarded by `check:qr-scan-callers`.
@@ -76,6 +80,12 @@ Scope:
 - Reopen scanner and verify duplicate-scan guard does not call the callback repeatedly.
 - Check logcat for camera/runtime errors.
 - iOS validation remains required on a Mac runner or device before calling the migration complete.
+
+## Sequencing Decision
+
+- Do not replace `react-native-camera` as a warning-only cleanup.
+- Keep `react-native-camera` guarded until the RN foundation path moves past the current RN `0.68.7` and Node 16 baseline, or until a candidate proof branch demonstrates compatibility without weakening scanner behavior.
+- The first proof branch should compare VisionCamera and Camera Kit against the actual QR screen contract, not just npm peer ranges.
 
 ## References
 
