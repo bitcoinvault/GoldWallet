@@ -214,7 +214,7 @@
     "react-native-bootsplash": "3.2.7",
     "react-native-calendars": "^1.265.0",
     "react-native-camera": "^3.33.0",
-    "react-native-code-push": "^7.0.2",
+    "react-native-code-push": "7.0.2",
     "react-native-config": "1.5.9",
     "react-native-confirmation-code-field": "7.1.0",
     "react-native-device-info": "6.2.1",

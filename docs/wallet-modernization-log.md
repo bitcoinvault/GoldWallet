@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.70 - CodePush manifest pin
+
+- Branch: `feature/bem-code-push-7-0-2-manifest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `react-native-code-push` manifest from `^7.0.2` to the already-resolved lockfile version `7.0.2`.
+- Refresh the lockfile selector for the exact dependency.
+- Update the native module inventory guard, native module upgrade plan, and release services compatibility audit.
+- Keep source usage, Android/iOS native project files, release-service env files, deployment keys, and runtime behavior unchanged.
+
+Why:
+
+- The repo was already installing `react-native-code-push@7.0.2`, but the manifest allowed dependency drift in a release-service dependency used by non-dev bundle loading.
+- This branch freezes the current working version and keeps real CodePush release/update behavior validation for a dedicated non-dev release-path branch.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn android:dev:check-light` passed, including CodePush usage scope guards, release-service env key guards, TypeScript, native module guards, RN nodeify shims, and whitespace checks.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed with `BUILD SUCCESSFUL`.
+- Metro was restarted with `--reset-cache` before emulator validation.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed on emulator `emulator-5554`; UI contained `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+- Targeted logcat check found no fatal Android/React Native/CodePush runtime errors; Electrum connected to `electrumx.testnet.btcv.stage.rnd.land`.
+- Limitation: debug smoke does not validate non-dev CodePush release/update behavior because CodePush is disabled under `__DEV__`.
+
+Follow-up:
+
+- Validate a non-dev CodePush release/update path before any real CodePush upgrade, because debug smoke runs with CodePush disabled under `__DEV__`.
+
 ### BEM-36.69 - Version Number manifest pin
 
 - Branch: `feature/bem-version-number-0-3-6-manifest`
