@@ -14,7 +14,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-firebase/messaging` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | `7.0.2` | `9.0.1` | Release update path, deployment keys, native bundle loading. |
-| `@sentry/react-native` | `5.36.0` | `8.12.0` | Major SDK jump; source-map and dSYM behavior must be proven. |
+| `@sentry/react-native` | `5.36.0` | `8.13.0` | Major SDK jump; source-map and dSYM behavior must be proven. |
 
 ## Current Runtime Surface
 
