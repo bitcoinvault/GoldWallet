@@ -10,6 +10,27 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.51 - Native plan TCP socket baseline
+
+- Branch: `feature/bem-native-plan-tcp-socket-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `docs/native-module-upgrade-plan.md` after the `react-native-tcp-socket` `6.4.1` branch.
+- Keep runtime code, native code, dependency versions, Metro behavior, and validation artifact formats unchanged.
+
+Why:
+
+- The native module plan explicitly says dependency version changes should keep the plan aligned with the guarded inventory.
+- Future Group C socket/config work should start from the current `6.4.1` baseline and focus on Electrum/network behavior, not repeat the package bump.
+
+Validation:
+
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- Emulator smoke not required for this documentation-only branch.
+
 ### BEM-36.50 - React Native TCP Socket 6.4.1
 
 - Branch: `feature/bem-tcp-socket-6-4-1`
