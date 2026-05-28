@@ -9,7 +9,7 @@ Checked on: 2026-05-28
 - `react-native`: `0.68.7`
 - `react`: `17.0.2`
 - `react-native-svg`: `12.5.1`
-- `react-native-qrcode-svg`: `6.1.2`
+- `react-native-qrcode-svg`: `6.1.1`
 
 Current guarded QR render surface:
 
@@ -39,7 +39,7 @@ dependencies:
 - css-select ^5.1.0
 - css-tree ^1.1.3
 
-react-native-qrcode-svg@6.1.2
+react-native-qrcode-svg@6.1.1
 peerDependencies:
 - react: *
 - react-native: >=0.63.4
@@ -75,7 +75,7 @@ peerDependencies:
 
 ## Decision
 
-- Keep `react-native-svg@12.5.1` and `react-native-qrcode-svg@6.1.2` fixed until a later RN baseline can support the newer SVG/QR renderer lines.
+- Keep `react-native-svg@12.5.1`, `react-native-qrcode-svg@6.1.1`, and root `qrcode@1.4.4` resolution fixed until a later RN baseline can support the newer SVG/QR renderer lines.
 - Do not combine QR render dependency changes with the camera scanner replacement branch.
 - Use a dedicated branch for any future `react-native-svg` or `react-native-qrcode-svg` major-line migration.
 

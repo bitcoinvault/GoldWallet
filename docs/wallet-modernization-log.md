@@ -10,6 +10,28 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.58 - SVG QR render documentation consistency
+
+- Branch: `feature/bem-36-svg-qr-doc-consistency`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align the native module upgrade plan and SVG QR render compatibility audit with the actual BEM-36.57 package state.
+- Record the tested QR renderer pair as `react-native-svg@12.5.1`, `react-native-qrcode-svg@6.1.1`, and root `qrcode@1.4.4` resolution.
+- Keep package versions, runtime code, native files, and lockfile unchanged.
+
+Why:
+
+- BEM-36.57 intentionally rejected `react-native-qrcode-svg@6.1.2` with freshly resolved `qrcode@1.5.4` after Receive-screen smoke exposed `ReferenceError: Can't find variable: TextEncoder`.
+- The follow-up documentation must point future work at the tested state, not the rejected trial version.
+
+Validation:
+
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- Confirmed no documentation still claims `react-native-qrcode-svg@6.1.2` as the fixed/current package; remaining `6.1.2` mentions are explicitly marked as the rejected trial version.
+
 ### BEM-36.57 - SVG QR render dependency pair
 
 - Branch: `feature/bem-svg-qr-render-12-5-1`
