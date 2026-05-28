@@ -6598,3 +6598,25 @@ Decision:
 Validation:
 
 - `corepack yarn rn:baseline:preflight`
+
+### BEM-37.104 - Modernization log ID guard self-check
+
+- Branch: `feature/bem-37-modernization-log-id-guard-self-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract the modernization log ID comparison into `scripts/modernizationLogIdGuard.mjs`.
+- Add `scripts/checkModernizationLogIdGuard.mjs` with positive and negative fixtures.
+- Add `check:modernization-log-id-guard` to `android:dev:check-light` before the real log scan.
+- Refresh README, Android workflow, and baseline docs for the self-check.
+
+Why:
+
+- The real log scanner has a legacy duplicate allow-list.
+- A self-check makes sure the guard still accepts unique IDs, accepts explicitly allowed legacy duplicates, and rejects new unexpected duplicates.
+
+Validation:
+
+- `corepack yarn check:modernization-log-id-guard`
+- `corepack yarn check:modernization-log-ids`
