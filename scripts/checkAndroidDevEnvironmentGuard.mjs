@@ -2,7 +2,18 @@ import {
   getAndroidDevEnvironmentIssues,
   requiredAndroidDevFiles,
   requiredAndroidDevPackageScripts,
+  requiredAndroidDevPackageScriptSnippets,
 } from './auditAndroidDevEnvironment.mjs';
+
+const requiredPackageScriptCommands = new Map(
+  requiredAndroidDevPackageScripts.map(scriptName => [
+    scriptName,
+    requiredAndroidDevPackageScriptSnippets
+      .filter(([snippetScriptName]) => snippetScriptName === scriptName)
+      .map(([, snippet]) => snippet)
+      .join(' && ') || `yarn ${scriptName}`,
+  ]),
+);
 
 const validEnvironment = {
   javaCommand: 'D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10\\bin\\java.exe',
@@ -17,6 +28,7 @@ const validEnvironment = {
   adbReady: true,
   existingFiles: new Set(requiredAndroidDevFiles.map(([relativePath]) => relativePath)),
   packageScripts: new Set(requiredAndroidDevPackageScripts),
+  packageScriptCommands: requiredPackageScriptCommands,
 };
 
 const assertAccepted = (label, environment) => {
@@ -396,6 +408,39 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'android:dev:verify')),
   },
   'package.json is missing android:dev:verify',
+);
+assertRejected(
+  'Dev verification missing assemble fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:verify', 'yarn android:dev:smoke && yarn android:dev:check-smoke-summary'],
+    ]),
+  },
+  'package.json script android:dev:verify must include android:dev:assemble',
+);
+assertRejected(
+  'Dev verification missing smoke fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:verify', 'yarn android:dev:assemble && yarn android:dev:check-smoke-summary'],
+    ]),
+  },
+  'package.json script android:dev:verify must include android:dev:smoke',
+);
+assertRejected(
+  'Dev verification missing smoke summary fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:verify', 'yarn android:dev:assemble && yarn android:dev:smoke'],
+    ]),
+  },
+  'package.json script android:dev:verify must include android:dev:check-smoke-summary',
 );
 assertRejected(
   'Missing RN upgrade path package script fixture',
