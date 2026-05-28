@@ -707,7 +707,7 @@ Follow-up:
 
 - Keep the aggregate warning-source checker aligned with any new targeted Android warning-source summary artifact.
 
-### BEM-37.94 - Aggregate Sentry warning release-services summary
+### BEM-37.101 - Aggregate Sentry warning release-services summary
 
 - Branch: `feature/bem-37-release-services-sentry-warning-aggregate`
 - Parent branch: `upgrade/wallet-modernization`
