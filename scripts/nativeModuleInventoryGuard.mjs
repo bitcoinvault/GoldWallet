@@ -4,6 +4,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['@react-native-community/blur', '^4.3.0'],
   ['@react-native-community/netinfo', '^6.0.2'],
   ['@react-native-community/push-notification-ios', '^1.8.0'],
+  ['@react-native-community/toolbar-android', '0.2.1'],
   ['@react-native-firebase/analytics', '12.7'],
   ['@react-native-firebase/app', '12.7'],
   ['@react-native-firebase/crashlytics', '12.7'],
@@ -25,7 +26,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-share', '7.9.1'],
   ['react-native-svg', '9.5.1'],
   ['react-native-tcp-socket', '6.4.1'],
-  ['react-native-vector-icons', '6.6.0'],
+  ['react-native-vector-icons', '6.7.0'],
   ['react-native-webview', '^11.26.1'],
 ]);
 

@@ -43,7 +43,8 @@ Current expectation:
 - `react-native-safe-area-context`
 - `react-native-screens`
 - `react-native-svg`
-- `react-native-vector-icons`
+- `react-native-vector-icons` -> `6.7.0`
+- `@react-native-community/toolbar-android` -> `0.2.1` as the bundle-time peer dependency needed by `react-native-vector-icons@6.7.0`
 
 Risk:
 
@@ -57,6 +58,7 @@ Branch shape:
 - `docs/svg-qr-render-compatibility-audit.md` records the current npm compatibility snapshot and future validation path.
 - Validate TypeScript, Android build, emulator dashboard smoke, wallet list, send/receive navigation, and QR display.
 - For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
+- `react-native-vector-icons` is already on the latest checked 6.x line after `BEM-36.52`; `@react-native-community/toolbar-android` is tracked because that package line requires it at bundle time. The declared `^0.1.0-rc.1` peer did not compile on the current Android baseline, while `0.2.1` did; a future per-icon-family migration should be a dedicated branch.
 
 ### Group C - Device, Storage, Network, And Runtime Integrations
 

@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.52 - React Native Vector Icons 6.7.0
+
+- Branch: `feature/bem-vector-icons-6-7-0`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-vector-icons` from `6.6.0` to `6.7.0`.
+- Add `@react-native-community/toolbar-android@0.2.1`, the bundle-time peer dependency required by `react-native-vector-icons@6.7.0`.
+- Refresh `yarn.lock`.
+- Update the native module inventory guard, navigation/layout audit, and native module upgrade plan baseline.
+- Keep icon usage, font configuration, runtime code, and native Gradle/iOS project files unchanged.
+
+Why:
+
+- `6.7.0` is the latest checked 6.x package line and remains a small same-major dependency update.
+- The initial smoke attempt exposed a Metro 500 redbox because `react-native-vector-icons@6.7.0` requires `@react-native-community/toolbar-android`; adding the peer keeps the package line internally consistent.
+- `@react-native-community/toolbar-android@0.1.0-rc.2` matched the declared peer range but failed Android compilation on the current baseline; `0.2.1` compiled and passed smoke.
+- The package now warns about the newer per-icon-family migration model, but that is a larger icon-font migration and should not be mixed into this version bump.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- Initial `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` failed with a Metro 500 redbox because `@react-native-community/toolbar-android` was missing.
+- Retried with `@react-native-community/toolbar-android@0.1.0-rc.2`; Android assemble failed in `:react-native-community_toolbar-android:compileDebugJavaWithJavac` because `IconImageInfo` did not implement `getExtras()`.
+- Retried with `@react-native-community/toolbar-android@0.2.1`.
+- Metro restarted again with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+
+Follow-up:
+
+- `ios/Podfile.lock` was not refreshed in this Windows branch. Do not claim iOS validation until `pod install` and the affected iOS scheme build pass on a Mac/iOS environment.
+- Yarn still reports that `react-native-vector-icons@6.7.0` declares `@react-native-community/toolbar-android@^0.1.0-rc.1`; this branch intentionally uses `0.2.1` because the matching RC line failed Android compilation.
+
 ### BEM-36.51 - Native plan TCP socket baseline
 
 - Branch: `feature/bem-native-plan-tcp-socket-baseline`
