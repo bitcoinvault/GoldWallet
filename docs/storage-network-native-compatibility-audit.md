@@ -16,7 +16,7 @@ Tracked package versions:
 - `react-native-randombytes`: manifest and lockfile `3.6.2`
 - `react-native-secure-key-store`: manifest and lockfile `2.0.10`
 - `react-native-tcp-socket`: manifest and lockfile `6.4.1`
-- `react-native-webview`: manifest `^11.26.1`, lockfile `11.26.1`
+- `react-native-webview`: manifest and lockfile `11.26.1`
 
 Direct usage found in this audit:
 
@@ -113,6 +113,7 @@ peerDependencies:
 - `react-native-device-info` is now pinned to the already-resolved `6.2.1` after `BEM-36.61`; it still fits the current React Native baseline according to npm peer metadata.
 - `react-native-localize` is now pinned to the already-resolved `1.4.3` after `BEM-36.62`; it still fits the current React Native baseline according to npm peer metadata.
 - `react-native-secure-key-store` is now pinned to latest checked `2.0.10` after `BEM-36.63`; it should not be changed unless replacing the package entirely.
+- `react-native-webview` is now pinned to the already-resolved `11.26.1` after `BEM-36.64`; the latest 13.x line remains a separate WebView/Terms validation branch.
 - `react-native-tcp-socket` is on latest `6.4.1`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
 - Future config/env changes must preserve all current env variables used in `src/config/index.ts`.
 - AsyncStorage changes must keep Redux persist, `StoreService`, fee cache, and storage encryption tests green.

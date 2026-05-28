@@ -27,7 +27,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-svg', '12.5.1'],
   ['react-native-tcp-socket', '6.4.1'],
   ['react-native-vector-icons', '6.7.0'],
-  ['react-native-webview', '^11.26.1'],
+  ['react-native-webview', '11.26.1'],
 ]);
 
 export const getNativeModuleInventoryErrors = dependencies => {

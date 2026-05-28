@@ -243,7 +243,7 @@
     "react-native-toast-message": "^1.4.9",
     "react-native-vector-icons": "6.7.0",
     "react-native-version-number": "^0.3.6",
-    "react-native-webview": "^11.26.1",
+    "react-native-webview": "11.26.1",
     "react-redux": "^7.2.0",
     "readable-stream": "3.4.0",
     "redux": "^4.0.5",
