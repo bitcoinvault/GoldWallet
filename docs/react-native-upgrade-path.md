@@ -8,9 +8,15 @@ This document records the staged React Native upgrade direction for the wallet m
 - React: `17.0.2`
 - Metro Babel preset: `0.67.0`
 - Metro/dev Node runtime: `16.20.2`
+- Android compile SDK: `34`
 - Android target SDK: `33`
+- Android build tools: `34.0.0`
+- Android Gradle Plugin: `7.4.2`
+- Gradle wrapper: `7.5.1`
 
 The current branch does not target a direct jump to the latest React Native release. The goal is a controlled path toward a current supported React Native line after the dependency and native tooling blockers are reduced.
+
+Current Android template/toolchain baseline intentionally compiles with SDK 34 while keeping target SDK 33. Target SDK 34 should move only with the React Native/toolchain path that resolves Android 14+ debug receiver requirements.
 
 ## Upgrade Principles
 
@@ -45,4 +51,4 @@ Use this audit before starting or reviewing a React Native baseline branch:
 corepack yarn rn:upgrade-path:audit
 ```
 
-The audit verifies that the current package baseline, Metro runtime baseline, Android target-SDK deferral, and staged upgrade documentation still agree.
+The audit verifies that the current package baseline, Metro runtime baseline, Android build/target SDK baseline, Gradle baseline, Android target-SDK deferral, and staged upgrade documentation still agree.
