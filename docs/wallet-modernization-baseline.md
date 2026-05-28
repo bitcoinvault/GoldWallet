@@ -8,7 +8,7 @@ Updated on `upgrade/wallet-modernization` after the Android SDK/toolchain, warni
 
 - Integration branch: `upgrade/wallet-modernization`
 - Current task branch model: focused feature branches merged locally into `upgrade/wallet-modernization`.
-- Latest completed stream: Android SDK/toolchain modernization, Android warning audit hardening, Android smoke helper hardening, lightweight validation guard/self-check hardening, current camera/Sentry warning-source audits, and React Native baseline preflight evidence.
+- Latest completed stream: Android SDK/toolchain modernization, Android warning audit hardening, Android smoke helper hardening, lightweight validation guard/self-check hardening, current camera/Sentry warning-source audits, modernization log ID guard, and React Native baseline preflight evidence.
 
 All modernization work should be developed on focused task branches and merged into `upgrade/wallet-modernization`. The integration branch should be merged back to the main development line only after a tested modernization milestone.
 
@@ -162,7 +162,7 @@ Known gaps:
 - Remaining targeted Android warning sources were last refreshed from `local-docs/android-warning-audit-summary.txt` generated on `2026-05-28T19:37:42.051Z`: `react-native-camera` `jcenter()` and Sentry `execResult`; unexpected targeted warning count was `0`.
 - `BEM-37.78` records the camera/QR migration readiness audit for the `react-native-camera` warning source.
 - `BEM-37.99` records the Sentry Android warning audit for the Sentry `execResult` warning source.
-- `BEM-36.81` records the current React Native baseline preflight refresh before the next RN baseline branch.
+- `BEM-36.115` records the current React Native baseline preflight refresh before the next RN baseline branch.
 
 ## Recommended Upgrade Order
 

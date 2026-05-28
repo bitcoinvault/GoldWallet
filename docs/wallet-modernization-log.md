@@ -6565,3 +6565,36 @@ Validation:
 - `corepack yarn android:dev:check-light-docs`
 - `corepack yarn typescript:check`
 - `git diff --check`
+
+### BEM-36.115 - React Native baseline preflight refresh
+
+- Branch: `feature/bem-36-rn-baseline-preflight-refresh-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the aggregated React Native baseline preflight after the latest Android warning, camera replacement planning, and modernization-log guard branches.
+- Refresh ignored local audit artifacts under `local-docs/` for camera QR migration, Sentry Android warning, Sentry release prerequisites, Firebase release services, CodePush release path, push notification bridge, Android warning summary, Android smoke summary, and release-services summary validation.
+
+Findings:
+
+- `corepack yarn rn:baseline:preflight` passes on the current integration baseline.
+- Current baseline remains `react-native@0.68.7`, React `17.0.2`, Metro preset `0.67.0`, and `.nvmrc` `16.20.2`.
+- The RN target snapshot remains `react-native@0.85.3` latest and `0.86.0-rc.2` next, with target React peer `^19.2.3` and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- Current shell Node is `22.18.0`, while Metro/dev runtime remains documented for Node `16.20.2`; this is an audit warning, not a preflight failure.
+- Camera QR migration baseline remains stable, but `react-native-camera` stays deprecated and requires a dedicated scanner replacement branch.
+- Sentry Android warning baseline remains stable, but the `execResult` cleanup stays a dedicated release/source-map branch.
+- Sentry release validation is not locally ready because `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing and `SENTRY_AUTH_TOKEN` is not present in the current shell.
+- Firebase release-service wiring is present locally, while the Firebase package family remains on `12.7` and the next `23+/24.x` move remains a major family upgrade.
+- CodePush release update validation is not ready because `.env.dev.testnet` has blank Android/iOS deployment keys and beta env files do not define Android/iOS deployment keys.
+- Push notification bridge static readiness has no local issues, but real iOS delivery still requires device/Mac validation.
+
+Decision:
+
+- Treat this as the current checkpoint before a real RN foundation branch.
+- Continue with milestone RN foundation work rather than isolated package-only RN updates.
+- Keep Sentry release validation, CodePush release validation, camera replacement, and funded BTCV transaction QA as separate prerequisites/follow-ups.
+
+Validation:
+
+- `corepack yarn rn:baseline:preflight`
