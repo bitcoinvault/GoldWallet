@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.78 - Bigi types 1.4.5
+
+- Branch: `feature/bem-36-bigi-types-1-4-5`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `@types/bigi` from the broad `^1.4.2` manifest range to `1.4.5`.
+- Refresh `yarn.lock`.
+- Keep runtime `bigi`, wallet code, native project files, env files, and Android project files unchanged.
+
+Why:
+
+- Keep Bigi TypeScript metadata current inside the same `1.4.x` API family.
+- Pin the dev-only type package to the validated version so future lockfile refreshes do not drift independently from the branch evidence.
+
+Validation:
+
+- `corepack yarn typescript:check` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes dev type metadata and the lockfile, with no runtime, native, Metro, or application-code changes.
+
+Follow-up:
+
+- Runtime `bigi` remains `1.4.2`; any runtime cryptography dependency movement should stay on a separate branch with wallet-flow validation.
+
 ### BEM-36.77 - Lodash types 4.14.202
 
 - Branch: `feature/bem-36-lodash-types-4-14-202`
