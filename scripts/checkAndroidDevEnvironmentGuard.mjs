@@ -118,6 +118,22 @@ assertRejected(
   'React package coupling guard helper is missing',
 );
 assertRejected(
+  'Missing test/type coupling audit file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/auditTestTypeCoupling.mjs')),
+  },
+  'test/type coupling audit helper is missing',
+);
+assertRejected(
+  'Missing test/type coupling guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkTestTypeCouplingGuard.mjs')),
+  },
+  'test/type coupling guard helper is missing',
+);
+assertRejected(
   'Missing dev verification package script fixture',
   {
     ...validEnvironment,
@@ -196,6 +212,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:react-package-coupling-guard')),
   },
   'package.json is missing check:react-package-coupling-guard',
+);
+assertRejected(
+  'Missing test/type coupling package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'test:type-coupling:audit')),
+  },
+  'package.json is missing test:type-coupling:audit',
+);
+assertRejected(
+  'Missing test/type coupling guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:test-type-coupling-guard')),
+  },
+  'package.json is missing check:test-type-coupling-guard',
 );
 
 console.log('Android dev environment audit guard checks are valid.');
