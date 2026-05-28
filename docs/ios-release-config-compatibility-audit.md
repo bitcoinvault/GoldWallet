@@ -82,4 +82,5 @@ Release-config implementation:
 - Validate at least one non-dev build path for CodePush and Sentry source-map behavior.
 - Start CodePush release-path validation with `corepack yarn codepush:release:path-audit`; it checks wiring and key presence only, without printing deployment-key values.
 - Start Firebase release-service validation with `corepack yarn firebase:release-services:audit`; it checks package alignment, Android config, iOS plist files, and Messaging runtime wiring.
+- Start iOS push notification bridge validation with `corepack yarn push-notification:bridge-audit`; it checks bridge wiring and reports static readiness issues before device validation.
 - Do not guess missing DSNs, Firebase files, or CodePush deployment keys; report exact missing key/file names instead.
