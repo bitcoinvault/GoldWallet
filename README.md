@@ -91,6 +91,12 @@ To verify the recorded npm target snapshot for the staged RN upgrade:
 $ yarn rn:target-snapshot:audit
 ```
 
+To compare that snapshot with live npm metadata before a real RN baseline branch:
+
+```sh
+$ yarn rn:target-snapshot:current
+```
+
 To verify that the documented Metro runtime baseline is still aligned with the repo:
 
 ```sh
