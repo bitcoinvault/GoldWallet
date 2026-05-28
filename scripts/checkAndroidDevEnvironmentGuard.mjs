@@ -54,12 +54,20 @@ assertRejected(
   'guarded Gradle runner is missing',
 );
 assertRejected(
-  'Missing package script fixture',
+  'Missing dev verification package script fixture',
   {
     ...validEnvironment,
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'android:dev:verify')),
   },
   'package.json is missing android:dev:verify',
+);
+assertRejected(
+  'Missing RN upgrade path package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'rn:upgrade-path:audit')),
+  },
+  'package.json is missing rn:upgrade-path:audit',
 );
 
 console.log('Android dev environment audit guard checks are valid.');
