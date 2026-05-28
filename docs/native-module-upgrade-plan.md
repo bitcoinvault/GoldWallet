@@ -57,6 +57,7 @@ Branch shape:
 - `docs/navigation-native-compatibility-audit.md` records the current navigation/layout package compatibility snapshot and validation path.
 - `check:qr-render-usage` keeps the current `react-native-qrcode-svg` render surface explicit before `react-native-svg` changes.
 - `docs/svg-qr-render-compatibility-audit.md` records the current npm compatibility snapshot and future validation path.
+- `check:legacy-android-autolink` keeps obsolete QR image/prompt Android modules disabled in `react-native.config.js` until they are removed or replaced in a dedicated QR/camera branch.
 - Validate TypeScript, Android build, emulator dashboard smoke, wallet list, send/receive navigation, and QR display.
 - `react-native-bootsplash` is on latest checked `3.2.7` after `BEM-36.54`; future splash work should focus on launch-screen behavior and RN baseline changes, not another 3.x bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
