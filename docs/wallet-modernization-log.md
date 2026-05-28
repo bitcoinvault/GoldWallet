@@ -3754,6 +3754,44 @@ Notes:
 - The focused test audit reports `Focused validation files: 7/7`.
 - The guarded focused Jest scripts all passed.
 
+### BEM-36.102 - Node runtime transition audit
+
+- Branch: `feature/bem-36-node-runtime-transition-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/node-runtime-transition-audit.md`.
+- Add `node:runtime-transition:audit` and `check:node-runtime-transition-guard`.
+- Guard the current Metro/dev Node baseline at `.nvmrc` `16.20.2`, React Native `0.68.7`, and Metro Babel preset `0.67.0`.
+- Record the RN target snapshot implication: `react-native@0.85.3` currently requires Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- Include the Node runtime transition guard and audit in `rn:baseline:preflight`.
+- Link the audit from the RN target snapshot, RN upgrade path, baseline, and Android workflow docs.
+
+Why:
+
+- The future RN baseline cannot be treated as only a package bump; the RN target snapshot implies a Node tooling move away from the current Node 16 Metro baseline.
+- `.nvmrc` should not be changed as a standalone cleanup before the branch that owns Metro, Jest, React Native CLI, Android build, and emulator validation.
+
+Validation:
+
+- `corepack yarn check:node-runtime-transition-guard`
+- `corepack yarn node:runtime-transition:audit`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
+Notes:
+
+- The RN baseline preflight passed with the new Node runtime transition guard and audit.
+- The preflight still reports the existing warning that this shell is Node `22.18.0` while the current Metro/dev baseline remains documented as Node `16.20.2`.
+- No dependency, runtime, native, or Metro behavior was changed in this branch.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`

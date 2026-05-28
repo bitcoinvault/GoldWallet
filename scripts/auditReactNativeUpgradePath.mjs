@@ -23,10 +23,11 @@ export const expectedReactNativeUpgradePathBaseline = {
 };
 
 export const expectedReactNativeBaselinePreflight =
-  'yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn rn:upgrade-path:audit && yarn check:rn-target-snapshot-guard && yarn check:rn-target-snapshot-current-guard && yarn rn:target-snapshot:audit && yarn check:react19-impact-guard && yarn react19:impact:audit && yarn check:react-package-coupling-guard && yarn react:package-coupling:audit && yarn check:test-type-coupling-guard && yarn test:type-coupling:audit && yarn camera:qr-migration:audit && yarn sentry:android-warning:audit && yarn sentry:release:prereq-audit && yarn firebase:release-services:audit && yarn codepush:release:path-audit && yarn push-notification:bridge-audit';
+  'yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn check:node-runtime-transition-guard && yarn node:runtime-transition:audit && yarn rn:upgrade-path:audit && yarn check:rn-target-snapshot-guard && yarn check:rn-target-snapshot-current-guard && yarn rn:target-snapshot:audit && yarn check:react19-impact-guard && yarn react19:impact:audit && yarn check:react-package-coupling-guard && yarn react:package-coupling:audit && yarn check:test-type-coupling-guard && yarn test:type-coupling:audit && yarn camera:qr-migration:audit && yarn sentry:android-warning:audit && yarn sentry:release:prereq-audit && yarn firebase:release-services:audit && yarn codepush:release:path-audit && yarn push-notification:bridge-audit';
 
 export const requiredReactNativeUpgradePathDocs = [
   'docs/react-native-upgrade-path.md',
+  'docs/node-runtime-transition-audit.md',
   'docs/react-native-target-snapshot.md',
   'docs/react19-impact-audit.md',
   'docs/react-package-coupling-audit.md',
@@ -50,6 +51,7 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/react-native-upgrade-path.md', 'Keep `targetSdkVersion 34` deferred'],
   ['docs/react-native-upgrade-path.md', 'Current Android template/toolchain baseline'],
   ['docs/react-native-upgrade-path.md', 'React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`'],
+  ['docs/react-native-upgrade-path.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],
   ['docs/react-native-upgrade-path.md', 'React 19 impact audit is tracked in `docs/react19-impact-audit.md`'],
   ['docs/react-native-upgrade-path.md', 'React package coupling audit is tracked in `docs/react-package-coupling-audit.md`'],
   ['docs/react-native-upgrade-path.md', 'Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`'],
@@ -59,6 +61,7 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/wallet-modernization-baseline.md', 'Continue RN stepwise from `0.68` toward newer supported lines'],
   ['docs/wallet-modernization-baseline.md', 'React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`'],
   ['docs/wallet-modernization-baseline.md', 'React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`'],
+  ['docs/wallet-modernization-baseline.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],
   ['docs/wallet-modernization-baseline.md', 'React 19 impact audit is tracked in `docs/react19-impact-audit.md`'],
   ['docs/wallet-modernization-baseline.md', 'React package coupling audit is tracked in `docs/react-package-coupling-audit.md`'],
   ['docs/wallet-modernization-baseline.md', 'Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`'],
@@ -111,6 +114,14 @@ export const getReactNativeUpgradePathIssues = ({
 
   if (scripts['rn:upgrade-path:audit'] !== 'node scripts/auditReactNativeUpgradePath.mjs') {
     errors.push('package.json is missing rn:upgrade-path:audit script');
+  }
+
+  if (scripts['node:runtime-transition:audit'] !== 'node scripts/auditNodeRuntimeTransition.mjs') {
+    errors.push('package.json is missing node:runtime-transition:audit script');
+  }
+
+  if (scripts['check:node-runtime-transition-guard'] !== 'node scripts/checkNodeRuntimeTransitionGuard.mjs') {
+    errors.push('package.json is missing check:node-runtime-transition-guard script');
   }
 
   if (scripts['rn:target-snapshot:audit'] !== 'node scripts/auditReactNativeTargetSnapshot.mjs') {
