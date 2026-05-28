@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.75 - CodePush release path audit
+
+- Branch: `feature/bem-codepush-release-path-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditCodePushReleasePath.mjs`.
+- Add `codepush:release:path-audit` package script.
+- Document the audit in release-services, iOS release config, native module upgrade plan, and this modernization log.
+- Keep CodePush dependency version, runtime behavior, native project files, env files, and lockfile content unchanged.
+
+Why:
+
+- CodePush is disabled under `__DEV__`, so Android debug smoke does not prove non-dev update-path behavior.
+- Before any CodePush upgrade or release-path change, the current runtime/native/env wiring should be auditable without printing deployment-key values.
+
+Validation:
+
+- `corepack yarn codepush:release:path-audit` passed.
+- The audit confirmed CodePush non-dev runtime, Android bundle resolution, iOS deployment-key placeholders, and env key references are wired.
+- The audit reported release update validation is not ready because `.env.dev.testnet` has blank `CODEPUSH_DEPLOYMENT_KEY_ANDROID` and `CODEPUSH_DEPLOYMENT_KEY_IOS`.
+- The audit also reported beta env files do not define CodePush deployment keys; beta release update strategy remains unconfirmed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Use this audit before validating a non-dev Android/iOS build path or changing CodePush release/update behavior.
+
 ### BEM-37.74 - Sentry release prerequisite audit
 
 - Branch: `feature/bem-sentry-release-prereq-audit`
