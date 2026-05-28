@@ -112,6 +112,7 @@ Install/build risk:
 
 Passing:
 
+- `corepack yarn android:dev:env-audit`
 - `corepack yarn android:dev:check-light`
 - Android lightweight check runs the Android warning baseline guard, Android warning artifact guard, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, QR render usage self-check/inventory guard, legacy Android autolink self-check/guard, Sentry usage self-check/inventory guard, Sentry release integration self-check/guard, CodePush usage self-check/inventory guard, Firebase usage self-check/inventory guard, iOS push notification usage self-check/inventory guard, release-service env key self-check/guard, Android env mapping self-check/guard, iOS scheme config self-check/guard, storage/network usage self-check/guard, storage/network validation script self-check/guard, native module inventory self-check/inventory guard, native module upgrade-plan self-check/coverage guard, RN nodeify shim self-check/inventory guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
 - `corepack yarn prepush` starts with `android:dev:check-light` before promoted offline Jest suites.
@@ -123,6 +124,7 @@ Passing:
 - Android smoke helper polls UI readiness after startup so clean Metro-cache runs do not fail on a transient bootsplash hierarchy
 - Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with generated timestamp, outcome, exit code, selected serial, Metro endpoint/reachability, app PID, logcat count, UI attempts, UI hierarchy path, screenshot path, and screenshot byte count
 - `corepack yarn android:dev:audit-warnings`
+- Android dev environment audit verifies the local Java range, adb access, Gradle wrappers, and Android validation scripts before build/smoke work.
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 2` and `Unexpected targeted Android Gradle warnings: 0`.
 - Current targeted warning sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.
