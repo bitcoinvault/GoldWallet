@@ -6450,3 +6450,34 @@ Validation:
 - `git diff --check`
 - `corepack yarn android:dev:assemble`
 - Android emulator smoke: app focused `io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity`, React Native logged `Running "GoldWallet"`, storage logged `loaded from disk`, Electrum connected, and logcat did not show `SyntaxError`, missing module, fatal exception, or `getRandomValues() not supported`.
+
+### BEM-37.72 - Sentry Android warning audit refresh
+
+- Branch: `feature/bem-37-sentry-warning-audit-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the dedicated Sentry Android warning audit after the Android warning cleanup work.
+- Check whether the remaining Sentry `execResult` warning can be removed as a small Gradle/config cleanup.
+- Refresh the documented npm target snapshot for `@sentry/react-native`.
+
+Findings:
+
+- Current package remains `@sentry/react-native@5.36.0`.
+- The Sentry Gradle warning source is still dependency-owned in `node_modules/@sentry/react-native/sentry.gradle`.
+- The audited `bundleTask.getProperties()` references are at Sentry Gradle lines `48`, `376`, and `396`; the known Android warning source remains line `48`.
+- The latest npm release checked for `@sentry/react-native` is `8.13.0`.
+- `@sentry/react-native@8.13.0` declares `react-native >=0.65.0`, but this is still a major release-service/tooling upgrade, not a warning-only cleanup.
+
+Decision:
+
+- Do not patch `node_modules/@sentry/react-native/sentry.gradle`.
+- Do not disable Sentry auto-upload or source-map behavior to hide the warning.
+- Keep Sentry warning removal as a dedicated release/source-map validation branch.
+
+Validation:
+
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- npm metadata check for `@sentry/react-native@8.13.0`

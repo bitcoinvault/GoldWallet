@@ -16,7 +16,8 @@
 - `corepack yarn sentry:android-warning:audit` verifies the current dependency-owned Android `execResult` warning source before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
 - The active Android Gradle warning comes from Sentry's Gradle script enumerating bundle task properties.
-- The latest npm release checked for `@sentry/react-native` is `8.12.0`, so a real cleanup would be a major SDK upgrade.
+- The latest npm release checked for `@sentry/react-native` is `8.13.0`, so a real cleanup would be a major SDK upgrade.
+- `@sentry/react-native@8.13.0` declares `react-native >=0.65.0`, but the Android Gradle warning still must not be removed by patching `node_modules` or disabling source-map upload. The upgrade branch has to prove Android and iOS release artifact behavior.
 
 ## Why This Needs A Dedicated Branch
 
