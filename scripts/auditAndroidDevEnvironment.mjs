@@ -33,6 +33,8 @@ export const requiredAndroidDevFiles = [
   ['scripts/checkReact19ImpactGuard.mjs', 'React 19 impact audit guard helper'],
   ['scripts/auditReactPackageCoupling.mjs', 'React package coupling audit helper'],
   ['scripts/checkReactPackageCouplingGuard.mjs', 'React package coupling guard helper'],
+  ['scripts/auditTestTypeCoupling.mjs', 'test/type coupling audit helper'],
+  ['scripts/checkTestTypeCouplingGuard.mjs', 'test/type coupling guard helper'],
 ];
 
 export const requiredAndroidDevPackageScripts = [
@@ -51,6 +53,8 @@ export const requiredAndroidDevPackageScripts = [
   'check:react19-impact-guard',
   'react:package-coupling:audit',
   'check:react-package-coupling-guard',
+  'test:type-coupling:audit',
+  'check:test-type-coupling-guard',
   'rn:baseline:preflight',
 ];
 

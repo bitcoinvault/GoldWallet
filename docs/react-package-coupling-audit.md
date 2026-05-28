@@ -2,6 +2,8 @@
 
 React package coupling audit for the staged React/RN baseline path.
 
+Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
+
 ## Current Baseline
 
 - Current React: `17.0.2`

@@ -109,6 +109,12 @@ To verify that React, renderer, and type packages are treated as a coupled basel
 $ yarn react:package-coupling:audit
 ```
 
+To verify that TypeScript and Jest stay coupled to the React/RN baseline:
+
+```sh
+$ yarn test:type-coupling:audit
+```
+
 To verify the live snapshot comparison rules without network access:
 
 ```sh
