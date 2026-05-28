@@ -1,8 +1,9 @@
 # React Native Upgrade Path
 
-This document records the staged React Native upgrade direction for the wallet modernization stream.
+This document records the React Native upgrade direction for the wallet modernization stream.
 
 React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`.
+React Native foundation milestone targets are tracked in `docs/react-native-foundation-target-matrix.md`.
 Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
 
 React 19 impact audit is tracked in `docs/react19-impact-audit.md`.
@@ -23,7 +24,7 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 - Android Gradle Plugin: `7.4.2`
 - Gradle wrapper: `7.5.1`
 
-The current branch does not target a direct jump to the latest React Native release. The goal is a controlled path toward a current supported React Native line after the dependency and native tooling blockers are reduced.
+The current branch does not target a blind direct jump to the latest React Native release. It also should not walk every minor version one by one. The goal is a controlled milestone-jump path toward a current supported React Native line after the dependency and native tooling blockers are understood.
 
 Current Android template/toolchain baseline intentionally compiles with SDK 34 while keeping target SDK 33. Target SDK 34 should move only with the React Native/toolchain path that resolves Android 14+ debug receiver requirements.
 
@@ -34,6 +35,7 @@ Current Android template/toolchain baseline intentionally compiles with SDK 34 w
 - Keep `targetSdkVersion 34` deferred until the React Native/toolchain path can support Android 14+ debug receiver requirements.
 - Run emulator smoke for every runtime, dependency, native, or Metro-affecting branch.
 - Re-check the latest stable React Native release during the actual RN baseline branch instead of hardcoding it in this document.
+- Prefer milestone jumps over version-by-version package work. Current milestone targets are `0.76.9`, then `0.82.x`, then the current `0.85.x` line unless branch-time evidence changes that plan.
 
 ## Required Work Before The Next RN Step
 
@@ -49,9 +51,9 @@ Current Android template/toolchain baseline intentionally compiles with SDK 34 w
 1. Create a dedicated RN baseline branch from `upgrade/wallet-modernization`.
 2. Run the RN baseline preflight before changing package versions.
 3. Check the current stable React Native line and the upgrade helper diff at branch start.
-4. Move one React Native baseline step at a time, with matching React, Metro, Gradle, Android template, iOS Podfile, and codegen changes.
+4. Move to the next milestone target, with matching React, Metro, Gradle, Android template, iOS Podfile, and codegen changes.
 5. Run TypeScript, Android assemble, Android warning audit, Metro reset, and emulator smoke before commit.
-6. Document remaining blockers before attempting the next RN baseline step.
+6. If a milestone fails, isolate the blocker before falling back to a lower milestone; do not automatically switch to one-minor-at-a-time work.
 
 ## Validation
 

@@ -68,4 +68,4 @@ One branch can contain multiple packages when they belong to the same layer and 
 
 ## Start Here
 
-The next coding branch should start with the foundation layer, not another isolated package. First produce a current target matrix for the React Native jump: target RN/React/Metro/Babel/TypeScript/Node/JDK/AGP/Gradle versions, required native template changes, and known blockers. Then perform the smallest foundation jump that unlocks modern package syntax and package exports.
+The next coding branch should start with the foundation layer, not another isolated package. Use `docs/react-native-foundation-target-matrix.md` as the target matrix. The first planned milestone jump is RN `0.76.9`, not every intermediate RN minor. Then continue to an RN `0.82.x` React 19/Node 20 checkpoint and finally the current `0.85.x` line if branch-time evidence still supports that target.

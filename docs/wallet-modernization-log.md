@@ -6351,3 +6351,43 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn typescript:check`
 - `git diff --check`
+
+### BEM-36.112 - React Native foundation target matrix
+
+- Branch: `feature/bem-36-foundation-target-matrix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/react-native-foundation-target-matrix.md`.
+- Update `docs/react-native-upgrade-path.md` so the RN path uses milestone jumps instead of one-minor-at-a-time package work.
+- Link the target matrix from `docs/dependency-upgrade-strategy.md`.
+
+Findings:
+
+- Current baseline remains React Native `0.68.7`, React `17.0.2`, Metro preset `0.67.0`, and Metro/dev Node `16.20.2`.
+- Current npm latest snapshot remains React Native `0.85.3`; npm next remains `0.86.0-rc.2`.
+- `react-native@0.72.17` requires React `18.2.0` and Node `>=16`.
+- `react-native@0.74.7` requires React `18.2.0`, `@types/react ^18.2.6`, and Node `>=18`.
+- `react-native@0.76.9` requires React `^18.2.0`, `@types/react ^18.2.6`, and Node `>=18`.
+- `react-native@0.78.3` starts the React 19 family with React `^19.0.0`.
+- `react-native@0.82.1` requires React `^19.1.1` and Node `>=20.19.4`.
+- `react-native@0.85.3` requires React `^19.2.3` and Node `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+
+Decision:
+
+- First foundation jump target: React Native `0.76.9`.
+- Reason: it is a meaningful jump from `0.68.7`, moves Metro/Babel/runtime forward, and avoids combining the first RN foundation branch with the React 19/Node 20 jump.
+- Next milestone after that: RN `0.82.x`, because it is the React 19/Node 20 checkpoint and unlocks native module lines that already require RN `>=0.82`.
+- Current destination line after that: RN `0.85.x`, if still current at branch time.
+
+Validation:
+
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn metro:dev-runtime:audit`
+- `corepack yarn node:runtime-transition:audit`
+- npm metadata checks for `react-native@0.72.17`, `0.74.7`, `0.76.9`, `0.78.3`, `0.82.1`, and `0.85.3`.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
