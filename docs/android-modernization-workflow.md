@@ -42,7 +42,7 @@ Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Nativ
 
 Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.68.7` package baseline, target-SDK deferral, and related documentation still agree.
 
-Use `corepack yarn rn:baseline:preflight` before changing React Native package versions. It runs the lightweight Android gate plus the Metro runtime, Node runtime transition audit, RN upgrade path, RN target snapshot, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration with generated summary validation, Sentry warning/source-map readiness with generated Android-warning and prerequisite-summary validation, the aggregate warning-source summary checker, the standalone Android warning-audit summary checker, Firebase release-service with generated summary validation, CodePush release-path with generated summary validation, push-notification bridge audit with generated summary validation, the aggregate release-services summary guard self-check, and the aggregate release-services summary checker covering both Sentry summary artifacts as a single RN-baseline readiness pass.
+Use `corepack yarn rn:baseline:preflight` before changing React Native package versions. It runs the lightweight Android gate plus the Metro runtime, Node runtime transition audit, RN upgrade path, RN target snapshot, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration with generated summary validation, Sentry warning/source-map readiness with generated Android-warning and prerequisite-summary validation, the aggregate warning-source summary checker, standalone Android warning-audit and smoke-summary checkers, Firebase release-service with generated summary validation, CodePush release-path with generated summary validation, push-notification bridge audit with generated summary validation, the aggregate release-services summary guard self-check, and the aggregate release-services summary checker covering both Sentry summary artifacts as a single RN-baseline readiness pass.
 
 Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 16 Metro/dev runtime remains aligned with React Native `0.68.7` while the recorded RN target snapshot still implies a later Node engine move. Do not change `.nvmrc` as a standalone cleanup; keep it tied to the dedicated React Native baseline branch.
 
@@ -129,6 +129,7 @@ corepack yarn camera:qr-migration:audit
 corepack yarn camera:qr-migration:check-summary
 corepack yarn android:dev:check-warning-source-summaries
 corepack yarn android:dev:check-warning-audit-summary
+corepack yarn android:dev:check-smoke-summary
 ```
 
 For a fast check of the warning baseline guard patterns without running Gradle:
@@ -159,7 +160,7 @@ Then install and launch the dev APK:
 corepack yarn android:dev:smoke
 ```
 
-Use `android:dev:verify` when the APK freshness matters; `android:dev:smoke` only installs and tests the current dev APK artifact.
+Use `android:dev:verify` when the APK freshness matters; `android:dev:smoke` only installs and tests the current dev APK artifact. Use `corepack yarn android:dev:check-smoke-summary` after a smoke run to validate that the local smoke evidence still records a passing startup, reachable Metro, expected dashboard text, process logcat capture, UI hierarchy, and non-empty screenshot.
 
 The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, a compact result summary to `local-docs/android-smoke-dev-summary.txt`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. The summary includes a generated timestamp. It checks that Metro is reachable before installing and launching the dev APK, and records the Metro preflight status in the summary. On failures after an Android serial is selected, it also tries to refresh the same screenshot artifact before exiting. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
 
