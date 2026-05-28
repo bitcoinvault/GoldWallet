@@ -18,6 +18,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-code-push', '^7.0.2'],
   ['react-native-config', '1.5.9'],
   ['react-native-device-info', '6.2.1'],
+  ['react-native-exit-app', '1.1.0'],
   ['react-native-fast-image', '8.6.3'],
   ['react-native-gesture-handler', '1.10.3'],
   ['react-native-localize', '1.4.3'],
