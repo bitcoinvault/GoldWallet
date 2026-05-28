@@ -270,6 +270,14 @@ assertRejected(
   'push notification bridge summary guard self-check helper is missing',
 );
 assertRejected(
+  'Missing release-services summary artifact checker file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkReleaseServicesSummaryArtifacts.mjs')),
+  },
+  'release-services summary artifact checker is missing',
+);
+assertRejected(
   'Missing dev verification package script fixture',
   {
     ...validEnvironment,
@@ -460,6 +468,14 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:push-notification-bridge-summary-guard')),
   },
   'package.json is missing check:push-notification-bridge-summary-guard',
+);
+assertRejected(
+  'Missing release-services summary aggregate package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'release-services:check-summaries')),
+  },
+  'package.json is missing release-services:check-summaries',
 );
 
 console.log('Android dev environment audit guard checks are valid.');

@@ -52,6 +52,7 @@ export const requiredAndroidDevFiles = [
   ['scripts/pushNotificationBridgeSummaryGuard.mjs', 'push notification bridge summary guard helper'],
   ['scripts/checkPushNotificationBridgeSummary.mjs', 'push notification bridge summary artifact checker'],
   ['scripts/checkPushNotificationBridgeSummaryGuard.mjs', 'push notification bridge summary guard self-check helper'],
+  ['scripts/checkReleaseServicesSummaryArtifacts.mjs', 'release-services summary artifact checker'],
 ];
 
 export const requiredAndroidDevPackageScripts = [
@@ -84,6 +85,7 @@ export const requiredAndroidDevPackageScripts = [
   'check:firebase-release-services-summary-guard',
   'push-notification:bridge-check-summary',
   'check:push-notification-bridge-summary-guard',
+  'release-services:check-summaries',
   'rn:baseline:preflight',
 ];
 

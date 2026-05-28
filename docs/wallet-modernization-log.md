@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.90 - Aggregate release-services summary checker
+
+- Branch: `feature/bem-37-release-services-summary-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `release-services:check-summaries` to validate the generated Sentry, Firebase, CodePush, and push bridge local summary artifacts together.
+- Include the aggregate checker at the end of `rn:baseline:preflight`.
+- Add the aggregate checker file and package script to the Android dev environment audit guard.
+- Refresh release-services, workflow, and baseline documentation with the aggregate checker command.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- Release-service readiness now produces multiple local artifacts. A single aggregate checker makes it harder to forget one summary before larger RN or release-service dependency branches.
+
+Validation:
+
+- `corepack yarn release-services:check-summaries` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Keep release-service summary artifacts refreshed before Firebase, CodePush, Sentry, or iOS push implementation branches.
+
 ### BEM-37.89 - Push notification bridge summary artifact
 
 - Branch: `feature/bem-37-push-bridge-summary`
