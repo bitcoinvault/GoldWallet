@@ -46,6 +46,9 @@ export const requiredAndroidDevFiles = [
   ['scripts/codePushReleasePathSummaryGuard.mjs', 'CodePush release path summary guard helper'],
   ['scripts/checkCodePushReleasePathSummary.mjs', 'CodePush release path summary artifact checker'],
   ['scripts/checkCodePushReleasePathSummaryGuard.mjs', 'CodePush release path summary guard self-check helper'],
+  ['scripts/firebaseReleaseServicesSummaryGuard.mjs', 'Firebase release-services summary guard helper'],
+  ['scripts/checkFirebaseReleaseServicesSummary.mjs', 'Firebase release-services summary artifact checker'],
+  ['scripts/checkFirebaseReleaseServicesSummaryGuard.mjs', 'Firebase release-services summary guard self-check helper'],
 ];
 
 export const requiredAndroidDevPackageScripts = [
@@ -74,6 +77,8 @@ export const requiredAndroidDevPackageScripts = [
   'check:sentry-release-prereq-summary-guard',
   'codepush:release:path-check-summary',
   'check:codepush-release-path-summary-guard',
+  'firebase:release-services:check-summary',
+  'check:firebase-release-services-summary-guard',
   'rn:baseline:preflight',
 ];
 

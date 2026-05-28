@@ -110,7 +110,8 @@ Shared env/config:
 
 - Firebase RN `12.7` to `24.0.0` is a major family upgrade and must keep all Firebase packages aligned.
 - Firebase changes can affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
-- `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade.
+- `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
+- `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
 - `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; this is not a CodePush runtime upgrade and does not replace the dedicated non-dev release-path validation branch.
 - `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, Android bundle resolution, iOS deployment-key placeholders, and referenced env keys without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
@@ -156,9 +157,9 @@ corepack yarn android:dev:smoke
 
 Release-service-specific validation:
 
-- Firebase Messaging: confirm Android 13+ notification permission, FCM token retrieval, and notification handling path; start with `corepack yarn firebase:release-services:audit`.
-- Crashlytics: confirm Android Crashlytics Gradle task configuration and iOS pod/build integration; start with `corepack yarn firebase:release-services:audit`.
-- Analytics: confirm app startup does not crash and analytics package initialization remains compatible; start with `corepack yarn firebase:release-services:audit`.
+- Firebase Messaging: confirm Android 13+ notification permission, FCM token retrieval, and notification handling path; start with `corepack yarn firebase:release-services:audit` and `corepack yarn firebase:release-services:check-summary`.
+- Crashlytics: confirm Android Crashlytics Gradle task configuration and iOS pod/build integration; start with `corepack yarn firebase:release-services:audit` and `corepack yarn firebase:release-services:check-summary`.
+- Analytics: confirm app startup does not crash and analytics package initialization remains compatible; start with `corepack yarn firebase:release-services:audit` and `corepack yarn firebase:release-services:check-summary`.
 - CodePush: validate a non-dev build path because CodePush is disabled under `__DEV__`; start with `corepack yarn codepush:release:path-audit` and `corepack yarn codepush:release:path-check-summary`.
 - Sentry: start with `corepack yarn sentry:android-warning:audit` and `corepack yarn sentry:release:prereq-audit`, then validate Android release bundling/source maps and iOS dSYM/source-map upload path.
 - iOS push: start with `corepack yarn push-notification:bridge-audit`, then validate APNs registration, token, foreground/background delivery, badge reset, and tap-through behavior on a Mac runner/device.
