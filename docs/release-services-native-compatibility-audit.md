@@ -62,7 +62,7 @@ corepack yarn check:release-service-env-keys
 
 This validates key presence only. It does not print or guess DSN/deployment-key values. Beta env files currently do not require CodePush deployment keys until the beta release/update strategy is confirmed.
 
-After running the Sentry, Firebase, CodePush, and push bridge audits, validate all generated local release-services summaries together:
+After running the Sentry Android warning, Sentry release prerequisite, Firebase, CodePush, and push bridge audits, validate all generated local release-services summaries together:
 
 ```powershell
 corepack yarn check:release-services-summary-guard
