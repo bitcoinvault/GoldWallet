@@ -36,8 +36,15 @@ corepack yarn rn:target-snapshot:current
 
 The live check requires network access and is intentionally not part of the default offline preflight. It writes the latest result to `local-docs/rn-target-snapshot-current-summary.txt`.
 
+To validate the latest local summary artifact after a live check, use:
+
+```powershell
+corepack yarn rn:target-snapshot:check-summary
+```
+
 For an offline self-check of the live npm comparison rules, use:
 
 ```powershell
 corepack yarn check:rn-target-snapshot-current-guard
+corepack yarn check:rn-target-snapshot-summary-guard
 ```

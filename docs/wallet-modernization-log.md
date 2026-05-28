@@ -3825,6 +3825,41 @@ Notes:
 - The live npm check still matched `react-native@latest` `0.85.3`, `next` `0.86.0-rc.2`, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - No dependency, runtime, native, or Metro behavior was changed in this branch.
 
+### BEM-36.104 - RN target summary artifact checker
+
+- Branch: `feature/bem-36-rn-target-summary-checker`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `rn:target-snapshot:check-summary` to validate `local-docs/rn-target-snapshot-current-summary.txt`.
+- Add `check:rn-target-snapshot-summary-guard` for offline self-check coverage of the summary validator.
+- Validate summary header, generated timestamp, snapshot date, outcome, mismatch count, and all four compared npm metadata lines.
+- Guard the new helper files and package scripts through the Android dev environment audit.
+- Document the summary checker in `docs/react-native-target-snapshot.md`.
+
+Why:
+
+- `rn:target-snapshot:current` now writes a reviewable local artifact; this branch makes the artifact itself machine-checkable.
+- The checker keeps the live RN target evidence consistent without putting a network-backed command into the default offline preflight.
+
+Validation:
+
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
+Notes:
+
+- The summary checker accepted the generated live npm summary artifact.
+- The generated summary still reported `Live check outcome: matched` and `Mismatches: 0`.
+- No dependency, runtime, native, or Metro behavior was changed in this branch.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`

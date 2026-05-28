@@ -102,6 +102,30 @@ assertRejected(
   'React Native target snapshot live npm guard helper is missing',
 );
 assertRejected(
+  'Missing RN target snapshot summary guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/reactNativeTargetSnapshotSummaryGuard.mjs')),
+  },
+  'React Native target snapshot summary guard helper is missing',
+);
+assertRejected(
+  'Missing RN target snapshot summary checker file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkReactNativeTargetSnapshotSummary.mjs')),
+  },
+  'React Native target snapshot summary artifact checker is missing',
+);
+assertRejected(
+  'Missing RN target snapshot summary guard self-check file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkReactNativeTargetSnapshotSummaryGuard.mjs')),
+  },
+  'React Native target snapshot summary guard self-check helper is missing',
+);
+assertRejected(
   'Missing React 19 impact audit file fixture',
   {
     ...validEnvironment,
@@ -212,6 +236,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:rn-target-snapshot-current-guard')),
   },
   'package.json is missing check:rn-target-snapshot-current-guard',
+);
+assertRejected(
+  'Missing RN target snapshot summary package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'rn:target-snapshot:check-summary')),
+  },
+  'package.json is missing rn:target-snapshot:check-summary',
+);
+assertRejected(
+  'Missing RN target snapshot summary guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:rn-target-snapshot-summary-guard')),
+  },
+  'package.json is missing check:rn-target-snapshot-summary-guard',
 );
 assertRejected(
   'Missing React 19 impact package script fixture',
