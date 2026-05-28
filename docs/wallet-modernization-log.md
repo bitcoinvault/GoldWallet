@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.85 - Sentry prerequisite summary in RN preflight
+
+- Branch: `feature/bem-37-sentry-prereq-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `sentry:release:prereq-check-summary` to `rn:baseline:preflight` immediately after `sentry:release:prereq-audit`.
+- Update the RN upgrade path audit's expected preflight command.
+- Refresh workflow and baseline documentation to mention generated Sentry prerequisite-summary validation.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The Sentry prerequisite audit now writes a local summary artifact, so the RN baseline preflight should prove that artifact is valid before larger RN/package work starts.
+
+Validation:
+
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn sentry:release:prereq-audit` passed and wrote `local-docs/sentry-release-prereq-summary.txt`.
+- `corepack yarn sentry:release:prereq-check-summary` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Keep generated artifact checkers directly after their artifact-producing audit commands when more preflight checks are added.
+
 ### BEM-37.84 - Sentry release prerequisite summary artifact
 
 - Branch: `feature/bem-37-sentry-prereq-summary`
