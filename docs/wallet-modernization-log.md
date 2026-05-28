@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.61 - React Native Device Info manifest pin
+
+- Branch: `feature/bem-device-info-6-2-1-manifest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `react-native-device-info` manifest from `^6.0.2` to the already-resolved lockfile version `6.2.1`.
+- Refresh the lockfile selector for the exact dependency.
+- Update the native module inventory guard, native module upgrade plan, and storage/network compatibility audit.
+- Keep source usage, Android/iOS native project files, and runtime behavior unchanged.
+
+Why:
+
+- The repo was already installing `react-native-device-info@6.2.1`, but the manifest allowed drift back into the 6.x range.
+- Pinning the installed version keeps the native module inventory deterministic during the staged Group C upgrade work.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+
+Follow-up:
+
+- Device metadata behavior should be checked again on real devices during future release-candidate validation, especially where emulator detection or device-security checks affect user-visible behavior.
+
 ### BEM-36.60 - React Native Config 1.5.9
 
 - Branch: `feature/bem-react-native-config-1-5-9`
