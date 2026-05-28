@@ -71,6 +71,12 @@ $ yarn android:dev:env-audit
 
 This verifies the supported Java range, Android SDK/ADB access, Gradle wrappers, and validation scripts. It warns if the active Node runtime differs from the `.nvmrc` Metro/dev runtime.
 
+To verify that the staged React Native upgrade direction still matches the current baseline:
+
+```sh
+$ yarn rn:upgrade-path:audit
+```
+
 To verify that the documented Metro runtime baseline is still aligned with the repo:
 
 ```sh

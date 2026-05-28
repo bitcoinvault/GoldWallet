@@ -12,6 +12,7 @@ const requiredCheckLightScripts = [
   'android:dev:check-artifact-guard',
   'check:android-dev-env-audit-guard',
   'check:metro-dev-runtime-audit-guard',
+  'rn:upgrade-path:audit',
   'check:camera-usage-guard',
   'check:camera-usage-scope',
   'check:qr-scan-caller-guard',
@@ -56,6 +57,7 @@ const docs = [
     terms: [
       'android:dev:env-audit',
       'metro:dev-runtime:audit',
+      'rn:upgrade-path:audit',
       'android:dev:check-light',
       'Android dev environment audit',
       'Metro dev runtime audit',
@@ -80,6 +82,7 @@ const docs = [
       'active Node version',
       'environment audit checks',
       'check:metro-dev-runtime-audit-guard',
+      'rn:upgrade-path:audit',
       'CodePush usage guard self-check',
       'Firebase usage guard self-check',
       'iOS push notification usage guard self-check',
@@ -106,6 +109,7 @@ const docs = [
     terms: [
       'android:dev:env-audit',
       'metro:dev-runtime:audit',
+      'rn:upgrade-path:audit',
       'Android dev environment audit',
       'Metro dev runtime audit',
       'CodePush usage self-check/inventory guard',

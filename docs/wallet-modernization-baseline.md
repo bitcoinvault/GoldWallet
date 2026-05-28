@@ -52,6 +52,7 @@ Target direction:
 - Keep the current Metro/dev runtime on Node 16.
 - Use JDK 17 for local Android modernization work.
 - Defer `targetSdkVersion 34` until a later React Native/toolchain step, because the current branch intentionally stays on target SDK 33.
+- React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue stepwise from RN `0.68.7` toward a current supported line instead of jumping directly to latest.
 
 ## Current Android Build Setup
 
@@ -114,9 +115,10 @@ Passing:
 
 - `corepack yarn android:dev:env-audit`
 - `corepack yarn metro:dev-runtime:audit`
+- `corepack yarn rn:upgrade-path:audit`
 - `corepack yarn android:dev:check-light`
 - Metro dev runtime audit verifies the Node 16 `.nvmrc`, React Native `0.68.7`, Metro preset `0.67.0`, start script, and documentation baseline.
-- Android lightweight check runs the Android warning baseline guard, Android warning artifact guard, Android dev environment audit self-check, Metro dev runtime audit self-check, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, QR render usage self-check/inventory guard, legacy Android autolink self-check/guard, Sentry usage self-check/inventory guard, Sentry release integration self-check/guard, CodePush usage self-check/inventory guard, Firebase usage self-check/inventory guard, iOS push notification usage self-check/inventory guard, release-service env key self-check/guard, Android env mapping self-check/guard, iOS scheme config self-check/guard, storage/network usage self-check/guard, storage/network validation script self-check/guard, native module inventory self-check/inventory guard, native module upgrade-plan self-check/coverage guard, RN nodeify shim self-check/inventory guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
+- Android lightweight check runs the Android warning baseline guard, Android warning artifact guard, Android dev environment audit self-check, Metro dev runtime audit self-check, React Native upgrade path audit, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, QR render usage self-check/inventory guard, legacy Android autolink self-check/guard, Sentry usage self-check/inventory guard, Sentry release integration self-check/guard, CodePush usage self-check/inventory guard, Firebase usage self-check/inventory guard, iOS push notification usage self-check/inventory guard, release-service env key self-check/guard, Android env mapping self-check/guard, iOS scheme config self-check/guard, storage/network usage self-check/guard, storage/network validation script self-check/guard, native module inventory self-check/inventory guard, native module upgrade-plan self-check/coverage guard, RN nodeify shim self-check/inventory guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
 - `corepack yarn prepush` starts with `android:dev:check-light` before promoted offline Jest suites.
 - `corepack yarn typescript:check`
 - ESLint on files changed by `BEM-39`, with existing warnings only
