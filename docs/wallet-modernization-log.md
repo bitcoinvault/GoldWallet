@@ -3644,6 +3644,43 @@ Notes:
 - The preflight still reports the existing readiness warnings for Node 22 versus the Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
 - Android dev verify built the dev APK, installed it on `emulator-5554`, and smoke validated `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive` with no fatal AndroidRuntime or React Native runtime logcat findings.
 
+### BEM-36.99 - React package coupling audit
+
+- Branch: `feature/bem-36-react-package-coupling-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/react-package-coupling-audit.md`.
+- Add `react:package-coupling:audit` and `check:react-package-coupling-guard`.
+- Guard the current React-coupled package set: `react@17.0.2`, `@types/react@^16.9.31`, `@types/react-native@^0.63.37`, and `react-test-renderer@17.0.2`.
+- Include the coupling guard and audit in `rn:baseline:preflight`.
+- Link the coupling audit from React 19 impact, RN upgrade path, baseline, Android workflow, and README.
+
+Why:
+
+- The RN target snapshot points at React `^19.2.3`, so React, renderer, type packages, TypeScript, Jest, and emulator smoke should move as a coordinated baseline.
+- This prevents accidental partial React package updates before the dedicated React/RN baseline branch.
+
+Validation:
+
+- `corepack yarn check:react-package-coupling-guard`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn react19:impact:audit`
+- `corepack yarn android:dev:check-light-docs`
+- `git diff --check`
+- `corepack yarn rn:baseline:preflight`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=%LOCALAPPDATA%\Android\Sdk ANDROID_HOME=%ANDROID_SDK_ROOT% corepack yarn android:dev:verify`
+
+Notes:
+
+- The RN baseline preflight passed with the new React package coupling guard and audit.
+- The preflight still reports the existing readiness warnings for Node 22 versus the Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
+- Android dev verify built the dev APK, installed it on `emulator-5554`, and smoke validated `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive` with no fatal AndroidRuntime or React Native runtime logcat findings.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`

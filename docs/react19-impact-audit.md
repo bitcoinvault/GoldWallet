@@ -2,6 +2,8 @@
 
 This document records the React-facing impact of the current RN target snapshot.
 
+React package coupling audit is tracked in `docs/react-package-coupling-audit.md`.
+
 ## Current Baseline
 
 - Current React: `17.0.2`

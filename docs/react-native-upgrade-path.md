@@ -6,6 +6,8 @@ React Native target snapshot is tracked in `docs/react-native-target-snapshot.md
 
 React 19 impact audit is tracked in `docs/react19-impact-audit.md`.
 
+React package coupling audit is tracked in `docs/react-package-coupling-audit.md`.
+
 ## Current Baseline
 
 - React Native: `0.68.7`
@@ -58,7 +60,7 @@ corepack yarn rn:upgrade-path:audit
 
 The audit verifies that the current package baseline, Metro runtime baseline, Android build/target SDK baseline, Gradle baseline, Android target-SDK deferral, and staged upgrade documentation still agree.
 
-Before changing a React Native baseline, run the broader preflight so the current Android lightweight gate, Metro runtime audit, RN path audit, target snapshot audit and offline comparison guard, React 19 impact audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit are all checked from one command:
+Before changing a React Native baseline, run the broader preflight so the current Android lightweight gate, Metro runtime audit, RN path audit, target snapshot audit and offline comparison guard, React 19 impact audit, React package coupling audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit are all checked from one command:
 
 ```powershell
 corepack yarn rn:baseline:preflight

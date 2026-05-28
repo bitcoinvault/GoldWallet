@@ -103,6 +103,12 @@ To audit React 19 impact areas implied by the RN target snapshot:
 $ yarn react19:impact:audit
 ```
 
+To verify that React, renderer, and type packages are treated as a coupled baseline:
+
+```sh
+$ yarn react:package-coupling:audit
+```
+
 To verify the live snapshot comparison rules without network access:
 
 ```sh
