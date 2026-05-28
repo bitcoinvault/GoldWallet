@@ -5917,3 +5917,33 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn typescript:check`
 - `git diff --check`
+
+### BEM-36.81 - React Native baseline preflight refresh
+
+- Branch: `feature/bem-36-rn-baseline-preflight-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the aggregated React Native baseline preflight after the May Android/tooling cleanup branches.
+- Refresh ignored local audit artifacts under `local-docs/` for camera QR migration, Sentry Android warning, Sentry release prerequisites, Firebase release services, CodePush release path, push notification bridge, Android warning summary, and Android smoke summary validation.
+- Record the current larger follow-ups without changing runtime code, native code, dependencies, Metro behavior, or release secrets.
+
+Findings:
+
+- The current React Native baseline remains `0.68.7` with React `17.0.2`, Metro/dev Node `16.20.2`, Android compile SDK `34`, target SDK `33`, AGP `7.4.2`, and Gradle `7.5.1`.
+- `corepack yarn rn:baseline:preflight` passes on the current integration baseline.
+- Camera QR migration wiring is stable, but `react-native-camera` remains installed and deprecated; replacement stays a dedicated scanner migration branch.
+- Sentry Android warning baseline is stable, but removing the dependency-owned Gradle `execResult` warning stays a dedicated release/source-map validation branch.
+- Sentry release validation is not locally ready because `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing and `SENTRY_AUTH_TOKEN` is not present in the current shell.
+- CodePush release update validation is not ready because `.env.dev.testnet` has blank Android/iOS deployment keys and beta env files do not define Android/iOS deployment keys.
+
+Why:
+
+- The next React Native baseline branch needs a current evidence point before changing package versions or native templates.
+- This checkpoint keeps the modernization path honest: the baseline is internally consistent, while Sentry release validation, CodePush release validation, camera replacement, and funded BTCV transaction QA remain separate prerequisites/follow-ups.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight` passed.
+- No runtime, native, dependency, Android/iOS source, or Metro code changed in this branch, so emulator smoke is not required for this documentation/evidence checkpoint.
