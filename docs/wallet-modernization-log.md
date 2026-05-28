@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.82 - Android warning baseline refresh after source audits
+
+- Branch: `feature/bem-37-warning-baseline-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/wallet-modernization-baseline.md` after the current camera and Sentry warning-source audits.
+- Refresh `docs/android-modernization-workflow.md` with the dedicated warning-source audit commands.
+- Keep Android warning guards, runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The warning baseline still has exactly two targeted Android Gradle warning sources, but both now have dedicated source audits.
+- The baseline should point to the current `local-docs/android-warning-audit-summary.txt` evidence and the specific follow-up audits for camera and Sentry.
+
+Validation:
+
+- `corepack yarn sentry:android-warning:audit` passed.
+- `corepack yarn camera:qr-migration:audit` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `corepack yarn android:dev:check-artifacts` passed against the current warning-audit summary.
+- `git diff --check` passed.
+
+Follow-up:
+
+- Continue treating `react-native-camera` and Sentry warning cleanup as dedicated larger branches, not small warning-only patches.
+
 ### BEM-37.81 - Sentry Android warning audit
 
 - Branch: `feature/bem-sentry-android-warning-audit`
