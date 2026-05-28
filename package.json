@@ -87,6 +87,7 @@
     "android:dev:assemble:warnings": "node scripts/runAndroidGradle.mjs :app:assembleDevDebug -x lint --warning-mode all",
     "android:dev:audit-warnings": "node scripts/auditAndroidGradleWarnings.mjs",
     "android:dev:audit-smoke": "yarn android:dev:audit-warnings && yarn android:dev:smoke && yarn android:dev:check-artifacts",
+    "metro:dev-runtime:audit": "node scripts/auditMetroDevRuntime.mjs",
     "codepush:release:path-audit": "node scripts/auditCodePushReleasePath.mjs",
     "firebase:release-services:audit": "node scripts/auditFirebaseReleaseServices.mjs",
     "push-notification:bridge-audit": "node scripts/auditPushNotificationBridge.mjs",
