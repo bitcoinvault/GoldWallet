@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.65 - React Native Gesture Handler manifest pin
+
+- Branch: `feature/bem-gesture-handler-1-10-3-manifest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `react-native-gesture-handler` manifest from `^1.6.1` to the already-resolved lockfile version `1.10.3`.
+- Refresh the lockfile selector for the exact dependency.
+- Update the native module inventory guard, native module upgrade plan, and navigation compatibility audit.
+- Keep source usage, Android/iOS native project files, and runtime behavior unchanged.
+
+Why:
+
+- The repo was already installing `react-native-gesture-handler@1.10.3`, but the manifest allowed dependency drift from the navigation native layer.
+- Gesture Handler affects navigation/touch behavior, so this branch only pins the current installed version and keeps any real package upgrade for a dedicated navigation validation branch.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn android:dev:check-light` passed, including TypeScript, native module guards, RN nodeify shims, and whitespace checks.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed with `BUILD SUCCESSFUL`.
+- Metro was restarted with `--reset-cache` before emulator validation.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed on emulator `emulator-5554`; UI contained `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+- Targeted logcat check found no fatal Android/React Native/Gesture Handler runtime errors; Electrum connected to `electrumx.testnet.btcv.stage.rnd.land`.
+
+Follow-up:
+
+- Manually exercise wallet list scrolling, bottom tabs, Send/Receive navigation, and modal/stack transitions during release-candidate validation.
+
 ### BEM-36.64 - React Native WebView manifest pin
 
 - Branch: `feature/bem-webview-11-26-1-manifest`
