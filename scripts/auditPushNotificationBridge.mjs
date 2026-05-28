@@ -22,7 +22,7 @@ export const collectPushNotificationBridgeAudit = () => {
   const appDelegateSource = read('ios/GoldWallet/AppDelegate.m');
   const packageJson = JSON.parse(read('package.json'));
 
-  requireSnippet(errors, 'package.json', JSON.stringify(packageJson.dependencies || {}), '"@react-native-community/push-notification-ios":"1.10.0"');
+  requireSnippet(errors, 'package.json', JSON.stringify(packageJson.dependencies || {}), '"@react-native-community/push-notification-ios":"1.12.0"');
   requireSnippet(errors, 'Navigator.tsx', runtimeSource, "from '@react-native-community/push-notification-ios'");
   requireSnippet(errors, 'Navigator.tsx', runtimeSource, 'PushNotificationIOS.setApplicationIconBadgeNumber');
   requireSnippet(errors, 'AppDelegate.h', appDelegateHeader, 'UNUserNotificationCenterDelegate');

@@ -12,7 +12,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-firebase/analytics` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-firebase/crashlytics` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-firebase/messaging` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
-| `@react-native-community/push-notification-ios` | `1.10.0` | `1.12.0` | iOS notification bridge; no Android impact. |
+| `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | `7.0.2` | `9.0.1` | Release update path, deployment keys, native bundle loading. |
 | `@sentry/react-native` | `5.36.0` | `8.12.0` | Major SDK jump; source-map and dSYM behavior must be proven. |
 
@@ -129,7 +129,7 @@ Shared env/config:
 - `corepack yarn sentry:android-warning:audit` confirms the current Android Sentry `execResult` warning remains dependency-owned before a dedicated Sentry release/source-map cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
 - Push notification changes need Android 13+ permission checks, Firebase Messaging token checks, and iOS permission/token validation.
-- `@react-native-community/push-notification-ios` is pinned to the already-resolved `1.10.0` after `BEM-36.71`; this is not an iOS notification behavior upgrade and does not replace dedicated iOS push validation.
+- `@react-native-community/push-notification-ios` is on latest checked `1.12.0` after `BEM-36.75`; this Android-side branch does not replace dedicated iOS push validation.
 - `corepack yarn push-notification:bridge-audit` verifies current iOS push notification bridge wiring and static readiness. It writes `local-docs/push-notification-bridge-summary.txt`.
 - `corepack yarn push-notification:bridge-check-summary` validates the generated local push notification bridge summary. After `BEM-37.79`, the audit reports no static readiness issues, but APNs registration, token, foreground/background delivery, badge, and tap-through behavior still require iOS simulator/device validation.
 

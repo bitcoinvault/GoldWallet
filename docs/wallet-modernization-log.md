@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.75 - Push Notification iOS 1.12.0
+
+- Branch: `feature/bem-36-push-notification-ios-1-12-0`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `@react-native-community/push-notification-ios` from `1.10.0` to `1.12.0`.
+- Refresh `yarn.lock`.
+- Update the native module inventory guard, push notification bridge audit expectation, native module upgrade plan, and release-services compatibility audit baseline.
+- Keep runtime code, native project files, env files, and Android project files unchanged.
+
+Why:
+
+- `1.12.0` is the latest checked package version and declares React Native peer compatibility with `>=0.58.4`, which fits the current RN `0.68.7` baseline.
+- The package is iOS-only, so Android validation checks bundle/runtime fallout while iOS notification runtime validation remains a Mac/device task.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn check:native-module-upgrade-plan` passed.
+- `corepack yarn check:push-notification-ios-usage-scope` passed.
+- `corepack yarn push-notification:bridge-audit` passed.
+- `corepack yarn push-notification:bridge-check-summary` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with Node 16 and `react-native start --reset-cache --port 8081`.
+- `adb reverse tcp:8081 tcp:8081` passed on `emulator-5554`.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+- `git diff --check` passed.
+
+Follow-up:
+
+- Validate APNs registration, token handling, foreground/background delivery, badge reset, and tap-through behavior on a Mac runner/device before claiming full iOS notification QA.
+
 ### BEM-36.74 - AsyncStorage 2.2.0
 
 - Branch: `feature/bem-36-async-storage-2-2-0`

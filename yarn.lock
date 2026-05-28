@@ -3079,10 +3079,10 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/netinfo/-/netinfo-6.2.1.tgz#212487d84a3476268e278f4c017ff5c7f37e69c0"
   integrity sha512-742sh+NMbPo59MaLRXBWwkT5K6HQPrmoS0pg0z9QuXshXieQIOTkqEEDMkQZS0QnS8fPFr8MxMPw/TAxH9b8Ig==
 
-"@react-native-community/push-notification-ios@1.10.0":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@react-native-community/push-notification-ios/-/push-notification-ios-1.10.0.tgz#27cbf9a3e5e54e04794d146b03ae2fee110139ae"
-  integrity sha512-NPtJ9QtSI5ODLWfeT0UA9CiEJPsjw47WlZ4E5uViLjOb0P9iRtkb0Stavg9zwt3NpQA2KPxtZGd0GmLM7Rui3w==
+"@react-native-community/push-notification-ios@1.12.0":
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@react-native-community/push-notification-ios/-/push-notification-ios-1.12.0.tgz#d5ee6bb52b5952b0d0a5c139d34c0e5138fe0892"
+  integrity sha512-nu6ctimVlK4E3id3QHs9yZJ4vCP5UG3lRaBvSboJZ2IWU0XROcIJnNVIXsSH7C3hTlb84lNwPWir3y/TxRj0oA==
   dependencies:
     invariant "^2.2.4"
 

@@ -115,7 +115,7 @@ Branch shape:
 - `@react-native-firebase/analytics` -> `12.7`
 - `@react-native-firebase/crashlytics` -> `12.7`
 - `@react-native-firebase/messaging` -> `12.7`
-- `@react-native-community/push-notification-ios` -> `1.10.0`
+- `@react-native-community/push-notification-ios` -> `1.12.0`
 - `react-native-code-push` -> `7.0.2`
 - `@sentry/react-native` -> `5.36.0`
 
@@ -132,7 +132,7 @@ Branch shape:
 - `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, CodePush, and Sentry package snapshot, native build surface, and release validation path.
 - `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; future CodePush work should validate a non-dev release/update path and deployment-key loading.
 - `corepack yarn codepush:release:path-audit` checks the current CodePush non-dev runtime/native/env wiring before any release-path change.
-- `@react-native-community/push-notification-ios` is pinned to the already-resolved `1.10.0` after `BEM-36.71`; future iOS notification bridge work should validate badge handling, remote-notification forwarding, and iOS permission/token flows.
+- `@react-native-community/push-notification-ios` is on latest checked `1.12.0` after `BEM-36.75`; future iOS notification bridge work should validate badge handling, remote-notification forwarding, and iOS permission/token flows on a Mac runner/device.
 - `corepack yarn push-notification:bridge-audit` checks the current iOS push notification bridge wiring before any notification bridge behavior change; after `BEM-37.79`, the static bridge readiness gaps are closed, while iOS runtime validation remains required on a Mac runner/device.
 - Validate Android debug startup first, then release tooling separately when secrets and store/release config are available.
 
