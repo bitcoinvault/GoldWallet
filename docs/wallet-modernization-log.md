@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.54 - React Native BootSplash 3.2.7
+
+- Branch: `feature/bem-bootsplash-3-2-7`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-bootsplash` from locked `3.2.5` to `3.2.7`.
+- Pin the manifest to `3.2.7` and refresh `yarn.lock`.
+- Update the native module inventory guard, navigation/layout audit, and native module upgrade plan baseline.
+- Keep BootSplash runtime calls, Android resources, Android `MainActivity`, iOS `AppDelegate`, and launch-screen files unchanged.
+
+Why:
+
+- `3.2.7` is the latest checked 3.x BootSplash version and declares React Native `>=0.60.0`.
+- BootSplash touches app startup, so the package bump stays isolated from other navigation/layout changes and requires emulator smoke after a clean Metro cache.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+
+Follow-up:
+
+- `ios/Podfile.lock` still records `RNBootSplash (3.2.5)` until `pod install` is run on a Mac/iOS environment. Do not claim iOS validation until that is refreshed and the affected scheme builds.
+
 ### BEM-36.53 - React Native Fast Image 8.6.3
 
 - Branch: `feature/bem-fast-image-8-6-3`
