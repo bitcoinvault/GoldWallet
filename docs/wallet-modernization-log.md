@@ -6414,3 +6414,39 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn typescript:check`
 - `git diff --check`
+
+### BEM-36.114 - React Native 0.76 package target blocker
+
+- Branch: `feature/bem-36-rn-076-package-target`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Test the first foundation milestone target, React Native `0.76.9`, as a package-level jump.
+- Restore the package state after confirming that a package-only update is not a valid runnable migration path.
+
+Findings:
+
+- Installing the RN `0.76.9` package set moves the app to React `18.2.0` and the `@react-native/*` Metro/Babel packages.
+- TypeScript needs React 18 family cleanup around packages such as `react-redux`, `react-i18next`, and nested `@types/react` consumers.
+- Runtime validation exposed a Metro resolution failure from RN `0.76` internals: `Unable to resolve module ./AppContainer-prod from node_modules/react-native/Libraries/ReactNative/AppContainer.js`.
+- The blocker is not a wallet feature bug. It is an incomplete React Native foundation migration: Android/iOS template, Metro/Babel config, RN Gradle plugin, autolinking, Pods, and native module compatibility need to move as one branch.
+
+Decision:
+
+- Do not commit the broken RN `0.76.9` package-only state.
+- Continue RN modernization with a full foundation branch for RN `0.76.9`, not with isolated package edits.
+- Add the highest currently compatible `react-native-get-random-values` line (`1.11.0`) for the existing RN `0.68.7` baseline so `uuid@9` can use `crypto.getRandomValues` in React Native runtime.
+
+Validation:
+
+- Restored `package.json` and `yarn.lock` to the current RN `0.68.7` baseline.
+- Reinstalled dependencies from the lockfile.
+- Confirmed local installed packages are back to `react-native@0.68.7` and `react@17.0.2`.
+- Android emulator smoke found `crypto.getRandomValues() not supported` from `uuid@9`.
+- Added `react-native-get-random-values@1.11.0` and imported it before app startup code.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `corepack yarn android:dev:assemble`
+- Android emulator smoke: app focused `io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity`, React Native logged `Running "GoldWallet"`, storage logged `loaded from disk`, Electrum connected, and logcat did not show `SyntaxError`, missing module, fatal exception, or `getRandomValues() not supported`.
