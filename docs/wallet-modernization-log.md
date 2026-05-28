@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.88 - Firebase release-services summary artifact
+
+- Branch: `feature/bem-37-firebase-release-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `firebase:release-services:audit` write `local-docs/firebase-release-services-summary.txt`.
+- Add `firebase:release-services:check-summary` and `check:firebase-release-services-summary-guard`.
+- Add the Firebase summary checker files and package scripts to the Android dev environment audit guard.
+- Include the generated Firebase summary checker in `rn:baseline:preflight` immediately after `firebase:release-services:audit`.
+- Refresh release-services, iOS release-config, workflow, and baseline documentation with the generated local artifact path.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- Firebase release-services validation should leave a repeatable local artifact before any Firebase package family upgrade.
+
+Validation:
+
+- `corepack yarn check:firebase-release-services-summary-guard` passed.
+- `corepack yarn firebase:release-services:audit` passed and wrote `local-docs/firebase-release-services-summary.txt`.
+- `corepack yarn firebase:release-services:check-summary` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Re-run the Firebase release-services audit before a Firebase family upgrade, then validate Android startup/notifications and iOS plist/pod behavior on implementation branches.
+
 ### BEM-37.87 - CodePush release path summary artifact
 
 - Branch: `feature/bem-37-codepush-release-summary`

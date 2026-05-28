@@ -82,6 +82,6 @@ Release-config implementation:
 - Validate iOS schemes on a Mac runner/device or simulator.
 - Validate at least one non-dev build path for CodePush and Sentry source-map behavior.
 - Start CodePush release-path validation with `corepack yarn codepush:release:path-audit`; it checks wiring and key presence only, writes `local-docs/codepush-release-path-summary.txt`, and does not print deployment-key values. Validate that artifact with `corepack yarn codepush:release:path-check-summary`.
-- Start Firebase release-service validation with `corepack yarn firebase:release-services:audit`; it checks package alignment, Android config, iOS plist files, and Messaging runtime wiring.
+- Start Firebase release-service validation with `corepack yarn firebase:release-services:audit`; it checks package alignment, Android config, iOS plist files, Messaging runtime wiring, and writes `local-docs/firebase-release-services-summary.txt`. Validate that artifact with `corepack yarn firebase:release-services:check-summary`.
 - Start iOS push notification bridge validation with `corepack yarn push-notification:bridge-audit`; after `BEM-37.79` it should report no static readiness issues, but device validation is still required for APNs/token/delivery behavior.
 - Do not guess missing DSNs, Firebase files, or CodePush deployment keys; report exact missing key/file names instead.
