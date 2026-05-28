@@ -71,7 +71,7 @@ Branch shape:
 - `@react-native-community/netinfo` -> `6.2.1`
 - `react-native-device-info` -> `6.2.1`
 - `react-native-config` -> `1.5.9`
-- `react-native-localize`
+- `react-native-localize` -> `1.4.3`
 - `react-native-randombytes`
 - `react-native-secure-key-store`
 - `react-native-tcp-socket` -> `6.4.1`
@@ -90,6 +90,7 @@ Branch shape:
 - `@react-native-community/netinfo` is on latest checked 6.x `6.2.1` after `BEM-36.59`; future NetInfo work should focus on Electrum/network behavior and RN baseline changes rather than another blind package bump.
 - `react-native-config` is on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected on the current RN `0.68.7` Android baseline because it requires newer React Native Android APIs. Future config work should focus on flavor/env behavior, release-service keys, and platform validation rather than another package bump.
 - `react-native-device-info` is pinned to the already-resolved `6.2.1` after `BEM-36.61`; future device metadata work should focus on emulator/device detection behavior and RN baseline changes.
+- `react-native-localize` is pinned to the already-resolved `1.4.3` after `BEM-36.62`; future localization work should focus on app language behavior and RN baseline changes.
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 
 ### Group D - Notifications And Release Services

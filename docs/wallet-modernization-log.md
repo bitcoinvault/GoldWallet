@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.62 - React Native Localize manifest pin
+
+- Branch: `feature/bem-localize-1-4-3-manifest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `react-native-localize` manifest from `^1.4.0` to the already-resolved lockfile version `1.4.3`.
+- Refresh the lockfile selector for the exact dependency.
+- Update the native module inventory guard, native module upgrade plan, and storage/network compatibility audit.
+- Keep source usage, Android/iOS native project files, and runtime behavior unchanged.
+
+Why:
+
+- The repo was already installing `react-native-localize@1.4.3`, but the manifest allowed dependency drift within the 1.x line.
+- Pinning the installed version keeps the native module inventory deterministic during the staged Group C upgrade work.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+
+Follow-up:
+
+- Language/locale behavior should be checked again during future release-candidate validation on devices with non-default locale settings.
+
 ### BEM-36.61 - React Native Device Info manifest pin
 
 - Branch: `feature/bem-device-info-6-2-1-manifest`
