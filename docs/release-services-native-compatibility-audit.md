@@ -12,7 +12,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-firebase/analytics` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-firebase/crashlytics` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-firebase/messaging` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
-| `@react-native-community/push-notification-ios` | `^1.8.0` | `1.12.0` | iOS notification bridge; no Android impact. |
+| `@react-native-community/push-notification-ios` | `1.10.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | `7.0.2` | `9.0.1` | Release update path, deployment keys, native bundle loading. |
 | `@sentry/react-native` | `5.36.0` | `8.12.0` | Major SDK jump; source-map and dSYM behavior must be proven. |
 
@@ -113,6 +113,7 @@ Shared env/config:
 - `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; this is not a CodePush runtime upgrade and does not replace the dedicated non-dev release-path validation branch.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and the existing Android Gradle warning source.
 - Push notification changes need Android 13+ permission checks, Firebase Messaging token checks, and iOS permission/token validation.
+- `@react-native-community/push-notification-ios` is pinned to the already-resolved `1.10.0` after `BEM-36.71`; this is not an iOS notification behavior upgrade and does not replace dedicated iOS push validation.
 
 ## Branching Decision
 
