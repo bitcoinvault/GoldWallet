@@ -56,7 +56,7 @@ corepack yarn rn:upgrade-path:audit
 
 The audit verifies that the current package baseline, Metro runtime baseline, Android build/target SDK baseline, Gradle baseline, Android target-SDK deferral, and staged upgrade documentation still agree.
 
-Before changing a React Native baseline, run the broader preflight so the current Android lightweight gate, Metro runtime audit, RN path audit, target snapshot audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit are all checked from one command:
+Before changing a React Native baseline, run the broader preflight so the current Android lightweight gate, Metro runtime audit, RN path audit, target snapshot audit and offline comparison guard, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit are all checked from one command:
 
 ```powershell
 corepack yarn rn:baseline:preflight

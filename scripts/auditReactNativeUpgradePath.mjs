@@ -23,7 +23,7 @@ export const expectedReactNativeUpgradePathBaseline = {
 };
 
 export const expectedReactNativeBaselinePreflight =
-  'yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn rn:upgrade-path:audit && yarn check:rn-target-snapshot-guard && yarn rn:target-snapshot:audit && yarn camera:qr-migration:audit && yarn sentry:android-warning:audit && yarn sentry:release:prereq-audit && yarn firebase:release-services:audit && yarn codepush:release:path-audit && yarn push-notification:bridge-audit';
+  'yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn rn:upgrade-path:audit && yarn check:rn-target-snapshot-guard && yarn check:rn-target-snapshot-current-guard && yarn rn:target-snapshot:audit && yarn camera:qr-migration:audit && yarn sentry:android-warning:audit && yarn sentry:release:prereq-audit && yarn firebase:release-services:audit && yarn codepush:release:path-audit && yarn push-notification:bridge-audit';
 
 export const requiredReactNativeUpgradePathDocs = [
   'docs/react-native-upgrade-path.md',

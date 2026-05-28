@@ -3568,6 +3568,38 @@ Notes:
 - The Android dev environment audit passed with the existing Node 22 versus Node 16 Metro-baseline warning.
 - No emulator smoke was required because this branch only changes audit helper logic, package scripts, and documentation.
 
+### BEM-36.97 - React Native preflight live-check guard inclusion
+
+- Branch: `feature/bem-36-rn-preflight-live-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:rn-target-snapshot-current-guard` to `rn:baseline:preflight`.
+- Keep `rn:target-snapshot:current` out of the default preflight because it requires network access.
+- Refresh RN upgrade path, Android workflow, and baseline wording for the offline target comparison guard.
+- Keep runtime, dependency, native, and Metro behavior unchanged.
+
+Why:
+
+- The RN baseline preflight should prove both the recorded target snapshot and the stale-snapshot comparison rules without depending on npm availability.
+- The live npm check remains an explicit command for branch-start refreshes.
+
+Validation:
+
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn android:dev:check-light-docs`
+- `git diff --check`
+
+Notes:
+
+- The preflight now includes `check:rn-target-snapshot-current-guard` and passed.
+- The live npm check remains explicit and outside the default preflight.
+- The run still reports the known readiness warnings for Node 22 versus the Node 16 Metro baseline, missing local Sentry release secrets/properties, and unconfirmed/blank CodePush dev deployment keys.
+- No emulator smoke was required because this branch only changes package scripts, audit expectations, and documentation.
+
 ### BEM-36.16 - Android smoke summary Metro status
 
 - Branch: `feature/bem-36-smoke-summary-metro-status`
