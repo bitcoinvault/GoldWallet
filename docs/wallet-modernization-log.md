@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.92 - Android dev environment audit covers RN upgrade path files
+
+- Branch: `feature/bem-36-android-env-audit-rn-path-files`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditReactNativeUpgradePath.mjs` and `scripts/checkReactNativeUpgradePathGuard.mjs` to the Android dev environment audit's required helper files.
+- Extend `scripts/checkAndroidDevEnvironmentGuard.mjs` with a missing RN upgrade path guard helper fixture.
+- Refresh Android workflow, baseline, and this modernization log.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- `BEM-36.91` made the environment audit require the RN upgrade path package scripts; this branch also makes it require the backing helper files.
+- This prevents future RN/toolchain validation from passing when `package.json` still references a script whose implementation was removed or moved.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- With `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10`, `ANDROID_SDK_ROOT`, and `ANDROID_HOME` set, `corepack yarn android:dev:env-audit` passed.
+- The real environment audit still reported Node `22.18.0` as a warning because Metro/dev runtime remains documented for Node `16.20.2`.
+- `corepack yarn android:dev:check-light-docs` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+
+Follow-up:
+
+- Keep required helper-file coverage aligned with required package-script coverage in future validation tooling branches.
+
 ### BEM-36.91 - Android dev environment audit covers RN upgrade path scripts
 
 - Branch: `feature/bem-36-android-env-audit-rn-path-scripts`

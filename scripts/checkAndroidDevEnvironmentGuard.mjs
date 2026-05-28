@@ -54,6 +54,14 @@ assertRejected(
   'guarded Gradle runner is missing',
 );
 assertRejected(
+  'Missing RN upgrade path guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkReactNativeUpgradePathGuard.mjs')),
+  },
+  'React Native upgrade path audit guard helper is missing',
+);
+assertRejected(
   'Missing dev verification package script fixture',
   {
     ...validEnvironment,
