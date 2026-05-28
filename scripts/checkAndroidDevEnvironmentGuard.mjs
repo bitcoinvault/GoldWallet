@@ -198,6 +198,30 @@ assertRejected(
   'Sentry release prerequisite summary guard self-check helper is missing',
 );
 assertRejected(
+  'Missing CodePush release path summary guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/codePushReleasePathSummaryGuard.mjs')),
+  },
+  'CodePush release path summary guard helper is missing',
+);
+assertRejected(
+  'Missing CodePush release path summary checker file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkCodePushReleasePathSummary.mjs')),
+  },
+  'CodePush release path summary artifact checker is missing',
+);
+assertRejected(
+  'Missing CodePush release path summary guard self-check file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkCodePushReleasePathSummaryGuard.mjs')),
+  },
+  'CodePush release path summary guard self-check helper is missing',
+);
+assertRejected(
   'Missing dev verification package script fixture',
   {
     ...validEnvironment,
@@ -340,6 +364,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:sentry-release-prereq-summary-guard')),
   },
   'package.json is missing check:sentry-release-prereq-summary-guard',
+);
+assertRejected(
+  'Missing CodePush release path summary package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'codepush:release:path-check-summary')),
+  },
+  'package.json is missing codepush:release:path-check-summary',
+);
+assertRejected(
+  'Missing CodePush release path summary guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:codepush-release-path-summary-guard')),
+  },
+  'package.json is missing check:codepush-release-path-summary-guard',
 );
 
 console.log('Android dev environment audit guard checks are valid.');

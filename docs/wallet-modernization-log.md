@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.87 - CodePush release path summary artifact
+
+- Branch: `feature/bem-37-codepush-release-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `codepush:release:path-audit` write `local-docs/codepush-release-path-summary.txt`.
+- Add `codepush:release:path-check-summary` and `check:codepush-release-path-summary-guard`.
+- Add the CodePush release-path summary checker files and package scripts to the Android dev environment audit guard.
+- Include the generated CodePush summary checker in `rn:baseline:preflight` immediately after `codepush:release:path-audit`.
+- Refresh release-services, iOS release-config, workflow, and baseline documentation with the generated local artifact path.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- CodePush release-path validation currently reports non-dev deployment-key blockers and beta warnings in command output only.
+- The blocker should be captured in a repeatable local artifact without printing or guessing deployment-key values.
+
+Validation:
+
+- `corepack yarn check:codepush-release-path-summary-guard` passed.
+- `corepack yarn codepush:release:path-audit` passed and wrote `local-docs/codepush-release-path-summary.txt`.
+- `corepack yarn codepush:release:path-check-summary` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Re-run the CodePush release-path audit after non-beta deployment keys are available, then validate a non-dev update path before any CodePush package upgrade.
+
 ### BEM-37.86 - Sentry warning audit guards prerequisite summary wiring
 
 - Branch: `feature/bem-37-sentry-warning-summary-guard`
