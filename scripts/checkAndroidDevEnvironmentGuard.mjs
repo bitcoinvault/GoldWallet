@@ -62,6 +62,22 @@ assertRejected(
   'React Native upgrade path audit guard helper is missing',
 );
 assertRejected(
+  'Missing Node runtime transition audit file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/auditNodeRuntimeTransition.mjs')),
+  },
+  'Node runtime transition audit helper is missing',
+);
+assertRejected(
+  'Missing Node runtime transition guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkNodeRuntimeTransitionGuard.mjs')),
+  },
+  'Node runtime transition guard helper is missing',
+);
+assertRejected(
   'Missing RN target snapshot audit file fixture',
   {
     ...validEnvironment,
@@ -156,6 +172,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'rn:baseline:preflight')),
   },
   'package.json is missing rn:baseline:preflight',
+);
+assertRejected(
+  'Missing Node runtime transition package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'node:runtime-transition:audit')),
+  },
+  'package.json is missing node:runtime-transition:audit',
+);
+assertRejected(
+  'Missing Node runtime transition guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:node-runtime-transition-guard')),
+  },
+  'package.json is missing check:node-runtime-transition-guard',
 );
 assertRejected(
   'Missing RN target snapshot package script fixture',

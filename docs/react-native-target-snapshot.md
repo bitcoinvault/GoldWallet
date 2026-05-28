@@ -3,6 +3,7 @@
 This document records the current external React Native target snapshot for the wallet modernization stream.
 
 React 19 impact audit is tracked in `docs/react19-impact-audit.md`.
+Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
 
 ## Snapshot
 

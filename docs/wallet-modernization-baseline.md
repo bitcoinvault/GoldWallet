@@ -54,6 +54,7 @@ Target direction:
 - Defer `targetSdkVersion 34` until a later React Native/toolchain step, because the current branch intentionally stays on target SDK 33.
 - React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue stepwise from RN `0.68.7` toward a current supported line instead of jumping directly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
+- Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
 - React 19 impact audit is tracked in `docs/react19-impact-audit.md`; use it before changing React/RN package versions.
 - React package coupling audit is tracked in `docs/react-package-coupling-audit.md`; use it to keep React, renderer, and type packages moving together.
 - Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`; use it to keep TypeScript, Jest, renderer, and React/RN package validation aligned.
@@ -137,7 +138,7 @@ Passing:
 - Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with generated timestamp, outcome, exit code, selected serial, Metro endpoint/reachability, app PID, logcat count, UI attempts, UI hierarchy path, screenshot path, and screenshot byte count
 - `corepack yarn android:dev:audit-warnings`
 - Android dev environment audit verifies the local Java range, adb access, Gradle wrappers, Android validation helper files, and RN upgrade path audit scripts before build/smoke work.
-- RN baseline preflight groups the current lightweight Android gate, Metro runtime audit, RN upgrade path audit, target snapshot audit, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit before larger React Native baseline branches.
+- RN baseline preflight groups the current lightweight Android gate, Metro runtime audit, Node runtime transition audit, RN upgrade path audit, target snapshot audit, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit before larger React Native baseline branches.
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 2` and `Unexpected targeted Android Gradle warnings: 0`.
 - Current targeted warning sources are Sentry `execResult` at `node_modules\@sentry\react-native\sentry.gradle:48` and `react-native-camera` `jcenter()` at `node_modules\react-native-camera\android\build.gradle:59`.

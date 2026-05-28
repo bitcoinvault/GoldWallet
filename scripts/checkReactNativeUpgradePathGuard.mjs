@@ -21,6 +21,8 @@ const validEnvironment = {
   },
   scripts: {
     'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+    'node:runtime-transition:audit': 'node scripts/auditNodeRuntimeTransition.mjs',
+    'check:node-runtime-transition-guard': 'node scripts/checkNodeRuntimeTransitionGuard.mjs',
     'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
     'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
     'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
@@ -90,6 +92,8 @@ assertRejected(
     ...validEnvironment,
     scripts: {
       'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+      'node:runtime-transition:audit': 'node scripts/auditNodeRuntimeTransition.mjs',
+      'check:node-runtime-transition-guard': 'node scripts/checkNodeRuntimeTransitionGuard.mjs',
       'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
       'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
       'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
@@ -108,6 +112,8 @@ assertRejected(
     ...validEnvironment,
     scripts: {
       'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+      'node:runtime-transition:audit': 'node scripts/auditNodeRuntimeTransition.mjs',
+      'check:node-runtime-transition-guard': 'node scripts/checkNodeRuntimeTransitionGuard.mjs',
       'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
       'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
       'check:react19-impact-guard': 'node scripts/checkReact19ImpactGuard.mjs',
@@ -121,11 +127,33 @@ assertRejected(
   'rn:target-snapshot:audit',
 );
 assertRejected(
+  'Missing Node runtime transition package script fixture',
+  {
+    ...validEnvironment,
+    scripts: {
+      'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+      'check:node-runtime-transition-guard': 'node scripts/checkNodeRuntimeTransitionGuard.mjs',
+      'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
+      'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
+      'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
+      'check:react19-impact-guard': 'node scripts/checkReact19ImpactGuard.mjs',
+      'react:package-coupling:audit': 'node scripts/auditReactPackageCoupling.mjs',
+      'check:react-package-coupling-guard': 'node scripts/checkReactPackageCouplingGuard.mjs',
+      'test:type-coupling:audit': 'node scripts/auditTestTypeCoupling.mjs',
+      'check:test-type-coupling-guard': 'node scripts/checkTestTypeCouplingGuard.mjs',
+      'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
+    },
+  },
+  'node:runtime-transition:audit',
+);
+assertRejected(
   'Missing React 19 impact package script fixture',
   {
     ...validEnvironment,
     scripts: {
       'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+      'node:runtime-transition:audit': 'node scripts/auditNodeRuntimeTransition.mjs',
+      'check:node-runtime-transition-guard': 'node scripts/checkNodeRuntimeTransitionGuard.mjs',
       'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
       'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
       'check:react19-impact-guard': 'node scripts/checkReact19ImpactGuard.mjs',
@@ -144,6 +172,8 @@ assertRejected(
     ...validEnvironment,
     scripts: {
       'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+      'node:runtime-transition:audit': 'node scripts/auditNodeRuntimeTransition.mjs',
+      'check:node-runtime-transition-guard': 'node scripts/checkNodeRuntimeTransitionGuard.mjs',
       'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
       'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
       'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
@@ -162,6 +192,8 @@ assertRejected(
     ...validEnvironment,
     scripts: {
       'rn:upgrade-path:audit': 'node scripts/auditReactNativeUpgradePath.mjs',
+      'node:runtime-transition:audit': 'node scripts/auditNodeRuntimeTransition.mjs',
+      'check:node-runtime-transition-guard': 'node scripts/checkNodeRuntimeTransitionGuard.mjs',
       'rn:target-snapshot:audit': 'node scripts/auditReactNativeTargetSnapshot.mjs',
       'check:rn-target-snapshot-guard': 'node scripts/checkReactNativeTargetSnapshotGuard.mjs',
       'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
