@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.105 - Redux stub type cleanup
+
+- Branch: `feature/bem-36-redux-type-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove `@types/redux-saga` and `@types/reselect` from `devDependencies`.
+- Refresh `yarn.lock` so `redux-saga` and `reselect` are no longer retained through stub type packages.
+- Keep runtime `redux-saga`, runtime `reselect`, Redux state code, wallet screens, native project files, env files, Android Gradle files, Metro config, and package scripts unchanged.
+
+Why:
+
+- Yarn reports both type packages as stub definitions because `redux-saga` and `reselect` provide their own types.
+- Removing obsolete stub packages shrinks the TypeScript maintenance surface before larger TypeScript, Jest, React, or React Native baseline changes.
+
+Validation:
+
+- `corepack yarn typescript:check` passed after the packages were removed.
+- `corepack yarn postinstall` was run after `check:rn-nodeify-shims` detected stale shims from the install-tree update.
+- `corepack yarn check:rn-nodeify-shims` passed after `postinstall`.
+- `git diff --check` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with Node 16 and `--reset-cache`.
+- `adb reverse tcp:8081 tcp:8081` passed on `emulator-5554`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light` passed.
+
 ### BEM-37.98 - Android warning baseline refresh
 
 - Branch: `feature/bem-37-warning-baseline`
