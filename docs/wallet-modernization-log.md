@@ -6541,3 +6541,27 @@ Validation:
 - npm metadata checks for `react-native-camera`, `react-native-vision-camera`, and `react-native-camera-kit`
 - `corepack yarn camera:qr-migration:audit`
 - `corepack yarn camera:qr-migration:check-summary`
+
+### BEM-37.103 - Modernization log ID guard
+
+- Branch: `feature/bem-37-modernization-log-id-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a fast guard for duplicate `BEM-*` IDs in `docs/wallet-modernization-log.md`.
+- Keep the current historical duplicate IDs as an explicit legacy allow-list so this branch does not rewrite older log history.
+- Include the guard in `android:dev:check-light` so future mini-branch validation catches duplicate log IDs before commit.
+- Refresh README, Android workflow, and baseline docs for the new lightweight check item.
+
+Why:
+
+- Recent warning-audit documentation work exposed duplicate `BEM-37` IDs in the modernization log.
+- The log is used as the branch-by-branch maintenance record, so duplicated IDs make it harder to map work back to branches and Jira/Plane items.
+
+Validation:
+
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn typescript:check`
+- `git diff --check`
