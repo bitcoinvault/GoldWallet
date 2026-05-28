@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.83 - Android verify smoke summary check
+
+- Branch: `feature/bem-36-verify-smoke-summary-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend `android:dev:verify` so the full dev build plus emulator smoke command also validates the generated smoke summary artifact.
+- Update README and Android modernization workflow docs to state that `android:dev:verify` now includes `android:dev:check-smoke-summary`.
+- Keep runtime app code, native source, dependency versions, Gradle configuration, Metro behavior, release secrets, and validation artifact formats unchanged.
+
+Why:
+
+- App-affecting branches use `android:dev:verify` as the high-confidence Android validation command.
+- The command should fail if smoke runs but the local summary artifact does not prove the expected UI, process/logcat capture, Metro reachability, UI hierarchy, and screenshot evidence.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:verify` passed.
+- `git diff --check` passed.
+
 ### BEM-36.82 - Wallet modernization baseline refresh
 
 - Branch: `feature/bem-36-modernization-baseline-refresh`
