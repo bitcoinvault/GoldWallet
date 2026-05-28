@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.95 - Android warning-source summary aggregate
+
+- Branch: `feature/bem-37-warning-source-summaries`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:check-warning-source-summaries` to validate the generated camera QR migration and Sentry Android warning local summaries together.
+- Add `check:android-warning-source-summaries-guard` to self-check the aggregate warning-source checker wiring.
+- Include the aggregate warning-source summary checker in `rn:baseline:preflight` after the camera and Sentry warning summaries are generated.
+- Add the aggregate checker files and package scripts to the Android dev environment audit guard.
+- Refresh workflow and baseline documentation with the aggregate warning-source checker command.
+- Keep runtime code, native project files, dependency versions, env files, and lockfile content unchanged.
+
+Why:
+
+- The active Android warning debt is split across `react-native-camera` and Sentry. A single aggregate check makes the remaining warning-source artifacts explicit before either larger cleanup branch starts.
+
+Validation:
+
+- `corepack yarn check:android-warning-source-summaries-guard` passed.
+- `corepack yarn android:dev:check-warning-source-summaries` passed.
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn rn:baseline:preflight` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- Emulator smoke was not required because this branch only changes validation tooling and documentation.
+
+Follow-up:
+
+- Keep the aggregate warning-source checker aligned with any new targeted Android warning-source summary artifact.
+
 ### BEM-37.94 - Aggregate Sentry warning release-services summary
 
 - Branch: `feature/bem-37-release-services-sentry-warning-aggregate`

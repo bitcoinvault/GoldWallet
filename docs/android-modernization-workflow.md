@@ -42,7 +42,7 @@ Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Nativ
 
 Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.68.7` package baseline, target-SDK deferral, and related documentation still agree.
 
-Use `corepack yarn rn:baseline:preflight` before changing React Native package versions. It runs the lightweight Android gate plus the Metro runtime, Node runtime transition audit, RN upgrade path, RN target snapshot, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration with generated summary validation, Sentry warning/source-map readiness with generated Android-warning and prerequisite-summary validation, Firebase release-service with generated summary validation, CodePush release-path with generated summary validation, push-notification bridge audit with generated summary validation, the aggregate release-services summary guard self-check, and the aggregate release-services summary checker covering both Sentry summary artifacts as a single RN-baseline readiness pass.
+Use `corepack yarn rn:baseline:preflight` before changing React Native package versions. It runs the lightweight Android gate plus the Metro runtime, Node runtime transition audit, RN upgrade path, RN target snapshot, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration with generated summary validation, Sentry warning/source-map readiness with generated Android-warning and prerequisite-summary validation, the aggregate warning-source summary checker, Firebase release-service with generated summary validation, CodePush release-path with generated summary validation, push-notification bridge audit with generated summary validation, the aggregate release-services summary guard self-check, and the aggregate release-services summary checker covering both Sentry summary artifacts as a single RN-baseline readiness pass.
 
 Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 16 Metro/dev runtime remains aligned with React Native `0.68.7` while the recorded RN target snapshot still implies a later Node engine move. Do not change `.nvmrc` as a standalone cleanup; keep it tied to the dedicated React Native baseline branch.
 
@@ -127,6 +127,7 @@ corepack yarn sentry:android-warning:audit
 corepack yarn sentry:android-warning:check-summary
 corepack yarn camera:qr-migration:audit
 corepack yarn camera:qr-migration:check-summary
+corepack yarn android:dev:check-warning-source-summaries
 ```
 
 For a fast check of the warning baseline guard patterns without running Gradle:

@@ -222,6 +222,22 @@ assertRejected(
   'Sentry Android warning summary guard self-check helper is missing',
 );
 assertRejected(
+  'Missing Android warning-source summary aggregate checker file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkAndroidWarningSourceSummaries.mjs')),
+  },
+  'Android warning-source summary aggregate checker is missing',
+);
+assertRejected(
+  'Missing Android warning-source summary aggregate guard file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkAndroidWarningSourceSummariesGuard.mjs')),
+  },
+  'Android warning-source summary aggregate guard self-check helper is missing',
+);
+assertRejected(
   'Missing Sentry release prerequisite summary guard file fixture',
   {
     ...validEnvironment,
@@ -492,6 +508,22 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:sentry-android-warning-summary-guard')),
   },
   'package.json is missing check:sentry-android-warning-summary-guard',
+);
+assertRejected(
+  'Missing Android warning-source summary aggregate package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'android:dev:check-warning-source-summaries')),
+  },
+  'package.json is missing android:dev:check-warning-source-summaries',
+);
+assertRejected(
+  'Missing Android warning-source summary aggregate guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:android-warning-source-summaries-guard')),
+  },
+  'package.json is missing check:android-warning-source-summaries-guard',
 );
 assertRejected(
   'Missing Sentry release prerequisite summary package script fixture',
