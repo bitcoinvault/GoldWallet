@@ -45,6 +45,12 @@ To build a binary of any variant, you must have `sentry.properties` files create
 $ SENTRY_AUTH_TOKEN=${TOKEN} bash ./create-sentry-properties.sh  
 ```
 
+Before claiming Sentry release/source-map validation locally, audit the required files without printing secrets:
+
+```sh
+$ yarn sentry:release:prereq-audit
+```
+
 But to run the app with Metro server, this step isn't required.
 
 ## Running the app
