@@ -1,74 +1,115 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const packageJson = JSON.parse(read('package.json'));
-const dependencies = packageJson.dependencies || {};
-const devDependencies = packageJson.devDependencies || {};
-const scripts = packageJson.scripts || {};
-const nvmrc = read('.nvmrc').trim();
-const readme = read('README.md');
-const workflow = read('docs/android-modernization-workflow.md');
-const baseline = read('docs/wallet-modernization-baseline.md');
-const errors = [];
-const warnings = [];
-const nodeVersion = process.versions.node;
-const nodeMajor = Number(nodeVersion.split('.')[0]);
 
-const requireSnippet = (label, content, snippet) => {
+export const expectedMetroDevRuntime = {
+  nodeMajor: 16,
+  nodeVersion: '16.20.2',
+  reactNative: '0.68.7',
+  metroPreset: '0.67.0',
+  startScript: 'react-native start',
+};
+
+export const requiredMetroDevRuntimeSnippets = [
+  ['README.md', 'Node.js `16.20.2` is the current development runtime'],
+  ['README.md', '$ yarn start --reset-cache'],
+  ['docs/android-modernization-workflow.md', 'node-v16.20.2-win-x64'],
+  ['docs/android-modernization-workflow.md', 'react-native start --reset-cache --port 8081'],
+  ['docs/wallet-modernization-baseline.md', 'Node.js for Metro/dev runtime: Node 16 LTS'],
+  ['docs/wallet-modernization-baseline.md', 'corepack yarn start --reset-cache'],
+];
+
+const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {
     errors.push(`${label} is missing "${snippet}"`);
   }
 };
 
-if (nvmrc !== '16.20.2') {
-  errors.push(`.nvmrc is ${nvmrc}; expected 16.20.2 for the current Metro/dev runtime baseline`);
-}
+export const getMetroDevRuntimeIssues = ({ nodeVersion, nvmrc, dependencies, devDependencies, scripts, docs }) => {
+  const errors = [];
+  const warnings = [];
+  const nodeMajor = Number((nodeVersion || '').split('.')[0]);
 
-if (dependencies['react-native'] !== '0.68.7') {
-  errors.push(`package.json has react-native@${dependencies['react-native'] || '<missing>'}; expected current baseline 0.68.7`);
-}
+  if (nvmrc !== expectedMetroDevRuntime.nodeVersion) {
+    errors.push(`.nvmrc is ${nvmrc}; expected ${expectedMetroDevRuntime.nodeVersion} for the current Metro/dev runtime baseline`);
+  }
 
-if (devDependencies['metro-react-native-babel-preset'] !== '0.67.0') {
-  errors.push(
-    `package.json has metro-react-native-babel-preset@${devDependencies['metro-react-native-babel-preset'] || '<missing>'}; expected current baseline 0.67.0`,
+  if (dependencies['react-native'] !== expectedMetroDevRuntime.reactNative) {
+    errors.push(
+      `package.json has react-native@${dependencies['react-native'] || '<missing>'}; expected current baseline ${expectedMetroDevRuntime.reactNative}`,
+    );
+  }
+
+  if (devDependencies['metro-react-native-babel-preset'] !== expectedMetroDevRuntime.metroPreset) {
+    errors.push(
+      `package.json has metro-react-native-babel-preset@${
+        devDependencies['metro-react-native-babel-preset'] || '<missing>'
+      }; expected current baseline ${expectedMetroDevRuntime.metroPreset}`,
+    );
+  }
+
+  if (scripts.start !== expectedMetroDevRuntime.startScript) {
+    errors.push(`package.json start script is "${scripts.start || '<missing>'}"; expected "${expectedMetroDevRuntime.startScript}"`);
+  }
+
+  if (nodeMajor !== expectedMetroDevRuntime.nodeMajor) {
+    warnings.push(`Current Node is ${nodeVersion}; Metro/dev runtime is documented for Node 16 (${nvmrc}).`);
+  }
+
+  requiredMetroDevRuntimeSnippets.forEach(([relativePath, snippet]) => {
+    requireSnippet(errors, relativePath, docs[relativePath] || '', snippet);
+  });
+
+  return { errors, warnings };
+};
+
+const collectEnvironment = () => {
+  const dependencies = packageJson.dependencies || {};
+  const devDependencies = packageJson.devDependencies || {};
+  const scripts = packageJson.scripts || {};
+  const docs = Object.fromEntries(
+    [...new Set(requiredMetroDevRuntimeSnippets.map(([relativePath]) => relativePath))].map(relativePath => [relativePath, read(relativePath)]),
   );
+
+  return {
+    nodeVersion: process.versions.node,
+    nvmrc: read('.nvmrc').trim(),
+    dependencies,
+    devDependencies,
+    scripts,
+    docs,
+  };
+};
+
+const printReport = environment => {
+  const { errors, warnings } = getMetroDevRuntimeIssues(environment);
+
+  console.log('Metro dev runtime audit');
+  console.log(`Node.js: ${environment.nodeVersion}`);
+  console.log(`.nvmrc: ${environment.nvmrc}`);
+  console.log(`react-native: ${environment.dependencies['react-native'] || '<missing>'}`);
+  console.log(`metro-react-native-babel-preset: ${environment.devDependencies['metro-react-native-babel-preset'] || '<missing>'}`);
+  console.log(`start script: ${environment.scripts.start || '<missing>'}`);
+
+  if (warnings.length > 0) {
+    console.log('Warnings:');
+    warnings.forEach(warning => console.log(`- ${warning}`));
+  }
+
+  if (errors.length > 0) {
+    console.log('Metro dev runtime baseline is invalid:');
+    errors.forEach(error => console.log(`- ${error}`));
+    process.exit(1);
+  }
+
+  console.log('Metro dev runtime baseline is documented for Node 16 and the current React Native/Metro package line.');
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  printReport(collectEnvironment());
 }
-
-if (scripts.start !== 'react-native start') {
-  errors.push(`package.json start script is "${scripts.start || '<missing>'}"; expected "react-native start"`);
-}
-
-if (nodeMajor !== 16) {
-  warnings.push(`Current Node is ${nodeVersion}; Metro/dev runtime is documented for Node 16 (${nvmrc}).`);
-}
-
-requireSnippet('README.md', readme, 'Node.js `16.20.2` is the current development runtime');
-requireSnippet('README.md', readme, '$ yarn start --reset-cache');
-requireSnippet('docs/android-modernization-workflow.md', workflow, 'node-v16.20.2-win-x64');
-requireSnippet('docs/android-modernization-workflow.md', workflow, 'react-native start --reset-cache --port 8081');
-requireSnippet('docs/wallet-modernization-baseline.md', baseline, 'Node.js for Metro/dev runtime: Node 16 LTS');
-requireSnippet('docs/wallet-modernization-baseline.md', baseline, "corepack yarn start --reset-cache");
-
-console.log('Metro dev runtime audit');
-console.log(`Node.js: ${nodeVersion}`);
-console.log(`.nvmrc: ${nvmrc}`);
-console.log(`react-native: ${dependencies['react-native'] || '<missing>'}`);
-console.log(`metro-react-native-babel-preset: ${devDependencies['metro-react-native-babel-preset'] || '<missing>'}`);
-console.log(`start script: ${scripts.start || '<missing>'}`);
-
-if (warnings.length > 0) {
-  console.log('Warnings:');
-  warnings.forEach(warning => console.log(`- ${warning}`));
-}
-
-if (errors.length > 0) {
-  console.log('Metro dev runtime baseline is invalid:');
-  errors.forEach(error => console.log(`- ${error}`));
-  process.exit(1);
-}
-
-console.log('Metro dev runtime baseline is documented for Node 16 and the current React Native/Metro package line.');

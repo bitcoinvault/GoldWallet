@@ -61,7 +61,7 @@ For a fast Android maintenance check that does not build or launch the app, run:
 $ yarn android:dev:check-light
 ```
 
-This runs the lightweight Android warning, validation artifact, Android dev environment audit, camera usage, QR scanner caller, QR render usage, legacy Android autolink disables, Sentry usage, Sentry release integration, CodePush usage, Firebase usage, iOS push notification bridge, release-service env keys, Android env mapping, iOS scheme config mapping, storage/network usage, storage/network validation scripts, native module inventory and upgrade-plan, node polyfill shim, TypeScript, and diff whitespace guards used before the offline suites in `prepush`.
+This runs the lightweight Android warning, validation artifact, Android dev environment audit, Metro dev runtime audit, camera usage, QR scanner caller, QR render usage, legacy Android autolink disables, Sentry usage, Sentry release integration, CodePush usage, Firebase usage, iOS push notification bridge, release-service env keys, Android env mapping, iOS scheme config mapping, storage/network usage, storage/network validation scripts, native module inventory and upgrade-plan, node polyfill shim, TypeScript, and diff whitespace guards used before the offline suites in `prepush`.
 
 Before Android build or emulator smoke work, check the local Java/SDK/ADB toolchain:
 
@@ -76,6 +76,8 @@ To verify that the documented Metro runtime baseline is still aligned with the r
 ```sh
 $ yarn metro:dev-runtime:audit
 ```
+
+The lightweight check includes a Metro dev runtime audit self-check so fixture coverage stays stable even when the active shell is not using Node 16.
 
 For Android development verification, start Metro first:
 
