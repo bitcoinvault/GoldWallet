@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.64 - React Native WebView manifest pin
+
+- Branch: `feature/bem-webview-11-26-1-manifest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin `react-native-webview` manifest from `^11.26.1` to the already-resolved lockfile version `11.26.1`.
+- Refresh the lockfile selector for the exact dependency.
+- Update the native module inventory guard, native module upgrade plan, and storage/network compatibility audit.
+- Keep source usage, Android/iOS native project files, and runtime behavior unchanged.
+
+Why:
+
+- The repo was already installing `react-native-webview@11.26.1`, but the manifest allowed dependency drift.
+- WebView powers Terms screens, so the branch stays limited to deterministic pinning; a future WebView 13.x upgrade needs dedicated Terms/WebView QA.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `adb reverse tcp:8081 tcp:8081`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- Android emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no fatal Android runtime or React Native runtime logcat findings were reported.
+- Additional logcat observation after smoke showed BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443` and reporting `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no targeted WebView, Electrum, Android runtime, or React Native runtime errors were found.
+
+Follow-up:
+
+- Manually open Terms and Conditions screens during release-candidate validation. This branch only pins the existing installed WebView version and validates Android startup/runtime smoke.
+
 ### BEM-36.63 - React Native Secure Key Store manifest pin
 
 - Branch: `feature/bem-secure-key-store-2-0-10-manifest`
