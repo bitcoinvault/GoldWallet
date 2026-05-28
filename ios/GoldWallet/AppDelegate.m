@@ -60,6 +60,7 @@ static void InitializeFlipper(UIApplication *application) {
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+  center.delegate = self;
   [RNBootSplash initWithStoryboard:@"Launch Screen" rootView:rootView];
   
   return YES;

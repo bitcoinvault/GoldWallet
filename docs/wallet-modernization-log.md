@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.79 - iOS push notification bridge readiness
+
+- Branch: `feature/bem-ios-push-notification-bridge-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Set `UNUserNotificationCenter` delegate in `ios/GoldWallet/AppDelegate.m`.
+- Add `UIBackgroundModes` `remote-notification` to `ios/GoldWallet/Info.plist`.
+- Keep push notification dependency versions, JavaScript notification service code, Android files, env files, and lockfile content unchanged.
+
+Why:
+
+- `BEM-37.77` added a static iOS push bridge audit and found two readiness gaps in the main iOS target.
+- Foreground notification presentation callbacks require the notification center delegate to be assigned.
+- Remote notification background handling should be declared by the app target before iOS push behavior is considered ready for device validation.
+
+Validation:
+
+- `corepack yarn push-notification:bridge-audit` passed and reported no static readiness issues.
+- `corepack yarn check:push-notification-ios-usage-guard` passed.
+- `corepack yarn check:push-notification-ios-usage-scope` passed and confirmed the guarded iOS push notification integration surface is now 1 runtime file and 5 native integration files.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+- `corepack yarn android:dev:check-light` passed.
+- iOS runtime behavior was not validated on this Windows machine.
+
+Follow-up:
+
+- Full APNs registration, token, foreground/background notification, badge, and tap-through behavior still requires iOS simulator/device validation on a Mac runner.
+
 ### BEM-37.78 - Camera QR migration audit
 
 - Branch: `feature/bem-camera-qr-migration-audit`
