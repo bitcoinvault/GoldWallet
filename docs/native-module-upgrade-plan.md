@@ -72,6 +72,7 @@ Branch shape:
 
 - `@react-native-async-storage/async-storage`
 - `@react-native-community/netinfo` -> `6.2.1`
+- `react-native-background-timer` -> `2.4.1`
 - `react-native-device-info` -> `6.2.1`
 - `react-native-config` -> `1.5.9`
 - `react-native-localize` -> `1.4.3`
@@ -91,6 +92,7 @@ Branch shape:
 - Validate app startup, wallet list persistence, settings/env loading, and logcat for native module crashes.
 - For storage/secure-key-store changes, add or run focused storage/authenticator tests before emulator smoke.
 - `@react-native-community/netinfo` is on latest checked 6.x `6.2.1` after `BEM-36.59`; future NetInfo work should focus on Electrum/network behavior and RN baseline changes rather than another blind package bump.
+- `react-native-background-timer` is pinned to the already-resolved `2.4.1` after `BEM-36.67`; future timer work should validate timeout-button behavior and wait for a broader RN/runtime baseline.
 - `react-native-config` is on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected on the current RN `0.68.7` Android baseline because it requires newer React Native Android APIs. Future config work should focus on flavor/env behavior, release-service keys, and platform validation rather than another package bump.
 - `react-native-device-info` is pinned to the already-resolved `6.2.1` after `BEM-36.61`; future device metadata work should focus on emulator/device detection behavior and RN baseline changes.
 - `react-native-localize` is pinned to the already-resolved `1.4.3` after `BEM-36.62`; future localization work should focus on app language behavior and RN baseline changes.
