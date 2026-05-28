@@ -278,6 +278,14 @@ assertRejected(
   'release-services summary artifact checker is missing',
 );
 assertRejected(
+  'Missing release-services summary guard self-check file fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkReleaseServicesSummaryGuard.mjs')),
+  },
+  'release-services summary guard self-check helper is missing',
+);
+assertRejected(
   'Missing dev verification package script fixture',
   {
     ...validEnvironment,
@@ -476,6 +484,14 @@ assertRejected(
     packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'release-services:check-summaries')),
   },
   'package.json is missing release-services:check-summaries',
+);
+assertRejected(
+  'Missing release-services summary aggregate guard package script fixture',
+  {
+    ...validEnvironment,
+    packageScripts: new Set([...validEnvironment.packageScripts].filter(scriptName => scriptName !== 'check:release-services-summary-guard')),
+  },
+  'package.json is missing check:release-services-summary-guard',
 );
 
 console.log('Android dev environment audit guard checks are valid.');
