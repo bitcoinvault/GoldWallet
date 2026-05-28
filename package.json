@@ -90,6 +90,7 @@
     "firebase:release-services:audit": "node scripts/auditFirebaseReleaseServices.mjs",
     "push-notification:bridge-audit": "node scripts/auditPushNotificationBridge.mjs",
     "camera:qr-migration:audit": "node scripts/auditCameraQrMigration.mjs",
+    "sentry:android-warning:audit": "node scripts/auditSentryAndroidWarning.mjs",
     "sentry:release:prereq-audit": "node scripts/auditSentryReleasePrerequisites.mjs",
     "android:dev:check-warning-guard": "node scripts/checkAndroidWarningBaselineGuard.mjs",
     "android:dev:check-artifact-guard": "node scripts/checkAndroidValidationArtifactGuard.mjs",
