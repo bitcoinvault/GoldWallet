@@ -114,6 +114,12 @@ export const requiredAndroidDevPackageScripts = [
   'rn:baseline:preflight',
 ];
 
+export const requiredAndroidDevPackageScriptSnippets = [
+  ['android:dev:verify', 'android:dev:assemble', 'dev verification must rebuild the dev APK'],
+  ['android:dev:verify', 'android:dev:smoke', 'dev verification must run emulator smoke'],
+  ['android:dev:verify', 'android:dev:check-smoke-summary', 'dev verification must validate the smoke summary artifact'],
+];
+
 export const getAndroidDevEnvironmentIssues = ({
   javaCommand,
   javaMajor,
@@ -127,6 +133,7 @@ export const getAndroidDevEnvironmentIssues = ({
   adbReady,
   existingFiles,
   packageScripts,
+  packageScriptCommands = new Map(),
 }) => {
   const errors = [];
   const warnings = [];
@@ -168,6 +175,13 @@ export const getAndroidDevEnvironmentIssues = ({
     }
   });
 
+  requiredAndroidDevPackageScriptSnippets.forEach(([scriptName, snippet, label]) => {
+    const command = packageScriptCommands.get(scriptName) || '';
+    if (!command.includes(snippet)) {
+      errors.push(`package.json script ${scriptName} must include ${snippet} (${label})`);
+    }
+  });
+
   return { errors, warnings };
 };
 
@@ -191,6 +205,7 @@ const collectEnvironment = () => {
   const nvmrc = exists('.nvmrc') ? read('.nvmrc').trim() : '';
   const existingFiles = new Set(requiredAndroidDevFiles.map(([relativePath]) => relativePath).filter(exists));
   const packageScripts = new Set(Object.keys(packageJson.scripts || {}));
+  const packageScriptCommands = new Map(Object.entries(packageJson.scripts || {}));
 
   return {
     javaCommand,
@@ -205,6 +220,7 @@ const collectEnvironment = () => {
     adbReady: Boolean(adbCandidate && !adbVersion?.error && adbVersion?.status === 0),
     existingFiles,
     packageScripts,
+    packageScriptCommands,
   };
 };
 

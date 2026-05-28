@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.84 - Android verify command content guard
+
+- Branch: `feature/bem-36-verify-script-content-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Android dev environment audit to verify required command snippets inside guarded package scripts.
+- Guard `android:dev:verify` so it must include `android:dev:assemble`, `android:dev:smoke`, and `android:dev:check-smoke-summary`.
+- Add self-check fixtures that reject `android:dev:verify` when the assemble, smoke, or smoke-summary step is removed.
+- Keep runtime app code, native project files, dependency versions, Gradle configuration, Metro behavior, release secrets, and validation artifact formats unchanged.
+
+Why:
+
+- `BEM-36.83` made `android:dev:verify` the high-confidence build plus smoke plus summary-validation command.
+- The environment guard should catch accidental command drift, not only the presence of the package script name.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard` passed.
+- `corepack yarn android:dev:env-audit` passed with JDK 17.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+- No runtime, native, dependency, Android/iOS source, or Metro behavior changed in this branch, so emulator smoke is not required for this guard-only update.
+
 ### BEM-36.83 - Android verify smoke summary check
 
 - Branch: `feature/bem-36-verify-smoke-summary-check`
