@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.130 - RN 0.81 baseline proof
+
+- Branch: `feature/bem-37-rn-next-baseline-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the React Native baseline proof from RN `0.76.9` to RN `0.81.6`, with matching RN tooling packages and `@react-native-community/cli` `20.1.3`.
+- Move runtime React to `19.1.4`, matching RN `0.81.6`'s renderer line, while keeping root React types on the current React 19 type line used by TypeScript validation.
+- Enable Hermes through the RN Gradle plugin dependency path and keep New Architecture disabled for this compatibility baseline.
+- Upgrade the RN-adjacent runtime packages needed by the baseline: CodePush `9.0.1`, Gesture Handler `2.29.1`, Screens `4.24.0`, React Redux `9.3.0`, and Redux `5.0.1`.
+- Add `patch-package` patches for CodePush's removed `ChoreographerCompat` dependency, `react-native-modal`'s removed `BackHandler.removeEventListener` API usage, and the rn-nodeify stream-browserify shim.
+- Update TypeScript compatibility casts around older React Native component libraries, Redux dispatch typing, carousel typing, refresh controls, and Flipper navigation ref wiring.
+- Suppress known dev-only RN `0.81` warnings for the intentionally disabled New Architecture and unavailable Flipper native module so emulator smoke surfaces actionable runtime failures instead of expected dev noise.
+- Refresh RN target, React 19, package-coupling, Node runtime, native-module, and upgrade-path audit fixtures/docs for the RN `0.81.6` proof state.
+
+Findings:
+
+- RN `0.85.3` and RN `0.82.1` were tried first as latest-first targets, but they hit native compatibility blockers around CodePush, React 19/runtime coupling, and mandatory New Architecture/codegen behavior in older native modules.
+- RN `0.81.6` is the highest currently validated baseline candidate with `newArchEnabled=false`.
+- React runtime must stay on `19.1.4` for this baseline; `19.2.6` caused an emulator runtime mismatch against `react-native-renderer` `19.1.4`.
+- A funded BTCV testnet wallet is still required for transaction-flow validation beyond startup/onboarding/dashboard smoke.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- Metro restarted with `--reset-cache --max-workers 1`
+- Android emulator smoke on `emulator-5554`
+- Smoke evidence: `local-docs/android-smoke-dev-summary.txt`, `local-docs/android-smoke-dev.png`, `local-docs/android-smoke-after-permission.png`
+
 ### BEM-37.129 - React Navigation 7 masked-view removal proof
 
 - Branch: `feature/bem-37-masked-view-navigation-proof`

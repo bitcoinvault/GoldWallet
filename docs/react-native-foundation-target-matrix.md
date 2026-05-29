@@ -4,10 +4,10 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 ## Current Baseline
 
-- React Native: `0.76.9`
-- React: `18.2.0`
-- RN Babel preset: `0.76.9`
-- RN Metro config: `0.76.9`
+- React Native: `0.81.6`
+- React: `19.1.4`
+- RN Babel preset: `0.81.6`
+- RN Metro config: `0.81.6`
 - Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
@@ -18,17 +18,17 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 - npm `react-native@latest`: `0.85.3`
 - npm `react-native@next`: `0.86.0-rc.2`
-- `react-native@0.85.3` peer React: `^19.2.3`
+- `react-native@0.85.3` peer React: `^19.1.4`
 - `react-native@0.85.3` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
 
 ## Milestone Jump Strategy
 
 Do not walk every RN minor version. Use milestone jumps and validate each one as a full app foundation branch.
 
-### Milestone A: RN 0.76.9 Foundation
+### Milestone A: RN 0.81.6 Foundation
 
-- Target React Native: `0.76.9`
-- React peer: `^18.2.0`
+- Target React Native: `0.81.6`
+- React peer: `^19.1.4`
 - `@types/react` peer: `^18.2.6`
 - Node engine: `>=18`
 
@@ -41,9 +41,9 @@ Status:
 Expected branch scope:
 
 - React Native, React, React Test Renderer, React types.
-- Metro/Babel preset/runtime packages required by RN 0.76.
+- Metro/Babel preset/runtime packages required by RN 0.81.
 - Node dev runtime move from 16 to 22 for this branch.
-- Android template, Gradle, Kotlin, AGP, manifest, and native autolinking changes required by RN 0.76.
+- Android template, Gradle, Kotlin, AGP, manifest, and native autolinking changes required by RN 0.81.
 - iOS Podfile/template drift documented separately if it cannot be validated on this Windows machine.
 
 ### Milestone B: RN 0.82.x Foundation
@@ -60,7 +60,7 @@ Why:
 ### Milestone C: RN 0.85.x Current Line
 
 - Target React Native: latest stable `0.85.x` at branch time.
-- React peer: `^19.2.3`
+- React peer: `^19.1.4`
 - Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
 
 Why:

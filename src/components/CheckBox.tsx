@@ -1,11 +1,13 @@
-import React, { ReactElement } from 'react';
-import { StyleSheet, View, ViewStyle, StyleProp, TextStyle } from 'react-native';
+import React, { ComponentClass, ReactElement } from 'react';
+import { StyleSheet, TouchableOpacity, View, ViewStyle, StyleProp, TextStyle } from 'react-native';
 import { CheckBox as CheckBoxNative } from 'react-native-elements';
 
 import { icons } from 'app/assets';
 import { palette } from 'app/styles';
 
 import { Image } from './Image';
+
+const CheckBoxTouchable = (TouchableOpacity as unknown) as ComponentClass<NonNullable<unknown>>;
 
 interface Props {
   checked: boolean;
@@ -14,12 +16,13 @@ interface Props {
   left?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
-  title?: ReactElement | string;
+  title?: ReactElement<NonNullable<unknown>> | string;
   testID?: string;
 }
 
 export const CheckBox = ({ ...props }: Props) => (
   <CheckBoxNative
+    Component={CheckBoxTouchable}
     checkedIcon={
       <View style={styles.checked}>
         <Image source={icons.tick} style={styles.icon} resizeMode="contain" />

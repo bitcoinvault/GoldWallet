@@ -1,9 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component, ComponentType } from 'react';
 import { View, Dimensions, StyleSheet } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 
 import { WalletCard } from 'app/components';
 import { Wallet } from 'app/consts';
+
+const WalletCarousel = Carousel as ComponentType<any>;
 
 interface Props {
   data: Wallet[];
@@ -33,14 +35,14 @@ export class WalletsCarousel extends Component<Props> {
 
     return (
       <View>
-        <Carousel
+        <WalletCarousel
           testID="wallets-carousel"
           {...this.props}
           ref={this.carouselRef}
           renderItem={this.renderItem}
           sliderWidth={SCREEN_WIDTH}
           itemWidth={SCREEN_WIDTH * 0.82}
-          onSnapToItem={index => getIndex(index)}
+          onSnapToItem={(index: number) => getIndex(index)}
         />
       </View>
     );

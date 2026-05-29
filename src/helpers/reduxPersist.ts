@@ -4,5 +4,7 @@ import { persistReducer, PersistConfig } from 'redux-persist';
 
 import { ApplicationState } from 'app/state';
 
-export const createPersistReducer = (reducer: Reducer, config: Omit<PersistConfig<ApplicationState>, 'storage'>) =>
-  persistReducer({ ...config, storage: AsyncStorage }, reducer);
+export const createPersistReducer = (
+  reducer: Reducer<any, any>,
+  config: Omit<PersistConfig<ApplicationState>, 'storage'>,
+) => persistReducer({ ...config, storage: AsyncStorage }, reducer);

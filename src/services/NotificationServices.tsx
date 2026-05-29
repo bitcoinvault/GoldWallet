@@ -2,13 +2,14 @@ import messaging from '@react-native-firebase/messaging';
 import { useEffect, useCallback } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { useDispatch } from 'react-redux';
+import { Dispatch } from 'redux';
 
 import { setFCMToken } from 'app/state/appSettings/actions';
 
 const POST_NOTIFICATIONS_PERMISSION = 'android.permission.POST_NOTIFICATIONS';
 
 const NotificationsServices = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<Dispatch<any>>();
 
   const getFcmToken = useCallback(async () => {
     const fcmToken = await messaging().getToken();
