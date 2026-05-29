@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.139 - README JDK 17 prerequisite refresh
+
+- Branch: `feature/bem-37-readme-jdk17-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the README Android prerequisite wording after the AGP `8.13` baseline.
+- Remove the stale statement that the Android build guard allows JDK `11-17`.
+- Keep the existing Gradle runner and Gradle build guard behavior unchanged because they already require JDK `17`.
+
+Findings:
+
+- `scripts/runAndroidGradle.mjs` and `android/build.gradle` already fail fast unless Java major version is exactly `17`.
+- The README was the remaining active entry point still describing the old JDK `11-17` range.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:env-audit`
+- `rg "JDK 11-17|allows JDK 11-17|JDK `11-17`|supported range at JDK 11-17" README.md docs scripts android -n`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.138 - Storage/network RN 0.81 audit refresh
 
 - Branch: `feature/bem-37-storage-network-rn081-audit-refresh`
