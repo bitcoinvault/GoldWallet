@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.151 - Calendars latest update
+
+- Branch: `feature/bem-37-calendars-latest-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-calendars` from the old resolved `1.1266.0` package to latest `1.1314.0`.
+- Remove the obsolete `@types/react-native-calendars` package now that the latest runtime package ships its own declarations.
+- Keep the runtime package pinned to the validated latest version instead of a broad semver range.
+- Replace removed `DateObject` type imports with the current `DateData` export used by the latest package.
+- Extend the existing `react-native-modal` compatibility patch for the current React Native event subscription API.
+
+Findings:
+
+- The package can now be updated because the current modernization baseline runs on Node `>=18`.
+- Latest `react-native-calendars` removes the old `DateObject` export, but the app only needs `dateString`, which is still present on `DateData`.
+- The new lockfile removes the old `immutable` calendar dependency and adds the current `recyclerlistview` dependency tree.
+- Emulator validation reached a real redbox after accepting Terms & Conditions because `react-native-modal@11.10.0` still called `DeviceEventEmitter.removeListener`; the local patch now stores the subscription returned by `addListener` and removes it through `.remove()`.
+- The fresh emulator lands on the no-wallet dashboard after onboarding, so smoke validation used the expected empty-wallet texts instead of the seeded-wallet dashboard texts.
+
+Validation:
+
+- `corepack yarn postinstall`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `git diff --check`
+
 ### BEM-37.150 - Baseline warning history refresh
 
 - Branch: `feature/bem-37-baseline-warning-history-refresh`
