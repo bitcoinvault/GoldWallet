@@ -12,6 +12,8 @@ const validSummary = [
   'Focused validation script: test:storage-network:focused',
   'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
   'Warning baseline mentions secure-key-store: yes',
+  'Legacy secure-storage removal ready: no',
+  'Legacy secure-storage removal blocker: dual-write and legacy fallback are still active; remove react-native-secure-key-store only after a release validates migrated PIN and transaction-password data',
   'Secure-storage migration baseline stable: yes',
   'Warnings: 0',
   'Errors: 0',
@@ -60,6 +62,19 @@ assertRejected(
 );
 assertRejected('Invalid AppStorage file fixture', validSummary.replace('AppStorage secure-storage file: class/app-storage.js', 'AppStorage secure-storage file: <missing>'), 'AppStorage secure-storage file');
 assertRejected('Invalid focused validation command fixture', invalidFocusedValidationSummary, 'Focused validation command');
+assertRejected(
+  'Legacy secure-storage removal ready fixture',
+  validSummary.replace('Legacy secure-storage removal ready: no', 'Legacy secure-storage removal ready: yes'),
+  'Legacy secure-storage removal must stay blocked',
+);
+assertRejected(
+  'Legacy secure-storage removal blocker fixture',
+  validSummary.replace(
+    'Legacy secure-storage removal blocker: dual-write and legacy fallback are still active; remove react-native-secure-key-store only after a release validates migrated PIN and transaction-password data',
+    'Legacy secure-storage removal blocker: none',
+  ),
+  'active dual-write and legacy fallback window',
+);
 assertRejected('Missing header fixture', validSummary.replace('Secure-storage migration audit', 'Bad header'), 'summary header');
 
 console.log('Secure-storage migration summary guard checks are valid.');

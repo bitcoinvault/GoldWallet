@@ -12,12 +12,15 @@ Checked on: 2026-05-29
 - Stored keys: `CONST.pin` and `CONST.transactionPassword`.
 - The transaction password is stored as `sha256(value).toString()`.
 - The current Android accessibility mode is `ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`.
+- Legacy removal readiness: not ready while dual-write and legacy fallback are still active.
 
 ## Decision
 
 Do not remove `react-native-secure-key-store` as warning-only cleanup.
 
 This dependency protects app unlock, transaction-password behavior, and legacy wallet storage. The first migration branch must preserve the wrapper API, read legacy values, migrate them into Keychain, and dual-write new values. A later release can remove the legacy backend after migrated data has been validated.
+
+`secure-storage:migration:audit` must keep reporting `Legacy secure-storage removal ready: no` until a separate release-validation branch proves migrated PIN and transaction-password data without the legacy backend.
 
 Branch: `feature/bem-37-secure-storage-keychain-migration`
 
