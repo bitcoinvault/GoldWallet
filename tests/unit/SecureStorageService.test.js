@@ -74,6 +74,19 @@ describe('unit - SecureStorageService', function() {
     });
   });
 
+  it('falls back to the legacy secure store when keychain read fails', async function() {
+    mockSecureStore.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));
+    mockLegacySecureStore.get.mockResolvedValueOnce('1234');
+    mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
+
+    await expect(service.getSecuredValue('pin')).resolves.toBe('1234');
+    expect(mockLegacySecureStore.get).toHaveBeenCalledWith('pin');
+    expect(mockSecureStore.setGenericPassword).toHaveBeenCalledWith('pin', '1234', {
+      service: 'pin',
+      accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+    });
+  });
+
   it('stores plain values with the current accessibility mode', async function() {
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
     mockLegacySecureStore.set.mockResolvedValueOnce('ok');

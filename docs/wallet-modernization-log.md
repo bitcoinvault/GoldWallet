@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.187 - Secure-storage fallback coverage
+
+- Branch: `feature/bem-37-secure-storage-fallback-coverage`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused unit coverage for the staged secure-storage migration path where the Keychain read fails but the legacy secure store still contains the value.
+- Keep `SecureStorageService` runtime behavior unchanged.
+- Keep `react-native-secure-key-store` installed while dual-write and legacy fallback remain active.
+
+Findings:
+
+- `react-native-keychain@10.0.0` and `react-native-secure-key-store@2.0.10` are still the latest published versions.
+- The current wrapper already migrates a legacy value into Keychain after a missing or failed Keychain read.
+- The added test locks the failed-Keychain-read recovery path before any later branch removes the legacy backend.
+- `corepack yarn test:storage-network:focused` continues to pass after increasing `SecureStorageService` unit coverage from 7 to 8 cases.
+
+Validation:
+
+- `npm view react-native-keychain version dist-tags engines peerDependencies dependencies --json`
+- `npm view react-native-secure-key-store version dist-tags engines peerDependencies dependencies --json`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn test:secure-storage:unit`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.186 - Sentry Android warning audit refresh
 
 - Branch: `feature/bem-37-sentry-warning-audit`
