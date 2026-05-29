@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.135 - RN 0.81 foundation plan refresh
+
+- Branch: `feature/bem-37-rn081-foundation-plan-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the legacy-named RN foundation plan and guard scripts after the RN `0.81.6` proof.
+- Keep the existing `rn:076-foundation:audit` command as a compatibility alias while making its expectations match the current RN `0.81.6` checkpoint.
+- Update upgrade strategy wording so future work continues from RN `0.81.6` toward `0.82.x` and the current line instead of referring to RN `0.76.9` as the next milestone.
+
+Findings:
+
+- `docs/react-native-foundation-target-matrix.md` already treated RN `0.81.6` as Milestone A, but the legacy plan and strategy guard still enforced older RN `0.76.9` snippets.
+- The next RN work should be a dedicated milestone branch; this branch does not change runtime packages or native files.
+
+Validation:
+
+- `corepack yarn rn:076-foundation:audit`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn upgrade:strategy:audit`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.134 - RN 0.81 navigation compatibility docs
 
 - Branch: `feature/bem-37-rn081-navigation-doc-refresh`

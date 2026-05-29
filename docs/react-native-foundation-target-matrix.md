@@ -35,7 +35,7 @@ Do not walk every RN minor version. Use milestone jumps and validate each one as
 Status:
 
 - This is now the current foundation checkpoint.
-- It moved the app beyond the old RN 0.68 baseline without taking the React 19 jump.
+- It moved the app beyond the old RN 0.68 baseline and onto the React 19 runtime line required by the RN `0.81.6` checkpoint.
 - It moved the app to a newer Metro/Babel/runtime family that should unlock more modern package syntax and exports than the old RN 0.68 baseline.
 
 Expected branch scope:

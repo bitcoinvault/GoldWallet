@@ -82,7 +82,7 @@ corepack yarn android:dev:verify
 
 ## Current Metro Setup
 
-Metro should be started with Node 22 for the current React Native 0.76 stack:
+Metro should be started with Node 22 for the current React Native 0.81 stack:
 
 ```powershell
 $env:Path='D:\tmp\node\node-v22.18.0-win-x64;' + $env:Path
@@ -174,7 +174,7 @@ Known gaps:
 2. Continue CameraKit QR scanner validation on Android hardware and iOS after a Mac pod refresh.
 3. Handle Sentry Gradle/source-map behavior in a dedicated release tooling branch.
 4. Upgrade native modules in controlled groups using `docs/native-module-upgrade-plan.md`.
-5. Continue RN with milestone jumps from `0.76` toward newer supported lines.
+5. Continue RN with milestone jumps from `0.81.6` toward newer supported lines.
 6. Keep future target SDK moves tied to the RN/toolchain path that owns Android template and debug receiver behavior.
 7. Upgrade iOS Podfile/deployment target and validate schemes.
 8. Add BTC network support and UI switching.
