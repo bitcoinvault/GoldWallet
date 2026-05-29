@@ -31,9 +31,10 @@ const requireSnippet = (errors, label, content, snippet) => {
 export const collectSecureStorageMigrationAudit = () => {
   const errors = [];
   const warnings = [];
-  const currentVersion = dependencies['react-native-secure-key-store'];
-  const replacementVersion = '10.0.0';
+  const currentVersion = dependencies['react-native-keychain'];
+  const legacyVersion = dependencies['react-native-secure-key-store'];
   const secureStorageService = requireFile(errors, 'src/services/SecureStorageService.ts');
+  const appStorage = requireFile(errors, 'class/app-storage.js');
   const authSagas = requireFile(errors, 'src/state/authentication/sagas.ts');
   const unlockTransaction = requireFile(errors, 'src/screens/UnlockTransaction.tsx');
   const factoryReset = requireFile(errors, 'src/helpers/factoryReset.ts');
@@ -41,37 +42,54 @@ export const collectSecureStorageMigrationAudit = () => {
   const storageAudit = requireFile(errors, 'docs/storage-network-native-compatibility-audit.md');
   const followupPlan = requireFile(errors, 'docs/android-warning-baseline-followups.md');
 
-  if (currentVersion !== '2.0.10') {
-    errors.push(`package.json has react-native-secure-key-store@${currentVersion || '<missing>'}; expected 2.0.10`);
+  if (currentVersion !== '10.0.0') {
+    errors.push(`package.json has react-native-keychain@${currentVersion || '<missing>'}; expected 10.0.0`);
   }
 
-  if (dependencies['react-native-keychain']) {
-    warnings.push('react-native-keychain is already installed; verify the old secure-key-store dependency is deliberately migrated.');
+  if (legacyVersion !== '2.0.10') {
+    errors.push(`package.json has react-native-secure-key-store@${legacyVersion || '<missing>'}; expected 2.0.10 for staged fallback`);
   }
 
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, "from 'react-native-keychain'");
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, "from 'react-native-secure-key-store'");
-  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'LEGACY_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'setGenericPassword');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'getGenericPassword');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'resetGenericPassword');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'RNSecureKeyStore.get');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'RNSecureKeyStore.set');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'sha256(value).toString()');
+  requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-keychain'");
+  requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-secure-key-store'");
+  requireSnippet(errors, 'class/app-storage.js', appStorage, 'Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
+  requireSnippet(errors, 'class/app-storage.js', appStorage, 'LEGACY_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
+  requireSnippet(errors, 'class/app-storage.js', appStorage, 'setGenericPassword');
+  requireSnippet(errors, 'class/app-storage.js', appStorage, 'getGenericPassword');
+  requireSnippet(errors, 'class/app-storage.js', appStorage, 'RNSecureKeyStore.get');
+  requireSnippet(errors, 'class/app-storage.js', appStorage, 'RNSecureKeyStore.set');
   requireSnippet(errors, 'authentication sagas', authSagas, 'CONST.pin');
   requireSnippet(errors, 'authentication sagas', authSagas, 'CONST.transactionPassword');
   requireSnippet(errors, 'UnlockTransaction.tsx', unlockTransaction, 'checkSecuredPassword(CONST.transactionPassword');
   requireSnippet(errors, 'factoryReset.ts', factoryReset, 'removeSecuredPassword(CONST.pin)');
   requireSnippet(errors, 'factoryReset.ts', factoryReset, 'removeSecuredPassword(CONST.transactionPassword)');
+  requireSnippet(errors, 'docs/storage-network-native-compatibility-audit.md', storageAudit, 'react-native-keychain latest: 10.0.0');
   requireSnippet(errors, 'docs/storage-network-native-compatibility-audit.md', storageAudit, 'react-native-secure-key-store latest: 2.0.10');
-  requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'dedicated secure-storage replacement');
+  requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'dedicated secure-storage removal after dual-write migration');
 
   if (scripts['test:storage-network:focused'] !== expectedFocusedValidationCommand) {
     errors.push('test:storage-network:focused must keep secure-storage, storage, authenticator, and wallet-core offline checks grouped');
   }
 
   if (!warningBaseline.includes('react-native-secure-key-store')) {
-    warnings.push('local Android warning audit summary does not mention react-native-secure-key-store; refresh the warning audit before migration.');
+    warnings.push('local Android warning audit summary does not mention react-native-secure-key-store; legacy backend removal may already have happened.');
   }
 
   return {
-    currentPackage: `react-native-secure-key-store@${currentVersion || '<missing>'}`,
-    replacementPackage: `react-native-keychain@${replacementVersion}`,
+    currentPackage: `react-native-keychain@${currentVersion || '<missing>'}`,
+    legacyPackage: `react-native-secure-key-store@${legacyVersion || '<missing>'}`,
     serviceFile: 'src/services/SecureStorageService.ts',
+    appStorageFile: 'class/app-storage.js',
     storesPin: authSagas.includes('CONST.pin') && factoryReset.includes('CONST.pin'),
     storesTransactionPassword:
       authSagas.includes('CONST.transactionPassword') &&
@@ -91,8 +109,9 @@ export const formatSecureStorageMigrationSummary = (audit, generatedAt = new Dat
     'Secure-storage migration audit',
     `Generated at: ${generatedAt}`,
     `Current secure-storage package: ${audit.currentPackage}`,
-    `Replacement secure-storage package: ${audit.replacementPackage}`,
+    `Legacy secure-storage package: ${audit.legacyPackage}`,
     `SecureStorageService file: ${audit.serviceFile}`,
+    `AppStorage secure-storage file: ${audit.appStorageFile}`,
     `Stores PIN: ${audit.storesPin ? 'yes' : 'no'}`,
     `Stores transaction password hash: ${audit.storesTransactionPassword ? 'yes' : 'no'}`,
     `Focused validation script: ${audit.focusedValidation}`,
@@ -117,7 +136,7 @@ export const formatSecureStorageMigrationSummary = (audit, generatedAt = new Dat
 const printReport = audit => {
   console.log('Secure-storage migration audit');
   console.log(`Current package: ${audit.currentPackage}`);
-  console.log(`Replacement target: ${audit.replacementPackage}`);
+  console.log(`Legacy package: ${audit.legacyPackage}`);
   console.log(`Focused validation: ${audit.focusedValidation}`);
 
   if (audit.warnings.length > 0) {

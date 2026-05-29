@@ -1,13 +1,13 @@
 # Secure-storage Migration Plan
 
-This plan covers the remaining `react-native-secure-key-store` Android `jcenter()` warning.
+This plan covers the staged secure-storage migration from `react-native-secure-key-store` to `react-native-keychain`.
 
 Checked on: 2026-05-29
 
 ## Current State
 
-- Current package: `react-native-secure-key-store@2.0.10`.
-- Replacement candidate: `react-native-keychain@10.0.0`.
+- New package: `react-native-keychain@10.0.0`.
+- Legacy package: `react-native-secure-key-store@2.0.10`, retained temporarily for fallback and dual-write migration.
 - Runtime wrapper: `src/services/SecureStorageService.ts`.
 - Stored keys: `CONST.pin` and `CONST.transactionPassword`.
 - The transaction password is stored as `sha256(value).toString()`.
@@ -15,11 +15,11 @@ Checked on: 2026-05-29
 
 ## Decision
 
-Do not replace `react-native-secure-key-store` as a warning-only cleanup.
+Do not remove `react-native-secure-key-store` as warning-only cleanup.
 
-This dependency protects app unlock and transaction-password behavior, so replacement must be a dedicated secure-storage branch with focused tests and emulator validation. The branch must preserve the wrapper API or migrate all call sites in one controlled step.
+This dependency protects app unlock, transaction-password behavior, and legacy wallet storage. The first migration branch must preserve the wrapper API, read legacy values, migrate them into Keychain, and dual-write new values. A later release can remove the legacy backend after migrated data has been validated.
 
-Branch: `feature/bem-secure-storage-keychain-migration`
+Branch: `feature/bem-37-secure-storage-keychain-migration`
 
 ## Required Validation
 

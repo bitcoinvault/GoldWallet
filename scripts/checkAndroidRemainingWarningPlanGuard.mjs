@@ -5,7 +5,7 @@ const validPlan = [
   '| --- | --- | --- |',
   '| `@react-native-community/masked-view` | `node_modules/@react-native-community/masked-view/android/build.gradle:47` | dedicated masked-view/navigation migration |',
   '| `react-native-camera` | `node_modules/react-native-camera/android/build.gradle:59` | dedicated QR scanner replacement |',
-  '| `react-native-secure-key-store` | `node_modules/react-native-secure-key-store/android/build.gradle:46` | dedicated secure-storage replacement |',
+  '| `react-native-secure-key-store` | `node_modules/react-native-secure-key-store/android/build.gradle:46` | dedicated secure-storage removal after dual-write migration |',
 ].join('\n');
 
 const invalidPlan = validPlan.replace('dedicated QR scanner replacement', 'generic cleanup');

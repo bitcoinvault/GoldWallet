@@ -12,7 +12,7 @@ export const expectedRemainingWarningFollowups = [
   {
     packageName: 'react-native-secure-key-store',
     warningSource: 'node_modules/react-native-secure-key-store/android/build.gradle:46',
-    followUp: 'dedicated secure-storage replacement',
+    followUp: 'dedicated secure-storage removal after dual-write migration',
   },
 ];
 
@@ -33,7 +33,13 @@ export const getRemainingWarningPlanErrors = documentText => {
     }
   });
 
-  ['@react-native-community/toolbar-android', 'react-native-vector-icons', 'react-native-localize', 'react-native-exit-app', 'react-native-device-info'].forEach(
+  [
+    '@react-native-community/toolbar-android',
+    'react-native-vector-icons',
+    'react-native-localize',
+    'react-native-exit-app',
+    'react-native-device-info',
+  ].forEach(
     packageName => {
       const unexpectedRowPrefix = `| \`${packageName}\` |`;
 

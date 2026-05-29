@@ -1,33 +1,63 @@
 import sha256 from 'crypto-js/sha256';
-import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import * as Keychain from 'react-native-keychain';
+import RNSecureKeyStore, { ACCESSIBLE as LEGACY_ACCESSIBLE } from 'react-native-secure-key-store';
+
+const secureStorageOptions = (key: string) => ({
+  service: key,
+  accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+});
+
+const legacySecureStorageOptions = {
+  accessible: LEGACY_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+};
 
 export default class SecureStorageService {
   async getSecuredValue(key: string): Promise<string> {
     try {
-      const value = await RNSecureKeyStore.get(key);
+      const credentials = await Keychain.getGenericPassword(secureStorageOptions(key));
 
-      return value;
+      if (credentials) {
+        return credentials.password;
+      }
+    } catch (_) {
+      // Fallback below keeps existing secure-key-store values readable during the staged migration.
+    }
+
+    try {
+      const legacyValue = await RNSecureKeyStore.get(key);
+
+      if (legacyValue) {
+        await Keychain.setGenericPassword(key, legacyValue, secureStorageOptions(key));
+      }
+
+      return legacyValue;
     } catch (_) {
       return '';
     }
   }
 
-  async setSecuredValue(key: string, value: string, encode?: boolean): Promise<string> {
+  async setSecuredValue(key: string, value: string, encode?: boolean) {
     if (encode) {
       value = sha256(value).toString();
     }
-    return await RNSecureKeyStore.set(key, value, {
-      accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-    });
+
+    await RNSecureKeyStore.set(key, value, legacySecureStorageOptions);
+    return await Keychain.setGenericPassword(key, value, secureStorageOptions(key));
   }
 
   async checkSecuredPassword(key: string, value: string) {
-    const securedStoredPassword = await RNSecureKeyStore.get(key);
+    const securedStoredPassword = await this.getSecuredValue(key);
 
     return sha256(value).toString() === securedStoredPassword;
   }
 
   async removeSecuredPassword(key: string) {
-    return await RNSecureKeyStore.remove(key);
+    try {
+      await RNSecureKeyStore.remove(key);
+    } catch (_) {
+      // Keychain cleanup should still run if the legacy value is already absent.
+    }
+
+    return await Keychain.resetGenericPassword(secureStorageOptions(key));
   }
 }
