@@ -117,6 +117,14 @@ corepack yarn android:dev:verify
 
 `android:dev:verify` runs the Android environment audit, builds the dev APK, runs the emulator smoke helper, and validates the generated smoke summary artifact.
 
+For a clean emulator or a branch that should prove the bundled `devDebug` APK starts without relying on Metro transport, use:
+
+```powershell
+corepack yarn android:dev:smoke:embedded
+```
+
+`android:dev:smoke:embedded` disables the Metro preflight, installs the current `app-dev-debug.apk`, launches `io.goldwallet.wallet.dev`, and checks the empty-wallet dashboard fixture: `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
+
 For Android warning work:
 
 ```powershell
@@ -193,6 +201,12 @@ $env:ANDROID_SMOKE_EXPECT_TEXTS = 'Wallets,Create new wallet,Import wallet'
 corepack yarn android:dev:smoke
 ```
 
+If the branch does not need Metro transport validation, prefer the embedded helper instead:
+
+```powershell
+corepack yarn android:dev:smoke:embedded
+```
+
 Override the expected text list with `ANDROID_SMOKE_EXPECT_TEXTS` whenever the branch intentionally validates a different app state, and record the override in `docs/wallet-modernization-log.md`.
 
 Useful smoke overrides:
@@ -208,6 +222,7 @@ Useful smoke overrides:
 - `ANDROID_SMOKE_METRO_HOST`: Metro host checked before launch; default is `127.0.0.1`.
 - `ANDROID_SMOKE_METRO_PORT`: Metro port checked before launch; default is `8081`.
 - `ANDROID_SMOKE_METRO_TIMEOUT_MS`: positive integer timeout for the Metro preflight check; default is `3000`.
+- `ANDROID_SMOKE_REQUIRE_METRO`: set to `false` to skip the Metro preflight and reverse step when validating the bundled APK.
 - `ANDROID_SMOKE_EXPECT_TEXTS`: comma-separated UI texts expected after launch.
 
 Smoke pass means:
@@ -221,7 +236,7 @@ Smoke pass means:
 ## Known Limits
 
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
-- Removed Android warning sources: app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, active Sentry `execResult`, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, `@react-native-community/slider` `jcenter()` from root/buildscript repositories, `react-native-device-info` `jcenter()`, `react-native-vector-icons` `jcenter()`, and `@react-native-community/toolbar-android` `jcenter()`.
+- Removed Android warning sources: app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, the previous Sentry `execResult` finding, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, `@react-native-community/slider` `jcenter()` from root/buildscript repositories, `react-native-device-info` `jcenter()`, `react-native-vector-icons` `jcenter()`, and `@react-native-community/toolbar-android` `jcenter()`.
 - `react-native-camera` cleanup moved to the dedicated CameraKit QR migration branch.
 - Sentry release/source-map behavior still requires a dedicated validation branch even though the active Android warning audit no longer reports Sentry `execResult`.
 - The current RN `0.81` warning baseline remains exactly one targeted `jcenter()` source from the staged legacy secure-storage module: `react-native-secure-key-store`.
