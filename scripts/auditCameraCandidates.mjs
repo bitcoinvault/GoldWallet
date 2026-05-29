@@ -14,34 +14,37 @@ export const collectCameraCandidateAudit = () => {
   const warnings = [];
   const errors = [];
   const currentCamera = dependencies['react-native-camera'];
+  const currentCameraKit = dependencies['react-native-camera-kit'];
   const cameraPlan = read('docs/camera-replacement-plan.md');
   const followupPlan = read('docs/android-warning-baseline-followups.md');
   const warningBaseline = read('local-docs/android-warning-audit-summary.txt');
 
-  if (currentCamera !== '^3.33.0') {
-    errors.push(`package.json has react-native-camera@${currentCamera || '<missing>'}; expected ^3.33.0 until the scanner migration branch`);
+  if (currentCamera) {
+    errors.push(`package.json still has react-native-camera@${currentCamera}; expected removal after scanner migration`);
+  }
+
+  if (currentCameraKit !== '18.0.0') {
+    errors.push(`package.json has react-native-camera-kit@${currentCameraKit || '<missing>'}; expected 18.0.0`);
   }
 
   [
     'react-native-vision-camera@5.0.11',
     'react-native-camera-kit@18.0.0',
-    'Branch: `feature/bem-camera-qr-scanner-migration`',
-    'VisionCamera proof branch first, CameraKit fallback',
+    'Current scanner package: `react-native-camera-kit@18.0.0`',
+    'CameraKit selected for the first migration branch',
   ].forEach(snippet => {
     if (!cameraPlan.includes(snippet)) {
       errors.push(`docs/camera-replacement-plan.md is missing "${snippet}"`);
     }
   });
 
-  if (!followupPlan.includes('dedicated QR scanner replacement')) {
-    errors.push('docs/android-warning-baseline-followups.md must keep camera as a dedicated QR scanner replacement');
+  if (followupPlan.split('\n').some(line => line.startsWith('| `react-native-camera` |'))) {
+    errors.push('docs/android-warning-baseline-followups.md must not keep react-native-camera as a remaining warning source after scanner migration');
   }
 
-  if (!warningBaseline.includes('react-native-camera')) {
-    warnings.push('local Android warning audit summary does not mention react-native-camera; refresh the warning audit before candidate proof work.');
+  if (/react-native-camera[\\/]android/.test(warningBaseline)) {
+    warnings.push('local Android warning audit summary still mentions react-native-camera; refresh the warning audit after scanner migration.');
   }
-
-  warnings.push('react-native-camera remains installed and deprecated; this audit only records candidate selection.');
 
   return {
     legacyCameraLatest: 'react-native-camera@4.2.1',
@@ -49,8 +52,8 @@ export const collectCameraCandidateAudit = () => {
     visionCameraNitroPeers: true,
     cameraKitLatest: 'react-native-camera-kit@18.0.0',
     cameraKitNodeEngine: '>=18',
-    selectedProofTarget: 'VisionCamera proof branch first, CameraKit fallback',
-    proofBranch: 'feature/bem-camera-qr-scanner-migration',
+    selectedProofTarget: 'CameraKit selected; VisionCamera deferred because latest line requires Nitro peers',
+    proofBranch: 'feature/bem-37-camera-kit-qr-proof',
     warnings,
     errors,
     baselineStable: errors.length === 0,

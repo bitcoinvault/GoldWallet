@@ -62,7 +62,7 @@ Use `corepack yarn upgrade:strategy:audit` before dependency/RN baseline branche
 
 `check:android-remaining-warning-plan` keeps `docs/android-warning-baseline-followups.md` aligned with the active three-warning Android baseline and the required follow-up branch type for each remaining source.
 
-`check:camera-usage-scope` keeps `react-native-camera` runtime usage isolated to `ScanQrCodeScreen` until the dedicated QR scanner migration branch replaces it.
+`check:camera-usage-scope` keeps `react-native-camera-kit` runtime usage isolated to `ScanQrCodeScreen` after the dedicated QR scanner migration branch.
 
 `check:qr-render-usage` keeps `react-native-qrcode-svg` rendering isolated to the known QR display screens before `react-native-svg` or QR rendering dependency upgrades.
 
@@ -212,7 +212,7 @@ Smoke pass means:
 
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
 - Removed Android warning sources: app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, active Sentry `execResult`, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, `@react-native-community/slider` `jcenter()` from root/buildscript repositories, `react-native-device-info` `jcenter()`, `react-native-vector-icons` `jcenter()`, and `@react-native-community/toolbar-android` `jcenter()`.
-- `react-native-camera` cleanup is a larger QR/camera migration, not a small warning cleanup.
+- `react-native-camera` cleanup moved to the dedicated CameraKit QR migration branch.
 - Sentry release/source-map behavior still requires a dedicated validation branch even though the active Android warning audit no longer reports Sentry `execResult`.
-- The current RN `0.76` warning baseline remains exactly three targeted `jcenter()` sources from old native modules: `@react-native-community/masked-view`, `react-native-camera`, and `react-native-secure-key-store`.
+- The current RN `0.76` warning baseline remains exactly two targeted `jcenter()` sources from old native modules: `@react-native-community/masked-view` and `react-native-secure-key-store`.
 - `docs/android-warning-baseline-followups.md` records the remaining warning sources and guards them against accidental warning-only replacements.

@@ -61,12 +61,12 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`CameraKit node engine must be >=18. Received: ${cameraKitNodeEngine || 'missing'}`);
   }
 
-  if (selectedProofTarget !== 'VisionCamera proof branch first, CameraKit fallback') {
+  if (selectedProofTarget !== 'CameraKit selected; VisionCamera deferred because latest line requires Nitro peers') {
     errors.push(`Selected proof target is unexpected. Received: ${selectedProofTarget || 'missing'}`);
   }
 
-  if (proofBranch !== 'feature/bem-camera-qr-scanner-migration') {
-    errors.push(`Proof branch must be feature/bem-camera-qr-scanner-migration. Received: ${proofBranch || 'missing'}`);
+  if (proofBranch !== 'feature/bem-37-camera-kit-qr-proof') {
+    errors.push(`Proof branch must be feature/bem-37-camera-kit-qr-proof. Received: ${proofBranch || 'missing'}`);
   }
 
   if (!['yes', 'no'].includes(baselineStable || '')) {

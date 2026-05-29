@@ -27,6 +27,7 @@ export const getCameraQrMigrationSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
   const cameraVersion = getLineValue(summary, 'react-native-camera manifest version');
+  const cameraKitVersion = getLineValue(summary, 'react-native-camera-kit manifest version');
   const qrRendererVersion = getLineValue(summary, 'QR renderer version');
   const qrcodeResolution = getLineValue(summary, 'qrcode resolution');
   const wiringValid = getLineValue(summary, 'Camera QR migration wiring valid');
@@ -49,6 +50,10 @@ export const getCameraQrMigrationSummaryErrors = summary => {
 
   if (!cameraVersion) {
     errors.push('react-native-camera manifest version is missing');
+  }
+
+  if (cameraKitVersion !== '18.0.0') {
+    errors.push(`react-native-camera-kit manifest version must be 18.0.0. Received: ${cameraKitVersion || 'missing'}`);
   }
 
   if (!qrRendererVersion) {

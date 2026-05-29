@@ -100,7 +100,7 @@ adb reverse tcp:8081 tcp:8081
 High-risk native dependencies:
 
 - `@react-native-firebase/*` currently `12.7`, target Jira notes mention `23+`.
-- `react-native-camera` is deprecated and should be reviewed for replacement.
+- `react-native-camera` was replaced by `react-native-camera-kit@18.0.0` in the dedicated QR scanner migration stream.
 - `react-native-gesture-handler`, `react-native-screens`, `react-native-safe-area-context` are old and tied to RN upgrade sequencing.
 - `react-native-svg` is old and can affect QR/icon rendering after RN upgrades.
 - `react-native-share`, `react-native-vector-icons`, `react-native-webview`, `react-native-fast-image` need native compatibility checks.
@@ -146,10 +146,10 @@ Passing:
 - Android dev environment audit verifies the local Java range, adb access, Gradle wrappers, Android validation helper files, and RN upgrade path audit scripts before build/smoke work.
 - RN baseline preflight groups the current lightweight Android gate, Metro runtime audit, Node runtime transition audit, RN upgrade path audit, RN 0.76 foundation plan audit, target snapshot audit, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, camera candidate and QR migration audits with generated summary validation, Sentry warning/source-map readiness audits with generated Android-warning and prerequisite-summary validation, the aggregate warning-source summary checker, standalone Android warning-audit and smoke-summary checkers, Firebase release-service audit with generated summary validation, CodePush release-path audit with generated summary validation, push-notification bridge audit with generated summary validation, the aggregate release-services summary guard self-check, and the aggregate release-services summary checker covering both Sentry summary artifacts before larger React Native baseline branches.
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
-- The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 3` and `Unexpected targeted Android Gradle warnings: 0`.
-- Current targeted warning sources are `jcenter()` calls from old native modules: `@react-native-community/masked-view`, `react-native-camera`, and `react-native-secure-key-store`.
+- The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 2` and `Unexpected targeted Android Gradle warnings: 0`.
+- Current targeted warning sources are `jcenter()` calls from old native modules: `@react-native-community/masked-view` and `react-native-secure-key-store`.
 - Removed Android warning sources include the stale app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, active Sentry `execResult`, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, two `@react-native-community/slider` `jcenter()` entries, `react-native-device-info` `jcenter()`, `react-native-vector-icons` `jcenter()`, and `@react-native-community/toolbar-android` `jcenter()`.
-- The current `react-native-camera` warning source is covered by `corepack yarn camera:qr-migration:audit`; Sentry Gradle/source-map wiring is still covered by `corepack yarn sentry:android-warning:audit` even though the active warning audit no longer reports Sentry `execResult`.
+- The current CameraKit scanner migration state is covered by `corepack yarn camera:qr-migration:audit`; Sentry Gradle/source-map wiring is still covered by `corepack yarn sentry:android-warning:audit` even though the active warning audit no longer reports Sentry `execResult`.
 - The latest live RN target snapshot check reports `Live check outcome: matched` with `Mismatches: 0`.
 - Latest live RN target snapshot summary was refreshed from npm on `2026-05-28T19:55:51.486Z` and still matches `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
@@ -171,7 +171,7 @@ Known gaps:
 ## Recommended Upgrade Order
 
 1. Keep Android validation tooling green and use `android:dev:verify` for app-affecting changes.
-2. Replace deprecated `react-native-camera` in a dedicated QR scanner migration branch.
+2. Continue CameraKit QR scanner validation on Android hardware and iOS after a Mac pod refresh.
 3. Handle Sentry Gradle/source-map behavior in a dedicated release tooling branch.
 4. Upgrade native modules in controlled groups using `docs/native-module-upgrade-plan.md`.
 5. Continue RN with milestone jumps from `0.76` toward newer supported lines.

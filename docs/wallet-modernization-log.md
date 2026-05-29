@@ -10,6 +10,60 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.128 - CameraKit QR scanner migration
+
+- Branch: `feature/bem-37-camera-kit-qr-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace the deprecated `react-native-camera` QR scanner runtime with `react-native-camera-kit@18.0.0`.
+- Preserve the existing `Route.ScanQrCode` contract: callers still pass `onBarCodeScan(data)`.
+- Keep scanner usage scoped to `src/screens/ScanQrCodeScreen.tsx`, keep QR-only scanning through `allowedBarcodeTypes={['qr']}`, and keep the duplicate-read guard.
+- Add explicit Android camera permission request before rendering CameraKit.
+- Remove `react-native-camera` from `package.json`/`yarn.lock` and remove Android `missingDimensionStrategy 'react-native-camera', 'general'`.
+- Update camera usage guards, QR migration audits, native module inventory, warning baseline guards, and warning follow-up docs for the new CameraKit baseline.
+
+Why:
+
+- `react-native-camera` is archived/deprecated and owned one of the remaining Android `jcenter()` warning sources.
+- `react-native-camera-kit@18.0.0` builds on the current RN `0.76.9`/Node 22 foundation without the Nitro peer dependency stack required by the latest VisionCamera line.
+- This removes the camera warning source instead of hiding it with a `node_modules` patch.
+
+Validation:
+
+- `npm view react-native-camera-kit version engines peerDependencies dependencies --json`
+- `npm view react-native-vision-camera version peerDependencies --json`
+- `corepack yarn add react-native-camera-kit@18.0.0`
+- `corepack yarn remove react-native-camera`
+- `corepack yarn postinstall`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:camera-usage-guard`
+- `corepack yarn check:camera-usage-scope`
+- `corepack yarn check:qr-scan-callers`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn check:camera-candidate-summary-guard`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:camera-qr-migration-summary-guard`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn typescript:check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn check:android-warning-audit-summary-guard`
+- `corepack yarn check:android-remaining-warning-plan`
+- `corepack yarn android:dev:check-light`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,E2EWalletTypeTest,Send,Receive" JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-artifacts`
+- Manual Android emulator check: opened Send, tapped QR scanner icon, granted Android camera permission, reached CameraKit scanner overlay, and checked recent logcat for no app-level `FATAL EXCEPTION`, `ReactNativeJS`, or `AndroidRuntime` crash.
+- Android warning baseline now reports 2 targeted `jcenter()` sources: `@react-native-community/masked-view` and `react-native-secure-key-store`.
+- iOS not claimed on Windows: `ios/Podfile.lock` still needs a Mac `pod install` refresh to remove the old `react-native-camera` pod and add CameraKit before iOS validation.
+
 ### BEM-37.127 - Secure storage Keychain dual-write migration
 
 - Branch: `feature/bem-37-secure-storage-keychain-migration`

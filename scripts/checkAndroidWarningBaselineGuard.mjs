@@ -2,7 +2,6 @@ import { getUnexpectedAndroidWarningFindings } from './androidWarningBaselineGua
 
 const expectedFindings = [
   String.raw`jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
-  String.raw`jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-camera\android\build.gradle:59)`,
   String.raw`jcenter(): at build_abc$_run_closure2.doCall$original(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
 ];
 

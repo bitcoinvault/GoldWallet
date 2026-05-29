@@ -1,13 +1,13 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { expectedCameraUsageFiles, getCameraUsageScopeErrors } from './cameraUsageGuard.mjs';
+import { expectedCameraKitUsageFiles, getCameraUsageScopeErrors } from './cameraUsageGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const srcDir = path.join(root, 'src');
 const usagePattern =
-  /from ['"]react-native-camera['"]|require\(['"]react-native-camera['"]\)|import\(['"]react-native-camera['"]\)|\bRNCamera\b|\bBarCodeReadEvent\b/;
+  /from ['"]react-native-camera-kit['"]|require\(['"]react-native-camera-kit['"]\)|import\(['"]react-native-camera-kit['"]\)|\bCameraKit\b|\bCameraType\b/;
 const extensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 
 const getSourceFiles = dir => {
@@ -47,4 +47,4 @@ if (usageErrors.length > 0) {
   process.exit(1);
 }
 
-console.log(`react-native-camera runtime usage is scoped to ${[...expectedCameraUsageFiles].join(', ')}.`);
+console.log(`react-native-camera-kit runtime usage is scoped to ${[...expectedCameraKitUsageFiles].join(', ')}.`);

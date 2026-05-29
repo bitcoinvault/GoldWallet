@@ -2,13 +2,14 @@
 
 ## Current State
 
-- The app uses `react-native-camera` only in `src/screens/ScanQrCodeScreen.tsx`.
-- The screen uses `RNCamera` for QR scanning through `onBarCodeRead`.
+- The app uses `react-native-camera-kit` only in `src/screens/ScanQrCodeScreen.tsx`.
+- Current scanner package: `react-native-camera-kit@18.0.0`.
+- The screen uses CameraKit barcode scanning through `onReadCode`.
 - The scanner is opened from 8 current callers: authenticator list, create contact, import authenticator, import wallet, integrate key, recovery seed, recovery send, and send coins.
-- Android requires `missingDimensionStrategy 'react-native-camera', 'general'`.
+- Android no longer requires `missingDimensionStrategy 'react-native-camera', 'general'`.
 - Android and iOS camera permissions are already present.
-- `react-native-camera` resolves to `3.44.3`; the latest package release checked on 2026-05-28 is `4.2.1`.
-- The latest `react-native-camera` still contains `jcenter()` in its Android Gradle file, so a package bump does not remove the warning.
+- `react-native-camera` has been removed from the runtime dependency list.
+- The latest legacy `react-native-camera` package checked on 2026-05-29 is still `4.2.1`, and it still does not solve the dependency-owned Android `jcenter()` warning cleanly.
 - `corepack yarn check:camera-usage-guard` verifies the camera usage guard fixtures.
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface before the replacement work starts.
 - `corepack yarn check:qr-scan-caller-guard` verifies the caller-inventory guard fixtures.
@@ -19,7 +20,7 @@
 ## Why Replace
 
 - The upstream `react-native-camera` repository is archived and deprecated.
-- The current Android Gradle warning is dependency-owned and cannot be removed cleanly without replacing or patching the dependency.
+- The old Android Gradle warning was dependency-owned and could not be removed cleanly without replacing or patching the dependency.
 - The QR scan surface is small enough to migrate in a dedicated branch, but it still touches native camera permissions and runtime scanning behavior.
 
 ## Candidate Options
@@ -32,15 +33,15 @@
 - Current latest package checked on 2026-05-28 is `react-native-vision-camera@5.0.11`.
 - Risk: the current latest line depends on the Nitro module stack (`react-native-nitro-modules` and `react-native-nitro-image`), so it should be aligned with the RN foundation upgrade path rather than attempted as a small RN `0.68.7` warning cleanup.
 - Highest checked v4 line is `react-native-vision-camera@4.7.3`; it still requires additional native/worklet dependencies and needs a proof build before selection.
-- Current proof choice: VisionCamera proof branch first, CameraKit fallback.
+- Current choice: CameraKit selected for the first migration branch because it avoids the Nitro peer dependency stack on the current RN foundation.
 
 ### Alternative: Camera Kit
 
 - Package path: `react-native-camera-kit`.
 - Smaller API surface for scanner use cases.
-- Current latest package checked on 2026-05-28 is `react-native-camera-kit@18.0.0`.
-- Risk: the latest package declares `node >=18`, while the current RN `0.68.7` Metro/dev baseline remains Node 16. Treat this as a post-Node/RN-foundation candidate unless a compatible older line is deliberately selected and proof-built.
-- Current proof role: CameraKit fallback if the VisionCamera proof branch fails on native/runtime complexity.
+- Current latest package checked on 2026-05-29 is `react-native-camera-kit@18.0.0`.
+- Node requirement `>=18` is compatible with the current Node 22 modernization baseline.
+- Current proof role: selected implementation for the QR scanner migration.
 
 ### Not Recommended: Patch `react-native-camera`
 
@@ -50,18 +51,18 @@
 
 ## Proposed Migration Branch
 
-Branch: `feature/bem-camera-qr-scanner-migration`
+Branch: `feature/bem-37-camera-kit-qr-proof`
 
 Scope:
 
-- Start with a proof branch that installs the chosen candidate, builds Android, and opens the scanner before deleting `react-native-camera`.
+- Install CameraKit, build Android, and open the scanner before treating the migration as complete.
 - Replace `ScanQrCodeScreen` camera implementation.
 - Preserve the existing navigation contract: `route.params.onBarCodeScan(data)`.
 - Preserve all current scanner entry points guarded by `check:qr-scan-callers`.
 - Preserve the duplicate-scan guard.
 - Preserve the close button and crosshair overlay.
 - Keep scan formats limited to QR codes.
-- Remove `react-native-camera` from `package.json`, lockfile, Android Gradle flavor strategy, and iOS pods once the replacement is stable.
+- Remove `react-native-camera` from `package.json`, lockfile, and Android Gradle flavor strategy; refresh iOS pods on a Mac before claiming iOS validation.
 
 ## Validation Plan
 
@@ -88,8 +89,8 @@ Scope:
 ## Sequencing Decision
 
 - Do not replace `react-native-camera` as a warning-only cleanup.
-- Keep `react-native-camera` guarded until the RN foundation path moves past the current RN `0.68.7` and Node 16 baseline, or until a candidate proof branch demonstrates compatibility without weakening scanner behavior.
-- The first proof branch should compare VisionCamera and Camera Kit against the actual QR screen contract, not just npm peer ranges.
+- Keep CameraKit guarded to `ScanQrCodeScreen` and keep the old scanner contract validation in place.
+- VisionCamera remains a future option only if CameraKit proves insufficient on device coverage or scan quality.
 
 ## References
 
