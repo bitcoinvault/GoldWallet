@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.111 - Android warning baseline follow-up guard
+
+- Branch: `feature/bem-37-warning-baseline-followups`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/android-warning-baseline-followups.md` for the active three-warning RN `0.76` Android baseline.
+- Add `check:android-remaining-warning-plan-guard` and `check:android-remaining-warning-plan`.
+- Include the remaining-warning plan check in `android:dev:check-light`.
+- Document that the remaining sources are not warning-only cleanups.
+
+Why:
+
+- After the vector-icons cleanup, the Android warning baseline is small enough to track each remaining source with an explicit follow-up type.
+- `@react-native-community/masked-view` is still required by the current `@react-navigation/stack` package path.
+- `react-native-camera` is tied to QR scanner behavior and should stay in the dedicated scanner replacement branch.
+- `react-native-secure-key-store` protects PIN and transaction-password storage and should stay in a dedicated secure-storage replacement branch.
+
+Validation:
+
+- `corepack yarn check:android-remaining-warning-plan-guard` passed.
+- `corepack yarn check:android-remaining-warning-plan` passed.
+- `corepack yarn android:dev:check-warning-audit-summary` passed against the latest three-warning audit artifact.
+- `corepack yarn android:dev:check-light-docs` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `git diff --check` passed.
+
 ### BEM-37.110 - Vector icons Android jcenter cleanup
 
 - Branch: `feature/bem-37-vector-icons-jcenter-cleanup`
