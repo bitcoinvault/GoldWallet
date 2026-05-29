@@ -31,6 +31,7 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
   const storesPin = getLineValue(summary, 'Stores PIN');
   const storesTransactionPassword = getLineValue(summary, 'Stores transaction password hash');
   const focusedValidation = getLineValue(summary, 'Focused validation script');
+  const focusedValidationCommand = getLineValue(summary, 'Focused validation command');
   const warningBaselineMentionsSecureStorage = getLineValue(summary, 'Warning baseline mentions secure-key-store');
   const baselineStable = getLineValue(summary, 'Secure-storage migration baseline stable');
   const warningCount = getLineValue(summary, 'Warnings');
@@ -66,6 +67,13 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
 
   if (focusedValidation !== 'test:storage-network:focused') {
     errors.push(`Focused validation script must be test:storage-network:focused. Received: ${focusedValidation || 'missing'}`);
+  }
+
+  if (
+    focusedValidationCommand !==
+    'yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline'
+  ) {
+    errors.push(`Focused validation command must include secure-storage, storage, authenticator, and wallet-core checks. Received: ${focusedValidationCommand || 'missing'}`);
   }
 
   if (Number(warningCount) !== warningLines.length) {

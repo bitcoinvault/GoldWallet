@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.126 - Secure storage summary command guard
+
+- Branch: `feature/bem-37-secure-storage-summary-command-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the exact `test:storage-network:focused` command to the generated secure-storage migration summary.
+- Make `secureStorageMigrationSummaryGuard` reject summaries where the focused validation command omits `test:secure-storage:unit`.
+- Update the secure-storage migration plan to call out the secure-storage unit contract inside focused validation.
+
+Why:
+
+- `BEM-37.125` fixed the audit script, but the summary checker still only validated the aggregate script name.
+- Future secure-storage replacement work should fail early if the generated migration summary is based on a focused validation command that no longer runs the secure-storage contract.
+
+Validation:
+
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn check:secure-storage-migration-summary-guard`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- Emulator smoke not required: audit summary/checker and docs only; no runtime, dependency, native, or Metro behavior changed.
+
 ### BEM-37.125 - Secure storage migration audit validation drift
 
 - Branch: `feature/bem-37-secure-storage-audit-validation-drift`
