@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.181 - Buffer polyfill update
+
+- Branch: `feature/bem-37-buffer-polyfill-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update the React Native `buffer` polyfill from `5.2.1` to latest stable `6.0.3`.
+- Keep wallet source code, native project files, Metro config, and rn-nodeify shim code unchanged.
+- Treat this as a runtime crypto/signing branch because `shim.js` exposes `global.Buffer` and wallet code uses `Buffer.from` / `Buffer.concat` across address, key, PSBT, and signing paths.
+
+Findings:
+
+- `npm view buffer version dist-tags engines dependencies peerDependencies --json` reports `latest` as `6.0.3`.
+- `buffer@6.0.3` keeps the same direct dependency set, with newer compatible ranges for `base64-js` and `ieee754`.
+- A direct Node probe confirms `require('buffer').Buffer.from(...).toString(...)` works with `buffer@6.0.3`.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `node node_modules/jest/bin/jest.js tests/unit/signer.test.js --forceExit`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn test:watchonly:offline`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+
 ### BEM-37.180 - Dayjs runtime update
 
 - Branch: `feature/bem-37-dayjs-runtime-update`
