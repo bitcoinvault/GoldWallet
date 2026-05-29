@@ -90,7 +90,7 @@ class App extends React.PureComponent {
               <NotificationsServices />
             </PersistGate>
           </Provider>
-          <Toast ref={ref => Toast.setRef(ref)} />
+          <Toast />
         </TypedI18nextProvider>
       </>
     );

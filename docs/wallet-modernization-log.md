@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.159 - Toast message latest update
+
+- Branch: `feature/bem-37-toast-message-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-toast-message` from `1.4.9` to latest stable `2.3.3`.
+- Replace the deprecated v1 `Toast.setRef` root registration pattern with the v2 `<Toast />` root component.
+- Keep the existing `Toast.show` usage in `DeveloperScreen` unchanged.
+
+Findings:
+
+- `npm view react-native-toast-message version dist-tags peerDependencies --json` reports stable `latest` as `2.3.3`; `3.0.0-beta.1` remains on the beta tag and is not used for this stable maintenance branch.
+- `react-native-toast-message@2.3.3` declares broad `react` and `react-native` peer compatibility.
+- The v2 package still exposes static `Toast.show`, while the old external `Toast.setRef` call is no longer part of the public TypeScript surface.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.158 - QR renderer latest update
 
 - Branch: `feature/bem-37-qrcode-svg-update`
