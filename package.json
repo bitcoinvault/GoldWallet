@@ -222,6 +222,7 @@
     "merge-detox-reports": "jrm artifacts/testReport.xml \"artifacts/junit-*.xml\"",
     "jest": "node node_modules/jest/bin/jest.js tests/*",
     "lint": "eslint '**/*.{js,ts,tsx}'",
+    "lint:baseline:audit": "node scripts/auditLintBaseline.mjs",
     "lint:fix": "yarn lint --fix",
     "typescript:check": "tsc --noEmit",
     "check:modernization-log-id-guard": "node scripts/checkModernizationLogIdGuard.mjs",
