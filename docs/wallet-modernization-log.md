@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.186 - Sentry Android warning audit refresh
+
+- Branch: `feature/bem-37-sentry-warning-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the Sentry Android warning audit on the current React Native `0.81.6` / Android JDK 17 baseline.
+- Re-check the current npm metadata for `@sentry/react-native` before deciding whether the warning cleanup can stay small.
+- Keep Sentry SDK, Gradle integration, source-map upload, and runtime code unchanged.
+
+Findings:
+
+- `corepack yarn sentry:android-warning:audit` reports the installed baseline as `@sentry/react-native@5.36.0`.
+- The current Sentry Gradle integration still contains `bundleTask.getProperties()` references at Sentry Gradle lines `48`, `376`, and `396`, so release/source-map behavior remains dependency-owned and should not be patched in `node_modules`.
+- The latest Android warning audit does not report an active Sentry `execResult` warning on the RN `0.81` baseline.
+- `npm view @sentry/react-native version dist-tags peerDependencies engines --json` still reports stable `latest` as `8.13.0`, which is a major SDK jump from `5.36.0`.
+- A Sentry SDK/tooling cleanup remains a dedicated release/source-map validation branch, not a small Android warning-only cleanup.
+- The current targeted Android Gradle warning baseline is one remaining `react-native-secure-key-store` `jcenter()` source, which belongs to the secure-storage migration follow-up.
+
+Validation:
+
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `npm view @sentry/react-native version dist-tags peerDependencies engines --json`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+
 ### BEM-37.185 - BIP21 runtime update
 
 - Branch: `feature/bem-37-bip21-runtime-update`
