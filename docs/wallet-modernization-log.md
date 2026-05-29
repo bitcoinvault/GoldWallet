@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.179 - Lodash type definitions update
+
+- Branch: `feature/bem-37-types-lodash-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update the direct TypeScript lodash definitions from `4.14.202` to latest stable `4.17.24`.
+- Keep runtime `lodash`, wallet source code, native project files, Metro config, and rn-nodeify shim code unchanged.
+- Treat this as a type-safety maintenance branch because wallet classes and screens use `lodash` and `lodash/fp` helpers.
+
+Findings:
+
+- `npm view @types/lodash version dist-tags engines dependencies peerDependencies --json` reports `latest` as `4.17.24`.
+- The package reports no runtime dependencies, engines, or peer dependencies.
+- TypeScript remains compatible with the updated lodash definitions.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:watchonly:offline`
+
 ### BEM-37.178 - Random values RN 0.81 runtime fix
 
 - Branch: `feature/bem-37-random-values-rn81-runtime-fix`
