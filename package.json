@@ -258,7 +258,7 @@
     "bignumber.js": "11.1.1",
     "bip21": "2.0.2",
     "bip32": "2.0.6",
-    "bip39": "^3.0.2",
+    "bip39": "3.1.0",
     "bitcoinjs-lib": "git+https://github.com/bitcoinvault/bitcoinjs-lib.git",
     "buffer": "6.0.3",
     "buffer-reverse": "1.0.1",

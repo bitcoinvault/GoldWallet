@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.184 - BIP39 runtime retry
+
+- Branch: `feature/bem-37-bip39-runtime-retry`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Retry the latest `bip39@3.1.0` mnemonic dependency after the React Native `0.81.6` runtime/Metro baseline.
+- Replace the previous resolved `bip39@3.0.4` dependency path with the current latest release.
+- Keep wallet source code, native project files, Metro config, and rn-nodeify shim code unchanged.
+
+Findings:
+
+- `npm view bip39 version dist-tags engines dependencies peerDependencies --json` reports stable `latest` as `3.1.0`.
+- The previous `BEM-36.109` attempt rejected `bip39@3.1.0` on the old React Native `0.68` baseline because emulator smoke failed with `Unexpected token '?'`.
+- On the current React Native `0.81.6` baseline, the Android bundle and emulator smoke pass with `bip39@3.1.0`.
+- The package update removes the old `create-hash` / `pbkdf2` direct dependency path from `bip39` and uses the existing `@noble/hashes@1.8.0` resolution through `@noble/hashes@^1.2.0`.
+- Android bundling prints a Metro warning for `@noble/hashes/crypto.js` subpath export fallback, but the dev bundle, app launch, and smoke test complete without fatal/runtime findings.
+- The network-backed `tests/integration/hd-segwit-bech32-wallet.test.js` still fails on Electrum/env prerequisites (`close connect`, missing mnemonic env values), so this branch uses the deterministic offline HD wallet coverage as the mnemonic gate.
+
+Validation:
+
+- `npm view bip39 version dist-tags engines dependencies peerDependencies --json`
+- `corepack yarn add bip39@3.1.0`
+- BIP39 runtime probe: `validateMnemonic(...)` and `mnemonicToSeedSync(...)`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:watchonly:offline`
+- `node node_modules/jest/bin/jest.js tests/unit/signer.test.js --forceExit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.183 - BigNumber runtime update
 
 - Branch: `feature/bem-37-bignumber-runtime-update`
