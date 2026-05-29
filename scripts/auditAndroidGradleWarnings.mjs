@@ -10,11 +10,17 @@ const outputDir = path.join(root, 'local-docs');
 const outputPath = path.join(outputDir, 'android-warning-audit.log');
 const summaryOutputPath = path.join(outputDir, 'android-warning-audit-summary.txt');
 const auditTimeoutMs = Number(process.env.ANDROID_WARNING_AUDIT_TIMEOUT_MS || 300000);
+const auditMaxBufferBytes = Number(process.env.ANDROID_WARNING_AUDIT_MAX_BUFFER_BYTES || 1024 * 1024 * 64);
 
 mkdirSync(outputDir, { recursive: true });
 
 if (!Number.isInteger(auditTimeoutMs) || auditTimeoutMs <= 0) {
   console.error(`ANDROID_WARNING_AUDIT_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_WARNING_AUDIT_TIMEOUT_MS}`);
+  process.exit(1);
+}
+
+if (!Number.isInteger(auditMaxBufferBytes) || auditMaxBufferBytes <= 0) {
+  console.error(`ANDROID_WARNING_AUDIT_MAX_BUFFER_BYTES must be a positive integer. Received: ${process.env.ANDROID_WARNING_AUDIT_MAX_BUFFER_BYTES}`);
   process.exit(1);
 }
 
@@ -33,6 +39,7 @@ const result = spawnSync(
     cwd: root,
     encoding: 'utf8',
     timeout: auditTimeoutMs,
+    maxBuffer: auditMaxBufferBytes,
   },
 );
 
@@ -90,6 +97,7 @@ const summaryHeader = [
   `Generated at: ${new Date().toISOString()}`,
   `Android Gradle audit log path: ${outputPath}`,
   `Android Gradle audit timeout: ${auditTimeoutMs}ms`,
+  `Android Gradle audit max buffer: ${auditMaxBufferBytes} bytes`,
   `Android Gradle audit exit code: ${auditExitCode}`,
   `Android Gradle warning baseline guard exit code: ${guardExitCode}`,
   ...diagnosticLines,
@@ -113,6 +121,7 @@ if (unexpectedFindings.length > 0) {
 writeFileSync(summaryOutputPath, `${summaryLines.join('\n')}\n`);
 
 console.log(`Android Gradle audit timeout: ${auditTimeoutMs}ms`);
+console.log(`Android Gradle audit max buffer: ${auditMaxBufferBytes} bytes`);
 console.log(`Android Gradle audit exit code: ${auditExitCode}`);
 console.log(`Android Gradle warning baseline guard exit code: ${guardExitCode}`);
 diagnosticLines.forEach(line => console.log(line));

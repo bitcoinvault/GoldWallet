@@ -19,8 +19,8 @@ export const expectedReactNativeUpgradePathBaseline = {
   buildToolsVersion: '35.0.0',
   compileSdkVersion: '35',
   targetSdkVersion: '35',
-  androidGradlePlugin: '8.6.0',
-  gradleWrapper: '8.10.2',
+  androidGradlePlugin: '8.13.2',
+  gradleWrapper: '8.13',
 };
 
 export const expectedReactNativeBaselinePreflight =
@@ -49,14 +49,14 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/react-native-upgrade-path.md', 'Metro/dev Node runtime: `22.18.0`'],
   ['docs/react-native-upgrade-path.md', 'Android compile SDK: `35`'],
   ['docs/react-native-upgrade-path.md', 'Android target SDK: `35`'],
-  ['docs/react-native-upgrade-path.md', 'Android Gradle Plugin: `8.6.0`'],
-  ['docs/react-native-upgrade-path.md', 'Gradle wrapper: `8.10.2`'],
+  ['docs/react-native-upgrade-path.md', 'Android Gradle Plugin: `8.13.2`'],
+  ['docs/react-native-upgrade-path.md', 'Gradle wrapper: `8.13`'],
   ['docs/react-native-upgrade-path.md', 'The current baseline is the first RN foundation checkpoint, not the final modernization target'],
   ['docs/react-native-upgrade-path.md', 'milestone-jump path'],
   ['docs/react-native-upgrade-path.md', 'React Native foundation milestone targets are tracked in `docs/react-native-foundation-target-matrix.md`'],
   ['docs/react-native-upgrade-path.md', 'Current milestone targets are `0.76.9`, then `0.82.x`, then the current `0.85.x` line'],
   ['docs/react-native-upgrade-path.md', 'current supported React Native line'],
-  ['docs/react-native-upgrade-path.md', 'SDK 35 is the highest Android API level kept inside the current AGP 8.6 support boundary'],
+  ['docs/react-native-upgrade-path.md', 'AGP 8.13 supports Android 16/API 36, but this branch keeps the API level at 35'],
   ['docs/react-native-upgrade-path.md', 'Current Android template/toolchain baseline'],
   ['docs/react-native-upgrade-path.md', 'React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`'],
   ['docs/react-native-upgrade-path.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],

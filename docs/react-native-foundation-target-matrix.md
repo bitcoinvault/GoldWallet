@@ -11,8 +11,8 @@ This matrix defines how to move the app foundation forward without upgrading eve
 - Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `35`
 - Android target SDK: `35`
-- Android Gradle Plugin: `8.6.0`
-- Gradle wrapper: `8.10.2`
+- Android Gradle Plugin: `8.13.2`
+- Gradle wrapper: `8.13`
 
 ## Latest Snapshot
 

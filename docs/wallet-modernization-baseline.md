@@ -33,9 +33,9 @@ Current stack:
 - Node.js for Metro/dev runtime: Node 22 LTS-compatible runtime
 - Repository Node hint: `.nvmrc` -> `22.18.0`
 - Yarn: `1.22.22` via Corepack
-- Android build JDK: JDK 17 required by the AGP 8.6 baseline
-- Android Gradle Plugin: `8.6.0`
-- Gradle wrapper: `8.10.2`
+- Android build JDK: JDK 17 required by the AGP 8.13 baseline
+- Android Gradle Plugin: `8.13.2`
+- Gradle wrapper: `8.13`
 - Android compile SDK: `35`
 - Android target SDK: `35`
 - Android min SDK: `26`
@@ -45,14 +45,14 @@ Current stack:
 Observed incompatibilities:
 
 - JDK 21 is not compatible with the current Gradle/RN Android build.
-- JDK 11 is no longer sufficient after the AGP 8.6 upgrade; use JDK 17 for local and CI Android builds.
+- JDK 11 is no longer sufficient after the AGP 8.x upgrades; use JDK 17 for local and CI Android builds.
 - The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to `java` from `PATH`.
 
 Target direction:
 
 - Keep the current Metro/dev runtime aligned with `.nvmrc` and RN package engine requirements.
 - Use JDK 17 for local Android modernization work.
-- SDK 35 is now part of the RN 0.76/AGP 8.6 Android foundation baseline. Android 16/API 36 is deferred to a later AGP/toolchain branch.
+- SDK 35 is now part of the RN 0.76/AGP 8.13 Android foundation baseline. Android 16/API 36 is deferred to a later API-level branch after the AGP/Gradle move is validated separately.
 - React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.76.9` toward a current supported line instead of walking every minor version or jumping blindly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
 - RN `0.76.9` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; use `corepack yarn rn:076-foundation:audit` before changing RN packages.
@@ -64,7 +64,7 @@ Target direction:
 
 ## Current Android Build Setup
 
-- Root Android Gradle Plugin: `com.android.tools.build:gradle:8.6.0`
+- Root Android Gradle Plugin: `com.android.tools.build:gradle:8.13.2`
 - Firebase Crashlytics Gradle plugin: `2.9.0`
 - Google Services Gradle plugin: `4.3.15`
 - Build tools configured as `35.0.0`

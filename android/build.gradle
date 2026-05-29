@@ -2,7 +2,7 @@
 
 def currentJavaMajorVersion = JavaVersion.current().majorVersion.toInteger()
 if (currentJavaMajorVersion != 17) {
-    throw new GradleException("GoldWallet Android build requires JDK 17 after the AGP 8.6 upgrade. Current JDK is ${JavaVersion.current()}. Set JAVA_HOME to JDK 17 before running Gradle.")
+    throw new GradleException("GoldWallet Android build requires JDK 17 after the AGP 8.13 upgrade. Current JDK is ${JavaVersion.current()}. Set JAVA_HOME to JDK 17 before running Gradle.")
 }
 
 buildscript {
@@ -22,7 +22,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.6.0")
+        classpath("com.android.tools.build:gradle:8.13.2")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath 'com.google.gms:google-services:4.3.15'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.0'

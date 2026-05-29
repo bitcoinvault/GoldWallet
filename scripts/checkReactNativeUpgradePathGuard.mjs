@@ -85,7 +85,7 @@ assertRejected(
 assertRejected(
   'Wrong Gradle wrapper fixture',
   { ...validEnvironment, gradleWrapperProperties: 'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-all.zip' },
-  'Gradle wrapper 8.10.2',
+  'Gradle wrapper 8.13',
 );
 assertRejected(
   'Missing RN baseline preflight package script fixture',
