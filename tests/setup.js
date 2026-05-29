@@ -1,4 +1,4 @@
-import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
+import mockAsyncStorage from '@react-native-async-storage/async-storage/jest';
 
 global.net = require('net');
 
