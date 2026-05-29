@@ -6,11 +6,13 @@ import {
 } from './storageNetworkValidationScriptsGuard.mjs';
 
 const validScripts = {
+  'test:secure-storage:unit': 'node node_modules/jest/bin/jest.js tests/unit/SecureStorageService.test.js --forceExit',
   'test:storage': 'node node_modules/jest/bin/jest.js tests/integration/Storage.test.js --forceExit',
   'test:authenticator': 'node node_modules/jest/bin/jest.js tests/integration/authenticator.test.js --forceExit',
   'test:wallet-core:offline': 'node node_modules/jest/bin/jest.js tests/integration/App.offline.test.js --forceExit',
-  'test:storage-network:focused': 'yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
-  prepush: 'yarn android:dev:check-light && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
+  'test:storage-network:focused':
+    'yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
+  prepush: 'yarn android:dev:check-light && yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
 };
 const missingScriptFixture = { ...validScripts };
 delete missingScriptFixture['test:storage'];
@@ -27,6 +29,11 @@ delete missingAggregateFixture['test:storage-network:focused'];
 const incompleteAggregateFixture = {
   ...validScripts,
   'test:storage-network:focused': 'yarn test:storage && yarn test:wallet-core:offline',
+};
+const missingSecureStorageUnitFixture = {
+  ...validScripts,
+  'test:storage-network:focused': 'yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
+  prepush: 'yarn android:dev:check-light && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
 };
 
 const assertAccepted = (label, scripts) => {
@@ -54,6 +61,7 @@ assertRejected('Wrong authenticator test target fixture', wrongTargetFixture);
 assertRejected('Missing prepush validation fixture', missingPrepushFixture);
 assertRejected('Missing aggregate validation fixture', missingAggregateFixture);
 assertRejected('Incomplete aggregate validation fixture', incompleteAggregateFixture);
+assertRejected('Missing secure-storage unit validation fixture', missingSecureStorageUnitFixture);
 
 const existingFilesFixture = new Set(requiredStorageNetworkValidationScripts.values());
 const missingFilesFixture = new Set(existingFilesFixture);
@@ -70,8 +78,8 @@ if (getStorageNetworkValidationFileErrors(fileExists(missingFilesFixture)).lengt
   process.exit(1);
 }
 
-if (requiredStorageNetworkValidationScripts.size !== 3) {
-  console.error(`Expected 3 storage/network validation scripts, got ${requiredStorageNetworkValidationScripts.size}.`);
+if (requiredStorageNetworkValidationScripts.size !== 4) {
+  console.error(`Expected 4 storage/network validation scripts, got ${requiredStorageNetworkValidationScripts.size}.`);
   process.exit(1);
 }
 
