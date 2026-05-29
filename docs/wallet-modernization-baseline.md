@@ -163,7 +163,7 @@ Known gaps:
 - Some tests call public or staging Electrum endpoints.
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
 - Full wallet flow QA is still required: create/import wallet, PIN, biometrics, send, receive, QR scan, history, authenticator, recovery flows.
-- Remaining targeted Android warning sources were last refreshed from `local-docs/android-warning-audit-summary.txt` after the `react-native-device-info` cleanup: five known native-module `jcenter()` findings; unexpected targeted warning count was `0`.
+- Remaining targeted Android warning sources were last refreshed from `local-docs/android-warning-audit-summary.txt` after the RN `0.81.6` baseline proof: one known native-module `jcenter()` finding; unexpected targeted warning count was `0`.
 - `BEM-37.78` records the camera/QR migration readiness audit for the `react-native-camera` warning source.
 - `BEM-37.99` records the Sentry Android warning audit for the previous Sentry `execResult` warning source; `BEM-37.105` refreshes the active RN `0.76` warning baseline after Sentry `execResult` no longer appears in the Gradle warning audit; `BEM-37.131` refreshes that Sentry audit wording for the RN `0.81` baseline where Sentry `execResult` still does not appear; `BEM-37.106` removes the `react-native-exit-app` `jcenter()` source from the active warning baseline; `BEM-37.107` removes the `react-native-localize` `jcenter()` source; `BEM-37.108` removes the two `@react-native-community/slider` `jcenter()` sources; `BEM-37.109` removes the `react-native-device-info` `jcenter()` source.
 - `BEM-36.115` records the current React Native baseline preflight refresh before the next RN baseline branch.

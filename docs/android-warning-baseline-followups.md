@@ -1,6 +1,6 @@
 # Android Warning Baseline Follow-ups
 
-This document tracks the remaining Android Gradle warning sources after the RN `0.76.9` cleanup stream.
+This document tracks the remaining Android Gradle warning sources after the RN `0.81.6` baseline proof and cleanup stream.
 
 Checked on: 2026-05-29
 
