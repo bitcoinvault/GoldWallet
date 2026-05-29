@@ -20,10 +20,6 @@ export const expectedFindingPatterns = [
     pattern: /^jcenter\(\): .*node_modules[\\/]@react-native-community[\\/]toolbar-android[\\/]android[\\/]build\.gradle:5\)/,
   },
   {
-    label: 'react-native-localize jcenter',
-    pattern: /^jcenter\(\): .*node_modules[\\/]react-native-localize[\\/]android[\\/]build\.gradle:45\)/,
-  },
-  {
     label: 'react-native-vector-icons jcenter',
     pattern: /^jcenter\(\): .*node_modules[\\/]react-native-vector-icons[\\/]android[\\/]build\.gradle:41\)/,
   },
