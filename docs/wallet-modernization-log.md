@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.163 - React Native Elements latest stable update
+
+- Branch: `feature/bem-37-react-native-elements-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-elements` from `2.3.2` to latest stable `3.4.3`.
+- Keep the existing local UI wrappers unchanged: `Button`, `FlatButton`, `CheckBox`, `RadioButton`, and `Calendar` overlay.
+- Avoid pre-release `4.x` packages because npm currently exposes them only as `beta`/`next` tags.
+
+Findings:
+
+- `npm view react-native-elements version dist-tags peerDependencies dependencies --json` reports stable `latest` as `3.4.3`.
+- `react-native-elements@3.4.3` requires `react-native-vector-icons >7.0.0` and `react-native-safe-area-context >=3.0.0`; the repo is already on compatible checked versions.
+- Existing source imports and `ButtonProps` usage remain TypeScript-compatible after the update.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.162 - WebView latest update
 
 - Branch: `feature/bem-37-webview-update`
