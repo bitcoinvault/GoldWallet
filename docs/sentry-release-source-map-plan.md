@@ -13,18 +13,18 @@
 - `corepack yarn check:sentry-release-integration-guard` verifies the Sentry release integration guard fixtures.
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties` files and `SENTRY_AUTH_TOKEN` are available before release source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary.
-- `corepack yarn sentry:android-warning:audit` verifies the current dependency-owned Android `execResult` warning source before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
+- `corepack yarn sentry:android-warning:audit` verifies that Sentry Gradle/source-map wiring remains tracked before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
-- The active Android Gradle warning comes from Sentry's Gradle script enumerating bundle task properties.
+- The active RN `0.76` Android warning audit no longer reports Sentry `execResult`; Sentry still needs release/source-map validation before any SDK or Gradle-tooling change.
 - The latest npm release checked for `@sentry/react-native` is `8.13.0`, so a real cleanup would be a major SDK upgrade.
-- `@sentry/react-native@8.13.0` declares `react-native >=0.65.0`, but the Android Gradle warning still must not be removed by patching `node_modules` or disabling source-map upload. The upgrade branch has to prove Android and iOS release artifact behavior.
+- `@sentry/react-native@8.13.0` declares `react-native >=0.65.0`, but the upgrade branch still has to prove Android and iOS release artifact behavior instead of patching `node_modules` or disabling source-map upload.
 
 ## Why This Needs A Dedicated Branch
 
 - Sentry touches release bundling, source maps, dSYM upload, Crashlytics-adjacent observability, and build scripts.
 - A warning-only fix could accidentally disable source-map upload or symbolication.
-- The current warning appears during Gradle configuration, not from failed source-map upload execution.
-- Newer checked Sentry lines still need proof against this React Native 0.68 app and the current Android/iOS release setup.
+- The previous warning appeared during Gradle configuration, not from failed source-map upload execution.
+- Newer checked Sentry lines still need proof against this React Native app and the current Android/iOS release setup.
 
 ## Proposed Branch
 

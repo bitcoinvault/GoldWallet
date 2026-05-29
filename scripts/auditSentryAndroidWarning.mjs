@@ -24,6 +24,7 @@ export const collectSentryAndroidWarningAudit = () => {
   const sentryGradle = exists(sentryGradlePath) ? read(sentryGradlePath) : '';
   const warningSummaryPath = 'local-docs/android-warning-audit-summary.txt';
   const warningSummary = exists(warningSummaryPath) ? read(warningSummaryPath) : '';
+  const activeSentryWarning = warningSummary.includes('@sentry/react-native') || warningSummary.includes('@sentry\\react-native');
   const plan = read('docs/sentry-release-source-map-plan.md');
   const releaseServicesPlan = read('docs/release-services-native-compatibility-audit.md');
   const errors = [];
@@ -65,18 +66,12 @@ export const collectSentryAndroidWarningAudit = () => {
     .map((line, index) => ({ line, lineNumber: index + 1 }))
     .filter(({ line }) => line.includes('bundleTask.getProperties()'));
   const getPropertiesLineNumbers = getPropertiesLines.map(({ lineNumber }) => lineNumber);
-  const knownWarningLine = getPropertiesLines.find(({ lineNumber }) => lineNumber === 48);
-
-  if (!knownWarningLine) {
-    readinessIssues.push('Expected Sentry Gradle warning source at sentry.gradle:48 was not found; refresh the Android warning baseline.');
-  }
-
-  if (warningSummary && !warningSummary.includes('@sentry') && !warningSummary.includes('Targeted Android Gradle warnings: 0')) {
-    warnings.push('local Android warning audit summary does not mention Sentry or a zero-warning target state; refresh android:dev:audit-warnings before changing Sentry.');
+  if (warningSummary && !activeSentryWarning) {
+    warnings.push('Latest Android warning audit does not report an active Sentry execResult warning after the RN 0.76 Gradle migration.');
   }
 
   if (sentryVersion === '5.36.0') {
-    warnings.push('Sentry remains on 5.36.0; removing the execResult warning safely requires a dedicated release/source-map validation branch.');
+    warnings.push('Sentry remains on 5.36.0; release/source-map behavior still requires a dedicated validation branch before changing Sentry tooling.');
   }
 
   return {

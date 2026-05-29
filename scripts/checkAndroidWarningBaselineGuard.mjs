@@ -1,10 +1,16 @@
 import { getUnexpectedAndroidWarningFindings } from './androidWarningBaselineGuard.mjs';
 
 const expectedFindings = [
-  String.raw`execResult: at sentry_abc$_run_closure2$_closure7.doCall(D:\GoldWallet\node_modules\@sentry\react-native\sentry.gradle:48)`,
-  'execResult: at sentry_abc$_run_closure2$_closure7.doCall(/home/ci/GoldWallet/node_modules/@sentry/react-native/sentry.gradle:48)',
+  String.raw`jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
+  'jcenter(): at build_abc$_run_closure1$_closure2.doCall(/home/ci/GoldWallet/node_modules/@react-native-community/slider/android/build.gradle:4)',
+  String.raw`jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\slider\android\build.gradle:34)`,
   String.raw`jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-camera\android\build.gradle:59)`,
-  'jcenter(): at build_abc$_run_closure2.doCall(/home/ci/GoldWallet/node_modules/react-native-camera/android/build.gradle:59)',
+  'jcenter(): at build_abc$_run_closure1$_closure2.doCall(/home/ci/GoldWallet/node_modules/@react-native-community/toolbar-android/android/build.gradle:5)',
+  String.raw`jcenter(): at build_abc$_run_closure2.doCall$original(D:\GoldWallet\node_modules\react-native-localize\android\build.gradle:45)`,
+  'jcenter(): at build_abc$_run_closure1$_closure2.doCall$original(/home/ci/GoldWallet/node_modules/react-native-exit-app/android/build.gradle:3)',
+  String.raw`jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-vector-icons\android\build.gradle:41)`,
+  'jcenter(): at build_abc$_run_closure2.doCall(/home/ci/GoldWallet/node_modules/react-native-device-info/android/build.gradle:46)',
+  String.raw`jcenter(): at build_abc$_run_closure2.doCall$original(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
 ];
 
 const unexpectedFindings = [
