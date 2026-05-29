@@ -7,8 +7,8 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 ## Current Baseline
 
 - Current React: `19.1.4`
-- Current React types: `18.2.6`
-- Current React Native types: `^0.63.37`
+- Current React types: `19.2.15`
+- Current React Native types: bundled with `react-native@0.81.6`
 - Current react-test-renderer: `19.1.4`
 - Target React peer from RN target snapshot: `^19.1.4`
 

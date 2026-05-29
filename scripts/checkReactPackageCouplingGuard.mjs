@@ -16,7 +16,6 @@ const validEnvironment = {
   },
   devDependencies: {
     '@types/react': expectedReactPackageCoupling.reactTypes,
-    '@types/react-native': expectedReactPackageCoupling.reactNativeTypes,
     'react-test-renderer': expectedReactPackageCoupling.reactTestRenderer,
   },
   scripts: {
@@ -49,11 +48,11 @@ const assertRejected = (label, environment, expectedError) => {
 
 assertAccepted('Valid React package coupling fixture', validEnvironment);
 assertRejected('Wrong React fixture', { ...validEnvironment, dependencies: { react: '19.2.3' } }, 'react@19.2.3');
-assertRejected('Wrong React types fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react': '^19.1.1' } }, '@types/react@^19.1.1');
+assertRejected('Wrong React types fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react': '18.2.6' } }, '@types/react@18.2.6');
 assertRejected(
-  'Wrong React Native types fixture',
-  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react-native': '^0.85.0' } },
-  '@types/react-native@^0.85.0',
+  'External React Native types fixture',
+  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react-native': '^0.63.37' } },
+  '@types/react-native@^0.63.37',
 );
 assertRejected(
   'Wrong renderer fixture',
