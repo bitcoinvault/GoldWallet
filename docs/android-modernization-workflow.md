@@ -42,7 +42,7 @@ The environment audit checks the active Node version, `.nvmrc`, `JAVA_HOME`/Java
 
 Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Native, RN Babel/Metro config packages, README, workflow, and baseline docs still agree on the Node 22 Metro/dev runtime baseline.
 
-Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.81.6` package baseline, target-SDK deferral, and related documentation still agree.
+Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.81.6` package baseline, Android SDK 36 toolchain baseline, and related documentation still agree.
 
 Use the legacy-named `corepack yarn rn:076-foundation:audit` before the next React Native foundation branch to verify that the RN `0.81.6` checkpoint still includes React 19, Node 22, Metro/Babel, Android template, iOS Podfile, and package-only blocker scope.
 
