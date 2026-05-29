@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.122 - Android workflow embedded smoke docs
+
+- Branch: `feature/bem-36-android-workflow-docs-current`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `docs/android-modernization-workflow.md` with the current clean-emulator smoke path.
+- Document `android:dev:smoke:embedded` and `ANDROID_SMOKE_REQUIRE_METRO=false`.
+- Refresh the warning-baseline wording from active Sentry `execResult` to the previous Sentry `execResult` finding.
+
+Findings:
+
+- `android:dev:smoke:embedded` is the correct helper for proving that the bundled `devDebug` APK starts on a clean emulator without relying on Metro transport or an existing wallet fixture.
+- The default Metro smoke remains available for dev-server validation and seeded-wallet dashboards.
+- Sentry `execResult` is not an active Android warning in the current RN `0.81.6` baseline.
+
+Validation:
+
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.199 - Sentry warning wording refresh
 
 - Branch: `feature/bem-37-sentry-warning-wording-current`
