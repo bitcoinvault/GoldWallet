@@ -1,0 +1,89 @@
+const getLineValue = (content, label) => {
+  const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
+  return line ? line.slice(label.length + 2).trim() : '';
+};
+
+const getBulletLinesAfter = (content, label) => {
+  const lines = content.split(/\r?\n/);
+  const startIndex = lines.findIndex(line => line.startsWith(`${label}: `));
+  const bulletLines = [];
+
+  if (startIndex === -1) {
+    return bulletLines;
+  }
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    if (!lines[index].startsWith('- ')) {
+      break;
+    }
+
+    bulletLines.push(lines[index].slice(2));
+  }
+
+  return bulletLines;
+};
+
+export const getCameraCandidateSummaryErrors = summary => {
+  const errors = [];
+  const legacyCamera = getLineValue(summary, 'Legacy camera latest');
+  const visionCamera = getLineValue(summary, 'VisionCamera latest');
+  const visionCameraNitroPeers = getLineValue(summary, 'VisionCamera Nitro peers');
+  const cameraKit = getLineValue(summary, 'CameraKit latest');
+  const cameraKitNodeEngine = getLineValue(summary, 'CameraKit node engine');
+  const selectedProofTarget = getLineValue(summary, 'Selected proof target');
+  const proofBranch = getLineValue(summary, 'Proof branch');
+  const baselineStable = getLineValue(summary, 'Camera candidate baseline stable');
+  const warningCount = getLineValue(summary, 'Warnings');
+  const warningLines = getBulletLinesAfter(summary, 'Warnings');
+  const requiredAction = getLineValue(summary, 'Required action');
+
+  if (!summary.startsWith('Camera candidate audit')) {
+    errors.push('Camera candidate summary header is missing');
+  }
+
+  if (legacyCamera !== 'react-native-camera@4.2.1') {
+    errors.push(`Legacy camera latest must be react-native-camera@4.2.1. Received: ${legacyCamera || 'missing'}`);
+  }
+
+  if (visionCamera !== 'react-native-vision-camera@5.0.11') {
+    errors.push(`VisionCamera latest must be react-native-vision-camera@5.0.11. Received: ${visionCamera || 'missing'}`);
+  }
+
+  if (visionCameraNitroPeers !== 'yes') {
+    errors.push(`VisionCamera Nitro peers must be yes. Received: ${visionCameraNitroPeers || 'missing'}`);
+  }
+
+  if (cameraKit !== 'react-native-camera-kit@18.0.0') {
+    errors.push(`CameraKit latest must be react-native-camera-kit@18.0.0. Received: ${cameraKit || 'missing'}`);
+  }
+
+  if (cameraKitNodeEngine !== '>=18') {
+    errors.push(`CameraKit node engine must be >=18. Received: ${cameraKitNodeEngine || 'missing'}`);
+  }
+
+  if (selectedProofTarget !== 'VisionCamera proof branch first, CameraKit fallback') {
+    errors.push(`Selected proof target is unexpected. Received: ${selectedProofTarget || 'missing'}`);
+  }
+
+  if (proofBranch !== 'feature/bem-camera-qr-scanner-migration') {
+    errors.push(`Proof branch must be feature/bem-camera-qr-scanner-migration. Received: ${proofBranch || 'missing'}`);
+  }
+
+  if (!['yes', 'no'].includes(baselineStable || '')) {
+    errors.push(`Camera candidate baseline stable must be yes or no. Received: ${baselineStable || 'missing'}`);
+  }
+
+  if (Number(warningCount) !== warningLines.length) {
+    errors.push(`Warnings count must be ${warningLines.length}. Received: ${warningCount || 'missing'}`);
+  }
+
+  if (baselineStable === 'yes' && !requiredAction.includes('none; camera candidate baseline is stable')) {
+    errors.push('Stable baseline summary must include the no-action camera candidate required action');
+  }
+
+  if (baselineStable === 'no' && !requiredAction.includes('restore camera candidate baseline')) {
+    errors.push('Unstable baseline summary must include the camera candidate restoration required action');
+  }
+
+  return errors;
+};

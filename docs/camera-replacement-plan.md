@@ -32,6 +32,7 @@
 - Current latest package checked on 2026-05-28 is `react-native-vision-camera@5.0.11`.
 - Risk: the current latest line depends on the Nitro module stack (`react-native-nitro-modules` and `react-native-nitro-image`), so it should be aligned with the RN foundation upgrade path rather than attempted as a small RN `0.68.7` warning cleanup.
 - Highest checked v4 line is `react-native-vision-camera@4.7.3`; it still requires additional native/worklet dependencies and needs a proof build before selection.
+- Current proof choice: VisionCamera proof branch first, CameraKit fallback.
 
 ### Alternative: Camera Kit
 
@@ -39,6 +40,7 @@
 - Smaller API surface for scanner use cases.
 - Current latest package checked on 2026-05-28 is `react-native-camera-kit@18.0.0`.
 - Risk: the latest package declares `node >=18`, while the current RN `0.68.7` Metro/dev baseline remains Node 16. Treat this as a post-Node/RN-foundation candidate unless a compatible older line is deliberately selected and proof-built.
+- Current proof role: CameraKit fallback if the VisionCamera proof branch fails on native/runtime complexity.
 
 ### Not Recommended: Patch `react-native-camera`
 
@@ -68,6 +70,8 @@ Scope:
 - `corepack yarn check:camera-usage-scope`.
 - `corepack yarn check:qr-scan-caller-guard`.
 - `corepack yarn check:qr-scan-callers`.
+- `corepack yarn camera:candidate:audit`.
+- `corepack yarn camera:candidate:check-summary`.
 - `corepack yarn camera:qr-migration:audit`.
 - `corepack yarn camera:qr-migration:check-summary`.
 - `corepack yarn typescript:check`.
