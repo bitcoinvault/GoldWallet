@@ -49,12 +49,12 @@ export const collectCameraQrMigrationAudit = () => {
     );
   }
 
-  if (qrRendererVersion !== '6.1.1') {
-    readinessIssues.push(`package.json has react-native-qrcode-svg@${qrRendererVersion || '<missing>'}; expected current QR renderer baseline 6.1.1`);
+  if (qrRendererVersion !== '6.3.21') {
+    readinessIssues.push(`package.json has react-native-qrcode-svg@${qrRendererVersion || '<missing>'}; expected current QR renderer baseline 6.3.21`);
   }
 
-  if (rootQrcodeVersion !== '1.4.4') {
-    readinessIssues.push(`package.json resolutions has qrcode@${rootQrcodeVersion || '<missing>'}; expected current TextEncoder-safe baseline 1.4.4`);
+  if (rootQrcodeVersion !== '1.5.4') {
+    readinessIssues.push(`package.json resolutions has qrcode@${rootQrcodeVersion || '<missing>'}; expected current RN 0.81 QR renderer baseline 1.5.4`);
   }
 
   const androidAppGradle = requireFile(errors, 'android/app/build.gradle');
