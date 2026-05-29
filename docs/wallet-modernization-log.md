@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.198 - Clean emulator Android smoke helper
+
+- Branch: `feature/bem-37-clean-emulator-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep the existing Metro-based `android:dev:smoke` path unchanged by default.
+- Add `ANDROID_SMOKE_REQUIRE_METRO=false` support to the Android smoke helper.
+- Add `scripts/androidSmokeDevEmbedded.mjs` and `android:dev:smoke:embedded` for clean-emulator validation against the bundled `devDebug` APK.
+
+Findings:
+
+- The Metro-based smoke path is still useful for dev-server validation but can fail on clean emulator runs because it expects both Metro transport and the historical `E2EWalletTypeTest` fixture.
+- The bundled dev APK path is a better post-change runtime gate when the goal is to confirm that the app starts and renders the empty-wallet dashboard on a real emulator.
+
+Validation:
+
+- `node --check scripts/androidSmokeDev.mjs`
+- `node --check scripts/androidSmokeDevEmbedded.mjs`
+- `corepack yarn android:dev:smoke:embedded`
+- Real emulator `emulator-5554`: `android:dev:smoke:embedded` installed `app-dev-debug.apk`, launched `io.goldwallet.wallet.dev`, found `Wallets`, `No wallets`, `Create new wallet`, `Import wallet`, captured `local-docs/android-smoke-dev.png`, and wrote a passing `local-docs/android-smoke-dev-summary.txt`.
+
 ### BEM-37.197 - ESLint baseline reduction
 
 - Branch: `feature/bem-37-eslint-baseline-reduction`

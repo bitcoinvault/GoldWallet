@@ -24,6 +24,7 @@ const adbCommandTimeoutMs = Number(process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS || 6
 const metroHost = process.env.ANDROID_SMOKE_METRO_HOST || '127.0.0.1';
 const metroPort = Number(process.env.ANDROID_SMOKE_METRO_PORT || 8081);
 const metroTimeoutMs = Number(process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS || 3000);
+const metroRequired = process.env.ANDROID_SMOKE_REQUIRE_METRO !== 'false';
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
   .map(text => text.trim())
@@ -101,6 +102,7 @@ const writeSummary = exitCode => {
     `Android smoke reason: ${smokeReason}`,
     `Android serial: ${selectedAndroidSerial || 'not selected'}`,
     `Android package: ${packageName}`,
+    `Metro required: ${metroRequired ? 'yes' : 'no'}`,
     `Metro endpoint: ${metroHost}:${metroPort}`,
     `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
     `Expected UI texts: ${expectedTexts.length > 0 ? expectedTexts.join(', ') : 'none'}`,
@@ -244,6 +246,7 @@ try {
   append(`Using UI poll interval: ${uiPollIntervalMs}ms`);
   append(`Using logcat line limit: ${logcatLineLimit}`);
   append(`Using adb command timeout: ${adbCommandTimeoutMs}ms`);
+  append(`Using Metro required: ${metroRequired ? 'yes' : 'no'}`);
   append(`Using Metro endpoint: ${metroHost}:${metroPort}`);
   append(`Using Metro check timeout: ${metroTimeoutMs}ms`);
   append(expectedTexts.length > 0 ? `Using expected UI text(s): ${expectedTexts.join(', ')}` : 'Using expected UI text(s): none');
@@ -251,7 +254,9 @@ try {
     append(`Requested Android serial: ${androidSerial}`);
   }
 
-  await verifyMetro();
+  if (metroRequired) {
+    await verifyMetro();
+  }
 
   const devicesOutput = run('adb devices', ['devices'], { useSelectedDevice: false });
   const devices = devicesOutput
@@ -277,7 +282,9 @@ try {
   append(`Using Android serial: ${selectedAndroidSerial}`);
 
   run('install dev APK', ['install', '-r', apkPath]);
-  run('reverse Metro port', ['reverse', 'tcp:8081', 'tcp:8081']);
+  if (metroRequired) {
+    run('reverse Metro port', ['reverse', 'tcp:8081', 'tcp:8081']);
+  }
   run('clear logcat', ['logcat', '-c']);
   run('force-stop app', ['shell', 'am', 'force-stop', packageName]);
   run('launch app', ['shell', 'monkey', '-p', packageName, '-c', 'android.intent.category.LAUNCHER', '1']);
