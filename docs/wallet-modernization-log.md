@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.154 - Android smoke workflow fixture refresh
+
+- Branch: `feature/bem-37-android-smoke-workflow-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Document the difference between seeded-dashboard smoke expectations and a fresh no-wallet emulator dashboard.
+- Add the empty-wallet `ANDROID_SMOKE_EXPECT_TEXTS` override to README and Android modernization workflow docs.
+- Keep Android code, package versions, Metro config, and validation scripts unchanged.
+
+Findings:
+
+- The default smoke helper still validates the seeded wallet dashboard: `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+- Fresh emulator validation after onboarding can land on the no-wallet dashboard with `Wallets`, `Create new wallet`, and `Import wallet`.
+- Recording the expected-text override prevents a valid no-wallet dashboard smoke from being treated as an app regression.
+
+Validation:
+
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.153 - Sentry Android warning audit refresh
 
 - Branch: `feature/bem-37-sentry-warning-audit-refresh`

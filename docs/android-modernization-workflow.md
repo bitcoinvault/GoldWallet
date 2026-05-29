@@ -184,7 +184,16 @@ Use `android:dev:verify` when the APK freshness matters; it already runs `androi
 
 The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, a compact result summary to `local-docs/android-smoke-dev-summary.txt`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. The summary includes a generated timestamp. It checks that Metro is reachable before installing and launching the dev APK, and records the Metro preflight status in the summary. On failures after an Android serial is selected, it also tries to refresh the same screenshot artifact before exiting. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
 
-By default it also checks that the app is focused and that the UI hierarchy contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. Override that list with `ANDROID_SMOKE_EXPECT_TEXTS` when testing a different fixture.
+By default it also checks that the app is focused and that the UI hierarchy contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. This default matches a seeded wallet dashboard.
+
+For a fresh emulator that has completed onboarding but does not have a wallet yet, use the empty-wallet dashboard fixture:
+
+```powershell
+$env:ANDROID_SMOKE_EXPECT_TEXTS = 'Wallets,Create new wallet,Import wallet'
+corepack yarn android:dev:smoke
+```
+
+Override the expected text list with `ANDROID_SMOKE_EXPECT_TEXTS` whenever the branch intentionally validates a different app state, and record the override in `docs/wallet-modernization-log.md`.
 
 Useful smoke overrides:
 
@@ -204,6 +213,7 @@ Useful smoke overrides:
 Smoke pass means:
 
 - The dashboard renders `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+- Or, when `ANDROID_SMOKE_EXPECT_TEXTS` is set, the focused app UI contains the documented expected texts for that fixture.
 - Logcat has no `AndroidRuntime` crash.
 - Logcat has no React Native runtime error.
 - Electrum connection does not block app startup.
