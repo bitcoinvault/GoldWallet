@@ -74,6 +74,7 @@ sourcemap.ios.js
 sourcemap.android.js
 
 *.log
+*.hprof
 
 # Gmail API
 credentials.json

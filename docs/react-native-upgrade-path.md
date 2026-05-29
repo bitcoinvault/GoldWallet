@@ -23,12 +23,12 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 - Android compile SDK: `35`
 - Android target SDK: `35`
 - Android build tools: `35.0.0`
-- Android Gradle Plugin: `8.6.0`
-- Gradle wrapper: `8.10.2`
+- Android Gradle Plugin: `8.13.2`
+- Gradle wrapper: `8.13`
 
 The current baseline is the first RN foundation checkpoint, not the final modernization target. It also should not walk every minor version one by one. The goal is a controlled milestone-jump path toward a current supported React Native line after the dependency and native tooling blockers are understood.
 
-Current Android template/toolchain baseline compiles and targets SDK 35. SDK 35 is the highest Android API level kept inside the current AGP 8.6 support boundary; Android 16/API 36 remains a later AGP/toolchain branch.
+Current Android template/toolchain baseline compiles and targets SDK 35 on AGP 8.13.2. AGP 8.13 supports Android 16/API 36, but this branch keeps the API level at 35 until the AGP/Gradle move is validated separately.
 
 ## Upgrade Principles
 

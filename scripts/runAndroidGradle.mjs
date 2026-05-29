@@ -31,7 +31,7 @@ if (javaVersion.error || !javaMajorVersion) {
 }
 
 if (Number(javaMajorVersion) !== 17) {
-  console.error(`GoldWallet Android build requires JDK 17 after the AGP 8.6 upgrade. Current JDK major version is ${javaMajorVersion}.`);
+  console.error(`GoldWallet Android build requires JDK 17 after the AGP 8.13 upgrade. Current JDK major version is ${javaMajorVersion}.`);
   console.error('Set JAVA_HOME to JDK 17 before running Android Gradle.');
   process.exit(1);
 }

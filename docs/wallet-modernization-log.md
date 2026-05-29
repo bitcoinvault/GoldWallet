@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.119 - Android Gradle Plugin 8.13 toolchain
+
+- Branch: `feature/bem-37-agp-813-toolchain`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Raise Android Gradle Plugin from `8.6.0` to `8.13.2`.
+- Raise Gradle wrapper from `8.10.2` to `8.13`.
+- Raise the Gradle daemon heap from `2560m` to `4096m` after AGP 8.13 Jetifier transforms exhausted heap on `react-android-0.76.9-debug.aar`.
+- Ignore local JVM heap dump files with `*.hprof`.
+- Keep build tools, compile SDK, and target SDK at `35` in this branch so AGP/Gradle movement is validated separately before Android 16/API 36.
+- Update RN upgrade-path audit expectations, guard fixtures, and active baseline docs for the new Android toolchain baseline.
+
+Why:
+
+- AGP `8.13.2` is the latest stable AGP 8 line available in Google Maven and AGP 8.13 supports Android 16/API 36 according to Android's AGP release documentation.
+- Separating AGP/Gradle movement from the API 36 bump keeps failures attributable and preserves the mini-branch workflow.
+
+Validation:
+
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- Stale AGP/Gradle wording scan across `android`, `docs`, and `scripts`.
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `.\android\gradlew.bat -p android --version` confirmed Gradle `8.13` on JDK `17.0.19`.
+- First AGP 8.13 assemble attempt failed during Jetifier with `Java heap space` while transforming `react-android-0.76.9-debug.aar`; Gradle daemon heap was raised to `4096m` and local `*.hprof` dumps are ignored.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn check:android-warning-audit-summary-guard`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-artifacts`
+
+Result:
+
+- Android dev APK builds with Android Gradle Plugin `8.13.2`, Gradle wrapper `8.13`, SDK/build tools/target SDK `35`, and JDK 17.
+- Emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, with no fatal AndroidRuntime or React Native runtime logcat findings.
+- Warning audit remains at three known targeted `jcenter()` sources and zero unexpected targeted warnings.
+
 ### BEM-37.118 - Android SDK 35 foundation
 
 - Branch: `feature/bem-37-android-sdk-35`

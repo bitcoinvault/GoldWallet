@@ -18,7 +18,7 @@ Use JDK 17 for local Android work:
 $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 ```
 
-The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to `java` from `PATH`. The AGP 8.6 baseline requires JDK 17.
+The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to `java` from `PATH`. The AGP 8.13 baseline requires JDK 17.
 
 ## Checks
 
