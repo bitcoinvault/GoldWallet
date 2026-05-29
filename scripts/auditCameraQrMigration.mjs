@@ -124,8 +124,8 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
   audit.errors.forEach(error => lines.push(`- ${error}`));
   lines.push(
     audit.baselineStable
-      ? 'Required action: none; camera QR migration baseline is stable for a dedicated scanner replacement branch.'
-      : 'Required action: restore camera QR migration baseline before replacing the scanner dependency.',
+      ? 'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.'
+      : 'Required action: restore camera QR migration baseline before scanner follow-up work.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -153,7 +153,7 @@ const printReport = audit => {
     console.log('Camera QR migration baseline needs review:');
     audit.readinessIssues.forEach(issue => console.log(`- ${issue}`));
   } else {
-    console.log('Camera QR migration baseline is stable for a dedicated scanner replacement branch.');
+    console.log('Camera QR migration baseline is stable after the dedicated scanner replacement branch.');
   }
 
   console.log('Camera QR migration wiring is present for Android/iOS permissions, current scanner runtime, guarded legacy QR image autolinking, and migration documentation.');

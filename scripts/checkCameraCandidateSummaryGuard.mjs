@@ -8,20 +8,20 @@ const validSummary = [
   'VisionCamera Nitro peers: yes',
   'CameraKit latest: react-native-camera-kit@18.0.0',
   'CameraKit node engine: >=18',
-  'Selected proof target: CameraKit selected; VisionCamera deferred because latest line requires Nitro peers',
+  'Selected proof target: CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers',
   'Proof branch: feature/bem-37-camera-kit-qr-proof',
   'Camera candidate baseline stable: yes',
   'Warnings: 0',
   'Errors: 0',
-  'Required action: none; camera candidate baseline is stable for a dedicated scanner proof branch.',
+  'Required action: none; CameraKit scanner baseline is stable after the dedicated proof branch.',
 ].join('\n');
 
 const invalidSummary = validSummary
   .replace('VisionCamera Nitro peers: yes', 'VisionCamera Nitro peers: no')
   .replace('Camera candidate baseline stable: yes', 'Camera candidate baseline stable: no')
   .replace(
-    'Required action: none; camera candidate baseline is stable for a dedicated scanner proof branch.',
-    'Required action: restore camera candidate baseline before starting scanner proof work.',
+    'Required action: none; CameraKit scanner baseline is stable after the dedicated proof branch.',
+    'Required action: restore camera candidate baseline before scanner follow-up work.',
   );
 
 const assertAccepted = (label, summary) => {

@@ -13,7 +13,7 @@ const validSummary = [
   '- local Android warning audit summary still mentions react-native-camera; refresh the warning audit after migration.',
   'Readiness issues: 0',
   'Wiring errors: 0',
-  'Required action: none; camera QR migration baseline is stable for a dedicated scanner replacement branch.',
+  'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.',
   '',
 ].join('\n');
 
@@ -31,7 +31,7 @@ const invalidSummary = [
   '- package.json still has react-native-camera@^3.33.0; expected removal after CameraKit QR migration',
   'Wiring errors: 1',
   '- ScanQrCodeScreen.tsx is missing CameraKit',
-  'Required action: restore camera QR migration baseline before replacing the scanner dependency.',
+  'Required action: restore camera QR migration baseline before scanner follow-up work.',
   '',
 ].join('\n');
 
@@ -63,7 +63,7 @@ assertRejected('Bad warning count fixture', validSummary.replace('Warnings: 1', 
 assertRejected(
   'Missing required action fixture',
   invalidSummary.replace(
-    'Required action: restore camera QR migration baseline before replacing the scanner dependency.',
+    'Required action: restore camera QR migration baseline before scanner follow-up work.',
     'Required action: restore QR scanner.',
   ),
   'camera QR restoration required action',
