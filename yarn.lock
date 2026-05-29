@@ -3497,15 +3497,16 @@ asap@^2.0.0, asap@~2.0.3, asap@~2.0.6:
   resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
   integrity sha1-5QNHYR1+aQlDIIu9r+vLwvuGbUY=
 
-assert@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/assert/-/assert-2.0.0.tgz#95fc1c616d48713510680f2eaf2d10dd22e02d32"
-  integrity sha512-se5Cd+js9dXJnu6Ag2JFc00t+HmHOen+8Q+L7O9zI0PqQXr20uk2J0XQqMxZEeo5U50o8Nvmmx7dZrl+Ufr35A==
+assert@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/assert/-/assert-2.1.0.tgz#6d92a238d05dc02e7427c881fb8be81c8448b2dd"
+  integrity sha512-eLHpSK/Y4nhMJ07gDaAzoX/XAKS8PSaojml3M0DM4JpV1LAi5JOJ/p6H/XWrl8L+DzVEvVCW1z3vWAaB9oTsQw==
   dependencies:
-    es6-object-assign "^1.1.0"
-    is-nan "^1.2.1"
-    object-is "^1.0.1"
-    util "^0.12.0"
+    call-bind "^1.0.2"
+    is-nan "^1.3.2"
+    object-is "^1.1.5"
+    object.assign "^4.1.4"
+    util "^0.12.5"
 
 ast-types@^0.13.4:
   version "0.13.4"
@@ -5442,11 +5443,6 @@ es-to-primitive@^1.3.0:
     is-date-object "^1.0.5"
     is-symbol "^1.0.4"
 
-es6-object-assign@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/es6-object-assign/-/es6-object-assign-1.1.0.tgz#c2c3582656247c39ea107cb1e6652b6f9f24523c"
-  integrity sha1-wsNYJlYkfDnqEHyx5mUrb58kUjw=
-
 escalade@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/escalade/-/escalade-3.1.1.tgz#d8cfdc7000965c5a0174b4a82eaa5c0552742e40"
@@ -7351,7 +7347,7 @@ is-map@^2.0.3:
   resolved "https://registry.yarnpkg.com/is-map/-/is-map-2.0.3.tgz#ede96b7fe1e270b3c4465e3a465658764926d62e"
   integrity sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==
 
-is-nan@^1.2.1:
+is-nan@^1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/is-nan/-/is-nan-1.3.2.tgz#043a54adea31748b55b6cd4e09aadafa69bd9e1d"
   integrity sha512-E+zBKpQ2t6MEo1VsonYmluk9NxGrbzpeeLC2xIViuO2EjU2xsXsBPwTr3Ykv9l08UYEVEdWeRZNouaZqF6RN0w==
@@ -9261,6 +9257,14 @@ object-is@^1.0.1, object-is@^1.1.4:
     call-bind "^1.0.2"
     define-properties "^1.1.3"
 
+object-is@^1.1.5:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/object-is/-/object-is-1.1.6.tgz#1a6a53aed2dd8f7e6775ff870bea58545956ab07"
+  integrity sha512-F8cZ+KfGlSGi09lJT7/Nd6KJZ9ygtvYC0/UYYLI9nmQKLMnydpB9yvbv9K1uSkEu7FU9vYPmVwLg328tX+ot3Q==
+  dependencies:
+    call-bind "^1.0.7"
+    define-properties "^1.2.1"
+
 object-keys@^1.0.12, object-keys@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.1.1.tgz#1c47f272df277f3b1daf061677d9c82e2322c60e"
@@ -9285,7 +9289,7 @@ object.assign@^4.1.2:
     has-symbols "^1.0.1"
     object-keys "^1.1.1"
 
-object.assign@^4.1.7:
+object.assign@^4.1.4, object.assign@^4.1.7:
   version "4.1.7"
   resolved "https://registry.yarnpkg.com/object.assign/-/object.assign-4.1.7.tgz#8c14ca1a424c6a561b0bb2a22f66f5049a945d3d"
   integrity sha512-nK28WOo+QIjBkDduTINE4JkF/UJJKyf2EJxvJKfblDpyg0Q+pkOHNTL0Qwy6NP6FhE/EnzV73BxxqcJaXY9anw==
@@ -12267,16 +12271,15 @@ util@0.12.1:
     object.entries "^1.1.0"
     safe-buffer "^5.1.2"
 
-util@^0.12.0:
-  version "0.12.4"
-  resolved "https://registry.yarnpkg.com/util/-/util-0.12.4.tgz#66121a31420df8f01ca0c464be15dfa1d1850253"
-  integrity sha512-bxZ9qtSlGUWSOy9Qa9Xgk11kSslpuZwaxCg4sNIDj6FLucDab2JxnHwyNTCpHMtK1MjoQiWQ6DiUMZYbSrO+Sw==
+util@^0.12.5:
+  version "0.12.5"
+  resolved "https://registry.yarnpkg.com/util/-/util-0.12.5.tgz#5f17a6059b73db61a875668781a1c2b136bd6fbc"
+  integrity sha512-kZf/K6hEIrWHI6XqOFUiiMa+79wE/D8Q+NCNAWclkyg3b4d2k7s0QGepNjiABc+aR3N1PAyHL7p6UcLY6LmrnA==
   dependencies:
     inherits "^2.0.3"
     is-arguments "^1.0.4"
     is-generator-function "^1.0.7"
     is-typed-array "^1.1.3"
-    safe-buffer "^5.1.2"
     which-typed-array "^1.1.2"
 
 utils-merge@1.0.1:

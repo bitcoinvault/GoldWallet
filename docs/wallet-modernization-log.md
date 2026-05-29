@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.171 - Assert polyfill update
+
+- Branch: `feature/bem-37-assert-polyfill-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update the browserified `assert` polyfill from `2.0.0` to latest stable `2.1.0`.
+- Keep app source, test source, native project files, Metro config, and rn-nodeify shim code unchanged.
+- Treat this as a runtime/test polyfill dependency update because `assert` is part of the Node polyfill surface used by wallet tests and the React Native bundle environment.
+
+Findings:
+
+- `npm view assert version dist-tags engines dependencies peerDependencies --json` reports `latest` as `2.1.0`.
+- `assert@2.1.0` updates its dependency set from the older `es6-object-assign` path to maintained `call-bind`, `object-is`, `object.assign`, `is-nan`, and `util@0.12.5`.
+- `rn-nodeify` reapplied the existing polyfill normalization and `corepack yarn check:rn-nodeify-shims` remained stable.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:authenticator`
+- `corepack yarn test:storage`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- Targeted logcat check found BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443`, then `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no `AndroidRuntime`, fatal exception, ReferenceError, TypeError, or invariant violation was found.
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.170 - PBKDF2 runtime update
 
 - Branch: `feature/bem-37-pbkdf2-runtime-update`
