@@ -2,7 +2,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['@react-native-async-storage/async-storage', '2.2.0'],
   ['@react-native-clipboard/clipboard', '1.16.3'],
   ['@react-native-community/blur', '4.4.1'],
-  ['@react-native-community/netinfo', '6.2.1'],
+  ['@react-native-community/netinfo', '12.0.1'],
   ['@react-native-community/push-notification-ios', '1.12.0'],
   ['@react-native-community/slider', '5.2.0'],
   ['@react-native-firebase/analytics', '12.7'],
