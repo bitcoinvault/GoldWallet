@@ -9,8 +9,8 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 export const expectedReactPackageCoupling = {
   react: '19.1.4',
-  reactTypes: '18.2.6',
-  reactNativeTypes: '^0.63.37',
+  reactTypes: '19.2.15',
+  reactNativeTypes: 'bundled',
   reactTestRenderer: '19.1.4',
   targetReactPeer: '^19.1.4',
 };
@@ -25,8 +25,8 @@ export const requiredReactPackageCouplingDocs = [
 export const requiredReactPackageCouplingSnippets = [
   ['docs/react-package-coupling-audit.md', 'React package coupling audit'],
   ['docs/react-package-coupling-audit.md', 'Current React: `19.1.4`'],
-  ['docs/react-package-coupling-audit.md', 'Current React types: `18.2.6`'],
-  ['docs/react-package-coupling-audit.md', 'Current React Native types: `^0.63.37`'],
+  ['docs/react-package-coupling-audit.md', 'Current React types: `19.2.15`'],
+  ['docs/react-package-coupling-audit.md', 'Current React Native types: bundled with `react-native@0.81.6`'],
   ['docs/react-package-coupling-audit.md', 'Current react-test-renderer: `19.1.4`'],
   ['docs/react-package-coupling-audit.md', 'Target React peer from RN target snapshot: `^19.1.4`'],
   ['docs/react-package-coupling-audit.md', 'Do not update React without updating `react-test-renderer` and `@types/react` in the same React/RN baseline branch.'],
@@ -51,11 +51,9 @@ export const getReactPackageCouplingIssues = ({ dependencies, devDependencies, s
     );
   }
 
-  if (devDependencies['@types/react-native'] !== expectedReactPackageCoupling.reactNativeTypes) {
+  if (devDependencies['@types/react-native']) {
     errors.push(
-      `package.json has @types/react-native@${devDependencies['@types/react-native'] || '<missing>'}; expected current React Native types baseline ${
-        expectedReactPackageCoupling.reactNativeTypes
-      }`,
+      `package.json has @types/react-native@${devDependencies['@types/react-native']}; expected React Native types to be bundled with react-native@0.81.6`,
     );
   }
 
@@ -126,7 +124,7 @@ const printReport = environment => {
   console.log('React package coupling audit');
   console.log(`React: ${environment.dependencies.react || '<missing>'}`);
   console.log(`@types/react: ${environment.devDependencies['@types/react'] || '<missing>'}`);
-  console.log(`@types/react-native: ${environment.devDependencies['@types/react-native'] || '<missing>'}`);
+  console.log(`@types/react-native: ${environment.devDependencies['@types/react-native'] || 'bundled with react-native'}`);
   console.log(`react-test-renderer: ${environment.devDependencies['react-test-renderer'] || '<missing>'}`);
   console.log(`Target React peer from RN target snapshot: ${expectedReactNativeTargetSnapshot.targetReactPeer}`);
 
@@ -136,7 +134,7 @@ const printReport = environment => {
     process.exit(1);
   }
 
-  console.log('React package coupling audit matches the current React 18 baseline and RN target snapshot.');
+  console.log('React package coupling audit matches the current React 19 baseline and RN target snapshot.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

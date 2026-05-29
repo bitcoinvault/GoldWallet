@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.136 - React 19 audit baseline refresh
+
+- Branch: `feature/bem-37-react19-audit-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh React 19 impact and React package coupling audits after the RN `0.81.6` proof.
+- Align the guarded React type baseline with `@types/react@19.2.15`.
+- Treat React Native types as bundled with `react-native@0.81.6` instead of requiring the old standalone `@types/react-native` package.
+
+Findings:
+
+- The audits still printed "current React 18 baseline" and rejected the current package state.
+- The test/type coupling audit already matched the current TypeScript/Jest/renderer baseline and did not need package changes.
+
+Validation:
+
+- `corepack yarn check:react19-impact-guard`
+- `corepack yarn react19:impact:audit`
+- `corepack yarn check:react-package-coupling-guard`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.135 - RN 0.81 foundation plan refresh
 
 - Branch: `feature/bem-37-rn081-foundation-plan-refresh`

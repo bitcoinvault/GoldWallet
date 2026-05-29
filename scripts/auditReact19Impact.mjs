@@ -34,7 +34,7 @@ export const requiredReact19ImpactDocs = [
 
 export const requiredReact19ImpactSnippets = [
   ['docs/react19-impact-audit.md', 'Current React: `19.1.4`'],
-  ['docs/react19-impact-audit.md', 'Current React types: `18.2.6`'],
+  ['docs/react19-impact-audit.md', 'Current React types: `19.2.15`'],
   ['docs/react19-impact-audit.md', 'Current react-test-renderer: `19.1.4`'],
   ['docs/react19-impact-audit.md', 'Target React peer from RN target snapshot: `^19.1.4`'],
   ['docs/react19-impact-audit.md', 'Class component surfaces exist and must be smoke-tested after the React/RN baseline changes.'],
@@ -52,8 +52,8 @@ export const getReact19ImpactIssues = ({ dependencies, devDependencies, scripts,
     errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current React baseline 19.1.4`);
   }
 
-  if (devDependencies['@types/react'] !== '18.2.6') {
-    errors.push(`package.json has @types/react@${devDependencies['@types/react'] || '<missing>'}; expected current React types baseline 18.2.6`);
+  if (devDependencies['@types/react'] !== '19.2.15') {
+    errors.push(`package.json has @types/react@${devDependencies['@types/react'] || '<missing>'}; expected current React types baseline 19.2.15`);
   }
 
   if (devDependencies['react-test-renderer'] !== '19.1.4') {
@@ -161,7 +161,7 @@ const printReport = environment => {
     process.exit(1);
   }
 
-  console.log('React 19 impact audit matches the current React 18 baseline and RN target snapshot.');
+  console.log('React 19 impact audit matches the current React 19 baseline and RN target snapshot.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
