@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.148 - Baseline dependency risk refresh
+
+- Branch: `feature/bem-37-baseline-dependency-risk-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the dependency-risk section in `docs/wallet-modernization-baseline.md`.
+- Replace stale wording that described navigation/layout and SVG packages as simply old.
+- Record the current checked versions and keep future work tied to RN milestone, QR render, release/device, or Jetifier validation surfaces.
+
+Findings:
+
+- `package.json` now has `react-native-gesture-handler@2.29.1`, `react-native-screens@4.24.0`, `react-native-safe-area-context@5.8.0`, `react-native-svg@15.15.5`, `react-native-share@7.9.1`, `react-native-vector-icons@10.3.0`, `react-native-webview@11.26.1`, and `react-native-fast-image@8.6.3`.
+- The native-module upgrade plan already treats these as checked or checkpoint-aligned packages; the high-level baseline needed to match that current state.
+
+Validation:
+
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.147 - Dependency strategy RN 0.81 refresh
 
 - Branch: `feature/bem-37-dependency-strategy-rn081-refresh`
