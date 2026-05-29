@@ -18,7 +18,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-camera', '^3.33.0'],
   ['react-native-code-push', '7.0.2'],
   ['react-native-config', '1.5.9'],
-  ['react-native-device-info', '6.2.1'],
+  ['react-native-device-info', '15.0.2'],
   ['react-native-exit-app', '2.0.0'],
   ['react-native-fast-image', '8.6.3'],
   ['react-native-gesture-handler', '1.10.3'],
