@@ -1,4 +1,4 @@
-/* global it, describe, jasmine, afterAll, beforeAll  */
+/* global jasmine */
 import { WatchOnlyWallet } from '../../class';
 
 const assert = require('assert');

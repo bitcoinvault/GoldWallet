@@ -1,6 +1,5 @@
 import config from '../../src/config';
 
-/* global it, describe, afterAll, beforeAll, jasmine */
 const assert = require('assert');
 const bitcoin = require('bitcoinjs-lib');
 

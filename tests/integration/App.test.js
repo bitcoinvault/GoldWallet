@@ -1,5 +1,3 @@
-/* global describe, it, expect, jest, jasmine */
-
 import { LegacyWallet, SegwitP2SHWallet } from '../../class';
 
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment

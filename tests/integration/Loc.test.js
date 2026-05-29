@@ -1,4 +1,3 @@
-/* global it, describe */
 const assert = require('assert');
 
 describe('Localization', () => {

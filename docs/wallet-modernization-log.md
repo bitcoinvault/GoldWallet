@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.200 - Integration test lint globals cleanup
+
+- Branch: `feature/bem-37-integration-lint-globals`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove stale Jest `/* global ... */` declarations from integration tests where ESLint already treats Jest globals as built-ins.
+- Keep the one required `jasmine` global declaration in `WatchOnlyWallet.test.js`.
+- Let ESLint format the touched integration tests without changing test assertions or wallet runtime code.
+
+Findings:
+
+- ESLint baseline dropped from `9` errors and `58` warnings to `2` errors and `37` warnings.
+- Remaining ESLint errors are the duplicate action enum values in runtime action files, which need a separate behavioral review before changing identifiers.
+- This branch does not touch app runtime, dependencies, native build inputs, or Metro behavior.
+
+Validation:
+
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:storage-network:focused`
+- `git diff --check`
+
 ### BEM-36.122 - Android workflow embedded smoke docs
 
 - Branch: `feature/bem-36-android-workflow-docs-current`

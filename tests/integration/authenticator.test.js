@@ -1,5 +1,3 @@
-/* global jasmine */
-
 import { Authenticator } from '../../class';
 import config from '../../src/config';
 
