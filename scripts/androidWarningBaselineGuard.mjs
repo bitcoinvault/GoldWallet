@@ -16,10 +16,6 @@ export const expectedFindingPatterns = [
     pattern: /^jcenter\(\): .*node_modules[\\/]react-native-vector-icons[\\/]android[\\/]build\.gradle:41\)/,
   },
   {
-    label: 'react-native-device-info jcenter',
-    pattern: /^jcenter\(\): .*node_modules[\\/]react-native-device-info[\\/]android[\\/]build\.gradle:46\)/,
-  },
-  {
     label: 'react-native-secure-key-store jcenter',
     pattern: /^jcenter\(\): .*node_modules[\\/]react-native-secure-key-store[\\/]android[\\/]build\.gradle:46\)/,
   },

@@ -78,7 +78,7 @@ Branch shape:
 - `@react-native-async-storage/async-storage` -> `2.2.0`
 - `@react-native-community/netinfo` -> `6.2.1`
 - `react-native-background-timer` -> `2.4.1`
-- `react-native-device-info` -> `6.2.1`
+- `react-native-device-info` -> `15.0.2`
 - `react-native-exit-app` -> `2.0.0`
 - `react-native-config` -> `1.5.9`
 - `react-native-localize` -> `3.7.0`
@@ -102,7 +102,7 @@ Branch shape:
 - `@react-native-async-storage/async-storage` is on checked compatible `2.2.0` after `BEM-36.74`; future AsyncStorage work should focus on persistence behavior and RN baseline changes rather than a direct jump to latest `3.x`.
 - `react-native-background-timer` is pinned to the already-resolved `2.4.1` after `BEM-36.67`; future timer work should validate timeout-button behavior and wait for a broader RN/runtime baseline.
 - `react-native-config` is on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected on the current RN `0.76.9` Android baseline because it requires newer React Native Android APIs. Future config work should focus on flavor/env behavior, release-service keys, and platform validation rather than another package bump.
-- `react-native-device-info` is pinned to the already-resolved `6.2.1` after `BEM-36.61`; future device metadata work should focus on emulator/device detection behavior and RN baseline changes.
+- `react-native-device-info` is on checked `15.0.2` after `BEM-37.109`; the app's used APIs remain available (`isEmulator`, `isPinOrFingerprintSet`, app/build metadata), and the package no longer contributes an Android `jcenter()` warning.
 - `react-native-exit-app` is on checked `2.0.0` after `BEM-37.106`; the package no longer contributes an Android `jcenter()` warning on the RN `0.76.9` baseline. Future exit-app work should validate factory reset and terms rejection behavior.
 - `react-native-localize` is on checked `3.7.0` after `BEM-37.107`; the package no longer contributes an Android `jcenter()` warning on the RN `0.76.9` baseline. Future localization work should focus on app language behavior and RN baseline changes.
 - `react-native-secure-key-store` is pinned to latest checked `2.0.10` after `BEM-36.63`; future secure-storage work should focus on behavior validation or replacement, not another package bump.
