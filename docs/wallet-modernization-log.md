@@ -10,6 +10,28 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.132 - RN 0.81 Android warning baseline wording
+
+- Branch: `feature/bem-37-rn081-warning-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the remaining Android warning baseline wording after the RN `0.81.6` proof and Sentry warning audit refresh.
+- Keep the Android warning baseline guard unchanged because it already allows only the current `react-native-secure-key-store` `jcenter()` source.
+- Update the baseline docs so they no longer describe the remaining warning state as the older RN `0.76.9` cleanup stream or five-warning checkpoint.
+
+Findings:
+
+- The current warning baseline is exactly one targeted `jcenter()` source from `react-native-secure-key-store`.
+- The warning is intentionally not patched in `node_modules`; removal belongs to the secure-storage migration follow-up after the dual-write/fallback path is retired.
+
+Validation:
+
+- `corepack yarn check:android-remaining-warning-plan`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+
 ### BEM-37.131 - RN 0.81 Sentry Android warning audit refresh
 
 - Branch: `feature/bem-37-sentry-warning-audit-rn081`
