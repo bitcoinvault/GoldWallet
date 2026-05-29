@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.182 - Axios runtime update
+
+- Branch: `feature/bem-37-axios-runtime-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update the HTTP client dependency `axios` from resolved `0.21.3` to latest stable `1.16.1`.
+- Keep API behavior scoped to the existing `src/api/client.ts` wrapper used by email notification API calls.
+- Adjust only the axios v1 TypeScript/runtime compatibility surface: interceptor request typing, optional error config handling, unknown response payload typing, and Metro runtime import resolution.
+
+Findings:
+
+- `npm view axios version dist-tags engines dependencies peerDependencies --json` reports stable `latest` as `1.16.1`.
+- The app only imports axios through `src/api/client.ts`, so this branch keeps the runtime change centralized.
+- Axios v1 request interceptors now pass `InternalAxiosRequestConfig`; `AxiosError.config` is optional and `response.data` is `unknown`.
+- The first emulator smoke after the package update hit a redbox: `Cannot read property '__extends' of undefined`. Metro also warned that the axios package `react-native` export resolved through an ESM path, then fell back to file-based resolution.
+- Switching the runtime import to the axios browser CJS bundle while keeping type-only imports from `axios` removed the redbox and preserved the existing wrapper API.
+
+Validation:
+
+- `npm view axios version dist-tags engines dependencies peerDependencies --json`
+- `corepack yarn add axios@1.16.1`
+- `corepack yarn check:rn-nodeify-shims`
+- Node axios runtime probe: `require('axios').VERSION`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:watchonly:offline`
+- `corepack yarn test:hdwallet:offline`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- First `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke` failed on the axios/Metro redbox described above.
+- After the runtime import fix, restart Metro again with `corepack yarn start --reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+
 ### BEM-37.181 - Buffer polyfill update
 
 - Branch: `feature/bem-37-buffer-polyfill-update`
