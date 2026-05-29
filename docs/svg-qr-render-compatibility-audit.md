@@ -3,12 +3,13 @@
 This audit supports the `BEM-36` native module upgrade stream before changing `react-native-svg` or QR rendering dependencies.
 
 Checked on: 2026-05-28
+Baseline refreshed on: 2026-05-29 after the RN `0.81.6` foundation and SVG upgrade stream.
 
 ## Current Repository State
 
-- `react-native`: `0.68.7`
-- `react`: `17.0.2`
-- `react-native-svg`: `12.5.1`
+- `react-native`: `0.81.6`
+- `react`: `19.1.4`
+- `react-native-svg`: `15.15.5`
 - `react-native-qrcode-svg`: `6.1.1`
 
 Current guarded QR render surface:
@@ -28,13 +29,13 @@ corepack yarn check:qr-render-usage
 
 ## Npm Compatibility Snapshot
 
-The current installed QR stack is pinned as a compatible pair:
+The current installed QR stack is pinned as the validated renderer set:
 
 ```text
-react-native-svg@12.5.1
+react-native-svg@15.15.5
 peerDependencies:
 - react: *
-- react-native: >=0.50.0
+- react-native: *
 dependencies:
 - css-select ^5.1.0
 - css-tree ^1.1.3
@@ -68,6 +69,7 @@ peerDependencies:
 
 - The repo previously pinned `react-native-svg` to `9.5.1`, while the lockfile resolved `react-native-qrcode-svg@6.1.1`, which declares `react-native-svg ^12.1.0`.
 - `BEM-36.57` pins `react-native-svg@12.5.1` and `react-native-qrcode-svg@6.1.1` as a compatible current-baseline QR renderer pair.
+- The RN `0.81.6` stream later validates `react-native-svg@15.15.5` while keeping `react-native-qrcode-svg@6.1.1` and the root `qrcode@1.4.4` resolution.
 - `react-native-qrcode-svg@6.1.2` and freshly resolved `qrcode@1.5.4` were rejected during Android Receive-screen smoke because the QR render path raised `ReferenceError: Can't find variable: TextEncoder`.
 - The latest `react-native-qrcode-svg` line expects `react-native-svg >=14.0.0`.
 - A future major QR rendering upgrade should still treat `react-native-svg` and `react-native-qrcode-svg` as a coupled compatibility pair, not as independent patch bumps.
@@ -75,7 +77,7 @@ peerDependencies:
 
 ## Decision
 
-- Keep `react-native-svg@12.5.1`, `react-native-qrcode-svg@6.1.1`, and root `qrcode@1.4.4` resolution fixed until a later RN baseline can support the newer SVG/QR renderer lines.
+- Keep `react-native-svg@15.15.5`, `react-native-qrcode-svg@6.1.1`, and root `qrcode@1.4.4` resolution fixed until a dedicated QR renderer branch validates the newer QR package line without the `TextEncoder` runtime regression.
 - Do not combine QR render dependency changes with the camera scanner replacement branch.
 - Use a dedicated branch for any future `react-native-svg` or `react-native-qrcode-svg` major-line migration.
 
