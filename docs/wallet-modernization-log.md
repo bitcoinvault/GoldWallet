@@ -6766,3 +6766,26 @@ Validation:
 - Gradle task listing for release CodePush bundle aliases
 - `corepack yarn typescript:check`
 - `git diff --check`
+
+### BEM-36.121 - RN 0.76 Jest compatibility
+
+- Branch: `feature/bem-36-rn076-jest-compat`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the Jest stack from the old Jest `26` line to Jest `29.7.0`, matching the React Native `0.76` test environment dependency line.
+- Keep the existing React Native Jest preset and add a focused Jest resolver mapping for `uuid` so unit tests use its CommonJS build instead of the ESM browser export.
+- Add a stable `react-native-localize` locale mock for tests that import localization during module initialization.
+- Convert legacy signer tests away from mixing `async` functions with Jest `done` callbacks, which Jest `29` rejects.
+
+Why:
+
+- The pre-push hook failed after the RN `0.76` foundation because Jest `26` instantiated React Native's Jest `29` node environment with the old constructor shape.
+- After moving to Jest `29`, the unit tests exposed two test-only compatibility issues: `uuid` resolving to an ESM browser build and old async callback style in signer tests.
+
+Validation:
+
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`

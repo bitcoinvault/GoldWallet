@@ -21,7 +21,7 @@ const suppressTransactionBuilderDeprecationWarning = () => {
 
 describe('unit - signer', function() {
   describe('createSegwitTransaction()', function() {
-    it('should return valid tx hex for segwit transactions', async function(done) {
+    it('should return valid tx hex for segwit transactions', async function() {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -49,10 +49,9 @@ describe('unit - signer', function() {
         tx,
         '0100000000010115b7e9d1f6b8164a0e95544a94f5b0fbfaadc35f8415acd0ec0e58d5ce8c1a1e0100000017160014cdcbe2bdb67b6ceece9f96f917362396a0697775ffffffff01905f0100000000001976a9140e75eb2af3599acf900cf0b7e666027b105cf3db88ac02473044022062dd7f00917781bd12cf59649f53f8b57d1bf83168d8bf295b3ae80d183df72402207b102b3158064eeddb6d951b3df00b0efafdb5c6fede25ba43226dab73895a96012102504f1fce9ec0517c2997374a69637fb7a351a2a3e3cf82457bfe0a894eb1821500000000',
       );
-      done();
     });
 
-    it('should return valid tx hex for RBF-able segwit transactions', async function(done) {
+    it('should return valid tx hex for RBF-able segwit transactions', async function() {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -95,10 +94,9 @@ describe('unit - signer', function() {
       );
       assert.equal(tx.outs[0].value, 90000); // 0.0009 because we deducted fee 0.0001
       assert.equal(tx.outs[1].value, 9900000); // 0.099 because 0.1 - 0.001
-      done();
     });
 
-    it('should return valid tx hex for segwit transactions with multiple inputs', async function(done) {
+    it('should return valid tx hex for segwit transactions with multiple inputs', async function() {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -138,10 +136,9 @@ describe('unit - signer', function() {
         tx,
         '010000000001020b7b254a48ed8e3bd1240a84c9bab821d36c4343039d434f8a0b6baf6a532a4e0000000017160014096b66fa103012a253f943b68af354d7d3229f14ffffffffbd2f46662697f333273ba645a3ca026dda19260a84bc7d4cdd95cd4e8db7e1090000000017160014096b66fa103012a253f943b68af354d7d3229f14ffffffff01a0f70300000000001976a9140e75eb2af3599acf900cf0b7e666027b105cf3db88ac0247304402202e64db0cf8675cc839fea165f8f0d6eae9cc6ac30e19c64870887c75907458b202205776f7cdff8af7db04f4558e60393030d3afbf0eefbe715db7e4112ad58c63850121037dae990e65137ea8db30521ff22e2a343a485f6ba37c9e7aa860c680e9467f8c02483045022100b2fd35bd10136b5683eb187f3d604a66cf74ff1522249043f9bfe0df0e89549702207e7ce830659b8cc62ea10e06e113ddea34340ab5975955267251cb0b2ac1854b0121037dae990e65137ea8db30521ff22e2a343a485f6ba37c9e7aa860c680e9467f8c00000000',
       );
-      done();
     });
 
-    it('should return valid tx hex for segwit transactions with change address', async function(done) {
+    it('should return valid tx hex for segwit transactions with change address', async function() {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -169,10 +166,9 @@ describe('unit - signer', function() {
         tx,
         '0100000000010160d3d8d96a31d6bae5e2927bb4fe7be81702bb1787b3f9770a808404035905160100000017160014096b66fa103012a253f943b68af354d7d3229f14ffffffff0230e60200000000001976a9140e75eb2af3599acf900cf0b7e666027b105cf3db88ac400d03000000000017a914e4050160d7beb7404aa2757227cd2e8435cb8040870247304402204a17a38fe362d6a17e9375c2908f08442b1f3f311a4f30a5c633930072b1eb9402203ad5e45bfec5a8a3e8154f825f5a7767cf351a75b0f4da1ecce9e6f1a42bfcd70121037dae990e65137ea8db30521ff22e2a343a485f6ba37c9e7aa860c680e9467f8c00000000',
       );
-      done();
     });
 
-    it('should return valid tx hex for segwit transactions if change is too small so it causes @dust error', async function(done) {
+    it('should return valid tx hex for segwit transactions if change is too small so it causes @dust error', async function() {
       // checking that change amount is at least 3x of fee, otherwise screw the change, just add it to fee
       const signer = require('../../models/signer');
       const utxos = [
@@ -202,34 +198,31 @@ describe('unit - signer', function() {
       assert.equal(tx.ins.length, 1);
       assert.equal(tx.outs.length, 1); // only 1 output, which means change is neglected
       assert.equal(tx.outs[0].value, 399700);
-      done();
     });
   });
 
   describe('WIF2address()', function() {
-    it('should convert WIF to segwit P2SH address', function(done) {
+    it('should convert WIF to segwit P2SH address', function() {
       const signer = require('../../models/signer');
       const address = signer.WIF2segwitAddress('L55uHs7pyz7rP18K38kB7kqDVNJaeYFzJtZyC3ZjD2c684dzXQWs');
 
       assert.equal(address, 'RP2WJvXEBXtJ3ZAndQhcyHEf3RmwUYpMWz');
-      done();
     });
   });
 
   describe('generateNewAddress()', function() {
-    it('should generate new address', function(done) {
+    it('should generate new address', function() {
       const signer = require('../../models/signer');
       const address = signer.generateNewSegwitAddress();
 
       assert.ok(address.WIF);
       assert.ok(address.address);
       assert.equal(address.address, signer.WIF2segwitAddress(address.WIF));
-      done();
     });
   });
 
   describe('URI()', function() {
-    it('should form correct payment url', function(done) {
+    it('should form correct payment url', function() {
       const signer = require('../../models/signer');
       let url = signer.URI({
         address: 'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26',
@@ -252,7 +245,6 @@ describe('unit - signer', function() {
         url,
         'bitcoin:YRMDysNqxPQiHee3NodziKKsHhRvysur63?amount=0.004&message=wheres%20the%20money%20lebowski',
       );
-      done();
     });
   });
 

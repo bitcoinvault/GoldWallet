@@ -11,7 +11,7 @@ jest.mock('react-native-default-preference', () => {
 
 jest.mock('react-native-localize', () => {
   return {
-    getLocales: jest.fn(),
+    getLocales: jest.fn(() => [{ languageCode: 'en' }]),
   };
 });
 

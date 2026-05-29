@@ -37,7 +37,7 @@ describe('authenticator', () => {
     });
 
     it('should finalize Recovery tx on AR', async function() {
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+      jest.setTimeout(30 * 1000);
 
       // Signed with one signature
       const encodedPsbt =
@@ -57,7 +57,7 @@ describe('authenticator', () => {
     });
 
     it('should finalize Instant tx on AIR', async function() {
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+      jest.setTimeout(30 * 1000);
       // Signed with one signature
       const encodedPsbt =
         'cHNidP8BAHwCAAAAAmv6sXdIrFOW5fBzxXIxWXbxte4H8zHUirswgDXeI+lgAAAAAAD/////UFLc6Ktri7w6lx/OaUygIQJKa3gGqTSe+ztmddzCt98AAAAAAP////8BwFsaJggAAAAXqRSKFKqZerbgpJGOZ3dFMKukDjPnVIcAAAAAAAEBIADPFBMEAAAAF6kUnngShumtX0yV068HkvVJ2urlB/eHIgICH/Ds4O/WQj5CfY/ciYRFeCWqZ0j6kaJN8yF/ofDjlNNHMEQCIHMeO6GRfUxFbC58tjIWKW6hyhKCMeXWkH50royamWaSAiBtt0R6mmf1CluPyZAercvrKav8MdiN8FuuCBBGfqwK1QEBBCIAIGA1ZYA+WFdhN67w8SH0LDDNbHGoVmJYF+Tc29AdO9lFAQVxY1FnY1JnU2hoIQIf8Ozg79ZCPkJ9j9yJhEV4JapnSPqRok3zIX+h8OOU0yEC7OwQCsuJ8wSSha4B5/A/tGnmtU1EsPPIJAsZWOiTy4whAmNFGlLz065pGJaeHFzpNHQxhVeEge+BMDNq0XJrph3bU64AAQEgAM8UEwQAAAAXqRSeeBKG6a1fTJXTrweS9Una6uUH94ciAgIf8Ozg79ZCPkJ9j9yJhEV4JapnSPqRok3zIX+h8OOU00cwRAIgHLqA+XkWe8qYboVhRIpeudNChx8qqS6vAy/lL9UzXcECIHoRnppsu4lPWKUL/ZwDx5xBcsA22ZWqeMGo1gIgBkCXAQEEIgAgYDVlgD5YV2E3rvDxIfQsMM1scahWYlgX5Nzb0B072UUBBXFjUWdjUmdTaGghAh/w7ODv1kI+Qn2P3ImERXglqmdI+pGiTfMhf6Hw45TTIQLs7BAKy4nzBJKFrgHn8D+0aea1TUSw88gkCxlY6JPLjCECY0UaUvPTrmkYlp4cXOk0dDGFV4SB74EwM2rRcmumHdtTrgABABYAFKSa1hvZyhS5D4xq9qde45XuyZWtAA==';
@@ -94,7 +94,7 @@ describe('authenticator', () => {
     });
 
     it('should not finalize Recovery tx on AR', async function() {
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+      jest.setTimeout(30 * 1000);
       // Signed with one signature
       const encodedPsbt =
         'cHNidP8BAHwCAAAAAvFFXw/jEkj9oodfts21YloovVzXuEjn3+ibk4IMw1FSAAAAAAD/////0OrPhAd3IHzdUpx0IHEI4l9rPDrUHwWtwSiD4iZuKkoAAAAAAP////8BwFsaJggAAAAXqRTqXT1MLehcj8Hsi1AeIzUb9kVuAYcAAAAAAAEBIADPFBMEAAAAF6kUGEm2GetgNT0MF4Erk9uUqbpF9wmHIgIDSKLP8tIdxDKH9zHU7hkqOHm2SuKg+NGPfwv2FaYqqFZHMEQCIHJzTC2RyW7QV3B7mum6f7Aji9HeiznGMh9W/NpVpGTOAiBP2ImasPsksSNedfSfPdnpVel0elcdoYl7lG3kYmO+QgEBBCIAIH953cHpDUj6TezroxEyYzg86FMn49XG4GzOwKs+ibYXAQVLY1FnUmghA0iiz/LSHcQyh/cx1O4ZKjh5tkrioPjRj38L9hWmKqhWIQLs7BAKy4nzBJKFrgHn8D+0aea1TUSw88gkCxlY6JPLjFKuAAEBIADPFBMEAAAAF6kUGEm2GetgNT0MF4Erk9uUqbpF9wmHIgIDSKLP8tIdxDKH9zHU7hkqOHm2SuKg+NGPfwv2FaYqqFZHMEQCIH0yFwBG/I9/e7X+gp9xQjhkh2zxWk9BYRpvlX5xQ4TZAiB84/RCLdjnlFhZIPupsYff7TDYQprb/Txw7DqTtZhr4wEBBCIAIH953cHpDUj6TezroxEyYzg86FMn49XG4GzOwKs+ibYXAQVLY1FnUmghA0iiz/LSHcQyh/cx1O4ZKjh5tkrioPjRj38L9hWmKqhWIQLs7BAKy4nzBJKFrgHn8D+0aea1TUSw88gkCxlY6JPLjFKuAAEAFgAUg9grzH1XGRHCnWpxlAEMWpLdPOUA';
@@ -105,7 +105,7 @@ describe('authenticator', () => {
     });
 
     it('should not finalize Instant tx on AIR', async function() {
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+      jest.setTimeout(30 * 1000);
       // Signed with one signature
       const encodedPsbt =
         'cHNidP8BAHwCAAAAAmv6sXdIrFOW5fBzxXIxWXbxte4H8zHUirswgDXeI+lgAAAAAAD/////UFLc6Ktri7w6lx/OaUygIQJKa3gGqTSe+ztmddzCt98AAAAAAP////8BwFsaJggAAAAXqRSKFKqZerbgpJGOZ3dFMKukDjPnVIcAAAAAAAEBIADPFBMEAAAAF6kUnngShumtX0yV068HkvVJ2urlB/eHIgICH/Ds4O/WQj5CfY/ciYRFeCWqZ0j6kaJN8yF/ofDjlNNHMEQCIHMeO6GRfUxFbC58tjIWKW6hyhKCMeXWkH50royamWaSAiBtt0R6mmf1CluPyZAercvrKav8MdiN8FuuCBBGfqwK1QEBBCIAIGA1ZYA+WFdhN67w8SH0LDDNbHGoVmJYF+Tc29AdO9lFAQVxY1FnY1JnU2hoIQIf8Ozg79ZCPkJ9j9yJhEV4JapnSPqRok3zIX+h8OOU0yEC7OwQCsuJ8wSSha4B5/A/tGnmtU1EsPPIJAsZWOiTy4whAmNFGlLz065pGJaeHFzpNHQxhVeEge+BMDNq0XJrph3bU64AAQEgAM8UEwQAAAAXqRSeeBKG6a1fTJXTrweS9Una6uUH94ciAgIf8Ozg79ZCPkJ9j9yJhEV4JapnSPqRok3zIX+h8OOU00cwRAIgHLqA+XkWe8qYboVhRIpeudNChx8qqS6vAy/lL9UzXcECIHoRnppsu4lPWKUL/ZwDx5xBcsA22ZWqeMGo1gIgBkCXAQEEIgAgYDVlgD5YV2E3rvDxIfQsMM1scahWYlgX5Nzb0B072UUBBXFjUWdjUmdTaGghAh/w7ODv1kI+Qn2P3ImERXglqmdI+pGiTfMhf6Hw45TTIQLs7BAKy4nzBJKFrgHn8D+0aea1TUSw88gkCxlY6JPLjCECY0UaUvPTrmkYlp4cXOk0dDGFV4SB74EwM2rRcmumHdtTrgABABYAFKSa1hvZyhS5D4xq9qde45XuyZWtAA==';
@@ -116,7 +116,7 @@ describe('authenticator', () => {
     });
 
     it('should not finalize Recovery tx on AIR', async function() {
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+      jest.setTimeout(30 * 1000);
       // Signed with two signatures
       const encodedPsbt =
         'cHNidP8BAHwCAAAAAsPSuj1koi4un+ahen1mU5yC0eqa5bKiEww/o5U9eR7OAAAAAAD//////mG/Hz9+41BN2BI8H8vqvhGe9Gfh2Ah/AqO1AunIK9oAAAAAAP////8BwFsaJggAAAAXqRQNMLZW9RTWdI4EMyyE+IU04ddEEocAAAAAAAEBIADPFBMEAAAAF6kUe0vIPVqEvXbtnRrGkNHpz7V6Fu2HIgICqf9P4M5XB4xo/z7YOOn/gP3MiG7fwm8CAWcaYPszmElHMEQCIDI6cDlCA4CVfcwftbD52yd2yG5E64zaygc+uZW/Y5urAiBngae+vkTO873H1fofau+2dmiLjaX1K+VsFuTWHbgu4QEiAgLs7BAKy4nzBJKFrgHn8D+0aea1TUSw88gkCxlY6JPLjEcwRAIgE5rxLfpBubLcZjHUetovSSivYW76wHLB6iarrBbmE6ICIEl553fYGWtkDiovyvVdENTDb/86ya4fDmDAo9oSJdG0AQEEIgAgAgOstP2Xc9QviFFl6+Tk+S62ZSpM1GQfC/RtTsA1XDEBBXFjUWdjUmdTaGghAqn/T+DOVweMaP8+2Djp/4D9zIhu38JvAgFnGmD7M5hJIQLs7BAKy4nzBJKFrgHn8D+0aea1TUSw88gkCxlY6JPLjCECY0UaUvPTrmkYlp4cXOk0dDGFV4SB74EwM2rRcmumHdtTrgABASAAzxQTBAAAABepFHtLyD1ahL127Z0axpDR6c+1ehbthyICAqn/T+DOVweMaP8+2Djp/4D9zIhu38JvAgFnGmD7M5hJRzBEAiB2gm11G1v6dwtHXjQkMbbW92V/oAssCt35EQVl2IlzlwIgFX6pPw7KF72ftwaPJfw+JnlMLXv5Ync4YSm8YlLehlUBIgIC7OwQCsuJ8wSSha4B5/A/tGnmtU1EsPPIJAsZWOiTy4xHMEQCIFSLRDrBp8qkS6cuqRzU0oM/UA6nh0p2g2fc0SOy6DKsAiA150WwIaFx7mnd0u6di5+wmqlIZe1hvJxbD9ChmQOp/wEBBCIAIAIDrLT9l3PUL4hRZevk5PkutmUqTNRkHwv0bU7ANVwxAQVxY1FnY1JnU2hoIQKp/0/gzlcHjGj/Ptg46f+A/cyIbt/CbwIBZxpg+zOYSSEC7OwQCsuJ8wSSha4B5/A/tGnmtU1EsPPIJAsZWOiTy4whAmNFGlLz065pGJaeHFzpNHQxhVeEge+BMDNq0XJrph3bU64AAQAWABT6q/JZyb5MO4Rs1Hp8Ma3jMNUk0gA=';

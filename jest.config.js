@@ -9,6 +9,9 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?@react-native|react-native|react-navigation|@react-native-community|@sentry/*)',
   ],
+  moduleNameMapper: {
+    '^uuid$': '<rootDir>/node_modules/uuid/dist/index.js',
+  },
   coveragePathIgnorePatterns: ['/node_modules/'],
   collectCoverageFrom: ['src/**/*.{js,ts,tsx}', 'class/**/*.{js,ts,tsx}', 'utils/**/*.{js,ts,tsx}'],
   // coverageThreshold: {
