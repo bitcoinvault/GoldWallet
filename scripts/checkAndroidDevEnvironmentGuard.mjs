@@ -51,6 +51,26 @@ const assertRejected = (label, environment, expectedError) => {
   }
 };
 
+const assertMissingFileRejected = (label, relativePath, expectedError) =>
+  assertRejected(
+    label,
+    {
+      ...validEnvironment,
+      existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== relativePath)),
+    },
+    expectedError,
+  );
+
+const assertMissingPackageScriptRejected = (label, scriptName) =>
+  assertRejected(
+    label,
+    {
+      ...validEnvironment,
+      packageScripts: new Set([...validEnvironment.packageScripts].filter(candidate => candidate !== scriptName)),
+    },
+    `package.json is missing ${scriptName}`,
+  );
+
 assertAccepted('Valid Android dev environment fixture', validEnvironment);
 
 assertRejected('Older JDK fixture', { ...validEnvironment, javaMajor: '11' }, 'requires JDK 17');
@@ -186,6 +206,23 @@ assertRejected(
   },
   'test/type coupling guard helper is missing',
 );
+assertMissingFileRejected('Missing camera candidate audit file fixture', 'scripts/auditCameraCandidates.mjs', 'camera candidate audit helper is missing');
+assertMissingFileRejected(
+  'Missing camera candidate summary guard file fixture',
+  'scripts/cameraCandidateSummaryGuard.mjs',
+  'camera candidate summary guard helper is missing',
+);
+assertMissingFileRejected(
+  'Missing camera candidate summary checker file fixture',
+  'scripts/checkCameraCandidateSummary.mjs',
+  'camera candidate summary artifact checker is missing',
+);
+assertMissingFileRejected(
+  'Missing camera candidate summary guard self-check file fixture',
+  'scripts/checkCameraCandidateSummaryGuard.mjs',
+  'camera candidate summary guard self-check helper is missing',
+);
+assertMissingFileRejected('Missing camera QR migration audit file fixture', 'scripts/auditCameraQrMigration.mjs', 'camera QR migration audit helper is missing');
 assertRejected(
   'Missing camera QR migration summary guard file fixture',
   {
@@ -210,6 +247,39 @@ assertRejected(
   },
   'camera QR migration summary guard self-check helper is missing',
 );
+assertMissingFileRejected('Missing masked-view migration audit file fixture', 'scripts/auditMaskedViewMigration.mjs', 'masked-view migration audit helper is missing');
+assertMissingFileRejected(
+  'Missing masked-view migration summary guard file fixture',
+  'scripts/maskedViewMigrationSummaryGuard.mjs',
+  'masked-view migration summary guard helper is missing',
+);
+assertMissingFileRejected(
+  'Missing masked-view migration summary checker file fixture',
+  'scripts/checkMaskedViewMigrationSummary.mjs',
+  'masked-view migration summary artifact checker is missing',
+);
+assertMissingFileRejected(
+  'Missing masked-view migration summary guard self-check file fixture',
+  'scripts/checkMaskedViewMigrationSummaryGuard.mjs',
+  'masked-view migration summary guard self-check helper is missing',
+);
+assertMissingFileRejected('Missing secure-storage migration audit file fixture', 'scripts/auditSecureStorageMigration.mjs', 'secure-storage migration audit helper is missing');
+assertMissingFileRejected(
+  'Missing secure-storage migration summary guard file fixture',
+  'scripts/secureStorageMigrationSummaryGuard.mjs',
+  'secure-storage migration summary guard helper is missing',
+);
+assertMissingFileRejected(
+  'Missing secure-storage migration summary checker file fixture',
+  'scripts/checkSecureStorageMigrationSummary.mjs',
+  'secure-storage migration summary artifact checker is missing',
+);
+assertMissingFileRejected(
+  'Missing secure-storage migration summary guard self-check file fixture',
+  'scripts/checkSecureStorageMigrationSummaryGuard.mjs',
+  'secure-storage migration summary guard self-check helper is missing',
+);
+assertMissingFileRejected('Missing Sentry Android warning audit file fixture', 'scripts/auditSentryAndroidWarning.mjs', 'Sentry Android warning audit helper is missing');
 assertRejected(
   'Missing Sentry Android warning summary guard file fixture',
   {
@@ -249,6 +319,21 @@ assertRejected(
     existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/checkAndroidWarningSourceSummariesGuard.mjs')),
   },
   'Android warning-source summary aggregate guard self-check helper is missing',
+);
+assertMissingFileRejected(
+  'Missing Android remaining-warning plan guard file fixture',
+  'scripts/androidRemainingWarningPlanGuard.mjs',
+  'Android remaining-warning plan guard helper is missing',
+);
+assertMissingFileRejected(
+  'Missing Android remaining-warning plan checker file fixture',
+  'scripts/checkAndroidRemainingWarningPlan.mjs',
+  'Android remaining-warning plan checker is missing',
+);
+assertMissingFileRejected(
+  'Missing Android remaining-warning plan guard self-check file fixture',
+  'scripts/checkAndroidRemainingWarningPlanGuard.mjs',
+  'Android remaining-warning plan guard self-check helper is missing',
 );
 assertRejected(
   'Missing Android warning audit summary checker file fixture',
@@ -596,6 +681,10 @@ assertRejected(
   },
   'package.json is missing check:test-type-coupling-guard',
 );
+assertMissingPackageScriptRejected('Missing camera candidate audit package script fixture', 'camera:candidate:audit');
+assertMissingPackageScriptRejected('Missing camera candidate summary package script fixture', 'camera:candidate:check-summary');
+assertMissingPackageScriptRejected('Missing camera candidate summary guard package script fixture', 'check:camera-candidate-summary-guard');
+assertMissingPackageScriptRejected('Missing camera QR migration audit package script fixture', 'camera:qr-migration:audit');
 assertRejected(
   'Missing camera QR migration summary package script fixture',
   {
@@ -612,6 +701,13 @@ assertRejected(
   },
   'package.json is missing check:camera-qr-migration-summary-guard',
 );
+assertMissingPackageScriptRejected('Missing masked-view migration audit package script fixture', 'masked-view:migration:audit');
+assertMissingPackageScriptRejected('Missing masked-view migration summary package script fixture', 'masked-view:migration:check-summary');
+assertMissingPackageScriptRejected('Missing masked-view migration summary guard package script fixture', 'check:masked-view-migration-summary-guard');
+assertMissingPackageScriptRejected('Missing secure-storage migration audit package script fixture', 'secure-storage:migration:audit');
+assertMissingPackageScriptRejected('Missing secure-storage migration summary package script fixture', 'secure-storage:migration:check-summary');
+assertMissingPackageScriptRejected('Missing secure-storage migration summary guard package script fixture', 'check:secure-storage-migration-summary-guard');
+assertMissingPackageScriptRejected('Missing Sentry Android warning audit package script fixture', 'sentry:android-warning:audit');
 assertRejected(
   'Missing Sentry Android warning summary package script fixture',
   {
@@ -644,6 +740,8 @@ assertRejected(
   },
   'package.json is missing check:android-warning-source-summaries-guard',
 );
+assertMissingPackageScriptRejected('Missing Android remaining-warning plan package script fixture', 'check:android-remaining-warning-plan');
+assertMissingPackageScriptRejected('Missing Android remaining-warning plan guard package script fixture', 'check:android-remaining-warning-plan-guard');
 assertRejected(
   'Missing Android warning audit summary package script fixture',
   {
