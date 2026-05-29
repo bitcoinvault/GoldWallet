@@ -41,7 +41,7 @@ Current stack:
 - Android compile SDK: `36`
 - Android target SDK: `36`
 - Android min SDK: `26`
-- Kotlin: `1.9.25`
+- Kotlin: `2.1.20`
 - NDK: `20.1.5948944`
 
 Observed incompatibilities:

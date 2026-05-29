@@ -9,7 +9,7 @@ Baseline refreshed on: 2026-05-29 after the RN `0.81.6` foundation checkpoint.
 
 Tracked package versions:
 
-- `@react-native-async-storage/async-storage`: manifest and lockfile `2.2.0`
+- `@react-native-async-storage/async-storage`: manifest and lockfile `3.1.1`
 - `@react-native-community/netinfo`: manifest and lockfile `12.0.1`
 - `react-native-device-info`: manifest and lockfile `15.0.2`
 - `react-native-config`: manifest and lockfile `1.6.1`
@@ -56,14 +56,15 @@ The guard verifies that `test:secure-storage:unit`, `test:storage`, `test:authen
 Latest package metadata checked during this audit:
 
 ```text
-@react-native-async-storage/async-storage latest: 3.1.0
+@react-native-async-storage/async-storage latest: 3.1.1
 peerDependencies:
 - react: *
 - react-native: *
 
-@react-native-async-storage/async-storage current installed line for RN 0.81.6 validation: 2.2.0
+@react-native-async-storage/async-storage current installed line for RN 0.81.6 validation: 3.1.1
 peerDependencies:
-- react-native: ^0.0.0-0 || >=0.65 <1.0
+- react: *
+- react-native: *
 
 @react-native-community/netinfo latest: 12.0.1
 peerDependencies:
@@ -116,7 +117,7 @@ peerDependencies:
 ## Findings
 
 - This group has high wallet risk because it touches persisted wallet data, encrypted storage, Electrum TLS sockets, env configuration, and terms WebViews.
-- `@react-native-async-storage/async-storage` is now on checked compatible `2.2.0` after `BEM-36.74`; the latest `3.1.0` remains a separate RN-baseline/storage validation branch.
+- `@react-native-async-storage/async-storage` is now on latest checked stable `3.1.1` after `BEM-37.169`; the app's storage tests pass after moving the Jest mock import to `@react-native-async-storage/async-storage/jest`.
 - `@react-native-community/netinfo` is now on latest checked stable `12.0.1` after `BEM-37.168`; it remains installed on the current RN `0.81.6` baseline and future NetInfo work should focus on Electrum/network behavior.
 - `react-native-config` is now on latest checked `1.6.1` after `BEM-37.167`; the earlier Android compile failure on older React Native Android APIs (`BaseReactPackage` / `WritableMap.putLong`) is resolved on the RN `0.81.6` baseline.
 - `react-native-device-info` is now on checked `15.0.2` after `BEM-37.109`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.

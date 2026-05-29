@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.169 - AsyncStorage latest recheck
+
+- Branch: `feature/bem-37-async-storage-latest-recheck`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update `@react-native-async-storage/async-storage` from `2.2.0` to latest stable `3.1.1`.
+- Keep app storage, Redux persist, language detection, and fee-cache call sites unchanged.
+- Update the Jest setup mock import for the package's new exported mock path.
+- Refresh native-module inventory, native-module upgrade plan, and storage/network audit references.
+
+Findings:
+
+- `npm view @react-native-async-storage/async-storage version dist-tags peerDependencies engines dependencies --json` reports `latest` as `3.1.1`.
+- `@react-native-async-storage/async-storage@3.1.1` declares broad React Native peer compatibility and adds `idb@8.0.3`.
+- The old Jest import `@react-native-async-storage/async-storage/jest/async-storage-mock` is no longer exported; tests now import `@react-native-async-storage/async-storage/jest`.
+- The first Android build attempt failed because AsyncStorage `3.1.1` requires Kotlin/KSP from the Kotlin `2.1.x` line; updating the root Android `kotlinVersion` from `1.9.25` to `2.1.20` resolved `:react-native-async-storage_async-storage:kspDebugKotlin`.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn test:storage`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn check:storage-network-validation-scripts`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- Targeted logcat check found `AsyncStorage_Next: Migration to Next storage completed` and BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443`, then `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no `AndroidRuntime`, fatal exception, ReferenceError, TypeError, or invariant violation was found.
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.168 - NetInfo latest recheck
 
 - Branch: `feature/bem-37-netinfo-latest-recheck`
