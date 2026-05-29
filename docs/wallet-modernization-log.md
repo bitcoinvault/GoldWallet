@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.192 - UUID type definitions audit
+
+- Branch: `feature/bem-37-types-uuid-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the direct UUID type-only dependency from `@types/uuid@9.0.8` to the highest TypeScript-5-compatible stub line, `@types/uuid@10.0.0`.
+- Keep runtime `uuid@9.0.1`, app call sites, Jest resolver mapping, native code, and Metro config unchanged.
+- Re-check that the app still uses the compatible CommonJS UUID runtime line while TypeScript accepts the existing `v4` imports.
+
+Findings:
+
+- `npm view @types/uuid version dist-tags deprecated dependencies peerDependencies --json` reports `latest` as `11.0.0`, but `ts5.4` resolves to `10.0.0`.
+- `@types/uuid@11.0.0` is a deprecated stub for newer UUID package lines; it is not a good target while runtime `uuid@9.0.1` remains the highest emulator-validated compatible line for this app baseline.
+- `@types/uuid@10.0.0` installs without pulling a nested runtime UUID package and keeps `uuid@9.0.1` unchanged.
+- Current UUID runtime usage remains scoped to `src/helpers/helpers.ts`, `src/state/toastMessages/actions.ts`, and `src/screens/CreateContactScreen.tsx`.
+
+Validation:
+
+- `npm view @types/uuid version dist-tags deprecated dependencies peerDependencies --json`
+- `npm view uuid@9.0.1 version types typings main exports engines --json`
+- `corepack yarn add --dev @types/uuid@10.0.0`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.191 - JSDOM type definitions update
 
 - Branch: `feature/bem-37-types-jsdom-update`
