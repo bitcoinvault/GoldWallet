@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.170 - PBKDF2 runtime update
+
+- Branch: `feature/bem-37-pbkdf2-runtime-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update runtime `pbkdf2` from the locked `3.1.2` install to latest stable `3.1.6`.
+- Keep wallet crypto, mnemonic, authenticator, native project, Metro, and rn-nodeify shim code unchanged.
+- Treat this as a runtime crypto dependency update because `pbkdf2` is part of the wallet key-derivation dependency surface.
+
+Findings:
+
+- `npm view pbkdf2 version dist-tags engines dependencies peerDependencies --json` reports `latest` as `3.1.6`.
+- `pbkdf2@3.1.6` keeps broad Node compatibility and updates transitive hash dependencies including `sha.js`, `ripemd160`, `hash-base`, and `to-buffer`.
+- `rn-nodeify` reapplied the existing browser field normalization for `pbkdf2`; the guarded shim check remained stable.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:authenticator`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- Targeted logcat check found BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443`, then `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no `AndroidRuntime`, fatal exception, ReferenceError, TypeError, or invariant violation was found.
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.169 - AsyncStorage latest recheck
 
 - Branch: `feature/bem-37-async-storage-latest-recheck`
