@@ -61,7 +61,7 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`CameraKit node engine must be >=18. Received: ${cameraKitNodeEngine || 'missing'}`);
   }
 
-  if (selectedProofTarget !== 'CameraKit selected; VisionCamera deferred because latest line requires Nitro peers') {
+  if (selectedProofTarget !== 'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers') {
     errors.push(`Selected proof target is unexpected. Received: ${selectedProofTarget || 'missing'}`);
   }
 
@@ -77,7 +77,7 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`Warnings count must be ${warningLines.length}. Received: ${warningCount || 'missing'}`);
   }
 
-  if (baselineStable === 'yes' && !requiredAction.includes('none; camera candidate baseline is stable')) {
+  if (baselineStable === 'yes' && !requiredAction.includes('none; CameraKit scanner baseline is stable')) {
     errors.push('Stable baseline summary must include the no-action camera candidate required action');
   }
 

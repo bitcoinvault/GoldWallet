@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.141 - Camera plan post-migration refresh
+
+- Branch: `feature/bem-37-camera-plan-post-migration-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the camera replacement plan after the CameraKit QR scanner migration.
+- Replace pre-migration wording with the current post-migration guard state.
+- Update camera candidate and QR migration audit summaries so they describe the CameraKit baseline as already installed and guarded.
+
+Findings:
+
+- `react-native-camera` is no longer in `package.json`; `react-native-camera-kit@18.0.0` is the installed scanner package.
+- The active plan still described `feature/bem-37-camera-kit-qr-proof` as a proposed migration branch even though that proof is now the source of the current baseline.
+
+Validation:
+
+- `corepack yarn check:camera-candidate-summary-guard`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn check:camera-qr-migration-summary-guard`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:camera-usage-guard`
+- `corepack yarn check:camera-usage-scope`
+- `corepack yarn check:qr-scan-caller-guard`
+- `corepack yarn check:qr-scan-callers`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.140 - SVG QR RN 0.81 audit refresh
 
 - Branch: `feature/bem-37-svg-qr-rn081-audit-refresh`

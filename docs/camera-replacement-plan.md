@@ -11,10 +11,10 @@
 - `react-native-camera` has been removed from the runtime dependency list.
 - The latest legacy `react-native-camera` package checked on 2026-05-29 is still `4.2.1`, and it still does not solve the dependency-owned Android `jcenter()` warning cleanly.
 - `corepack yarn check:camera-usage-guard` verifies the camera usage guard fixtures.
-- `corepack yarn check:camera-usage-scope` guards the current runtime usage surface before the replacement work starts.
+- `corepack yarn check:camera-usage-scope` guards the current runtime usage surface after the CameraKit migration.
 - `corepack yarn check:qr-scan-caller-guard` verifies the caller-inventory guard fixtures.
-- `corepack yarn check:qr-scan-callers` guards the current QR scanner caller inventory before the replacement work starts.
-- `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state before the replacement branch starts, and writes `local-docs/camera-qr-migration-summary.txt`.
+- `corepack yarn check:qr-scan-callers` guards the current QR scanner caller inventory after the CameraKit migration.
+- `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, and writes `local-docs/camera-qr-migration-summary.txt`.
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
 
 ## Why Replace
@@ -31,7 +31,7 @@
 - Upstream docs describe barcode/QR scanning for both Android and iOS.
 - The modern API can scan only `qr-code`, which matches GoldWallet's current use.
 - Current latest package checked on 2026-05-28 is `react-native-vision-camera@5.0.11`.
-- Risk: the current latest line depends on the Nitro module stack (`react-native-nitro-modules` and `react-native-nitro-image`), so it should be aligned with the RN foundation upgrade path rather than attempted as a small RN `0.68.7` warning cleanup.
+- Risk: the current latest line depends on the Nitro module stack (`react-native-nitro-modules` and `react-native-nitro-image`), so it should be aligned with a future RN/native-module milestone rather than attempted as a small warning cleanup.
 - Highest checked v4 line is `react-native-vision-camera@4.7.3`; it still requires additional native/worklet dependencies and needs a proof build before selection.
 - Current choice: CameraKit selected for the first migration branch because it avoids the Nitro peer dependency stack on the current RN foundation.
 
@@ -49,20 +49,19 @@
 - It would not reduce the real migration risk.
 - It would have to be maintained across installs unless patch-package or a fork is introduced.
 
-## Proposed Migration Branch
+## Completed Migration Branch
 
 Branch: `feature/bem-37-camera-kit-qr-proof`
 
 Scope:
 
-- Install CameraKit, build Android, and open the scanner before treating the migration as complete.
-- Replace `ScanQrCodeScreen` camera implementation.
-- Preserve the existing navigation contract: `route.params.onBarCodeScan(data)`.
-- Preserve all current scanner entry points guarded by `check:qr-scan-callers`.
-- Preserve the duplicate-scan guard.
-- Preserve the close button and crosshair overlay.
-- Keep scan formats limited to QR codes.
-- Remove `react-native-camera` from `package.json`, lockfile, and Android Gradle flavor strategy; refresh iOS pods on a Mac before claiming iOS validation.
+- Installed CameraKit, built Android, and moved the scanner implementation to `react-native-camera-kit`.
+- Replaced `ScanQrCodeScreen` camera implementation while preserving `route.params.onBarCodeScan(data)`.
+- Preserved all current scanner entry points guarded by `check:qr-scan-callers`.
+- Preserved the duplicate-scan guard.
+- Preserved the close button and crosshair overlay.
+- Kept scan formats limited to QR codes.
+- Removed `react-native-camera` from `package.json`, lockfile, and Android Gradle flavor strategy; refresh iOS pods on a Mac before claiming iOS validation.
 
 ## Validation Plan
 

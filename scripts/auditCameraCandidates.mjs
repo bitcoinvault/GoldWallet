@@ -52,7 +52,7 @@ export const collectCameraCandidateAudit = () => {
     visionCameraNitroPeers: true,
     cameraKitLatest: 'react-native-camera-kit@18.0.0',
     cameraKitNodeEngine: '>=18',
-    selectedProofTarget: 'CameraKit selected; VisionCamera deferred because latest line requires Nitro peers',
+    selectedProofTarget: 'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers',
     proofBranch: 'feature/bem-37-camera-kit-qr-proof',
     warnings,
     errors,
@@ -80,8 +80,8 @@ export const formatCameraCandidateSummary = (audit, generatedAt = new Date().toI
   audit.errors.forEach(error => lines.push(`- ${error}`));
   lines.push(
     audit.baselineStable
-      ? 'Required action: none; camera candidate baseline is stable for a dedicated scanner proof branch.'
-      : 'Required action: restore camera candidate baseline before starting scanner proof work.',
+      ? 'Required action: none; CameraKit scanner baseline is stable after the dedicated proof branch.'
+      : 'Required action: restore camera candidate baseline before scanner follow-up work.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -105,7 +105,7 @@ const printReport = audit => {
     return;
   }
 
-  console.log('Camera candidate baseline is stable for a dedicated scanner proof branch.');
+  console.log('Camera candidate baseline is stable after the dedicated scanner proof branch.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
