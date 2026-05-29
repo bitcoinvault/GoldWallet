@@ -17,7 +17,7 @@
     "@react-native/metro-config": "0.81.6",
     "@react-native/typescript-config": "0.81.6",
     "@types/bigi": "1.4.5",
-    "@types/crypto-js": "^3.1.47",
+    "@types/crypto-js": "4.2.2",
     "@types/ecurve": "1.0.3",
     "@types/jest": "29.5.14",
     "@types/jsdom": "^16.2.13",

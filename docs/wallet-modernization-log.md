@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.190 - CryptoJS type definitions update
+
+- Branch: `feature/bem-37-types-crypto-js-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the direct type-only CryptoJS dependency from `@types/crypto-js@3.1.47` to latest stable `@types/crypto-js@4.2.2`.
+- Keep runtime `crypto-js@3.1.9-1`, wallet source code, native code, Metro config, and app bundle behavior unchanged.
+- Validate the typed hash/AES usages used by secure storage, wallet ID hashing, and notification PIN decode helpers.
+
+Findings:
+
+- `npm view @types/crypto-js version dist-tags engines dependencies peerDependencies --json` reports stable `latest` as `4.2.2`, including a `ts5.4` dist-tag for the current TypeScript baseline.
+- The package has no runtime dependencies and does not alter the app bundle.
+- Current runtime usage remains scoped to `sha256(...)` in secure storage and wallet helpers plus `CryptoJS.SHA256`, `enc.Hex`, `enc.Base64`, and `AES.decrypt(...)` in `src/helpers/decode.ts`.
+- TypeScript accepts the existing imports and call sites with the updated definitions.
+
+Validation:
+
+- `npm view @types/crypto-js version dist-tags engines dependencies peerDependencies --json`
+- `corepack yarn add --dev @types/crypto-js@4.2.2`
+- CryptoJS runtime probe: `sha256(...)`, `CryptoJS.SHA256(...)`, and `CryptoJS.enc.Hex.parse(...)`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:secure-storage:unit`
+- `corepack yarn test:unit`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.189 - Lodash latest runtime update rejected
 
 - Branch: `feature/bem-37-lodash-runtime-update`
