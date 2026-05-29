@@ -118,6 +118,7 @@ peerDependencies:
 - `react-native-device-info` is now on checked `15.0.2` after `BEM-37.109`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-secure-key-store` is now pinned to latest checked `2.0.10` after `BEM-36.63`; it should not be changed unless replacing the package entirely.
+- `corepack yarn secure-storage:migration:audit` keeps the current PIN and transaction-password storage surface explicit before any replacement branch starts.
 - `react-native-webview` is now pinned to the already-resolved `11.26.1` after `BEM-36.64`; the latest 13.x line remains a separate WebView/Terms validation branch.
 - `react-native-tcp-socket` is on latest `6.4.1`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
 - Future config/env changes must preserve all current env variables used in `src/config/index.ts`.
