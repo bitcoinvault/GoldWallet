@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.122 - Android verify runs environment audit
+
+- Branch: `feature/bem-37-env-audit-in-android-verify`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:env-audit` to the start of `android:dev:verify`.
+- Add `android:dev:env-audit` to the start of `android:dev:audit-smoke`.
+- Extend the Android dev environment guard so those workflow scripts must keep the environment audit step.
+- Update Android workflow and baseline docs for the stronger verification command behavior.
+
+Why:
+
+- After SDK 36, the high-confidence Android validation commands should fail fast when JDK 17, adb, `platforms;android-36`, or `build-tools;36.0.0` is missing.
+- This avoids spending time in Gradle or emulator smoke before the local toolchain has been proven ready.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard`
+- With `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10`, `ANDROID_SDK_ROOT`, and `ANDROID_HOME` set, `corepack yarn android:dev:env-audit` passed.
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn typescript:check`
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:verify`
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-smoke`
+
+Result:
+
+- `android:dev:verify` now fails fast on environment/toolchain problems before building the dev APK.
+- `android:dev:audit-smoke` now fails fast on environment/toolchain problems before running the Gradle warning audit.
+- Both updated workflows passed on `emulator-5554`; the latest smoke rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, with no fatal AndroidRuntime or React Native runtime logcat findings.
+
 ### BEM-37.121 - SDK 36 environment audit guard
 
 - Branch: `feature/bem-37-sdk36-env-audit`

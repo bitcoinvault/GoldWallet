@@ -500,6 +500,17 @@ assertRejected(
   'package.json is missing android:dev:verify',
 );
 assertRejected(
+  'Dev verification missing env audit fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:verify', 'yarn android:dev:assemble && yarn android:dev:smoke && yarn android:dev:check-smoke-summary'],
+    ]),
+  },
+  'package.json script android:dev:verify must include android:dev:env-audit',
+);
+assertRejected(
   'Dev verification missing assemble fixture',
   {
     ...validEnvironment,
@@ -531,6 +542,17 @@ assertRejected(
     ]),
   },
   'package.json script android:dev:verify must include android:dev:check-smoke-summary',
+);
+assertRejected(
+  'Audit-smoke missing env audit fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:audit-smoke', 'yarn android:dev:audit-warnings && yarn android:dev:smoke && yarn android:dev:check-artifacts'],
+    ]),
+  },
+  'package.json script android:dev:audit-smoke must include android:dev:env-audit',
 );
 assertRejected(
   'Audit-smoke missing warning audit fixture',
