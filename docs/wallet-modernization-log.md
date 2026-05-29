@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.133 - Secure-storage legacy removal readiness guard
+
+- Branch: `feature/bem-37-secure-storage-removal-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the secure-storage migration audit summary with explicit legacy-removal readiness.
+- Guard that `react-native-secure-key-store` removal remains blocked while dual-write and legacy fallback behavior are active.
+- Update the secure-storage migration plan so the remaining Android warning cannot be treated as a warning-only cleanup.
+
+Findings:
+
+- `react-native-secure-key-store` remains the only targeted Android warning source, but it still protects legacy PIN and transaction-password reads during the migration window.
+- Legacy secure-storage removal is not ready until a later release-validation branch proves migrated data without the legacy backend.
+
+Validation:
+
+- `corepack yarn check:secure-storage-migration-summary-guard`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn test:secure-storage:unit`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.132 - RN 0.81 Android warning baseline wording
 
 - Branch: `feature/bem-37-rn081-warning-baseline`

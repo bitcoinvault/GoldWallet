@@ -34,6 +34,8 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
   const focusedValidation = getLineValue(summary, 'Focused validation script');
   const focusedValidationCommand = getLineValue(summary, 'Focused validation command');
   const warningBaselineMentionsSecureStorage = getLineValue(summary, 'Warning baseline mentions secure-key-store');
+  const legacyRemovalReady = getLineValue(summary, 'Legacy secure-storage removal ready');
+  const legacyRemovalBlocker = getLineValue(summary, 'Legacy secure-storage removal blocker');
   const baselineStable = getLineValue(summary, 'Secure-storage migration baseline stable');
   const warningCount = getLineValue(summary, 'Warnings');
   const warningLines = getBulletLinesAfter(summary, 'Warnings');
@@ -63,6 +65,7 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
     ['Stores PIN', storesPin],
     ['Stores transaction password hash', storesTransactionPassword],
     ['Warning baseline mentions secure-key-store', warningBaselineMentionsSecureStorage],
+    ['Legacy secure-storage removal ready', legacyRemovalReady],
     ['Secure-storage migration baseline stable', baselineStable],
   ].forEach(([label, value]) => {
     if (!['yes', 'no'].includes(value || '')) {
@@ -83,6 +86,14 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
 
   if (Number(warningCount) !== warningLines.length) {
     errors.push(`Warnings count must be ${warningLines.length}. Received: ${warningCount || 'missing'}`);
+  }
+
+  if (legacyRemovalReady !== 'no') {
+    errors.push(`Legacy secure-storage removal must stay blocked during the dual-write fallback window. Received: ${legacyRemovalReady || 'missing'}`);
+  }
+
+  if (!legacyRemovalBlocker.includes('dual-write and legacy fallback are still active')) {
+    errors.push('Legacy secure-storage removal blocker must mention the active dual-write and legacy fallback window');
   }
 
   if (baselineStable === 'yes' && !requiredAction.includes('none; secure-storage migration baseline is stable')) {

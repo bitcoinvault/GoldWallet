@@ -98,6 +98,9 @@ export const collectSecureStorageMigrationAudit = () => {
     focusedValidation: 'test:storage-network:focused',
     focusedValidationCommand: scripts['test:storage-network:focused'] || '<missing>',
     warningBaselineMentionsSecureStorage: warningBaseline.includes('react-native-secure-key-store'),
+    legacyRemovalReady: false,
+    legacyRemovalBlocker:
+      'dual-write and legacy fallback are still active; remove react-native-secure-key-store only after a release validates migrated PIN and transaction-password data',
     errors,
     warnings,
     baselineStable: errors.length === 0,
@@ -117,6 +120,8 @@ export const formatSecureStorageMigrationSummary = (audit, generatedAt = new Dat
     `Focused validation script: ${audit.focusedValidation}`,
     `Focused validation command: ${audit.focusedValidationCommand}`,
     `Warning baseline mentions secure-key-store: ${audit.warningBaselineMentionsSecureStorage ? 'yes' : 'no'}`,
+    `Legacy secure-storage removal ready: ${audit.legacyRemovalReady ? 'yes' : 'no'}`,
+    `Legacy secure-storage removal blocker: ${audit.legacyRemovalBlocker}`,
     `Secure-storage migration baseline stable: ${audit.baselineStable ? 'yes' : 'no'}`,
     `Warnings: ${audit.warnings.length}`,
   ];
