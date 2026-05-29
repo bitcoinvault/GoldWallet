@@ -2311,10 +2311,10 @@
   dependencies:
     invariant "^2.2.4"
 
-"@react-native-community/slider@2.0.0-rc.1":
-  version "2.0.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-2.0.0-rc.1.tgz#78ac885550bf88b10be7dcd983d0a270c336452e"
-  integrity sha512-hdqQavGovI5M9NjCj4q4SPXyYOEHpBGXLIHBFETyL0S/B96hb09MXZAhOxsPYYs8KamYSKh2IYKwZ8yEiikNSg==
+"@react-native-community/slider@5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-5.2.0.tgz#c154ac4ec10537160462d7a9f3e2e43098257302"
+  integrity sha512-484sH8aWEaSjxaZ7HT3YZ8CKDcNes2synko1vdEz5DFEdvKAduxKJTj22L/qBMD7rtIkfbX69DMzWDAGbOAV6w==
 
 "@react-native-community/toolbar-android@0.2.1":
   version "0.2.1"

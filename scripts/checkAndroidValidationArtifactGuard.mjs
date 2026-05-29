@@ -1,11 +1,9 @@
 import { getWarningSummarySourceErrors } from './androidValidationArtifactsGuard.mjs';
 
 const validSummary = [
-  'Targeted Android Gradle warnings: 8',
+  'Targeted Android Gradle warnings: 6',
   'Unexpected targeted Android Gradle warnings: 0',
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
-  String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\slider\android\build.gradle:4)`,
-  String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\slider\android\build.gradle:34)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-camera\android\build.gradle:59)`,
   String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\toolbar-android\android\build.gradle:5)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-vector-icons\android\build.gradle:41)`,
@@ -19,11 +17,9 @@ const zeroWarningSummary = [
 ].join('\n');
 
 const mismatchedCountSummary = [
-  'Targeted Android Gradle warnings: 7',
+  'Targeted Android Gradle warnings: 5',
   'Unexpected targeted Android Gradle warnings: 0',
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
-  String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\slider\android\build.gradle:4)`,
-  String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\slider\android\build.gradle:34)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-camera\android\build.gradle:59)`,
   String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\toolbar-android\android\build.gradle:5)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-vector-icons\android\build.gradle:41)`,
