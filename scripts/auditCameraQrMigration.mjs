@@ -30,12 +30,17 @@ export const collectCameraQrMigrationAudit = () => {
   const readinessIssues = [];
   const warnings = [];
   const cameraVersion = dependencies['react-native-camera'];
+  const cameraKitVersion = dependencies['react-native-camera-kit'];
   const localQrImageVersion = dependencies['@remobile/react-native-qrcode-local-image'];
   const qrRendererVersion = dependencies['react-native-qrcode-svg'];
   const rootQrcodeVersion = (packageJson.resolutions || {}).qrcode;
 
-  if (cameraVersion !== '^3.33.0') {
-    readinessIssues.push(`package.json has react-native-camera@${cameraVersion || '<missing>'}; expected the current legacy baseline ^3.33.0`);
+  if (cameraVersion) {
+    readinessIssues.push(`package.json still has react-native-camera@${cameraVersion}; expected removal after CameraKit QR migration`);
+  }
+
+  if (cameraKitVersion !== '18.0.0') {
+    readinessIssues.push(`package.json has react-native-camera-kit@${cameraKitVersion || '<missing>'}; expected 18.0.0`);
   }
 
   if (localQrImageVersion !== '1.0.4') {
@@ -61,35 +66,35 @@ export const collectCameraQrMigrationAudit = () => {
   const warningBaseline = requireFile(errors, 'local-docs/android-warning-audit-summary.txt');
   const iosInfoPlists = ['ios/GoldWallet/Info.plist', 'ios/GoldWalletDev-Info.plist', 'ios/GoldWalletStage-Info.plist'];
 
-  requireSnippet(errors, 'android/app/build.gradle', androidAppGradle, "missingDimensionStrategy 'react-native-camera', 'general'");
+  if (androidAppGradle.includes("missingDimensionStrategy 'react-native-camera', 'general'")) {
+    errors.push("android/app/build.gradle still contains missingDimensionStrategy 'react-native-camera', 'general'");
+  }
+
   requireSnippet(errors, 'AndroidManifest.xml', androidManifest, 'android.permission.CAMERA');
-  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, "from 'react-native-camera'");
-  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'BarCodeReadEvent');
-  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'RNCamera');
-  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'onBarCodeRead={this.onBarCodeScanned}');
-  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}');
-  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'onBarCodeScan(event.data)');
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, "from 'react-native-camera-kit'");
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'PermissionsAndroid.request');
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'scanBarcode');
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, "allowedBarcodeTypes={['qr']}");
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'onReadCode={this.onBarCodeScanned}');
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'onBarCodeScan(data)');
   requireSnippet(errors, 'react-native.config.js', reactNativeConfig, "'@remobile/react-native-qrcode-local-image'");
   requireSnippet(errors, 'react-native.config.js', reactNativeConfig, 'android: null');
-  requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'Branch: `feature/bem-camera-qr-scanner-migration`');
+  requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'Branch: `feature/bem-37-camera-kit-qr-proof`');
   requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'VisionCamera');
-  requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'react-native-camera` still contains `jcenter()`');
-  requireSnippet(errors, 'docs/native-module-upgrade-plan.md', nativeModulePlan, 'Replace `react-native-camera` only in the dedicated QR scanner migration branch.');
+  requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'Current scanner package: `react-native-camera-kit@18.0.0`');
+  requireSnippet(errors, 'docs/native-module-upgrade-plan.md', nativeModulePlan, '`react-native-camera-kit` -> `18.0.0`');
 
   iosInfoPlists.forEach(relativePath => {
     requireSnippet(errors, relativePath, requireFile(errors, relativePath), 'NSCameraUsageDescription');
   });
 
-  if (warningBaseline && !warningBaseline.includes('react-native-camera') && !warningBaseline.includes('Targeted Android Gradle warnings: 0')) {
-    warnings.push('local Android warning audit summary does not mention react-native-camera or a zero-warning target state; refresh the warning audit before migration.');
-  }
-
-  if (cameraVersion) {
-    warnings.push('react-native-camera remains installed and deprecated; this audit is a readiness check, not the migration itself.');
+  if (warningBaseline && /react-native-camera[\\/]android/.test(warningBaseline)) {
+    warnings.push('local Android warning audit summary still mentions react-native-camera; refresh the warning audit after migration.');
   }
 
   return {
     cameraVersion,
+    cameraKitVersion,
     qrRendererVersion,
     rootQrcodeVersion,
     errors,
@@ -104,6 +109,7 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
     'Camera QR migration audit',
     `Generated at: ${generatedAt}`,
     `react-native-camera manifest version: ${audit.cameraVersion || '<missing>'}`,
+    `react-native-camera-kit manifest version: ${audit.cameraKitVersion || '<missing>'}`,
     `QR renderer version: ${audit.qrRendererVersion || '<missing>'}`,
     `qrcode resolution: ${audit.rootQrcodeVersion || '<missing>'}`,
     `Camera QR migration wiring valid: ${audit.errors.length === 0 ? 'yes' : 'no'}`,
@@ -128,6 +134,7 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
 const printReport = audit => {
   console.log('Camera QR migration audit');
   console.log(`react-native-camera manifest version: ${audit.cameraVersion || '<missing>'}`);
+  console.log(`react-native-camera-kit manifest version: ${audit.cameraKitVersion || '<missing>'}`);
   console.log(`QR render pair: react-native-qrcode-svg@${audit.qrRendererVersion || '<missing>'}, qrcode resolution ${audit.rootQrcodeVersion || '<missing>'}`);
 
   if (audit.warnings.length > 0) {

@@ -6,7 +6,7 @@ import {
 
 const expectedDependencies = Object.fromEntries(expectedNativeModuleDependencies);
 const missingDependencyFixture = { ...expectedDependencies };
-delete missingDependencyFixture['react-native-camera'];
+delete missingDependencyFixture['react-native-camera-kit'];
 
 const changedDependencyFixture = {
   ...expectedDependencies,

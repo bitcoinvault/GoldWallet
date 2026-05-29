@@ -1,8 +1,17 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
-import { Image, View, TouchableOpacity, StatusBar, StyleSheet, Dimensions } from 'react-native';
-import { BarCodeReadEvent, RNCamera } from 'react-native-camera';
+import {
+  Dimensions,
+  Image,
+  PermissionsAndroid,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Camera, CameraType } from 'react-native-camera-kit';
 
 import { images } from 'app/assets';
 import { Route, RootStackParams } from 'app/consts';
@@ -16,15 +25,41 @@ interface Props {
   route: RouteProp<RootStackParams, Route.ScanQrCode>;
 }
 
-export default class ScanQrCodeScreen extends React.PureComponent<Props> {
+interface State {
+  hasCameraPermission: boolean;
+  isBarcodeRead: boolean;
+}
+
+interface QrCodeReadEvent {
+  nativeEvent: {
+    codeStringValue: string;
+  };
+}
+
+export default class ScanQrCodeScreen extends React.PureComponent<Props, State> {
   state = {
+    hasCameraPermission: Platform.OS !== 'android',
     isBarcodeRead: false,
   };
 
+  componentDidMount() {
+    if (Platform.OS === 'android') {
+      PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
+        title: i18n.scanQrCode.permissionTitle,
+        message: i18n.scanQrCode.permissionMessage,
+        buttonPositive: i18n.scanQrCode.ok,
+        buttonNegative: i18n.scanQrCode.cancel,
+      }).then(result => {
+        this.setState({ hasCameraPermission: result === PermissionsAndroid.RESULTS.GRANTED });
+      });
+    }
+  }
+
   goBack = () => this.props.navigation.goBack();
 
-  onBarCodeScanned = (event: BarCodeReadEvent) => {
+  onBarCodeScanned = (event: QrCodeReadEvent) => {
     const { onBarCodeScan } = this.props.route.params;
+    const data = event.nativeEvent.codeStringValue;
 
     // Prevents multiple scans in one second
     if (this.state.isBarcodeRead) {
@@ -33,9 +68,9 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props> {
 
     this.setState({ isBarcodeRead: true });
 
-    if (event.data) {
+    if (data) {
       this.goBack();
-      onBarCodeScan(event.data);
+      onBarCodeScan(data);
     }
   };
 
@@ -44,18 +79,15 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props> {
       <View style={{ flex: 1 }}>
         <>
           <StatusBar hidden />
-          <RNCamera
-            captureAudio={false}
-            androidCameraPermissionOptions={{
-              title: i18n.scanQrCode.permissionTitle,
-              message: i18n.scanQrCode.permissionMessage,
-              buttonPositive: i18n.scanQrCode.ok,
-              buttonNegative: i18n.scanQrCode.cancel,
-            }}
-            style={{ flex: 1, justifyContent: 'space-between' }}
-            onBarCodeRead={this.onBarCodeScanned}
-            barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
-          />
+          {this.state.hasCameraPermission && (
+            <Camera
+              cameraType={CameraType.Back}
+              scanBarcode
+              allowedBarcodeTypes={['qr']}
+              style={{ flex: 1, justifyContent: 'space-between' }}
+              onReadCode={this.onBarCodeScanned}
+            />
+          )}
           <View style={styles.crosshairContainer}>
             <Image style={styles.crosshair} source={images.scanQRcrosshair} />
           </View>

@@ -1,21 +1,22 @@
-export const expectedCameraUsageFiles = new Set(['src/screens/ScanQrCodeScreen.tsx']);
+export const expectedCameraKitUsageFiles = new Set(['src/screens/ScanQrCodeScreen.tsx']);
+export const expectedCameraUsageFiles = expectedCameraKitUsageFiles;
 
 export const getCameraUsageScopeErrors = usageFiles => {
   const usageSet = usageFiles instanceof Set ? usageFiles : new Set(usageFiles);
-  const missingUsage = [...expectedCameraUsageFiles].filter(filePath => !usageSet.has(filePath));
-  const unexpectedUsage = [...usageSet].filter(filePath => !expectedCameraUsageFiles.has(filePath));
+  const missingUsage = [...expectedCameraKitUsageFiles].filter(filePath => !usageSet.has(filePath));
+  const unexpectedUsage = [...usageSet].filter(filePath => !expectedCameraKitUsageFiles.has(filePath));
   const errors = [];
 
   if (unexpectedUsage.length > 0) {
     errors.push({
-      label: 'Unexpected react-native-camera runtime usage found',
+      label: 'Unexpected react-native-camera-kit runtime usage found',
       files: unexpectedUsage,
     });
   }
 
   if (missingUsage.length > 0) {
     errors.push({
-      label: 'Expected react-native-camera runtime usage is missing',
+      label: 'Expected react-native-camera-kit runtime usage is missing',
       files: missingUsage,
     });
   }

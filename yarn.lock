@@ -9668,12 +9668,10 @@ react-native-calendars@^1.265.0:
   optionalDependencies:
     moment "^2.24.0"
 
-react-native-camera@^3.33.0:
-  version "3.44.3"
-  resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-3.44.3.tgz#f8f35f2484e508b0694dee54a8801a1e0833d851"
-  integrity sha512-Efb5aKhFsE7qnqvTnbSEwFAom79L5BT4jMn+B2wYVUnZeRgWh45gNSG7Ou3MQ6zU2DpUHBPlBFKGVS5yOSfSZQ==
-  dependencies:
-    prop-types "^15.6.2"
+react-native-camera-kit@18.0.0:
+  version "18.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-camera-kit/-/react-native-camera-kit-18.0.0.tgz#77d419d4c67d382ee8b1e31d47c2b73d51f01efa"
+  integrity sha512-FZG9kB8GDGcxTUB2cGhBn2wexIgzevv+PE7zfpLz6i/9kltDCLO/fomLhFvSaQVL2Bnu8AtxbBiI8Im0O8AqDA==
 
 react-native-code-push@7.0.2:
   version "7.0.2"

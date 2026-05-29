@@ -4,11 +4,10 @@ const validPlan = [
   '| Package | Warning source | Follow-up |',
   '| --- | --- | --- |',
   '| `@react-native-community/masked-view` | `node_modules/@react-native-community/masked-view/android/build.gradle:47` | dedicated masked-view/navigation migration |',
-  '| `react-native-camera` | `node_modules/react-native-camera/android/build.gradle:59` | dedicated QR scanner replacement |',
   '| `react-native-secure-key-store` | `node_modules/react-native-secure-key-store/android/build.gradle:46` | dedicated secure-storage removal after dual-write migration |',
 ].join('\n');
 
-const invalidPlan = validPlan.replace('dedicated QR scanner replacement', 'generic cleanup');
+const invalidPlan = validPlan.replace('dedicated masked-view/navigation migration', 'generic cleanup');
 const resolvedPackagePlan = `${validPlan}\n| \`react-native-vector-icons\` | \`node_modules/react-native-vector-icons/android/build.gradle:41\` | already resolved |`;
 
 const assertAccepted = (label, plan) => {
@@ -32,7 +31,7 @@ const assertRejected = (label, plan, expectedError) => {
 };
 
 assertAccepted('Valid remaining warning plan', validPlan);
-assertRejected('Missing follow-up plan', invalidPlan, 'dedicated QR scanner replacement');
+assertRejected('Missing follow-up plan', invalidPlan, 'dedicated masked-view/navigation migration');
 assertRejected('Resolved package listed as remaining', resolvedPackagePlan, 'react-native-vector-icons');
 
 console.log('Android remaining warning plan guard checks are valid.');

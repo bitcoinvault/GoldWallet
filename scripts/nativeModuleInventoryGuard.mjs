@@ -14,7 +14,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-background-timer', '2.4.1'],
   ['react-native-biometrics', '3.0.1'],
   ['react-native-bootsplash', '3.2.7'],
-  ['react-native-camera', '^3.33.0'],
+  ['react-native-camera-kit', '18.0.0'],
   ['react-native-code-push', '7.0.2'],
   ['react-native-config', '1.5.9'],
   ['react-native-device-info', '15.0.2'],

@@ -16,7 +16,7 @@ React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use
 
 - Keep Metro/dev runtime on Node 22.
 - Use JDK 17 for Android build and smoke validation.
-- Keep `react-native-camera` replacement separate from small native module cleanup branches.
+- Keep scanner changes separate from small native module cleanup branches.
 - Keep Sentry SDK/release source-map changes separate from small native module cleanup branches.
 - Do not mix iOS Podfile/deployment-target work into Android-only native cleanup branches.
 - After any dependency update, run Metro with `--reset-cache` before emulator smoke.
@@ -142,7 +142,7 @@ Branch shape:
 
 ### Group E - Camera And QR Scanning
 
-- `react-native-camera` -> `^3.33.0`
+- `react-native-camera-kit` -> `18.0.0`
 - `@remobile/react-native-qrcode-local-image`
 - `react-native-qrcode-svg`
 
@@ -152,7 +152,7 @@ Risk:
 
 Branch shape:
 
-- Replace `react-native-camera` only in the dedicated QR scanner migration branch.
+- Keep `react-native-camera-kit` scanner usage scoped to the dedicated QR scanner screen.
 - Preserve all guarded QR scanner callers.
 - Run `corepack yarn camera:qr-migration:audit` before starting the replacement branch so the current permission/runtime/autolink baseline is explicit.
 - Validate Android/iOS camera permissions and QR scan behavior manually.
@@ -195,4 +195,4 @@ Release-service change:
 2. Use `docs/navigation-native-compatibility-audit.md` before changing `react-native-gesture-handler`, `react-native-screens`, or `react-native-safe-area-context`.
 3. Use `docs/storage-network-native-compatibility-audit.md` before changing storage, config, secure storage, socket, NetInfo, device-info, localization, randombytes, or WebView dependencies.
 4. Use `docs/release-services-native-compatibility-audit.md` before changing Firebase, push notification, CodePush, or Sentry release-service dependencies.
-5. Keep `react-native-camera` replacement for the dedicated QR scanner migration branch.
+5. Keep CameraKit scanner follow-up work scoped to the dedicated QR scanner screen.

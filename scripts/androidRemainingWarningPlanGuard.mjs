@@ -5,11 +5,6 @@ export const expectedRemainingWarningFollowups = [
     followUp: 'dedicated masked-view/navigation migration',
   },
   {
-    packageName: 'react-native-camera',
-    warningSource: 'node_modules/react-native-camera/android/build.gradle:59',
-    followUp: 'dedicated QR scanner replacement',
-  },
-  {
     packageName: 'react-native-secure-key-store',
     warningSource: 'node_modules/react-native-secure-key-store/android/build.gradle:46',
     followUp: 'dedicated secure-storage removal after dual-write migration',
@@ -39,6 +34,7 @@ export const getRemainingWarningPlanErrors = documentText => {
     'react-native-localize',
     'react-native-exit-app',
     'react-native-device-info',
+    'react-native-camera',
   ].forEach(
     packageName => {
       const unexpectedRowPrefix = `| \`${packageName}\` |`;
