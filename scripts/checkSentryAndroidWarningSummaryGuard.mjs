@@ -7,8 +7,9 @@ const validSummary = [
   'Sentry Gradle getProperties() references: 48, 376, 396',
   'Sentry Android warning wiring valid: yes',
   'Sentry Android warning baseline stable: yes',
-  'Warnings: 1',
-  '- Sentry remains on 5.36.0; removing the execResult warning safely requires a dedicated release/source-map validation branch.',
+  'Warnings: 2',
+  '- Latest Android warning audit does not report an active Sentry execResult warning after the RN 0.76 Gradle migration.',
+  '- Sentry remains on 5.36.0; release/source-map behavior still requires a dedicated validation branch before changing Sentry tooling.',
   'Readiness issues: 0',
   'Wiring errors: 0',
   'Required action: none; Sentry Android warning baseline is stable for a dedicated release/source-map cleanup branch.',
@@ -55,7 +56,7 @@ assertAccepted('Valid Sentry Android warning summary fixture', validSummary);
 assertAccepted('Invalid-baseline Sentry Android warning summary fixture', invalidSummary);
 assertRejected('Missing header fixture', validSummary.replace('Sentry Android warning audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
-assertRejected('Bad warning count fixture', validSummary.replace('Warnings: 1', 'Warnings: 0'), 'Warnings count');
+assertRejected('Bad warning count fixture', validSummary.replace('Warnings: 2', 'Warnings: 1'), 'Warnings count');
 assertRejected(
   'Missing required action fixture',
   invalidSummary.replace(

@@ -6789,3 +6789,31 @@ Validation:
 - `corepack yarn test:unit --runInBand`
 - `corepack yarn typescript:check`
 - `corepack yarn check:rn-nodeify-shims`
+
+### BEM-37.105 - RN 0.76 Android warning baseline refresh
+
+- Branch: `feature/bem-37-rn076-warning-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Android warning baseline after the RN `0.76` Android foundation and review fixes.
+- Remove active Sentry `execResult` from the Android warning baseline because the current JDK 17 warning audit no longer reports it.
+- Add the current RN `0.76` native-module `jcenter()` warning sources to the baseline guard and validation-summary guard fixtures.
+- Refresh Sentry warning audit messaging so it still guards Sentry Gradle/source-map wiring without claiming an active Sentry `execResult` warning.
+- Refresh workflow, release-service, Sentry, and baseline docs to reflect the current warning state.
+
+Findings:
+
+- `corepack yarn android:dev:audit-warnings` on JDK 17 reports `Targeted Android Gradle warnings: 10` and `Unexpected targeted Android Gradle warnings: 0`.
+- The active warning sources are `jcenter()` calls in `@react-native-community/masked-view`, `@react-native-community/slider` (two locations), `react-native-camera`, `@react-native-community/toolbar-android`, `react-native-localize`, `react-native-exit-app`, `react-native-vector-icons`, `react-native-device-info`, and `react-native-secure-key-store`.
+- The previous Sentry `execResult` warning is no longer an active targeted finding after the RN `0.76` Gradle migration and disabled CodePush legacy alias fix.
+- Sentry release/source-map behavior still needs a dedicated validation branch before any Sentry SDK/tooling upgrade.
+
+Validation:
+
+- `corepack yarn android:dev:check-warning-guard`
+- `corepack yarn android:dev:check-artifact-guard`
+- `corepack yarn check:sentry-android-warning-summary-guard`
+- `corepack yarn sentry:android-warning:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`

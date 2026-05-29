@@ -122,7 +122,7 @@ corepack yarn android:dev:audit-warnings
 
 The warning audit writes the full log to `local-docs/android-warning-audit.log`, writes the compact targeted summary to `local-docs/android-warning-audit-summary.txt`, and prints targeted warning sources. The compact summary includes a generated timestamp, the full log path, timeout, exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and remaining targeted sources. Set `ANDROID_WARNING_AUDIT_TIMEOUT_MS` to override the per-audit Gradle timeout. If the Gradle subprocess fails before producing output, the audit records the spawn error or signal in both artifacts.
 
-After running both warning audit and smoke, use the artifact checker for a quick consistency check. The checker accepts `0` targeted Android warning findings, because that is the desired future state after dependency cleanup. Until then, the audit allows only the known `@sentry/react-native` `execResult` and `react-native-camera` `jcenter()` sources; new targeted warning sources fail the guard. The artifact checker also verifies that the warning summary count matches the listed sources and that listed sources still pass the same baseline guard.
+After running both warning audit and smoke, use the artifact checker for a quick consistency check. The checker accepts `0` targeted Android warning findings, because that is the desired future state after dependency cleanup. Until then, the audit allows only the known RN `0.76` native-module `jcenter()` sources captured in `androidWarningBaselineGuard.mjs`; new targeted warning sources fail the guard. The artifact checker also verifies that the warning summary count matches the listed sources and that listed sources still pass the same baseline guard.
 
 ```powershell
 corepack yarn android:dev:check-artifacts
@@ -199,7 +199,7 @@ Smoke pass means:
 ## Known Limits
 
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
-- Removed Android warning sources: app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, and Biometrics `jcenter()`.
+- Removed Android warning sources: app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, and active Sentry `execResult`.
 - `react-native-camera` cleanup is a larger QR/camera migration, not a small warning cleanup.
-- Sentry `execResult` cleanup should be handled in a dedicated release/source-map validation branch.
-- The current warning baseline remains exactly two targeted sources: Sentry `execResult` and `react-native-camera` `jcenter()`.
+- Sentry release/source-map behavior still requires a dedicated validation branch even though the active Android warning audit no longer reports Sentry `execResult`.
+- The current RN `0.76` warning baseline remains exactly ten targeted `jcenter()` sources from old native modules: `@react-native-community/masked-view`, `@react-native-community/slider` (two locations), `react-native-camera`, `@react-native-community/toolbar-android`, `react-native-localize`, `react-native-exit-app`, `react-native-vector-icons`, `react-native-device-info`, and `react-native-secure-key-store`.
