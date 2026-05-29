@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.160 - React Native logs latest update
+
+- Branch: `feature/bem-37-react-native-logs-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-logs` from `3.0.4` to latest `5.6.0`.
+- Keep the app's public logger API unchanged: `error`, `info`, `warn`, and `captureException`.
+- Align the local development logger configuration with the v5 typed `consoleTransport` options.
+
+Findings:
+
+- `npm view react-native-logs version dist-tags --json` reports `latest` as `5.6.0`.
+- The app uses `react-native-logs` only through `logger/index.ts`.
+- Production logging already bypasses the package logger and writes Sentry breadcrumbs directly, so the v5 `sentryTransport` typing change does not affect production behavior.
+- The development logger continues to use `consoleTransport`, now with typed `colors` options instead of the old loose `color` option.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.159 - Toast message latest update
 
 - Branch: `feature/bem-37-toast-message-update`
