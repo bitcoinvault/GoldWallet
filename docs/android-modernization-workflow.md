@@ -115,7 +115,7 @@ $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 corepack yarn android:dev:verify
 ```
 
-`android:dev:verify` builds the dev APK, runs the emulator smoke helper, and validates the generated smoke summary artifact.
+`android:dev:verify` runs the Android environment audit, builds the dev APK, runs the emulator smoke helper, and validates the generated smoke summary artifact.
 
 For Android warning work:
 
@@ -163,6 +163,8 @@ To refresh the warning audit and emulator smoke artifacts in one pass:
 $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 corepack yarn android:dev:audit-smoke
 ```
+
+`android:dev:audit-smoke` runs the Android environment audit before the Gradle warning audit so missing JDK/SDK/adb setup fails before the heavier build work starts.
 
 ## Metro And Emulator Smoke
 
