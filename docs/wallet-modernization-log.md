@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.106 - React Native Exit App jcenter cleanup
+
+- Branch: `feature/bem-37-exit-app-jcenter-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-exit-app` from `1.1.0` to `2.0.0`.
+- Remove the package from the Android warning baseline because `2.0.0` no longer contributes an Android `jcenter()` warning.
+- Refresh the native module inventory and warning-summary guard fixtures for the new nine-warning RN `0.76` baseline.
+- Keep factory reset and terms rejection call sites unchanged.
+
+Why:
+
+- `react-native-exit-app@1.1.0` was one of the RN `0.76` Android warning sources because its Android Gradle file still declared `jcenter()`.
+- This is a small native dependency cleanup that removes one warning source without mixing in camera, Sentry, Firebase, or release-service changes.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed and reported `Targeted Android Gradle warnings: 9` with `Unexpected targeted Android Gradle warnings: 0`.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn android:dev:check-artifact-guard` passed.
+- `corepack yarn android:dev:check-warning-audit-summary` passed.
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn check:native-module-upgrade-plan` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with `--reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed; the dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive` with no fatal/runtime logcat findings.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- `git diff --check` passed.
+
 ### BEM-36.107 - Background timer types 2.0.2
 
 - Branch: `feature/bem-36-background-timer-types-2-0-2`
