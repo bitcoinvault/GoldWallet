@@ -58,8 +58,11 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'docs/storage-network-native-compatibility-audit.md', storageAudit, 'react-native-secure-key-store latest: 2.0.10');
   requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'dedicated secure-storage replacement');
 
-  if (scripts['test:storage-network:focused'] !== 'yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline') {
-    errors.push('test:storage-network:focused must keep storage, authenticator, and wallet-core offline checks grouped');
+  if (
+    scripts['test:storage-network:focused'] !==
+    'yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline'
+  ) {
+    errors.push('test:storage-network:focused must keep secure-storage, storage, authenticator, and wallet-core offline checks grouped');
   }
 
   if (!warningBaseline.includes('react-native-secure-key-store')) {

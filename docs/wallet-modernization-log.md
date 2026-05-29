@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.125 - Secure storage migration audit validation drift
+
+- Branch: `feature/bem-37-secure-storage-audit-validation-drift`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `secure-storage:migration:audit` so it accepts the new `test:storage-network:focused` sequence with `test:secure-storage:unit`.
+- Update Android modernization workflow docs so the Group C focused validation description includes the secure-storage unit contract.
+
+Why:
+
+- `BEM-37.124` added secure-storage contract coverage to the focused storage/network validation command, but the secure-storage migration audit still expected the previous aggregate script.
+- The migration audit should remain green before any later `react-native-secure-key-store` replacement branch starts.
+
+Validation:
+
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn check:secure-storage-migration-summary-guard`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- Emulator smoke not required: audit script and docs only; no runtime, dependency, native, or Metro behavior changed.
+
 ### BEM-37.124 - Secure storage focused validation
 
 - Branch: `feature/bem-37-secure-storage-focused-validation`
