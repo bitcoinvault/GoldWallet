@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.115 - Warning-source aggregate includes camera candidate summary
+
+- Branch: `feature/bem-37-warning-source-candidate-aggregate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the generated `camera:candidate:audit` summary to the aggregate Android warning-source summary checker.
+- Extend the aggregate checker self-guard so it fails if the camera candidate artifact is dropped from the warning-source readiness gate.
+- Refresh the Android workflow and baseline docs so the RN preflight wording matches the guarded camera candidate plus QR migration coverage.
+
+Why:
+
+- The camera replacement stream now has two separate checkpoints: candidate selection and QR scanner wiring.
+- The aggregate warning-source checker already covered QR migration, masked-view, secure-storage, and Sentry summaries; adding camera candidate coverage keeps the next camera proof branch from starting with stale candidate evidence.
+
+Validation:
+
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn check:android-warning-source-summaries-guard`
+- `corepack yarn android:dev:check-warning-source-summaries`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.114 - Camera candidate audit
 
 - Branch: `feature/bem-37-camera-candidate-audit`

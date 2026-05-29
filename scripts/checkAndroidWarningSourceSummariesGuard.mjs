@@ -8,10 +8,13 @@ const checkerPath = path.join(root, 'scripts', 'checkAndroidWarningSourceSummari
 const checkerSource = readFileSync(checkerPath, 'utf8');
 
 const requiredSnippets = [
+  "import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.mjs';",
   "import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';",
   "import { getMaskedViewMigrationSummaryErrors } from './maskedViewMigrationSummaryGuard.mjs';",
   "import { getSecureStorageMigrationSummaryErrors } from './secureStorageMigrationSummaryGuard.mjs';",
   "import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';",
+  "label: 'camera candidate'",
+  "relativePath: 'local-docs/camera-candidate-summary.txt'",
   "label: 'camera QR migration'",
   "relativePath: 'local-docs/camera-qr-migration-summary.txt'",
   "label: 'masked-view migration'",
