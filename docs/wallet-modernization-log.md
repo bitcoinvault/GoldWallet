@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.112 - Masked-view migration audit
+
+- Branch: `feature/bem-37-masked-view-migration-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/masked-view-migration-plan.md`.
+- Add `masked-view:migration:audit`, `masked-view:migration:check-summary`, and `check:masked-view-migration-summary-guard`.
+- Include the generated masked-view migration summary in the aggregate Android warning-source summary checker.
+- Include the masked-view migration summary guard in `android:dev:check-light`.
+
+Why:
+
+- `@react-native-community/masked-view` is one of the three remaining Android `jcenter()` warning sources.
+- The active `@react-navigation/stack@5.14.9` package still requires `@react-native-community/masked-view` at runtime, so a simple package swap would be a navigation/runtime change rather than a warning-only cleanup.
+- The replacement target `@react-native-masked-view/masked-view@0.3.2` should be handled in a dedicated navigation validation branch.
+
+Validation:
+
+- `corepack yarn check:masked-view-migration-summary-guard` passed.
+- `corepack yarn masked-view:migration:audit` passed.
+- `corepack yarn masked-view:migration:check-summary` passed.
+- `corepack yarn check:android-warning-source-summaries-guard` passed.
+- `corepack yarn android:dev:check-warning-source-summaries` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+
 ### BEM-37.111 - Android warning baseline follow-up guard
 
 - Branch: `feature/bem-37-warning-baseline-followups`
