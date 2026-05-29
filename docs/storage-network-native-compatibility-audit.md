@@ -18,7 +18,7 @@ Tracked package versions:
 - `react-native-keychain`: manifest and lockfile `10.0.0`
 - `react-native-secure-key-store`: manifest and lockfile `2.0.10`
 - `react-native-tcp-socket`: manifest and lockfile `6.4.1`
-- `react-native-webview`: manifest and lockfile `11.26.1`
+- `react-native-webview`: manifest and lockfile `13.16.1`
 
 Direct usage found in this audit:
 
@@ -124,7 +124,7 @@ peerDependencies:
 - `react-native-keychain@10.0.0` is installed as the new secure-storage backend, while `react-native-secure-key-store@2.0.10` remains temporarily for legacy fallback and dual-write migration.
 - `corepack yarn secure-storage:migration:audit` keeps the current PIN and transaction-password storage surface explicit before any replacement branch starts.
 - `tests/unit/SecureStorageService.test.js` locks the current wrapper contract for missing-value fallback, plain storage, hashed transaction-password storage, password verification, and value removal after replacing the native secure-storage package.
-- `react-native-webview` is now pinned to the already-resolved `11.26.1` after `BEM-36.64`; the latest 13.x line remains a separate WebView/Terms validation branch.
+- `react-native-webview` is now on latest checked `13.16.1` after `BEM-37.162`; future changes should focus on Terms screens validation, release builds, and the next RN baseline.
 - `react-native-tcp-socket` is on latest `6.4.1`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
 - Future config/env changes must preserve all current env variables used in `src/config/index.ts`.
 - AsyncStorage changes must keep Redux persist, `StoreService`, fee cache, and storage encryption tests green.

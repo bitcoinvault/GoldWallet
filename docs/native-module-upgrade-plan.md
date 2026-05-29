@@ -87,7 +87,7 @@ Branch shape:
 - `react-native-keychain` -> `10.0.0`
 - `react-native-tcp-socket` -> `6.4.1`
 - `react-native-version-number` -> `0.3.6`
-- `react-native-webview` -> `11.26.1`
+- `react-native-webview` -> `13.16.1`
 
 Risk:
 
@@ -111,7 +111,7 @@ Branch shape:
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 - `react-native-randombytes` is on latest checked `3.6.2` after `BEM-36.49`; future random-value work should be a dedicated crypto/runtime replacement branch for `react-native-get-random-values`, not another package bump.
 - `react-native-version-number` is pinned to the already-resolved `0.3.6` after `BEM-36.69`; future app metadata work should validate displayed/build version behavior on both platforms.
-- `react-native-webview` is pinned to the already-resolved `11.26.1` after `BEM-36.64`; future WebView work should be a dedicated major upgrade with Terms screens validation.
+- `react-native-webview` is on latest checked `13.16.1` after `BEM-37.162`; future WebView work should focus on Terms screens validation, release builds, and the next RN baseline.
 
 ### Group D - Notifications And Release Services
 
