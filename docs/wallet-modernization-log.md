@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.166 - Clipboard latest recheck
+
+- Branch: `feature/bem-37-clipboard-latest-recheck`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update `@react-native-clipboard/clipboard` from `1.11.2` to latest `1.16.3`.
+- Keep the existing `Clipboard.setString` call sites unchanged.
+- Refresh the native-module inventory and native-module upgrade plan references.
+
+Findings:
+
+- `npm view @react-native-clipboard/clipboard version dist-tags engines peerDependencies dependencies --json` reports `latest` as `1.16.3`.
+- `@react-native-clipboard/clipboard@1.16.3` declares `react-native >= 0.61.5`; the repo's RN `0.81.6` baseline satisfies that range.
+- Earlier `BEM-37.30` rejected `1.16.3` on an older baseline because of TypeScript syntax, but the current TypeScript/RN baseline now passes the package's definitions and Android autolinking.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.165 - Linear Gradient latest stable update
 
 - Branch: `feature/bem-37-linear-gradient-update`

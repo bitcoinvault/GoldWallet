@@ -25,7 +25,7 @@ React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use
 
 ### Group A - Already Stabilized In This Stream
 
-- `@react-native-clipboard/clipboard` -> `1.11.2`
+- `@react-native-clipboard/clipboard` -> `1.16.3`
 - `react-native-biometrics` -> `3.0.1`
 - `react-native-screens` -> `4.24.0`
 - `react-native-share` -> `12.3.1`
