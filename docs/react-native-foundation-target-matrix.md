@@ -29,8 +29,8 @@ Do not walk every RN minor version. Use milestone jumps and validate each one as
 
 - Target React Native: `0.81.6`
 - React peer: `^19.1.4`
-- `@types/react` peer: `^18.2.6`
-- Node engine: `>=18`
+- `@types/react` peer: `^19.1.4`
+- Node engine: `>=20.19.4`
 
 Status:
 

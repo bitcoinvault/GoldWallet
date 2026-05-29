@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.137 - RN 0.81 peer matrix refresh
+
+- Branch: `feature/bem-37-rn081-peer-matrix-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the RN foundation target matrix after the React 19 audit baseline refresh.
+- Align Milestone A with the local `react-native@0.81.6` peer metadata for `@types/react` and Node.
+- Tighten the foundation-plan audit so stale RN 0.76-era peer ranges cannot pass.
+
+Findings:
+
+- Local `node_modules/react-native/package.json` for `0.81.6` declares React peer `^19.1.4`, `@types/react` peer `^19.1.4`, and Node engine `>=20.19.4`.
+- The matrix still listed the older `@types/react ^18.2.6` and Node `>=18` values.
+
+Validation:
+
+- `corepack yarn rn:076-foundation:audit`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn upgrade:strategy:audit`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.136 - React 19 audit baseline refresh
 
 - Branch: `feature/bem-37-react19-audit-refresh`
