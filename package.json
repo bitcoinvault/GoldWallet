@@ -22,7 +22,7 @@
     "@types/ecurve": "1.0.3",
     "@types/jest": "29.5.14",
     "@types/jsdom": "^16.2.13",
-    "@types/lodash": "4.14.202",
+    "@types/lodash": "4.17.24",
     "@types/pbkdf2": "3.1.2",
     "@types/react": "19.2.15",
     "@types/react-native-background-timer": "2.0.2",
