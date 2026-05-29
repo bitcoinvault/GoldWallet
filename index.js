@@ -27,6 +27,10 @@ const Main = require('./Main').default;
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
   '`new NativeEventEmitter()` was called with a non-null argument',
+  'without the required `addListener` method',
+  'without the required `removeListeners` method',
+  'The app is running using the Legacy Architecture',
+  'The native module for Flipper seems unavailable',
   'ViewPropTypes will be removed from React Native',
 ]);
 

@@ -1,6 +1,8 @@
-import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import React, { ComponentType } from 'react';
+import { View, StyleSheet } from 'react-native';
 import Modal from 'react-native-modal';
+
+const ReactNativeModal = (Modal as unknown) as ComponentType<any>;
 
 interface Props {
   show: boolean;
@@ -10,9 +12,9 @@ interface Props {
 export const CustomModal = ({ show, children }: Props) => {
   return (
     <View style={styles.container}>
-      <Modal isVisible={show}>
+      <ReactNativeModal isVisible={show}>
         <View style={styles.wrapper}>{children}</View>
-      </Modal>
+      </ReactNativeModal>
     </View>
   );
 };

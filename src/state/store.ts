@@ -7,7 +7,7 @@ import { persistedReducer, ApplicationState, rootSaga } from '.';
 
 const sagaMiddleware = createSagaMiddleware();
 
-const middlewares: Middleware[] = [sagaMiddleware];
+const middlewares: Middleware[] = [sagaMiddleware as Middleware];
 
 function bindMiddleware(middleware: Middleware[]) {
   if (__DEV__) {

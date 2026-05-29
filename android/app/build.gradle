@@ -22,7 +22,7 @@ project.ext.envConfigFiles = [
 project.ext.react = [
     entryFile: "index.js",
     devDisabledInStaging: true,
-    enableHermes: false,
+    enableHermes: true,
     deleteDebugFilesForVariant: { false }
 ]
 
@@ -226,9 +226,7 @@ dependencies {
     }
 
     if (enableHermes) {
-        def hermesPath = "../../node_modules/hermes-engine/android/";
-        debugImplementation files(hermesPath + "hermes-debug.aar")
-        releaseImplementation files(hermesPath + "hermes-release.aar")
+        implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
     }

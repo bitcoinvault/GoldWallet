@@ -8,6 +8,7 @@ import {
   ViewStyle,
   View,
   NativeScrollEvent,
+  RefreshControlProps,
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -25,7 +26,7 @@ interface Props {
   footer?: React.ReactNode;
   statusBarStyle: StatusBarColor;
   contentContainer?: StyleProp<ViewStyle>;
-  refreshControl?: React.ReactElement;
+  refreshControl?: React.ReactElement<RefreshControlProps>;
   noScroll?: boolean;
   testID?: string;
   isCloseToBottom?: (nativeElement: NativeScrollEvent) => boolean;

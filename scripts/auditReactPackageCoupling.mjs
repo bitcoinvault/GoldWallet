@@ -8,11 +8,11 @@ const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
 export const expectedReactPackageCoupling = {
-  react: '18.2.0',
+  react: '19.1.4',
   reactTypes: '18.2.6',
   reactNativeTypes: '^0.63.37',
-  reactTestRenderer: '18.2.0',
-  targetReactPeer: '^19.2.3',
+  reactTestRenderer: '19.1.4',
+  targetReactPeer: '^19.1.4',
 };
 
 export const requiredReactPackageCouplingDocs = [
@@ -24,11 +24,11 @@ export const requiredReactPackageCouplingDocs = [
 
 export const requiredReactPackageCouplingSnippets = [
   ['docs/react-package-coupling-audit.md', 'React package coupling audit'],
-  ['docs/react-package-coupling-audit.md', 'Current React: `18.2.0`'],
+  ['docs/react-package-coupling-audit.md', 'Current React: `19.1.4`'],
   ['docs/react-package-coupling-audit.md', 'Current React types: `18.2.6`'],
   ['docs/react-package-coupling-audit.md', 'Current React Native types: `^0.63.37`'],
-  ['docs/react-package-coupling-audit.md', 'Current react-test-renderer: `18.2.0`'],
-  ['docs/react-package-coupling-audit.md', 'Target React peer from RN target snapshot: `^19.2.3`'],
+  ['docs/react-package-coupling-audit.md', 'Current react-test-renderer: `19.1.4`'],
+  ['docs/react-package-coupling-audit.md', 'Target React peer from RN target snapshot: `^19.1.4`'],
   ['docs/react-package-coupling-audit.md', 'Do not update React without updating `react-test-renderer` and `@types/react` in the same React/RN baseline branch.'],
   ['docs/react-package-coupling-audit.md', 'corepack yarn react:package-coupling:audit'],
   ['docs/react19-impact-audit.md', 'React package coupling audit is tracked in `docs/react-package-coupling-audit.md`'],

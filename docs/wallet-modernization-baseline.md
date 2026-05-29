@@ -16,13 +16,13 @@ All modernization work should be developed on focused task branches and merged i
 
 - App name/package: `goldwallet`
 - App version: `6.5.1`
-- React Native: `0.76.9`
-- React: `18.2.0`
+- React Native: `0.81.6`
+- React: `19.1.4`
 - TypeScript: `^4.0.3`
 - Jest: `26.6.3`
 - Detox: `18.20.1`
-- RN Babel preset: `0.76.9`
-- RN Metro config: `0.76.9`
+- RN Babel preset: `0.81.6`
+- RN Metro config: `0.81.6`
 - Hermes: disabled
 - JSC: `org.webkit:android-jsc:+`
 
@@ -52,11 +52,11 @@ Target direction:
 
 - Keep the current Metro/dev runtime aligned with `.nvmrc` and RN package engine requirements.
 - Use JDK 17 for local Android modernization work.
-- SDK 36 is now part of the RN 0.76/AGP 8.13 Android foundation baseline.
-- React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.76.9` toward a current supported line instead of walking every minor version or jumping blindly to latest.
+- SDK 36 is now part of the RN 0.81/AGP 8.13 Android foundation baseline.
+- React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.81.6` toward a current supported line instead of walking every minor version or jumping blindly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
-- RN `0.76.9` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; use `corepack yarn rn:076-foundation:audit` before changing RN packages.
-- The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- RN `0.81.6` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; use `corepack yarn rn:076-foundation:audit` before changing RN packages.
+- The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.1.4`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
 - React 19 impact audit is tracked in `docs/react19-impact-audit.md`; use it before changing React/RN package versions.
 - React package coupling audit is tracked in `docs/react-package-coupling-audit.md`; use it to keep React, renderer, and type packages moving together.
@@ -132,7 +132,7 @@ Passing:
 - `corepack yarn rn:target-snapshot:check-summary`
 - `corepack yarn rn:baseline:preflight`
 - `corepack yarn android:dev:check-light`
-- Metro dev runtime audit verifies the Node 22 `.nvmrc`, React Native `0.76.9`, RN Babel/Metro config packages, start script, and documentation baseline.
+- Metro dev runtime audit verifies the Node 22 `.nvmrc`, React Native `0.81.6`, RN Babel/Metro config packages, start script, and documentation baseline.
 - Android lightweight check runs the Android warning baseline guard, Android warning artifact guard, Android dev environment audit self-check, Metro dev runtime audit self-check, React Native upgrade path audit self-check, React Native upgrade path audit, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, QR render usage self-check/inventory guard, legacy Android autolink self-check/guard, Sentry usage self-check/inventory guard, Sentry release integration self-check/guard, CodePush usage self-check/inventory guard, Firebase usage self-check/inventory guard, iOS push notification usage self-check/inventory guard, release-service env key self-check/guard, Android env mapping self-check/guard, iOS scheme config self-check/guard, storage/network usage self-check/guard, storage/network validation script self-check/guard, native module inventory self-check/inventory guard, native module upgrade-plan self-check/coverage guard, RN nodeify shim self-check/inventory guard, modernization log ID guard self-check, modernization log ID guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
 - `corepack yarn prepush` starts with `android:dev:check-light` before promoted offline Jest suites.
 - `corepack yarn typescript:check`
@@ -144,14 +144,14 @@ Passing:
 - Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with generated timestamp, outcome, exit code, selected serial, Metro endpoint/reachability, app PID, logcat count, UI attempts, UI hierarchy path, screenshot path, and screenshot byte count
 - `corepack yarn android:dev:audit-warnings`
 - Android dev environment audit verifies the local Java range, adb access, Gradle wrappers, Android validation helper files, and RN upgrade path audit scripts before build/smoke work.
-- RN baseline preflight groups the current lightweight Android gate, Metro runtime audit, Node runtime transition audit, RN upgrade path audit, RN 0.76 foundation plan audit, target snapshot audit, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, camera candidate and QR migration audits with generated summary validation, Sentry warning/source-map readiness audits with generated Android-warning and prerequisite-summary validation, the aggregate warning-source summary checker, standalone Android warning-audit and smoke-summary checkers, Firebase release-service audit with generated summary validation, CodePush release-path audit with generated summary validation, push-notification bridge audit with generated summary validation, the aggregate release-services summary guard self-check, and the aggregate release-services summary checker covering both Sentry summary artifacts before larger React Native baseline branches.
+- RN baseline preflight groups the current lightweight Android gate, Metro runtime audit, Node runtime transition audit, RN upgrade path audit, RN 0.81 foundation plan audit, target snapshot audit, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, camera candidate and QR migration audits with generated summary validation, Sentry warning/source-map readiness audits with generated Android-warning and prerequisite-summary validation, the aggregate warning-source summary checker, standalone Android warning-audit and smoke-summary checkers, Firebase release-service audit with generated summary validation, CodePush release-path audit with generated summary validation, push-notification bridge audit with generated summary validation, the aggregate release-services summary guard self-check, and the aggregate release-services summary checker covering both Sentry summary artifacts before larger React Native baseline branches.
 - Android warning audit records generated timestamp, full log path, timeout, Gradle exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and subprocess spawn diagnostics
 - The latest refreshed Android warning audit reports `Targeted Android Gradle warnings: 1` and `Unexpected targeted Android Gradle warnings: 0`.
 - Current targeted warning source is the staged legacy secure-storage module: `react-native-secure-key-store`.
 - Removed Android warning sources include the stale app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, active Sentry `execResult`, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, two `@react-native-community/slider` `jcenter()` entries, `react-native-device-info` `jcenter()`, `react-native-vector-icons` `jcenter()`, and `@react-native-community/toolbar-android` `jcenter()`.
 - The current CameraKit scanner migration state is covered by `corepack yarn camera:qr-migration:audit`; Sentry Gradle/source-map wiring is still covered by `corepack yarn sentry:android-warning:audit` even though the active warning audit no longer reports Sentry `execResult`.
 - The latest live RN target snapshot check reports `Live check outcome: matched` with `Mismatches: 0`.
-- Latest live RN target snapshot summary was refreshed from npm on `2026-05-28T19:55:51.486Z` and still matches `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- Latest live RN target snapshot summary was refreshed from npm on `2026-05-28T19:55:51.486Z` and still matches `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.1.4`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
 - `corepack yarn android:dev:check-artifact-guard` verifies the warning-summary source guard with known-source, zero-warning, mismatched-count, and unexpected-source cases
 - `corepack yarn android:dev:audit-smoke` runs the Android environment audit, refreshes warning audit, emulator smoke, and artifact checker evidence in one pass

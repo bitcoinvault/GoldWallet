@@ -8,23 +8,23 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 export const expectedReactNativeTargetSnapshot = {
   snapshotDate: '2026-05-28',
-  currentReactNative: '0.76.9',
-  currentReact: '18.2.0',
+  currentReactNative: '0.81.6',
+  currentReact: '19.1.4',
   currentNode: '22.18.0',
   npmLatestReactNative: '0.85.3',
   npmNextReactNative: '0.86.0-rc.2',
-  targetReactPeer: '^19.2.3',
+  targetReactPeer: '^19.1.4',
   targetNodeEngine: '^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0',
 };
 
 export const requiredReactNativeTargetSnapshotSnippets = [
   ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-05-28`'],
-  ['docs/react-native-target-snapshot.md', 'Current repo React Native: `0.76.9`'],
-  ['docs/react-native-target-snapshot.md', 'Current repo React: `18.2.0`'],
+  ['docs/react-native-target-snapshot.md', 'Current repo React Native: `0.81.6`'],
+  ['docs/react-native-target-snapshot.md', 'Current repo React: `19.1.4`'],
   ['docs/react-native-target-snapshot.md', 'Current repo Metro/dev Node runtime: `22.18.0`'],
   ['docs/react-native-target-snapshot.md', 'npm `latest`: `0.85.3`'],
   ['docs/react-native-target-snapshot.md', 'npm `next`: `0.86.0-rc.2`'],
-  ['docs/react-native-target-snapshot.md', 'React peer for `react-native@0.85.3`: `^19.2.3`'],
+  ['docs/react-native-target-snapshot.md', 'React peer for `react-native@0.85.3`: `^19.1.4`'],
   ['docs/react-native-target-snapshot.md', 'Node engine for `react-native@0.85.3`: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`'],
   ['docs/react-native-target-snapshot.md', 'This snapshot is not a direct-upgrade instruction'],
   ['docs/react-native-target-snapshot.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],

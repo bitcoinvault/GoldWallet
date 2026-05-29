@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import { Dispatch } from 'redux';
 
 import { icons } from 'app/assets';
 import { ScreenTemplate, Header, Image } from 'app/components';
@@ -46,7 +47,7 @@ const LanguageItem = (props: LanguageItemProps) => {
 
 export const SelectLanguageScreen = () => {
   const language = useSelector(selectors.language);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<Dispatch<any>>();
 
   const availableLanguages: Language[] = [
     { label: 'English (EN)', value: 'en' },

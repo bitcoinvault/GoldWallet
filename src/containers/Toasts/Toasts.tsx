@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Pressable, View } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import { Dispatch } from 'redux';
 
 import { CustomToast } from 'app/components';
 import { Toast } from 'app/consts';
@@ -12,7 +13,7 @@ interface Props {
 
 export const Toasts = ({ onClick }: Props) => {
   const toastMessages = useSelector(selectors.toastMessages);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<Dispatch<any>>();
 
   const handleClick = (toast: Toast) => {
     onClick && onClick(toast.id);

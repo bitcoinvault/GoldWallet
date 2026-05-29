@@ -10,9 +10,9 @@ const packageJson = JSON.parse(read('package.json'));
 export const expectedMetroDevRuntime = {
   nodeMajor: 22,
   nodeVersion: '22.18.0',
-  reactNative: '0.76.9',
-  babelPreset: '0.76.9',
-  metroConfig: '0.76.9',
+  reactNative: '0.81.6',
+  babelPreset: '0.81.6',
+  metroConfig: '0.81.6',
   startScript: 'react-native start',
 };
 

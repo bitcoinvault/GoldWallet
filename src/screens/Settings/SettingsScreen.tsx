@@ -3,6 +3,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch } from 'redux';
 
 import { icons } from 'app/assets';
 import { Image, ScreenTemplate, Header, ListItem, CustomModal } from 'app/components';
@@ -28,7 +29,7 @@ interface Props {
 }
 
 export const SettingsScreen = (props: Props) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<Dispatch<any>>();
   const { navigation } = props;
   const { isBiometricsEnabled } = useSelector((state: ApplicationState) => ({
     isBiometricsEnabled: state.appSettings.isBiometricsEnabled,
