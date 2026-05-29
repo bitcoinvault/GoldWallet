@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.199 - Sentry warning wording refresh
+
+- Branch: `feature/bem-37-sentry-warning-wording-current`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Sentry Android warning audit wording for the current RN `0.81.6` warning baseline.
+- Keep `@sentry/react-native`, Gradle integration, source-map upload wiring, runtime Sentry usage, and release behavior unchanged.
+- Clarify that there is no active Sentry `execResult` warning cleanup in the current Android Gradle warning audit.
+
+Findings:
+
+- `corepack yarn android:dev:audit-warnings` currently reports one targeted Android Gradle warning: `react-native-secure-key-store` `jcenter()`.
+- `corepack yarn sentry:android-warning:audit` reports `@sentry/react-native@5.36.0` and still tracks Sentry Gradle `bundleTask.getProperties()` references at lines `48`, `376`, and `396`.
+- The Sentry audit remains useful as a guard before future Sentry SDK/source-map work, but the immediate Android warning cleanup action is `none`.
+
+Validation:
+
+- `corepack yarn android:dev:audit-warnings`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn check:sentry-android-warning-summary-guard`
+- `corepack yarn check:android-remaining-warning-plan`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.198 - Clean emulator Android smoke helper
 
 - Branch: `feature/bem-37-clean-emulator-smoke`

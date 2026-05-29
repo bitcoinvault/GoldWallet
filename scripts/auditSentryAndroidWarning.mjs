@@ -102,7 +102,7 @@ export const formatSentryAndroidWarningSummary = (audit, generatedAt = new Date(
   audit.errors.forEach(error => lines.push(`- ${error}`));
   lines.push(
     audit.baselineStable
-      ? 'Required action: none; Sentry Android warning baseline is stable for a dedicated release/source-map cleanup branch.'
+      ? 'Required action: none for Android warning cleanup; keep Sentry SDK/source-map changes in a dedicated release validation branch.'
       : 'Required action: restore Sentry Android warning baseline before changing Sentry release tooling.',
   );
 
@@ -130,7 +130,7 @@ const printReport = audit => {
     console.log('Sentry Android warning baseline needs review:');
     audit.readinessIssues.forEach(issue => console.log(`- ${issue}`));
   } else {
-    console.log('Sentry Android warning baseline is stable for a dedicated release/source-map cleanup branch.');
+    console.log('Sentry Android warning baseline is stable; keep Sentry SDK/source-map changes in a dedicated release validation branch.');
   }
 
   console.log('Sentry Android warning source is dependency-owned; this audit intentionally does not patch node_modules or disable source-map upload.');

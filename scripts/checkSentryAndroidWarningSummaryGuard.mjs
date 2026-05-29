@@ -12,7 +12,7 @@ const validSummary = [
   '- Sentry remains on 5.36.0; release/source-map behavior still requires a dedicated validation branch before changing Sentry tooling.',
   'Readiness issues: 0',
   'Wiring errors: 0',
-  'Required action: none; Sentry Android warning baseline is stable for a dedicated release/source-map cleanup branch.',
+  'Required action: none for Android warning cleanup; keep Sentry SDK/source-map changes in a dedicated release validation branch.',
   '',
 ].join('\n');
 
