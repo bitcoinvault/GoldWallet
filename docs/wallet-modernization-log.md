@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.158 - QR renderer latest update
+
+- Branch: `feature/bem-37-qrcode-svg-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-qrcode-svg` from `6.1.1` to latest `6.3.21`.
+- Update the root `qrcode` resolution from `1.4.4` to latest `1.5.4` so the QR renderer dependency range is not forced to an older incompatible line.
+- Refresh the guarded SVG/QR compatibility audit, QR migration audit baseline, and native-module upgrade plan references.
+
+Findings:
+
+- `npm view react-native-qrcode-svg version dist-tags peerDependencies dependencies --json` reports `latest` as `6.3.21`.
+- `react-native-qrcode-svg@6.3.21` declares `react-native-svg >=14.0.0`; the repo is already on `react-native-svg@15.15.5`.
+- The previous `qrcode@1.4.4` root resolution produced a package-manager conflict with the latest QR renderer's `qrcode@^1.5.4` dependency.
+- Upstream `react-native-qrcode-svg@6.3.21` documents RN `0.75+` as compatible without the TextEncoder Metro transform required for older React Native versions; this branch validates it on the RN `0.81.6` baseline.
+- The guarded QR render surface remains five screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
+
+Validation:
+
+- `corepack yarn check:qr-render-usage`
+- `corepack yarn check:camera-qr-migration-summary-guard`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.157 - Drag-sort latest manifest pin
 
 - Branch: `feature/bem-37-drag-sort-update`

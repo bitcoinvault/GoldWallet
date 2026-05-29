@@ -301,7 +301,7 @@
     "react-native-logs": "^3.0.4",
     "react-native-modal": "14.0.0-rc.1",
     "react-native-prompt-android": "git+https://github.com/marcosrdz/react-native-prompt-android.git",
-    "react-native-qrcode-svg": "6.1.1",
+    "react-native-qrcode-svg": "6.3.21",
     "react-native-randombytes": "3.6.2",
     "react-native-rate": "1.2.12",
     "react-native-safe-area-context": "5.8.0",
@@ -336,7 +336,7 @@
     "node-fetch": "^2.6.1",
     "bl": "^4.0.3",
     "semver": "^7.3.5",
-    "qrcode": "1.4.4",
+    "qrcode": "1.5.4",
     "caniuse-lite": "1.0.30001793"
   },
   "react-native": {
