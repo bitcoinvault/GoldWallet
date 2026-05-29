@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.178 - Random values RN 0.81 runtime fix
+
+- Branch: `feature/bem-37-random-values-rn81-runtime-fix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update `react-native-get-random-values` from `1.11.0` to latest stable `2.0.0`.
+- Keep wallet source code, Android native project files, Metro config, and rn-nodeify shim code unchanged.
+- Treat this as a runtime compatibility fix because the app imports `react-native-get-random-values` before wallet storage initializes.
+
+Findings:
+
+- `npm view react-native-get-random-values version dist-tags engines peerDependencies dependencies --json` reports `latest` as `2.0.0`.
+- Version `2.0.0` declares `react-native >=0.81`, matching the current RN baseline.
+- Emulator smoke on the previous package version reached the native splash and Metro reported `Error: Native module not found` from the `react-native-get-random-values` polyfill.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:watchonly:offline`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.177 - Babel inline environment plugin patch
 
 - Branch: `feature/bem-37-babel-inline-env-patch`
