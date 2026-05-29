@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.167 - React Native Config latest recheck
+
+- Branch: `feature/bem-37-react-native-config-recheck`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update `react-native-config` from `1.5.9` to latest `1.6.1`.
+- Keep Android `envConfigFiles`, iOS scheme env/Firebase mapping, and runtime `src/config/index.ts` usage unchanged.
+- Refresh native-module inventory, native-module upgrade plan, and storage/network audit references.
+
+Findings:
+
+- `npm view react-native-config version dist-tags engines peerDependencies dependencies --json` reports `latest` as `1.6.1`.
+- `react-native-config@1.6.1` declares broad React Native peer compatibility.
+- Earlier RN `0.68.7` compatibility blockers (`BaseReactPackage` / `WritableMap.putLong`) no longer fail on the current RN `0.81.6` Android baseline.
+- Release-service env keys, Android env file mapping, iOS scheme mapping, and storage/network usage guards remain unchanged.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:release-service-env-keys`
+- `corepack yarn check:android-env-config-files`
+- `corepack yarn check:ios-scheme-config`
+- `corepack yarn check:storage-network-usage`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.166 - Clipboard latest recheck
 
 - Branch: `feature/bem-37-clipboard-latest-recheck`

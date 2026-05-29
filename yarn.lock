@@ -971,7 +971,7 @@
     "@babel/helper-create-regexp-features-plugin" "^7.29.7"
     "@babel/helper-plugin-utils" "^7.29.7"
 
-"@babel/preset-env@7.29.7", "@babel/preset-env@^7.25.0":
+"@babel/preset-env@7.29.7":
   version "7.29.7"
   resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.29.7.tgz#5e2ab5e764b493fdefc99c43aeaa70a9533a37fd"
   integrity sha512-GYzX36n1nsciIb0uyH0GHwxwtNwPQIcpxSeiVLDtG/B7jB5xXgchnmL1f/jCX5o+pwnaDBtO60ONSJhEBJfxYA==
@@ -1057,7 +1057,7 @@
     "@babel/types" "^7.4.4"
     esutils "^2.0.2"
 
-"@babel/preset-react@7.29.7", "@babel/preset-react@^7.24.7":
+"@babel/preset-react@7.29.7":
   version "7.29.7"
   resolved "https://registry.yarnpkg.com/@babel/preset-react/-/preset-react-7.29.7.tgz#2ed18366e38c2081bbf1760dc01e88fa5674eb17"
   integrity sha512-C+PV1TFUPTmBQGoPBL8j2QmLpZ117YTCwxIZeJOM96GbYMFSc7/pOXU5lVykwnZxyTqQxRsvoRk6f2FktZgGHA==
@@ -10208,15 +10208,10 @@ react-native-config-node@^0.0.3:
   dependencies:
     dotenv "^8.2.0"
 
-react-native-config@1.5.9:
-  version "1.5.9"
-  resolved "https://registry.yarnpkg.com/react-native-config/-/react-native-config-1.5.9.tgz#a96a3148baa70c050c9f33204716d908f440fdad"
-  integrity sha512-j6EZ+zgcNW21POGDOdE/A42lt9ZZbQvpAfY8rMn/LCWneb+UcxN8DCq1tXcHUW4Yu4adAlDvpuw1WFqj4DR3hw==
-  dependencies:
-    "@babel/core" "^7.25.2"
-    "@babel/preset-env" "^7.25.0"
-    "@babel/preset-react" "^7.24.7"
-    babel-jest "^29.7.0"
+react-native-config@1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/react-native-config/-/react-native-config-1.6.1.tgz#f8428829fda74384484d773fe36820159c559159"
+  integrity sha512-HvKtxr6/Tq3iMdFx5REYZsjCtPi0RxQOMCs15+DqrUPTNFtWHuEuh+zw7fJp+dmuO79YMfdtlsPWIGTHtaXwjg==
 
 react-native-confirmation-code-field@9.0.0:
   version "9.0.0"
