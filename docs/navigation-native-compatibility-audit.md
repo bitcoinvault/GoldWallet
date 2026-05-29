@@ -15,8 +15,7 @@ Checked on: 2026-05-28
 - `react-native-fast-image`: manifest and lockfile `8.6.3`
 - `react-native-screens`: `3.22.1`
 - `react-native-safe-area-context`: manifest and lockfile `3.4.1`
-- `react-native-vector-icons`: manifest and lockfile `6.7.0`
-- `@react-native-community/toolbar-android`: manifest and lockfile `0.2.1`
+- `react-native-vector-icons`: manifest and lockfile `10.3.0`
 
 Direct source usage found in this audit:
 
@@ -28,7 +27,7 @@ Direct source usage found in this audit:
 - `react-native-fast-image` is re-exported from `src/components/Image.tsx` and used through shared button, list item, tab icon, and model types.
 - `react-native-screens` has no direct source import in `src`; it is still a native dependency for the current React Navigation stack and native autolinking.
 - `react-native-vector-icons` is used by the UI icon layer and copied native font assets.
-- `@react-native-community/toolbar-android` is required by `react-native-vector-icons@6.7.0` at Metro bundle time even though the app has no direct toolbar source import.
+- `@react-native-community/toolbar-android` is no longer installed after `react-native-vector-icons@10.3.0`; the package no longer declares that peer dependency.
 
 ## Npm Compatibility Snapshot
 
@@ -76,18 +75,12 @@ peerDependencies:
 - react: *
 - react-native: *
 
-react-native-vector-icons@6.7.0
+react-native-vector-icons@10.3.0
 peerDependencies:
-- @react-native-community/toolbar-android ^0.1.0-rc.1
+- <none>
 dependencies:
-- lodash ^4.17.15
 - prop-types ^15.7.2
-- yargs ^15.0.2
-
-@react-native-community/toolbar-android@0.2.1
-peerDependencies:
-- react: *
-- react-native: *
+- yargs ^16.1.1
 ```
 
 Latest npm metadata checked during this audit:
@@ -117,7 +110,7 @@ peerDependencies:
 - react: *
 - react-native: *
 
-react-native-vector-icons latest checked in this stream: 6.7.0 for the current 6.x line
+react-native-vector-icons latest checked in this stream: 10.3.0
 
 react-native-bootsplash latest checked in this stream: 3.2.7 for the current 3.x line
 ```
@@ -130,7 +123,7 @@ react-native-bootsplash latest checked in this stream: 3.2.7 for the current 3.x
 - `react-native-bootsplash` is now on latest checked `3.2.7` after `BEM-36.54`; it still fits the current React Native `0.68.7` baseline.
 - The current `react-native-screens@3.22.1` was already stabilized earlier in the modernization stream to satisfy Android SDK 34 build compatibility.
 - `react-native-fast-image` is now on latest checked `8.6.3` after `BEM-36.53`; it still fits the current React 17 and RN 0.68 baseline.
-- `react-native-vector-icons` is now on the latest checked 6.x package line after `BEM-36.52`; `@react-native-community/toolbar-android@0.2.1` is present because Metro otherwise fails to resolve the vector-icons toolbar module. The declared `^0.1.0-rc.1` peer line failed Android compilation against the current baseline, while `0.2.1` compiled and passed smoke. Newer ecosystem guidance moves toward per-icon-family packages and should be handled as a separate icon-font migration rather than a blind major update.
+- `react-native-vector-icons` is now on checked latest `10.3.0` after `BEM-37.110`; `@react-native-community/toolbar-android` has been removed because the updated icon package no longer needs it at Metro bundle time. The package now warns about moving to per-icon-family packages, which should be handled as a later icon-font migration rather than mixed into this warning cleanup.
 - `react-native-safe-area-context` is now on latest checked `3.4.1` after `BEM-36.56`; it still fits the current React 17 and RN 0.68 baseline according to npm peer metadata.
 - `react-native-gesture-handler` is now pinned to the already-resolved `1.10.3` after `BEM-36.65`; latest metadata does not express a strict RN lower bound, but it still touches core navigation behavior and should not be upgraded blindly.
 - The directly guarded source surface is small for safe area, but navigation behavior is mostly integration-level: app startup, stack transitions, tabs, modal screens, scrolling templates, and keyboard/footer layout.
@@ -144,7 +137,7 @@ react-native-bootsplash latest checked in this stream: 3.2.7 for the current 3.x
 - Keep `react-native-bootsplash@3.2.7` fixed until a later startup/splash or RN baseline branch requires another change.
 - Keep `react-native-screens@3.22.1` fixed until a later RN baseline can support newer `react-native-screens` major versions.
 - Keep `react-native-fast-image@8.6.3` fixed until a later RN baseline or image-cache replacement branch requires another change.
-- Keep `react-native-vector-icons@6.7.0` fixed until a dedicated icon-font migration branch is planned.
+- Keep `react-native-vector-icons@10.3.0` fixed until a dedicated per-icon-family migration branch is planned.
 - Keep `react-native-safe-area-context@3.4.1` fixed until a later RN baseline or layout branch requires another change.
 - Keep `react-native-gesture-handler@1.10.3` fixed until a later RN baseline or dedicated navigation validation branch requires another change.
 

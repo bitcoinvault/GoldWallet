@@ -2316,11 +2316,6 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-5.2.0.tgz#c154ac4ec10537160462d7a9f3e2e43098257302"
   integrity sha512-484sH8aWEaSjxaZ7HT3YZ8CKDcNes2synko1vdEz5DFEdvKAduxKJTj22L/qBMD7rtIkfbX69DMzWDAGbOAV6w==
 
-"@react-native-community/toolbar-android@0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@react-native-community/toolbar-android/-/toolbar-android-0.2.1.tgz#5d021da8f6aef9412c58d5c981a62b91191af3fe"
-  integrity sha512-kq1jVuJTSnKvqiyFqHp0hNLfntZRdE16heQI2UbE7dUUI0pR7YIoBoRlnt8x5ivJJ/f6m1Dcidku9LkwtcUs6w==
-
 "@react-native-firebase/analytics@12.7":
   version "12.7.5"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/analytics/-/analytics-12.7.5.tgz#317f6a6f02c4fd7e0913376f257e55df671eca2a"
@@ -9926,14 +9921,13 @@ react-native-toast-message@^1.4.9:
   dependencies:
     prop-types "^15.7.2"
 
-react-native-vector-icons@6.7.0:
-  version "6.7.0"
-  resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-6.7.0.tgz#8871ba52ef8e98878ba7a932847f96b6dfc1c137"
-  integrity sha512-LKdwqDIGVxV1+4HnmFIPaok9hba3WyTQ7H2Wj5RFv54zIdIjixrAiV9VD/Ej9Mc5/rUhTpmMiIVF3LVmVYD7dg==
+react-native-vector-icons@10.3.0:
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-10.3.0.tgz#de440f2627a2ed1079ce3b99d5b9d4f86894df28"
+  integrity sha512-IFQ0RE57819hOUdFvgK4FowM5aMXg7C7XKsuGLevqXkkIJatc3QopN0wYrb2IrzUgmdpfP+QVIbI3S6h7M0btw==
   dependencies:
-    lodash "^4.17.15"
     prop-types "^15.7.2"
-    yargs "^15.0.2"
+    yargs "^16.1.1"
 
 react-native-version-number@0.3.6:
   version "0.3.6"
@@ -11991,7 +11985,7 @@ yargs@^13.2.4:
     y18n "^4.0.0"
     yargs-parser "^13.1.2"
 
-yargs@^15.0.2, yargs@^15.1.0:
+yargs@^15.1.0:
   version "15.4.1"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-15.4.1.tgz#0d87a16de01aee9d8bec2bfbf74f67851730f4f8"
   integrity sha512-aePbxDmcYW++PaqBsJ+HYUFwCdv4LVvdnhBy78E57PIor8/OVvhMrADFFEDh8DHDFRv/O9i3lPhsENjO7QX0+A==
@@ -12008,7 +12002,7 @@ yargs@^15.0.2, yargs@^15.1.0:
     y18n "^4.0.0"
     yargs-parser "^18.1.2"
 
-yargs@^16.0.3:
+yargs@^16.0.3, yargs@^16.1.1:
   version "16.2.0"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-16.2.0.tgz#1c82bf0f6b6a66eafce7ef30e376f49a12477f66"
   integrity sha512-D1mvvtDG0L5ft/jGWkLpG1+m0eQxOfaBvTNELraWj22wSVUMWxZUvYgJYcKh6jGGIkJFhH4IZPQhR4TKpc8mBw==
