@@ -1,53 +1,52 @@
-# React Native 0.76 Foundation Plan
+# React Native 0.81 Foundation Checkpoint
 
-This plan scopes the first React Native foundation milestone. It must be treated as a full app foundation branch, not as a package-only update.
+This document records the first completed React Native foundation checkpoint. The filename and package script keep the old `076` name for compatibility with existing guards, but the guarded baseline is now RN `0.81.6`.
 
 ## Current Baseline
 
-- React Native: `0.76.9`
-- React: `18.2.0`
-- RN Babel preset: `0.76.9`
-- RN Metro config: `0.76.9`
+- React Native: `0.81.6`
+- React: `19.1.4`
+- RN Babel preset: `0.81.6`
+- RN Metro config: `0.81.6`
 - Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
 - Android Gradle Plugin: `8.13.2`
 - Gradle wrapper: `8.13`
 
-## Target Package Set
+## Completed Package Set
 
-Latest metadata checked on 2026-05-28 for the first milestone:
+Completed first foundation checkpoint package set:
 
-- `react-native@0.76.9`
-- `react@18.2.0`
-- `react-test-renderer@18.2.0`
-- `@types/react@^18.2.6`
-- `@react-native/babel-preset@0.76.9`
-- `@react-native/metro-config@0.76.9`
-- `@react-native/typescript-config@0.76.9`
-- `@react-native/gradle-plugin@0.76.9`
-- `@react-native/codegen@0.76.9`
+- `react-native@0.81.6`
+- `react@19.1.4`
+- `react-test-renderer@19.1.4`
+- `@types/react@19.2.15`
+- `@react-native/babel-preset@0.81.6`
+- `@react-native/metro-config@0.81.6`
+- `@react-native/typescript-config@0.81.6`
+- `@react-native/gradle-plugin@0.81.6`
+- `@react-native/codegen@0.81.6`
 
 Important metadata:
 
-- `react-native@0.76.9` peers: React `^18.2.0`, `@types/react ^18.2.6`.
-- `react-native@0.76.9` Node engine: `>=18`.
-- `@react-native/babel-preset@0.76.9` Node engine: `>=18`.
-- `@react-native/metro-config@0.76.9` Node engine: `>=18`.
+- `react-native@0.81.6` peers: React `^19.1.0`.
+- `react-native@0.81.6` Node engine: `>=20.19.4`.
+- The repository keeps Metro/dev runtime on Node `22.18.0`, which satisfies the RN `0.81.6` engine range and the recorded later target snapshot.
 
-## Required Template Scope
+## Completed Template Scope
 
-The RN `0.76.9` branch must include the template/native migration that was missing from the package-only probe:
+The RN `0.81.6` checkpoint included package and template/native migration together:
 
 - Node/dev runtime move from the old Node 16 baseline to Node 22 for Metro and RN tooling.
-- Babel config migration from `metro-react-native-babel-preset` to the RN 0.76 preset stack.
-- Metro config migration to the RN 0.76 Metro config package.
+- Babel config migration from `metro-react-native-babel-preset` to the RN 0.81 preset stack.
+- Metro config migration to the RN 0.81 Metro config package.
 - Android Gradle settings and plugin wiring for `@react-native/gradle-plugin`.
 - Android app Gradle/template drift, including autolinking, codegen, packaging, manifest, and debug build behavior.
 - iOS Podfile/template drift recorded explicitly; Windows can audit files, but Mac runner/device validation remains required before calling iOS complete.
-- React 18 type and renderer alignment, including cleanup for packages that bring nested React type versions.
+- React 19 type and renderer alignment, including cleanup for packages that bring nested React type versions.
 
-## Known Package-Only Blocker
+## Historical Package-Only Blocker
 
 `BEM-36.114` proved that installing RN `0.76.9` packages without the full template/native migration is not a valid path. The runtime failed around RN internals with:
 
@@ -57,15 +56,15 @@ Unable to resolve module ./AppContainer-prod from node_modules/react-native/Libr
 
 Do not repeat a package-only RN 0.76 branch. The next attempt must move packages and template/native files together.
 
-## Branch Shape
+## Current Branch Shape
 
-Recommended branch:
+Completed checkpoint branch:
 
 ```text
-feature/bem-36-rn-076-foundation
+feature/bem-37-rn-next-baseline-proof
 ```
 
-Start with:
+Before the next RN milestone, keep these guards green:
 
 ```powershell
 corepack yarn rn:baseline:preflight
@@ -73,7 +72,7 @@ corepack yarn rn:target-snapshot:current
 corepack yarn rn:076-foundation:audit
 ```
 
-Then apply the RN `0.76.9` package and template changes in one branch. If the branch fails, isolate the blocker before selecting a lower milestone; do not fall back to one-minor-at-a-time upgrades automatically.
+Then move to the next milestone target with package and template/native changes in one branch. If the branch fails, isolate the blocker before selecting a lower milestone; do not fall back to one-minor-at-a-time upgrades automatically.
 
 ## Validation Plan
 
