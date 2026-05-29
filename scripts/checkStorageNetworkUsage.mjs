@@ -9,7 +9,7 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const sourceRoots = ['src', 'tests', 'App.tsx', 'Main.tsx', 'logger'];
+const sourceRoots = ['src', 'class', 'tests', 'App.tsx', 'Main.tsx', 'logger'];
 const extensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 const normalize = filePath => path.relative(root, filePath).replace(/\\/g, '/');
 

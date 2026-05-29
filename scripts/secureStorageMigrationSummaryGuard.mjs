@@ -26,8 +26,9 @@ const getBulletLinesAfter = (content, label) => {
 export const getSecureStorageMigrationSummaryErrors = summary => {
   const errors = [];
   const currentPackage = getLineValue(summary, 'Current secure-storage package');
-  const replacementPackage = getLineValue(summary, 'Replacement secure-storage package');
+  const legacyPackage = getLineValue(summary, 'Legacy secure-storage package');
   const serviceFile = getLineValue(summary, 'SecureStorageService file');
+  const appStorageFile = getLineValue(summary, 'AppStorage secure-storage file');
   const storesPin = getLineValue(summary, 'Stores PIN');
   const storesTransactionPassword = getLineValue(summary, 'Stores transaction password hash');
   const focusedValidation = getLineValue(summary, 'Focused validation script');
@@ -42,16 +43,20 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
     errors.push('Secure-storage migration summary header is missing');
   }
 
-  if (currentPackage !== 'react-native-secure-key-store@2.0.10') {
-    errors.push(`Current secure-storage package must be react-native-secure-key-store@2.0.10. Received: ${currentPackage || 'missing'}`);
+  if (currentPackage !== 'react-native-keychain@10.0.0') {
+    errors.push(`Current secure-storage package must be react-native-keychain@10.0.0. Received: ${currentPackage || 'missing'}`);
   }
 
-  if (replacementPackage !== 'react-native-keychain@10.0.0') {
-    errors.push(`Replacement secure-storage package must be react-native-keychain@10.0.0. Received: ${replacementPackage || 'missing'}`);
+  if (legacyPackage !== 'react-native-secure-key-store@2.0.10') {
+    errors.push(`Legacy secure-storage package must be react-native-secure-key-store@2.0.10. Received: ${legacyPackage || 'missing'}`);
   }
 
   if (serviceFile !== 'src/services/SecureStorageService.ts') {
     errors.push(`SecureStorageService file must be src/services/SecureStorageService.ts. Received: ${serviceFile || 'missing'}`);
+  }
+
+  if (appStorageFile !== 'class/app-storage.js') {
+    errors.push(`AppStorage secure-storage file must be class/app-storage.js. Received: ${appStorageFile || 'missing'}`);
   }
 
   [

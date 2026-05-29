@@ -2,6 +2,7 @@ export const expectedStorageNetworkUsage = new Map([
   [
     '@react-native-async-storage/async-storage',
     new Set([
+      'class/app-storage.js',
       'src/helpers/fees.ts',
       'src/helpers/reduxPersist.ts',
       'src/navigators/Navigator.tsx',
@@ -22,7 +23,14 @@ export const expectedStorageNetworkUsage = new Map([
   ['react-native-config', new Set(['src/config/index.ts'])],
   ['react-native-localize', new Set(['tests/setup.js'])],
   ['react-native-randombytes', new Set()],
-  ['react-native-secure-key-store', new Set(['src/services/SecureStorageService.ts', 'tests/unit/SecureStorageService.test.js'])],
+  [
+    'react-native-keychain',
+    new Set(['class/app-storage.js', 'src/services/SecureStorageService.ts', 'tests/unit/SecureStorageService.test.js']),
+  ],
+  [
+    'react-native-secure-key-store',
+    new Set(['class/app-storage.js', 'src/services/SecureStorageService.ts', 'tests/unit/SecureStorageService.test.js']),
+  ],
   ['react-native-tcp-socket', new Set(['src/network/socket.tsx'])],
   [
     'react-native-webview',

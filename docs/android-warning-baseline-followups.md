@@ -17,14 +17,14 @@ Remaining targeted sources:
 | --- | --- | --- |
 | `@react-native-community/masked-view` | `node_modules/@react-native-community/masked-view/android/build.gradle:47` | dedicated masked-view/navigation migration |
 | `react-native-camera` | `node_modules/react-native-camera/android/build.gradle:59` | dedicated QR scanner replacement |
-| `react-native-secure-key-store` | `node_modules/react-native-secure-key-store/android/build.gradle:46` | dedicated secure-storage replacement |
+| `react-native-secure-key-store` | `node_modules/react-native-secure-key-store/android/build.gradle:46` | dedicated secure-storage removal after dual-write migration |
 
 ## Decisions
 
 - Do not patch `node_modules` to hide these warnings.
 - Do not replace `react-native-camera` as a warning-only cleanup; keep it for the QR scanner migration branch.
 - Do not swap `@react-native-community/masked-view` to `@react-native-masked-view/masked-view` until navigation headers and stack transitions are validated. The current `@react-navigation/stack` package still requires the community package path.
-- Do not replace `react-native-secure-key-store` without focused secure-storage tests and emulator validation for PIN and transaction-password flows.
+- Do not remove `react-native-secure-key-store` in the same release that introduces `react-native-keychain`; keep the legacy backend for fallback and dual-write migration first.
 
 ## Validation
 

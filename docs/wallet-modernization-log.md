@@ -10,6 +10,55 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.127 - Secure storage Keychain dual-write migration
+
+- Branch: `feature/bem-37-secure-storage-keychain-migration`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `react-native-keychain@10.0.0` while retaining `react-native-secure-key-store@2.0.10` for a staged migration window.
+- Move `SecureStorageService` to `Keychain.setGenericPassword`, `Keychain.getGenericPassword`, and `Keychain.resetGenericPassword` with one service per secure key.
+- Preserve `Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`, legacy `ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`, transaction-password hashing, legacy fallback reads, and dual writes through the existing wrapper.
+- Move the React Native `AppStorage` secure path to the same staged Keychain plus legacy fallback/dual-write behavior.
+- Update secure-storage unit coverage, storage/network usage guard, native module inventory, and migration audit expectations for the new backend.
+
+Why:
+
+- `react-native-secure-key-store` is one of the remaining Android `jcenter()` warning sources.
+- Removing it immediately would strand values already stored by existing users, including PIN, transaction password, and the React Native secure wallet storage path.
+- This branch introduces the new backend safely first; a later release can remove the old backend after shipped fallback/dual-write behavior has migrated user data.
+
+Validation:
+
+- `corepack yarn test:secure-storage:unit`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:storage-network-usage-guard`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn check:secure-storage-migration-summary-guard`
+- `corepack yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn check:android-warning-audit-summary-guard`
+- `corepack yarn check:android-remaining-warning-plan-guard`
+- `corepack yarn check:android-remaining-warning-plan`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,E2EWalletTypeTest,Send,Receive" JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-artifacts`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- Android warning baseline remains at 3 targeted `jcenter()` sources because the legacy secure-key-store backend is deliberately retained for migration safety.
+- iOS not claimed on Windows: `ios/Podfile.lock` still needs a Mac `pod install` refresh for the new `react-native-keychain` pod before iOS validation.
+
 ### BEM-37.126 - Secure storage summary command guard
 
 - Branch: `feature/bem-37-secure-storage-summary-command-guard`

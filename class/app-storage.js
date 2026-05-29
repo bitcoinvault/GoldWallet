@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import * as Keychain from 'react-native-keychain';
+import RNSecureKeyStore, { ACCESSIBLE as LEGACY_ACCESSIBLE } from 'react-native-secure-key-store';
 
 import logger from '../logger';
 import {
@@ -16,6 +17,14 @@ import {
 } from './';
 
 const encryption = require('../encryption');
+
+const secureStorageOptions = key => ({
+  service: key,
+  accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+});
+const legacySecureStorageOptions = {
+  accessible: LEGACY_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+};
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -41,9 +50,9 @@ export class AppStorage {
    */
   setItem(key, value) {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return RNSecureKeyStore.set(key, value, {
-        accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-      });
+      return RNSecureKeyStore.set(key, value, legacySecureStorageOptions).then(() =>
+        Keychain.setGenericPassword(key, value, secureStorageOptions(key)),
+      );
     } else {
       return AsyncStorage.setItem(key, value);
     }
@@ -58,7 +67,26 @@ export class AppStorage {
    */
   getItem(key) {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return RNSecureKeyStore.get(key);
+      const getLegacyValue = () =>
+        RNSecureKeyStore.get(key)
+          .then(value => {
+            if (value) {
+              return Keychain.setGenericPassword(key, value, secureStorageOptions(key)).then(() => value);
+            }
+
+            return value;
+          })
+          .catch(() => null);
+
+      return Keychain.getGenericPassword(secureStorageOptions(key))
+        .then(credentials => {
+          if (credentials) {
+            return credentials.password;
+          }
+
+          return getLegacyValue();
+        })
+        .catch(getLegacyValue);
     } else {
       return AsyncStorage.getItem(key);
     }

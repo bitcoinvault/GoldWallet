@@ -14,18 +14,20 @@ Tracked package versions:
 - `react-native-config`: manifest and lockfile `1.5.9`
 - `react-native-localize`: manifest and lockfile `3.7.0`
 - `react-native-randombytes`: manifest and lockfile `3.6.2`
+- `react-native-keychain`: manifest and lockfile `10.0.0`
 - `react-native-secure-key-store`: manifest and lockfile `2.0.10`
 - `react-native-tcp-socket`: manifest and lockfile `6.4.1`
 - `react-native-webview`: manifest and lockfile `11.26.1`
 
 Direct usage found in this audit:
 
-- `@react-native-async-storage/async-storage`: `Navigator`, fee cache, Redux persist, store service, storage tests.
+- `@react-native-async-storage/async-storage`: legacy `AppStorage` CLI/test fallback, `Navigator`, fee cache, Redux persist, store service, storage tests.
 - `@react-native-community/netinfo`: Electrum saga connectivity checks and network listener.
 - `react-native-device-info`: emulator detection, device security checks, about screen metadata.
 - `react-native-config`: app environment, Electrum host/protocol, explorer URL, Sentry DSNs, CodePush keys.
 - `react-native-localize`: mocked in tests and used through localization runtime.
-- `react-native-secure-key-store`: `SecureStorageService` and the focused `SecureStorageService` unit contract test.
+- `react-native-keychain`: `SecureStorageService`, legacy `AppStorage` React Native secure-storage path, and the focused `SecureStorageService` unit contract test.
+- `react-native-secure-key-store`: retained as a legacy fallback and dual-write target during the Keychain migration window.
 - `react-native-tcp-socket`: TLS Electrum socket implementation. Updated from `6.0.6` to `6.4.1` in `BEM-36.50`.
 - `react-native-webview`: terms and conditions screens.
 - `react-native-randombytes`: tracked native dependency for crypto random byte behavior even though direct source usage is indirect through wallet/crypto dependencies. Updated from `3.5.3` to `3.6.2` in `BEM-36.49`.
@@ -97,6 +99,7 @@ Note: npm marks `react-native-randombytes@3.6.2` as deprecated with a recommenda
 
 Windows validation for `BEM-36.49` covered Android build and emulator smoke. `ios/Podfile.lock` still needs a Mac `pod install` refresh before iOS validation is claimed for the `react-native-randombytes` bump.
 
+react-native-keychain latest: 10.0.0
 react-native-secure-key-store latest: 2.0.10
 
 react-native-tcp-socket latest: 6.4.1
@@ -117,9 +120,9 @@ peerDependencies:
 - `react-native-config` is now on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected because Android compile failed on current RN `0.68.7` APIs (`BaseReactPackage` / `WritableMap.putLong`).
 - `react-native-device-info` is now on checked `15.0.2` after `BEM-37.109`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
-- `react-native-secure-key-store` is now pinned to latest checked `2.0.10` after `BEM-36.63`; it should not be changed unless replacing the package entirely.
+- `react-native-keychain@10.0.0` is installed as the new secure-storage backend, while `react-native-secure-key-store@2.0.10` remains temporarily for legacy fallback and dual-write migration.
 - `corepack yarn secure-storage:migration:audit` keeps the current PIN and transaction-password storage surface explicit before any replacement branch starts.
-- `tests/unit/SecureStorageService.test.js` locks the current wrapper contract for missing-value fallback, plain storage, hashed transaction-password storage, password verification, and value removal before replacing the native secure-storage package.
+- `tests/unit/SecureStorageService.test.js` locks the current wrapper contract for missing-value fallback, plain storage, hashed transaction-password storage, password verification, and value removal after replacing the native secure-storage package.
 - `react-native-webview` is now pinned to the already-resolved `11.26.1` after `BEM-36.64`; the latest 13.x line remains a separate WebView/Terms validation branch.
 - `react-native-tcp-socket` is on latest `6.4.1`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
 - Future config/env changes must preserve all current env variables used in `src/config/index.ts`.
@@ -130,7 +133,7 @@ peerDependencies:
 
 - Do not batch-upgrade this group.
 - Keep one dependency per mini-branch unless two packages are proven to be tightly coupled.
-- Treat `react-native-tcp-socket`, `react-native-secure-key-store`, and AsyncStorage as high-risk wallet branches.
+- Treat `react-native-tcp-socket`, `react-native-keychain`, `react-native-secure-key-store`, and AsyncStorage as high-risk wallet branches.
 - Treat `react-native-config` as release/env tooling sensitive because it controls Electrum, Sentry, CodePush, explorer, and flavor metadata.
 
 ## Required Validation For Future Upgrade

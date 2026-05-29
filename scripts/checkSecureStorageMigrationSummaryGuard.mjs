@@ -3,23 +3,23 @@ import { getSecureStorageMigrationSummaryErrors } from './secureStorageMigration
 const validSummary = [
   'Secure-storage migration audit',
   'Generated at: 2026-05-29T00:00:00.000Z',
-  'Current secure-storage package: react-native-secure-key-store@2.0.10',
-  'Replacement secure-storage package: react-native-keychain@10.0.0',
+  'Current secure-storage package: react-native-keychain@10.0.0',
+  'Legacy secure-storage package: react-native-secure-key-store@2.0.10',
   'SecureStorageService file: src/services/SecureStorageService.ts',
+  'AppStorage secure-storage file: class/app-storage.js',
   'Stores PIN: yes',
   'Stores transaction password hash: yes',
   'Focused validation script: test:storage-network:focused',
   'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
   'Warning baseline mentions secure-key-store: yes',
   'Secure-storage migration baseline stable: yes',
-  'Warnings: 1',
-  '- local Android warning audit summary does not mention react-native-secure-key-store; refresh the warning audit before migration.',
+  'Warnings: 0',
   'Errors: 0',
   'Required action: none; secure-storage migration baseline is stable for a dedicated storage validation branch.',
 ].join('\n');
 
 const invalidSummary = validSummary
-  .replace('Current secure-storage package: react-native-secure-key-store@2.0.10', 'Current secure-storage package: <missing>')
+  .replace('Current secure-storage package: react-native-keychain@10.0.0', 'Current secure-storage package: <missing>')
   .replace('Secure-storage migration baseline stable: yes', 'Secure-storage migration baseline stable: no')
   .replace(
     'Required action: none; secure-storage migration baseline is stable for a dedicated storage validation branch.',
@@ -53,6 +53,12 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid secure-storage migration summary fixture', validSummary);
 assertRejected('Invalid secure-storage package fixture', invalidSummary, 'Current secure-storage package');
+assertRejected(
+  'Legacy secure-storage package fixture',
+  validSummary.replace('Legacy secure-storage package: react-native-secure-key-store@2.0.10', 'Legacy secure-storage package: <missing>'),
+  'Legacy secure-storage package',
+);
+assertRejected('Invalid AppStorage file fixture', validSummary.replace('AppStorage secure-storage file: class/app-storage.js', 'AppStorage secure-storage file: <missing>'), 'AppStorage secure-storage file');
 assertRejected('Invalid focused validation command fixture', invalidFocusedValidationSummary, 'Focused validation command');
 assertRejected('Missing header fixture', validSummary.replace('Secure-storage migration audit', 'Bad header'), 'summary header');
 
