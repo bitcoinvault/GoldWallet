@@ -25,7 +25,7 @@ Branch: `feature/bem-secure-storage-keychain-migration`
 
 - `corepack yarn secure-storage:migration:audit`
 - `corepack yarn secure-storage:migration:check-summary`
-- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:storage-network:focused`, including `test:secure-storage:unit` before storage, authenticator, and wallet-core offline checks.
 - `corepack yarn android:dev:check-light`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
 - Metro restart with `--reset-cache`

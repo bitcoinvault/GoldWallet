@@ -9,6 +9,7 @@ const validSummary = [
   'Stores PIN: yes',
   'Stores transaction password hash: yes',
   'Focused validation script: test:storage-network:focused',
+  'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
   'Warning baseline mentions secure-key-store: yes',
   'Secure-storage migration baseline stable: yes',
   'Warnings: 1',
@@ -24,6 +25,11 @@ const invalidSummary = validSummary
     'Required action: none; secure-storage migration baseline is stable for a dedicated storage validation branch.',
     'Required action: restore secure-storage migration baseline before replacing the dependency.',
   );
+
+const invalidFocusedValidationSummary = validSummary.replace(
+  'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
+  'Focused validation command: yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
+);
 
 const assertAccepted = (label, summary) => {
   const errors = getSecureStorageMigrationSummaryErrors(summary);
@@ -47,6 +53,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid secure-storage migration summary fixture', validSummary);
 assertRejected('Invalid secure-storage package fixture', invalidSummary, 'Current secure-storage package');
+assertRejected('Invalid focused validation command fixture', invalidFocusedValidationSummary, 'Focused validation command');
 assertRejected('Missing header fixture', validSummary.replace('Secure-storage migration audit', 'Bad header'), 'summary header');
 
 console.log('Secure-storage migration summary guard checks are valid.');

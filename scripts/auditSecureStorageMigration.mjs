@@ -10,6 +10,8 @@ const exists = relativePath => existsSync(path.join(root, relativePath));
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
 const scripts = packageJson.scripts || {};
+const expectedFocusedValidationCommand =
+  'yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline';
 
 const requireFile = (errors, relativePath) => {
   if (!exists(relativePath)) {
@@ -58,10 +60,7 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'docs/storage-network-native-compatibility-audit.md', storageAudit, 'react-native-secure-key-store latest: 2.0.10');
   requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'dedicated secure-storage replacement');
 
-  if (
-    scripts['test:storage-network:focused'] !==
-    'yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline'
-  ) {
+  if (scripts['test:storage-network:focused'] !== expectedFocusedValidationCommand) {
     errors.push('test:storage-network:focused must keep secure-storage, storage, authenticator, and wallet-core offline checks grouped');
   }
 
@@ -79,6 +78,7 @@ export const collectSecureStorageMigrationAudit = () => {
       unlockTransaction.includes('CONST.transactionPassword') &&
       secureStorageService.includes('sha256(value).toString()'),
     focusedValidation: 'test:storage-network:focused',
+    focusedValidationCommand: scripts['test:storage-network:focused'] || '<missing>',
     warningBaselineMentionsSecureStorage: warningBaseline.includes('react-native-secure-key-store'),
     errors,
     warnings,
@@ -96,6 +96,7 @@ export const formatSecureStorageMigrationSummary = (audit, generatedAt = new Dat
     `Stores PIN: ${audit.storesPin ? 'yes' : 'no'}`,
     `Stores transaction password hash: ${audit.storesTransactionPassword ? 'yes' : 'no'}`,
     `Focused validation script: ${audit.focusedValidation}`,
+    `Focused validation command: ${audit.focusedValidationCommand}`,
     `Warning baseline mentions secure-key-store: ${audit.warningBaselineMentionsSecureStorage ? 'yes' : 'no'}`,
     `Secure-storage migration baseline stable: ${audit.baselineStable ? 'yes' : 'no'}`,
     `Warnings: ${audit.warnings.length}`,
