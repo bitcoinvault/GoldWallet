@@ -20,15 +20,15 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 - RN Babel preset: `0.76.9`
 - RN Metro config: `0.76.9`
 - Metro/dev Node runtime: `22.18.0`
-- Android compile SDK: `34`
-- Android target SDK: `34`
-- Android build tools: `34.0.0`
+- Android compile SDK: `35`
+- Android target SDK: `35`
+- Android build tools: `35.0.0`
 - Android Gradle Plugin: `8.6.0`
 - Gradle wrapper: `8.10.2`
 
 The current baseline is the first RN foundation checkpoint, not the final modernization target. It also should not walk every minor version one by one. The goal is a controlled milestone-jump path toward a current supported React Native line after the dependency and native tooling blockers are understood.
 
-Current Android template/toolchain baseline compiles and targets SDK 34. Target SDK 34 is now part of the RN 0.76 Android foundation baseline after the RN 0.76/AGP 8.6 foundation removed the old RN 0.68 Android 14 debug receiver blocker.
+Current Android template/toolchain baseline compiles and targets SDK 35. SDK 35 is the highest Android API level kept inside the current AGP 8.6 support boundary; Android 16/API 36 remains a later AGP/toolchain branch.
 
 ## Upgrade Principles
 
@@ -65,7 +65,7 @@ Use this audit before starting or reviewing a React Native baseline branch:
 corepack yarn rn:upgrade-path:audit
 ```
 
-The audit verifies that the current package baseline, Metro runtime baseline, Android build/target SDK baseline, Gradle baseline, target SDK 34 readiness, and staged upgrade documentation still agree.
+The audit verifies that the current package baseline, Metro runtime baseline, Android build/target SDK baseline, Gradle baseline, SDK 35 readiness, and staged upgrade documentation still agree.
 
 Before changing a React Native baseline, run the broader preflight so the current Android lightweight gate, Metro runtime audit, Node runtime transition audit, RN path audit, target snapshot audit and offline comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit are all checked from one command:
 

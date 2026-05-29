@@ -9,8 +9,8 @@ This plan scopes the first React Native foundation milestone. It must be treated
 - RN Babel preset: `0.76.9`
 - RN Metro config: `0.76.9`
 - Metro/dev Node runtime: `22.18.0`
-- Android compile SDK: `34`
-- Android target SDK: `34`
+- Android compile SDK: `35`
+- Android target SDK: `35`
 - Android Gradle Plugin: `8.6.0`
 - Gradle wrapper: `8.10.2`
 

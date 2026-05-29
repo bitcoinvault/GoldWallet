@@ -36,8 +36,8 @@ Current stack:
 - Android build JDK: JDK 17 required by the AGP 8.6 baseline
 - Android Gradle Plugin: `8.6.0`
 - Gradle wrapper: `8.10.2`
-- Android compile SDK: `34`
-- Android target SDK: `34`
+- Android compile SDK: `35`
+- Android target SDK: `35`
 - Android min SDK: `26`
 - Kotlin: `1.9.25`
 - NDK: `20.1.5948944`
@@ -52,7 +52,7 @@ Target direction:
 
 - Keep the current Metro/dev runtime aligned with `.nvmrc` and RN package engine requirements.
 - Use JDK 17 for local Android modernization work.
-- Target SDK 34 is now part of the RN 0.76/AGP 8.6 Android foundation baseline.
+- SDK 35 is now part of the RN 0.76/AGP 8.6 Android foundation baseline. Android 16/API 36 is deferred to a later AGP/toolchain branch.
 - React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.76.9` toward a current supported line instead of walking every minor version or jumping blindly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
 - RN `0.76.9` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; use `corepack yarn rn:076-foundation:audit` before changing RN packages.
@@ -67,7 +67,7 @@ Target direction:
 - Root Android Gradle Plugin: `com.android.tools.build:gradle:8.6.0`
 - Firebase Crashlytics Gradle plugin: `2.9.0`
 - Google Services Gradle plugin: `4.3.15`
-- Build tools configured as `34.0.0`
+- Build tools configured as `35.0.0`
 - Flavors: `dev`, `stage`, `prod`, `beta`
 - Current verified build command:
 
