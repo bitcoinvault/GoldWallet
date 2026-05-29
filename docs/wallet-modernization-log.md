@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.155 - Confirmation code field React 19 update
+
+- Branch: `feature/bem-37-confirmation-code-field-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-confirmation-code-field` from `7.1.0` to latest `9.0.0`.
+- Keep existing `CodeInput` and `PinInput` usage unchanged.
+- Validate the PIN/code input dependency on the current React `19.1.4` and React Native `0.81.6` baseline.
+
+Findings:
+
+- Latest `react-native-confirmation-code-field@9.0.0` declares peer requirements `react >=19.0.0` and `react-native >=0.78.0`, which match the current modernization baseline.
+- The existing imports for `CodeField`, `useBlurOnFulfill`, and `useClearByFocusCell` remain type-compatible.
+- Manual emulator validation after clearing app data confirmed the updated `CodeField` accepts Create PIN and Confirm PIN input and advances onboarding to the transaction-password step.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- Manual emulator onboarding smoke: allow notification permission, accept Terms, enter and confirm PIN, create and confirm transaction password, skip email, reach `Dashboard` / `Wallets`.
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.154 - Android smoke workflow fixture refresh
 
 - Branch: `feature/bem-37-android-smoke-workflow-refresh`
