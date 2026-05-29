@@ -154,8 +154,8 @@ Branch shape:
 
 - Keep `react-native-camera-kit` scanner usage scoped to the dedicated QR scanner screen.
 - Preserve all guarded QR scanner callers.
-- Run `corepack yarn camera:qr-migration:audit` before starting the replacement branch so the current permission/runtime/autolink baseline is explicit.
-- Validate Android/iOS camera permissions and QR scan behavior manually.
+- Run `corepack yarn camera:qr-migration:audit` before scanner follow-up work so the current CameraKit permission/runtime/autolink baseline stays explicit.
+- Validate Android/iOS camera permissions and QR scan behavior manually before claiming scanner follow-up work complete.
 
 ## Minimum Validation By Branch Type
 

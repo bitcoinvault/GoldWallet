@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.142 - Native-module camera plan refresh
+
+- Branch: `feature/bem-37-native-module-camera-plan-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the native-module upgrade plan's camera/QR scanning section after the CameraKit migration.
+- Replace pre-replacement branch wording with current CameraKit baseline and scanner follow-up wording.
+- Keep package versions and runtime code unchanged.
+
+Findings:
+
+- `docs/native-module-upgrade-plan.md` already lists `react-native-camera-kit@18.0.0`, but still described `camera:qr-migration:audit` as something to run before starting the replacement branch.
+- The active camera plan now treats CameraKit as installed and guarded; the native-module plan should match that state.
+
+Validation:
+
+- `corepack yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.141 - Camera plan post-migration refresh
 
 - Branch: `feature/bem-37-camera-plan-post-migration-refresh`
