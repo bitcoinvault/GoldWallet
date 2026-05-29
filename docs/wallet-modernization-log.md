@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.188 - ts-jest patch update
+
+- Branch: `feature/bem-37-ts-jest-patch-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update Jest TypeScript transformer tooling from `ts-jest@29.4.6` to latest stable `ts-jest@29.4.11`.
+- Keep Jest, babel-jest, TypeScript, React, React Native, runtime code, native code, and app bundling unchanged.
+- Refresh the test/type coupling guard and baseline documents for the new test tooling patch version.
+
+Findings:
+
+- `npm view ts-jest version dist-tags engines peerDependencies dependencies --json` reports stable `latest` as `29.4.11`.
+- `ts-jest@29.4.11` supports the current `jest@29.7.0` and `typescript@5.4.5` baseline through its peer ranges.
+- The package update only changes `ts-jest` and its existing transitive ranges for `handlebars` and `semver`; no app runtime dependency is changed.
+- The E2E Jest config that uses `preset: "ts-jest"` can still enumerate all Detox spec files.
+- Historical modernization log entries that recorded the older `ts-jest@29.4.6` baseline were left unchanged.
+
+Validation:
+
+- `npm view ts-jest version dist-tags engines peerDependencies dependencies --json`
+- `corepack yarn add --dev ts-jest@29.4.11`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:test-type-coupling-guard`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn test:unit`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:watchonly:offline`
+- `corepack yarn test:hdwallet:offline`
+- `node node_modules/jest/bin/jest.js --config tests/e2e/config.json --listTests`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.187 - Secure-storage fallback coverage
 
 - Branch: `feature/bem-37-secure-storage-fallback-coverage`
