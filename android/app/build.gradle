@@ -32,15 +32,13 @@ react {
 }
 
 android.applicationVariants.all { variant ->
-    if (variant.buildType.name != "debug") {
-        return
-    }
     def targetName = variant.name.capitalize()
     def legacyBundleTaskName = "bundle${targetName}JsAndAssets"
     def rnBundleTaskName = "createBundle${targetName}JsAndAssets"
     if (tasks.findByName(legacyBundleTaskName) == null) {
         tasks.register(legacyBundleTaskName) {
             dependsOn(rnBundleTaskName)
+            enabled = false
         }
     }
 }

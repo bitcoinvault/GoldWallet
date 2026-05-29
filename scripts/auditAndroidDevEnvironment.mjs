@@ -145,8 +145,8 @@ export const getAndroidDevEnvironmentIssues = ({
 
   if (!javaDetected || !javaMajor) {
     errors.push(`Unable to detect Java version from ${javaCommand}`);
-  } else if (Number(javaMajor) < 11 || Number(javaMajor) > 17) {
-    errors.push(`Android Gradle build supports JDK 11-17; current Java major is ${javaMajor}`);
+  } else if (Number(javaMajor) !== 17) {
+    errors.push(`Android Gradle build requires JDK 17 after the AGP 8.6 upgrade; current Java major is ${javaMajor}`);
   }
 
   if (!javaHome) {

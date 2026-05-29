@@ -33,19 +33,19 @@ Current stack:
 - Node.js for Metro/dev runtime: Node 22 LTS-compatible runtime
 - Repository Node hint: `.nvmrc` -> `22.18.0`
 - Yarn: `1.22.22` via Corepack
-- Android build JDK: JDK 17 locally, with build guard allowing JDK 11-17
+- Android build JDK: JDK 17 required by the AGP 8.6 baseline
 - Android Gradle Plugin: `8.6.0`
 - Gradle wrapper: `8.10.2`
 - Android compile SDK: `34`
 - Android target SDK: `33`
 - Android min SDK: `26`
-- Kotlin: `1.6.21`
+- Kotlin: `1.9.25`
 - NDK: `20.1.5948944`
 
 Observed incompatibilities:
 
 - JDK 21 is not compatible with the current Gradle/RN Android build.
-- JDK versions below 11 are not compatible with the current Android Gradle Plugin.
+- JDK 11 is no longer sufficient after the AGP 8.6 upgrade; use JDK 17 for local and CI Android builds.
 - The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to `java` from `PATH`.
 
 Target direction:

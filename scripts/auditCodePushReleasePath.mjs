@@ -40,6 +40,13 @@ export const collectCodePushReleasePathAudit = () => {
   requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_IOS');
   requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_ANDROID');
   requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'react-native-code-push/android/codepush.gradle');
+  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'legacyBundleTaskName = "bundle${targetName}JsAndAssets"');
+  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'rnBundleTaskName = "createBundle${targetName}JsAndAssets"');
+  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'dependsOn(rnBundleTaskName)');
+  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'enabled = false');
+  if (androidBuildGradle.includes('variant.buildType.name != "debug"')) {
+    errors.push('android/app/build.gradle limits the legacy CodePush bundle alias to debug variants');
+  }
   requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'CodePush.getJSBundleFile()');
   requireSnippet(errors, 'android strings.xml', androidStrings, 'CodePushDeploymentKey');
 

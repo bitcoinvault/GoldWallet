@@ -26,13 +26,13 @@ const javaMajorVersion = javaVersionOutput.match(/version "(\d+)/)?.[1];
 if (javaVersion.error || !javaMajorVersion) {
   console.error('Unable to detect Java version before running Android Gradle.');
   console.error(`Checked Java executable: ${javaCommand}`);
-  console.error('Set JAVA_HOME to JDK 11 or JDK 17.');
+  console.error('Set JAVA_HOME to JDK 17.');
   process.exit(1);
 }
 
-if (Number(javaMajorVersion) < 11 || Number(javaMajorVersion) > 17) {
-  console.error(`GoldWallet Android build supports JDK 11-17. Current JDK major version is ${javaMajorVersion}.`);
-  console.error('Set JAVA_HOME to JDK 11 or JDK 17 before running Android Gradle.');
+if (Number(javaMajorVersion) !== 17) {
+  console.error(`GoldWallet Android build requires JDK 17 after the AGP 8.6 upgrade. Current JDK major version is ${javaMajorVersion}.`);
+  console.error('Set JAVA_HOME to JDK 17 before running Android Gradle.');
   process.exit(1);
 }
 

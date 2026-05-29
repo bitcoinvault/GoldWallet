@@ -6738,3 +6738,31 @@ Validation:
 - `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke` passes after Metro reset: dashboard UI contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
 - Emulator smoke screenshot: `local-docs/android-smoke-dev.png`
 - Smoke summary: `local-docs/android-smoke-dev-summary.txt`
+
+### BEM-36.120 - RN 0.76 foundation review fixes
+
+- Branch: `feature/bem-36-rn076-review-fixes`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Register a disabled legacy `bundle<Variant>JsAndAssets` alias for every Android variant so the old CodePush Gradle integration can resolve the RN `0.76` bundle task names on release variants without letting the old Sentry Gradle script treat the alias as a real bundle task.
+- Tighten the Android Gradle guard from the old JDK `11-17` range to JDK `17` only after the AGP `8.6.0` upgrade.
+- Update the guarded Gradle runner, Android dev environment audit, guard self-check fixtures, and active workflow/baseline docs to report the JDK 17 requirement before Gradle reaches AGP internals.
+- Extend the CodePush release-path audit so it fails if the legacy bundle alias is accidentally limited back to debug variants.
+
+Why:
+
+- Review found that RN `0.76` creates `createBundle<Variant>JsAndAssets`, while `react-native-code-push@7.0.2` still looks for the legacy `bundle<Variant>JsAndAssets` task before resource processing.
+- The alias must stay disabled because `@sentry/react-native@5.36.0` scans enabled bundle tasks during Gradle evaluation and assumes they expose RN bundle-task properties.
+- Review also found that AGP `8.6.0` no longer supports JDK 11, so the previous guard allowed an environment that would fail later in Gradle.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn android:dev:assemble`
+- Gradle task listing for release CodePush bundle aliases
+- `corepack yarn typescript:check`
+- `git diff --check`
