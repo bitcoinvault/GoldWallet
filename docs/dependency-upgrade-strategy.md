@@ -1,6 +1,6 @@
 # Dependency Upgrade Strategy
 
-This project should not upgrade dependencies one package at a time unless the package is isolated and low risk. The current React Native baseline is old enough that many modern packages fail because of Metro, Babel, JavaScript runtime syntax, native templates, or peer ranges. The upgrade path should therefore move by layers.
+This project should not upgrade dependencies one package at a time unless the package is isolated and low risk. The app is now on the RN `0.81.6` / React `19.1.4` foundation checkpoint, but the current target line is still ahead of it: `react-native@0.85.3` peers React `^19.2.3` and brings another native template/tooling shift. The upgrade path should therefore keep moving by layers instead of returning to package-by-package churn.
 
 ## Current Rule
 
@@ -20,15 +20,15 @@ Upgrade this layer before chasing most library majors:
 - Android Gradle Plugin, Gradle wrapper, Kotlin/Java settings, compile/target SDK.
 - iOS CocoaPods, Xcode project settings, deployment targets, native template drift.
 
-Reason: recent blockers already show the current runtime cannot parse or resolve some modern packages:
+Reason: the first foundation checkpoint is complete, but recent proof branches still show that the next jump has coupled blockers that need to move together:
 
-- `uuid@14` fails Metro resolution because the package no longer exposes a classic `main` entry for this baseline.
-- `uuid@11` resolves, but runtime fails on optional chaining/nullish coalescing syntax.
-- `bip39@3.1.0` introduces a dependency path that fails runtime with `Unexpected token '?'`.
+- The current RN target snapshot records `react-native@0.85.3` with React peer `^19.2.3`, while the installed RN `0.81.6` checkpoint must stay on React `19.1.4`.
+- RN `0.85.x` and RN `0.82.x` probes exposed native compatibility blockers around CodePush, React/runtime coupling, and mandatory New Architecture/codegen behavior in older native modules.
+- Package-only RN jumps are invalid for this repo; package versions and template/native files need to move in the same foundation branch.
 
 ### 2. Native Module Cohorts
 
-After the foundation branch is stable, upgrade native modules in groups with similar risk:
+After each foundation checkpoint is stable, upgrade native modules in groups with similar risk:
 
 - Navigation and screen stack: `@react-navigation/*`, `react-native-screens`, `react-native-safe-area-context`, `react-native-gesture-handler`, masked view.
 - Device/platform services: Firebase, Sentry, CodePush, push notifications, device info, config, localize, webview.
@@ -48,7 +48,7 @@ Validation must include existing offline wallet tests plus emulator smoke. Funde
 
 ### 4. Pure JS and Tooling Cohorts
 
-Do these after the runtime foundation is newer:
+Do these after the runtime foundation and native-module cohorts that own their validation surface are stable:
 
 - State stack: Redux, React Redux, Redux Saga, Reselect.
 - Utility/runtime packages: Axios, Lodash, Dayjs, BigNumber, CryptoJS.
@@ -69,4 +69,4 @@ One branch can contain multiple packages when they belong to the same layer and 
 
 ## Start Here
 
-The next coding branch should continue from the foundation layer, not another isolated package. Use `docs/react-native-foundation-target-matrix.md` as the target matrix. The first completed milestone jump is RN `0.81.6`, not every intermediate RN minor. Then continue to an RN `0.82.x` Node-engine checkpoint and finally the current `0.85.x` line if branch-time evidence still supports that target.
+The next coding branch should continue from the foundation layer or a blocker-removal branch that directly supports that layer, not another isolated package. Use `docs/react-native-foundation-target-matrix.md` as the target matrix. The first completed milestone jump is RN `0.81.6`, not every intermediate RN minor. Then continue to an RN `0.82.x` checkpoint and finally the current `0.85.x` line if branch-time evidence still supports that target.

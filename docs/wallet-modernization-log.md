@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.147 - Dependency strategy RN 0.81 refresh
+
+- Branch: `feature/bem-37-dependency-strategy-rn081-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/dependency-upgrade-strategy.md` after the completed RN `0.81.6` foundation checkpoint.
+- Replace old-baseline runtime blocker wording with the current RN `0.81.6` / React `19.1.4` baseline and RN `0.85.3` target constraints.
+- Keep the latest-first, blocker-capture, highest-compatible-fallback upgrade rule unchanged.
+
+Findings:
+
+- The current RN target snapshot records `react-native@0.85.3` with React peer `^19.2.3`, while the installed RN `0.81.6` checkpoint remains on React `19.1.4`.
+- The next foundation branch should be RN milestone/blocker-removal work, not another isolated package cleanup.
+
+Validation:
+
+- `corepack yarn upgrade:strategy:audit`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.146 - Baseline test/type snapshot refresh
 
 - Branch: `feature/bem-37-baseline-test-type-refresh`
