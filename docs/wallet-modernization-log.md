@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.108 - Slider Android jcenter cleanup
+
+- Branch: `feature/bem-37-slider-jcenter-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@react-native-community/slider` from `2.0.0-rc.1` to `5.2.0`.
+- Remove the package's two Android `jcenter()` findings from the warning baseline because `5.2.0` uses `google()` and `mavenCentral()`.
+- Add Slider to the native module inventory guard and native module upgrade plan.
+- Keep app source unchanged; current app code has no Slider imports.
+
+Why:
+
+- The old Slider package was a direct native dependency and contributed two Android warning sources despite not being imported by app code.
+- Updating the package keeps the module available for any native/project references while removing both deprecated repository declarations.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed and reported `Targeted Android Gradle warnings: 6` with `Unexpected targeted Android Gradle warnings: 0`.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn android:dev:check-artifact-guard` passed.
+- `corepack yarn android:dev:check-warning-audit-summary` passed.
+- `corepack yarn check:native-module-inventory-guard` passed.
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn check:native-module-upgrade-plan` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with `--reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed; the dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive` with no fatal/runtime logcat findings.
+- `corepack yarn android:dev:check-smoke-summary` passed.
+- `corepack yarn android:dev:check-artifacts` passed.
+- `git diff --check` passed.
+
 ### BEM-37.107 - React Native Localize jcenter cleanup
 
 - Branch: `feature/bem-37-localize-jcenter-cleanup`

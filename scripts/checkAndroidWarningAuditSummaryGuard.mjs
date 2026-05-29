@@ -6,11 +6,9 @@ const validSummary = [
   'Android Gradle audit timeout: 300000ms',
   'Android Gradle audit exit code: 0',
   'Android Gradle warning baseline guard exit code: 0',
-  'Targeted Android Gradle warnings: 8',
+  'Targeted Android Gradle warnings: 6',
   'Unexpected targeted Android Gradle warnings: 0',
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
-  String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\slider\android\build.gradle:4)`,
-  String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\slider\android\build.gradle:34)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-camera\android\build.gradle:59)`,
   String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\toolbar-android\android\build.gradle:5)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-vector-icons\android\build.gradle:41)`,
@@ -28,7 +26,7 @@ const zeroWarningSummary = [
   'Unexpected targeted Android Gradle warnings: 0',
 ].join('\n');
 
-const badCountSummary = validSummary.replace('Targeted Android Gradle warnings: 8', 'Targeted Android Gradle warnings: 7');
+const badCountSummary = validSummary.replace('Targeted Android Gradle warnings: 6', 'Targeted Android Gradle warnings: 5');
 const unexpectedSourceSummary = validSummary.replace(
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\new-native-lib\android\build.gradle:59)`,
@@ -56,7 +54,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Known warning baseline summary fixture', validSummary);
 assertAccepted('Zero warning target summary fixture', zeroWarningSummary);
-assertRejected('Mismatched warning count fixture', badCountSummary, 'Targeted Android Gradle warnings must be 8');
+assertRejected('Mismatched warning count fixture', badCountSummary, 'Targeted Android Gradle warnings must be 6');
 assertRejected('Unexpected warning source fixture', unexpectedSourceSummary, 'Unexpected targeted Android warning source');
 
 console.log('Android warning audit summary guard checks are valid.');
