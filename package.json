@@ -66,7 +66,7 @@
     "prettier": "^1.19.1",
     "promise-poller": "^1.9.1",
     "react-native-config-node": "^0.0.3",
-    "react-native-default-preference": "1.4.1",
+    "react-native-default-preference": "1.4.4",
     "react-native-flipper": "^0.188.0",
     "react-test-renderer": "19.1.4",
     "redux-devtools-extension": "^2.13.8",
