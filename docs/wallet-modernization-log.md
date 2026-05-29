@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.164 - Default Preference latest update
+
+- Branch: `feature/bem-37-default-preference-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-default-preference` from `1.4.1` to latest `1.4.4`.
+- Keep the dependency in `devDependencies`, matching the existing manifest location.
+- Keep the current Jest setup mock unchanged.
+
+Findings:
+
+- `npm view react-native-default-preference version dist-tags engines peerDependencies dependencies --json` reports `latest` as `1.4.4`.
+- The package declares `react-native >=0.47.0`; the current RN `0.81.6` baseline satisfies that range.
+- The app has no direct runtime source imports for this package, but Android autolinking still includes the native module, so Android build/smoke validation remains required.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.163 - React Native Elements latest stable update
 
 - Branch: `feature/bem-37-react-native-elements-update`
