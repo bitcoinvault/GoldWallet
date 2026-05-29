@@ -7,6 +7,7 @@
     "allowJs": true,
     "strict": true,
     "suppressImplicitAnyIndexErrors": true,
+    "ignoreDeprecations": "5.0",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "isolatedModules": false,

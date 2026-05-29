@@ -3,24 +3,23 @@ import { getMaskedViewMigrationSummaryErrors } from './maskedViewMigrationSummar
 const validSummary = [
   'Masked-view migration audit',
   'Generated at: 2026-05-29T00:00:00.000Z',
-  'Current masked-view package: @react-native-community/masked-view@0.1.11',
-  'Replacement masked-view package: @react-native-masked-view/masked-view@0.3.2',
-  '@react-navigation/stack version: 5.14.9',
-  'Navigation requires community masked-view path: yes',
-  'Warning baseline mentions masked-view: yes',
+  'Current masked-view package: <removed>',
+  'Replacement masked-view package: <not required>',
+  '@react-navigation/stack version: 7.9.3',
+  'Navigation requires community masked-view path: no',
+  'Warning baseline mentions masked-view: no',
   'Masked-view migration baseline stable: yes',
-  'Warnings: 1',
-  '- local Android warning audit summary does not mention masked-view; refresh the warning audit before migration.',
+  'Warnings: 0',
   'Errors: 0',
-  'Required action: none; masked-view migration baseline is stable for a dedicated navigation validation branch.',
+  'Required action: none; masked-view migration is complete after navigation validation.',
 ].join('\n');
 
 const invalidSummary = validSummary
-  .replace('Current masked-view package: @react-native-community/masked-view@0.1.11', 'Current masked-view package: <missing>')
+  .replace('Current masked-view package: <removed>', 'Current masked-view package: @react-native-community/masked-view@0.1.11')
   .replace('Masked-view migration baseline stable: yes', 'Masked-view migration baseline stable: no')
   .replace(
-    'Required action: none; masked-view migration baseline is stable for a dedicated navigation validation branch.',
-    'Required action: restore masked-view migration baseline before replacing the dependency.',
+    'Required action: none; masked-view migration is complete after navigation validation.',
+    'Required action: restore masked-view migration baseline before merging.',
   );
 
 const assertAccepted = (label, summary) => {

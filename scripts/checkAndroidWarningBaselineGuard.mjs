@@ -1,7 +1,6 @@
 import { getUnexpectedAndroidWarningFindings } from './androidWarningBaselineGuard.mjs';
 
 const expectedFindings = [
-  String.raw`jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
   String.raw`jcenter(): at build_abc$_run_closure2.doCall$original(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
 ];
 

@@ -1,10 +1,5 @@
 export const expectedRemainingWarningFollowups = [
   {
-    packageName: '@react-native-community/masked-view',
-    warningSource: 'node_modules/@react-native-community/masked-view/android/build.gradle:47',
-    followUp: 'dedicated masked-view/navigation migration',
-  },
-  {
     packageName: 'react-native-secure-key-store',
     warningSource: 'node_modules/react-native-secure-key-store/android/build.gradle:46',
     followUp: 'dedicated secure-storage removal after dual-write migration',
@@ -35,6 +30,7 @@ export const getRemainingWarningPlanErrors = documentText => {
     'react-native-exit-app',
     'react-native-device-info',
     'react-native-camera',
+    '@react-native-community/masked-view',
   ].forEach(
     packageName => {
       const unexpectedRowPrefix = `| \`${packageName}\` |`;

@@ -41,12 +41,12 @@ export const getMaskedViewMigrationSummaryErrors = summary => {
     errors.push('Masked-view migration summary header is missing');
   }
 
-  if (currentPackage !== '@react-native-community/masked-view@0.1.11') {
-    errors.push(`Current masked-view package must be @react-native-community/masked-view@0.1.11. Received: ${currentPackage || 'missing'}`);
+  if (currentPackage !== '<removed>') {
+    errors.push(`Current masked-view package must be <removed>. Received: ${currentPackage || 'missing'}`);
   }
 
-  if (replacementPackage !== '@react-native-masked-view/masked-view@0.3.2') {
-    errors.push(`Replacement masked-view package must be @react-native-masked-view/masked-view@0.3.2. Received: ${replacementPackage || 'missing'}`);
+  if (replacementPackage !== '<not required>') {
+    errors.push(`Replacement masked-view package must be <not required>. Received: ${replacementPackage || 'missing'}`);
   }
 
   if (!navigationStackVersion) {
@@ -69,8 +69,8 @@ export const getMaskedViewMigrationSummaryErrors = summary => {
     errors.push(`Warnings count must be ${warningLines.length}. Received: ${warningCount || 'missing'}`);
   }
 
-  if (baselineStable === 'yes' && !requiredAction?.includes('none; masked-view migration baseline is stable')) {
-    errors.push('Stable baseline summary must include the no-action masked-view required action');
+  if (baselineStable === 'yes' && !requiredAction?.includes('none; masked-view migration is complete')) {
+    errors.push('Stable baseline summary must include the completed masked-view required action');
   }
 
   if (baselineStable === 'no' && !requiredAction?.includes('restore masked-view migration baseline')) {

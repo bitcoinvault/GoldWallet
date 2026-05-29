@@ -1,24 +1,24 @@
 # Masked-view Migration Plan
 
-This plan covers the remaining `@react-native-community/masked-view` Android `jcenter()` warning.
+This plan records the completed `@react-native-community/masked-view` Android `jcenter()` warning removal.
 
 Checked on: 2026-05-29
 
 ## Current State
 
-- Current package: `@react-native-community/masked-view@0.1.11`.
-- Replacement package: `@react-native-masked-view/masked-view@0.3.2`.
-- Current navigation package: `@react-navigation/stack@5.14.9`.
-- `@react-navigation/stack@5.14.9` still requires `@react-native-community/masked-view` at runtime through its `MaskedViewNative` implementation.
+- Current package: removed.
+- Replacement package: not required.
+- Current navigation packages: `@react-navigation/native@7.2.5`, `@react-navigation/stack@7.9.3`, `@react-navigation/bottom-tabs@7.16.2`.
+- `@react-navigation/stack@7.9.3` no longer requires `@react-native-community/masked-view`.
+- `react-native-gesture-handler@2.20.2` is the highest compatible version found in this branch; `3.0.0` and `2.31.2` fail Android Kotlin compilation on the current RN `0.76.9` baseline.
+- TypeScript was raised to `5.4.5` so the React Navigation 7 declaration syntax is parsed while preserving the existing strictness compatibility setting.
 - The app has no direct `src` imports of either masked-view package.
 
 ## Decision
 
-Do not swap `@react-native-community/masked-view` as a warning-only cleanup.
+The migration is handled through a dedicated React Navigation validation branch, not a package-only swap.
 
-The migration should be a dedicated navigation validation branch because the active stack navigator package still references the community package path. A safe migration may require a React Navigation stack upgrade, a compatibility bridge, or both.
-
-Branch: `feature/bem-masked-view-navigation-migration`
+Branch: `feature/bem-37-masked-view-navigation-proof`
 
 ## Required Validation
 

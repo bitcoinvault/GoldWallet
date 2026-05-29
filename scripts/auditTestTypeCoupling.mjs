@@ -8,10 +8,10 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 const exists = relativePath => existsSync(path.join(root, relativePath));
 
 export const expectedTestTypeCoupling = {
-  typescript: '4.9.5',
-  jest: '26.6.3',
-  babelJest: '^26.6.3',
-  tsJest: '^26.4.1',
+  typescript: '5.4.5',
+  jest: '29.7.0',
+  babelJest: '29.7.0',
+  tsJest: '29.4.6',
   reactTestRenderer: '18.2.0',
   tsTarget: 'ES2019',
   tsJsx: 'react-native',
@@ -47,10 +47,10 @@ export const requiredTestTypeValidationFiles = [
 
 export const requiredTestTypeCouplingSnippets = [
   ['docs/test-type-coupling-audit.md', 'Test/type coupling audit'],
-  ['docs/test-type-coupling-audit.md', 'Current TypeScript: `4.9.5`'],
-  ['docs/test-type-coupling-audit.md', 'Current Jest: `26.6.3`'],
-  ['docs/test-type-coupling-audit.md', 'Current babel-jest: `^26.6.3`'],
-  ['docs/test-type-coupling-audit.md', 'Current ts-jest: `^26.4.1`'],
+  ['docs/test-type-coupling-audit.md', 'Current TypeScript: `5.4.5`'],
+  ['docs/test-type-coupling-audit.md', 'Current Jest: `29.7.0`'],
+  ['docs/test-type-coupling-audit.md', 'Current babel-jest: `29.7.0`'],
+  ['docs/test-type-coupling-audit.md', 'Current ts-jest: `29.4.6`'],
   ['docs/test-type-coupling-audit.md', 'Current react-test-renderer: `18.2.0`'],
   ['docs/test-type-coupling-audit.md', 'Current TS JSX mode: `react-native`'],
   ['docs/test-type-coupling-audit.md', 'Current TS skipLibCheck: `true`'],

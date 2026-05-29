@@ -25,6 +25,12 @@ const requireSnippet = (errors, label, content, snippet) => {
   }
 };
 
+const requireMissingSnippet = (errors, label, content, snippet) => {
+  if (content.includes(snippet)) {
+    errors.push(`${label} still contains "${snippet}"`);
+  }
+};
+
 const getPackageVersion = packageName => {
   const packagePath = path.join(root, 'node_modules', ...packageName.split('/'), 'package.json');
 
@@ -39,35 +45,32 @@ export const collectMaskedViewMigrationAudit = () => {
   const errors = [];
   const warnings = [];
   const currentVersion = dependencies['@react-native-community/masked-view'];
-  const replacementVersion = '0.3.2';
   const navigationStackPackage = JSON.parse(requireFile(errors, 'node_modules/@react-navigation/stack/package.json') || '{}');
-  const navigationMaskedViewNative = requireFile(errors, 'node_modules/@react-navigation/stack/lib/commonjs/views/MaskedViewNative.js');
   const warningBaseline = requireFile(errors, 'local-docs/android-warning-audit-summary.txt');
   const navigationPlan = requireFile(errors, 'docs/navigation-native-compatibility-audit.md');
   const followupPlan = requireFile(errors, 'docs/android-warning-baseline-followups.md');
 
-  if (currentVersion !== '0.1.11') {
-    errors.push(`package.json has @react-native-community/masked-view@${currentVersion || '<missing>'}; expected 0.1.11`);
+  if (currentVersion) {
+    errors.push(`package.json still has @react-native-community/masked-view@${currentVersion}; expected removal after navigation migration`);
   }
 
-  requireSnippet(errors, '@react-navigation/stack package.json', JSON.stringify(navigationStackPackage), '@react-native-community/masked-view');
-  requireSnippet(errors, '@react-navigation/stack MaskedViewNative.js', navigationMaskedViewNative, "require('@react-native-community/masked-view')");
-  requireSnippet(errors, 'docs/navigation-native-compatibility-audit.md', navigationPlan, '@react-native-masked-view/masked-view');
-  requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'dedicated masked-view/navigation migration');
+  requireMissingSnippet(errors, '@react-navigation/stack package.json', JSON.stringify(navigationStackPackage), '@react-native-community/masked-view');
+  requireSnippet(errors, 'docs/navigation-native-compatibility-audit.md', navigationPlan, '@react-navigation/stack@7.9.3');
+  requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'react-native-secure-key-store');
 
-  if (!warningBaseline.includes('@react-native-community\\masked-view') && !warningBaseline.includes('@react-native-community/masked-view')) {
-    warnings.push('local Android warning audit summary does not mention masked-view; refresh the warning audit before migration.');
+  if (warningBaseline.includes('@react-native-community\\masked-view') || warningBaseline.includes('@react-native-community/masked-view')) {
+    warnings.push('local Android warning audit summary still mentions masked-view; refresh the warning audit after migration.');
   }
 
   if (dependencies['@react-native-masked-view/masked-view']) {
-    warnings.push('@react-native-masked-view/masked-view is already installed; ensure the old community package path has been deliberately migrated.');
+    warnings.push('@react-native-masked-view/masked-view is installed even though React Navigation 7 does not require it.');
   }
 
   return {
-    currentPackage: `@react-native-community/masked-view@${currentVersion || '<missing>'}`,
-    replacementPackage: `@react-native-masked-view/masked-view@${replacementVersion}`,
+    currentPackage: currentVersion ? `@react-native-community/masked-view@${currentVersion}` : '<removed>',
+    replacementPackage: dependencies['@react-native-masked-view/masked-view'] || '<not required>',
     navigationStackVersion: navigationStackPackage.version || getPackageVersion('@react-navigation/stack'),
-    navigationRequiresCommunityPath: navigationMaskedViewNative.includes("require('@react-native-community/masked-view')"),
+    navigationRequiresCommunityPath: JSON.stringify(navigationStackPackage).includes('@react-native-community/masked-view'),
     warningBaselineMentionsMaskedView:
       warningBaseline.includes('@react-native-community\\masked-view') || warningBaseline.includes('@react-native-community/masked-view'),
     errors,
@@ -94,8 +97,8 @@ export const formatMaskedViewMigrationSummary = (audit, generatedAt = new Date()
   audit.errors.forEach(error => lines.push(`- ${error}`));
   lines.push(
     audit.baselineStable
-      ? 'Required action: none; masked-view migration baseline is stable for a dedicated navigation validation branch.'
-      : 'Required action: restore masked-view migration baseline before replacing the dependency.',
+      ? 'Required action: none; masked-view migration is complete after navigation validation.'
+      : 'Required action: restore masked-view migration baseline before merging.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -119,7 +122,7 @@ const printReport = audit => {
     return;
   }
 
-  console.log('Masked-view migration baseline is stable for a dedicated navigation validation branch.');
+  console.log('Masked-view migration is complete after navigation validation.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
