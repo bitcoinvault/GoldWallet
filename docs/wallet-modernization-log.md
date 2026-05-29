@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.114 - Camera candidate audit
+
+- Branch: `feature/bem-37-camera-candidate-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `camera:candidate:audit`, `camera:candidate:check-summary`, and `check:camera-candidate-summary-guard`.
+- Record the current camera replacement candidate decision in `docs/camera-replacement-plan.md`.
+- Include the candidate audit in `rn:baseline:preflight`.
+- Include the camera candidate summary guard in `android:dev:check-light`.
+
+Why:
+
+- `react-native-camera` is one of the remaining Android `jcenter()` warning sources, but the package is archived/deprecated and the latest `4.2.1` line still does not remove the warning cleanly.
+- Current candidate metadata points to `react-native-vision-camera@5.0.11` as the first proof target, with `react-native-camera-kit@18.0.0` as fallback.
+- The scanner migration must preserve the current QR screen contract and all eight guarded scanner callers.
+
+Validation:
+
+- `corepack yarn check:camera-candidate-summary-guard` passed.
+- `corepack yarn camera:candidate:audit` passed.
+- `corepack yarn camera:candidate:check-summary` passed.
+- `corepack yarn rn:upgrade-path:audit` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+
 ### BEM-37.113 - Secure-storage migration audit
 
 - Branch: `feature/bem-37-secure-storage-migration-audit`
