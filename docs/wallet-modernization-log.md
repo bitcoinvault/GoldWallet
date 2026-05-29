@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.153 - Sentry Android warning audit refresh
+
+- Branch: `feature/bem-37-sentry-warning-audit-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Sentry Android warning audit against the current RN `0.81.6` modernization baseline.
+- Re-check that the old Sentry `execResult` warning is not active in the current Android Gradle warning audit.
+- Keep Sentry SDK and release/source-map behavior unchanged.
+
+Findings:
+
+- `corepack yarn android:dev:audit-warnings` reports one targeted warning source: `react-native-secure-key-store` `jcenter()`.
+- `corepack yarn sentry:android-warning:audit` confirms `@sentry/react-native@5.36.0` and tracks `bundleTask.getProperties()` references at Sentry Gradle lines `48`, `376`, and `396`.
+- The latest Android warning audit does not report an active Sentry `execResult` warning on the RN `0.81` baseline.
+- The latest npm release checked for `@sentry/react-native` remains `8.13.0`, so any SDK upgrade still belongs in the dedicated release/source-map branch.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn check:sentry-android-warning-summary-guard`
+- `corepack yarn check:android-remaining-warning-plan`
+
 ### BEM-37.152 - React Native Modal latest compatibility update
 
 - Branch: `feature/bem-37-react-native-modal-stable-update`
