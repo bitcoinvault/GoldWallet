@@ -78,9 +78,9 @@ assertRejected(
   'Wrong target SDK fixture',
   {
     ...validEnvironment,
-    androidBuildGradle: validEnvironment.androidBuildGradle.replace('targetSdkVersion = 35', 'targetSdkVersion = 34'),
+    androidBuildGradle: validEnvironment.androidBuildGradle.replace('targetSdkVersion = 36', 'targetSdkVersion = 35'),
   },
-  'targetSdkVersion is 34',
+  'targetSdkVersion is 35',
 );
 assertRejected(
   'Wrong Gradle wrapper fixture',
