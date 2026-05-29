@@ -15,7 +15,6 @@ import { Wallet } from 'app/consts';
 import { decryptCode } from 'app/helpers/decode';
 import { getWalletHashedPublicKeys, walletToAddressesGenerationBase } from 'app/helpers/wallets';
 
-import * as appSettingsSelectors from '../appSettings/selectors';
 import {
   createNotificationEmailFailure,
   createNotificationEmailSuccess,
@@ -41,6 +40,7 @@ import {
   updateNotificationEmailFailure,
   SubscribeDeviceTokenAction,
 } from './actions';
+import * as appSettingsSelectors from '../appSettings/selectors';
 
 export function* createNotificationEmailSaga(action: CreateNotificationEmailAction | unknown) {
   const { meta, payload } = action as CreateNotificationEmailAction;

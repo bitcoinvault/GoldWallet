@@ -17,10 +17,10 @@ import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { ApplicationState } from 'app/state';
 import { transactionNotes } from 'app/state/transactionsNotes/selectors';
 
+import { WalletsState } from './reducer';
 import logger from '../../../logger';
 import { roundBtcToSatoshis, btcToSatoshi, satoshiToBtc } from '../../../utils/bitcoin';
 import { selectors as electrumXSelectors } from '../electrumX';
-import { WalletsState } from './reducer';
 
 const local = (state: ApplicationState): WalletsState => state.wallets;
 const store = (state: ApplicationState) => state;

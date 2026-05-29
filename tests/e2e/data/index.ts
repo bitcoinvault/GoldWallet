@@ -1,9 +1,9 @@
-import { getBuildEnv } from '../helpers/utils';
-import { DataTestEnv } from '../types';
 import * as dev from './env/dev';
 import * as prod from './env/prod';
 import * as stage from './env/stage';
 import { getWallets } from './wallets';
+import { getBuildEnv } from '../helpers/utils';
+import { DataTestEnv } from '../types';
 
 const buildEnv = getBuildEnv();
 

@@ -7,9 +7,6 @@ import { takeLatest, put, take, call, select, delay } from 'redux-saga/effects';
 
 import { Wallet } from 'app/consts';
 
-import logger from '../../../logger';
-import { addToastMessage } from '../toastMessages/actions';
-import * as walletsActions from '../wallets/actions';
 import {
   setBlockHeight,
   fetchBlockHeightFailure,
@@ -27,6 +24,9 @@ import {
   isInternetReachable as isInternetReachableSelector,
   isServerConnected as isServerConnectedSelector,
 } from './selectors';
+import logger from '../../../logger';
+import { addToastMessage } from '../toastMessages/actions';
+import * as walletsActions from '../wallets/actions';
 
 const BlueElectrum = require('../../../BlueElectrum');
 const i18n = require('../../../loc');

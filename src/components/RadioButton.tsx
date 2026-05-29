@@ -26,7 +26,7 @@ const RadioButtonUncheckedIcon = () => (
   </View>
 );
 
-export const RadioButton = <T extends unknown>(props: Props<T>) => {
+export const RadioButton = <T,>(props: Props<T>) => {
   const onPressHandler = () => {
     props.onPress && props.onPress(props.value);
   };
