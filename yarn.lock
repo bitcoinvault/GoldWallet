@@ -2779,11 +2779,6 @@
   resolved "https://registry.yarnpkg.com/@types/bigi/-/bigi-1.4.5.tgz#58914ce8ee9c0ac77eb6005f8bb56d8e23bb0bac"
   integrity sha512-fb5MUzazrD2GRnwlStm91HVu3cZbvolX9kJruqpUBdc24eHBWrLLfyt8XN1/C5JpI0stP/MbaFQp+cJh5WOFfw==
 
-"@types/bip21@2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@types/bip21/-/bip21-2.0.3.tgz#2aa753e7decc881cd53028dac2249c1567802ac0"
-  integrity sha512-ZgxK01VEjLU08sf5zz2aZeSMp0aki6yOSdQ3xuLO/KgNjdCujYzvkxUH6a2eOB/HOYtu2qOxr/KpWajuV1naIw==
-
 "@types/crypto-js@^3.1.47":
   version "3.1.47"
   resolved "https://registry.yarnpkg.com/@types/crypto-js/-/crypto-js-3.1.47.tgz#36e549dd3f1322742a3a738e7c113ebe48221860"
@@ -3786,12 +3781,12 @@ bip174@^1.0.1:
   resolved "https://registry.yarnpkg.com/bip174/-/bip174-1.0.1.tgz#858a587f9529e22ee9b0572fd884e5783696824d"
   integrity sha512-Mq2aFs1TdMfxBpYPg7uzjhsiXbAtoVq44TNjEWtvuZBiBgc3m7+n55orYMtTAxdg7jWbL4DtH0MKocJER4xERQ==
 
-bip21@2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/bip21/-/bip21-2.0.2.tgz#fa3434a10ed349e37335d2ae7b277e7fd30ea149"
-  integrity sha512-17u8+MrOE9iQWwZ5fPg656lAtBpE6MrmGBPPnJvx/AXnvfQpvT51RN3hR7qHqcd8HxXT+tueywcoXwXp+CdtdA==
+bip21@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/bip21/-/bip21-3.0.0.tgz#f336e6888fda108d1d6dfb71b2af63af7f942abe"
+  integrity sha512-uJ3opZiOUs9x+Q+D6ezcIQje3ymIXyFFEbx1C8wRVSERxQ0rXTG4FJuj8neYUDNJhwsvTy9f2dYMaUMq+3/fIw==
   dependencies:
-    qs "^6.3.0"
+    query-string "^9.0.0"
 
 bip32@2.0.6, bip32@^2.0.4:
   version "2.0.6"
@@ -4838,6 +4833,11 @@ decode-uri-component@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.2.tgz#e69dbe25d37941171dd540e024c444cd5188e1e9"
   integrity sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==
+
+decode-uri-component@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.4.1.tgz#2ac4859663c704be22bf7db760a1494a49ab2cc5"
+  integrity sha512-+8VxcR21HhTy8nOt6jf20w0c9CADrw1O8d+VZ/YzzCt4bJ3uBjw+D1q2osAB8RnpwwaeYBxy0HyKQxD5JBMuuQ==
 
 dedent@0.7.0, dedent@^0.7.0:
   version "0.7.0"
@@ -6026,6 +6026,11 @@ filter-obj@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/filter-obj/-/filter-obj-1.1.0.tgz#9b311112bc6c6127a16e016c6c5d7f19e0805c5b"
   integrity sha1-mzERErxsYSehbgFsbF1/GeCAXFs=
+
+filter-obj@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/filter-obj/-/filter-obj-5.1.0.tgz#5bd89676000a713d7db2e197f660274428e524ed"
+  integrity sha512-qWeTREPoT7I0bifpPUXtxkZJ1XJzxWtfoWWkdVGqa+eCr3SHW/Ocp89o8vLvbUuQnadybJpjOKu4V+RwO6sGng==
 
 finalhandler@1.1.2:
   version "1.1.2"
@@ -10023,7 +10028,7 @@ qs@^6.11.0, qs@^6.12.3, qs@^6.14.1:
   dependencies:
     side-channel "^1.1.0"
 
-qs@^6.3.0, qs@^6.7.0:
+qs@^6.7.0:
   version "6.10.1"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.10.1.tgz#4931482fa8d647a5aab799c5271d2133b981fb6a"
   integrity sha512-M528Hph6wsSVOBiYUnGf+K/7w0hNshs/duGsNXPUCLH5XAqjEtiPGwNONLV0tBH8NoGb0mvD5JubnUTrujKDTg==
@@ -10049,6 +10054,15 @@ query-string@^7.1.3:
     filter-obj "^1.1.0"
     split-on-first "^1.0.0"
     strict-uri-encode "^2.0.0"
+
+query-string@^9.0.0:
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-9.4.0.tgz#4f2cd518680e087dd781dd605f75dcb18c7f7a53"
+  integrity sha512-ivvWyHqU9K1Log4hJFhqVIIMoEi0nzmlRhvk2pPcTuQH/Y0K5iTTMxEx7R0PRHD2Z1hMVbWnjfsEWbIKIK+3IA==
+  dependencies:
+    decode-uri-component "^0.4.1"
+    filter-obj "^5.1.0"
+    split-on-first "^3.0.0"
 
 querystringify@^2.1.1:
   version "2.2.0"
@@ -11385,6 +11399,11 @@ split-on-first@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/split-on-first/-/split-on-first-1.1.0.tgz#f610afeee3b12bce1d0c30425e76398b78249a5f"
   integrity sha512-43ZssAJaMusuKWL8sKUBQXHWOpq8d6CfN/u1p4gUzfJkM05C8rxTmYrkIPTXapZpORA6LkkzcUulJ8FqA7Uudw==
+
+split-on-first@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/split-on-first/-/split-on-first-3.0.0.tgz#f04959c9ea8101b9b0bbf35a61b9ebea784a23e7"
+  integrity sha512-qxQJTx2ryR0Dw0ITYyekNQWpz6f8dGd7vffGNflQQ3Iqj9NJ6qiZ7ELpZsJ/QBhIVAiDfXdag3+Gp8RvWa62AA==
 
 sprintf-js@~1.0.2:
   version "1.0.3"
