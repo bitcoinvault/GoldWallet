@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.165 - Linear Gradient latest stable update
+
+- Branch: `feature/bem-37-linear-gradient-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-linear-gradient` from `2.5.6` to latest stable `2.8.3`.
+- Keep the app's local `LinearGradient` wrapper and existing button/header gradient call sites unchanged.
+- Avoid pre-release `3.0.0-beta.2`; npm currently exposes it only on the `next` tag.
+
+Findings:
+
+- `npm view react-native-linear-gradient version dist-tags engines peerDependencies dependencies --json` reports stable `latest` as `2.8.3`.
+- The package declares broad `react` and `react-native` peer compatibility.
+- Source usage is scoped to `src/components/Gradient.tsx`, `GradientView`, `Button`, and `ChamberOfSecrets`.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.164 - Default Preference latest update
 
 - Branch: `feature/bem-37-default-preference-update`
