@@ -86,7 +86,7 @@ Use `corepack yarn upgrade:strategy:audit` before dependency/RN baseline branche
 
 `check:storage-network-usage-guard` verifies the storage/network usage guard self-check fixtures. `check:storage-network-usage` verifies current imports for AsyncStorage, NetInfo, device-info, react-native-config, localization, secure storage, TCP socket, WebView, and randombytes before Group C native dependency changes.
 
-`check:storage-network-validation-scripts-guard` verifies the focused validation script guard self-check fixtures. `check:storage-network-validation-scripts` verifies that storage, authenticator, and wallet-core offline tests still exist as package scripts and remain part of `prepush` before Group C dependency changes.
+`check:storage-network-validation-scripts-guard` verifies the focused validation script guard self-check fixtures. `check:storage-network-validation-scripts` verifies that secure-storage, storage, authenticator, and wallet-core offline tests still exist as package scripts and remain part of `prepush` before Group C dependency changes.
 
 `check:native-module-inventory` keeps the current BEM-36 native dependency inventory explicit before grouped native module upgrades. `check:native-module-upgrade-plan-guard` self-checks the plan coverage comparison logic, and `check:native-module-upgrade-plan` verifies that every tracked native dependency appears in `docs/native-module-upgrade-plan.md`. If a native dependency version changes, update the inventory, the plan, and the related upgrade notes in the same branch.
 
