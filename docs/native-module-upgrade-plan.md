@@ -106,6 +106,7 @@ Branch shape:
 - `react-native-exit-app` is on checked `2.0.0` after `BEM-37.106`; the package no longer contributes an Android `jcenter()` warning on the RN `0.76.9` baseline. Future exit-app work should validate factory reset and terms rejection behavior.
 - `react-native-localize` is on checked `3.7.0` after `BEM-37.107`; the package no longer contributes an Android `jcenter()` warning on the RN `0.76.9` baseline. Future localization work should focus on app language behavior and RN baseline changes.
 - `react-native-secure-key-store` is pinned to latest checked `2.0.10` after `BEM-36.63`; future secure-storage work should focus on behavior validation or replacement, not another package bump.
+- `corepack yarn secure-storage:migration:audit` records that secure storage protects PIN and transaction-password behavior before any replacement branch starts.
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 - `react-native-randombytes` is on latest checked `3.6.2` after `BEM-36.49`; future random-value work should be a dedicated crypto/runtime replacement branch for `react-native-get-random-values`, not another package bump.
 - `react-native-version-number` is pinned to the already-resolved `0.3.6` after `BEM-36.69`; future app metadata work should validate displayed/build version behavior on both platforms.

@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';
 import { getMaskedViewMigrationSummaryErrors } from './maskedViewMigrationSummaryGuard.mjs';
+import { getSecureStorageMigrationSummaryErrors } from './secureStorageMigrationSummaryGuard.mjs';
 import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -18,6 +19,11 @@ const summaries = [
     label: 'masked-view migration',
     relativePath: 'local-docs/masked-view-migration-summary.txt',
     getErrors: getMaskedViewMigrationSummaryErrors,
+  },
+  {
+    label: 'secure-storage migration',
+    relativePath: 'local-docs/secure-storage-migration-summary.txt',
+    getErrors: getSecureStorageMigrationSummaryErrors,
   },
   {
     label: 'Sentry Android warning',

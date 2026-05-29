@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.113 - Secure-storage migration audit
+
+- Branch: `feature/bem-37-secure-storage-migration-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `docs/secure-storage-migration-plan.md`.
+- Add `secure-storage:migration:audit`, `secure-storage:migration:check-summary`, and `check:secure-storage-migration-summary-guard`.
+- Include the generated secure-storage migration summary in the aggregate Android warning-source summary checker.
+- Include the secure-storage migration summary guard in `android:dev:check-light`.
+
+Why:
+
+- `react-native-secure-key-store` is one of the three remaining Android `jcenter()` warning sources.
+- The package is already at latest `2.0.10`, so removing the warning requires replacement rather than another package bump.
+- The wrapper stores `CONST.pin` and the hashed `CONST.transactionPassword`, so replacement must preserve secure-storage semantics and cannot be treated as a warning-only cleanup.
+- The current replacement candidate recorded by this audit is `react-native-keychain@10.0.0`.
+
+Validation:
+
+- `corepack yarn check:secure-storage-migration-summary-guard` passed.
+- `corepack yarn secure-storage:migration:audit` passed.
+- `corepack yarn secure-storage:migration:check-summary` passed.
+- `corepack yarn check:android-warning-source-summaries-guard` passed.
+- `corepack yarn android:dev:check-warning-source-summaries` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `corepack yarn typescript:check` passed.
+- `git diff --check` passed.
+
 ### BEM-37.112 - Masked-view migration audit
 
 - Branch: `feature/bem-37-masked-view-migration-audit`
