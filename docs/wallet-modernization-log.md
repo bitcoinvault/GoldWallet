@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.194 - ESLint React plugin update
+
+- Branch: `feature/bem-37-eslint-react-plugin-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the direct ESLint React plugin from `eslint-plugin-react@7.34.4` to latest stable `eslint-plugin-react@7.37.5`.
+- Keep ESLint core, TypeScript ESLint packages, Prettier, app runtime code, native code, Metro config, and test runtime packages unchanged.
+- Validate that the updated React plugin loads through the existing `.eslintrc` stack.
+
+Findings:
+
+- `npm view eslint-plugin-react@7.37.5 version engines peerDependencies dependencies --json` reports ESLint peer support through `^9.7` and remains compatible with current `eslint@8.57.0`.
+- `corepack yarn eslint --print-config src\App.tsx` succeeds and shows the React plugin rules/config are resolved with the existing parser and plugin stack.
+- Loading `eslint-plugin-react` directly reports the expected rule/config surface.
+- The existing `yarn lint` script is not a reliable Windows validation command yet because the single-quoted glob is passed literally in PowerShell.
+- Running ESLint with Windows-safe globs reaches the real repo lint debt and reports existing errors/warnings; that cleanup stays a separate lint-baseline branch instead of being mixed into this dependency update.
+
+Validation:
+
+- `npm view eslint-plugin-react@7.37.5 version engines peerDependencies dependencies --json`
+- `corepack yarn add --dev eslint-plugin-react@7.37.5`
+- `corepack yarn eslint --print-config src\App.tsx`
+- Direct plugin load: `require('eslint-plugin-react')`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.193 - Jest type definitions update
 
 - Branch: `feature/bem-37-types-jest-update`
