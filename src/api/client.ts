@@ -1,6 +1,10 @@
 import { HttpError } from 'app/../error/AppErrors';
-import logger from 'app/../logger';
-import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
+
+const axios = require('axios/dist/browser/axios.cjs') as typeof import('axios').default;
+
+type AxiosError<T = any> = import('axios').AxiosError<T>;
+type AxiosResponse<T = any> = import('axios').AxiosResponse<T>;
+type InternalAxiosRequestConfig<T = any> = import('axios').InternalAxiosRequestConfig<T>;
 
 export enum GeneralHttpError {
   NO_RESPONSE = 'No response',
@@ -13,7 +17,7 @@ const createHttpClient = (baseUrl: string) => {
     headers: { 'Content-Type': 'application/json' },
   });
 
-  const onRequest = (request: AxiosRequestConfig) => {
+  const onRequest = (request: InternalAxiosRequestConfig) => {
     console.info('http', `--> ${request.method?.toUpperCase()} ${request.baseURL}${request.url}`);
 
     return request;
@@ -27,17 +31,23 @@ const createHttpClient = (baseUrl: string) => {
   };
 
   const onError = (error: AxiosError) => {
+    const requestUrl = error.config?.url || baseUrl;
+
     if (error.response) {
-      console.error('http', `<-- ${error.response.status} ${error.config.baseURL}${error.config.url}`);
+      console.error('http', `<-- ${error.response.status} ${error.config?.baseURL || baseUrl}${requestUrl}`);
     }
 
     if (!error?.response) {
       throw new HttpError(`Request to ${baseUrl} failed. Details: No response`);
     }
 
-    const message = error.response?.data.msg || 'No message';
+    const responseData = error.response.data;
+    const message =
+      responseData && typeof responseData === 'object' && 'msg' in responseData
+        ? String(responseData.msg)
+        : 'No message';
 
-    throw new HttpError(`Request to ${error.config.url} failed. Details: ${message}`);
+    throw new HttpError(`Request to ${requestUrl} failed. Details: ${message}`);
   };
 
   httpClient.interceptors.request.use(request => onRequest(request));
