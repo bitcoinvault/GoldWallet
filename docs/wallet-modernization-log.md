@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.144 - Android workflow target SDK wording refresh
+
+- Branch: `feature/bem-37-android-workflow-target-sdk-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/android-modernization-workflow.md` after the Android SDK 36 baseline.
+- Replace the stale target-SDK deferral wording with the current Android SDK 36 toolchain baseline.
+- Keep package versions, native code, and runtime behavior unchanged.
+
+Findings:
+
+- `docs/react-native-upgrade-path.md` already records compile SDK 36 and target SDK 36 as the current Android template/toolchain baseline.
+- The workflow still described target SDK as deferred, which no longer matched the active RN upgrade-path audit.
+
+Validation:
+
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.143 - Sentry plan RN 0.81 refresh
 
 - Branch: `feature/bem-37-sentry-plan-rn081-refresh`
