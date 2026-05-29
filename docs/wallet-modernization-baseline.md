@@ -105,7 +105,7 @@ High-risk native dependencies:
 - `react-native-camera` was replaced by `react-native-camera-kit@18.0.0` in the dedicated QR scanner migration stream.
 - Navigation/layout packages are on the RN `0.81.6` checkpoint versions: `react-native-gesture-handler@2.29.1`, `react-native-screens@4.24.0`, and `react-native-safe-area-context@5.8.0`; future bumps should stay tied to the next RN milestone and navigation smoke validation.
 - `react-native-svg@15.15.5` is paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4`; future SVG/QR changes need the guarded QR render-screen validation.
-- `react-native-share@7.9.1`, `react-native-vector-icons@10.3.0`, `react-native-webview@11.26.1`, and `react-native-fast-image@8.6.3` are checked native packages whose future work should focus on release/device behavior, not generic warning cleanup.
+- `react-native-share@12.3.1`, `react-native-vector-icons@10.3.0`, `react-native-webview@11.26.1`, and `react-native-fast-image@8.6.3` are checked native packages whose future work should focus on release/device behavior, not generic warning cleanup.
 - `react-native-prompt-android` still requires Jetifier because it uses old Android support imports before transformation.
 - Native module upgrade sequencing is tracked in `docs/native-module-upgrade-plan.md`, with the current package inventory guarded by `corepack yarn check:native-module-inventory`.
 
