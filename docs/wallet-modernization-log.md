@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.131 - RN 0.81 Sentry Android warning audit refresh
+
+- Branch: `feature/bem-37-sentry-warning-audit-rn081`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the Android Gradle warning audit after the RN `0.81.6` baseline proof.
+- Re-run the Sentry Android warning summary audit and checker against the current warning summary.
+- Refresh Sentry warning audit wording from the old RN `0.76` migration note to the current RN `0.81` baseline.
+- Refresh Sentry release/source-map docs and Android workflow wording so they match the current one-warning baseline.
+
+Findings:
+
+- The active Android warning audit reports `Targeted Android Gradle warnings: 1`.
+- The remaining targeted source is `react-native-secure-key-store` `jcenter()` at `node_modules\react-native-secure-key-store\android\build.gradle:46`.
+- Sentry `execResult` is still not an active targeted Android warning on the RN `0.81` baseline.
+- Sentry remains on `@sentry/react-native@5.36.0`; any Sentry SDK/tooling change still needs a dedicated release/source-map validation branch.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+
 ### BEM-37.130 - RN 0.81 baseline proof
 
 - Branch: `feature/bem-37-rn-next-baseline-proof`

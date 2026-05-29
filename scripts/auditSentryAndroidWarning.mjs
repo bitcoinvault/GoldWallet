@@ -67,7 +67,7 @@ export const collectSentryAndroidWarningAudit = () => {
     .filter(({ line }) => line.includes('bundleTask.getProperties()'));
   const getPropertiesLineNumbers = getPropertiesLines.map(({ lineNumber }) => lineNumber);
   if (warningSummary && !activeSentryWarning) {
-    warnings.push('Latest Android warning audit does not report an active Sentry execResult warning after the RN 0.76 Gradle migration.');
+    warnings.push('Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.81 baseline.');
   }
 
   if (sentryVersion === '5.36.0') {

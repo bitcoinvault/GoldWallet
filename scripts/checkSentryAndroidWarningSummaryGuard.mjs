@@ -8,7 +8,7 @@ const validSummary = [
   'Sentry Android warning wiring valid: yes',
   'Sentry Android warning baseline stable: yes',
   'Warnings: 2',
-  '- Latest Android warning audit does not report an active Sentry execResult warning after the RN 0.76 Gradle migration.',
+  '- Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.81 baseline.',
   '- Sentry remains on 5.36.0; release/source-map behavior still requires a dedicated validation branch before changing Sentry tooling.',
   'Readiness issues: 0',
   'Wiring errors: 0',
