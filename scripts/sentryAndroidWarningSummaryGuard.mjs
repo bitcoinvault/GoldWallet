@@ -76,7 +76,7 @@ export const getSentryAndroidWarningSummaryErrors = summary => {
     errors.push('Stable baseline summary must have valid wiring, 0 readiness issues, and 0 wiring errors');
   }
 
-  if (baselineStable === 'yes' && !requiredAction.includes('none; Sentry Android warning baseline is stable')) {
+  if (baselineStable === 'yes' && !requiredAction.includes('none for Android warning cleanup')) {
     errors.push('Stable baseline summary must include the no-action Sentry Android warning required action');
   }
 
