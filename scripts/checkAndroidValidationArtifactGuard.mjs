@@ -1,12 +1,10 @@
 import { getWarningSummarySourceErrors } from './androidValidationArtifactsGuard.mjs';
 
 const validSummary = [
-  'Targeted Android Gradle warnings: 5',
+  'Targeted Android Gradle warnings: 3',
   'Unexpected targeted Android Gradle warnings: 0',
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-camera\android\build.gradle:59)`,
-  String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\toolbar-android\android\build.gradle:5)`,
-  String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-vector-icons\android\build.gradle:41)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
 ].join('\n');
 
@@ -16,12 +14,10 @@ const zeroWarningSummary = [
 ].join('\n');
 
 const mismatchedCountSummary = [
-  'Targeted Android Gradle warnings: 4',
+  'Targeted Android Gradle warnings: 2',
   'Unexpected targeted Android Gradle warnings: 0',
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-camera\android\build.gradle:59)`,
-  String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\toolbar-android\android\build.gradle:5)`,
-  String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-vector-icons\android\build.gradle:41)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
 ].join('\n');
 

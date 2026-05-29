@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.110 - Vector icons Android jcenter cleanup
+
+- Branch: `feature/bem-37-vector-icons-jcenter-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-vector-icons` from `6.7.0` to `10.3.0`.
+- Remove `@react-native-community/toolbar-android`, which was only needed by the old vector-icons package line.
+- Remove the `react-native-vector-icons` and `@react-native-community/toolbar-android` Android `jcenter()` findings from the warning baseline.
+- Refresh the native module inventory, navigation compatibility audit, warning baseline guard, and warning-summary guard fixtures for the new three-warning RN `0.76` baseline.
+
+Why:
+
+- `react-native-vector-icons@6.7.0` contributed an Android `jcenter()` warning and required the obsolete toolbar peer at Metro bundle time.
+- `react-native-vector-icons@10.3.0` no longer declares that toolbar peer and its Android Gradle file uses `mavenCentral()`.
+
+Validation:
+
+- `corepack yarn postinstall` passed after the dependency change and restored rn-nodeify shims.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings` passed and reported `Targeted Android Gradle warnings: 3` with `Unexpected targeted Android Gradle warnings: 0`.
+- `corepack yarn android:dev:check-warning-guard` passed.
+- `corepack yarn android:dev:check-artifact-guard` passed.
+- `corepack yarn android:dev:check-warning-audit-summary` passed.
+- `corepack yarn check:native-module-inventory` passed.
+- `corepack yarn check:native-module-upgrade-plan` passed.
+- `corepack yarn check:rn-nodeify-shims` passed.
+- `corepack yarn typescript:check` passed.
+- `corepack yarn android:dev:check-light` passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` passed.
+- Metro was restarted with `--reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke` passed; the dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive` with no fatal/runtime logcat findings.
+- `git diff --check` passed.
+
 ### BEM-37.109 - Device info Android jcenter cleanup
 
 - Branch: `feature/bem-37-device-info-jcenter-cleanup`

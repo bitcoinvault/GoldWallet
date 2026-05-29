@@ -199,7 +199,7 @@ Smoke pass means:
 ## Known Limits
 
 - Full funded transaction QA is blocked until a funded BTCV testnet wallet is available.
-- Removed Android warning sources: app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, active Sentry `execResult`, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, `@react-native-community/slider` `jcenter()` from root/buildscript repositories, and `react-native-device-info` `jcenter()`.
+- Removed Android warning sources: app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, active Sentry `execResult`, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, `@react-native-community/slider` `jcenter()` from root/buildscript repositories, `react-native-device-info` `jcenter()`, `react-native-vector-icons` `jcenter()`, and `@react-native-community/toolbar-android` `jcenter()`.
 - `react-native-camera` cleanup is a larger QR/camera migration, not a small warning cleanup.
 - Sentry release/source-map behavior still requires a dedicated validation branch even though the active Android warning audit no longer reports Sentry `execResult`.
-- The current RN `0.76` warning baseline remains exactly five targeted `jcenter()` sources from old native modules: `@react-native-community/masked-view`, `react-native-camera`, `@react-native-community/toolbar-android`, `react-native-vector-icons`, and `react-native-secure-key-store`.
+- The current RN `0.76` warning baseline remains exactly three targeted `jcenter()` sources from old native modules: `@react-native-community/masked-view`, `react-native-camera`, and `react-native-secure-key-store`.
