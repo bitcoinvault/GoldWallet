@@ -269,7 +269,7 @@
     "deprecated-react-native-prop-types": "5.0.0",
     "ecurve": "^1.0.6",
     "electrum-client": "git+https://github.com/bitcoinvault/rn-electrum-client.git",
-    "events": "1.1.1",
+    "events": "3.3.0",
     "intl": "1.2.5",
     "lodash": "^4.17.19",
     "path-browserify": "1.0.1",

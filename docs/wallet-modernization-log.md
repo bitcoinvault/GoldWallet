@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.175 - Events polyfill update
+
+- Branch: `feature/bem-37-events-polyfill-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update the browserified `events` polyfill from `1.1.1` to latest stable `3.3.0`.
+- Keep app source, test source, native project files, Metro config, and rn-nodeify shim code unchanged.
+- Treat this as a runtime/bundler polyfill dependency update because `events` is installed by the rn-nodeify polyfill step and is required by the patched `stream-browserify` path.
+
+Findings:
+
+- `npm view events version dist-tags engines dependencies peerDependencies --json` reports `latest` as `3.3.0`.
+- The app's own event registry remains the local `events.js`; the npm `events` package is used as the Node EventEmitter polyfill surface.
+- `events@3.3.0` has no runtime dependencies and remains compatible with the existing rn-nodeify shim setup.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- Targeted logcat check found BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443`, then `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no fatal exception, ReferenceError, TypeError, or invariant violation was found.
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+
 ### BEM-37.174 - URL polyfill update
 
 - Branch: `feature/bem-37-url-polyfill-update`
