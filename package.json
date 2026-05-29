@@ -38,7 +38,7 @@
     "babel-plugin-module-resolver": "^4.0.0",
     "babel-plugin-polyfill-corejs2": "^0.4.17",
     "babel-plugin-polyfill-regenerator": "^0.6.8",
-    "babel-plugin-transform-inline-environment-variables": "^0.4.3",
+    "babel-plugin-transform-inline-environment-variables": "0.4.4",
     "cz-conventional-changelog": "3.3.0",
     "detox": "18.20.1",
     "detox-getprops": "^0.1.2",

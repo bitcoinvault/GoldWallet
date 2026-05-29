@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.177 - Babel inline environment plugin patch
+
+- Branch: `feature/bem-37-babel-inline-env-patch`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update `babel-plugin-transform-inline-environment-variables` from `0.4.3` to latest stable `0.4.4`.
+- Keep Babel config, runtime source, native project files, Metro config, and rn-nodeify shim code unchanged.
+- Treat this as a build/runtime-bundle tooling update because the plugin inlines `NODE_ENV`, `LOG_BOX_IGNORE`, and `CHAMBER_OF_SECRETS`.
+
+Findings:
+
+- `npm view babel-plugin-transform-inline-environment-variables version dist-tags engines dependencies peerDependencies --json` reports `latest` as `0.4.4`.
+- The package reports no runtime dependencies, engines, or peer dependencies.
+- Existing Babel config remains compatible with the plugin's `include` option.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:watchonly:offline`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- Targeted logcat check found BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443`, then `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no fatal exception, ReferenceError, TypeError, or invariant violation was found.
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+
 ### BEM-37.176 - Coinselect patch update
 
 - Branch: `feature/bem-37-coinselect-patch-update`
