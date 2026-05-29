@@ -2,7 +2,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { DateObject } from 'react-native-calendars';
+import { DateData } from 'react-native-calendars';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
@@ -111,7 +111,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
     this.props.navigation.goBack();
   };
 
-  onDateSelect = (date: DateObject) => {
+  onDateSelect = (date: DateData) => {
     this.setState({
       isCalendarVisible: false,
     });

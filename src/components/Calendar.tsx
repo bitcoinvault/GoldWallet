@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { Calendar as RNCalendar, DateObject } from 'react-native-calendars';
+import { Calendar as RNCalendar, DateData } from 'react-native-calendars';
 import { Overlay } from 'react-native-elements';
 
 import { images } from 'app/assets';
@@ -9,7 +9,7 @@ const TypedCalendar = (RNCalendar as unknown) as React.ComponentType<any>;
 
 interface Props {
   isVisible: boolean;
-  onDateSelect: (date: DateObject) => void;
+  onDateSelect: (date: DateData) => void;
   onClose: () => void;
 }
 
