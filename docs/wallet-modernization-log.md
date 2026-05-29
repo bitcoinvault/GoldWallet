@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.118 - Android SDK 35 foundation
+
+- Branch: `feature/bem-37-android-sdk-35`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Raise Android build tools, compile SDK, and target SDK from `34` to `35`.
+- Update RN upgrade-path audit expectations, guard fixtures, and active baseline docs for SDK 35.
+- Keep Android 16/API 36 deferred because the current Android Gradle Plugin `8.6.0` support boundary is API 35; API 36 belongs with a later AGP/toolchain branch.
+
+Why:
+
+- The local SDK now has `platforms;android-35` and `build-tools;35.0.0` installed.
+- SDK 35 moves the Android baseline forward without mixing in the larger AGP/toolchain jump required for Android 16/API 36.
+
+Validation:
+
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-artifacts`
+
+Result:
+
+- Android dev APK builds with build tools, compile SDK, and target SDK 35.
+- Emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, with no fatal AndroidRuntime or React Native runtime logcat findings.
+- Warning audit remains at three known targeted `jcenter()` sources and zero unexpected targeted warnings.
+
 ### BEM-37.117 - Android env audit covers warning-source helpers
 
 - Branch: `feature/bem-37-env-audit-warning-source-helpers`
