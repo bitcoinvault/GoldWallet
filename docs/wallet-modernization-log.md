@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.129 - React Navigation 7 masked-view removal proof
+
+- Branch: `feature/bem-37-masked-view-navigation-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade navigation packages to `@react-navigation/native@7.2.5`, `@react-navigation/stack@7.9.3`, and `@react-navigation/bottom-tabs@7.16.2`.
+- Remove deprecated `@react-native-community/masked-view`; React Navigation 7 no longer requires the old community masked-view runtime path.
+- Upgrade TypeScript to `5.4.5` so Navigation 7 declarations parse without moving to the larger TypeScript 6 cleanup.
+- Upgrade `react-native-gesture-handler` to highest compatible `2.20.2`.
+- Update stack/tab navigator API usage for Navigation 7: `screenOptions={{ headerShown: false }}` and `tabBarHideOnKeyboard`.
+- Keep existing screen prop typing stable by casting registered legacy class/connected screen components at the navigator boundary.
+- Update warning baseline guards, masked-view audit, native module inventory, and planning docs for the new one-warning Android baseline.
+
+Why:
+
+- `@react-native-community/masked-view` owned one of the last two Android `jcenter()` warning sources.
+- `@react-navigation/stack@5.14.9` required the deprecated package directly, so removal needed a navigation package migration rather than a warning-only dependency deletion.
+- `react-native-gesture-handler@3.0.0` and `2.31.2` were tried first and rejected because Android Kotlin compilation failed on the current RN `0.76.9` baseline.
+
+Validation:
+
+- `npm view @react-navigation/native version peerDependencies dependencies --json`
+- `npm view @react-navigation/stack version peerDependencies dependencies --json`
+- `npm view @react-navigation/bottom-tabs version peerDependencies dependencies --json`
+- `npm view react-native-gesture-handler version peerDependencies --json`
+- `corepack yarn add @react-navigation/native@7.2.5 @react-navigation/stack@7.9.3 @react-navigation/bottom-tabs@7.16.2 react-native-gesture-handler@3.0.0`
+- `corepack yarn remove @react-native-community/masked-view`
+- `corepack yarn add --dev typescript@6.0.3` was rejected because it exposes a larger TypeScript cleanup outside this branch.
+- `corepack yarn add --dev typescript@5.4.5`
+- `corepack yarn add react-native-gesture-handler@2.31.2` was rejected after Android Kotlin compilation failed.
+- `corepack yarn add react-native-gesture-handler@2.20.2`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- Android warning baseline now reports 1 targeted `jcenter()` source: `react-native-secure-key-store`.
+- iOS not claimed on Windows: `ios/Podfile.lock` still needs a Mac `pod install` refresh after removing masked-view and changing navigation packages.
+
 ### BEM-37.128 - CameraKit QR scanner migration
 
 - Branch: `feature/bem-37-camera-kit-qr-proof`

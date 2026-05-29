@@ -2,7 +2,17 @@
 
 This audit supports `BEM-36 - Native modules upgrade` before changing navigation and layout native dependencies.
 
-Checked on: 2026-05-28
+Checked on: 2026-05-29
+
+## Current RN 0.76 Navigation Proof
+
+- React Native baseline: `0.76.9`.
+- React baseline: `18.2.0`.
+- `@react-navigation/native@7.2.5`, `@react-navigation/stack@7.9.3`, and `@react-navigation/bottom-tabs@7.16.2` are the active navigation proof targets.
+- `@react-native-community/masked-view` is removed; `@react-navigation/stack@7.9.3` no longer requires the community masked-view runtime path.
+- `react-native-gesture-handler@2.20.2` is the highest compatible version validated in this branch. `react-native-gesture-handler@3.0.0` and `2.31.2` were tried first and rejected because Android Kotlin compilation failed on the current RN `0.76.9` baseline.
+- TypeScript is raised to `5.4.5` for React Navigation 7 declaration syntax while keeping the existing strictness compatibility setting.
+- iOS `Podfile.lock` is stale on Windows and must be refreshed on macOS before claiming iOS validation.
 
 ## Current Repository State
 
