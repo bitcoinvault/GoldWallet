@@ -103,8 +103,13 @@ async function deleteMessage(id: string): Promise<void> {
  */
 function getCodeFormHtmlBody(htmlBody: string): string {
   const dom = new JSDOM(htmlBody);
+  const pinCodeElement = dom.window.document.querySelector('#id_pincode');
 
-  return dom.window.document.querySelector('#id_pincode').textContent;
+  if (!pinCodeElement?.textContent) {
+    throw new Error('Email verification code element #id_pincode was not found.');
+  }
+
+  return pinCodeElement.textContent;
 }
 
 export default mailing;
