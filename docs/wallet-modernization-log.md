@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.138 - Storage/network RN 0.81 audit refresh
+
+- Branch: `feature/bem-37-storage-network-rn081-audit-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the active storage/config/network compatibility audit after the RN `0.81.6` foundation checkpoint.
+- Remove wording that presented RN `0.68.7` as the current storage/config baseline.
+- Keep package versions unchanged; future storage, config, socket, and WebView package moves remain dedicated validation branches.
+
+Findings:
+
+- `docs/storage-network-native-compatibility-audit.md` is still linked from the native-module upgrade plan and should describe the current RN `0.81.6` baseline.
+- AsyncStorage `2.2.0` and `react-native-config 1.5.9` remain installed, but latest compatibility should be re-checked in package-specific branches before changing them.
+
+Validation:
+
+- `corepack yarn check:storage-network-usage-guard`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.137 - RN 0.81 peer matrix refresh
 
 - Branch: `feature/bem-37-rn081-peer-matrix-refresh`

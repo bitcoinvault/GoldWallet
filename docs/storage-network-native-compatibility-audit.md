@@ -3,6 +3,7 @@
 This audit supports `BEM-36 - Native modules upgrade` before changing storage, environment, secure storage, Electrum networking, or WebView dependencies.
 
 Checked on: 2026-05-28
+Baseline refreshed on: 2026-05-29 after the RN `0.81.6` foundation checkpoint.
 
 ## Current Repository State
 
@@ -60,7 +61,7 @@ peerDependencies:
 - react: *
 - react-native: *
 
-@react-native-async-storage/async-storage latest checked compatible for current RN 0.68.7 Android baseline: 2.2.0
+@react-native-async-storage/async-storage current installed line for RN 0.81.6 validation: 2.2.0
 peerDependencies:
 - react-native: ^0.0.0-0 || >=0.65 <1.0
 
@@ -83,7 +84,7 @@ peerDependencies:
 - react-native: *
 - react-native-windows: >=0.61
 
-react-native-config latest checked compatible for current RN 0.68.7 Android baseline: 1.5.9
+react-native-config current installed line for RN 0.81.6 validation: 1.5.9
 peerDependencies:
 - react-native-windows: >=0.61
 
@@ -116,8 +117,8 @@ peerDependencies:
 
 - This group has high wallet risk because it touches persisted wallet data, encrypted storage, Electrum TLS sockets, env configuration, and terms WebViews.
 - `@react-native-async-storage/async-storage` is now on checked compatible `2.2.0` after `BEM-36.74`; the latest `3.1.0` remains a separate RN-baseline/storage validation branch.
-- `@react-native-community/netinfo` is now on latest checked 6.x `6.2.1` after `BEM-36.59`; it still fits the current React Native `0.68.7` baseline according to npm peer metadata.
-- `react-native-config` is now on latest checked compatible `1.5.9` after `BEM-36.60`; `1.6.1` was rejected because Android compile failed on current RN `0.68.7` APIs (`BaseReactPackage` / `WritableMap.putLong`).
+- `@react-native-community/netinfo` is now on latest checked 6.x `6.2.1` after `BEM-36.59`; it remains installed on the current RN `0.81.6` baseline and future NetInfo work should focus on Electrum/network behavior.
+- `react-native-config` is now on checked `1.5.9` after `BEM-36.60`; `1.6.1` was rejected on the earlier RN baseline because Android compile failed on older React Native Android APIs (`BaseReactPackage` / `WritableMap.putLong`). Re-check latest compatibility in a dedicated config/env branch before changing this package.
 - `react-native-device-info` is now on checked `15.0.2` after `BEM-37.109`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-keychain@10.0.0` is installed as the new secure-storage backend, while `react-native-secure-key-store@2.0.10` remains temporarily for legacy fallback and dual-write migration.
