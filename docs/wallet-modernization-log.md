@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.116 - Android target SDK 34 foundation
+
+- Branch: `feature/bem-37-android-target-34`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Raise Android `targetSdkVersion` from `33` to `34` now that the app is on the RN `0.76.9` / AGP `8.6.0` foundation.
+- Update the RN upgrade-path audit and guard fixtures so target SDK 34 is the expected baseline instead of a deferred state.
+- Refresh the RN foundation docs and wallet baseline docs to remove the old RN `0.68` Android 14 receiver-deferral wording.
+
+Why:
+
+- Target SDK 34 was intentionally deferred on the old RN `0.68` Android stack because Android 14 debug receiver flags were not handled there.
+- The RN `0.76` Android foundation and AGP `8.6` baseline are now the branch that owns that Android template/toolchain behavior, so target SDK 34 can be validated directly.
+
+Validation:
+
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-artifacts`
+
+Result:
+
+- Android dev APK builds with target SDK 34.
+- Emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, with no fatal AndroidRuntime or React Native runtime logcat findings.
+- Warning audit remains at three known targeted `jcenter()` sources and zero unexpected targeted warnings.
+
 ### BEM-37.115 - Warning-source aggregate includes camera candidate summary
 
 - Branch: `feature/bem-37-warning-source-candidate-aggregate`
