@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.185 - BIP21 runtime update
+
+- Branch: `feature/bem-37-bip21-runtime-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the Receive QR BIP21 encoder dependency from `bip21@2.0.2` to latest stable `bip21@3.0.0`.
+- Remove the stale `@types/bip21` package and local `declare module 'bip21'` shim because the package now ships its own `index.d.ts`.
+- Keep the Receive screen runtime import on the CommonJS entry point while preserving package-provided TypeScript types.
+
+Findings:
+
+- `npm view bip21 version dist-tags engines dependencies peerDependencies --json` reports stable `latest` as `3.0.0`.
+- `bip21@3.0.0` uses an exports map with `index.cjs`, `index.js`, and package-provided `index.d.ts`; direct `require('bip21/package.json')` is blocked by the exports map, but the public `encode(...)` API works through `require('bip21')`.
+- The transitive parser dependency changes from `qs` to `query-string@9.4.0`.
+- Running `yarn remove @types/bip21` relinked `node_modules`, so `yarn postinstall` was required to restore the rn-nodeify shim markers before validation.
+- Android bundling still prints the known non-fatal `@noble/hashes/crypto.js` exports warning introduced by the earlier `bip39` update; the BIP21 branch did not add a new fatal Metro/runtime issue.
+
+Validation:
+
+- `npm view bip21 version dist-tags engines dependencies peerDependencies --json`
+- `corepack yarn add bip21@3.0.0`
+- `corepack yarn remove @types/bip21`
+- `corepack yarn postinstall`
+- BIP21 runtime probe: `require('bip21').encode(...)`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn eslint src/screens/ReceiveCoinsScreen.tsx`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:watchonly:offline`
+- `node node_modules/jest/bin/jest.js tests/unit/signer.test.js --forceExit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+
 ### BEM-37.184 - BIP39 runtime retry
 
 - Branch: `feature/bem-37-bip39-runtime-retry`

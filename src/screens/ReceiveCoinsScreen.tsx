@@ -1,6 +1,5 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import bip21 from 'bip21';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, InteractionManager } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
@@ -17,6 +16,7 @@ import { typography, palette } from 'app/styles';
 
 import logger from '../../logger';
 
+const bip21 = require('bip21') as typeof import('bip21');
 const i18n = require('../../loc');
 
 interface Props {
