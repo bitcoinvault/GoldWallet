@@ -287,7 +287,7 @@
     "react-native-config": "1.5.9",
     "react-native-confirmation-code-field": "9.0.0",
     "react-native-device-info": "15.0.2",
-    "react-native-drag-sort": "^2.4.2",
+    "react-native-drag-sort": "2.4.4",
     "react-native-elements": "2.3.2",
     "react-native-exit-app": "2.0.0",
     "react-native-fast-image": "8.6.3",

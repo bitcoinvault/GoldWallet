@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.157 - Drag-sort latest manifest pin
+
+- Branch: `feature/bem-37-drag-sort-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Check the current npm `latest` for `react-native-drag-sort`.
+- Pin `react-native-drag-sort` in `package.json` to exact latest `2.4.4` instead of the broader `^2.4.2` range.
+- Keep the existing `Tags` drag-sort usage unchanged.
+
+Findings:
+
+- `npm view react-native-drag-sort version dist-tags peerDependencies dependencies --json` reports `latest` as `2.4.4`.
+- `react-native-drag-sort@2.4.4` has no package dependencies and no declared peer dependency constraints.
+- The existing lockfile already resolved `^2.4.2` to `2.4.4`; this branch stabilizes the manifest so installs stay on the verified latest version.
+- The existing `DragSortableView` API used by `src/components/Tags.tsx` remains compatible with the latest package README.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.156 - JSON tree developer dependency update
 
 - Branch: `feature/bem-37-json-tree-update`
