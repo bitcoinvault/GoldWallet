@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.152 - React Native Modal latest compatibility update
+
+- Branch: `feature/bem-37-react-native-modal-stable-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-modal` from the old resolved `11.10.0` package to npm dist-tag latest `14.0.0-rc.1`.
+- Remove the local `react-native-modal+11.10.0.patch`.
+- Keep modal usage unchanged in `CustomModal` and validate the Terms/Onboarding flow that exercises modal unmount behavior.
+
+Findings:
+
+- `react-native-modal@13.0.2` is marked by Yarn/npm as mistakenly released with potentially breaking changes, so it was not kept.
+- `react-native-modal@13.0.1` removes the old `DeviceEventEmitter.removeListener` path but still uses `BackHandler.removeEventListener`.
+- `react-native-modal@14.0.0-rc.1` uses subscription `.remove()` for both dimension and back-handler listeners, which matches the current React Native API and removes the need for the repo patch.
+
+Validation:
+
+- `corepack yarn postinstall`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.151 - Calendars latest update
 
 - Branch: `feature/bem-37-calendars-latest-update`
