@@ -12,7 +12,7 @@ export const expectedReactPackageCoupling = {
   reactTypes: '19.2.15',
   reactNativeTypes: 'bundled',
   reactTestRenderer: '19.1.4',
-  targetReactPeer: '^19.1.4',
+  targetReactPeer: '^19.2.3',
 };
 
 export const requiredReactPackageCouplingDocs = [
@@ -28,7 +28,7 @@ export const requiredReactPackageCouplingSnippets = [
   ['docs/react-package-coupling-audit.md', 'Current React types: `19.2.15`'],
   ['docs/react-package-coupling-audit.md', 'Current React Native types: bundled with `react-native@0.81.6`'],
   ['docs/react-package-coupling-audit.md', 'Current react-test-renderer: `19.1.4`'],
-  ['docs/react-package-coupling-audit.md', 'Target React peer from RN target snapshot: `^19.1.4`'],
+  ['docs/react-package-coupling-audit.md', 'Target React peer from RN target snapshot: `^19.2.3`'],
   ['docs/react-package-coupling-audit.md', 'Do not update React without updating `react-test-renderer` and `@types/react` in the same React/RN baseline branch.'],
   ['docs/react-package-coupling-audit.md', 'corepack yarn react:package-coupling:audit'],
   ['docs/react19-impact-audit.md', 'React package coupling audit is tracked in `docs/react-package-coupling-audit.md`'],

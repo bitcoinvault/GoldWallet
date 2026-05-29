@@ -18,7 +18,7 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 - npm `react-native@latest`: `0.85.3`
 - npm `react-native@next`: `0.86.0-rc.2`
-- `react-native@0.85.3` peer React: `^19.1.4`
+- `react-native@0.85.3` peer React: `^19.2.3`
 - `react-native@0.85.3` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
 
 ## Milestone Jump Strategy
@@ -60,12 +60,12 @@ Why:
 ### Milestone C: RN 0.85.x Current Line
 
 - Target React Native: latest stable `0.85.x` at branch time.
-- React peer: `^19.1.4`
+- React peer: `^19.2.3`
 - Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
 
 Why:
 
-- This is the current npm latest line recorded on `2026-05-28`.
+- This is the current npm latest line recorded on `2026-05-29`.
 - Treat it as the current destination, not the first jump.
 
 ## Validation Gates

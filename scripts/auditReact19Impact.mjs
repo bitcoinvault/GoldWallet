@@ -36,7 +36,7 @@ export const requiredReact19ImpactSnippets = [
   ['docs/react19-impact-audit.md', 'Current React: `19.1.4`'],
   ['docs/react19-impact-audit.md', 'Current React types: `19.2.15`'],
   ['docs/react19-impact-audit.md', 'Current react-test-renderer: `19.1.4`'],
-  ['docs/react19-impact-audit.md', 'Target React peer from RN target snapshot: `^19.1.4`'],
+  ['docs/react19-impact-audit.md', 'Target React peer from RN target snapshot: `^19.2.3`'],
   ['docs/react19-impact-audit.md', 'Class component surfaces exist and must be smoke-tested after the React/RN baseline changes.'],
   ['docs/react19-impact-audit.md', 'Default props on class components exist and should be checked against the updated TypeScript/React type behavior.'],
   ['docs/react19-impact-audit.md', 'corepack yarn react19:impact:audit'],
@@ -64,8 +64,8 @@ export const getReact19ImpactIssues = ({ dependencies, devDependencies, scripts,
     errors.push('package.json is missing react19:impact:audit script');
   }
 
-  if (expectedReactNativeTargetSnapshot.targetReactPeer !== '^19.1.4') {
-    errors.push(`RN target snapshot has React peer ${expectedReactNativeTargetSnapshot.targetReactPeer}; expected ^19.1.4 for this audit`);
+  if (expectedReactNativeTargetSnapshot.targetReactPeer !== '^19.2.3') {
+    errors.push(`RN target snapshot has React peer ${expectedReactNativeTargetSnapshot.targetReactPeer}; expected ^19.2.3 for this audit`);
   }
 
   if (inventory.classComponentFiles.length === 0) {
