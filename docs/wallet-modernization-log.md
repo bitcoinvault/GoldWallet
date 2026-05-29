@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.183 - BigNumber runtime update
+
+- Branch: `feature/bem-37-bignumber-runtime-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update amount/fee arithmetic dependency `bignumber.js` from `9.0.0` to latest stable `11.1.1`.
+- Keep wallet source code, native project files, Metro config, and rn-nodeify shim code unchanged.
+- Treat this as a runtime money-math branch because BigNumber is used for minimum BTC display values, available balance comparisons, and transaction fee-rate calculations.
+
+Findings:
+
+- `npm view bignumber.js version dist-tags engines dependencies peerDependencies --json` reports stable `latest` as `11.1.1`.
+- Runtime usage is limited to `src/helpers/helpers.ts`, send/recovery send screens, authenticator fee-rate display, and the About screen dependency list.
+- A direct Node probe confirms the currently used `dividedBy(...).toString()` and `dividedBy(...).toNumber()` operations still work with `bignumber.js@11.1.1`.
+
+Validation:
+
+- `npm view bignumber.js version dist-tags engines dependencies peerDependencies --json`
+- `corepack yarn add bignumber.js@11.1.1`
+- BigNumber runtime probe: `new BigNumber(1).dividedBy(100000000).toString()` and fee-rate `toNumber()`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:watchonly:offline`
+- `corepack yarn test:hdwallet:offline`
+- `node node_modules/jest/bin/jest.js tests/unit/signer.test.js --forceExit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.182 - Axios runtime update
 
 - Branch: `feature/bem-37-axios-runtime-update`
