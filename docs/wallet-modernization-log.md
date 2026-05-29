@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.195 - ESLint baseline audit helper
+
+- Branch: `feature/bem-37-eslint-baseline-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/auditLintBaseline.mjs` as a cross-platform ESLint baseline audit that does not depend on shell glob expansion.
+- Add `lint:baseline:audit` to `package.json`.
+- Keep the existing `lint` command and all application/runtime/native code unchanged.
+- Write the generated lint baseline summary to ignored `local-docs/lint-baseline-summary.txt`.
+
+Findings:
+
+- The current `lint` command is not a reliable Windows gate because PowerShell passes the single-quoted glob literally.
+- Running ESLint through the Node API path with explicit glob arguments reaches the real current lint baseline.
+- Current lint baseline: `321` files scanned, `25` errors, `58` warnings, `9` fixable errors, and `0` fixable warnings.
+- This branch records the baseline without mixing broad lint cleanup into dependency modernization.
+
+Validation:
+
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.194 - ESLint React plugin update
 
 - Branch: `feature/bem-37-eslint-react-plugin-update`
