@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.117 - Android env audit covers warning-source helpers
+
+- Branch: `feature/bem-37-env-audit-warning-source-helpers`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend `android:dev:env-audit` so the environment audit requires the full warning-source helper set: camera candidate, camera QR migration, masked-view migration, secure-storage migration, Sentry Android warning, remaining-warning plan, and aggregate summary scripts.
+- Extend the Android dev environment guard self-check with missing-file and missing-package-script fixtures for the warning-source helper groups.
+
+Why:
+
+- Recent warning-source work added dedicated audit/check-summary scripts, but the broader environment audit still guarded only an older subset.
+- The environment audit should fail before a branch starts if a required warning-source audit helper or package script is accidentally removed.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard`
+- With `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10`, `ANDROID_SDK_ROOT`, and `ANDROID_HOME` set, `corepack yarn android:dev:env-audit` passed.
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
+Result:
+
+- Android dev environment audit now guards the current warning-source helper set used by the RN baseline preflight and lightweight Android workflow.
+- No emulator smoke was required because this branch only changes guard metadata and documentation.
+
 ### BEM-37.116 - Android target SDK 34 foundation
 
 - Branch: `feature/bem-37-android-target-34`
