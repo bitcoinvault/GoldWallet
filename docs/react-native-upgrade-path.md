@@ -21,20 +21,20 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 - RN Metro config: `0.76.9`
 - Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `34`
-- Android target SDK: `33`
+- Android target SDK: `34`
 - Android build tools: `34.0.0`
 - Android Gradle Plugin: `8.6.0`
 - Gradle wrapper: `8.10.2`
 
 The current baseline is the first RN foundation checkpoint, not the final modernization target. It also should not walk every minor version one by one. The goal is a controlled milestone-jump path toward a current supported React Native line after the dependency and native tooling blockers are understood.
 
-Current Android template/toolchain baseline intentionally compiles with SDK 34 while keeping target SDK 33. Target SDK 34 should move only with the React Native/toolchain path that resolves Android 14+ debug receiver requirements.
+Current Android template/toolchain baseline compiles and targets SDK 34. Target SDK 34 is now part of the RN 0.76 Android foundation baseline after the RN 0.76/AGP 8.6 foundation removed the old RN 0.68 Android 14 debug receiver blocker.
 
 ## Upgrade Principles
 
 - Keep the app shippable after every mini-branch.
 - Do not combine a React Native baseline step with unrelated rebranding, explorer, Electrum, Firebase, Sentry, or camera changes.
-- Keep `targetSdkVersion 34` deferred until the React Native/toolchain path can support Android 14+ debug receiver requirements.
+- Keep target SDK changes tied to the React Native/toolchain path that owns Android template and debug receiver behavior.
 - Run emulator smoke for every runtime, dependency, native, or Metro-affecting branch.
 - Re-check the latest stable React Native release during the actual RN baseline branch instead of hardcoding it in this document.
 - Prefer milestone jumps over version-by-version package work. Current milestone targets are `0.76.9`, then `0.82.x`, then the current `0.85.x` line unless branch-time evidence changes that plan.
@@ -65,7 +65,7 @@ Use this audit before starting or reviewing a React Native baseline branch:
 corepack yarn rn:upgrade-path:audit
 ```
 
-The audit verifies that the current package baseline, Metro runtime baseline, Android build/target SDK baseline, Gradle baseline, Android target-SDK deferral, and staged upgrade documentation still agree.
+The audit verifies that the current package baseline, Metro runtime baseline, Android build/target SDK baseline, Gradle baseline, target SDK 34 readiness, and staged upgrade documentation still agree.
 
 Before changing a React Native baseline, run the broader preflight so the current Android lightweight gate, Metro runtime audit, Node runtime transition audit, RN path audit, target snapshot audit and offline comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit are all checked from one command:
 

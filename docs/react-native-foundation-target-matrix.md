@@ -10,7 +10,7 @@ This matrix defines how to move the app foundation forward without upgrading eve
 - RN Metro config: `0.76.9`
 - Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `34`
-- Android target SDK: `33`
+- Android target SDK: `34`
 - Android Gradle Plugin: `8.6.0`
 - Gradle wrapper: `8.10.2`
 

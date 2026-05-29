@@ -18,7 +18,7 @@ export const expectedReactNativeUpgradePathBaseline = {
   nodeRuntime: '22.18.0',
   buildToolsVersion: '34.0.0',
   compileSdkVersion: '34',
-  targetSdkVersion: '33',
+  targetSdkVersion: '34',
   androidGradlePlugin: '8.6.0',
   gradleWrapper: '8.10.2',
 };
@@ -48,7 +48,7 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/react-native-upgrade-path.md', 'RN Metro config: `0.76.9`'],
   ['docs/react-native-upgrade-path.md', 'Metro/dev Node runtime: `22.18.0`'],
   ['docs/react-native-upgrade-path.md', 'Android compile SDK: `34`'],
-  ['docs/react-native-upgrade-path.md', 'Android target SDK: `33`'],
+  ['docs/react-native-upgrade-path.md', 'Android target SDK: `34`'],
   ['docs/react-native-upgrade-path.md', 'Android Gradle Plugin: `8.6.0`'],
   ['docs/react-native-upgrade-path.md', 'Gradle wrapper: `8.10.2`'],
   ['docs/react-native-upgrade-path.md', 'The current baseline is the first RN foundation checkpoint, not the final modernization target'],
@@ -56,7 +56,7 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/react-native-upgrade-path.md', 'React Native foundation milestone targets are tracked in `docs/react-native-foundation-target-matrix.md`'],
   ['docs/react-native-upgrade-path.md', 'Current milestone targets are `0.76.9`, then `0.82.x`, then the current `0.85.x` line'],
   ['docs/react-native-upgrade-path.md', 'current supported React Native line'],
-  ['docs/react-native-upgrade-path.md', 'Keep `targetSdkVersion 34` deferred'],
+  ['docs/react-native-upgrade-path.md', 'Target SDK 34 is now part of the RN 0.76 Android foundation baseline'],
   ['docs/react-native-upgrade-path.md', 'Current Android template/toolchain baseline'],
   ['docs/react-native-upgrade-path.md', 'React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`'],
   ['docs/react-native-upgrade-path.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],
@@ -202,7 +202,7 @@ export const getReactNativeUpgradePathIssues = ({
     errors.push(
       `android/build.gradle targetSdkVersion is ${
         targetSdkVersion || '<missing>'
-      }; expected ${expectedReactNativeUpgradePathBaseline.targetSdkVersion} until the RN/toolchain path supports target 34`,
+      }; expected ${expectedReactNativeUpgradePathBaseline.targetSdkVersion} for the current RN/toolchain baseline`,
     );
   }
 

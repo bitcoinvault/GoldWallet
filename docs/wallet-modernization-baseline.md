@@ -37,7 +37,7 @@ Current stack:
 - Android Gradle Plugin: `8.6.0`
 - Gradle wrapper: `8.10.2`
 - Android compile SDK: `34`
-- Android target SDK: `33`
+- Android target SDK: `34`
 - Android min SDK: `26`
 - Kotlin: `1.9.25`
 - NDK: `20.1.5948944`
@@ -52,7 +52,7 @@ Target direction:
 
 - Keep the current Metro/dev runtime aligned with `.nvmrc` and RN package engine requirements.
 - Use JDK 17 for local Android modernization work.
-- Defer `targetSdkVersion 34` until a later React Native/toolchain step, because the current branch intentionally stays on target SDK 33.
+- Target SDK 34 is now part of the RN 0.76/AGP 8.6 Android foundation baseline.
 - React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.76.9` toward a current supported line instead of walking every minor version or jumping blindly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
 - RN `0.76.9` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; use `corepack yarn rn:076-foundation:audit` before changing RN packages.
@@ -174,7 +174,7 @@ Known gaps:
 3. Handle Sentry Gradle/source-map behavior in a dedicated release tooling branch.
 4. Upgrade native modules in controlled groups using `docs/native-module-upgrade-plan.md`.
 5. Continue RN with milestone jumps from `0.76` toward newer supported lines.
-6. Defer target SDK 34 until the RN/toolchain path can support Android 14+ debug receiver requirements.
+6. Keep future target SDK moves tied to the RN/toolchain path that owns Android template and debug receiver behavior.
 7. Upgrade iOS Podfile/deployment target and validate schemes.
 8. Add BTC network support and UI switching.
 9. Apply rebranding and release pipeline updates.
