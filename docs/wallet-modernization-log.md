@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.189 - Lodash latest runtime update rejected
+
+- Branch: `feature/bem-37-lodash-runtime-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Try the current latest `lodash@4.18.1` runtime dependency as a small latest-first modernization branch.
+- Validate direct app usage of `lodash` and `lodash/fp` across wallet selectors, sagas, helpers, and screens.
+- Keep the app on the previous direct `lodash` range after emulator runtime validation failed.
+
+Findings:
+
+- `npm view lodash version dist-tags engines dependencies peerDependencies --json` reports stable `latest` as `4.18.1`.
+- The repo uses `lodash` and `lodash/fp` directly in wallet selectors, Electrum sagas, transaction helpers, dashboard/transaction screens, receive/send flows, and the translation check script.
+- A Node runtime probe for `lodash@4.18.1` passed for `_.VERSION`, `last(...)`, and `lodash/fp` composition.
+- TypeScript, focused wallet/storage tests, Android dev assemble, and Metro bundle generation passed with `lodash@4.18.1`.
+- Android emulator smoke failed twice after Metro `--reset-cache`: the app stayed on the Gold Wallet splash/loading screen and never reached the expected dashboard/onboarding UI texts.
+- No `AndroidRuntime` crash or clear React Native JS error was emitted in the captured logcat, so the failure is tracked as a Metro/runtime startup blocker for a future dedicated branch.
+- The `lodash@4.18.1` package and lockfile change was reverted; this branch intentionally keeps the current working runtime dependency unchanged.
+
+Validation:
+
+- `npm view lodash version dist-tags engines dependencies peerDependencies --json`
+- `corepack yarn add lodash@4.18.1`
+- Lodash runtime probe: `_.VERSION`, `last(...)`, and `lodash/fp` composition
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:watchonly:offline`
+- `corepack yarn test:hdwallet:offline`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke` failed twice on splash/loading
+- `git restore package.json yarn.lock`
+
 ### BEM-37.188 - ts-jest patch update
 
 - Branch: `feature/bem-37-ts-jest-patch-update`
