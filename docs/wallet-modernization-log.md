@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.193 - Jest type definitions update
+
+- Branch: `feature/bem-37-types-jest-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the direct Jest type-only dependency from `@types/jest@29.5.14` to latest stable `@types/jest@30.0.0`.
+- Keep Jest runtime packages on the validated `29.7.0` line.
+- Keep application runtime code, native code, Metro config, and Jest resolver mappings unchanged.
+
+Findings:
+
+- `npm view @types/jest version dist-tags deprecated dependencies peerDependencies --json` reports `latest` as `30.0.0`, including a `ts5.4` dist-tag for the current TypeScript baseline.
+- `@types/jest@30.0.0` adds Jest 30 type dependencies, but the current Jest 29 runtime still runs the existing unit suite successfully.
+- TypeScript accepts the existing unit and helper test usage with the newer Jest type definitions.
+- This is a type/test-tooling maintenance step only; it does not change the app bundle.
+
+Validation:
+
+- `npm view @types/jest version dist-tags deprecated dependencies peerDependencies --json`
+- `corepack yarn add --dev @types/jest@30.0.0`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.192 - UUID type definitions audit
 
 - Branch: `feature/bem-37-types-uuid-audit`
