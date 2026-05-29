@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.140 - SVG QR RN 0.81 audit refresh
+
+- Branch: `feature/bem-37-svg-qr-rn081-audit-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the active SVG/QR render compatibility audit after the RN `0.81.6` foundation and SVG upgrade stream.
+- Replace the stale RN `0.68.7` / React `17.0.2` / SVG `12.5.1` current-state snapshot with the installed RN `0.81.6`, React `19.1.4`, and SVG `15.15.5` state.
+- Keep dependency versions unchanged and preserve the dedicated-branch rule for future QR renderer package moves.
+
+Findings:
+
+- `docs/svg-qr-render-compatibility-audit.md` is still linked from the native-module upgrade plan and used to scope future `react-native-svg` / QR rendering work.
+- The guarded QR render surface remains five screens using `react-native-qrcode-svg@6.1.1`.
+
+Validation:
+
+- `corepack yarn check:qr-render-usage-guard`
+- `corepack yarn check:qr-render-usage`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.139 - README JDK 17 prerequisite refresh
 
 - Branch: `feature/bem-37-readme-jdk17-refresh`
