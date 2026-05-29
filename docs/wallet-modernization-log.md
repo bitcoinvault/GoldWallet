@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.196 - Sentry dev runtime guard
+
+- Branch: `feature/bem-37-sentry-dev-wrapper-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep Sentry initialization and `withTouchEventBoundary` enabled for non-dev environments.
+- Disable Sentry runtime wrapping for `ENVIRONMENT=dev` builds, including bundled `devDebug` APK startup where `__DEV__` alone is not a sufficient guard.
+- Preserve the existing Sentry DSN/config mapping and release integration files.
+
+Findings:
+
+- Android `devDebug` could reach a RedBox on startup with `Cannot read property '__extends' of undefined` from Sentry integration setup.
+- Guarding only on `__DEV__` did not cover the bundled dev APK path produced by Gradle.
+- `ENVIRONMENT=dev` is the correct repo-level signal for dev/beta test variants that should not initialize Sentry during emulator smoke validation.
+
+Validation:
+
+- `corepack yarn check:sentry-usage-guard`
+- `corepack yarn check:sentry-usage-scope`
+- `corepack yarn typescript:check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Real emulator `emulator-5554`: installed `app-dev-debug.apk`, launched `io.goldwallet.wallet.dev` without Metro, verified dashboard `Wallets` UI in `local-docs/android-no-metro-after-sentry-env-guard.xml`, and confirmed no Sentry RedBox in filtered logcat.
+
+Notes:
+
+- `android:dev:verify` still needs a separate follow-up because the current smoke script assumes Metro transport and the `E2EWalletTypeTest` fixture, while a clean emulator now starts to an empty-wallet dashboard.
+
 ### BEM-37.195 - ESLint baseline audit helper
 
 - Branch: `feature/bem-37-eslint-baseline-audit`

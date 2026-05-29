@@ -29,6 +29,7 @@ const sentryOptions = {
   debug: config.environment === 'dev',
   environment: config.environment,
 };
+const isSentryEnabled = config.environment !== 'dev';
 
 const getNewKey = () => new Date().toISOString();
 
@@ -40,7 +41,7 @@ const codePushOptions = {
   deploymentKey: isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid,
 };
 
-if (!__DEV__) {
+if (isSentryEnabled) {
   Sentry.init(sentryOptions);
 }
 
@@ -97,7 +98,9 @@ class App extends React.PureComponent {
   }
 }
 
-export default Sentry.withTouchEventBoundary(App, {});
+const AppWithSentry = isSentryEnabled ? Sentry.withTouchEventBoundary(App, {}) : App;
+
+export default AppWithSentry;
 
 const styles = StyleSheet.create({
   wrapper: {
