@@ -46,7 +46,7 @@ corepack yarn check:storage-network-validation-scripts-guard
 corepack yarn check:storage-network-validation-scripts
 ```
 
-The guard verifies that `test:storage`, `test:authenticator`, and `test:wallet-core:offline` keep pointing at existing focused Jest files and remain part of `prepush`.
+The guard verifies that `test:secure-storage:unit`, `test:storage`, `test:authenticator`, and `test:wallet-core:offline` keep pointing at existing focused Jest files and remain part of `prepush`.
 
 ## Latest Npm Snapshot
 
@@ -149,6 +149,7 @@ corepack yarn android:dev:smoke
 Focused tests by dependency:
 
 - Group C focused validation: `corepack yarn test:storage-network:focused`.
+- Secure storage wrapper contract: `corepack yarn test:secure-storage:unit`.
 - AsyncStorage: `corepack yarn test:storage`, `corepack yarn test:wallet-core:offline`.
 - Secure storage: `corepack yarn test:authenticator`.
 - TCP socket / NetInfo: Android smoke plus Electrum connectivity observation; funded transaction flow remains blocked until a funded BTCV testnet wallet is available.

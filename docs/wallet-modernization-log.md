@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.124 - Secure storage focused validation
+
+- Branch: `feature/bem-37-secure-storage-focused-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `test:secure-storage:unit` for the focused `SecureStorageService` contract test.
+- Include `test:secure-storage:unit` in `test:storage-network:focused`.
+- Include `test:secure-storage:unit` in `prepush`.
+- Extend storage/network validation script guards and docs from 3 to 4 focused checks.
+
+Why:
+
+- `BEM-37.123` added the secure-storage wrapper contract, but future storage replacement branches should run it automatically through the existing focused storage/network validation command.
+- This keeps the PIN and transaction-password wrapper contract tied to the same validation group used for storage, authenticator, and wallet-core offline checks.
+
+Validation:
+
+- `corepack yarn check:storage-network-validation-scripts-guard`
+- `corepack yarn check:storage-network-validation-scripts`
+- `corepack yarn test:secure-storage:unit`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- Emulator smoke not required: package scripts, guards, and docs only; no runtime, dependency, native, or Metro behavior changed.
+
 ### BEM-37.123 - Secure storage service contract tests
 
 - Branch: `feature/bem-37-secure-storage-contract-tests`
