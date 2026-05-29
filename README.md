@@ -71,7 +71,7 @@ Before Android build or emulator smoke work, check the local Java/SDK/ADB toolch
 $ yarn android:dev:env-audit
 ```
 
-This verifies the supported Java range, Android SDK/ADB access, Gradle wrappers, and validation scripts. It warns if the active Node runtime differs from the `.nvmrc` Metro/dev runtime.
+This verifies JDK 17, Android SDK/ADB access, Gradle wrappers, and validation scripts. It warns if the active Node runtime differs from the `.nvmrc` Metro/dev runtime.
 
 To verify that the staged React Native upgrade direction still matches the current baseline:
 

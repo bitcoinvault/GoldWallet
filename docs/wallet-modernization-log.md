@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.149 - README env audit JDK 17 refresh
+
+- Branch: `feature/bem-37-readme-env-audit-jdk17-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the README description of `android:dev:env-audit`.
+- Replace stale "supported Java range" wording with the current JDK 17 requirement.
+- Keep scripts, package versions, and runtime behavior unchanged.
+
+Findings:
+
+- README prerequisites already state that the AGP 8.13 baseline and Android build guard require JDK 17 exactly.
+- `scripts/auditAndroidDevEnvironment.mjs` and `scripts/runAndroidGradle.mjs` both enforce JDK 17; only the README env-audit description still implied a range.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn android:dev:env-audit`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.148 - Baseline dependency risk refresh
 
 - Branch: `feature/bem-37-baseline-dependency-risk-refresh`
