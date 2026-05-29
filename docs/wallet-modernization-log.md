@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.134 - RN 0.81 navigation compatibility docs
+
+- Branch: `feature/bem-37-rn081-navigation-doc-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the navigation-native compatibility audit after the RN `0.81.6` baseline proof and React Navigation 7 migration.
+- Replace stale RN `0.68`/`0.76` package state with the current RN `0.81.6`, React `19.1.4`, navigation 7, Gesture Handler `2.29.1`, Screens `4.24.0`, and Safe Area `5.8.0` baseline.
+- Refresh the masked-view migration plan so the Gesture Handler compatibility note matches the RN `0.81.6` proof.
+
+Findings:
+
+- Masked-view remains removed and should not be reintroduced.
+- Newer `react-native-screens` lines that require RN `>=0.82.0` belong to the next RN milestone branch.
+- iOS Podfile refresh remains a macOS follow-up before release-candidate validation claims.
+
+Validation:
+
+- `corepack yarn masked-view:migration:audit`
+- `corepack yarn masked-view:migration:check-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.133 - Secure-storage legacy removal readiness guard
 
 - Branch: `feature/bem-37-secure-storage-removal-readiness`
