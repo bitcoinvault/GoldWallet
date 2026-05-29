@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.143 - Sentry plan RN 0.81 refresh
+
+- Branch: `feature/bem-37-sentry-plan-rn081-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Sentry release/source-map plan after the RN `0.81.6` baseline.
+- Replace the stale RN `0.68` compatibility wording with the current RN `0.81.6` baseline.
+- Record the latest npm check date for `@sentry/react-native@8.13.0` without changing the installed Sentry package.
+
+Findings:
+
+- `npm view @sentry/react-native version peerDependencies engines --json` still reports latest `8.13.0` and peer `react-native >=0.65.0`.
+- The plan already correctly keeps Sentry SDK/tooling work in a dedicated release/source-map branch because local release prerequisites are missing.
+
+Validation:
+
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.142 - Native-module camera plan refresh
 
 - Branch: `feature/bem-37-native-module-camera-plan-refresh`

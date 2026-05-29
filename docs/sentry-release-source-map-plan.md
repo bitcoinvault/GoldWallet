@@ -16,7 +16,7 @@
 - `corepack yarn sentry:android-warning:audit` verifies that Sentry Gradle/source-map wiring remains tracked before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
 - The active RN `0.81` Android warning audit no longer reports Sentry `execResult`; Sentry still needs release/source-map validation before any SDK or Gradle-tooling change.
-- The latest npm release checked for `@sentry/react-native` is `8.13.0`, so a real cleanup would be a major SDK upgrade.
+- The latest npm release checked for `@sentry/react-native` on 2026-05-29 is `8.13.0`, so a real cleanup would be a major SDK upgrade.
 - `@sentry/react-native@8.13.0` declares `react-native >=0.65.0`, but the upgrade branch still has to prove Android and iOS release artifact behavior instead of patching `node_modules` or disabling source-map upload.
 
 ## Why This Needs A Dedicated Branch
@@ -32,7 +32,7 @@ Branch: `feature/bem-sentry-release-source-map-upgrade`
 
 Scope:
 
-- Re-check the newest compatible `@sentry/react-native` line for React Native 0.68.
+- Re-check the newest compatible `@sentry/react-native` line for the current React Native `0.81.6` baseline.
 - Upgrade Sentry only if Android debug and release builds continue to work.
 - Preserve Android source-map generation and upload behavior for release variants.
 - Preserve iOS dSYM and source-map upload behavior.
