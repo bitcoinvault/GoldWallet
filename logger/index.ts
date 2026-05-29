@@ -2,7 +2,7 @@
  * Module can be used to log errors, warnings and other type of log messages
  */
 import * as Sentry from '@sentry/react-native';
-import { logger, sentryTransport, consoleTransport } from 'react-native-logs';
+import { logger, consoleTransport } from 'react-native-logs';
 
 enum LEVEL {
   ERROR = 'error',
@@ -33,10 +33,14 @@ const getSentryLevel = (level: LEVEL) => {
 
 const config = {
   severity: 'debug',
-  transport: __DEV__ ? consoleTransport : sentryTransport,
+  transport: consoleTransport,
   transportOptions: {
-    SENTRY: Sentry,
-    color: 'ansi',
+    colors: {
+      debug: 'default',
+      info: 'blueBright',
+      warn: 'yellowBright',
+      error: 'redBright',
+    } as const,
   },
   async: true,
   printLevel: true,
