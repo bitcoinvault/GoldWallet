@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.120 - Android SDK 36 foundation
+
+- Branch: `feature/bem-37-android-sdk-36`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Raise Android build tools from `35.0.0` to stable `36.0.0`.
+- Raise Android `compileSdkVersion` and `targetSdkVersion` from `35` to `36`.
+- Keep Android Gradle Plugin at `8.13.2` and Gradle wrapper at `8.13`; that toolchain movement was validated separately in `BEM-37.119`.
+- Update RN upgrade-path audit expectations, guard fixtures, and active baseline docs for SDK 36.
+
+Why:
+
+- The local Android SDK already includes `platforms;android-36` and stable `build-tools;36.0.0`.
+- After the AGP 8.13 branch, API 36 can be validated as its own small API-level branch without mixing in more package movement.
+
+Validation:
+
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- The first parallel `android:dev:audit-warnings` attempt hit a Kotlin incremental cache `EOFException` while another Gradle build was active; after `.\android\gradlew.bat -p android --stop`, the audit was rerun alone and passed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn check:android-warning-audit-summary-guard`
+- Metro restarted with `corepack yarn start --reset-cache`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-artifacts`
+
+Result:
+
+- Android dev APK builds with build tools, compile SDK, and target SDK 36.
+- Emulator smoke passed on `emulator-5554`: dashboard rendered `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`, with no fatal AndroidRuntime or React Native runtime logcat findings.
+- Warning audit remains at three known targeted `jcenter()` sources and zero unexpected targeted warnings.
+
 ### BEM-37.119 - Android Gradle Plugin 8.13 toolchain
 
 - Branch: `feature/bem-37-agp-813-toolchain`

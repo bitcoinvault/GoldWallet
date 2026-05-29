@@ -9,8 +9,8 @@ This matrix defines how to move the app foundation forward without upgrading eve
 - RN Babel preset: `0.76.9`
 - RN Metro config: `0.76.9`
 - Metro/dev Node runtime: `22.18.0`
-- Android compile SDK: `35`
-- Android target SDK: `35`
+- Android compile SDK: `36`
+- Android target SDK: `36`
 - Android Gradle Plugin: `8.13.2`
 - Gradle wrapper: `8.13`
 
