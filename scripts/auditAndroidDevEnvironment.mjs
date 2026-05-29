@@ -5,6 +5,8 @@ import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
+const requiredAndroidPlatform = 'android-36';
+const requiredAndroidBuildTools = '36.0.0';
 
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const exists = relativePath => existsSync(path.join(root, relativePath));
@@ -163,6 +165,8 @@ export const getAndroidDevEnvironmentIssues = ({
   nvmrc,
   androidSdkRoot,
   androidSdkRootExists,
+  androidPlatformDirExists,
+  androidBuildToolsDirExists,
   adbCandidate,
   adbReady,
   existingFiles,
@@ -191,6 +195,14 @@ export const getAndroidDevEnvironmentIssues = ({
     warnings.push('ANDROID_SDK_ROOT/ANDROID_HOME is not set; adb lookup will fall back to LOCALAPPDATA or PATH.');
   } else if (!androidSdkRootExists) {
     errors.push(`Android SDK root does not exist: ${androidSdkRoot}`);
+  } else {
+    if (!androidPlatformDirExists) {
+      errors.push(`Android SDK platform ${requiredAndroidPlatform} is missing under ${path.join(androidSdkRoot, 'platforms')}`);
+    }
+
+    if (!androidBuildToolsDirExists) {
+      errors.push(`Android SDK build tools ${requiredAndroidBuildTools} are missing under ${path.join(androidSdkRoot, 'build-tools')}`);
+    }
   }
 
   if (!adbCandidate || !adbReady) {
@@ -228,6 +240,8 @@ const collectEnvironment = () => {
   const javaMajor = javaOutput.match(/version "(\d+)/)?.[1];
   const nodeVersion = process.versions.node;
   const androidSdkRoot = process.env.ANDROID_SDK_ROOT || process.env.ANDROID_HOME || '';
+  const androidPlatformDir = androidSdkRoot ? path.join(androidSdkRoot, 'platforms', requiredAndroidPlatform) : '';
+  const androidBuildToolsDir = androidSdkRoot ? path.join(androidSdkRoot, 'build-tools', requiredAndroidBuildTools) : '';
   const adbCandidates = [
     androidSdkRoot ? path.join(androidSdkRoot, 'platform-tools', process.platform === 'win32' ? 'adb.exe' : 'adb') : '',
     process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk', 'platform-tools', 'adb.exe') : '',
@@ -250,6 +264,8 @@ const collectEnvironment = () => {
     nvmrc,
     androidSdkRoot,
     androidSdkRootExists: androidSdkRoot ? existsSync(androidSdkRoot) : false,
+    androidPlatformDirExists: androidPlatformDir ? existsSync(androidPlatformDir) : false,
+    androidBuildToolsDirExists: androidBuildToolsDir ? existsSync(androidBuildToolsDir) : false,
     adbCandidate,
     adbReady: Boolean(adbCandidate && !adbVersion?.error && adbVersion?.status === 0),
     existingFiles,
@@ -268,6 +284,8 @@ const printReport = environment => {
   console.log(`Java executable: ${environment.javaCommand}`);
   console.log(`Java major: ${environment.javaMajor || '<unknown>'}`);
   console.log(`Android SDK root: ${environment.androidSdkRoot || '<unset>'}`);
+  console.log(`Required Android platform: ${requiredAndroidPlatform}`);
+  console.log(`Required Android build tools: ${requiredAndroidBuildTools}`);
   console.log(`ADB executable: ${environment.adbCandidate || '<missing>'}`);
 
   if (warnings.length > 0) {
@@ -281,7 +299,7 @@ const printReport = environment => {
     process.exit(1);
   }
 
-  console.log('Android dev environment has the required Java range, adb access, Gradle wrappers, and validation scripts.');
+  console.log('Android dev environment has the required Java version, Android SDK 36 platform/build tools, adb access, Gradle wrappers, and validation scripts.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

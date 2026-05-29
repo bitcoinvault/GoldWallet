@@ -34,6 +34,8 @@ For a quick local toolchain sanity check before Android build/smoke work:
 corepack yarn android:dev:env-audit
 ```
 
+The environment audit verifies JDK 17, adb access, the required validation scripts, and the Android SDK 36 platform/build-tools directories used by the current Android baseline.
+
 The environment audit checks the active Node version, `.nvmrc`, `JAVA_HOME`/Java major version, Android SDK/ADB discovery, Gradle wrappers, required validation helper files, and the package scripts used by the Android validation workflow, including the RN upgrade path audit scripts. It warns when Metro/dev runtime is not on Node 22 and fails when Java/ADB or required helper files are missing.
 
 `check:android-dev-env-audit-guard` verifies the environment audit guard fixtures without depending on the current terminal's Java, Node, SDK, or ADB state.

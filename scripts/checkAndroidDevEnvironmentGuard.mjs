@@ -24,6 +24,8 @@ const validEnvironment = {
   nvmrc: '22.18.0',
   androidSdkRoot: 'C:\\Users\\User\\AppData\\Local\\Android\\Sdk',
   androidSdkRootExists: true,
+  androidPlatformDirExists: true,
+  androidBuildToolsDirExists: true,
   adbCandidate: 'C:\\Users\\User\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe',
   adbReady: true,
   existingFiles: new Set(requiredAndroidDevFiles.map(([relativePath]) => relativePath)),
@@ -77,6 +79,8 @@ assertRejected('Older JDK fixture', { ...validEnvironment, javaMajor: '11' }, 'r
 assertRejected('Unsupported JDK fixture', { ...validEnvironment, javaMajor: '21' }, 'requires JDK 17');
 assertRejected('Missing Java fixture', { ...validEnvironment, javaDetected: false, javaMajor: undefined }, 'Unable to detect Java version');
 assertRejected('Missing Android SDK fixture', { ...validEnvironment, androidSdkRootExists: false }, 'Android SDK root does not exist');
+assertRejected('Missing Android SDK 36 platform fixture', { ...validEnvironment, androidPlatformDirExists: false }, 'Android SDK platform android-36 is missing');
+assertRejected('Missing Android build tools 36 fixture', { ...validEnvironment, androidBuildToolsDirExists: false }, 'Android SDK build tools 36.0.0 are missing');
 assertRejected('Missing adb fixture', { ...validEnvironment, adbReady: false }, 'Unable to run adb version');
 assertRejected(
   'Missing Gradle runner fixture',

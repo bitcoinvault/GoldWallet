@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.121 - SDK 36 environment audit guard
+
+- Branch: `feature/bem-37-sdk36-env-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend `android:dev:env-audit` so it verifies the required local Android SDK platform `android-36`.
+- Extend `android:dev:env-audit` so it verifies the required local Android build tools `36.0.0`.
+- Add guard fixtures for missing SDK 36 platform/build-tools directories.
+- Document that the Android environment audit now covers the SDK 36 local toolchain directories.
+
+Why:
+
+- After moving the repo baseline to Android SDK 36, a machine can have JDK 17 and adb working but still fail builds because the SDK 36 platform or build-tools package is missing.
+- Catching that in `android:dev:env-audit` keeps future Android branches from discovering the missing SDK package only during Gradle build.
+
+Validation:
+
+- `corepack yarn check:android-dev-env-audit-guard`
+- With `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10`, `ANDROID_SDK_ROOT`, and `ANDROID_HOME` set, `corepack yarn android:dev:env-audit` passed and confirmed `android-36` plus build tools `36.0.0`.
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn typescript:check`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+
+Result:
+
+- The Android environment audit now fails early when a machine lacks the SDK 36 platform or stable build tools required by the current Android baseline.
+- No emulator smoke was required because this branch changes only validation scripts and documentation, not app runtime, dependencies, native build inputs, or Metro behavior.
+
 ### BEM-37.120 - Android SDK 36 foundation
 
 - Branch: `feature/bem-37-android-sdk-36`

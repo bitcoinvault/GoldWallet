@@ -68,6 +68,7 @@ Target direction:
 - Firebase Crashlytics Gradle plugin: `2.9.0`
 - Google Services Gradle plugin: `4.3.15`
 - Build tools configured as `36.0.0`
+- Android environment audit requires local `platforms;android-36` and `build-tools;36.0.0`.
 - Flavors: `dev`, `stage`, `prod`, `beta`
 - Current verified build command:
 
