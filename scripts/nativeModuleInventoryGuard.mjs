@@ -26,7 +26,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-screens', '4.24.0'],
   ['react-native-secure-key-store', '2.0.10'],
   ['react-native-keychain', '10.0.0'],
-  ['react-native-share', '7.9.1'],
+  ['react-native-share', '12.3.1'],
   ['react-native-svg', '15.15.5'],
   ['react-native-tcp-socket', '6.4.1'],
   ['react-native-vector-icons', '10.3.0'],

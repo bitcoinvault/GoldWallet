@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.161 - React Native Share latest update
+
+- Branch: `feature/bem-37-react-native-share-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-share` from `7.9.1` to latest `12.3.1`.
+- Keep the existing `Share.open` call sites unchanged.
+- Validate the Android native module build and autolinking on the RN `0.81.6` baseline.
+
+Findings:
+
+- `npm view react-native-share version dist-tags engines peerDependencies --json` reports `latest` as `12.3.1`.
+- `react-native-share@12.3.1` requires Node `>=16`; the repo Node 22 runtime satisfies that requirement.
+- Existing `Share.open` usage remains type-compatible after the package update.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.160 - React Native logs latest update
 
 - Branch: `feature/bem-37-react-native-logs-update`
@@ -338,7 +363,7 @@ Scope:
 
 Findings:
 
-- `package.json` now has `react-native-gesture-handler@2.29.1`, `react-native-screens@4.24.0`, `react-native-safe-area-context@5.8.0`, `react-native-svg@15.15.5`, `react-native-share@7.9.1`, `react-native-vector-icons@10.3.0`, `react-native-webview@11.26.1`, and `react-native-fast-image@8.6.3`.
+- `package.json` now has `react-native-gesture-handler@2.29.1`, `react-native-screens@4.24.0`, `react-native-safe-area-context@5.8.0`, `react-native-svg@15.15.5`, `react-native-share@12.3.1`, `react-native-vector-icons@10.3.0`, `react-native-webview@11.26.1`, and `react-native-fast-image@8.6.3`.
 - The native-module upgrade plan already treats these as checked or checkpoint-aligned packages; the high-level baseline needed to match that current state.
 
 Validation:

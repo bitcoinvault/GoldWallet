@@ -28,7 +28,7 @@ React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use
 - `@react-native-clipboard/clipboard` -> `1.11.2`
 - `react-native-biometrics` -> `3.0.1`
 - `react-native-screens` -> `4.24.0`
-- `react-native-share` -> `7.9.1`
+- `react-native-share` -> `12.3.1`
 - `jail-monkey` -> `2.8.5`
 
 Current expectation:
