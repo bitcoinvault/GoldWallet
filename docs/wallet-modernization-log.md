@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.176 - Coinselect patch update
+
+- Branch: `feature/bem-37-coinselect-patch-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update transaction input selection dependency `coinselect` from `3.1.11` to latest stable `3.1.13`.
+- Keep wallet transaction source code, native project files, Metro config, and rn-nodeify shim code unchanged.
+- Update PSBT test fixtures only where the dependency's corrected input-size estimate changes the deterministic change output by one satoshi.
+
+Findings:
+
+- `npm view coinselect version dist-tags engines dependencies peerDependencies --json` reports `latest` as `3.1.13` and no runtime dependencies.
+- Upstream `coinselect 3.1.11 -> 3.1.13` changes `TX_INPUT_PUBKEYHASH` from `106` to `107` bytes.
+- The watched PSBT fixture keeps the same input, recipient output, change address, and scripts; the change output moves from `14775` to `14774` sat and the implied fee moves from `225` to `226` sat.
+- A targeted run of the network-backed `WatchOnlyWallet.test.js` did not provide useful PSBT validation because the public Electrum connection reset before the test completed; the offline equivalent of the same PSBT flow passed after the fixture update.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `node node_modules/jest/bin/jest.js tests/unit/signer.test.js --forceExit`
+- `corepack yarn test:watchonly:offline`
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn test:wallet-core:offline`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- Targeted logcat check found BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443`, then `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no fatal exception, ReferenceError, TypeError, or invariant violation was found.
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+
 ### BEM-37.175 - Events polyfill update
 
 - Branch: `feature/bem-37-events-polyfill-update`
