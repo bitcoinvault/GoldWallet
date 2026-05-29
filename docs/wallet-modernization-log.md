@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.156 - JSON tree developer dependency update
+
+- Branch: `feature/bem-37-json-tree-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-json-tree` from `1.3.0` to latest `1.5.0`.
+- Keep the existing `DeveloperScreen` JSON configuration preview unchanged.
+
+Findings:
+
+- The package is used only in `src/screens/Settings/DeveloperScreen.tsx`.
+- Existing `JSONTree` props for `data`, `theme`, and `hideRoot` remain type-compatible.
+- The update is JavaScript-only and does not add native Android/iOS changes.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+
 ### BEM-37.155 - Confirmation code field React 19 update
 
 - Branch: `feature/bem-37-confirmation-code-field-update`
