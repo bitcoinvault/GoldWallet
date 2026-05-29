@@ -273,7 +273,7 @@
     "intl": "1.2.5",
     "lodash": "^4.17.19",
     "path-browserify": "1.0.0",
-    "pbkdf2": "^3.1.1",
+    "pbkdf2": "3.1.6",
     "react": "19.1.4",
     "react-i18next": "^11.5.0",
     "react-localization": "1.0.13",
