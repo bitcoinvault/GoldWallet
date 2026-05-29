@@ -21,7 +21,7 @@ All modernization work should be developed on focused task branches and merged i
 - TypeScript: `5.4.5`
 - Jest: `29.7.0`
 - babel-jest: `29.7.0`
-- ts-jest: `29.4.6`
+- ts-jest: `29.4.11`
 - Detox: `18.20.1`
 - RN Babel preset: `0.81.6`
 - RN Metro config: `0.81.6`
