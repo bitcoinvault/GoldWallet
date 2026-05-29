@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.145 - RN target snapshot React peer refresh
+
+- Branch: `feature/bem-37-rn-target-snapshot-react-peer-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the RN target snapshot against live npm metadata checked on `2026-05-29`.
+- Keep the current repo baseline on RN `0.81.6` and React `19.1.4`, while recording that the RN `0.85.3` target line now peers React `^19.2.3`.
+- Update the React impact and package-coupling audits so future RN baseline work treats React, renderer, and types as a coordinated target change.
+
+Findings:
+
+- `npm view react-native version dist-tags peerDependencies engines --json` reports `latest` `0.85.3`, `next` `0.86.0-rc.2`, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- The installed RN `0.81.6` baseline still requires React `19.1.4`; this branch updates planning/audit metadata only.
+
+Validation:
+
+- `corepack yarn check:rn-target-snapshot-guard`
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn react19:impact:audit`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.144 - Android workflow target SDK wording refresh
 
 - Branch: `feature/bem-37-android-workflow-target-sdk-refresh`
