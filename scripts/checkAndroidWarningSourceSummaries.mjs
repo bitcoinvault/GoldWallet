@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';
+import { getMaskedViewMigrationSummaryErrors } from './maskedViewMigrationSummaryGuard.mjs';
 import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,6 +13,11 @@ const summaries = [
     label: 'camera QR migration',
     relativePath: 'local-docs/camera-qr-migration-summary.txt',
     getErrors: getCameraQrMigrationSummaryErrors,
+  },
+  {
+    label: 'masked-view migration',
+    relativePath: 'local-docs/masked-view-migration-summary.txt',
+    getErrors: getMaskedViewMigrationSummaryErrors,
   },
   {
     label: 'Sentry Android warning',

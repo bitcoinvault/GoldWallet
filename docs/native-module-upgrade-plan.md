@@ -71,6 +71,7 @@ Branch shape:
 - `react-native-vector-icons` is on checked latest `10.3.0` after `BEM-37.110`; the package no longer requires `@react-native-community/toolbar-android` and no longer contributes an Android `jcenter()` warning. Future icon work should focus on the package's per-icon-family migration guidance and iOS font validation rather than another warning-only cleanup.
 - `react-native-gesture-handler` is pinned to the already-resolved `1.10.3` after `BEM-36.65`; future gesture-handler work should validate navigation transitions and wait for a broader RN baseline step.
 - `@react-native-community/masked-view` is pinned to the already-resolved `0.1.11` after `BEM-36.66`; future masked-view work should validate stack/header masking and wait for a broader navigation package baseline.
+- `corepack yarn masked-view:migration:audit` keeps the current `@react-navigation/stack` dependency on the community masked-view path explicit before any replacement branch starts.
 
 ### Group C - Device, Storage, Network, And Runtime Integrations
 

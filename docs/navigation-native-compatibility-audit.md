@@ -120,6 +120,7 @@ react-native-bootsplash latest checked in this stream: 3.2.7 for the current 3.x
 - `react-native-screens@4.25.2` is not compatible with the current RN `0.68.7` baseline because its npm peer dependency requires `react-native >=0.82.0`.
 - `@react-native-community/blur` is now on latest checked `4.4.1` after `BEM-36.55`; it still fits the current React 17 and RN 0.68 baseline according to npm peer metadata.
 - `@react-native-community/masked-view` is now pinned to the already-resolved `0.1.11` after `BEM-36.66`; npm marks the package as moved to `@react-native-masked-view/masked-view`, but swapping packages should be a dedicated navigation validation branch.
+- `corepack yarn masked-view:migration:audit` records that the current `@react-navigation/stack@5.14.9` still requires `@react-native-community/masked-view`, so replacing the package must remain a dedicated navigation validation branch.
 - `react-native-bootsplash` is now on latest checked `3.2.7` after `BEM-36.54`; it still fits the current React Native `0.68.7` baseline.
 - The current `react-native-screens@3.22.1` was already stabilized earlier in the modernization stream to satisfy Android SDK 34 build compatibility.
 - `react-native-fast-image` is now on latest checked `8.6.3` after `BEM-36.53`; it still fits the current React 17 and RN 0.68 baseline.
