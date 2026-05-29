@@ -31,7 +31,8 @@ const requiredPlanSnippets = [
 const requiredMatrixSnippets = [
   'Milestone A: RN 0.81.6 Foundation',
   'React peer: `^19.1.4`',
-  'Node engine: `>=18`',
+  '`@types/react` peer: `^19.1.4`',
+  'Node engine: `>=20.19.4`',
   'Android template, Gradle, Kotlin, AGP, manifest, and native autolinking changes required by RN 0.81',
 ];
 
