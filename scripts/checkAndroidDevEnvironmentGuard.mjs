@@ -53,7 +53,8 @@ const assertRejected = (label, environment, expectedError) => {
 
 assertAccepted('Valid Android dev environment fixture', validEnvironment);
 
-assertRejected('Unsupported JDK fixture', { ...validEnvironment, javaMajor: '21' }, 'JDK 11-17');
+assertRejected('Older JDK fixture', { ...validEnvironment, javaMajor: '11' }, 'requires JDK 17');
+assertRejected('Unsupported JDK fixture', { ...validEnvironment, javaMajor: '21' }, 'requires JDK 17');
 assertRejected('Missing Java fixture', { ...validEnvironment, javaDetected: false, javaMajor: undefined }, 'Unable to detect Java version');
 assertRejected('Missing Android SDK fixture', { ...validEnvironment, androidSdkRootExists: false }, 'Android SDK root does not exist');
 assertRejected('Missing adb fixture', { ...validEnvironment, adbReady: false }, 'Unable to run adb version');
