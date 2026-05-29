@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, Linking, Dimensions, Platform } from 'react-native';
+import { Text, StyleSheet, View, Linking, Dimensions } from 'react-native';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 

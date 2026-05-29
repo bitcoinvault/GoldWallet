@@ -7,9 +7,6 @@ import { Wallet } from 'app/consts';
 import { takeLatestPerKey } from 'app/helpers/sagas';
 import { BlueApp } from 'app/legacy';
 
-import { messages } from '../../../error';
-import { checkAddressNetworkName } from '../../../utils/bitcoin';
-import { actions as electrumXActions } from '../electrumX';
 import {
   WalletsAction,
   loadWalletsSuccess,
@@ -35,6 +32,9 @@ import {
   RefreshWalletAction,
 } from './actions';
 import { getById as getByIdWallet, wallets as walletsSelector } from './selectors';
+import { messages } from '../../../error';
+import { checkAddressNetworkName } from '../../../utils/bitcoin';
+import { actions as electrumXActions } from '../electrumX';
 
 const BlueElectrum = require('../../../BlueElectrum');
 const i18n = require('../../../loc');

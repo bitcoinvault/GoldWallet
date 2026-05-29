@@ -1,6 +1,5 @@
 import config from 'app/config';
 
-import createHttpClient from '../client';
 import {
   SubscribePayload,
   UnsubscribePayload,
@@ -15,6 +14,7 @@ import {
   SubscribeDeviceFCMPayload,
   RemoveDeviceFCMPayload,
 } from './types';
+import createHttpClient from '../client';
 
 export enum EmailNotificationsError {
   INVALID_EMAIL = 'Enter a valid email address',

@@ -12,7 +12,7 @@ export const processAddressData = (data: string, stateAmount?: string) => {
     amount = stateAmount;
   } else {
     address = data.split('?')[0].replace('bitcoin:', '');
-    const [param, paramName, value] = solvedData;
+    const [, paramName, value] = solvedData;
 
     if (paramName === 'amount' && Number(value) > 0) {
       amount = value;

@@ -1,5 +1,3 @@
-import { Animated } from 'react-native';
-
 export { BottomTabBarIcon } from './BottomTabBarIcon';
 export { BottomTabBarComponent } from './BottomTabBarComponent';
 export { GradientView } from './GradientView';

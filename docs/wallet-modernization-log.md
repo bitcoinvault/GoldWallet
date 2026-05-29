@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.197 - ESLint baseline reduction
+
+- Branch: `feature/bem-37-eslint-baseline-reduction`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Apply the safe import-order fixes from the existing ESLint baseline.
+- Remove unused imports/destructured values from small UI/helper files.
+- Keep enum duplicate-value findings untouched because those are runtime action identifiers and need a separate behavioral review.
+
+Findings:
+
+- The ESLint baseline dropped from `25` errors to `9` errors.
+- Fixable ESLint errors dropped from `9` to `0`.
+- Remaining errors are concentrated in duplicate enum action values and older integration-test lint issues.
+
+Validation:
+
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Real emulator `emulator-5554`: installed `app-dev-debug.apk`, launched `io.goldwallet.wallet.dev` without Metro, verified dashboard/no-wallet UI in `local-docs/android-lint-reduction-smoke.xml`, and confirmed no RedBox in filtered logcat.
+
+Notes:
+
+- The standard `android:dev:verify` script still needs a separate smoke-harness update because it currently expects Metro transport and a pre-existing `E2EWalletTypeTest` wallet fixture.
+
 ### BEM-37.196 - Sentry dev runtime guard
 
 - Branch: `feature/bem-37-sentry-dev-wrapper-guard`
