@@ -10,7 +10,7 @@ Baseline refreshed on: 2026-05-29 after the RN `0.81.6` foundation checkpoint.
 Tracked package versions:
 
 - `@react-native-async-storage/async-storage`: manifest and lockfile `2.2.0`
-- `@react-native-community/netinfo`: manifest and lockfile `6.2.1`
+- `@react-native-community/netinfo`: manifest and lockfile `12.0.1`
 - `react-native-device-info`: manifest and lockfile `15.0.2`
 - `react-native-config`: manifest and lockfile `1.6.1`
 - `react-native-localize`: manifest and lockfile `3.7.0`
@@ -70,7 +70,7 @@ peerDependencies:
 - react: *
 - react-native: >=0.59
 
-@react-native-community/netinfo latest checked for current 6.x line: 6.2.1
+@react-native-community/netinfo current installed line for RN 0.81.6 validation: 12.0.1
 peerDependencies:
 - react-native: >=0.59
 
@@ -117,7 +117,7 @@ peerDependencies:
 
 - This group has high wallet risk because it touches persisted wallet data, encrypted storage, Electrum TLS sockets, env configuration, and terms WebViews.
 - `@react-native-async-storage/async-storage` is now on checked compatible `2.2.0` after `BEM-36.74`; the latest `3.1.0` remains a separate RN-baseline/storage validation branch.
-- `@react-native-community/netinfo` is now on latest checked 6.x `6.2.1` after `BEM-36.59`; it remains installed on the current RN `0.81.6` baseline and future NetInfo work should focus on Electrum/network behavior.
+- `@react-native-community/netinfo` is now on latest checked stable `12.0.1` after `BEM-37.168`; it remains installed on the current RN `0.81.6` baseline and future NetInfo work should focus on Electrum/network behavior.
 - `react-native-config` is now on latest checked `1.6.1` after `BEM-37.167`; the earlier Android compile failure on older React Native Android APIs (`BaseReactPackage` / `WritableMap.putLong`) is resolved on the RN `0.81.6` baseline.
 - `react-native-device-info` is now on checked `15.0.2` after `BEM-37.109`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.

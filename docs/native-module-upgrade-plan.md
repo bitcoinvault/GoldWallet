@@ -76,7 +76,7 @@ Branch shape:
 ### Group C - Device, Storage, Network, And Runtime Integrations
 
 - `@react-native-async-storage/async-storage` -> `2.2.0`
-- `@react-native-community/netinfo` -> `6.2.1`
+- `@react-native-community/netinfo` -> `12.0.1`
 - `react-native-background-timer` -> `2.4.1`
 - `react-native-device-info` -> `15.0.2`
 - `react-native-exit-app` -> `2.0.0`
@@ -99,7 +99,7 @@ Branch shape:
 - `docs/storage-network-native-compatibility-audit.md` records the current storage/config/network package compatibility snapshot and validation path.
 - Validate app startup, wallet list persistence, settings/env loading, and logcat for native module crashes.
 - For storage/secure-key-store changes, add or run focused storage/authenticator tests before emulator smoke.
-- `@react-native-community/netinfo` is on latest checked 6.x `6.2.1` after `BEM-36.59`; future NetInfo work should focus on Electrum/network behavior and RN baseline changes rather than another blind package bump.
+- `@react-native-community/netinfo` is on latest checked stable `12.0.1` after `BEM-37.168`; future NetInfo work should focus on Electrum/network behavior and RN baseline changes rather than another blind package bump.
 - `@react-native-async-storage/async-storage` is on checked compatible `2.2.0` after `BEM-36.74`; future AsyncStorage work should focus on persistence behavior and RN baseline changes rather than a direct jump to latest `3.x`.
 - `react-native-background-timer` is pinned to the already-resolved `2.4.1` after `BEM-36.67`; future timer work should validate timeout-button behavior and wait for a broader RN/runtime baseline.
 - `react-native-config` is on latest checked `1.6.1` after `BEM-37.167`; the earlier Android API compile blocker is resolved on the RN `0.81.6` baseline. Future config work should focus on flavor/env behavior, release-service keys, and platform validation.

@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.168 - NetInfo latest recheck
+
+- Branch: `feature/bem-37-netinfo-latest-recheck`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update `@react-native-community/netinfo` from `6.2.1` to latest stable `12.0.1`.
+- Keep Electrum saga connectivity checks and the network listener call sites unchanged.
+- Refresh native-module inventory, native-module upgrade plan, and storage/network audit references.
+
+Findings:
+
+- `npm view @react-native-community/netinfo version dist-tags peerDependencies engines --json` reports `latest` as `12.0.1`.
+- `@react-native-community/netinfo@12.0.1` declares React Native `>=0.59`; the repo's RN `0.81.6` baseline satisfies that range.
+- The app's guarded usage remains scoped to `src/state/electrumX/sagas.ts`.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:native-module-upgrade-plan`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- Targeted logcat check found BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443`, then `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no `AndroidRuntime`, fatal exception, ReferenceError, TypeError, or invariant violation was found.
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.167 - React Native Config latest recheck
 
 - Branch: `feature/bem-37-react-native-config-recheck`
