@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.174 - URL polyfill update
+
+- Branch: `feature/bem-37-url-polyfill-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update the browserified `url` polyfill from `0.11.0` to latest stable `0.11.4`.
+- Keep app source, test source, native project files, Metro config, and rn-nodeify shim code unchanged.
+- Treat this as a runtime/bundler polyfill dependency update because `url` is part of the Node-compatible package surface used by the wallet bundle.
+
+Findings:
+
+- `npm view url version dist-tags engines dependencies peerDependencies --json` reports `latest` as `0.11.4`.
+- `url@0.11.4` keeps broad Node compatibility and replaces the old `querystring@0.2.0` dependency with maintained `qs`, while also moving its direct `punycode` dependency from `1.3.2` to `1.4.1`.
+- `rn-nodeify` reapplied the existing polyfill normalization and `corepack yarn check:rn-nodeify-shims` remained stable.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- Targeted logcat check found BlueElectrum connecting to `electrumx.testnet.btcv.stage.rnd.land:443`, then `connected to server` / `connected to, ElectrumX 2.0.a,2.0`; no fatal exception, ReferenceError, TypeError, or invariant violation was found.
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+
 ### BEM-37.173 - Util polyfill update
 
 - Branch: `feature/bem-37-util-polyfill-update`
