@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.146 - Baseline test/type snapshot refresh
+
+- Branch: `feature/bem-37-baseline-test-type-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/wallet-modernization-baseline.md` so the current application snapshot matches the installed TypeScript/Jest stack.
+- Record TypeScript `5.4.5`, Jest `29.7.0`, babel-jest `29.7.0`, and ts-jest `29.4.6`.
+- Keep package versions and runtime behavior unchanged.
+
+Findings:
+
+- `package.json` already has TypeScript `5.4.5`, Jest `29.7.0`, babel-jest `29.7.0`, and ts-jest `29.4.6`.
+- `docs/test-type-coupling-audit.md` and `scripts/auditTestTypeCoupling.mjs` already guard that stack, but the high-level baseline snapshot still showed the older TypeScript `^4.0.3` and Jest `26.6.3` state.
+
+Validation:
+
+- `corepack yarn check:test-type-coupling-guard`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.145 - RN target snapshot React peer refresh
 
 - Branch: `feature/bem-37-rn-target-snapshot-react-peer-refresh`
