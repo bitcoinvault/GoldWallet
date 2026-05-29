@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.191 - JSDOM type definitions update
+
+- Branch: `feature/bem-37-types-jsdom-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the direct type-only JSDOM dependency from `@types/jsdom@16.2.13` to latest stable `@types/jsdom@28.0.3`.
+- Keep runtime `jsdom@16.7.0`, application runtime code, native code, and Metro config unchanged.
+- Tighten the e2e Mailosaur helper around nullable DOM lookup exposed by the newer type definitions.
+
+Findings:
+
+- `npm view @types/jsdom version dist-tags engines dependencies peerDependencies --json` reports stable `latest` as `28.0.3`, including a `ts5.4` dist-tag for the current TypeScript baseline.
+- Runtime JSDOM usage is scoped to `tests/e2e/mailing/index.ts`.
+- The newer type definitions correctly report that `document.querySelector('#id_pincode')` and its `textContent` can be null.
+- The helper now throws an explicit error when the email verification code element is missing instead of returning through an unsafe nullable access.
+- The E2E Jest config that uses `ts-jest` can still enumerate all Detox spec files.
+
+Validation:
+
+- `npm view @types/jsdom version dist-tags engines dependencies peerDependencies --json`
+- `npm view jsdom version dist-tags engines dependencies peerDependencies --json`
+- `corepack yarn add --dev @types/jsdom@28.0.3`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `node node_modules/jest/bin/jest.js --config tests/e2e/config.json --listTests`
+- `corepack yarn test:unit`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:type-coupling:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.190 - CryptoJS type definitions update
 
 - Branch: `feature/bem-37-types-crypto-js-update`
