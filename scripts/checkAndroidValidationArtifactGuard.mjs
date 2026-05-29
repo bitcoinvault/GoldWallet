@@ -1,7 +1,7 @@
 import { getWarningSummarySourceErrors } from './androidValidationArtifactsGuard.mjs';
 
 const validSummary = [
-  'Targeted Android Gradle warnings: 10',
+  'Targeted Android Gradle warnings: 9',
   'Unexpected targeted Android Gradle warnings: 0',
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
   String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\slider\android\build.gradle:4)`,
@@ -9,7 +9,6 @@ const validSummary = [
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-camera\android\build.gradle:59)`,
   String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\toolbar-android\android\build.gradle:5)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-localize\android\build.gradle:45)`,
-  String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\react-native-exit-app\android\build.gradle:3)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-vector-icons\android\build.gradle:41)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-device-info\android\build.gradle:46)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
@@ -21,7 +20,7 @@ const zeroWarningSummary = [
 ].join('\n');
 
 const mismatchedCountSummary = [
-  'Targeted Android Gradle warnings: 9',
+  'Targeted Android Gradle warnings: 8',
   'Unexpected targeted Android Gradle warnings: 0',
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\masked-view\android\build.gradle:47)`,
   String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\slider\android\build.gradle:4)`,
@@ -29,7 +28,6 @@ const mismatchedCountSummary = [
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-camera\android\build.gradle:59)`,
   String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\@react-native-community\toolbar-android\android\build.gradle:5)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-localize\android\build.gradle:45)`,
-  String.raw`- jcenter(): at build_abc$_run_closure1$_closure2.doCall(D:\GoldWallet\node_modules\react-native-exit-app\android\build.gradle:3)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-vector-icons\android\build.gradle:41)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-device-info\android\build.gradle:46)`,
   String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
