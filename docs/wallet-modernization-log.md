@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.150 - Baseline warning history refresh
+
+- Branch: `feature/bem-37-baseline-warning-history-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the known-gaps warning-history wording in `docs/wallet-modernization-baseline.md`.
+- Stop describing the RN `0.76` warning baseline as active.
+- Keep the current RN `0.81` warning baseline and one remaining `react-native-secure-key-store` source unchanged.
+
+Findings:
+
+- `docs/android-warning-baseline-followups.md` records the current RN `0.81.6` warning baseline with one targeted `jcenter()` source from `react-native-secure-key-store`.
+- The high-level baseline correctly listed the current warning counts, but one history sentence still called the older RN `0.76` warning baseline active.
+
+Validation:
+
+- `corepack yarn check:android-remaining-warning-plan`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.149 - README env audit JDK 17 refresh
 
 - Branch: `feature/bem-37-readme-env-audit-jdk17-refresh`
