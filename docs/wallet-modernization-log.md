@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.123 - Secure storage service contract tests
+
+- Branch: `feature/bem-37-secure-storage-contract-tests`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused unit coverage for `src/services/SecureStorageService.ts`.
+- Lock in current secure-storage wrapper behavior before any future `react-native-secure-key-store` replacement branch.
+- Cover missing-value fallback, plain value storage, hashed transaction-password storage, password verification, and removal through the native secure store.
+
+Why:
+
+- `react-native-secure-key-store` is one of the remaining Android `jcenter()` warning sources, but it protects PIN and transaction-password behavior.
+- A later replacement with `react-native-keychain` or another storage backend needs a small service-level contract so the migration does not silently alter hashing or accessibility behavior.
+
+Validation:
+
+- `node node_modules\jest\bin\jest.js tests/unit/SecureStorageService.test.js --forceExit`
+- `corepack yarn check:storage-network-usage-guard`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
+Result:
+
+- `SecureStorageService` has a focused unit contract covering 5 behaviors before the later secure-storage replacement branch.
+- Storage/network usage guard now explicitly allows secure-key-store usage only in the runtime wrapper and this focused contract test.
+- No emulator smoke was required because this branch adds unit coverage and guard documentation only; it does not change app runtime, dependencies, native build inputs, or Metro behavior.
+
 ### BEM-37.122 - Android verify runs environment audit
 
 - Branch: `feature/bem-37-env-audit-in-android-verify`
