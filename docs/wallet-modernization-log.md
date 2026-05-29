@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.180 - Dayjs runtime update
+
+- Branch: `feature/bem-37-dayjs-runtime-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check and update date/runtime dependency `dayjs` from `1.8.27` to latest stable `1.11.21`.
+- Keep wallet source code, native project files, Metro config, and rn-nodeify shim code unchanged.
+- Treat this as a runtime dependency branch because `dayjs` is used by transaction date formatting, date filters, PIN/unlock timers, and authenticator timestamps.
+
+Findings:
+
+- `npm view dayjs version dist-tags engines dependencies peerDependencies --json` reports stable `latest` as `1.11.21`.
+- The npm `alpha` dist-tag points to `2.0.0-alpha.4`; this branch stays on stable `latest`.
+- Existing `dayjs` plugins used by the app remain available: `duration`, `localizedFormat`, `utc`, `isSameOrAfter`, and `isSameOrBefore`.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:watchonly:offline`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- Restart Metro with `corepack yarn start --reset-cache`
+- `ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_EXPECT_TEXTS="Wallets,Create new wallet,Import wallet" corepack yarn android:dev:smoke`
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+
 ### BEM-37.179 - Lodash type definitions update
 
 - Branch: `feature/bem-37-types-lodash-update`
