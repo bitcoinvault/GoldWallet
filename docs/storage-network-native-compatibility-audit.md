@@ -25,7 +25,7 @@ Direct usage found in this audit:
 - `react-native-device-info`: emulator detection, device security checks, about screen metadata.
 - `react-native-config`: app environment, Electrum host/protocol, explorer URL, Sentry DSNs, CodePush keys.
 - `react-native-localize`: mocked in tests and used through localization runtime.
-- `react-native-secure-key-store`: `SecureStorageService`.
+- `react-native-secure-key-store`: `SecureStorageService` and the focused `SecureStorageService` unit contract test.
 - `react-native-tcp-socket`: TLS Electrum socket implementation. Updated from `6.0.6` to `6.4.1` in `BEM-36.50`.
 - `react-native-webview`: terms and conditions screens.
 - `react-native-randombytes`: tracked native dependency for crypto random byte behavior even though direct source usage is indirect through wallet/crypto dependencies. Updated from `3.5.3` to `3.6.2` in `BEM-36.49`.
@@ -119,6 +119,7 @@ peerDependencies:
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-secure-key-store` is now pinned to latest checked `2.0.10` after `BEM-36.63`; it should not be changed unless replacing the package entirely.
 - `corepack yarn secure-storage:migration:audit` keeps the current PIN and transaction-password storage surface explicit before any replacement branch starts.
+- `tests/unit/SecureStorageService.test.js` locks the current wrapper contract for missing-value fallback, plain storage, hashed transaction-password storage, password verification, and value removal before replacing the native secure-storage package.
 - `react-native-webview` is now pinned to the already-resolved `11.26.1` after `BEM-36.64`; the latest 13.x line remains a separate WebView/Terms validation branch.
 - `react-native-tcp-socket` is on latest `6.4.1`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
 - Future config/env changes must preserve all current env variables used in `src/config/index.ts`.
