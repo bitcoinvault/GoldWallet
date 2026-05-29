@@ -143,6 +143,13 @@ $ yarn android:dev:verify
 
 This builds the dev debug APK, checks that Metro is reachable on `127.0.0.1:8081`, installs the APK on a connected emulator/device, checks app startup logcat, verifies the dashboard UI, writes local artifacts under `local-docs/`, and validates the generated smoke summary.
 
+The default smoke expectation is the seeded wallet dashboard: `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. On a fresh emulator that has completed onboarding but has no wallet yet, use the empty-wallet dashboard expectation:
+
+```sh
+$env:ANDROID_SMOKE_EXPECT_TEXTS = 'Wallets,Create new wallet,Import wallet'
+$ yarn android:dev:smoke
+```
+
 For Android maintenance branches that also need the warning baseline audit and artifact consistency check, use:
 
 ```sh
