@@ -10,6 +10,27 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.123 - Release services readiness refresh
+
+- Branch: `feature/bem-36-release-services-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the release-services compatibility audit with current npm latest checks.
+- Record the current CodePush, Firebase, and Sentry release-readiness audit results.
+- Correct the stale CodePush package state from the older `7.0.2` note to the current `9.0.1` baseline.
+
+Findings:
+
+- CodePush release-path wiring is valid, but update validation is blocked by blank `.env.dev.testnet` CodePush deployment keys and unconfirmed beta deployment keys.
+- Firebase release-services wiring is valid on the current `12.7` family; the next `24.0.0` move remains a grouped major upgrade.
+- Sentry release source-map validation is blocked locally by missing `sentry.properties` files and unavailable `SENTRY_AUTH_TOKEN`.
+
+Validation:
+
+- Pending.
+
 ### BEM-37.203 - Runtime lint warning cleanup
 
 - Branch: `feature/bem-37-runtime-lint-warning-cleanup`
