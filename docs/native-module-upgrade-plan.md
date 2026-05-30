@@ -27,7 +27,7 @@ React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use
 
 - `@react-native-clipboard/clipboard` -> `1.16.3`
 - `react-native-biometrics` -> `3.0.1`
-- `react-native-screens` -> `4.24.0`
+- `react-native-screens` -> `4.25.2`
 - `react-native-share` -> `12.3.1`
 - `jail-monkey` -> `2.8.5`
 
@@ -64,6 +64,7 @@ Branch shape:
 - `react-native-bootsplash` is on latest checked `3.2.7` after `BEM-36.54`; future splash work should focus on launch-screen behavior and RN baseline changes, not another 3.x bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
 - `react-native-safe-area-context` is on checked `5.8.0` after `BEM-36.119`; future safe-area work should focus on layout validation and the next RN baseline.
+- `react-native-screens` is on checked latest `4.25.2` after `BEM-37.205`; the package now satisfies the RN `0.85.3` baseline and needs Android navigation smoke after future stack changes.
 - `react-native-svg` is on checked `15.15.5` after `BEM-36.119`, paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4` resolution after `BEM-37.158`; the QR renderer branch revalidated the newer QR package line on the RN `0.85.3` baseline.
 - For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
 - `react-native-fast-image` is on latest checked `8.6.3` after `BEM-36.53`; future image work should focus on cached image behavior and any RN baseline-driven replacement rather than another 8.x package bump.

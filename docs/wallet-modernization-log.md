@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.205 - React Native Screens latest update
+
+- Branch: `feature/bem-37-screens-4-25-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-screens` from `4.24.0` to checked latest `4.25.2`.
+- Refresh the native-module inventory guard and active navigation/native documentation for the RN `0.85.3` checkpoint.
+- Keep `react-native-gesture-handler@2.29.1` and `react-native-safe-area-context@5.8.0` unchanged.
+
+Findings:
+
+- `npm view react-native-screens@4.25.2` reports peer dependency `react-native >=0.82.0`, which is now satisfied by the current RN `0.85.3` baseline.
+- This is a native navigation dependency; Android build and emulator smoke are required before the branch can be treated as complete.
+
+Validation:
+
+- `npm view react-native-screens@4.25.2 version peerDependencies engines dist-tags --json`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.204 - AppStorage secure backend contract
 
 - Branch: `feature/bem-37-app-storage-keychain-contract`
