@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import config from '../../src/config';
 
 const assert = require('assert');
@@ -6,6 +8,8 @@ const bitcoin = require('bitcoinjs-lib');
 global.net = require('net');
 
 const BlueElectrum = require('../../BlueElectrum');
+
+const stopReconnect = () => undefined;
 
 jest.setTimeout(150000);
 
@@ -45,7 +49,7 @@ describe('Electrum', () => {
         await mainClient.connect();
         await mainClient.server_version('2.7.11', '1.4');
       } catch (e) {
-        mainClient.reconnect = mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
+        mainClient.reconnect = mainClient.keepAlive = stopReconnect; // dirty hack to make it stop reconnecting
         mainClient.close();
         throw new Error('bad connection: ' + JSON.stringify(peer) + ' ' + e.message);
       }
@@ -69,7 +73,7 @@ describe('Electrum', () => {
 
       // let peers = await mainClient.serverPeers_subscribe();
       // console.log(peers);
-      mainClient.reconnect = mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
+      mainClient.reconnect = mainClient.keepAlive = stopReconnect; // dirty hack to make it stop reconnecting
       mainClient.close();
     }
   });

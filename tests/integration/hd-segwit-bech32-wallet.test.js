@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { HDSegwitBech32Wallet } from '../../class';
 
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment

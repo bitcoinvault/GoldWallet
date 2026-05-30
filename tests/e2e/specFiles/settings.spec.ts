@@ -111,10 +111,10 @@ describe('Settings', () => {
 
       describe('@ios', () => {
         // TODO: For now, it's not possible to test it. Requires changes in the app
-        xit('should be possible to enable biometric and unlock the app using biometric method', async () => {});
+        xit('should be possible to enable biometric and unlock the app using biometric method', async () => undefined);
 
         // TODO: For now, it's not possible to test it. Requires changes in the app
-        xit('should be possible to disable biometric and unlock the app using PIN', async () => {});
+        xit('should be possible to disable biometric and unlock the app using PIN', async () => undefined);
       });
     });
   });

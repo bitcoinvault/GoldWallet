@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.202 - Test lint warning cleanup
+
+- Branch: `feature/bem-37-test-lint-warning-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove stale Jest global declarations from unit tests.
+- Replace empty skipped e2e test callbacks with explicit no-op expressions.
+- Keep intentional test diagnostic console output scoped to test files.
+
+Findings:
+
+- Most remaining ESLint warnings after BEM-37.201 were in tests, not app runtime.
+- Test files still intentionally log skipped external fixture/env diagnostics, so those warnings are disabled at file scope where appropriate.
+- Runtime lint warnings in `src/api/client.ts` and `src/components/ListItem.tsx` remain for separate behavior-aware branches.
+
+Validation:
+
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.201 - Action enum lint contract
 
 - Branch: `feature/bem-37-action-enum-lint-contract`

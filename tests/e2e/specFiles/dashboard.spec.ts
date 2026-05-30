@@ -205,9 +205,9 @@ describe('Dashboard', () => {
       }
     });
 
-    it.skip('should display correctly details of positive transaction', async () => {});
+    it.skip('should display correctly details of positive transaction', async () => undefined);
 
-    it.skip('should display correctly details of negative transaction', async () => {});
+    it.skip('should display correctly details of negative transaction', async () => undefined);
   });
 
   describe('Transaction details', () => {
@@ -367,7 +367,7 @@ describe('Dashboard', () => {
         }
       });
 
-      it.skip('should be possible to filter by date', async () => {});
+      it.skip('should be possible to filter by date', async () => undefined);
 
       it('should be possible to filter by amount', async () => {
         const filteredTransactions = transactions.filter(transaction => transaction.amount >= 0.01);

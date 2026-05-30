@@ -60,7 +60,7 @@ describe('Address book', () => {
     });
 
     describe('@android @ios @regression', () => {
-      xit('should be possible to create a new contact by scaning QR code', () => {});
+      xit('should be possible to create a new contact by scaning QR code', () => undefined);
 
       it("shouldn't be possible to create a new contact if name is invalid", async () => {
         await app.addressBook.contactsScreen.tapOnCreateButton();
