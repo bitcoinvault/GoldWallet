@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -10,6 +11,7 @@ export const requiredSentryPropertiesKeys = ['defaults.url', 'defaults.org', 'de
 const createScriptPath = path.join(root, 'create-sentry-properties.sh');
 
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
+const readJson = relativePath => JSON.parse(read(relativePath));
 const parsePropertiesKeys = content =>
   new Set(
     content
@@ -20,6 +22,12 @@ const parsePropertiesKeys = content =>
   );
 
 export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) => {
+  const packageJson = readJson('package.json');
+  const sentryReactNativeVersion = packageJson.dependencies?.['@sentry/react-native'] || 'missing';
+  const releaseIntegrationErrors = getSentryReleaseIntegrationErrors({
+    androidBuildGradle: read('android/app/build.gradle'),
+    iosProject: read('ios/GoldWallet.xcodeproj/project.pbxproj'),
+  });
   const missingFiles = requiredSentryPropertiesFiles.filter(relativePath => !existsSync(path.join(root, relativePath)));
   const invalidFiles = [];
 
@@ -47,9 +55,11 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';
   const createScriptUsesToken = createScript.includes('SENTRY_AUTH_TOKEN');
   const envHasToken = Boolean(env.SENTRY_AUTH_TOKEN);
-  const ready = missingFiles.length === 0 && invalidFiles.length === 0;
+  const ready = missingFiles.length === 0 && invalidFiles.length === 0 && releaseIntegrationErrors.length === 0;
 
   return {
+    sentryReactNativeVersion,
+    releaseIntegrationErrors,
     missingFiles,
     invalidFiles,
     hasCreateScript,
@@ -64,10 +74,14 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
     'Sentry release prerequisite audit',
     `Generated at: ${generatedAt}`,
     `Release source-map prerequisites: ${audit.ready ? 'ready' : 'not ready'}`,
+    `@sentry/react-native version: ${audit.sentryReactNativeVersion}`,
+    `Sentry release integration wired: ${audit.releaseIntegrationErrors.length === 0 ? 'yes' : 'no'}`,
+    `Sentry release integration errors: ${audit.releaseIntegrationErrors.length}`,
     `sentry.properties files present: ${audit.missingFiles.length === 0 ? 'yes' : 'no'}`,
     `Missing files: ${audit.missingFiles.length}`,
   ];
 
+  audit.releaseIntegrationErrors.forEach(error => lines.push(`- ${error}`));
   audit.missingFiles.forEach(relativePath => lines.push(`- ${relativePath}`));
   lines.push(`Invalid files: ${audit.invalidFiles.length}`);
 
@@ -99,6 +113,14 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
 
 const printReport = audit => {
   console.log('Sentry release prerequisite audit');
+  console.log(`@sentry/react-native version: ${audit.sentryReactNativeVersion}`);
+  console.log(`Sentry release integration wired: ${audit.releaseIntegrationErrors.length === 0 ? 'yes' : 'no'}`);
+
+  if (audit.releaseIntegrationErrors.length > 0) {
+    console.log('Sentry release integration errors:');
+    audit.releaseIntegrationErrors.forEach(error => console.log(`- ${error}`));
+  }
+
   console.log(`sentry.properties files present: ${audit.missingFiles.length === 0 ? 'yes' : 'no'}`);
 
   if (audit.missingFiles.length > 0) {

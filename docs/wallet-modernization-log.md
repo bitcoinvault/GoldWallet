@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.229 - Sentry release prerequisite evidence
+
+- Branch: `feature/bem-37-sentry-release-prereq-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep Sentry release/source-map validation separate from the Android release APK proof because it needs real Sentry credentials.
+- Extend the Sentry release prerequisite audit with the installed `@sentry/react-native` version and the existing Android/iOS release integration guard result.
+- Strengthen the generated summary guard so it validates integration error counts, invalid `sentry.properties` counts, and rejects accidental token assignment output.
+
+Why:
+
+- A release APK build can pass locally with Sentry upload disabled, but source-map/dSYM delivery is not proven until `sentry.properties` is generated from `SENTRY_AUTH_TOKEN`.
+- The summary now records both remaining secret-dependent blockers and non-secret integration evidence, so release readiness cannot be overstated.
+
+Validation:
+
+- `node --check scripts\auditSentryReleasePrerequisites.mjs`
+- `node --check scripts\sentryReleasePrereqSummaryGuard.mjs`
+- `node --check scripts\checkSentryReleasePrereqSummaryGuard.mjs`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn check:sentry-release-integration-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.228 - iOS release readiness summary guard
 
 - Branch: `feature/bem-37-ios-release-static-readiness-summary`
