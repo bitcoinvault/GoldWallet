@@ -10565,3 +10565,36 @@ Validation:
 - `corepack yarn test:storage-network:focused`
 - `corepack yarn lint:baseline:audit`
 - `git diff --check`
+
+### BEM-37.220 - JailMonkey 3 security module runtime probe
+
+- Branch: `feature/bem-37-jail-monkey-3-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `jail-monkey` from `2.8.5` to `3.0.0`, the latest npm release checked for this branch.
+- Move `jail-monkey` from `devDependencies` to `dependencies` because `Navigator.tsx` imports it at runtime for rooted/jailbroken-device protection.
+- Add `jail-monkey` to the native-module inventory guard now that it is tracked as a runtime dependency.
+- Refresh the native-module upgrade plan for the new JailMonkey baseline.
+
+Findings:
+
+- `npm view jail-monkey version peerDependencies dependencies engines --json` reports latest `3.0.0`.
+- The app's public usage remains `JailMonkey.isJailBroken()` in `Navigator.tsx`.
+
+Validation:
+
+- `npm view jail-monkey version peerDependencies dependencies engines --json`
+- `corepack yarn remove jail-monkey`
+- `corepack yarn add jail-monkey@3.0.0`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
