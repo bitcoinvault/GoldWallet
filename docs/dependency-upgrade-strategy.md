@@ -51,6 +51,7 @@ Validation must include existing offline wallet tests plus emulator smoke. Funde
 Do these after the runtime foundation and native-module cohorts that own their validation surface are stable:
 
 - State stack: Redux, React Redux, Redux Saga, Reselect.
+- State runtime is on checked latest stable after `BEM-37.207`: `redux@5.0.1`, `react-redux@9.3.0`, `redux-saga@1.5.0`, and `reselect@5.2.0`.
 - Utility/runtime packages: Axios, Lodash, Dayjs, BigNumber, CryptoJS.
 - CryptoJS runtime is on checked latest `4.2.0` after `BEM-37.206`; future crypto work should focus on behavior coverage and replacement strategy, not another blind package bump.
 - Tooling: ESLint, Prettier, Husky, lint-staged, Jest, ts-jest, Detox.

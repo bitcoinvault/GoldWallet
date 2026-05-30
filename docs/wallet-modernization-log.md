@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.207 - State runtime dependency update
+
+- Branch: `feature/bem-37-state-runtime-latest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep `redux@5.0.1` and `react-redux@9.3.0` on checked latest stable versions.
+- Upgrade `redux-saga` from `^1.1.3` to checked latest stable `1.5.0`.
+- Upgrade `reselect` from `^4.0.0` to checked latest stable `5.2.0`.
+- Add `state:runtime:audit` to lock the state-runtime dependency versions and basic `redux-saga/effects` plus `createSelector` behavior.
+
+Findings:
+
+- `npm view redux version dist-tags engines peerDependencies dependencies --json` reports `5.0.1` as latest.
+- `npm view react-redux version dist-tags engines peerDependencies dependencies --json` reports `9.3.0` as latest and supports React 18/19 plus Redux 5.
+- `npm view redux-saga version dist-tags engines peerDependencies dependencies --json` reports `1.5.0` as latest.
+- `npm view reselect version dist-tags engines peerDependencies dependencies --json` reports `5.2.0` as latest.
+- Current app usage remains within standard `redux-saga/effects` imports and `createSelector(...)` selector definitions.
+
+Validation:
+
+- `npm view redux version dist-tags engines peerDependencies dependencies --json`
+- `npm view react-redux version dist-tags engines peerDependencies dependencies --json`
+- `npm view redux-saga version dist-tags engines peerDependencies dependencies --json`
+- `npm view reselect version dist-tags engines peerDependencies dependencies --json`
+- `corepack yarn state:runtime:audit`
+- `node --check scripts\auditStateRuntime.mjs`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-warning-audit-summary`
+
 ### BEM-37.206 - CryptoJS runtime update
 
 - Branch: `feature/bem-37-crypto-js-runtime-4-2`
