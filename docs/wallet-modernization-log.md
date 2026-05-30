@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.215 - Android embedded smoke clean-state
+
+- Branch: `feature/bem-37-android-smoke-clean-state`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `ANDROID_SMOKE_CLEAR_APP_DATA=true` support to the Android smoke helper.
+- Make `android:dev:smoke:embedded` clear `io.goldwallet.wallet.dev` data after APK install and before launch.
+- Record the clean-state setting in `local-docs/android-smoke-dev-summary.txt` and guard the optional summary field.
+- Update Android workflow docs so the embedded smoke is explicitly a clean-onboarding empty-wallet check.
+
+Why:
+
+- A previous embedded smoke run reused an existing emulator PIN state and failed before checking the empty-wallet dashboard.
+- The embedded smoke should be deterministic for the bundled APK path and should not depend on whatever app data happened to be on the emulator.
+
+Validation:
+
+- `node --check scripts/androidSmokeDev.mjs`
+- `node --check scripts/androidSmokeDevEmbedded.mjs`
+- `node --check scripts/androidSmokeSummaryGuard.mjs`
+- `node --check scripts/checkAndroidSmokeSummaryGuard.mjs`
+- `corepack yarn check:android-smoke-summary-guard`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.214 - Secure-storage migration hardening
 
 - Branch: `feature/bem-36-secure-storage-migration-hardening`

@@ -10,6 +10,7 @@ const validSummary = [
   'Metro required: yes',
   'Metro endpoint: 127.0.0.1:8081',
   'Metro reachable: yes',
+  'Cleared app data: no',
   'Expected UI texts: Wallets, E2EWalletTypeTest, Send, Receive',
   'App PID: 21294',
   'Captured logcat lines: 211',
@@ -24,9 +25,20 @@ const missingMetroSummary = validSummary.replace('Metro reachable: yes', 'Metro 
 const embeddedSummary = validSummary
   .replace('Metro required: yes', 'Metro required: no')
   .replace('Metro reachable: yes', 'Metro reachable: no')
-  .replace('Expected UI texts: Wallets, E2EWalletTypeTest, Send, Receive', 'Expected UI texts: Wallets, No wallets, Create new wallet, Import wallet');
-const missingScreenshotSummary = validSummary.replace('Screenshot path: package.json', 'Screenshot path: local-docs/missing.png');
-const invalidTimestampSummary = validSummary.replace('Generated at: 2026-05-28T14:50:52.705Z', 'Generated at: 2026-05-28');
+  .replace('Cleared app data: no', 'Cleared app data: yes')
+  .replace(
+    'Expected UI texts: Wallets, E2EWalletTypeTest, Send, Receive',
+    'Expected UI texts: Wallets, No wallets, Create new wallet, Import wallet',
+  );
+const invalidCleanStateSummary = validSummary.replace('Cleared app data: no', 'Cleared app data: maybe');
+const missingScreenshotSummary = validSummary.replace(
+  'Screenshot path: package.json',
+  'Screenshot path: local-docs/missing.png',
+);
+const invalidTimestampSummary = validSummary.replace(
+  'Generated at: 2026-05-28T14:50:52.705Z',
+  'Generated at: 2026-05-28',
+);
 
 const assertAccepted = (label, summary) => {
   const errors = getAndroidSmokeSummaryErrors(summary);
@@ -51,6 +63,7 @@ assertAccepted('Valid Android smoke summary fixture', validSummary);
 assertAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertRejected('Failed smoke outcome fixture', failedSummary);
 assertRejected('Metro unreachable fixture', missingMetroSummary);
+assertRejected('Invalid clean-state fixture', invalidCleanStateSummary);
 assertRejected('Missing screenshot fixture', missingScreenshotSummary);
 assertRejected('Invalid timestamp fixture', invalidTimestampSummary);
 

@@ -126,6 +126,7 @@ corepack yarn android:dev:smoke:embedded
 ```
 
 `android:dev:smoke:embedded` disables the Metro preflight, installs the current `app-dev-debug.apk`, launches `io.goldwallet.wallet.dev`, and checks the empty-wallet dashboard fixture: `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
+It also sets `ANDROID_SMOKE_CLEAR_APP_DATA=true` so the embedded smoke validates the bundled APK from a clean onboarding state instead of reusing a stale emulator PIN/wallet state.
 
 For Android warning work:
 
@@ -225,6 +226,7 @@ Useful smoke overrides:
 - `ANDROID_SMOKE_METRO_PORT`: Metro port checked before launch; default is `8081`.
 - `ANDROID_SMOKE_METRO_TIMEOUT_MS`: positive integer timeout for the Metro preflight check; default is `3000`.
 - `ANDROID_SMOKE_REQUIRE_METRO`: set to `false` to skip the Metro preflight and reverse step when validating the bundled APK.
+- `ANDROID_SMOKE_CLEAR_APP_DATA`: set to `true` to run `pm clear` for the package after APK install and before launch.
 - `ANDROID_SMOKE_EXPECT_TEXTS`: comma-separated UI texts expected after launch.
 
 Smoke pass means:

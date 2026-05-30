@@ -26,6 +26,7 @@ const metroHost = process.env.ANDROID_SMOKE_METRO_HOST || '127.0.0.1';
 const metroPort = Number(process.env.ANDROID_SMOKE_METRO_PORT || 8081);
 const metroTimeoutMs = Number(process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS || 3000);
 const metroRequired = process.env.ANDROID_SMOKE_REQUIRE_METRO !== 'false';
+const clearAppData = process.env.ANDROID_SMOKE_CLEAR_APP_DATA === 'true';
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
   .map(text => text.trim())
@@ -114,6 +115,7 @@ const writeSummary = exitCode => {
     `Metro required: ${metroRequired ? 'yes' : 'no'}`,
     `Metro endpoint: ${metroHost}:${metroPort}`,
     `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
+    `Cleared app data: ${clearAppData ? 'yes' : 'no'}`,
     `Expected UI texts: ${expectedTexts.length > 0 ? expectedTexts.join(', ') : 'none'}`,
     `App PID: ${appPid || 'not available'}`,
     `Captured logcat lines: ${capturedLogcatLines}`,
@@ -498,6 +500,7 @@ try {
   append(`Using Metro required: ${metroRequired ? 'yes' : 'no'}`);
   append(`Using Metro endpoint: ${metroHost}:${metroPort}`);
   append(`Using Metro check timeout: ${metroTimeoutMs}ms`);
+  append(`Using app-data clear: ${clearAppData ? 'yes' : 'no'}`);
   append(
     expectedTexts.length > 0
       ? `Using expected UI text(s): ${expectedTexts.join(', ')}`
@@ -539,6 +542,9 @@ try {
   append(`Using Android serial: ${selectedAndroidSerial}`);
 
   run('install dev APK', ['install', '-r', apkPath]);
+  if (clearAppData) {
+    run('clear app data', ['shell', 'pm', 'clear', packageName]);
+  }
   try {
     run('grant notification permission', [
       'shell',
