@@ -192,6 +192,7 @@
     "android:dev:smoke": "node scripts/androidSmokeDev.mjs",
     "android:dev:smoke:embedded": "node scripts/androidSmokeDevEmbedded.mjs",
     "android:dev:verify": "yarn android:dev:env-audit && yarn android:dev:assemble && yarn android:dev:smoke && yarn android:dev:check-smoke-summary",
+    "android:dev:release:validate-local": "node scripts/runAndroidReleaseValidation.mjs",
     "android:dev:release": "react-native run-android --variant='devRelease'",
     "android:stage:release": "react-native run-android --variant=stageRelease",
     "android:prod:release": "react-native run-android --variant=prodRelease",
