@@ -7978,10 +7978,10 @@ iterator.prototype@^1.1.5:
     has-symbols "^1.1.0"
     set-function-name "^2.0.2"
 
-jail-monkey@2.8.5:
-  version "2.8.5"
-  resolved "https://registry.yarnpkg.com/jail-monkey/-/jail-monkey-2.8.5.tgz#19392ff942604ded100384247353e972562e9b6f"
-  integrity sha512-c91Bsfl18VyCRaoJAxB87ZC27lX23BL0EbHajFQu+h5Sa8OU/yeo33Lu8BplHPejdqxBwL31R//N/zYAb1XOSA==
+jail-monkey@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/jail-monkey/-/jail-monkey-3.0.0.tgz#5faa48e06575aa5c7c6b2b530fef178fdb26cc9a"
+  integrity sha512-EB382zJRHzElFPEucuafU3cxPJn5U8QgaQHzY09J8ly1eElG4EvNBEWu+0okS7Ro5Jvc8B/7lB+6mNCKjWjDGg==
 
 jest-changed-files@^29.7.0:
   version "29.7.0"

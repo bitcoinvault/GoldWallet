@@ -29,7 +29,7 @@ React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use
 - `react-native-biometrics` -> `3.0.1`
 - `react-native-screens` -> `4.25.2`
 - `react-native-share` -> `12.3.1`
-- `jail-monkey` -> `2.8.5`
+- `jail-monkey` -> `3.0.0`
 
 Current expectation:
 
