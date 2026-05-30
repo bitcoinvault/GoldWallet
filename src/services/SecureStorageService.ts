@@ -27,7 +27,11 @@ export default class SecureStorageService {
       const legacyValue = await RNSecureKeyStore.get(key);
 
       if (legacyValue) {
-        await Keychain.setGenericPassword(key, legacyValue, secureStorageOptions(key));
+        try {
+          await Keychain.setGenericPassword(key, legacyValue, secureStorageOptions(key));
+        } catch (_) {
+          // Keep the legacy value usable even if a one-off migration write fails.
+        }
       }
 
       return legacyValue;

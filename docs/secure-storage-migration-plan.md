@@ -12,6 +12,7 @@ Checked on: 2026-05-29
 - Stored keys: `CONST.pin` and `CONST.transactionPassword`.
 - The transaction password is stored as `sha256(value).toString()`.
 - The current Android accessibility mode is `ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`.
+- Legacy fallback reads now return the legacy value even if a one-off migration write into Keychain fails.
 - Legacy removal readiness: not ready while dual-write and legacy fallback are still active.
 
 ## Decision
@@ -29,6 +30,7 @@ Branch: `feature/bem-37-secure-storage-keychain-migration`
 - `corepack yarn secure-storage:migration:audit`
 - `corepack yarn secure-storage:migration:check-summary`
 - `corepack yarn test:storage-network:focused`, including `test:secure-storage:unit` before storage, authenticator, and wallet-core offline checks.
+- Focused fallback regression coverage for failed Keychain migration writes in `SecureStorageService` and `AppStorage`.
 - `corepack yarn android:dev:check-light`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
 - Metro restart with `--reset-cache`

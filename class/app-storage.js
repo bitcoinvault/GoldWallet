@@ -2,7 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
 import RNSecureKeyStore, { ACCESSIBLE as LEGACY_ACCESSIBLE } from 'react-native-secure-key-store';
 
-import logger from '../logger';
 import {
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
@@ -15,6 +14,7 @@ import {
   HDSegwitP2SHAirWallet,
   Authenticator,
 } from './';
+import logger from '../logger';
 
 const encryption = require('../encryption');
 
@@ -71,7 +71,9 @@ export class AppStorage {
         RNSecureKeyStore.get(key)
           .then(value => {
             if (value) {
-              return Keychain.setGenericPassword(key, value, secureStorageOptions(key)).then(() => value);
+              return Keychain.setGenericPassword(key, value, secureStorageOptions(key))
+                .then(() => value)
+                .catch(() => value);
             }
 
             return value;

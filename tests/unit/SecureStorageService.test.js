@@ -30,10 +30,10 @@ jest.mock('react-native-secure-key-store', () => ({
 
 const SecureStorageService = require('../../src/services/SecureStorageService').default;
 
-describe('unit - SecureStorageService', function() {
+describe('unit - SecureStorageService', function () {
   let service;
 
-  beforeEach(function() {
+  beforeEach(function () {
     service = new SecureStorageService();
     mockSecureStore.getGenericPassword.mockReset();
     mockSecureStore.setGenericPassword.mockReset();
@@ -43,7 +43,7 @@ describe('unit - SecureStorageService', function() {
     mockLegacySecureStore.remove.mockReset();
   });
 
-  it('returns an empty string when a secured value is unavailable', async function() {
+  it('returns an empty string when a secured value is unavailable', async function () {
     mockSecureStore.getGenericPassword.mockRejectedValueOnce(new Error('missing'));
     mockLegacySecureStore.get.mockRejectedValueOnce(new Error('missing'));
 
@@ -54,14 +54,14 @@ describe('unit - SecureStorageService', function() {
     });
   });
 
-  it('returns an empty string when keychain has no credentials for the key', async function() {
+  it('returns an empty string when keychain has no credentials for the key', async function () {
     mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
     mockLegacySecureStore.get.mockRejectedValueOnce(new Error('missing'));
 
     await expect(service.getSecuredValue('pin')).resolves.toBe('');
   });
 
-  it('falls back to the legacy secure store and migrates the value into keychain', async function() {
+  it('falls back to the legacy secure store and migrates the value into keychain', async function () {
     mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
     mockLegacySecureStore.get.mockResolvedValueOnce('1234');
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
@@ -74,7 +74,7 @@ describe('unit - SecureStorageService', function() {
     });
   });
 
-  it('falls back to the legacy secure store when keychain read fails', async function() {
+  it('falls back to the legacy secure store when keychain read fails', async function () {
     mockSecureStore.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));
     mockLegacySecureStore.get.mockResolvedValueOnce('1234');
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
@@ -87,7 +87,20 @@ describe('unit - SecureStorageService', function() {
     });
   });
 
-  it('stores plain values with the current accessibility mode', async function() {
+  it('keeps returning the legacy value when keychain migration write fails', async function () {
+    mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
+    mockLegacySecureStore.get.mockResolvedValueOnce('1234');
+    mockSecureStore.setGenericPassword.mockRejectedValueOnce(new Error('keychain write unavailable'));
+
+    await expect(service.getSecuredValue('pin')).resolves.toBe('1234');
+    expect(mockLegacySecureStore.get).toHaveBeenCalledWith('pin');
+    expect(mockSecureStore.setGenericPassword).toHaveBeenCalledWith('pin', '1234', {
+      service: 'pin',
+      accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+    });
+  });
+
+  it('stores plain values with the current accessibility mode', async function () {
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
     mockLegacySecureStore.set.mockResolvedValueOnce('ok');
 
@@ -101,7 +114,7 @@ describe('unit - SecureStorageService', function() {
     });
   });
 
-  it('hashes encoded values before storing them', async function() {
+  it('hashes encoded values before storing them', async function () {
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'transactionPassword', storage: 'keychain' });
     mockLegacySecureStore.set.mockResolvedValueOnce('ok');
 
@@ -122,7 +135,7 @@ describe('unit - SecureStorageService', function() {
     });
   });
 
-  it('checks transaction passwords against the stored hash', async function() {
+  it('checks transaction passwords against the stored hash', async function () {
     mockSecureStore.getGenericPassword.mockResolvedValueOnce({
       password: sha256('secret').toString(),
     });
@@ -130,7 +143,7 @@ describe('unit - SecureStorageService', function() {
     await expect(service.checkSecuredPassword('transactionPassword', 'secret')).resolves.toBe(true);
   });
 
-  it('removes secured values through the native store', async function() {
+  it('removes secured values through the native store', async function () {
     mockSecureStore.resetGenericPassword.mockResolvedValueOnce(true);
     mockLegacySecureStore.remove.mockResolvedValueOnce('removed');
 

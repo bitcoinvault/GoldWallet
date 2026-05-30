@@ -27,7 +27,7 @@ Direct usage found in this audit:
 - `react-native-device-info`: emulator detection, device security checks, about screen metadata.
 - `react-native-config`: app environment, Electrum host/protocol, explorer URL, Sentry DSNs, CodePush keys.
 - `react-native-localize`: mocked in tests and used through localization runtime.
-- `react-native-keychain`: `SecureStorageService`, legacy `AppStorage` React Native secure-storage path, and the focused `SecureStorageService` unit contract test.
+- `react-native-keychain`: `SecureStorageService`, legacy `AppStorage` React Native secure-storage path, focused `SecureStorageService` unit contract tests, and `AppStorage` migration-fallback integration tests.
 - `react-native-secure-key-store`: retained as a legacy fallback and dual-write target during the Keychain migration window.
 - `react-native-tcp-socket`: TLS Electrum socket implementation. Updated from `6.0.6` to `6.4.1` in `BEM-36.50`.
 - `react-native-webview`: terms and conditions screens.
@@ -124,7 +124,8 @@ peerDependencies:
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-keychain@10.0.0` is installed as the new secure-storage backend, while `react-native-secure-key-store@2.0.10` remains temporarily for legacy fallback and dual-write migration.
 - `corepack yarn secure-storage:migration:audit` keeps the current PIN and transaction-password storage surface explicit before any replacement branch starts.
-- `tests/unit/SecureStorageService.test.js` locks the current wrapper contract for missing-value fallback, plain storage, hashed transaction-password storage, password verification, and value removal after replacing the native secure-storage package.
+- `tests/unit/SecureStorageService.test.js` locks the current wrapper contract for missing-value fallback, legacy fallback, failed Keychain migration writes, plain storage, hashed transaction-password storage, password verification, and value removal after replacing the native secure-storage package.
+- `tests/integration/Storage.test.js` locks the React Native `AppStorage` fallback path so legacy wallet data remains readable even if the Keychain migration write fails during a read.
 - `react-native-webview` is now on latest checked `13.16.1` after `BEM-37.162`; future changes should focus on Terms screens validation, release builds, and the next RN baseline.
 - `react-native-tcp-socket` is on latest `6.4.1`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
 - Future config/env changes must preserve all current env variables used in `src/config/index.ts`.
