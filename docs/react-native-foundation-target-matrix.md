@@ -41,9 +41,9 @@ Status:
 Expected branch scope:
 
 - React Native, React, React Test Renderer, React types.
-- Metro/Babel preset/runtime packages required by RN 0.81.
+- Metro/Babel preset/runtime packages required by RN 0.85.
 - Node dev runtime move from 16 to 22 for this branch.
-- Android template, Gradle, Kotlin, AGP, manifest, and native autolinking changes required by RN 0.81.
+- Android template, Gradle, Kotlin, AGP, manifest, New Architecture, and native autolinking changes required by RN 0.85.
 - iOS Podfile/template drift documented separately if it cannot be validated on this Windows machine.
 
 ### Milestone B: Next stable RN line

@@ -10,7 +10,7 @@ Checked on: 2026-05-29
 - React baseline: `19.2.3`.
 - Active navigation packages: `@react-navigation/native@7.2.5`, `@react-navigation/stack@7.9.3`, and `@react-navigation/bottom-tabs@7.16.2`.
 - `@react-native-community/masked-view` is removed; React Navigation 7 no longer needs the old community masked-view runtime path.
-- `react-native-gesture-handler@2.29.1` is the highest compatible line validated with the RN `0.85.3` Paper/new-arch-disabled baseline. `3.0.0` failed Android Kotlin/codegen compilation in the RN `0.85.3` proof.
+- `react-native-gesture-handler@2.29.1` is the highest compatible line validated with the RN `0.85.3` New Architecture baseline. `3.0.0` failed Android Kotlin/codegen compilation during the RN `0.85.3` proof.
 - `react-native-screens@4.24.0` is the validated screens baseline. Later `4.25.x` metadata points at RN `>=0.82.0`, so it belongs to the next RN milestone.
 - `react-native-safe-area-context@5.8.0` is the active safe-area baseline.
 - `@react-native-community/blur@4.4.1`, `react-native-bootsplash@3.2.7`, `react-native-fast-image@8.6.3`, and `react-native-vector-icons@10.3.0` remain fixed.

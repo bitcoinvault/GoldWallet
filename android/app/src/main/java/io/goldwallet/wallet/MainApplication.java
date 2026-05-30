@@ -71,7 +71,7 @@ public class MainApplication extends Application implements ReactApplication {
       super.onCreate();
       ReactNativeApplicationEntryPoint.loadReactNative(this);
       // The legacy Flipper bootstrap references Fresco classes that are no longer
-      // bundled by the RN 0.76 debug runtime.
+      // bundled by the current RN debug runtime.
     }
   
     /**

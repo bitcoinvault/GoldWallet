@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.127 - RN 0.85 active documentation polish
+
+- Branch: `feature/bem-36-rn085-active-doc-polish`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh active RN baseline wording that still described the current warning/runtime checkpoint as RN `0.81`.
+- Keep the legacy `rn:076-foundation:audit` command name for compatibility while making its output describe the RN `0.85` checkpoint.
+- Refresh Sentry warning, Node runtime, QR migration, navigation, masked-view, Android warning, and RN upgrade-path text for the validated RN `0.85.3` baseline.
+
+Findings:
+
+- `react-native-secure-key-store` remains the only targeted Android `jcenter()` warning after RN `0.85.3`; it is still blocked by the secure-storage dual-write/fallback migration.
+- The active Sentry Android warning audit should describe the current RN `0.85.3` baseline, not the older RN `0.81` checkpoint.
+- These changes are documentation/guard wording only; no runtime behavior changed after the RN `0.85.3` smoke-tested branch.
+
+Validation:
+
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-36.126 - React Native 0.85 current-line foundation
 
 - Branch: `feature/bem-36-rn085-target-probe`

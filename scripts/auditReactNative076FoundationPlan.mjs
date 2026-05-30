@@ -33,7 +33,7 @@ const requiredMatrixSnippets = [
   'React peer: `^19.2.3`',
   '`@types/react` peer: `^19.2.3`',
   'Node engine: `>=20.19.4`',
-  'Android template, Gradle, Kotlin, AGP, manifest, and native autolinking changes required by RN 0.81',
+  'Android template, Gradle, Kotlin, AGP, manifest, New Architecture, and native autolinking changes required by RN 0.85',
 ];
 
 const errors = [];
@@ -78,10 +78,10 @@ requiredMatrixSnippets.forEach(snippet => {
 });
 
 if (!plan.includes('Sentry release/source-map upgrade') || !plan.includes('react-native-camera` replacement')) {
-  warnings.push('RN 0.81 checkpoint should keep release-service and camera replacement work out of scope.');
+  warnings.push('RN 0.85.3 checkpoint should keep release-service and camera replacement work out of scope.');
 }
 
-console.log('React Native 0.81 foundation checkpoint audit');
+console.log('React Native 0.85 foundation checkpoint audit');
 console.log(`Current react-native: ${dependencies['react-native'] || '<missing>'}`);
 console.log(`Current react: ${dependencies.react || '<missing>'}`);
 console.log('Current checkpoint: react-native@0.85.3 with React 19 and Node 22');
@@ -97,4 +97,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('React Native 0.81 foundation checkpoint plan matches the current baseline and target scope.');
+console.log('React Native 0.85 foundation checkpoint plan matches the current baseline and target scope.');

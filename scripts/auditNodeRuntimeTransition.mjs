@@ -34,7 +34,7 @@ export const requiredNodeRuntimeTransitionSnippets = [
   ['docs/node-runtime-transition-audit.md', 'Current RN Metro config: `0.85.3`'],
   ['docs/node-runtime-transition-audit.md', 'Target React Native snapshot: `0.85.3`'],
   ['docs/node-runtime-transition-audit.md', 'Target RN Node engine snapshot: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`'],
-  ['docs/node-runtime-transition-audit.md', 'Keep `.nvmrc` on `22.18.0` for the RN 0.81 foundation checkpoint until the next RN milestone owns another Node/tooling move.'],
+  ['docs/node-runtime-transition-audit.md', 'Keep `.nvmrc` on `22.18.0` for the RN 0.85.3 foundation checkpoint until the next RN milestone owns another Node/tooling move.'],
   ['docs/node-runtime-transition-audit.md', 'corepack yarn node:runtime-transition:audit'],
   ['docs/react-native-target-snapshot.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],
   ['docs/react-native-upgrade-path.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],
