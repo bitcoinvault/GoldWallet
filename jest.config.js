@@ -11,6 +11,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^uuid$': '<rootDir>/node_modules/uuid/dist/index.js',
+    '^react-localization$': '<rootDir>/node_modules/react-localization/lib/react-localization.umd.js',
   },
   coveragePathIgnorePatterns: ['/node_modules/'],
   collectCoverageFrom: ['src/**/*.{js,ts,tsx}', 'class/**/*.{js,ts,tsx}', 'utils/**/*.{js,ts,tsx}'],

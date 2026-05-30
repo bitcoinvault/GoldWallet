@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.222 - React Localization 2 runtime probe
+
+- Branch: `feature/bem-37-react-localization-2-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-localization` from `1.0.13` to `2.0.6`.
+- Move the transitive `localized-strings` runtime from `0.2.4` to `2.0.3`.
+- Keep the existing GoldWallet localization model unchanged: app strings still come from `loc/index.js` and language packs under `loc/`.
+- Avoid adding `react-dom`; `react-localization@2.0.6` marks React and React DOM peers as optional and its distributed runtime does not import React DOM.
+- Map Jest's CommonJS resolver to the package UMD build because the package `exports.require` entry points at the ESM file.
+
+Why:
+
+- Removes the stale React 16 transitive dependency edge that `react-localization@1.0.13` pulled into the lockfile.
+- Keeps the string runtime aligned with the React 19 / React Native 0.85 baseline without changing translation content or app language behavior.
+- Keeps Jest on the real package implementation while avoiding a test-only ESM parse failure.
+
+Validation:
+
+- `npm view react-localization@2.0.6 main module types peerDependencies dependencies files --json`
+- `npm pack react-localization@2.0.6 --dry-run`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+
 ### BEM-37.217 - RN nodeify postinstall fallback
 
 - Branch: `feature/bem-37-rn-nodeify-postinstall-fallback`
