@@ -14,11 +14,24 @@ import com.facebook.react.defaults.DefaultReactHost;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.microsoft.codepush.react.CodePush;
 import io.goldwallet.PreventScreenshotPackage;
+import java.util.Collections;
 import java.util.List;
 import java.lang.reflect.InvocationTargetException;
 import okhttp3.OkHttpClient;
 
 public class MainApplication extends Application implements ReactApplication {  
+  private ReactHost mReactHost;
+
+  private List<ReactPackage> buildPackages() {
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    List<ReactPackage> packages = new PackageList(this).getPackages();
+    // Packages that cannot be autolinked yet can be added manually here, for example:
+    // packages.add(new MyReactNativePackage());
+    packages.add(new PreventScreenshotPackage());
+
+    return packages;
+  }
+
   private final ReactNativeHost mReactNativeHost = new DefaultReactNativeHost(this) {
     @Override
     public boolean getUseDeveloperSupport() {
@@ -27,13 +40,7 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     protected List<ReactPackage> getPackages() {
-      @SuppressWarnings("UnnecessaryLocalVariable")
-      List<ReactPackage> packages = new PackageList(this).getPackages();
-      // Packages that cannot be autolinked yet can be added manually here, for example:
-      // packages.add(new MyReactNativePackage());
-      packages.add(new PreventScreenshotPackage());
-      
-      return packages;
+      return buildPackages();
     }
 
     @Override
@@ -63,7 +70,25 @@ public class MainApplication extends Application implements ReactApplication {
 
   @Override
   public ReactHost getReactHost() {
-    return DefaultReactHost.getDefaultReactHost(getApplicationContext(), mReactNativeHost, null);
+    if (mReactHost == null) {
+      mReactHost =
+        DefaultReactHost.getDefaultReactHost(
+          getApplicationContext(),
+          buildPackages(),
+          "index",
+          "index.android.bundle",
+          CodePush.getJSBundleFile(),
+          null,
+          BuildConfig.DEBUG,
+          Collections.emptyList(),
+          exception -> {
+            throw new RuntimeException(exception);
+          },
+          null
+        );
+    }
+
+    return mReactHost;
   }
   
     @Override

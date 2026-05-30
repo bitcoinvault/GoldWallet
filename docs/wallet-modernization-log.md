@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.213 - Android dev release summary guard
+
+- Branch: `feature/bem-37-android-release-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `android:dev:release:check-summary` to validate `local-docs/android-release-dev-summary.txt` after `android:dev:release:validate-local`.
+- Add `check:android-release-summary-guard` with fixtures for the Android release summary parser.
+- Validate that the release summary proves `:app:assembleDevRelease` exited with `0`, Sentry auto-upload was disabled locally, Sentry upload validation is not claimed, and the unsigned `devRelease` APK exists with a matching byte count.
+- Keep real Sentry source-map upload validation separate until `sentry.properties` or `SENTRY_AUTH_TOKEN` is available.
+- Align Android entrypoints with the React Native 0.85 runtime path by using `DefaultReactActivityDelegate` and constructing `DefaultReactHost` directly while preserving the manual `PreventScreenshotPackage` and `CodePush.getJSBundleFile()`.
+- Keep new architecture enabled for RN 0.85 and keep debug symbols for generated React codegen libraries to avoid a repeat of corrupted stripped native codegen libs on emulator debug smoke.
+- Extend `android:dev:smoke:embedded` so a fresh install can pass through the real first-run flow: notification permission grant, terms acceptance, PIN setup, transaction-password setup, optional email skip, success close, and final wallet-screen assertion.
+
+Findings:
+
+- The existing local release validation script already writes `local-docs/android-release-dev-summary.txt`, but there was no checker proving that the artifact still matched the expected release-build contract.
+- The current local release summary reports `:app:assembleDevRelease` exit code `0` and `android/app/build/outputs/apk/dev/release/app-dev-release-unsigned.apk` with a positive byte count.
+- Sentry upload validation remains explicitly unclaimed because this local build disables automatic Sentry upload.
+- RN 0.85 no longer supports `newArchEnabled=false`; the Android runtime must stay on the new architecture path.
+- A stale debug CMake artifact for `x86_64/libreact_codegen_rnscreens.so` had invalid ELF bytes before a clean rebuild; a clean rebuild restored a valid ELF and the emulator runtime crash disappeared.
+- The emulator smoke blocker after runtime recovery was not a product crash. It was the unautomated first-run onboarding path, which now runs end-to-end before asserting the wallet screen.
+
+Validation:
+
+- `node --check scripts\androidReleaseSummaryGuard.mjs`
+- `node --check scripts\checkAndroidReleaseSummary.mjs`
+- `node --check scripts\checkAndroidReleaseSummaryGuard.mjs`
+- `node --check scripts\androidSmokeDev.mjs`
+- `corepack yarn check:android-release-summary-guard`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn eslint scripts/androidSmokeDev.mjs scripts/androidReleaseSummaryGuard.mjs scripts/checkAndroidReleaseSummary.mjs scripts/checkAndroidReleaseSummaryGuard.mjs --format stylish`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.212 - Jest tooling compatibility guard
 
 - Branch: `feature/bem-37-jest-tooling-update`

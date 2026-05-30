@@ -122,6 +122,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    packaging {
+        jniLibs {
+            keepDebugSymbols += ["**/libreact_codegen_*.so"]
+        }
+    }
+
     defaultConfig {
         applicationId project.env.get("APP_ID")
         resValue "string", "build_config_package", "io.goldwallet.wallet"
