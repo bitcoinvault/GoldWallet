@@ -43,9 +43,9 @@ export const collectCameraQrMigrationAudit = () => {
     readinessIssues.push(`package.json has react-native-camera-kit@${cameraKitVersion || '<missing>'}; expected 18.0.0`);
   }
 
-  if (localQrImageVersion !== '1.0.4') {
+  if (localQrImageVersion) {
     readinessIssues.push(
-      `package.json has @remobile/react-native-qrcode-local-image@${localQrImageVersion || '<missing>'}; expected current legacy baseline 1.0.4`,
+      `package.json still has @remobile/react-native-qrcode-local-image@${localQrImageVersion}; expected removal after QR scanner migration`,
     );
   }
 
@@ -77,7 +77,9 @@ export const collectCameraQrMigrationAudit = () => {
   requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, "allowedBarcodeTypes={['qr']}");
   requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'onReadCode={this.onBarCodeScanned}');
   requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'onBarCodeScan(data)');
-  requireSnippet(errors, 'react-native.config.js', reactNativeConfig, "'@remobile/react-native-qrcode-local-image'");
+  if (reactNativeConfig.includes("'@remobile/react-native-qrcode-local-image'")) {
+    errors.push('react-native.config.js still disables Android autolinking for removed @remobile/react-native-qrcode-local-image');
+  }
   requireSnippet(errors, 'react-native.config.js', reactNativeConfig, 'android: null');
   requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'Branch: `feature/bem-37-camera-kit-qr-proof`');
   requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'VisionCamera');
@@ -95,6 +97,7 @@ export const collectCameraQrMigrationAudit = () => {
   return {
     cameraVersion,
     cameraKitVersion,
+    localQrImageVersion,
     qrRendererVersion,
     rootQrcodeVersion,
     errors,
@@ -110,6 +113,7 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
     `Generated at: ${generatedAt}`,
     `react-native-camera manifest version: ${audit.cameraVersion || '<missing>'}`,
     `react-native-camera-kit manifest version: ${audit.cameraKitVersion || '<missing>'}`,
+    `QR local-image manifest version: ${audit.localQrImageVersion || '<missing>'}`,
     `QR renderer version: ${audit.qrRendererVersion || '<missing>'}`,
     `qrcode resolution: ${audit.rootQrcodeVersion || '<missing>'}`,
     `Camera QR migration wiring valid: ${audit.errors.length === 0 ? 'yes' : 'no'}`,
@@ -156,7 +160,7 @@ const printReport = audit => {
     console.log('Camera QR migration baseline is stable after the dedicated scanner replacement branch.');
   }
 
-  console.log('Camera QR migration wiring is present for Android/iOS permissions, current scanner runtime, guarded legacy QR image autolinking, and migration documentation.');
+  console.log('Camera QR migration wiring is present for Android/iOS permissions, current scanner runtime, removed legacy QR local-image dependency, and migration documentation.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

@@ -12,4 +12,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('Legacy Android autolinking remains disabled only for the guarded QR/prompt packages.');
+console.log('Legacy Android autolinking remains disabled only for guarded legacy packages.');

@@ -193,14 +193,21 @@ const readUiHierarchy = label => {
 };
 
 const getNodeByResourceId = (uiHierarchy, resourceId) => {
-  const escapedResourceId = resourceId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const nodeMatch = uiHierarchy.match(new RegExp(`<node\\b[^>]*resource-id="${escapedResourceId}"[^>]*>`, 's'));
+  const resourceMarker = `resource-id="${resourceId}"`;
+  const resourceIndex = uiHierarchy.indexOf(resourceMarker);
 
-  if (!nodeMatch) {
+  if (resourceIndex === -1) {
     return null;
   }
 
-  const node = nodeMatch[0];
+  const nodeStart = uiHierarchy.lastIndexOf('<node', resourceIndex);
+  const nodeEnd = uiHierarchy.indexOf('>', resourceIndex);
+
+  if (nodeStart === -1 || nodeEnd === -1) {
+    return null;
+  }
+
+  const node = uiHierarchy.slice(nodeStart, nodeEnd + 1);
   const boundsMatch = node.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/);
 
   return {
@@ -401,6 +408,25 @@ const closeFirstRunSuccessIfNeeded = () => {
   append('Closed first-run success screen.');
   sleep(5000);
 };
+
+const completeFirstRunFlowIfNeeded = () => {
+  acceptFirstRunTermsIfNeeded();
+  completeFirstRunPinIfNeeded();
+  completeFirstRunTransactionPasswordIfNeeded();
+  skipFirstRunEmailIfNeeded();
+  closeFirstRunSuccessIfNeeded();
+};
+
+const hasFirstRunFlow = uiHierarchy =>
+  [
+    'resource-id="terms-conditions-screen"',
+    'resource-id="create-pin-input"',
+    'resource-id="confirm-pin-input"',
+    'resource-id="create-password-input"',
+    'resource-id="confirm-password-input"',
+    'resource-id="email-input"',
+    'resource-id="success-modal"',
+  ].some(marker => uiHierarchy.includes(marker));
 
 const checkTcpPort = (host, port, timeoutMs) =>
   new Promise((resolve, reject) => {
@@ -621,6 +647,14 @@ try {
     uiAttempts = uiAttempt;
     uiHierarchy = readUiHierarchy(`attempt ${uiAttempt}`);
     writeFileSync(uiOutputPath, uiHierarchy);
+
+    if (hasFirstRunFlow(uiHierarchy)) {
+      append(`UI hierarchy attempt ${uiAttempt} is still in first-run flow; completing onboarding and retrying...`);
+      completeFirstRunFlowIfNeeded();
+      sleep(uiPollIntervalMs);
+      continue;
+    }
+
     missingTexts = expectedTexts.filter(text => !uiHierarchy.includes(`text="${text}"`));
 
     if (missingTexts.length === 0) {
@@ -653,6 +687,9 @@ try {
   smokeOutcome = 'failed';
   smokeReason = error.message;
   append(`\n${error.message}`);
+  if (error.stack && error.stack !== error.message) {
+    record(error.stack);
+  }
   tryCaptureFailureScreenshot();
   finish(1);
 }

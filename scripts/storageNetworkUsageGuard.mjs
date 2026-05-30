@@ -25,11 +25,21 @@ export const expectedStorageNetworkUsage = new Map([
   ['react-native-randombytes', new Set()],
   [
     'react-native-keychain',
-    new Set(['class/app-storage.js', 'src/services/SecureStorageService.ts', 'tests/unit/SecureStorageService.test.js']),
+    new Set([
+      'class/app-storage.js',
+      'src/services/SecureStorageService.ts',
+      'tests/integration/Storage.test.js',
+      'tests/unit/SecureStorageService.test.js',
+    ]),
   ],
   [
     'react-native-secure-key-store',
-    new Set(['class/app-storage.js', 'src/services/SecureStorageService.ts', 'tests/unit/SecureStorageService.test.js']),
+    new Set([
+      'class/app-storage.js',
+      'src/services/SecureStorageService.ts',
+      'tests/integration/Storage.test.js',
+      'tests/unit/SecureStorageService.test.js',
+    ]),
   ],
   ['react-native-tcp-socket', new Set(['src/network/socket.tsx'])],
   [

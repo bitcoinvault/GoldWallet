@@ -4,11 +4,6 @@ import {
 } from './legacyAndroidAutolinkGuard.mjs';
 
 const validFixture = {
-  '@remobile/react-native-qrcode-local-image': {
-    platforms: {
-      android: null,
-    },
-  },
   'react-native-prompt-android': {
     platforms: {
       android: null,
@@ -36,9 +31,7 @@ const assertRejected = (label, dependencies) => {
 };
 
 assertAccepted('Known legacy Android autolink disables', validFixture);
-assertRejected('Missing QR local image disable', {
-  'react-native-prompt-android': validFixture['react-native-prompt-android'],
-});
+assertRejected('Missing prompt Android disable', {});
 assertRejected('Unexpected disabled package', {
   ...validFixture,
   'react-native-new-legacy-module': {
@@ -48,8 +41,8 @@ assertRejected('Unexpected disabled package', {
   },
 });
 
-if (expectedDisabledAndroidAutolinkPackages.size !== 2) {
-  console.error(`Expected 2 guarded legacy Android autolink disables, got ${expectedDisabledAndroidAutolinkPackages.size}.`);
+if (expectedDisabledAndroidAutolinkPackages.size !== 1) {
+  console.error(`Expected 1 guarded legacy Android autolink disable, got ${expectedDisabledAndroidAutolinkPackages.size}.`);
   process.exit(1);
 }
 

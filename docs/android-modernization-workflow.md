@@ -68,7 +68,7 @@ Use `corepack yarn upgrade:strategy:audit` before dependency/RN baseline branche
 
 `check:qr-render-usage` keeps `react-native-qrcode-svg` rendering isolated to the known QR display screens before `react-native-svg` or QR rendering dependency upgrades.
 
-`check:legacy-android-autolink-guard` verifies the legacy Android autolink guard fixtures. `check:legacy-android-autolink` verifies that only the guarded legacy QR image and prompt packages keep Android autolinking disabled in `react-native.config.js`.
+`check:legacy-android-autolink-guard` verifies the legacy Android autolink guard fixtures. `check:legacy-android-autolink` verifies that only the guarded legacy prompt package keeps Android autolinking disabled in `react-native.config.js`.
 
 `check:sentry-usage-scope` keeps `@sentry/react-native` runtime usage isolated to `App.tsx`, `Main.tsx`, and `logger/index.ts` until the dedicated Sentry release/source-map validation branch handles the remaining Gradle warning and release tooling behavior.
 
