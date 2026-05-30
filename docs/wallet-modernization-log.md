@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.208 - Lodash runtime dependency update
+
+- Branch: `feature/bem-37-lodash-runtime-latest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `lodash` from `^4.17.19` to checked latest stable `4.18.1`.
+- Keep `@types/lodash@4.17.24` unchanged because it is already checked latest.
+- Add `lodash:runtime:audit` to lock the current `lodash` and `lodash/fp` behavior used by selectors, sagas, transaction helpers, and wallet screens.
+
+Findings:
+
+- `npm view lodash version dist-tags engines dependencies peerDependencies --json` reports `4.18.1` as latest.
+- `npm view @types/lodash version dist-tags --json` reports `4.17.24` as latest.
+- Current app usage remains on standard `cloneDeep`, `difference`, `last`, `round`, and `lodash/fp` collection/composition helpers.
+
+Validation:
+
+- `npm view lodash version dist-tags engines dependencies peerDependencies --json`
+- `npm view @types/lodash version dist-tags --json`
+- `corepack yarn lodash:runtime:audit`
+- `node --check scripts\auditLodashRuntime.mjs`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-warning-audit-summary`
+
 ### BEM-37.207 - State runtime dependency update
 
 - Branch: `feature/bem-37-state-runtime-latest`
