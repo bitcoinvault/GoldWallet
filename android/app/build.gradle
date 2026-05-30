@@ -205,11 +205,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-core:16.0.3'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation("com.facebook.react:react-android")
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-    implementation platform('com.google.firebase:firebase-bom:28.2.0')
     androidTestImplementation('com.wix:detox:18.20.1')
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {

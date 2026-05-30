@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.124 - Firebase 24 release-services upgrade
+
+- Branch: `feature/bem-36-firebase-24-upgrade-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the React Native Firebase family from `12.7` to `24.0.0` for app, analytics, Crashlytics, and messaging.
+- Remove legacy manual Android Firebase dependencies that conflicted with RN Firebase `24.0.0`.
+- Normalize Firebase Messaging notification data values before using them as toast IDs/status values.
+- Refresh release-service documentation for the new Firebase package family.
+
+Findings:
+
+- RN Firebase `24.0.0` builds on the current RN `0.81.6` / Android SDK 36 baseline after removing `firebase-core:16.0.3`, app-level Firebase BoM `28.2.0`, and unused Gradle Firebase ext values.
+- The initial TypeScript blocker was caused by the newer Messaging data type allowing `object` values; notification data is now normalized to strings before existing toast/navigation handling.
+- Android warning audit remains unchanged at one targeted warning from `react-native-secure-key-store` `jcenter()`.
+- Gradle now reports RN Firebase legacy-architecture deprecation guidance; New Architecture readiness remains a separate RN baseline follow-up, not part of this Firebase package family upgrade.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+
 ### BEM-36.123 - Release services readiness refresh
 
 - Branch: `feature/bem-36-release-services-readiness-refresh`
@@ -29,7 +65,12 @@ Findings:
 
 Validation:
 
-- Pending.
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
 
 ### BEM-37.203 - Runtime lint warning cleanup
 
