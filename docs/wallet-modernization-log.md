@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.212 - Jest tooling compatibility guard
+
+- Branch: `feature/bem-37-jest-tooling-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Check the latest Jest target first: `jest@30.4.2`, `babel-jest@30.4.1`, and `jest-circus@30.4.2`.
+- Defer the Jest 30 target because `@react-native/jest-preset@0.85.3` still depends on `jest-environment-node@^29.7.0`, and the Jest 30 trial failed before test execution with `this._moduleMocker.clearMocksOnScope is not a function`.
+- Keep the current compatible Jest line at `jest@29.7.0`, `babel-jest@29.7.0`, `jest-circus@29.7.0`, `ts-jest@29.4.11`, and `@types/jest@30.0.0`.
+- Add `jest:tooling:audit` to lock the selected versions, installed Jest runtime/mock stack, CLI version, and React Native preset blocker.
+
+Findings:
+
+- `npm view jest version dist-tags engines peerDependencies dependencies --json` reports latest `30.4.2`.
+- `npm view babel-jest version dist-tags engines peerDependencies dependencies --json` reports latest `30.4.1`.
+- `npm view jest-circus version dist-tags engines peerDependencies dependencies --json` reports latest `30.4.2`.
+- `npm view ts-jest version dist-tags engines peerDependencies dependencies --json` reports latest `29.4.11`, with peer support for Jest `^29.0.0 || ^30.0.0`.
+- `@react-native/jest-preset@0.85.3` depends on `jest-environment-node@^29.7.0`.
+- The Jest 30 trial failed consistently in unit and focused storage-network tests before any test cases ran; reverting to Jest 29.7 restored the test suite.
+
+Validation:
+
+- `npm view jest version dist-tags engines peerDependencies dependencies --json`
+- `npm view babel-jest version dist-tags engines peerDependencies dependencies --json`
+- `npm view jest-circus version dist-tags engines peerDependencies dependencies --json`
+- `npm view ts-jest version dist-tags engines peerDependencies dependencies --json`
+- `node --check scripts\auditJestTooling.mjs`
+- `corepack yarn jest:tooling:audit`
+- `corepack yarn eslint scripts/auditJestTooling.mjs --format stylish`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-warning-audit-summary`
+
 ### BEM-37.211 - Prettier tooling update
 
 - Branch: `feature/bem-37-prettier-tooling-update`
