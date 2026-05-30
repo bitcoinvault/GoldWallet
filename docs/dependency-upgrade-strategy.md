@@ -53,6 +53,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - State stack: Redux, React Redux, Redux Saga, Reselect.
 - State runtime is on checked latest stable after `BEM-37.207`: `redux@5.0.1`, `react-redux@9.3.0`, `redux-saga@1.5.0`, and `reselect@5.2.0`.
 - Utility/runtime packages: Axios, Lodash, Dayjs, BigNumber, CryptoJS.
+- Lodash runtime is on checked latest `4.18.1` after `BEM-37.208`; `@types/lodash@4.17.24` is also checked latest.
 - CryptoJS runtime is on checked latest `4.2.0` after `BEM-37.206`; future crypto work should focus on behavior coverage and replacement strategy, not another blind package bump.
 - Tooling: ESLint, Prettier, Husky, lint-staged, Jest, ts-jest, Detox.
 
