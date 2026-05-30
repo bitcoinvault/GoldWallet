@@ -12,7 +12,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['@sentry/react-native', '8.13.0'],
   ['react-native-background-timer', '2.4.1'],
   ['react-native-biometrics', '3.0.1'],
-  ['react-native-bootsplash', '3.2.7'],
+  ['react-native-bootsplash', '7.3.1'],
   ['react-native-camera-kit', '18.0.0'],
   ['react-native-code-push', '9.0.1'],
   ['react-native-config', '1.6.1'],

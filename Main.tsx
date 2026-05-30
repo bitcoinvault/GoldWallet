@@ -13,14 +13,10 @@ const Main = () => {
           return RNBootSplash.hide({ fade: true }).catch(error => {
             Sentry.captureException(error);
           });
-        case 'inactive':
-          return RNBootSplash.show().catch(error => {
-            Sentry.captureException(error);
-          });
       }
     };
 
-    const addAppStateChangeListener = (AppState.addEventListener as unknown) as (
+    const addAppStateChangeListener = AppState.addEventListener as unknown as (
       eventType: 'change',
       listener: (state: AppStateStatus) => void,
     ) => NativeEventSubscription;

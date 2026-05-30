@@ -13,7 +13,7 @@ Checked on: 2026-05-29
 - `react-native-gesture-handler@2.29.1` is the highest compatible line validated with the RN `0.85.3` New Architecture baseline. `3.0.0` failed Android Kotlin/codegen compilation during the RN `0.85.3` proof.
 - `react-native-screens@4.25.2` is the validated screens baseline. Its npm metadata points at RN `>=0.82.0`, which is satisfied by the current RN `0.85.3` checkpoint.
 - `react-native-safe-area-context@5.8.0` is the active safe-area baseline.
-- `@react-native-community/blur@4.4.1`, `react-native-bootsplash@3.2.7`, `react-native-fast-image@8.6.3`, and `react-native-vector-icons@10.3.0` remain fixed.
+- `@react-native-community/blur@4.4.1`, `react-native-bootsplash@7.3.1`, `react-native-fast-image@8.6.3`, and `react-native-vector-icons@10.3.0` remain fixed.
 - iOS `Podfile.lock` is stale on Windows and still references removed/older native pods; refresh it on macOS before claiming iOS validation.
 
 ## Direct Source Surface

@@ -10,10 +10,11 @@
         <!--Force app not to change style for dark scheme -->
         <item name="android:forceDarkAllowed">false</item>
     </style>
-    <!-- Add the following lines (BootTheme should inherit from AppTheme) -->
-    <style name="BootTheme" parent="AppTheme">
-        <!-- set the generated bootsplash.xml drawable as activity background -->
-        <item name="android:background">@drawable/background_splash</item>
+    <style name="BootTheme" parent="Theme.BootSplash">
+        <item name="bootSplashBackground">@color/bootsplash_background</item>
+        <item name="bootSplashLogo">@mipmap/splash</item>
+        <item name="darkContentBarsStyle">true</item>
+        <item name="postBootSplashTheme">@style/AppTheme</item>
     </style>
 
     <style name="AppEditTextStyle" parent="@style/Widget.AppCompat.EditText">
