@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.206 - CryptoJS runtime update
+
+- Branch: `feature/bem-37-crypto-js-runtime-4-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `crypto-js` from `3.1.9-1` to checked latest stable `4.2.0`.
+- Keep `@types/crypto-js@4.2.2` unchanged.
+- Add `crypto-js:runtime:audit` to lock the current SHA256 and AES runtime surface used by secure storage, wallet hashing, and notification PIN decode helpers.
+
+Findings:
+
+- `npm view crypto-js version dist-tags engines peerDependencies dependencies --json` reports `4.2.0` as latest and no peer/dependency constraints.
+- Current app usage remains scoped to `sha256(...)` in `SecureStorageService` and wallet helpers plus `CryptoJS.SHA256`, `enc.Hex`, `enc.Base64`, and `AES.decrypt(...)` in `src/helpers/decode.ts`.
+- Focused secure-storage, wallet-core, and authenticator tests pass after the runtime upgrade.
+
+Validation:
+
+- `npm view crypto-js version dist-tags engines peerDependencies dependencies --json`
+- `corepack yarn crypto-js:runtime:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `node --check scripts\auditCryptoJsRuntime.mjs`
+
 ### BEM-36.128 - Android dev release build validation
 
 - Branch: `feature/bem-36-android-release-build-validation`
