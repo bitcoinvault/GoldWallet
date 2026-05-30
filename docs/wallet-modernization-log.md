@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.128 - Android dev release build validation
+
+- Branch: `feature/bem-36-android-release-build-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a repeatable local Android `devRelease` validation script for the RN `0.85.3` / AGP `8.13` baseline.
+- Build `:app:assembleDevRelease` with Sentry automatic source-map upload disabled locally through `SENTRY_DISABLE_AUTO_UPLOAD=true`.
+- Keep real Sentry release upload validation separate, because this machine does not have the required Sentry release properties/secrets.
+- Record the release APK artifact path and size in `local-docs/android-release-dev-summary.txt`.
+
+Findings:
+
+- A direct `:app:assembleDevRelease` reaches the Sentry upload task and fails because Sentry organization/project/auth configuration is not available locally: `An organization ID or slug is required (provide with --org)`.
+- With `SENTRY_DISABLE_AUTO_UPLOAD=true`, the Android `devRelease` package path builds successfully and produces `android/app/build/outputs/apk/dev/release/app-dev-release-unsigned.apk`.
+- This validates local release bundling/APK generation only; Sentry source-map upload still requires `sentry.properties` or equivalent Sentry env values before claiming release upload validation.
+
+Validation:
+
+- Direct `:app:assembleDevRelease --stacktrace` failure captured as the expected missing-Sentry-config blocker.
+- `SENTRY_DISABLE_AUTO_UPLOAD=true JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 .\gradlew.bat :app:assembleDevRelease --stacktrace`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.205 - React Native Screens latest update
 
 - Branch: `feature/bem-37-screens-4-25-2`
