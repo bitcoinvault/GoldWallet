@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.226 - React Navigation devtools 7 probe
+
+- Branch: `feature/bem-37-navigation-devtools-7-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `@react-navigation/devtools` from the legacy `^6.0.1` range to current stable `7.0.59`.
+- Migrate the single runtime call site from removed `useFlipper(navigationRef)` to `useReduxDevToolsExtension(navigationRef)` in `RootNavigator`.
+- Keep React Navigation runtime packages unchanged.
+- Use a lowercase alphanumeric transaction-password value in the Android first-run smoke helper so `adb shell input text` cannot introduce capitalization mismatches between create and confirm screens.
+- Add a final transition wait/re-read after transaction-password confirmation so the smoke helper does not fail while the app is already moving to the email step.
+
+Why:
+
+- Removes an old devtools-only dependency edge while the wallet is already on React 19 and the current React Native baseline.
+- Latest npm metadata for `@react-navigation/devtools@7.0.59` only requires `react >= 18.2.0`, which is satisfied by the current app runtime.
+- The 7.x package exports `useReduxDevToolsExtension` and `useLogger`; TypeScript confirms `useFlipper` is no longer available.
+- The first smoke attempt reached onboarding confirmation but failed with "Password does not match", which pointed at ADB text injection rather than the devtools package; the helper now uses a safer default value and keeps it overrideable by env.
+- The follow-up screenshot showed the email onboarding step even though the helper had just failed on stale transaction-password hierarchy, so the final confirmation path now allows the UI transition to settle.
+- The package is narrow and isolated, so it is a good low-risk compatibility probe before larger navigation/runtime work.
+
+Validation:
+
+- `npm view @react-navigation/devtools@7.0.59 version peerDependencies dependencies engines dist-tags --json`
+- `corepack yarn add @react-navigation/devtools@7.0.59`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+
 ### BEM-37.225 - BigNumber 11.1.2 runtime patch
 
 - Branch: `feature/bem-37-bignumber-11-runtime-probe`

@@ -1,4 +1,4 @@
-import { useFlipper } from '@react-navigation/devtools';
+import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 import { NavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator, StackNavigationOptions } from '@react-navigation/stack';
 import React, { ComponentType, FC } from 'react';
@@ -76,7 +76,7 @@ export const RootNavigator: FC<Props> = ({
   shouldRenderNotification,
   userVersion,
 }) => {
-  useFlipper(navigationRef as React.RefObject<NavigationContainerRef<any>>);
+  useReduxDevToolsExtension(navigationRef as React.RefObject<NavigationContainerRef<any>>);
 
   const getAddEmailInitialParams = () => {
     if (userVersion === USER_VERSIONS.BEFORE_NOTIFICATIONS_WERE_ADDED) {

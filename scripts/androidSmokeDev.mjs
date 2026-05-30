@@ -33,6 +33,7 @@ const metroPort = Number(process.env.ANDROID_SMOKE_METRO_PORT || 8081);
 const metroTimeoutMs = Number(process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS || 3000);
 const metroRequired = process.env.ANDROID_SMOKE_REQUIRE_METRO !== 'false';
 const clearAppData = process.env.ANDROID_SMOKE_CLEAR_APP_DATA === 'true';
+const firstRunTransactionPassword = process.env.ANDROID_SMOKE_TRANSACTION_PASSWORD || 'testpass123';
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
   .map(text => text.trim())
@@ -343,7 +344,12 @@ const completeFirstRunTransactionPasswordIfNeeded = () => {
         ? 'First-run Create transaction password screen detected.'
         : 'First-run Confirm transaction password screen detected.',
     );
-    run(`enter first-run transaction password attempt ${attempt}`, ['shell', 'input', 'text', 'TestPass123']);
+    run(`enter first-run transaction password attempt ${attempt}`, [
+      'shell',
+      'input',
+      'text',
+      firstRunTransactionPassword,
+    ]);
     didEnterPassword = true;
     sleep(1000);
 
@@ -369,8 +375,19 @@ const completeFirstRunTransactionPasswordIfNeeded = () => {
       throw new Error('First-run transaction password save button is not enabled after hiding the keyboard.');
     }
     tapNodeCenter(visibleSubmitNode);
-    sleep(3000);
+    sleep(5000);
     passwordHierarchy = readUiHierarchy(`for first-run transaction password after save ${attempt}`);
+  }
+
+  sleep(5000);
+  passwordHierarchy = readUiHierarchy('for first-run transaction password final check');
+  if (
+    !passwordHierarchy.includes('resource-id="create-transaction-password"') &&
+    !passwordHierarchy.includes('resource-id="confirm-transaction-password"')
+  ) {
+    completedFirstRunTransactionPassword = true;
+    append('Completed first-run transaction password setup after final transition wait.');
+    return;
   }
 
   throw new Error(
