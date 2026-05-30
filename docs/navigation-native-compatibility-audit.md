@@ -10,7 +10,7 @@ Checked on: 2026-05-29
 - React baseline: `19.2.3`.
 - Active navigation packages: `@react-navigation/native@7.2.5`, `@react-navigation/stack@7.9.3`, and `@react-navigation/bottom-tabs@7.16.2`.
 - `@react-native-community/masked-view` is removed; React Navigation 7 no longer needs the old community masked-view runtime path.
-- `react-native-gesture-handler@2.29.1` is the highest compatible line validated with the RN `0.85.3` New Architecture baseline. `3.0.0` failed Android Kotlin/codegen compilation during the RN `0.85.3` proof.
+- `react-native-gesture-handler@3.0.0` is the latest checked line validated with the RN `0.85.3` New Architecture baseline. The earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces after the RN `0.85.3` foundation.
 - `react-native-screens@4.25.2` is the validated screens baseline. Its npm metadata points at RN `>=0.82.0`, which is satisfied by the current RN `0.85.3` checkpoint.
 - `react-native-safe-area-context@5.8.0` is the active safe-area baseline.
 - `@react-native-community/blur@4.4.1`, `react-native-bootsplash@7.3.1`, `react-native-fast-image@8.6.3`, and `react-native-vector-icons@10.3.0` remain fixed.
@@ -35,7 +35,7 @@ Checked on: 2026-05-29
 
 ## Decision
 
-- Keep `react-native-gesture-handler@2.29.1`, `react-native-screens@4.25.2`, and `react-native-safe-area-context@5.8.0` fixed until the next navigation-native validation branch.
+- Keep `react-native-gesture-handler@3.0.0`, `react-native-screens@4.25.2`, and `react-native-safe-area-context@5.8.0` fixed until the next navigation-native validation branch.
 - Do not reintroduce masked-view.
 - Do not combine a future screens/gesture-handler jump with unrelated UI, storage, release-service, or Electrum work.
 - Treat iOS Podfile refresh as a required follow-up before release-candidate claims.
