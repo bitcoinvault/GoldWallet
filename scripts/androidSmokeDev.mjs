@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import path from 'path';
-import net from 'net';
 import { spawnSync } from 'child_process';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import net from 'net';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,7 +15,8 @@ const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.d
 const androidSerial = process.env.ANDROID_SERIAL?.trim();
 let selectedAndroidSerial = androidSerial;
 const apkPath =
-  process.env.ANDROID_SMOKE_APK || path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
+  process.env.ANDROID_SMOKE_APK ||
+  path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
 const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 20000);
 const uiWaitMs = Number(process.env.ANDROID_SMOKE_UI_WAIT_MS || 90000);
 const uiPollIntervalMs = Number(process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS || 1000);
@@ -30,9 +31,11 @@ const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWal
   .map(text => text.trim())
   .filter(Boolean);
 
-const sdkRoots = [process.env.ANDROID_HOME, process.env.ANDROID_SDK_ROOT, process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk')].filter(
-  Boolean,
-);
+const sdkRoots = [
+  process.env.ANDROID_HOME,
+  process.env.ANDROID_SDK_ROOT,
+  process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk'),
+].filter(Boolean);
 const adbCandidates = [
   ...sdkRoots.map(sdkRoot => path.join(sdkRoot, 'platform-tools', process.platform === 'win32' ? 'adb.exe' : 'adb')),
   'adb',
@@ -46,6 +49,11 @@ let capturedLogcatLines = 0;
 let uiAttempts = 0;
 let screenshotBytes = 0;
 let metroReachable = false;
+let acceptedFirstRunTerms = false;
+let completedFirstRunPin = false;
+let completedFirstRunTransactionPassword = false;
+let skippedFirstRunEmail = false;
+let closedFirstRunSuccess = false;
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -88,6 +96,7 @@ const run = (label, args, options = {}) => {
 
   if (result.error || result.status !== 0) {
     const reason = result.error?.message || `exit ${result.status}`;
+
     throw new Error(`${label} failed: ${reason}`);
   }
 
@@ -108,6 +117,11 @@ const writeSummary = exitCode => {
     `Expected UI texts: ${expectedTexts.length > 0 ? expectedTexts.join(', ') : 'none'}`,
     `App PID: ${appPid || 'not available'}`,
     `Captured logcat lines: ${capturedLogcatLines}`,
+    `Accepted first-run terms: ${acceptedFirstRunTerms ? 'yes' : 'no'}`,
+    `Completed first-run PIN: ${completedFirstRunPin ? 'yes' : 'no'}`,
+    `Completed first-run transaction password: ${completedFirstRunTransactionPassword ? 'yes' : 'no'}`,
+    `Skipped first-run email: ${skippedFirstRunEmail ? 'yes' : 'no'}`,
+    `Closed first-run success: ${closedFirstRunSuccess ? 'yes' : 'no'}`,
     `UI hierarchy attempts: ${uiAttempts}`,
     `UI hierarchy path: ${uiOutputPath}`,
     `Screenshot path: ${screenshotOutputPath}`,
@@ -149,6 +163,7 @@ const runBinary = (label, args, outputFile) => {
   if (result.error || result.status !== 0) {
     const stderr = result.stderr ? result.stderr.toString('utf8').trim() : '';
     const reason = result.error?.message || stderr || `exit ${result.status}`;
+
     throw new Error(`${label} failed: ${reason}`);
   }
 
@@ -165,6 +180,224 @@ const runBinary = (label, args, outputFile) => {
 
 const sleep = milliseconds => {
   spawnSync(process.execPath, ['-e', `setTimeout(() => {}, ${milliseconds})`], { stdio: 'ignore' });
+};
+
+const readUiHierarchy = label => {
+  run(`dump UI hierarchy ${label}`, ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml']);
+  return run(`read UI hierarchy ${label}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], {
+    printOutput: false,
+    recordOutput: false,
+  });
+};
+
+const getNodeByResourceId = (uiHierarchy, resourceId) => {
+  const escapedResourceId = resourceId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const nodeMatch = uiHierarchy.match(new RegExp(`<node\\b[^>]*resource-id="${escapedResourceId}"[^>]*>`, 's'));
+
+  if (!nodeMatch) {
+    return null;
+  }
+
+  const node = nodeMatch[0];
+  const boundsMatch = node.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/);
+
+  return {
+    enabled: /enabled="true"/.test(node),
+    checked: /checked="true"/.test(node),
+    bounds: boundsMatch ? boundsMatch.slice(1).map(value => Number(value)) : null,
+  };
+};
+
+const tapNodeCenter = node => {
+  if (!node?.bounds) {
+    throw new Error('Unable to tap node without bounds.');
+  }
+
+  const [left, top, right, bottom] = node.bounds;
+  const x = Math.round((left + right) / 2);
+  const y = Math.round((top + bottom) / 2);
+
+  run(`tap UI node at ${x},${y}`, ['shell', 'input', 'tap', String(x), String(y)]);
+};
+
+const isNodeFullyVisible = node => {
+  if (!node?.bounds) {
+    return false;
+  }
+
+  const [, top, , bottom] = node.bounds;
+
+  return top >= 165 && bottom <= 2222;
+};
+
+const acceptFirstRunTermsIfNeeded = () => {
+  let termsHierarchy = readUiHierarchy('for first-run terms');
+
+  if (!termsHierarchy.includes('resource-id="terms-conditions-screen"')) {
+    append('First-run terms screen not present.');
+    return;
+  }
+
+  append('First-run terms screen detected; scrolling to enable agreement.');
+
+  for (let attempt = 1; attempt <= 60; attempt += 1) {
+    const agreeNode = getNodeByResourceId(termsHierarchy, 'agree-button');
+
+    if (agreeNode?.enabled) {
+      tapNodeCenter(agreeNode);
+      acceptedFirstRunTerms = true;
+      append('Accepted first-run terms.');
+      sleep(3000);
+      return;
+    }
+
+    const termsCheckbox = getNodeByResourceId(termsHierarchy, 'terms-and-conditions-checkbox');
+    const privacyCheckbox = getNodeByResourceId(termsHierarchy, 'privacy-policy-checkbox');
+
+    if (isNodeFullyVisible(termsCheckbox) && isNodeFullyVisible(privacyCheckbox)) {
+      if (!termsCheckbox.checked) {
+        tapNodeCenter(termsCheckbox);
+        sleep(500);
+      }
+      if (!privacyCheckbox.checked) {
+        tapNodeCenter(privacyCheckbox);
+        sleep(500);
+      }
+
+      termsHierarchy = readUiHierarchy('for first-run terms after checking boxes');
+      continue;
+    }
+
+    run(`scroll first-run terms attempt ${attempt}`, ['shell', 'input', 'swipe', '540', '2050', '540', '260', '250']);
+    sleep(250);
+    termsHierarchy = readUiHierarchy(`for first-run terms after scroll ${attempt}`);
+  }
+
+  throw new Error('First-run terms screen is present, but the agreement button did not become enabled.');
+};
+
+const completeFirstRunPinIfNeeded = () => {
+  let pinHierarchy = readUiHierarchy('for first-run PIN');
+  let didEnterPin = false;
+
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    const hasCreatePin = pinHierarchy.includes('resource-id="create-pin-input"');
+    const hasConfirmPin = pinHierarchy.includes('resource-id="confirm-pin-input"');
+
+    if (!hasCreatePin && !hasConfirmPin) {
+      if (didEnterPin) {
+        completedFirstRunPin = true;
+        append('Completed first-run PIN setup.');
+      } else {
+        append('First-run PIN screen not present.');
+      }
+      return;
+    }
+
+    append(hasCreatePin ? 'First-run Create PIN screen detected.' : 'First-run Confirm PIN screen detected.');
+    run(`enter first-run PIN attempt ${attempt}`, ['shell', 'input', 'keyevent', '8', '8', '8', '8']);
+    didEnterPin = true;
+    sleep(3000);
+    pinHierarchy = readUiHierarchy(`for first-run PIN after entry ${attempt}`);
+  }
+
+  throw new Error('First-run PIN screen is still present after entering and confirming a test PIN.');
+};
+
+const completeFirstRunTransactionPasswordIfNeeded = () => {
+  let passwordHierarchy = readUiHierarchy('for first-run transaction password');
+  let didEnterPassword = false;
+
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    const hasCreatePassword = passwordHierarchy.includes('resource-id="create-transaction-password"');
+    const hasConfirmPassword = passwordHierarchy.includes('resource-id="confirm-transaction-password"');
+
+    if (!hasCreatePassword && !hasConfirmPassword) {
+      if (didEnterPassword) {
+        completedFirstRunTransactionPassword = true;
+        append('Completed first-run transaction password setup.');
+      } else {
+        append('First-run transaction password screen not present.');
+      }
+      return;
+    }
+
+    append(
+      hasCreatePassword
+        ? 'First-run Create transaction password screen detected.'
+        : 'First-run Confirm transaction password screen detected.',
+    );
+    run(`enter first-run transaction password attempt ${attempt}`, ['shell', 'input', 'text', 'TestPass123']);
+    didEnterPassword = true;
+    sleep(1000);
+
+    passwordHierarchy = readUiHierarchy(`for first-run transaction password after entry ${attempt}`);
+    const submitNode = getNodeByResourceId(
+      passwordHierarchy,
+      hasCreatePassword ? 'submit-create-transaction-password' : 'submit-transaction-password-confirmation',
+    );
+
+    if (!submitNode?.enabled) {
+      throw new Error('First-run transaction password save button did not become enabled.');
+    }
+
+    run('hide keyboard before saving transaction password', ['shell', 'input', 'keyevent', '111']);
+    sleep(500);
+    passwordHierarchy = readUiHierarchy(`for first-run transaction password before save ${attempt}`);
+    const visibleSubmitNode = getNodeByResourceId(
+      passwordHierarchy,
+      hasCreatePassword ? 'submit-create-transaction-password' : 'submit-transaction-password-confirmation',
+    );
+
+    if (!visibleSubmitNode?.enabled) {
+      throw new Error('First-run transaction password save button is not enabled after hiding the keyboard.');
+    }
+    tapNodeCenter(visibleSubmitNode);
+    sleep(3000);
+    passwordHierarchy = readUiHierarchy(`for first-run transaction password after save ${attempt}`);
+  }
+
+  throw new Error(
+    'First-run transaction password screen is still present after entering and confirming a test password.',
+  );
+};
+
+const skipFirstRunEmailIfNeeded = () => {
+  const emailHierarchy = readUiHierarchy('for first-run email');
+  const skipNode = getNodeByResourceId(emailHierarchy, 'skip-adding-email-button');
+
+  if (!skipNode) {
+    append('First-run email screen not present.');
+    return;
+  }
+
+  if (!skipNode.enabled) {
+    throw new Error('First-run email skip button is not enabled.');
+  }
+
+  tapNodeCenter(skipNode);
+  skippedFirstRunEmail = true;
+  append('Skipped first-run email step.');
+  sleep(3000);
+};
+
+const closeFirstRunSuccessIfNeeded = () => {
+  const successHierarchy = readUiHierarchy('for first-run success');
+  const closeNode = getNodeByResourceId(successHierarchy, 'message-close-button');
+
+  if (!closeNode) {
+    append('First-run success screen not present.');
+    return;
+  }
+
+  if (!closeNode.enabled) {
+    throw new Error('First-run success close button is not enabled.');
+  }
+
+  tapNodeCenter(closeNode);
+  closedFirstRunSuccess = true;
+  append('Closed first-run success screen.');
+  sleep(5000);
 };
 
 const checkTcpPort = (host, port, timeoutMs) =>
@@ -207,35 +440,51 @@ try {
   }
 
   if (!Number.isFinite(startupWaitMs) || startupWaitMs < 0) {
-    throw new Error(`ANDROID_SMOKE_WAIT_MS must be a non-negative number of milliseconds. Received: ${process.env.ANDROID_SMOKE_WAIT_MS}`);
+    throw new Error(
+      `ANDROID_SMOKE_WAIT_MS must be a non-negative number of milliseconds. Received: ${process.env.ANDROID_SMOKE_WAIT_MS}`,
+    );
   }
 
   if (!Number.isFinite(uiWaitMs) || uiWaitMs < 0) {
-    throw new Error(`ANDROID_SMOKE_UI_WAIT_MS must be a non-negative number of milliseconds. Received: ${process.env.ANDROID_SMOKE_UI_WAIT_MS}`);
+    throw new Error(
+      `ANDROID_SMOKE_UI_WAIT_MS must be a non-negative number of milliseconds. Received: ${process.env.ANDROID_SMOKE_UI_WAIT_MS}`,
+    );
   }
 
   if (!Number.isFinite(uiPollIntervalMs) || uiPollIntervalMs <= 0) {
-    throw new Error(`ANDROID_SMOKE_UI_POLL_INTERVAL_MS must be a positive number of milliseconds. Received: ${process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS}`);
+    throw new Error(
+      `ANDROID_SMOKE_UI_POLL_INTERVAL_MS must be a positive number of milliseconds. Received: ${process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS}`,
+    );
   }
 
   if (!Number.isInteger(logcatLineLimit) || logcatLineLimit <= 0) {
-    throw new Error(`ANDROID_SMOKE_LOGCAT_LINES must be a positive integer. Received: ${process.env.ANDROID_SMOKE_LOGCAT_LINES}`);
+    throw new Error(
+      `ANDROID_SMOKE_LOGCAT_LINES must be a positive integer. Received: ${process.env.ANDROID_SMOKE_LOGCAT_LINES}`,
+    );
   }
 
   if (!Number.isInteger(adbCommandTimeoutMs) || adbCommandTimeoutMs <= 0) {
-    throw new Error(`ANDROID_SMOKE_ADB_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS}`);
+    throw new Error(
+      `ANDROID_SMOKE_ADB_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS}`,
+    );
   }
 
   if (!Number.isInteger(metroPort) || metroPort <= 0 || metroPort > 65535) {
-    throw new Error(`ANDROID_SMOKE_METRO_PORT must be an integer between 1 and 65535. Received: ${process.env.ANDROID_SMOKE_METRO_PORT}`);
+    throw new Error(
+      `ANDROID_SMOKE_METRO_PORT must be an integer between 1 and 65535. Received: ${process.env.ANDROID_SMOKE_METRO_PORT}`,
+    );
   }
 
   if (!Number.isInteger(metroTimeoutMs) || metroTimeoutMs <= 0) {
-    throw new Error(`ANDROID_SMOKE_METRO_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS}`);
+    throw new Error(
+      `ANDROID_SMOKE_METRO_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS}`,
+    );
   }
 
   if (!existsSync(apkPath)) {
-    throw new Error(`APK not found: ${apkPath}. Run corepack yarn android:dev:verify to rebuild and smoke-test the dev APK.`);
+    throw new Error(
+      `APK not found: ${apkPath}. Run corepack yarn android:dev:verify to rebuild and smoke-test the dev APK.`,
+    );
   }
 
   append(`Using adb: ${adbCommand}`);
@@ -249,7 +498,11 @@ try {
   append(`Using Metro required: ${metroRequired ? 'yes' : 'no'}`);
   append(`Using Metro endpoint: ${metroHost}:${metroPort}`);
   append(`Using Metro check timeout: ${metroTimeoutMs}ms`);
-  append(expectedTexts.length > 0 ? `Using expected UI text(s): ${expectedTexts.join(', ')}` : 'Using expected UI text(s): none');
+  append(
+    expectedTexts.length > 0
+      ? `Using expected UI text(s): ${expectedTexts.join(', ')}`
+      : 'Using expected UI text(s): none',
+  );
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
   }
@@ -271,17 +524,32 @@ try {
   }
 
   if (androidSerial && !deviceSerials.includes(androidSerial)) {
-    throw new Error(`ANDROID_SERIAL=${androidSerial} is not connected. Connected device(s): ${deviceSerials.join(', ')}`);
+    throw new Error(
+      `ANDROID_SERIAL=${androidSerial} is not connected. Connected device(s): ${deviceSerials.join(', ')}`,
+    );
   }
 
   if (!androidSerial && deviceSerials.length > 1) {
-    throw new Error(`Multiple Android devices/emulators connected: ${deviceSerials.join(', ')}. Set ANDROID_SERIAL to choose one.`);
+    throw new Error(
+      `Multiple Android devices/emulators connected: ${deviceSerials.join(', ')}. Set ANDROID_SERIAL to choose one.`,
+    );
   }
 
   selectedAndroidSerial = androidSerial || deviceSerials[0];
   append(`Using Android serial: ${selectedAndroidSerial}`);
 
   run('install dev APK', ['install', '-r', apkPath]);
+  try {
+    run('grant notification permission', [
+      'shell',
+      'pm',
+      'grant',
+      packageName,
+      'android.permission.POST_NOTIFICATIONS',
+    ]);
+  } catch (permissionError) {
+    append(`grant notification permission skipped: ${permissionError.message}`);
+  }
   if (metroRequired) {
     run('reverse Metro port', ['reverse', 'tcp:8081', 'tcp:8081']);
   }
@@ -293,6 +561,7 @@ try {
   sleep(startupWaitMs);
 
   const pidOutput = run('read app pid', ['shell', 'pidof', packageName], { printOutput: false }).trim();
+
   appPid = pidOutput.split(/\s+/).find(Boolean);
 
   if (!appPid) {
@@ -301,12 +570,17 @@ try {
 
   append(`App PID: ${appPid}`);
 
-  const logcat = run('read app startup logcat', ['logcat', '-d', '--pid', appPid, '-t', String(logcatLineLimit)], { printOutput: false });
+  const logcat = run('read app startup logcat', ['logcat', '-d', '--pid', appPid, '-t', String(logcatLineLimit)], {
+    printOutput: false,
+  });
+
   capturedLogcatLines = logcat.split(/\r?\n/).filter(Boolean).length;
   append(`Captured ${capturedLogcatLines} recent logcat lines.`);
   const failingLines = logcat
     .split(/\r?\n/)
-    .filter(line => /AndroidRuntime|FATAL EXCEPTION|ReactNativeJS.*(Error|TypeError|ReferenceError)|E ReactNative/.test(line));
+    .filter(line =>
+      /AndroidRuntime|FATAL EXCEPTION|ReactNativeJS.*(Error|TypeError|ReferenceError)|E ReactNative/.test(line),
+    );
 
   if (failingLines.length > 0) {
     append('\nStartup smoke found fatal/runtime logcat lines:');
@@ -314,7 +588,16 @@ try {
     finish(1);
   }
 
-  const windowOutput = run('read focused window', ['shell', 'dumpsys', 'window'], { printOutput: false, recordOutput: false });
+  acceptFirstRunTermsIfNeeded();
+  completeFirstRunPinIfNeeded();
+  completeFirstRunTransactionPasswordIfNeeded();
+  skipFirstRunEmailIfNeeded();
+  closeFirstRunSuccessIfNeeded();
+
+  const windowOutput = run('read focused window', ['shell', 'dumpsys', 'window'], {
+    printOutput: false,
+    recordOutput: false,
+  });
 
   if (!windowOutput.includes(packageName)) {
     throw new Error(`Focused window output does not include ${packageName}.`);
@@ -330,8 +613,7 @@ try {
   do {
     uiAttempt += 1;
     uiAttempts = uiAttempt;
-    run(`dump UI hierarchy attempt ${uiAttempt}`, ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml']);
-    uiHierarchy = run(`read UI hierarchy attempt ${uiAttempt}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], { printOutput: false, recordOutput: false });
+    uiHierarchy = readUiHierarchy(`attempt ${uiAttempt}`);
     writeFileSync(uiOutputPath, uiHierarchy);
     missingTexts = expectedTexts.filter(text => !uiHierarchy.includes(`text="${text}"`));
 
