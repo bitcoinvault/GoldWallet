@@ -12,6 +12,7 @@ const summaryOutputPath = path.join(outputDir, 'android-smoke-dev-summary.txt');
 const uiOutputPath = path.join(outputDir, 'android-smoke-dev-ui.xml');
 const screenshotOutputPath = path.join(outputDir, 'android-smoke-dev.png');
 const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
+const activityName = process.env.ANDROID_SMOKE_ACTIVITY || `${packageName}/io.goldwallet.wallet.MainActivity`;
 const androidSerial = process.env.ANDROID_SERIAL?.trim();
 let selectedAndroidSerial = androidSerial;
 const apkPath =
@@ -22,6 +23,11 @@ const uiWaitMs = Number(process.env.ANDROID_SMOKE_UI_WAIT_MS || 90000);
 const uiPollIntervalMs = Number(process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS || 1000);
 const logcatLineLimit = Number(process.env.ANDROID_SMOKE_LOGCAT_LINES || 400);
 const adbCommandTimeoutMs = Number(process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS || 60000);
+const postInstallSettleMs = Number(process.env.ANDROID_SMOKE_POST_INSTALL_SETTLE_MS || 8000);
+const compilePackage = process.env.ANDROID_SMOKE_COMPILE_PACKAGE !== 'false';
+const compilePackageTimeoutMs = Number(
+  process.env.ANDROID_SMOKE_COMPILE_TIMEOUT_MS || Math.max(adbCommandTimeoutMs, 180000),
+);
 const metroHost = process.env.ANDROID_SMOKE_METRO_HOST || '127.0.0.1';
 const metroPort = Number(process.env.ANDROID_SMOKE_METRO_PORT || 8081);
 const metroTimeoutMs = Number(process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS || 3000);
@@ -112,6 +118,7 @@ const writeSummary = exitCode => {
     `Android smoke reason: ${smokeReason}`,
     `Android serial: ${selectedAndroidSerial || 'not selected'}`,
     `Android package: ${packageName}`,
+    `Android activity: ${activityName}`,
     `Metro required: ${metroRequired ? 'yes' : 'no'}`,
     `Metro endpoint: ${metroHost}:${metroPort}`,
     `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
@@ -523,6 +530,11 @@ try {
   append(`Using UI poll interval: ${uiPollIntervalMs}ms`);
   append(`Using logcat line limit: ${logcatLineLimit}`);
   append(`Using adb command timeout: ${adbCommandTimeoutMs}ms`);
+  append(`Using post-install settle: ${postInstallSettleMs}ms`);
+  append(`Using package compile: ${compilePackage ? 'yes' : 'no'}`);
+  if (compilePackage) {
+    append(`Using package compile timeout: ${compilePackageTimeoutMs}ms`);
+  }
   append(`Using Metro required: ${metroRequired ? 'yes' : 'no'}`);
   append(`Using Metro endpoint: ${metroHost}:${metroPort}`);
   append(`Using Metro check timeout: ${metroTimeoutMs}ms`);
@@ -568,6 +580,11 @@ try {
   append(`Using Android serial: ${selectedAndroidSerial}`);
 
   run('install dev APK', ['install', '-r', apkPath]);
+  if (compilePackage) {
+    run('compile installed package', ['shell', 'cmd', 'package', 'compile', '-m', 'speed', '-f', packageName], {
+      timeout: compilePackageTimeoutMs,
+    });
+  }
   if (clearAppData) {
     run('clear app data', ['shell', 'pm', 'clear', packageName]);
   }
@@ -585,9 +602,13 @@ try {
   if (metroRequired) {
     run('reverse Metro port', ['reverse', 'tcp:8081', 'tcp:8081']);
   }
+  if (postInstallSettleMs > 0) {
+    append(`Waiting ${postInstallSettleMs}ms for package manager and services to settle...`);
+    sleep(postInstallSettleMs);
+  }
   run('clear logcat', ['logcat', '-c']);
   run('force-stop app', ['shell', 'am', 'force-stop', packageName]);
-  run('launch app', ['shell', 'monkey', '-p', packageName, '-c', 'android.intent.category.LAUNCHER', '1']);
+  run('launch app', ['shell', 'am', 'start', '-W', '-n', activityName]);
 
   append(`\nWaiting ${startupWaitMs}ms for startup logs...`);
   sleep(startupWaitMs);
@@ -639,7 +660,7 @@ try {
 
   let uiHierarchy = '';
   let missingTexts = expectedTexts;
-  const uiDeadline = Date.now() + uiWaitMs;
+  let uiDeadline = Date.now() + uiWaitMs;
   let uiAttempt = 0;
 
   do {
@@ -651,6 +672,7 @@ try {
     if (hasFirstRunFlow(uiHierarchy)) {
       append(`UI hierarchy attempt ${uiAttempt} is still in first-run flow; completing onboarding and retrying...`);
       completeFirstRunFlowIfNeeded();
+      uiDeadline = Date.now() + uiWaitMs;
       sleep(uiPollIntervalMs);
       continue;
     }

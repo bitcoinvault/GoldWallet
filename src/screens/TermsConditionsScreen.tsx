@@ -30,7 +30,6 @@ interface Props {
 
 interface State {
   showWarring: boolean;
-  height: number;
   isWebViewLoaded: boolean;
   agreedToTermsAndConditions: boolean;
   agreedToPrivacyPolicy: boolean;
@@ -39,7 +38,6 @@ interface State {
 export class TermsConditionsScreen extends React.PureComponent<Props, State> {
   state = {
     showWarring: false,
-    height: 500,
     isWebViewLoaded: false,
     agreedToTermsAndConditions: false,
     agreedToPrivacyPolicy: false,
@@ -106,6 +104,10 @@ export class TermsConditionsScreen extends React.PureComponent<Props, State> {
     }
   }
 
+  get termsHtml() {
+    return this.langVersion.replace(/\s*<link[^>]+fonts\.g(?:oogleapis|static)\.com[^>]*>/g, '');
+  }
+
   renderContent = () => {
     return (
       <View style={styles.content}>
@@ -136,8 +138,6 @@ export class TermsConditionsScreen extends React.PureComponent<Props, State> {
   render() {
     const { showWarring, agreedToTermsAndConditions, agreedToPrivacyPolicy } = this.state;
 
-    const termsAndConditionsMarginBottom = 32;
-
     return (
       <ScreenTemplate
         testID={'terms-conditions-screen'}
@@ -166,22 +166,15 @@ export class TermsConditionsScreen extends React.PureComponent<Props, State> {
           {i18n.termsConditions.title}
         </Text>
         <WebView
-          source={{ html: `${this.langVersion}` }}
-          style={[styles.text, { height: this.state.height | 0 }]}
+          source={{ html: this.termsHtml }}
+          style={styles.text}
           originWhitelist={['*']}
           bounces={false}
-          scrollEnabled={false}
+          scrollEnabled
           automaticallyAdjustContentInsets={true}
           contentInset={{ top: 0, left: 0 }}
           onLoad={() => {
             this.setState({ isWebViewLoaded: true });
-          }}
-          onNavigationStateChange={event => {
-            if (event.title !== undefined) {
-              this.setState({
-                height: parseInt(event.title) + termsAndConditionsMarginBottom,
-              });
-            }
           }}
           onShouldStartLoadWithRequest={event => {
             if (!/^[data:text, about:blank]/.test(event.url)) {
@@ -237,7 +230,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   scrollContent: {
-    paddingBottom: 140,
+    paddingBottom: 180,
   },
   checkbox: {
     marginLeft: 0,
@@ -249,6 +242,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   text: {
+    height: 430,
     marginTop: 25,
     paddingBottom: 10,
   },

@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.224 - Terms onboarding scroll smoke fix
+
+- Branch: `feature/bem-37-terms-scroll-smoke-fix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Stop rendering the Terms HTML as a full-content-height WebView inside the parent screen scroll.
+- Use a fixed-height, internally scrollable WebView and keep the agreement checkboxes below it.
+- Strip remote Google Fonts links from the embedded Terms HTML before loading it into the onboarding WebView.
+- Increase the first-run Terms & Conditions screen bottom padding from `140` to `180`.
+- Reset the Android smoke UI readiness deadline after the helper completes a long first-run onboarding flow.
+- Launch the Android smoke target with deterministic `am start -W` instead of `monkey`.
+- Add a short post-install/clear-data settle period before launch so API 36 package-manager and Google Play service churn does not race the first cold start.
+- Compile the freshly installed dev package with `cmd package compile -m speed -f` before the smoke launch to remove first-run dex/native-load noise from the UI check.
+- Give the package-compile step its own longer timeout because it can exceed the normal ADB command limit on a cold emulator image.
+- Keep the Terms copy, checkbox logic, and footer buttons unchanged.
+
+Why:
+
+- Android smoke on the current API 36 emulator could reach the end of the Terms copy while the footer still covered the second agreement checkbox.
+- Follow-up smoke attempts showed the app could also trigger an Android not-responding dialog while rendering the oversized WebView and remote font resources on first launch.
+- The UI hierarchy showed the WebView filling the parent scroll area and the agreement checkboxes staying below the visible area, leaving `agree-button` disabled.
+- After the Terms rendering fix, the helper reached the wallet dashboard but still failed against a stale pre-onboarding hierarchy because the original UI deadline had expired during PIN/password setup.
+- Repeated `monkey` launches on the API 36 emulator could report startup ANR while a direct `am start -W` launch brought the app to the Terms screen and kept the process focused.
+- The failing ANR traces showed the app launched immediately after install/clear while package replacement, shared-directory cleanup, and system service work were still active on the emulator.
+- Manual emulator validation showed package compilation before `pm clear`/launch kept the dev process alive and made the Terms UI reachable on the same API 36 image.
+- This is an onboarding/runtime blocker for every later app-affecting branch, so it is isolated from dependency updates.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+
 ### BEM-37.222 - React Localization 2 runtime probe
 
 - Branch: `feature/bem-37-react-localization-2-probe`
