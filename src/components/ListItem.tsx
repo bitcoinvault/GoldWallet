@@ -35,18 +35,23 @@ export const ListItem = ({
 }: Props) => {
   const [switchValueState, setSwitchValueState] = useState(false);
 
-  const isSwitch = () => onSwitchValueChange && typeof switchValue === 'boolean';
+  const isSwitch = !!onSwitchValueChange && typeof switchValue === 'boolean';
 
   const onSwitchPress = () => {
-    setSwitchValueState(!switchValueState);
-    onSwitchValueChange && onSwitchValueChange(!switchValueState);
+    setSwitchValueState(currentSwitchValue => {
+      const nextSwitchValue = !currentSwitchValue;
+
+      onSwitchValueChange?.(nextSwitchValue);
+
+      return nextSwitchValue;
+    });
   };
 
   useEffect(() => {
-    if (isSwitch()) {
-      setSwitchValueState(switchValue!);
+    if (isSwitch) {
+      setSwitchValueState(switchValue);
     }
-  }, []);
+  }, [isSwitch, switchValue]);
 
   const handleOnItemPress = () => {
     !!onPress && onPress();
@@ -72,11 +77,11 @@ export const ListItem = ({
             />
           </View>
         )}
-        <View style={[styles.textContainer, { paddingRight: !isSwitch() ? 50 : 0 }]}>
+        <View style={[styles.textContainer, { paddingRight: !isSwitch ? 50 : 0 }]}>
           <Text style={[styles.title, disabled && styles.disabled]}>{title}</Text>
         </View>
       </TouchableOpacity>
-      {isSwitch() && (
+      {isSwitch && (
         <View>
           <StyledSwitch
             testID={switchTestID}

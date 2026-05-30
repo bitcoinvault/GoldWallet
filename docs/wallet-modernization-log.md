@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.203 - Runtime lint warning cleanup
+
+- Branch: `feature/bem-37-runtime-lint-warning-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Route HTTP client diagnostics through the existing app logger instead of direct `console` calls.
+- Make `ListItem` switch state synchronization dependency-aware.
+- Preserve existing HTTP client return/error behavior and ListItem switch props.
+
+Findings:
+
+- The remaining ESLint warnings after BEM-37.202 were runtime warnings in `src/api/client.ts` and `src/components/ListItem.tsx`.
+- HTTP diagnostics now follow the same logger path used by other sagas/services.
+- `ListItem` now updates local switch state when controlled switch props change after mount.
+
+Validation:
+
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.202 - Test lint warning cleanup
 
 - Branch: `feature/bem-37-test-lint-warning-cleanup`

@@ -1,5 +1,7 @@
 import { HttpError } from 'app/../error/AppErrors';
 
+import logger from '../../logger';
+
 const axios = require('axios/dist/browser/axios.cjs') as typeof import('axios').default;
 
 type AxiosError<T = any> = import('axios').AxiosError<T>;
@@ -18,15 +20,24 @@ const createHttpClient = (baseUrl: string) => {
   });
 
   const onRequest = (request: InternalAxiosRequestConfig) => {
-    console.info('http', `--> ${request.method?.toUpperCase()} ${request.baseURL}${request.url}`);
+    logger.info({
+      category: 'http',
+      message: `--> ${request.method?.toUpperCase()} ${request.baseURL}${request.url}`,
+    });
 
     return request;
   };
 
   const onResponse = (response: AxiosResponse<any>) => {
-    console.info('http', `<-- ${response.status} ${response.config.baseURL}${response.config.url}`);
+    logger.info({
+      category: 'http',
+      message: `<-- ${response.status} ${response.config.baseURL}${response.config.url}`,
+    });
 
-    console.log(JSON.stringify(response.data, null, 2));
+    logger.info({
+      category: 'http',
+      message: JSON.stringify(response.data, null, 2),
+    });
     return response.data;
   };
 
@@ -34,7 +45,10 @@ const createHttpClient = (baseUrl: string) => {
     const requestUrl = error.config?.url || baseUrl;
 
     if (error.response) {
-      console.error('http', `<-- ${error.response.status} ${error.config?.baseURL || baseUrl}${requestUrl}`);
+      logger.error({
+        category: 'http',
+        message: `<-- ${error.response.status} ${error.config?.baseURL || baseUrl}${requestUrl}`,
+      });
     }
 
     if (!error?.response) {
