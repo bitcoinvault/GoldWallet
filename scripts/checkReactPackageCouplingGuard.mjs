@@ -47,7 +47,7 @@ const assertRejected = (label, environment, expectedError) => {
 };
 
 assertAccepted('Valid React package coupling fixture', validEnvironment);
-assertRejected('Wrong React fixture', { ...validEnvironment, dependencies: { react: '19.2.3' } }, 'react@19.2.3');
+assertRejected('Wrong React fixture', { ...validEnvironment, dependencies: { react: '19.2.6' } }, 'react@19.2.6');
 assertRejected('Wrong React types fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react': '18.2.6' } }, '@types/react@18.2.6');
 assertRejected(
   'External React Native types fixture',
@@ -56,8 +56,8 @@ assertRejected(
 );
 assertRejected(
   'Wrong renderer fixture',
-  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'react-test-renderer': '19.2.3' } },
-  'react-test-renderer@19.2.3',
+  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'react-test-renderer': '19.2.6' } },
+  'react-test-renderer@19.2.6',
 );
 assertRejected('Missing script fixture', { ...validEnvironment, scripts: {} }, 'react:package-coupling:audit');
 assertRejected(

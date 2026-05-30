@@ -8,7 +8,7 @@ Test/type coupling audit for the staged React/RN baseline path.
 - Current Jest: `29.7.0`
 - Current babel-jest: `29.7.0`
 - Current ts-jest: `29.4.11`
-- Current react-test-renderer: `19.1.4`
+- Current react-test-renderer: `19.2.3`
 - Current TS target: `ES2019`
 - Current TS JSX mode: `react-native`
 - Current TS skipLibCheck: `true`

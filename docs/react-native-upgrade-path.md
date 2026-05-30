@@ -15,10 +15,10 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 
 ## Current Baseline
 
-- React Native: `0.81.6`
-- React: `19.1.4`
-- RN Babel preset: `0.81.6`
-- RN Metro config: `0.81.6`
+- React Native: `0.85.3`
+- React: `19.2.3`
+- RN Babel preset: `0.85.3`
+- RN Metro config: `0.85.3`
 - Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
@@ -37,7 +37,7 @@ Current Android template/toolchain baseline compiles and targets SDK 36 on AGP 8
 - Keep target SDK changes tied to the React Native/toolchain path that owns Android template and debug receiver behavior.
 - Run emulator smoke for every runtime, dependency, native, or Metro-affecting branch.
 - Re-check the latest stable React Native release during the actual RN baseline branch instead of hardcoding it in this document.
-- Prefer milestone jumps over version-by-version package work. Current milestone targets are `0.81.6`, then `0.82.x`, then the current `0.85.x` line unless branch-time evidence changes that plan.
+- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.85.x` line; future RN moves should target the next stable line only after branch-time evidence supports it.
 
 ## Required Work Before The Next RN Step
 

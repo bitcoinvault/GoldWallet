@@ -1,4 +1,4 @@
-import {
+﻿import {
   expectedReactNativeTargetSnapshot,
   getReactNativeTargetSnapshotIssues,
   requiredReactNativeTargetSnapshotSnippets,
@@ -41,8 +41,8 @@ const assertRejected = (label, environment, expectedError) => {
 assertAccepted('Valid React Native target snapshot fixture', validEnvironment);
 assertRejected(
   'Wrong current React Native fixture',
-  { ...validEnvironment, dependencies: { ...validEnvironment.dependencies, 'react-native': '0.85.3' } },
-  'react-native@0.85.3',
+  { ...validEnvironment, dependencies: { ...validEnvironment.dependencies, 'react-native': '0.81.6' } },
+  'react-native@0.81.6',
 );
 assertRejected('Wrong current Node fixture', { ...validEnvironment, nvmrc: '20.19.4' }, '.nvmrc is 20.19.4');
 assertRejected(

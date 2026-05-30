@@ -3,7 +3,7 @@
 This audit supports `BEM-36 - Native modules upgrade` before changing storage, environment, secure storage, Electrum networking, or WebView dependencies.
 
 Checked on: 2026-05-28
-Baseline refreshed on: 2026-05-29 after the RN `0.81.6` foundation checkpoint.
+Baseline refreshed on: 2026-05-29 after the RN `0.85.3` foundation checkpoint.
 
 ## Current Repository State
 
@@ -61,7 +61,7 @@ peerDependencies:
 - react: *
 - react-native: *
 
-@react-native-async-storage/async-storage current installed line for RN 0.81.6 validation: 3.1.1
+@react-native-async-storage/async-storage current installed line for RN 0.85.3 validation: 3.1.1
 peerDependencies:
 - react: *
 - react-native: *
@@ -71,7 +71,7 @@ peerDependencies:
 - react: *
 - react-native: >=0.59
 
-@react-native-community/netinfo current installed line for RN 0.81.6 validation: 12.0.1
+@react-native-community/netinfo current installed line for RN 0.85.3 validation: 12.0.1
 peerDependencies:
 - react-native: >=0.59
 
@@ -85,7 +85,7 @@ peerDependencies:
 - react-native: *
 - react-native-windows: >=0.61
 
-react-native-config current installed line for RN 0.81.6 validation: 1.6.1
+react-native-config current installed line for RN 0.85.3 validation: 1.6.1
 peerDependencies:
 - react-native-windows: >=0.61
 
@@ -118,8 +118,8 @@ peerDependencies:
 
 - This group has high wallet risk because it touches persisted wallet data, encrypted storage, Electrum TLS sockets, env configuration, and terms WebViews.
 - `@react-native-async-storage/async-storage` is now on latest checked stable `3.1.1` after `BEM-37.169`; the app's storage tests pass after moving the Jest mock import to `@react-native-async-storage/async-storage/jest`.
-- `@react-native-community/netinfo` is now on latest checked stable `12.0.1` after `BEM-37.168`; it remains installed on the current RN `0.81.6` baseline and future NetInfo work should focus on Electrum/network behavior.
-- `react-native-config` is now on latest checked `1.6.1` after `BEM-37.167`; the earlier Android compile failure on older React Native Android APIs (`BaseReactPackage` / `WritableMap.putLong`) is resolved on the RN `0.81.6` baseline.
+- `@react-native-community/netinfo` is now on latest checked stable `12.0.1` after `BEM-37.168`; it remains installed on the current RN `0.85.3` baseline and future NetInfo work should focus on Electrum/network behavior.
+- `react-native-config` is now on latest checked `1.6.1` after `BEM-37.167`; the earlier Android compile failure on older React Native Android APIs (`BaseReactPackage` / `WritableMap.putLong`) is resolved on the RN `0.85.3` baseline.
 - `react-native-device-info` is now on checked `15.0.2` after `BEM-37.109`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-keychain@10.0.0` is installed as the new secure-storage backend, while `react-native-secure-key-store@2.0.10` remains temporarily for legacy fallback and dual-write migration.

@@ -12,7 +12,7 @@ export const expectedTestTypeCoupling = {
   jest: '29.7.0',
   babelJest: '29.7.0',
   tsJest: '29.4.11',
-  reactTestRenderer: '19.1.4',
+  reactTestRenderer: '19.2.3',
   tsTarget: 'ES2019',
   tsJsx: 'react-native',
   tsSkipLibCheck: true,
@@ -51,7 +51,7 @@ export const requiredTestTypeCouplingSnippets = [
   ['docs/test-type-coupling-audit.md', 'Current Jest: `29.7.0`'],
   ['docs/test-type-coupling-audit.md', 'Current babel-jest: `29.7.0`'],
   ['docs/test-type-coupling-audit.md', 'Current ts-jest: `29.4.11`'],
-  ['docs/test-type-coupling-audit.md', 'Current react-test-renderer: `19.1.4`'],
+  ['docs/test-type-coupling-audit.md', 'Current react-test-renderer: `19.2.3`'],
   ['docs/test-type-coupling-audit.md', 'Current TS JSX mode: `react-native`'],
   ['docs/test-type-coupling-audit.md', 'Current TS skipLibCheck: `true`'],
   ['docs/test-type-coupling-audit.md', 'Do not update TypeScript/Jest separately from the React/RN baseline branch that owns type/runtime behavior.'],
@@ -129,8 +129,8 @@ export const getTestTypeCouplingIssues = ({ devDependencies, scripts, tsconfig, 
     errors.push(`tsconfig skipLibCheck is ${tsconfig.compilerOptions?.skipLibCheck}; expected ${expectedTestTypeCoupling.tsSkipLibCheck}`);
   }
 
-  if (!jestConfigContent.includes("preset: 'react-native'")) {
-    errors.push('jest.config.js is missing react-native preset');
+  if (!jestConfigContent.includes("preset: '@react-native/jest-preset'")) {
+    errors.push('jest.config.js is missing @react-native/jest-preset preset');
   }
 
   if (!jestConfigContent.includes("'transform'") && !jestConfigContent.includes('transform:')) {

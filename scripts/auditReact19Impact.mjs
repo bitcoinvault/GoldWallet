@@ -33,9 +33,9 @@ export const requiredReact19ImpactDocs = [
 ];
 
 export const requiredReact19ImpactSnippets = [
-  ['docs/react19-impact-audit.md', 'Current React: `19.1.4`'],
+  ['docs/react19-impact-audit.md', 'Current React: `19.2.3`'],
   ['docs/react19-impact-audit.md', 'Current React types: `19.2.15`'],
-  ['docs/react19-impact-audit.md', 'Current react-test-renderer: `19.1.4`'],
+  ['docs/react19-impact-audit.md', 'Current react-test-renderer: `19.2.3`'],
   ['docs/react19-impact-audit.md', 'Target React peer from RN target snapshot: `^19.2.3`'],
   ['docs/react19-impact-audit.md', 'Class component surfaces exist and must be smoke-tested after the React/RN baseline changes.'],
   ['docs/react19-impact-audit.md', 'Default props on class components exist and should be checked against the updated TypeScript/React type behavior.'],
@@ -48,16 +48,16 @@ export const requiredReact19ImpactSnippets = [
 export const getReact19ImpactIssues = ({ dependencies, devDependencies, scripts, docs, existingDocs, inventory }) => {
   const errors = [];
 
-  if (dependencies.react !== '19.1.4') {
-    errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current React baseline 19.1.4`);
+  if (dependencies.react !== '19.2.3') {
+    errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current React baseline 19.2.3`);
   }
 
   if (devDependencies['@types/react'] !== '19.2.15') {
     errors.push(`package.json has @types/react@${devDependencies['@types/react'] || '<missing>'}; expected current React types baseline 19.2.15`);
   }
 
-  if (devDependencies['react-test-renderer'] !== '19.1.4') {
-    errors.push(`package.json has react-test-renderer@${devDependencies['react-test-renderer'] || '<missing>'}; expected current renderer baseline 19.1.4`);
+  if (devDependencies['react-test-renderer'] !== '19.2.3') {
+    errors.push(`package.json has react-test-renderer@${devDependencies['react-test-renderer'] || '<missing>'}; expected current renderer baseline 19.2.3`);
   }
 
   if (scripts['react19:impact:audit'] !== 'node scripts/auditReact19Impact.mjs') {

@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+﻿import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -10,9 +10,9 @@ const packageJson = JSON.parse(read('package.json'));
 export const expectedMetroDevRuntime = {
   nodeMajor: 22,
   nodeVersion: '22.18.0',
-  reactNative: '0.81.6',
-  babelPreset: '0.81.6',
-  metroConfig: '0.81.6',
+  reactNative: '0.85.3',
+  babelPreset: '0.85.3',
+  metroConfig: '0.85.3',
   startScript: 'react-native start',
 };
 

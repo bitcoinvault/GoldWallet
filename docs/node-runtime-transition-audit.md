@@ -5,9 +5,9 @@ Node runtime transition audit for the staged React Native modernization path.
 ## Current Baseline
 
 - Current Metro/dev Node runtime: `22.18.0`
-- Current React Native: `0.81.6`
-- Current RN Babel preset: `0.81.6`
-- Current RN Metro config: `0.81.6`
+- Current React Native: `0.85.3`
+- Current RN Babel preset: `0.85.3`
+- Current RN Metro config: `0.85.3`
 
 ## Target Snapshot
 
