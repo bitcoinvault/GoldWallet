@@ -31,8 +31,8 @@ export const collectSentryAndroidWarningAudit = () => {
   const warnings = [];
   const readinessIssues = [];
 
-  if (sentryVersion !== '5.36.0') {
-    readinessIssues.push(`package.json has @sentry/react-native@${sentryVersion || '<missing>'}; expected current baseline 5.36.0`);
+  if (sentryVersion !== '8.13.0') {
+    readinessIssues.push(`package.json has @sentry/react-native@${sentryVersion || '<missing>'}; expected current baseline 8.13.0`);
   }
 
   if (scripts['sentry:release:prereq-audit'] !== 'node scripts/auditSentryReleasePrerequisites.mjs') {
@@ -70,8 +70,8 @@ export const collectSentryAndroidWarningAudit = () => {
     warnings.push('Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.81 baseline.');
   }
 
-  if (sentryVersion === '5.36.0') {
-    warnings.push('Sentry remains on 5.36.0; release/source-map behavior still requires a dedicated validation branch before changing Sentry tooling.');
+  if (sentryVersion === '8.13.0') {
+    warnings.push('Sentry is on 8.13.0; source-map and dSYM behavior still require release validation with local Sentry credentials.');
   }
 
   return {

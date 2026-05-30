@@ -7,6 +7,7 @@ const validSummary = [
   'Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
   'Android serial: emulator-5554',
   'Android package: io.goldwallet.wallet.dev',
+  'Metro required: yes',
   'Metro endpoint: 127.0.0.1:8081',
   'Metro reachable: yes',
   'Expected UI texts: Wallets, E2EWalletTypeTest, Send, Receive',
@@ -20,6 +21,10 @@ const validSummary = [
 
 const failedSummary = validSummary.replace('Android smoke outcome: passed', 'Android smoke outcome: failed');
 const missingMetroSummary = validSummary.replace('Metro reachable: yes', 'Metro reachable: no');
+const embeddedSummary = validSummary
+  .replace('Metro required: yes', 'Metro required: no')
+  .replace('Metro reachable: yes', 'Metro reachable: no')
+  .replace('Expected UI texts: Wallets, E2EWalletTypeTest, Send, Receive', 'Expected UI texts: Wallets, No wallets, Create new wallet, Import wallet');
 const missingScreenshotSummary = validSummary.replace('Screenshot path: package.json', 'Screenshot path: local-docs/missing.png');
 const invalidTimestampSummary = validSummary.replace('Generated at: 2026-05-28T14:50:52.705Z', 'Generated at: 2026-05-28');
 
@@ -43,6 +48,7 @@ const assertRejected = (label, summary) => {
 };
 
 assertAccepted('Valid Android smoke summary fixture', validSummary);
+assertAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertRejected('Failed smoke outcome fixture', failedSummary);
 assertRejected('Metro unreachable fixture', missingMetroSummary);
 assertRejected('Missing screenshot fixture', missingScreenshotSummary);

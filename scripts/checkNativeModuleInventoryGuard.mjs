@@ -10,7 +10,7 @@ delete missingDependencyFixture['react-native-camera-kit'];
 
 const changedDependencyFixture = {
   ...expectedDependencies,
-  '@sentry/react-native': '9.0.0',
+  '@sentry/react-native': '5.36.0',
 };
 
 const assertAccepted = (label, dependencies) => {

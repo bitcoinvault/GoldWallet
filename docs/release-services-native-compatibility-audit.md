@@ -14,7 +14,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-firebase/messaging` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | `9.0.1` | `9.0.1` | Release update path, deployment keys, native bundle loading. |
-| `@sentry/react-native` | `5.36.0` | `8.13.0` | Major SDK jump; source-map and dSYM behavior must be proven. |
+| `@sentry/react-native` | `8.13.0` | `8.13.0` | Latest checked SDK line; source-map and dSYM behavior must still be proven with local credentials. |
 
 ## Current Runtime Surface
 
@@ -71,7 +71,7 @@ corepack yarn release-services:check-summaries
 
 ## Current Release Readiness Snapshot
 
-Checked on 2026-05-30 after `BEM-36.124`:
+Checked on 2026-05-30 after `BEM-36.125`:
 
 ```powershell
 corepack yarn codepush:release:path-audit
@@ -92,6 +92,7 @@ Results:
 - Firebase `24.0.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
 - RN Firebase `24.0.0` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
 - Sentry release source-map validation is not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
+- Sentry `8.13.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.81` baseline; release artifact upload still needs credentials before it can be claimed as fully validated.
 - None of these audits print secret values.
 
 The Android flavor-to-env mapping is guarded by:
@@ -148,6 +149,7 @@ Shared env/config:
 - `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, Android bundle resolution, iOS deployment-key placeholders, and referenced env keys without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.81` warning audit no longer reports Sentry `execResult`.
+- `@sentry/react-native` is on latest checked `8.13.0` after the Sentry SDK upgrade; Android debug build and smoke validation are required for the branch, while source-map/dSYM upload remains blocked locally until Sentry credentials/properties are available.
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties` files and `SENTRY_AUTH_TOKEN` are available before Sentry release/source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary.
 - `corepack yarn sentry:android-warning:audit` confirms the current Sentry Android Gradle/source-map wiring remains tracked before a dedicated Sentry release/source-map cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
@@ -164,7 +166,7 @@ Do not batch these packages into one generic native-module bump.
 Recommended branches:
 
 1. `feature/bem-firebase-release-services-audit` or equivalent implementation branch for Firebase app, analytics, Crashlytics, and messaging together.
-2. `feature/bem-sentry-release-source-map-upgrade` for Sentry SDK and source-map/dSYM validation.
+2. `feature/bem-sentry-release-source-map-upgrade` for remaining Sentry source-map/dSYM release validation.
 3. `feature/bem-codepush-release-path-audit` for CodePush runtime and release update validation.
 4. `feature/bem-ios-push-notification-bridge-audit` for `@react-native-community/push-notification-ios` if iOS notification behavior is changed.
 5. `feature/bem-ios-scheme-config-guard` after confirming Stage/Beta scheme env and Firebase plist behavior.

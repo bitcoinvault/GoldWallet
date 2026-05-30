@@ -121,7 +121,7 @@ Branch shape:
 - `@react-native-firebase/messaging` -> `24.0.0`
 - `@react-native-community/push-notification-ios` -> `1.12.0`
 - `react-native-code-push` -> `9.0.1`
-- `@sentry/react-native` -> `5.36.0`
+- `@sentry/react-native` -> `8.13.0`
 
 Risk:
 
@@ -129,14 +129,15 @@ Risk:
 
 Branch shape:
 
-- Do not do a blind Firebase or Sentry major upgrade inside generic cleanup.
-- Keep Sentry release/source-map validation in a dedicated branch.
+- Do not do blind release-service upgrades inside generic cleanup.
+- Keep remaining Sentry release/source-map validation in a dedicated branch when credentials and release build access are available.
 - Keep Firebase grouped by package family; after `BEM-36.124` the current family is `24.0.0`, with Android debug build and embedded smoke validated.
 - `corepack yarn firebase:release-services:audit` checks current Firebase package family alignment, Android config, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade.
 - `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, CodePush, and Sentry package snapshot, native build surface, and release validation path.
 - `react-native-code-push` is on latest checked `9.0.1` after the RN `0.81.6` proof, with guarded release bundle alias compatibility for RN Gradle task naming. Future CodePush work should validate a non-dev release/update path and deployment-key loading after non-empty deployment keys are available.
 - `corepack yarn codepush:release:path-audit` checks the current CodePush non-dev runtime/native/env wiring before any release-path change.
 - `@react-native-community/push-notification-ios` is on latest checked `1.12.0` after `BEM-36.75`; future iOS notification bridge work should validate badge handling, remote-notification forwarding, and iOS permission/token flows on a Mac runner/device.
+- `@sentry/react-native` is on latest checked `8.13.0` after `BEM-36.125`; future Sentry work should focus on release source-map/dSYM validation with `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, not another blind package bump.
 - `corepack yarn push-notification:bridge-audit` checks the current iOS push notification bridge wiring before any notification bridge behavior change; after `BEM-37.79`, the static bridge readiness gaps are closed, while iOS runtime validation remains required on a Mac runner/device.
 - Validate Android debug startup first, then release tooling separately when secrets and store/release config are available.
 
