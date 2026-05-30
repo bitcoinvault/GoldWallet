@@ -10,6 +10,26 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.204 - AppStorage secure backend contract
+
+- Branch: `feature/bem-37-app-storage-keychain-contract`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add integration coverage for the React Native `AppStorage` secure backend path used for wallet data.
+- Lock the current dual-write behavior: React Native storage writes to both `react-native-secure-key-store` and `react-native-keychain`.
+- Lock the current read behavior: Keychain is read first, and missing or failing Keychain reads fall back to the legacy secure store and migrate the value into Keychain.
+
+Findings:
+
+- Wallet storage uses the same staged secure-storage migration pattern as `SecureStorageService`, so removing `react-native-secure-key-store` still requires a later release-validation branch.
+- The test is intentionally contract-only and does not change runtime storage behavior.
+
+Validation:
+
+- `corepack yarn test:storage`
+
 ### BEM-36.127 - RN 0.85 active documentation polish
 
 - Branch: `feature/bem-36-rn085-active-doc-polish`

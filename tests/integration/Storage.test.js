@@ -1,15 +1,56 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import assert from 'assert';
+import crypto from 'crypto';
+import * as mockKeychain from 'react-native-keychain';
+import mockLegacySecureStore from 'react-native-secure-key-store';
 
 import { SegwitP2SHWallet, AppStorage } from '../../class';
+
+jest.mock('react-native-keychain', () => ({
+  __esModule: true,
+  ACCESSIBLE: {
+    WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'AccessibleWhenUnlockedThisDeviceOnly',
+  },
+  getGenericPassword: jest.fn(),
+  setGenericPassword: jest.fn(),
+}));
+jest.mock('react-native-secure-key-store', () => ({
+  __esModule: true,
+  default: {
+    get: jest.fn(),
+    set: jest.fn(),
+  },
+  ACCESSIBLE: {
+    WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
+  },
+}));
+global.crypto = crypto; // shall be used by tests under nodejs CLI, but not in RN environment
 
 jest.mock('../../BlueElectrum', () => ({
   getDustValue: jest.fn().mockResolvedValue(546),
 }));
 
-global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
-const assert = require('assert');
-
 jest.useFakeTimers();
+
+const originalNavigator = global.navigator;
+
+const setReactNativeNavigator = () => {
+  Object.defineProperty(global, 'navigator', {
+    configurable: true,
+    value: { product: 'ReactNative' },
+  });
+};
+
+afterEach(() => {
+  mockKeychain.getGenericPassword.mockReset();
+  mockKeychain.setGenericPassword.mockReset();
+  mockLegacySecureStore.get.mockReset();
+  mockLegacySecureStore.set.mockReset();
+  Object.defineProperty(global, 'navigator', {
+    configurable: true,
+    value: originalNavigator,
+  });
+});
 
 it('Appstorage - loadFromDisk works', async () => {
   /** @type {AppStorage} */
@@ -132,4 +173,59 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.ok(loadResult);
   assert.strictEqual(Storage3.wallets.length, 1);
   assert.strictEqual(Storage3.wallets[0].getLabel(), 'fakewallet');
+});
+
+it('Appstorage - React Native storage writes to legacy store and keychain', async () => {
+  setReactNativeNavigator();
+  mockLegacySecureStore.set.mockResolvedValueOnce('legacy-ok');
+  mockKeychain.setGenericPassword.mockResolvedValueOnce({ service: 'data', storage: 'keychain' });
+  const Storage = new AppStorage();
+
+  await expect(Storage.setItem('data', 'wallet-json')).resolves.toEqual({ service: 'data', storage: 'keychain' });
+  expect(mockLegacySecureStore.set).toHaveBeenCalledWith('data', 'wallet-json', {
+    accessible: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
+  });
+  expect(mockKeychain.setGenericPassword).toHaveBeenCalledWith('data', 'wallet-json', {
+    service: 'data',
+    accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+  });
+});
+
+it('Appstorage - React Native storage reads keychain before legacy store', async () => {
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockResolvedValueOnce({ password: 'wallet-json' });
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('data')).resolves.toBe('wallet-json');
+  expect(mockLegacySecureStore.get).not.toHaveBeenCalled();
+});
+
+it('Appstorage - React Native storage migrates legacy value into keychain when keychain is empty', async () => {
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockResolvedValueOnce(false);
+  mockLegacySecureStore.get.mockResolvedValueOnce('legacy-wallet-json');
+  mockKeychain.setGenericPassword.mockResolvedValueOnce({ service: 'data', storage: 'keychain' });
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('data')).resolves.toBe('legacy-wallet-json');
+  expect(mockLegacySecureStore.get).toHaveBeenCalledWith('data');
+  expect(mockKeychain.setGenericPassword).toHaveBeenCalledWith('data', 'legacy-wallet-json', {
+    service: 'data',
+    accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+  });
+});
+
+it('Appstorage - React Native storage falls back to legacy value when keychain read fails', async () => {
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));
+  mockLegacySecureStore.get.mockResolvedValueOnce('legacy-wallet-json');
+  mockKeychain.setGenericPassword.mockResolvedValueOnce({ service: 'data', storage: 'keychain' });
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('data')).resolves.toBe('legacy-wallet-json');
+  expect(mockLegacySecureStore.get).toHaveBeenCalledWith('data');
+  expect(mockKeychain.setGenericPassword).toHaveBeenCalledWith('data', 'legacy-wallet-json', {
+    service: 'data',
+    accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+  });
 });
