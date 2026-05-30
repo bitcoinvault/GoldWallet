@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.217 - RN nodeify postinstall fallback
+
+- Branch: `feature/bem-37-rn-nodeify-postinstall-fallback`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a postinstall fallback for the RN node polyfill shim marker when `rn-nodeify` leaves nested `stream-browserify/readable-stream` unpatched after dependency installs.
+- Keep `react` and `react-test-renderer` pinned to `19.2.3` because the existing RN 0.85 renderer baseline is exact-version sensitive.
+- Disable the default React Navigation tab header so the upgraded bottom-tabs navigator does not render a duplicate white `Dashboard` panel above the app's own wallet header.
+- Ignore local `.codex/` config files because project-local MCP config can contain secrets.
+
+Why:
+
+- Prevents future installs from leaving the repo in a state where `check:rn-nodeify-shims` fails immediately after `yarn add`.
+- Avoids the previously recorded `react@19.2.6` emulator-startup incompatibility while still hardening the dependency-install workflow.
+- Keeps the Android dashboard layout consistent after the React Navigation upgrade.
+- Prevents accidental repo exposure of local Codex/MCP credentials.
+
+Validation:
+
+- `npm view react@19.2.6 version peerDependencies engines --json`
+- `npm view react-test-renderer@19.2.6 version peerDependencies engines --json`
+- `node --check scripts/applyRnNodeifyShims.mjs`
+- `node scripts/applyRnNodeifyShims.mjs`
+- `corepack yarn postinstall`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
+Notes:
+
+- Android smoke screenshot confirmed the duplicate white `Dashboard` header is gone and the wallet screen starts with the app-owned `Wallets` header.
+- A local `.codex/config.toml` containing Jira credentials was found untracked in the repo folder; `.codex/` is now ignored and the token should be rotated outside this branch.
+
 ### BEM-37.216 - Remove unused QR local-image module
 
 - Branch: `feature/bem-37-remove-unused-qr-local-image`

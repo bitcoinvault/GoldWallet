@@ -15,6 +15,7 @@ export const MainTabNavigator = () => {
     <Tab.Navigator
       tabBar={props => <BottomTabBarComponent {...props} />}
       screenOptions={{
+        headerShown: false,
         tabBarHideOnKeyboard: true,
       }}
     >

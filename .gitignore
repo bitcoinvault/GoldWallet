@@ -83,6 +83,7 @@ token.json
 # MCP config (contains secrets)
 .mcp.json
 .claude
+.codex/
 
 # Local planning/proposal drafts
 local-docs/
