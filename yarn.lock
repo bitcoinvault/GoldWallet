@@ -8760,10 +8760,10 @@ listr2@^9.0.5:
     rfdc "^1.4.1"
     wrap-ansi "^9.0.0"
 
-localized-strings@^0.2.00:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/localized-strings/-/localized-strings-0.2.4.tgz#9d61c06b60cc7b5edf7c46e6c7f2d1ecb84aeb2c"
-  integrity sha512-TKDhqFPkIIN/if2FSvVVZTaM/GP9TzfgdQ2uY65mr32xgFu5nqkKXprXbzy5rfx32DF5LDvS/y1UqYF/mAscYA==
+localized-strings@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/localized-strings/-/localized-strings-2.0.3.tgz#93478eca4d8a3d3dc8732a85efb6e3be23b93204"
+  integrity sha512-eCSC9qK+dRrU9f9xA2glwooQCM5alK//Zj0DyKswZCBAbeefyrdplp6KQiKFeeuFu9K3QbfCQ+0Kdo0cABP6Ww==
 
 locate-path@^3.0.0:
   version "3.0.0"
@@ -8875,7 +8875,7 @@ longest@^2.0.1:
   resolved "https://registry.yarnpkg.com/longest/-/longest-2.0.1.tgz#781e183296aa94f6d4d916dc335d0d17aefa23f8"
   integrity sha1-eB4YMpaqlPbU2RbcM10NF676I/g=
 
-loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.4.0:
+loose-envify@^1.0.0, loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
@@ -10201,7 +10201,7 @@ prop-types@15.8.1, prop-types@^15.8.0, prop-types@^15.8.1:
     object-assign "^4.1.1"
     react-is "^16.13.1"
 
-prop-types@^15.5.10, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.10, prop-types@^15.6.1, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -10461,13 +10461,12 @@ react-is@^19.1.0, react-is@^19.2.3:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.2.6.tgz#aeee6159b159eb7f520d672cffcc69e7052d288f"
   integrity sha512-XjBR15BhXuylgWGuslhDKqlSayuqvqBX91BP8pauG8kd1zY8kotkNWbXksTCNRarse4kuGbe2kIY05ARtwNIvw==
 
-react-localization@1.0.13:
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/react-localization/-/react-localization-1.0.13.tgz#7a1da114c61c8b4814fed2abc699b45ad6bb32b8"
-  integrity sha512-VKbcCpf6FnjhUs1QpEpxGeZCVyAGRknk58w1fG4L4CWHfju/v9A6eyPgRnw6WmKgn2A5EJZt9ewkiP1pQFEwEA==
+react-localization@2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/react-localization/-/react-localization-2.0.6.tgz#fc7189a758196e75c8856382632d71c3f587331d"
+  integrity sha512-+UIJ8Dm/Bfdrz38u4d6rgW2Ip9TP9uetUp1WgTrWibgPoJXnclAgPafWL26NbBzuxmOxo9UIRqOKWY/MBJmNdQ==
   dependencies:
-    localized-strings "^0.2.00"
-    react "^16.0.0"
+    localized-strings "^2.0.3"
 
 react-native-animatable@1.4.0:
   version "1.4.0"
@@ -10854,15 +10853,6 @@ react@19.2.3:
   version "19.2.3"
   resolved "https://registry.yarnpkg.com/react/-/react-19.2.3.tgz#d83e5e8e7a258cf6b4fe28640515f99b87cd19b8"
   integrity sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA==
-
-react@^16.0.0:
-  version "16.14.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
-  integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
-    prop-types "^15.6.2"
 
 readable-stream@3.4.0:
   version "3.4.0"
