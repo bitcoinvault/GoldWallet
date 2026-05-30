@@ -10534,3 +10534,34 @@ Validation:
 - `corepack yarn android:dev:check-smoke-summary`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
+
+### BEM-37.219 - Gesture Handler 3 navigation runtime probe
+
+- Branch: `feature/bem-37-gesture-handler-3-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `react-native-gesture-handler` from `2.29.1` to `3.0.0`, the latest npm release checked for this branch.
+- Refresh the native-module inventory and navigation/runtime documentation for the new validated Gesture Handler baseline.
+- Keep `react-native-screens@4.25.2` and `react-native-safe-area-context@5.8.0` fixed in this branch to isolate Gesture Handler risk.
+
+Findings:
+
+- `npm view react-native-gesture-handler@3.0.0 version peerDependencies dependencies engines --json` reports broad React and React Native peer support.
+- The previous Kotlin/codegen blocker recorded against the older RN `0.76.9` baseline no longer reproduces on the current RN `0.85.3` New Architecture baseline.
+
+Validation:
+
+- `npm view react-native-gesture-handler@3.0.0 version peerDependencies dependencies engines --json`
+- `corepack yarn add react-native-gesture-handler@3.0.0`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
