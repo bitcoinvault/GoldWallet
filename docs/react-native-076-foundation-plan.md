@@ -30,7 +30,7 @@ Completed first foundation checkpoint package set:
 
 Important metadata:
 
-- `react-native@0.85.3` peers: React `^19.1.0`.
+- `react-native@0.85.3` peers: React `^19.2.3`; the app pins React `19.2.3` to match `react-native-renderer` exactly.
 - `react-native@0.85.3` Node engine: `>=20.19.4`.
 - The repository keeps Metro/dev runtime on Node `22.18.0`, which satisfies the RN `0.85.3` engine range and the recorded later target snapshot.
 
@@ -39,8 +39,8 @@ Important metadata:
 The RN `0.85.3` checkpoint included package and template/native migration together:
 
 - Node/dev runtime move from the old Node 16 baseline to Node 22 for Metro and RN tooling.
-- Babel config migration from `metro-react-native-babel-preset` to the RN 0.81 preset stack.
-- Metro config migration to the RN 0.81 Metro config package.
+- Babel config migration from `metro-react-native-babel-preset` to the RN 0.85 preset stack.
+- Metro config migration to the RN 0.85 Metro config package.
 - Android Gradle settings and plugin wiring for `@react-native/gradle-plugin`.
 - Android app Gradle/template drift, including autolinking, codegen, packaging, manifest, and debug build behavior.
 - iOS Podfile/template drift recorded explicitly; Windows can audit files, but Mac runner/device validation remains required before calling iOS complete.

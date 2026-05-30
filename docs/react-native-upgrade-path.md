@@ -4,7 +4,7 @@ This document records the React Native upgrade direction for the wallet moderniz
 
 React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`.
 React Native foundation milestone targets are tracked in `docs/react-native-foundation-target-matrix.md`.
-The RN 0.81 foundation branch plan is tracked in `docs/react-native-076-foundation-plan.md`.
+The RN 0.85 foundation branch plan is tracked in `docs/react-native-076-foundation-plan.md`.
 Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
 
 React 19 impact audit is tracked in `docs/react19-impact-audit.md`.
@@ -52,7 +52,7 @@ Current Android template/toolchain baseline compiles and targets SDK 36 on AGP 8
 
 1. Create a dedicated RN baseline branch from `upgrade/wallet-modernization`.
 2. Run the RN baseline preflight before changing package versions.
-3. Check the current stable React Native line, the RN 0.81 foundation plan audit, and the upgrade helper diff at branch start.
+3. Check the current stable React Native line, the RN 0.85 foundation plan audit, and the upgrade helper diff at branch start.
 4. Move to the next milestone target, with matching React, Metro, Gradle, Android template, iOS Podfile, and codegen changes.
 5. Run TypeScript, Android assemble, Android warning audit, Metro reset, and emulator smoke before commit.
 6. If a milestone fails, isolate the blocker before falling back to a lower milestone; do not automatically switch to one-minor-at-a-time work.
@@ -73,7 +73,7 @@ Before changing a React Native baseline, run the broader preflight so the curren
 corepack yarn rn:baseline:preflight
 ```
 
-For the first milestone branch, also keep the RN 0.81 foundation plan audit green:
+For the first milestone branch, also keep the RN 0.85 foundation plan audit green:
 
 ```powershell
 corepack yarn rn:076-foundation:audit
