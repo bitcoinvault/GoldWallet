@@ -115,10 +115,10 @@ Branch shape:
 
 ### Group D - Notifications And Release Services
 
-- `@react-native-firebase/app` -> `12.7`
-- `@react-native-firebase/analytics` -> `12.7`
-- `@react-native-firebase/crashlytics` -> `12.7`
-- `@react-native-firebase/messaging` -> `12.7`
+- `@react-native-firebase/app` -> `24.0.0`
+- `@react-native-firebase/analytics` -> `24.0.0`
+- `@react-native-firebase/crashlytics` -> `24.0.0`
+- `@react-native-firebase/messaging` -> `24.0.0`
 - `@react-native-community/push-notification-ios` -> `1.12.0`
 - `react-native-code-push` -> `9.0.1`
 - `@sentry/react-native` -> `5.36.0`
@@ -131,7 +131,7 @@ Branch shape:
 
 - Do not do a blind Firebase or Sentry major upgrade inside generic cleanup.
 - Keep Sentry release/source-map validation in a dedicated branch.
-- Keep Firebase grouped by package family only when Android and iOS config changes are understood.
+- Keep Firebase grouped by package family; after `BEM-36.124` the current family is `24.0.0`, with Android debug build and embedded smoke validated.
 - `corepack yarn firebase:release-services:audit` checks current Firebase package family alignment, Android config, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade.
 - `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, CodePush, and Sentry package snapshot, native build surface, and release validation path.
 - `react-native-code-push` is on latest checked `9.0.1` after the RN `0.81.6` proof, with guarded release bundle alias compatibility for RN Gradle task naming. Future CodePush work should validate a non-dev release/update path and deployment-key loading after non-empty deployment keys are available.

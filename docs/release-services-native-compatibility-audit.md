@@ -8,10 +8,10 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 | Package | Current package.json | Latest npm checked on 2026-05-30 | Notes |
 | --- | --- | --- | --- |
-| `@react-native-firebase/app` | `12.7` | `24.0.0` | Latest package pulls `firebase@12.10.0`. |
-| `@react-native-firebase/analytics` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
-| `@react-native-firebase/crashlytics` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
-| `@react-native-firebase/messaging` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
+| `@react-native-firebase/app` | `24.0.0` | `24.0.0` | Current package pulls `firebase@12.10.0`. |
+| `@react-native-firebase/analytics` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
+| `@react-native-firebase/crashlytics` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
+| `@react-native-firebase/messaging` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | `9.0.1` | `9.0.1` | Release update path, deployment keys, native bundle loading. |
 | `@sentry/react-native` | `5.36.0` | `8.13.0` | Major SDK jump; source-map and dSYM behavior must be proven. |
@@ -71,7 +71,7 @@ corepack yarn release-services:check-summaries
 
 ## Current Release Readiness Snapshot
 
-Checked on 2026-05-30:
+Checked on 2026-05-30 after `BEM-36.124`:
 
 ```powershell
 corepack yarn codepush:release:path-audit
@@ -88,8 +88,9 @@ Results:
 - CodePush release-path wiring is valid for non-dev runtime, Android, iOS, and env key references.
 - CodePush release update validation is not ready locally because `.env.dev.testnet` has blank `CODEPUSH_DEPLOYMENT_KEY_ANDROID` and `CODEPUSH_DEPLOYMENT_KEY_IOS`.
 - Beta CodePush update strategy is still unconfirmed because `.env.beta.testnet` and `.env.beta.mainnet` do not define CodePush deployment keys.
-- Firebase release-services wiring is valid for current package family alignment, Android config, iOS plist files, and Messaging runtime paths.
-- Firebase remains on RN Firebase `12.7`; the next move to `24.0.0` is a major family upgrade and should be validated as one grouped Firebase branch.
+- Firebase release-services wiring is valid for the current `24.0.0` package family, Android config, iOS plist files, and Messaging runtime paths.
+- Firebase `24.0.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
+- RN Firebase `24.0.0` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
 - Sentry release source-map validation is not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
 - None of these audits print secret values.
 
@@ -116,9 +117,8 @@ This verifies the current shared Xcode scheme pre-action matrix for dev, stage, 
 Android:
 
 - `android/build.gradle` uses Google Services Gradle plugin `4.3.15` and Crashlytics Gradle plugin `2.9.0`.
-- `android/build.gradle` defines `firebaseVersion = "17.3.4"`.
 - `android/app/build.gradle` applies `com.google.firebase.crashlytics`, CodePush Gradle script, Sentry Gradle script, and `com.google.gms.google-services`.
-- `android/app/build.gradle` still contains explicit Firebase dependencies including `firebase-core:16.0.3` and BoM `28.2.0`.
+- Android Firebase package versions are now supplied by React Native Firebase `24.0.0` and its default Firebase BoM `34.10.0`; the old manual `firebase-core:16.0.3` and app-level Firebase BoM `28.2.0` entries were removed to avoid duplicate measurement classes.
 - Android Firebase config files exist under flavor-specific `android/app/src/*/google-services.json`.
 - `MainApplication.java` uses CodePush to resolve the JS bundle file.
 - `android/app/src/main/res/values/strings.xml` has the native `CodePushDeploymentKey` placeholder.
@@ -139,8 +139,8 @@ Shared env/config:
 
 ## Upgrade Risk
 
-- Firebase RN `12.7` to `24.0.0` is a major family upgrade and must keep all Firebase packages aligned.
-- Firebase changes can affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
+- Firebase RN `24.0.0` is the current package family and must stay aligned across app, analytics, Crashlytics, and messaging.
+- Firebase changes can still affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
 - `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.

@@ -90,6 +90,18 @@ interface State {
   isChamberOfSecretsClosed: boolean;
 }
 
+const normalizeNotificationDataValue = (value: string | object | undefined): string | undefined => {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (value === undefined) {
+    return undefined;
+  }
+
+  return JSON.stringify(value);
+};
+
 class Navigator extends React.Component<Props, State> {
   state = {
     isBetaVersionRiskAccepted: false,
@@ -139,8 +151,8 @@ class Navigator extends React.Component<Props, State> {
           this.props.addToastMessage({
             title: remoteMessage.notification?.title || '',
             description: remoteMessage.notification?.body || '',
-            id: remoteMessage.data?.tx,
-            status: remoteMessage.data?.failed,
+            id: normalizeNotificationDataValue(remoteMessage.data?.tx),
+            status: normalizeNotificationDataValue(remoteMessage.data?.failed),
           });
         }, 10000);
       }
@@ -157,10 +169,10 @@ class Navigator extends React.Component<Props, State> {
               this.props.loadWallets();
               if (isIos()) {
                 setTimeout(() => {
-                  this.handleClickToast(remoteMessage.data?.tx);
+                  this.handleClickToast(normalizeNotificationDataValue(remoteMessage.data?.tx));
                 }, 1000);
               } else {
-                this.handleClickToast(remoteMessage.data?.tx);
+                this.handleClickToast(normalizeNotificationDataValue(remoteMessage.data?.tx));
               }
             }
           }
@@ -168,7 +180,7 @@ class Navigator extends React.Component<Props, State> {
 
       messaging().onNotificationOpenedApp(remoteMessage => {
         if (remoteMessage.data) {
-          this.handleClickToast(remoteMessage.data?.tx);
+          this.handleClickToast(normalizeNotificationDataValue(remoteMessage.data?.tx));
         }
       });
     }
