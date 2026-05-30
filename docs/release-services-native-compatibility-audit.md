@@ -6,14 +6,14 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 ## Current Package State
 
-| Package | Current package.json | Latest npm checked on 2026-05-27 | Notes |
+| Package | Current package.json | Latest npm checked on 2026-05-30 | Notes |
 | --- | --- | --- | --- |
 | `@react-native-firebase/app` | `12.7` | `24.0.0` | Latest package pulls `firebase@12.10.0`. |
 | `@react-native-firebase/analytics` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-firebase/crashlytics` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-firebase/messaging` | `12.7` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
-| `react-native-code-push` | `7.0.2` | `9.0.1` | Release update path, deployment keys, native bundle loading. |
+| `react-native-code-push` | `9.0.1` | `9.0.1` | Release update path, deployment keys, native bundle loading. |
 | `@sentry/react-native` | `5.36.0` | `8.13.0` | Major SDK jump; source-map and dSYM behavior must be proven. |
 
 ## Current Runtime Surface
@@ -69,6 +69,30 @@ corepack yarn check:release-services-summary-guard
 corepack yarn release-services:check-summaries
 ```
 
+## Current Release Readiness Snapshot
+
+Checked on 2026-05-30:
+
+```powershell
+corepack yarn codepush:release:path-audit
+corepack yarn codepush:release:path-check-summary
+corepack yarn firebase:release-services:audit
+corepack yarn firebase:release-services:check-summary
+corepack yarn sentry:release:prereq-audit
+corepack yarn sentry:release:prereq-check-summary
+corepack yarn release-services:check-summaries
+```
+
+Results:
+
+- CodePush release-path wiring is valid for non-dev runtime, Android, iOS, and env key references.
+- CodePush release update validation is not ready locally because `.env.dev.testnet` has blank `CODEPUSH_DEPLOYMENT_KEY_ANDROID` and `CODEPUSH_DEPLOYMENT_KEY_IOS`.
+- Beta CodePush update strategy is still unconfirmed because `.env.beta.testnet` and `.env.beta.mainnet` do not define CodePush deployment keys.
+- Firebase release-services wiring is valid for current package family alignment, Android config, iOS plist files, and Messaging runtime paths.
+- Firebase remains on RN Firebase `12.7`; the next move to `24.0.0` is a major family upgrade and should be validated as one grouped Firebase branch.
+- Sentry release source-map validation is not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
+- None of these audits print secret values.
+
 The Android flavor-to-env mapping is guarded by:
 
 ```powershell
@@ -120,7 +144,7 @@ Shared env/config:
 - `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
-- `react-native-code-push` is pinned to the already-resolved `7.0.2` after `BEM-36.70`; this is not a CodePush runtime upgrade and does not replace the dedicated non-dev release-path validation branch.
+- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.81.6` proof, with guarded release bundle alias compatibility for RN Gradle task naming.
 - `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, Android bundle resolution, iOS deployment-key placeholders, and referenced env keys without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.81` warning audit no longer reports Sentry `execResult`.
