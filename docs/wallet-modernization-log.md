@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.227 - Android dev release validation artifact
+
+- Branch: `feature/bem-37-android-dev-release-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Validate the local Android `devRelease` build path with `:app:assembleDevRelease`.
+- Keep Sentry auto-upload disabled for the local proof build and do not claim source-map upload validation.
+- Strengthen the generated Android release summary with the Java executable, Java version, APK byte count, and APK SHA-256 digest.
+- Extend the Android release summary guard so stale or incomplete release evidence fails validation.
+
+Why:
+
+- Debug APK smoke alone does not prove that the RN Gradle release bundle path, CodePush bundle compatibility alias, Sentry release collection tasks, and unsigned release APK packaging still work after the modernization branch.
+- The release APK build now has a reproducible local artifact summary that identifies the exact JDK and APK digest without printing secrets.
+- Sentry source-map upload remains intentionally unclaimed until local `sentry.properties` or `SENTRY_AUTH_TOKEN` is available.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn check:android-release-summary-guard`
+- `node --check scripts\runAndroidReleaseValidation.mjs`
+- `node --check scripts\androidReleaseSummaryGuard.mjs`
+- `node --check scripts\checkAndroidReleaseSummaryGuard.mjs`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.226 - React Navigation devtools 7 probe
 
 - Branch: `feature/bem-37-navigation-devtools-7-probe`
