@@ -10598,3 +10598,40 @@ Validation:
 - `corepack yarn test:storage-network:focused`
 - `corepack yarn lint:baseline:audit`
 - `git diff --check`
+
+### BEM-37.221 - React i18next runtime dependency refresh
+
+- Branch: `feature/bem-37-i18next-runtime-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `react-i18next` from the old `11.11.4` resolved line to `17.0.8`, the latest npm release checked for this branch.
+- Add explicit `i18next@26.3.0` to satisfy the current `react-i18next` peer dependency.
+- Keep the existing app localization model unchanged; GoldWallet still uses `react-localization` for strings and only wraps the app with `I18nextProvider`.
+
+Findings:
+
+- `npm view react-i18next version peerDependencies dependencies engines --json` reports latest `17.0.8` and peer `i18next >= 26.2.0`.
+- `npm view i18next version peerDependencies dependencies engines --json` reports latest `26.3.0`.
+- The app has no `useTranslation` or `withTranslation` usage; the only `react-i18next` runtime usage is `I18nextProvider` in `App.tsx`.
+
+Validation:
+
+- `npm view react-i18next version peerDependencies dependencies engines --json`
+- `npm view i18next version peerDependencies dependencies engines --json`
+- `corepack yarn add react-i18next@17.0.8 i18next@26.3.0`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn check:react-package-coupling-guard`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn check:test-type-coupling-guard`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
