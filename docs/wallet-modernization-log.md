@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.129 - Release-services RN 0.85 refresh
+
+- Branch: `feature/bem-36-release-services-rn85-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/release-services-native-compatibility-audit.md` so the release-services stream refers to the current RN `0.85.3` foundation instead of stale RN `0.81` proof wording.
+- Re-check latest npm metadata for `@sentry/react-native`, `react-native-code-push`, and `@react-native-firebase/app`.
+- Keep Sentry source-map/dSYM validation and CodePush release update validation explicitly blocked on missing credentials/deployment keys.
+
+Findings:
+
+- Latest npm checked on 2026-05-30: `@sentry/react-native@8.13.0`, `react-native-code-push@9.0.1`, and `@react-native-firebase/app@24.0.0`.
+- The repo is already on those package versions.
+- Release upload/update validation is still not claimable locally without `SENTRY_AUTH_TOKEN`/`sentry.properties` and non-empty CodePush deployment keys.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies engines --json`
+- `npm view react-native-code-push version peerDependencies engines --json`
+- `npm view @react-native-firebase/app version peerDependencies engines --json`
+- `corepack yarn release-services:check-summaries`
+
 ### BEM-37.215 - Android embedded smoke clean-state
 
 - Branch: `feature/bem-37-android-smoke-clean-state`
