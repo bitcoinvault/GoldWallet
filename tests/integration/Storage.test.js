@@ -229,3 +229,18 @@ it('Appstorage - React Native storage falls back to legacy value when keychain r
     accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
   });
 });
+
+it('Appstorage - React Native storage keeps legacy value when keychain migration write fails', async () => {
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockResolvedValueOnce(false);
+  mockLegacySecureStore.get.mockResolvedValueOnce('legacy-wallet-json');
+  mockKeychain.setGenericPassword.mockRejectedValueOnce(new Error('keychain write unavailable'));
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('data')).resolves.toBe('legacy-wallet-json');
+  expect(mockLegacySecureStore.get).toHaveBeenCalledWith('data');
+  expect(mockKeychain.setGenericPassword).toHaveBeenCalledWith('data', 'legacy-wallet-json', {
+    service: 'data',
+    accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+  });
+});

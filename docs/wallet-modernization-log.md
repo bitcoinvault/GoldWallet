@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.214 - Secure-storage migration hardening
+
+- Branch: `feature/bem-36-secure-storage-migration-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep legacy secure-storage values readable when the staged migration write into `react-native-keychain` fails for a single read attempt.
+- Apply the same behavior to `SecureStorageService` and the React Native `AppStorage` secure-storage wrapper.
+- Add focused regression coverage for PIN/transaction-password secure storage and wallet `AppStorage` legacy fallback reads.
+
+Why:
+
+- The staged migration must not turn a transient Keychain write failure into an unlock/storage failure when the legacy secure store still has the value.
+- `react-native-secure-key-store` still cannot be removed as warning-only cleanup, but the fallback path now has stronger behavior before the later removal-readiness branch.
+
+Validation:
+
+- `corepack yarn test:secure-storage:unit`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.213 - Android dev release summary guard
 
 - Branch: `feature/bem-37-android-release-summary-guard`
