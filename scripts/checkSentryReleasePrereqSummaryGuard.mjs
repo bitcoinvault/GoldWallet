@@ -5,6 +5,9 @@ const notReadySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: not ready',
+  '@sentry/react-native version: 8.13.0',
+  'Sentry release integration wired: yes',
+  'Sentry release integration errors: 0',
   'sentry.properties files present: no',
   `Missing files: ${requiredSentryPropertiesFiles.length}`,
   ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}`),
@@ -20,6 +23,9 @@ const readySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: ready',
+  '@sentry/react-native version: 8.13.0',
+  'Sentry release integration wired: yes',
+  'Sentry release integration errors: 0',
   'sentry.properties files present: yes',
   'Missing files: 0',
   'Invalid files: 0',
@@ -54,6 +60,16 @@ assertAccepted('Valid not-ready Sentry release prerequisite summary fixture', no
 assertAccepted('Valid ready Sentry release prerequisite summary fixture', readySummary);
 assertRejected('Missing header fixture', notReadySummary.replace('Sentry release prerequisite audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', notReadySummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
+assertRejected(
+  'Missing Sentry SDK version fixture',
+  notReadySummary.replace('@sentry/react-native version: 8.13.0', '@sentry/react-native version: missing'),
+  '@sentry/react-native version must be present',
+);
+assertRejected(
+  'Bad release integration count fixture',
+  notReadySummary.replace('Sentry release integration errors: 0', 'Sentry release integration errors: 1'),
+  'Sentry release integration errors count',
+);
 assertRejected('Bad missing count fixture', notReadySummary.replace(`Missing files: ${requiredSentryPropertiesFiles.length}`, 'Missing files: 0'), 'Missing files count');
 assertRejected(
   'Missing required action fixture',
@@ -62,6 +78,14 @@ assertRejected(
     'Required action: generate sentry.properties before claiming Sentry release validation.',
   ),
   'SENTRY_AUTH_TOKEN required action',
+);
+assertRejected(
+  'Secret assignment fixture',
+  notReadySummary.replace(
+    'SENTRY_AUTH_TOKEN available in current shell: no',
+    'SENTRY_AUTH_TOKEN available in current shell: no\nSENTRY_AUTH_TOKEN=secret',
+  ),
+  'must not print Sentry token assignments',
 );
 
 console.log('Sentry release prerequisite summary guard checks are valid.');
