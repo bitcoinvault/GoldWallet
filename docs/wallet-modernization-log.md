@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.228 - iOS release readiness summary guard
+
+- Branch: `feature/bem-37-ios-release-static-readiness-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep the existing iOS static release readiness audit, which checks required iOS files, Podfile platform, RN minimum iOS/Xcode values, deployment targets, shared schemes, Info.plist release-service keys, background modes, and package scripts.
+- Replace the summary checker implementation with a reusable guard that parses named summary fields instead of relying on broad substring checks.
+- Add guard fixtures for Windows and macOS summary shapes, including the expected Windows blocker that `xcodebuild` requires macOS/Xcode.
+- Wire the guard into `rn:baseline:preflight` before regenerating and checking the iOS release readiness summary.
+
+Why:
+
+- iOS cannot be compiled or archived on this Windows machine, so static readiness evidence needs to be strict enough to prevent stale or incomplete summaries from looking valid.
+- The guard now rejects wrong RN/iOS/Xcode targets, non-ISO timestamps, missing scheme counts, missing macOS follow-up, and missing xcodebuild blocker warning when the audit is produced off macOS.
+- This keeps iOS release validation explicit: static readiness can pass locally, but runtime/archive delivery still requires macOS with Xcode.
+
+Validation:
+
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `node --check scripts\iosReleaseReadinessSummaryGuard.mjs`
+- `node --check scripts\checkIosReleaseReadinessSummary.mjs`
+- `node --check scripts\checkIosReleaseReadinessSummaryGuard.mjs`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.227 - Android dev release validation artifact
 
 - Branch: `feature/bem-37-android-dev-release-validation`
