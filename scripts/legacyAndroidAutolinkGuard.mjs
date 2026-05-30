@@ -1,7 +1,4 @@
-export const expectedDisabledAndroidAutolinkPackages = new Set([
-  '@remobile/react-native-qrcode-local-image',
-  'react-native-prompt-android',
-]);
+export const expectedDisabledAndroidAutolinkPackages = new Set(['react-native-prompt-android']);
 
 export const getLegacyAndroidAutolinkErrors = dependencies => {
   const errors = [];

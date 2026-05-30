@@ -10,6 +10,63 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.216 - Remove unused QR local-image module
+
+- Branch: `feature/bem-37-remove-unused-qr-local-image`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove unused `@remobile/react-native-qrcode-local-image` from package dependencies and lockfile.
+- Remove its stale Android autolink disable entry from `react-native.config.js`.
+- Update the camera QR migration audit and summary guard so the package is expected to stay absent.
+- Keep `react-native-prompt-android` as the only guarded disabled Android autolink package.
+- Harden the embedded Android smoke helper so first-run onboarding is handled if the Terms screen appears during UI readiness polling.
+- Refresh the Camera/QR documentation for the current cleanup state.
+
+Why:
+
+- The package has no runtime source usage after the CameraKit scanner migration.
+- Keeping it installed only preserved an obsolete native QR local-image module and stale autolinking guard surface.
+
+Validation:
+
+- `npm view react-native-camera-kit version engines peerDependencies dependencies --json`
+- `npm view react-native-vision-camera version peerDependencies engines dependencies --json`
+- `npm view @remobile/react-native-qrcode-local-image version repository deprecated --json`
+- `npm view react-native-qrcode-svg version peerDependencies dependencies --json`
+- `node --check scripts/androidSmokeDev.mjs`
+- `node --check scripts/androidSmokeDevEmbedded.mjs`
+- `corepack yarn check:legacy-android-autolink-guard`
+- `corepack yarn check:legacy-android-autolink`
+- `corepack yarn check:camera-usage-guard`
+- `corepack yarn check:camera-usage-scope`
+- `corepack yarn check:qr-scan-caller-guard`
+- `corepack yarn check:qr-scan-callers`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:storage-network-usage-guard`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `git diff --check`
+
+Notes:
+
+- iOS `Podfile.lock` and Xcode project cleanup still require a Mac-side `pod install`/project refresh; this branch does not claim iOS release validation.
+
 ### BEM-36.129 - Release-services RN 0.85 refresh
 
 - Branch: `feature/bem-36-release-services-rn85-refresh`

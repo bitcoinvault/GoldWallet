@@ -2931,11 +2931,6 @@
   resolved "https://registry.yarnpkg.com/@redux-saga/types/-/types-1.4.0.tgz#93c02aa2172f31f861066a6aad81c594d51c3e43"
   integrity sha512-fq3Vy0TRl0mEb+1CyTx5wPBY3jxDi7yD4GL1Kz4S6ud7/leGEgRq1NYJDIiVbHMRBJd5rU/BB0Z+akrXSR0DJg==
 
-"@remobile/react-native-qrcode-local-image@1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@remobile/react-native-qrcode-local-image/-/react-native-qrcode-local-image-1.0.4.tgz#471e14ca6be6852578e0ca63c2a8bf67a61b4e47"
-  integrity sha512-tM+komoSgcS+7UzdH0MP2gF0yR8Hc8Dfe3P2iIlQhXyQdHaEVn1dyO6sw+McGfEj+n2DdsP2YXb8g16gW7qcKg==
-
 "@sentry-internal/browser-utils@10.53.1":
   version "10.53.1"
   resolved "https://registry.yarnpkg.com/@sentry-internal/browser-utils/-/browser-utils-10.53.1.tgz#cbe105889a22afba5974b91050feb80a2d521f9f"

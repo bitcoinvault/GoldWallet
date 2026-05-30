@@ -146,7 +146,7 @@ Branch shape:
 ### Group E - Camera And QR Scanning
 
 - `react-native-camera-kit` -> `18.0.0`
-- `@remobile/react-native-qrcode-local-image`
+- Removed legacy `@remobile/react-native-qrcode-local-image` after no source usage remained.
 - `react-native-qrcode-svg`
 
 Risk:
@@ -157,6 +157,7 @@ Branch shape:
 
 - Keep `react-native-camera-kit` scanner usage scoped to the dedicated QR scanner screen.
 - Preserve all guarded QR scanner callers.
+- Keep removed legacy QR local-image package out of `package.json` and `react-native.config.js`.
 - Run `corepack yarn camera:qr-migration:audit` before scanner follow-up work so the current CameraKit permission/runtime/autolink baseline stays explicit.
 - Validate Android/iOS camera permissions and QR scan behavior manually before claiming scanner follow-up work complete.
 

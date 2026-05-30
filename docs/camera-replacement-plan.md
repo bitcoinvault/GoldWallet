@@ -9,6 +9,7 @@
 - Android no longer requires `missingDimensionStrategy 'react-native-camera', 'general'`.
 - Android and iOS camera permissions are already present.
 - `react-native-camera` has been removed from the runtime dependency list.
+- The unused legacy QR local-image package `@remobile/react-native-qrcode-local-image` has been removed from the JS dependency list and Android autolink guard.
 - The latest legacy `react-native-camera` package checked on 2026-05-29 is still `4.2.1`, and it still does not solve the dependency-owned Android `jcenter()` warning cleanly.
 - `corepack yarn check:camera-usage-guard` verifies the camera usage guard fixtures.
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface after the CameraKit migration.
@@ -62,6 +63,17 @@ Scope:
 - Preserved the close button and crosshair overlay.
 - Kept scan formats limited to QR codes.
 - Removed `react-native-camera` from `package.json`, lockfile, and Android Gradle flavor strategy; refresh iOS pods on a Mac before claiming iOS validation.
+
+## Completed Legacy QR Local Image Cleanup
+
+Branch: `feature/bem-37-remove-unused-qr-local-image`
+
+Scope:
+
+- Removed unused `@remobile/react-native-qrcode-local-image` from `package.json` and `yarn.lock`.
+- Removed the stale Android autolink disable entry from `react-native.config.js`.
+- Updated camera migration and legacy Android autolink guards so the removed package stays absent.
+- iOS `Podfile.lock` and Xcode project still need a Mac `pod install`/project refresh before iOS validation is claimed.
 
 ## Validation Plan
 
