@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.210 - lint-staged tooling update
+
+- Branch: `feature/bem-37-lint-staged-tooling-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `lint-staged` from `^10.1.1` to highest compatible checked stable `16.4.0`.
+- Do not move to `lint-staged@17.0.6` yet because it requires Node `>=22.22.1`, while the current repo runtime is Node `v22.18.0`.
+- Keep the current Husky v4 package-json hook model unchanged in this branch.
+- Add `lint-staged:tooling:audit` to lock the selected version, CLI load, Node-runtime constraint, and precommit wiring.
+
+Findings:
+
+- `npm view lint-staged version dist-tags engines peerDependencies dependencies --json` reports latest `17.0.6` with Node engine `>=22.22.1`.
+- `npm view lint-staged@16 version engines peerDependencies dependencies --json` shows `16.4.0` as the highest checked compatible `16.x` target for the current Node runtime.
+- `corepack yarn lint-staged --version` reports `16.4.0`.
+
+Validation:
+
+- `npm view lint-staged version dist-tags engines peerDependencies dependencies --json`
+- `npm view lint-staged@16 version engines peerDependencies dependencies --json`
+- `corepack yarn lint-staged:tooling:audit`
+- `node --check scripts\auditLintStagedTooling.mjs`
+- `corepack yarn lint-staged --version`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-warning-audit-summary`
+
 ### BEM-37.209 - iOS release static readiness
 
 - Branch: `feature/bem-37-ios-release-static-readiness`
