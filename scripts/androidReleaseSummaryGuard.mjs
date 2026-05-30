@@ -10,6 +10,7 @@ const getLineValue = (content, label) => {
 const hasLine = (content, expectedLine) => content.split(/\r?\n/).includes(expectedLine);
 const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value);
 const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
+const isSha256 = value => /^[a-f0-9]{64}$/.test(value);
 
 export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), options = {}) => {
   const errors = [];
@@ -17,8 +18,11 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
     options.expectedApkRelativePath || 'android\\app\\build\\outputs\\apk\\dev\\release\\app-dev-release-unsigned.apk';
   const apkRelativePath = getLineValue(summary, 'Release APK');
   const apkSize = getLineValue(summary, 'Release APK bytes');
+  const apkSha256 = getLineValue(summary, 'Release APK sha256');
   const apkPath = apkRelativePath ? path.join(root, apkRelativePath) : '';
   const requiredAction = getLineValue(summary, 'Required Sentry upload follow-up');
+  const javaExecutable = getLineValue(summary, 'Java executable');
+  const javaVersion = getLineValue(summary, 'Java version');
 
   if (!summary.startsWith('Android dev release validation')) {
     errors.push('summary header is missing or invalid');
@@ -50,6 +54,18 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
 
   if (!isPositiveInteger(apkSize)) {
     errors.push(`Release APK bytes must be a positive integer. Received: ${apkSize || 'missing'}`);
+  }
+
+  if (!isSha256(apkSha256)) {
+    errors.push(`Release APK sha256 must be a lowercase SHA-256 digest. Received: ${apkSha256 || 'missing'}`);
+  }
+
+  if (!javaExecutable) {
+    errors.push('Java executable line is missing');
+  }
+
+  if (!javaVersion.includes('17.')) {
+    errors.push(`Java version must report JDK 17. Received: ${javaVersion || 'missing'}`);
   }
 
   if (!apkPath || !existsSync(apkPath)) {
