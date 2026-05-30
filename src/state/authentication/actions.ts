@@ -17,7 +17,7 @@ export enum AuthenticationAction {
   CreateTxPasswordFailure = 'CreateTxPasswordFailure',
   SetIsAuthenticated = 'SetIsAuthenticated',
   SetIsTcAccepted = 'SetIsTcAccepted',
-  CheckUserV = 'SetIsAuthenticated',
+  CheckUserV = 'CheckUserV',
   SetUserVersion = 'SetUserVersion',
   SetUserVersionSuccess = 'SetUserVersionSuccess',
   SetUserVersionFailure = 'SetUserVersionFailure',

@@ -23,7 +23,7 @@ export enum WalletsAction {
   SendTransactionFailure = 'SendTransactionFailure',
   RefreshWallet = 'RefreshWallet',
   RefreshWalletSuccess = 'RefreshWalletSuccess',
-  RefreshWalletFailure = 'SendTransactionFailure',
+  RefreshWalletFailure = 'RefreshWalletFailure',
 }
 
 export interface LoadWalletsAction {

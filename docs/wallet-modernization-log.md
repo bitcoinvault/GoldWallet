@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.201 - Action enum lint contract
+
+- Branch: `feature/bem-37-action-enum-lint-contract`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the duplicate authentication and wallet action enum values unique.
+- Keep the existing action creator names and reducer/saga contracts unchanged.
+- Add a unit contract test for action enum uniqueness.
+
+Findings:
+
+- `AuthenticationAction.CheckUserV` was an unused legacy enum member with the same value as `SetIsAuthenticated`.
+- `WalletsAction.RefreshWalletFailure` shared the `SendTransactionFailure` value, which made refresh failures indistinguishable at the action type string level.
+- This closes the final two ESLint duplicate enum value errors from the current baseline.
+
+Validation:
+
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.200 - Integration test lint globals cleanup
 
 - Branch: `feature/bem-37-integration-lint-globals`
