@@ -52,6 +52,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 
 - State stack: Redux, React Redux, Redux Saga, Reselect.
 - Utility/runtime packages: Axios, Lodash, Dayjs, BigNumber, CryptoJS.
+- CryptoJS runtime is on checked latest `4.2.0` after `BEM-37.206`; future crypto work should focus on behavior coverage and replacement strategy, not another blind package bump.
 - Tooling: ESLint, Prettier, Husky, lint-staged, Jest, ts-jest, Detox.
 
 These can be batched more aggressively because they either have strong automated gates or are developer-only.
