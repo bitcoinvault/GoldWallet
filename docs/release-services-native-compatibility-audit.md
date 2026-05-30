@@ -2,6 +2,8 @@
 
 Scope: `BEM-36 - Native modules upgrade`, release-service group.
 
+React Native baseline: `0.85.3`.
+
 This audit records the current Firebase, push, CodePush, and Sentry surface before any dependency change. These packages should not be upgraded together with unrelated native cleanup, because they affect build tooling, notifications, crash reporting, analytics, release assets, and environment-specific configuration.
 
 ## Current Package State
@@ -71,7 +73,7 @@ corepack yarn release-services:check-summaries
 
 ## Current Release Readiness Snapshot
 
-Checked on 2026-05-30 after `BEM-36.125`:
+Checked on 2026-05-30 after the RN `0.85.3` foundation and release-services package refresh:
 
 ```powershell
 corepack yarn codepush:release:path-audit
@@ -92,7 +94,7 @@ Results:
 - Firebase `24.0.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
 - RN Firebase `24.0.0` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
 - Sentry release source-map validation is not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
-- Sentry `8.13.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.81` baseline; release artifact upload still needs credentials before it can be claimed as fully validated.
+- Sentry `8.13.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.85.3` baseline; release artifact upload still needs credentials before it can be claimed as fully validated.
 - None of these audits print secret values.
 
 The Android flavor-to-env mapping is guarded by:
@@ -145,10 +147,10 @@ Shared env/config:
 - `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
-- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.81.6` proof, with guarded release bundle alias compatibility for RN Gradle task naming.
+- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.85.3` proof, with guarded release bundle alias compatibility for RN Gradle task naming.
 - `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, Android bundle resolution, iOS deployment-key placeholders, and referenced env keys without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
-- Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.81` warning audit no longer reports Sentry `execResult`.
+- Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.85.3` warning audit no longer reports Sentry `execResult`.
 - `@sentry/react-native` is on latest checked `8.13.0` after the Sentry SDK upgrade; Android debug build and smoke validation are required for the branch, while source-map/dSYM upload remains blocked locally until Sentry credentials/properties are available.
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties` files and `SENTRY_AUTH_TOKEN` are available before Sentry release/source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary.
