@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.125 - Sentry 8 release-services upgrade
+
+- Branch: `feature/bem-36-sentry-8-upgrade-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@sentry/react-native` from `5.36.0` to `8.13.0`.
+- Refresh the Sentry Android warning audit baseline for the new Sentry Gradle integration line numbers.
+- Keep the guarded Sentry runtime import surface limited to `App.tsx`, `Main.tsx`, and `logger/index.ts`.
+- Let the Android smoke summary checker accept the existing embedded no-Metro smoke mode used for dependency validation.
+- Refresh release-service and native-module documentation for the new Sentry package state.
+
+Findings:
+
+- Sentry `8.13.0` is the latest checked npm version on 2026-05-30 and declares compatibility with the current React Native baseline.
+- The Android Sentry Gradle integration still exposes `bundleTask.getProperties()` references, now at lines `107`, `502`, and `522`, so the dependency-owned source-map wiring remains tracked.
+- The active Android warning audit still does not report a Sentry `execResult` warning on the RN `0.81` baseline.
+- Release source-map and dSYM upload validation is still blocked locally by missing `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN`.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:sentry-usage-scope`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn check:sentry-android-warning-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn check:android-smoke-summary-guard`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+
 ### BEM-36.124 - Firebase 24 release-services upgrade
 
 - Branch: `feature/bem-36-firebase-24-upgrade-probe`

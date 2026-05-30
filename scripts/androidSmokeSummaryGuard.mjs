@@ -30,12 +30,26 @@ export const getAndroidSmokeSummaryErrors = summary => {
     'Android smoke outcome: passed',
     'Android smoke exit code: 0',
     'Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
-    'Metro reachable: yes',
   ].forEach(expectedLine => {
     if (!hasLine(summary, expectedLine)) {
       errors.push(`Expected line not found: ${expectedLine}`);
     }
   });
+
+  const metroRequired = getLineValue(summary, 'Metro required');
+  const metroReachable = getLineValue(summary, 'Metro reachable');
+
+  if (!['yes', 'no'].includes(metroRequired)) {
+    errors.push(`Metro required must be yes or no. Received: ${metroRequired || 'missing'}`);
+  }
+
+  if (!['yes', 'no'].includes(metroReachable)) {
+    errors.push(`Metro reachable must be yes or no. Received: ${metroReachable || 'missing'}`);
+  }
+
+  if (metroRequired === 'yes' && metroReachable !== 'yes') {
+    errors.push('Metro must be reachable when the smoke requires Metro');
+  }
 
   ['App PID', 'Captured logcat lines', 'UI hierarchy attempts', 'Screenshot bytes'].forEach(label => {
     if (!isPositiveInteger(getLineValue(summary, label))) {
