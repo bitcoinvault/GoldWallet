@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: palette.white,
     alignItems: 'center',
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     paddingTop: getStatusBarHeight(),
     zIndex: 1000,
   },

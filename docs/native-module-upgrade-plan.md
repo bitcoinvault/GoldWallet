@@ -1,6 +1,6 @@
 # Native Module Upgrade Plan
 
-This plan scopes `BEM-36 - Native modules upgrade` after the React Native `0.81.6` step.
+This plan scopes `BEM-36 - Native modules upgrade` after the React Native `0.85.3` step.
 
 The current dependency inventory is guarded by:
 
@@ -10,7 +10,7 @@ corepack yarn check:native-module-inventory
 
 If a native dependency version changes, update `scripts/nativeModuleInventoryGuard.mjs`, this plan, and the branch notes in `docs/wallet-modernization-log.md` in the same mini-branch.
 
-React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.81.6` branch. Run `corepack yarn rn:baseline:preflight` before an RN baseline branch so the current native-module, release-service, Metro, RN target snapshot, and warning-source audits are checked together.
+React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.85.3` branch. Run `corepack yarn rn:baseline:preflight` before an RN baseline branch so the current native-module, release-service, Metro, RN target snapshot, and warning-source audits are checked together.
 
 ## Current Constraints
 
@@ -64,12 +64,12 @@ Branch shape:
 - `react-native-bootsplash` is on latest checked `3.2.7` after `BEM-36.54`; future splash work should focus on launch-screen behavior and RN baseline changes, not another 3.x bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
 - `react-native-safe-area-context` is on checked `5.8.0` after `BEM-36.119`; future safe-area work should focus on layout validation and the next RN baseline.
-- `react-native-svg` is on checked `15.15.5` after `BEM-36.119`, paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4` resolution after `BEM-37.158`; the QR renderer branch revalidated the newer QR package line on the RN `0.81.6` baseline.
+- `react-native-svg` is on checked `15.15.5` after `BEM-36.119`, paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4` resolution after `BEM-37.158`; the QR renderer branch revalidated the newer QR package line on the RN `0.85.3` baseline.
 - For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
 - `react-native-fast-image` is on latest checked `8.6.3` after `BEM-36.53`; future image work should focus on cached image behavior and any RN baseline-driven replacement rather than another 8.x package bump.
-- `@react-native-community/slider` is on checked `5.2.0` after `BEM-37.108`; the app has no source imports for Slider, and the package no longer contributes two Android `jcenter()` warnings on the RN `0.81.6` baseline.
+- `@react-native-community/slider` is on checked `5.2.0` after `BEM-37.108`; the app has no source imports for Slider, and the package no longer contributes two Android `jcenter()` warnings on the RN `0.85.3` baseline.
 - `react-native-vector-icons` is on checked latest `10.3.0` after `BEM-37.110`; the package no longer requires `@react-native-community/toolbar-android` and no longer contributes an Android `jcenter()` warning. Future icon work should focus on the package's per-icon-family migration guidance and iOS font validation rather than another warning-only cleanup.
-- `react-native-gesture-handler` is on highest compatible `2.29.1` after the RN `0.81.6` proof; `3.0.0` fails Android Kotlin/codegen compilation on the current Paper/new-arch-disabled baseline.
+- `react-native-gesture-handler` is on highest compatible `2.29.1` after the RN `0.85.3` proof; `3.0.0` fails Android Kotlin/codegen compilation on the current Paper/new-arch-disabled baseline.
 - `@react-native-community/masked-view` was removed after moving the navigation proof to `@react-navigation/stack@7.9.3`, which no longer requires the old community masked-view runtime path.
 - `corepack yarn masked-view:migration:audit` now guards the completed removal state and keeps the warning baseline at one remaining targeted source.
 
@@ -102,10 +102,10 @@ Branch shape:
 - `@react-native-community/netinfo` is on latest checked stable `12.0.1` after `BEM-37.168`; future NetInfo work should focus on Electrum/network behavior and RN baseline changes rather than another blind package bump.
 - `@react-native-async-storage/async-storage` is on latest checked stable `3.1.1` after `BEM-37.169`; the Jest mock import moved to `@react-native-async-storage/async-storage/jest`, and future AsyncStorage work should focus on persistence behavior and platform validation.
 - `react-native-background-timer` is pinned to the already-resolved `2.4.1` after `BEM-36.67`; future timer work should validate timeout-button behavior and wait for a broader RN/runtime baseline.
-- `react-native-config` is on latest checked `1.6.1` after `BEM-37.167`; the earlier Android API compile blocker is resolved on the RN `0.81.6` baseline. Future config work should focus on flavor/env behavior, release-service keys, and platform validation.
+- `react-native-config` is on latest checked `1.6.1` after `BEM-37.167`; the earlier Android API compile blocker is resolved on the RN `0.85.3` baseline. Future config work should focus on flavor/env behavior, release-service keys, and platform validation.
 - `react-native-device-info` is on checked `15.0.2` after `BEM-37.109`; the app's used APIs remain available (`isEmulator`, `isPinOrFingerprintSet`, app/build metadata), and the package no longer contributes an Android `jcenter()` warning.
-- `react-native-exit-app` is on checked `2.0.0` after `BEM-37.106`; the package no longer contributes an Android `jcenter()` warning on the RN `0.81.6` baseline. Future exit-app work should validate factory reset and terms rejection behavior.
-- `react-native-localize` is on checked `3.7.0` after `BEM-37.107`; the package no longer contributes an Android `jcenter()` warning on the RN `0.81.6` baseline. Future localization work should focus on app language behavior and RN baseline changes.
+- `react-native-exit-app` is on checked `2.0.0` after `BEM-37.106`; the package no longer contributes an Android `jcenter()` warning on the RN `0.85.3` baseline. Future exit-app work should validate factory reset and terms rejection behavior.
+- `react-native-localize` is on checked `3.7.0` after `BEM-37.107`; the package no longer contributes an Android `jcenter()` warning on the RN `0.85.3` baseline. Future localization work should focus on app language behavior and RN baseline changes.
 - `react-native-keychain@10.0.0` is installed beside `react-native-secure-key-store@2.0.10` for a staged secure-storage migration; future secure-storage work should remove the legacy backend only after fallback/dual-write behavior has shipped and been validated.
 - `corepack yarn secure-storage:migration:audit` records that secure storage protects PIN and transaction-password behavior before any replacement branch starts.
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
@@ -134,7 +134,7 @@ Branch shape:
 - Keep Firebase grouped by package family; after `BEM-36.124` the current family is `24.0.0`, with Android debug build and embedded smoke validated.
 - `corepack yarn firebase:release-services:audit` checks current Firebase package family alignment, Android config, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade.
 - `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, CodePush, and Sentry package snapshot, native build surface, and release validation path.
-- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.81.6` proof, with guarded release bundle alias compatibility for RN Gradle task naming. Future CodePush work should validate a non-dev release/update path and deployment-key loading after non-empty deployment keys are available.
+- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.85.3` proof, with guarded release bundle alias compatibility for RN Gradle task naming. Future CodePush work should validate a non-dev release/update path and deployment-key loading after non-empty deployment keys are available.
 - `corepack yarn codepush:release:path-audit` checks the current CodePush non-dev runtime/native/env wiring before any release-path change.
 - `@react-native-community/push-notification-ios` is on latest checked `1.12.0` after `BEM-36.75`; future iOS notification bridge work should validate badge handling, remote-notification forwarding, and iOS permission/token flows on a Mac runner/device.
 - `@sentry/react-native` is on latest checked `8.13.0` after `BEM-36.125`; future Sentry work should focus on release source-map/dSYM validation with `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, not another blind package bump.

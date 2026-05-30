@@ -11,11 +11,11 @@ const validDocs = requiredReact19ImpactSnippets.reduce((docs, [relativePath, sni
 
 const validEnvironment = {
   dependencies: {
-    react: '19.1.4',
+    react: '19.2.3',
   },
   devDependencies: {
     '@types/react': '19.2.15',
-    'react-test-renderer': '19.1.4',
+    'react-test-renderer': '19.2.3',
   },
   scripts: {
     'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
@@ -49,7 +49,7 @@ const assertRejected = (label, environment, expectedError) => {
 };
 
 assertAccepted('Valid React 19 impact fixture', validEnvironment);
-assertRejected('Wrong React fixture', { ...validEnvironment, dependencies: { react: '19.2.3' } }, 'react@19.2.3');
+assertRejected('Wrong React fixture', { ...validEnvironment, dependencies: { react: '19.2.6' } }, 'react@19.2.6');
 assertRejected('Wrong React types fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react': '18.2.6' } }, '@types/react@18.2.6');
 assertRejected('Missing script fixture', { ...validEnvironment, scripts: {} }, 'react19:impact:audit');
 assertRejected('Missing class component fixture', { ...validEnvironment, inventory: { ...validEnvironment.inventory, classComponentFiles: [] } }, 'class component surfaces');

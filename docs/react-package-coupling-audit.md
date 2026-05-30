@@ -6,10 +6,10 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 
 ## Current Baseline
 
-- Current React: `19.1.4`
+- Current React: `19.2.3`
 - Current React types: `19.2.15`
-- Current React Native types: bundled with `react-native@0.81.6`
-- Current react-test-renderer: `19.1.4`
+- Current React Native types: bundled with `react-native@0.85.3`
+- Current react-test-renderer: `19.2.3`
 - Target React peer from RN target snapshot: `^19.2.3`
 
 ## Coupling Rules

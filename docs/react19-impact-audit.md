@@ -8,9 +8,9 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 
 ## Current Baseline
 
-- Current React: `19.1.4`
+- Current React: `19.2.3`
 - Current React types: `19.2.15`
-- Current react-test-renderer: `19.1.4`
+- Current react-test-renderer: `19.2.3`
 - Target React peer from RN target snapshot: `^19.2.3`
 
 ## Impact Areas

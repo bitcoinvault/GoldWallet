@@ -5,20 +5,21 @@ import android.content.Context;
 
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactHost;
+import com.facebook.react.ReactNativeApplicationEntryPoint;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.soloader.OpenSourceMergedSoMapping;
+import com.facebook.react.defaults.DefaultReactHost;
+import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.microsoft.codepush.react.CodePush;
-import com.facebook.soloader.SoLoader;
 import io.goldwallet.PreventScreenshotPackage;
-import java.io.IOException;
 import java.util.List;
 import java.lang.reflect.InvocationTargetException;
 import okhttp3.OkHttpClient;
 
 public class MainApplication extends Application implements ReactApplication {  
-  private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
+  private final ReactNativeHost mReactNativeHost = new DefaultReactNativeHost(this) {
     @Override
     public boolean getUseDeveloperSupport() {
       return BuildConfig.DEBUG;
@@ -43,21 +44,32 @@ public class MainApplication extends Application implements ReactApplication {
     protected String getJSBundleFile() {
         return CodePush.getJSBundleFile();
     }
+
+    @Override
+    protected boolean isNewArchEnabled() {
+      return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
+    }
+
+    @Override
+    protected boolean isHermesEnabled() {
+      return BuildConfig.IS_HERMES_ENABLED;
+    }
   };
 
   @Override
   public ReactNativeHost getReactNativeHost() {
     return mReactNativeHost;
   }
+
+  @Override
+  public ReactHost getReactHost() {
+    return DefaultReactHost.getDefaultReactHost(getApplicationContext(), mReactNativeHost, null);
+  }
   
     @Override
     public void onCreate() {
       super.onCreate();
-      try {
-        SoLoader.init(this, OpenSourceMergedSoMapping.INSTANCE);
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to initialize SoLoader", e);
-      }
+      ReactNativeApplicationEntryPoint.loadReactNative(this);
       // The legacy Flipper bootstrap references Fresco classes that are no longer
       // bundled by the RN 0.76 debug runtime.
     }

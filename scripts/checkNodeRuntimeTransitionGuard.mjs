@@ -50,8 +50,8 @@ assertAccepted('Valid Node runtime transition fixture', validEnvironment);
 assertRejected('Wrong current Node fixture', { ...validEnvironment, nvmrc: '20.19.4' }, '.nvmrc is 20.19.4');
 assertRejected(
   'Wrong React Native fixture',
-  { ...validEnvironment, dependencies: { ...validEnvironment.dependencies, 'react-native': expectedNodeRuntimeTransition.targetReactNative } },
-  `react-native@${expectedNodeRuntimeTransition.targetReactNative}`,
+  { ...validEnvironment, dependencies: { ...validEnvironment.dependencies, 'react-native': '0.81.6' } },
+  'react-native@0.81.6',
 );
 assertRejected(
   'Wrong RN Babel preset fixture',

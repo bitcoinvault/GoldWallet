@@ -32,7 +32,7 @@ Branch: `feature/bem-sentry-release-source-map-upgrade`
 
 Scope:
 
-- Keep the newest compatible `@sentry/react-native` line for the current React Native `0.81.6` baseline.
+- Keep the newest compatible `@sentry/react-native` line for the current React Native `0.85.3` baseline.
 - Validate that Android debug builds continue to work after the Sentry upgrade.
 - Preserve Android source-map generation and upload behavior for release variants.
 - Preserve iOS dSYM and source-map upload behavior.

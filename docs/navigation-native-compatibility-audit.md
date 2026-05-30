@@ -1,16 +1,16 @@
 # Navigation Native Compatibility Audit
 
-This audit supports staged navigation and layout-native dependency work after the RN `0.81.6` baseline proof.
+This audit supports staged navigation and layout-native dependency work after the RN `0.85.3` baseline proof.
 
 Checked on: 2026-05-29
 
 ## Current State
 
-- React Native baseline: `0.81.6`.
-- React baseline: `19.1.4`.
+- React Native baseline: `0.85.3`.
+- React baseline: `19.2.3`.
 - Active navigation packages: `@react-navigation/native@7.2.5`, `@react-navigation/stack@7.9.3`, and `@react-navigation/bottom-tabs@7.16.2`.
 - `@react-native-community/masked-view` is removed; React Navigation 7 no longer needs the old community masked-view runtime path.
-- `react-native-gesture-handler@2.29.1` is the highest compatible line validated with the RN `0.81.6` Paper/new-arch-disabled baseline. `3.0.0` failed Android Kotlin/codegen compilation in the RN `0.81.6` proof.
+- `react-native-gesture-handler@2.29.1` is the highest compatible line validated with the RN `0.85.3` Paper/new-arch-disabled baseline. `3.0.0` failed Android Kotlin/codegen compilation in the RN `0.85.3` proof.
 - `react-native-screens@4.24.0` is the validated screens baseline. Later `4.25.x` metadata points at RN `>=0.82.0`, so it belongs to the next RN milestone.
 - `react-native-safe-area-context@5.8.0` is the active safe-area baseline.
 - `@react-native-community/blur@4.4.1`, `react-native-bootsplash@3.2.7`, `react-native-fast-image@8.6.3`, and `react-native-vector-icons@10.3.0` remain fixed.
@@ -28,7 +28,7 @@ Checked on: 2026-05-29
 
 ## Findings
 
-- Navigation 7 plus masked-view removal is validated on Android through the RN `0.81.6` proof branch and emulator smoke.
+- Navigation 7 plus masked-view removal is validated on Android through the RN `0.85.3` proof branch and emulator smoke.
 - The next navigation-native dependency jump is tied to RN `0.82.x`, because newer `react-native-screens` lines require RN `>=0.82.0`.
 - Gesture Handler `3.x` is not a small package cleanup on the current baseline; it requires a dedicated RN/new-arch compatibility branch.
 - iOS validation is not claimed from Windows; `Podfile.lock` must be regenerated and built on macOS after the navigation/native dependency changes.

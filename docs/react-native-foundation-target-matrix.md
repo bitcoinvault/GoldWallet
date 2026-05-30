@@ -4,10 +4,10 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 ## Current Baseline
 
-- React Native: `0.81.6`
-- React: `19.1.4`
-- RN Babel preset: `0.81.6`
-- RN Metro config: `0.81.6`
+- React Native: `0.85.3`
+- React: `19.2.3`
+- RN Babel preset: `0.85.3`
+- RN Metro config: `0.85.3`
 - Metro/dev Node runtime: `22.18.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
@@ -25,17 +25,17 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 Do not walk every RN minor version. Use milestone jumps and validate each one as a full app foundation branch.
 
-### Milestone A: RN 0.81.6 Foundation
+### Milestone A: RN 0.85.3 Foundation
 
-- Target React Native: `0.81.6`
-- React peer: `^19.1.4`
-- `@types/react` peer: `^19.1.4`
+- Target React Native: `0.85.3`
+- React peer: `^19.2.3`
+- `@types/react` peer: `^19.2.3`
 - Node engine: `>=20.19.4`
 
 Status:
 
 - This is now the current foundation checkpoint.
-- It moved the app beyond the old RN 0.68 baseline and onto the React 19 runtime line required by the RN `0.81.6` checkpoint.
+- It moved the app beyond the old RN 0.68 baseline and onto the React 19 runtime line required by the RN `0.85.3` checkpoint.
 - It moved the app to a newer Metro/Babel/runtime family that should unlock more modern package syntax and exports than the old RN 0.68 baseline.
 
 Expected branch scope:
@@ -46,9 +46,9 @@ Expected branch scope:
 - Android template, Gradle, Kotlin, AGP, manifest, and native autolinking changes required by RN 0.81.
 - iOS Podfile/template drift documented separately if it cannot be validated on this Windows machine.
 
-### Milestone B: RN 0.82.x Foundation
+### Milestone B: Next stable RN line
 
-- Target React Native: `0.82.1` or latest stable patch in the `0.82` line at branch time.
+- Target React Native: next stable RN line after `0.85.3`, checked at branch time.
 - React peer: `^19.1.1`
 - Node engine: `>=20.19.4`
 
@@ -57,9 +57,9 @@ Why:
 - This is the React 19 and Node 20 transition checkpoint.
 - Native modules such as latest `react-native-screens` already point at RN `>=0.82.0`, so this is the first line that should unlock a larger native-module cohort.
 
-### Milestone C: RN 0.85.x Current Line
+### Milestone C: Future current line
 
-- Target React Native: latest stable `0.85.x` at branch time.
+- Target React Native: future current stable line after the next baseline has been proven.
 - React peer: `^19.2.3`
 - Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
 

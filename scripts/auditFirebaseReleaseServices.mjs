@@ -54,14 +54,21 @@ export const collectFirebaseReleaseServicesAudit = () => {
   [
     ['android/build.gradle', androidRootGradle, "classpath 'com.google.gms:google-services:4.3.15'"],
     ['android/build.gradle', androidRootGradle, "classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.0'"],
-    ['android/build.gradle', androidRootGradle, 'firebaseVersion = "17.3.4"'],
     ['android/app/build.gradle', androidAppGradle, "apply plugin: 'com.google.firebase.crashlytics'"],
     ['android/app/build.gradle', androidAppGradle, "apply plugin: 'com.google.gms.google-services'"],
-    ['android/app/build.gradle', androidAppGradle, "implementation 'com.google.firebase:firebase-core:16.0.3'"],
-    ['android/app/build.gradle', androidAppGradle, "implementation platform('com.google.firebase:firebase-bom:28.2.0')"],
   ].forEach(([label, content, snippet]) => {
     if (!content.includes(snippet)) {
       errors.push(`${label} is missing "${snippet}"`);
+    }
+  });
+
+  [
+    ['android/build.gradle', androidRootGradle, 'firebaseVersion = "17.3.4"'],
+    ['android/app/build.gradle', androidAppGradle, "implementation 'com.google.firebase:firebase-core:16.0.3'"],
+    ['android/app/build.gradle', androidAppGradle, "implementation platform('com.google.firebase:firebase-bom:28.2.0')"],
+  ].forEach(([label, content, snippet]) => {
+    if (content.includes(snippet)) {
+      errors.push(`${label} still contains legacy Firebase dependency wiring "${snippet}"`);
     }
   });
 

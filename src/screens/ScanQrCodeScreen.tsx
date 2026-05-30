@@ -102,7 +102,7 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props, State> 
 
 const styles = StyleSheet.create({
   crosshairContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },

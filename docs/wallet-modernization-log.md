@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-36.126 - React Native 0.85 current-line foundation
+
+- Branch: `feature/bem-36-rn085-target-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the React Native baseline from `0.81.6` to `0.85.3`, the latest checked npm version on 2026-05-30.
+- Upgrade the coupled React package family to `19.2.3`, React Native Babel/Metro/TypeScript/codegen/Gradle tooling to `0.85.3`, and React Native CLI packages to `20.1.3`.
+- Move Jest from the legacy `react-native` preset to `@react-native/jest-preset`.
+- Enable Android New Architecture explicitly and update the Android NDK baseline to `27.1.12297006`.
+- Refresh React Native baseline, target snapshot, package coupling, React 19, Node runtime, and native-module documentation for the current-line target.
+- Update the Firebase release-services audit so RN Firebase `24.0.0` expects dependency ownership through the RN Firebase package family instead of the removed legacy manual Android Firebase dependencies.
+
+Findings:
+
+- RN `0.85.3` requires the New Architecture path in practice; keeping `newArchEnabled=false` produced missing generated JNI output for native modules during Android assembly.
+- React must stay on `19.2.3` for RN `0.85.3`; `19.2.6` satisfies the peer range but fails emulator startup because `react-native-renderer` is exactly `19.2.3`.
+- The previous NDK `20.1.5948944` fails the RN `0.85.3` New Architecture C++ build with a `-Wa,--noexecstack` unused-argument error; NDK `27.1.12297006` builds the current Android dev variant.
+- RN `0.85.3` type definitions no longer accept the existing `StyleSheet.absoluteFillObject` usage in a few screen styles; those styles now use `StyleSheet.absoluteFill`.
+- The targeted Android warning baseline remains unchanged at one `react-native-secure-key-store` `jcenter()` warning.
+- Release Firebase validation remains aligned with RN Firebase `24.0.0`; old `firebase-core:16.0.3`, app-level Firebase BoM `28.2.0`, and `firebaseVersion` Gradle ext entries must stay removed.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+
 ### BEM-36.125 - Sentry 8 release-services upgrade
 
 - Branch: `feature/bem-36-sentry-8-upgrade-probe`

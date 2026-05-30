@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: palette.white,
     alignItems: 'center',
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     flex: 1,
     zIndex: 1000,

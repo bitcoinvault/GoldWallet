@@ -3,12 +3,12 @@
 This audit supports the `BEM-36` native module upgrade stream before changing `react-native-svg` or QR rendering dependencies.
 
 Checked on: 2026-05-28
-Baseline refreshed on: 2026-05-29 after the RN `0.81.6` foundation, SVG upgrade stream, and QR renderer update.
+Baseline refreshed on: 2026-05-29 after the RN `0.85.3` foundation, SVG upgrade stream, and QR renderer update.
 
 ## Current Repository State
 
-- `react-native`: `0.81.6`
-- `react`: `19.1.4`
+- `react-native`: `0.85.3`
+- `react`: `19.2.3`
 - `react-native-svg`: `15.15.5`
 - `react-native-qrcode-svg`: `6.3.21`
 - root `qrcode` resolution: `1.5.4`
@@ -56,9 +56,9 @@ dependencies:
 
 - The repo previously pinned `react-native-svg` to `9.5.1`, while the lockfile resolved `react-native-qrcode-svg@6.1.1`, which declares `react-native-svg ^12.1.0`.
 - `BEM-36.57` pins `react-native-svg@12.5.1` and `react-native-qrcode-svg@6.1.1` as a compatible current-baseline QR renderer pair.
-- The RN `0.81.6` stream later validates `react-native-svg@15.15.5`.
+- The RN `0.85.3` stream later validates `react-native-svg@15.15.5`.
 - `react-native-qrcode-svg@6.1.2` and freshly resolved `qrcode@1.5.4` were rejected during Android Receive-screen smoke because the QR render path raised `ReferenceError: Can't find variable: TextEncoder`.
-- `BEM-37.158` revalidates the latest `react-native-qrcode-svg@6.3.21` line with root `qrcode@1.5.4` on RN `0.81.6`; upstream documents RN `0.75+` as compatible without the TextEncoder Metro transform required for older React Native versions.
+- `BEM-37.158` revalidates the latest `react-native-qrcode-svg@6.3.21` line with root `qrcode@1.5.4` on RN `0.85.3`; upstream documents RN `0.75+` as compatible without the TextEncoder Metro transform required for older React Native versions.
 - A future major QR rendering upgrade should still treat `react-native-svg` and `react-native-qrcode-svg` as a coupled compatibility pair, not as independent patch bumps.
 - The QR render surface is small and now guarded, but it covers sensitive flows: receive address QR, contact QR, wallet secret export, xpub export, and authenticator QR display.
 
