@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.225 - BigNumber 11.1.2 runtime patch
+
+- Branch: `feature/bem-37-bignumber-11-runtime-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update direct money-math dependency `bignumber.js` from `11.1.1` to current stable `11.1.2`.
+- Keep all GoldWallet amount, balance, minimum-output, and fee-rate call sites unchanged.
+- Re-run the node polyfill shim guard after the dependency install post-step.
+
+Why:
+
+- Keeps the direct BigNumber runtime at the current upstream patch level while the wallet modernization branch is already validating React Native and Android runtime changes.
+- BigNumber is used in wallet-sensitive arithmetic paths, so this stays isolated as a small runtime dependency branch with focused probes and full Android smoke validation.
+
+Validation:
+
+- `npm view bignumber.js version`
+- BigNumber runtime probe for satoshi-to-BTC display values, fixed decimal output, and fee-rate division.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+
 ### BEM-37.224 - Terms onboarding scroll smoke fix
 
 - Branch: `feature/bem-37-terms-scroll-smoke-fix`
