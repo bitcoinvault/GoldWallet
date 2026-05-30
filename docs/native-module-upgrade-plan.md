@@ -41,7 +41,7 @@ Current expectation:
 - `react-native-gesture-handler` -> `2.29.1`
 - `@react-native-community/blur` -> `4.4.1`
 - `@react-native-community/masked-view` -> removed
-- `react-native-bootsplash` -> `3.2.7`
+- `react-native-bootsplash` -> `7.3.1`
 - `react-native-fast-image` -> `8.6.3`
 - `react-native-safe-area-context` -> `5.8.0`
 - `react-native-screens`
@@ -61,7 +61,7 @@ Branch shape:
 - `docs/svg-qr-render-compatibility-audit.md` records the current npm compatibility snapshot and future validation path.
 - `check:legacy-android-autolink` keeps obsolete QR image/prompt Android modules disabled in `react-native.config.js` until they are removed or replaced in a dedicated QR/camera branch.
 - Validate TypeScript, Android build, emulator dashboard smoke, wallet list, send/receive navigation, and QR display.
-- `react-native-bootsplash` is on latest checked `3.2.7` after `BEM-36.54`; future splash work should focus on launch-screen behavior and RN baseline changes, not another 3.x bump.
+- `react-native-bootsplash` is on latest checked `7.3.1` after `BEM-37.218`; future splash work should focus on release launch-screen behavior and iOS validation, not another immediate package bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
 - `react-native-safe-area-context` is on checked `5.8.0` after `BEM-36.119`; future safe-area work should focus on layout validation and the next RN baseline.
 - `react-native-screens` is on checked latest `4.25.2` after `BEM-37.205`; the package now satisfies the RN `0.85.3` baseline and needs Android navigation smoke after future stack changes.

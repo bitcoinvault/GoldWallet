@@ -10506,3 +10506,31 @@ Validation:
 - `corepack yarn check:sentry-android-warning-summary-guard`
 - `corepack yarn sentry:android-warning:audit`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+
+### BEM-37.218 - BootSplash 7 Android startup migration
+
+- Branch: `feature/bem-37-bootsplash-7-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `react-native-bootsplash` from `3.2.7` to `7.3.1`, the latest npm release validated for this branch.
+- Migrate Android startup initialization to the current `RNBootSplash.init(this, R.style.BootTheme)` API.
+- Convert the Android boot theme to `Theme.BootSplash` with explicit background, logo, dark bar style, and post-splash app theme.
+- Remove the old app-state call to `RNBootSplash.show()`, which is no longer exposed by the v7 TypeScript API.
+- Keep `process` as an explicit dependency so the existing `rn-nodeify` postinstall does not fall back to invoking npm during Yarn install.
+- Add bottom scroll padding to the terms screen so first-run agreement checkboxes remain tappable above the fixed footer after the startup/theme migration.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`

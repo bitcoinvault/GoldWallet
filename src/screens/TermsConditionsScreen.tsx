@@ -141,6 +141,7 @@ export class TermsConditionsScreen extends React.PureComponent<Props, State> {
     return (
       <ScreenTemplate
         testID={'terms-conditions-screen'}
+        contentContainer={styles.scrollContent}
         footer={
           <View style={styles.buttonContainer}>
             <Button
@@ -234,6 +235,9 @@ const styles = StyleSheet.create({
     ...typography.headline4,
     marginTop: 16,
     textAlign: 'center',
+  },
+  scrollContent: {
+    paddingBottom: 140,
   },
   checkbox: {
     marginLeft: 0,
