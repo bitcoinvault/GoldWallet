@@ -55,7 +55,7 @@ describe('Authenticators', () => {
         await expect(app.authenticators.addNewAuthenticator.importSuccessScreen.icon).toBeVisible();
       });
 
-      xit('should be possible to import an authenticator using QR code', async () => {});
+      xit('should be possible to import an authenticator using QR code', async () => undefined);
 
       it("shouldn't be possible to create a new authenticator with non-unique name", async () => {
         await steps.createAuthenticator('My Auth');

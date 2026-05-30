@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import config from '../../src/config';
 
 const assert = require('assert');

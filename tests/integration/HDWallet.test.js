@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyP2PKHWallet } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import config from '../../src/config';
