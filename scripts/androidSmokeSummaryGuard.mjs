@@ -2,6 +2,7 @@ import { existsSync, statSync } from 'fs';
 
 export const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}:`));
+
   return line ? line.slice(label.length + 1).trim() : '';
 };
 
@@ -38,6 +39,7 @@ export const getAndroidSmokeSummaryErrors = summary => {
 
   const metroRequired = getLineValue(summary, 'Metro required');
   const metroReachable = getLineValue(summary, 'Metro reachable');
+  const clearedAppData = getLineValue(summary, 'Cleared app data');
 
   if (!['yes', 'no'].includes(metroRequired)) {
     errors.push(`Metro required must be yes or no. Received: ${metroRequired || 'missing'}`);
@@ -49,6 +51,10 @@ export const getAndroidSmokeSummaryErrors = summary => {
 
   if (metroRequired === 'yes' && metroReachable !== 'yes') {
     errors.push('Metro must be reachable when the smoke requires Metro');
+  }
+
+  if (clearedAppData && !['yes', 'no'].includes(clearedAppData)) {
+    errors.push(`Cleared app data must be yes or no when present. Received: ${clearedAppData}`);
   }
 
   ['App PID', 'Captured logcat lines', 'UI hierarchy attempts', 'Screenshot bytes'].forEach(label => {
