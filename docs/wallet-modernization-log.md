@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.209 - iOS release static readiness
+
+- Branch: `feature/bem-37-ios-release-static-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align iOS deployment configuration with the React Native `0.85.3` minimum iOS target.
+- Raise `ios/Podfile` platform from `11.0` to `15.1`.
+- Raise all Xcode `IPHONEOS_DEPLOYMENT_TARGET` entries from legacy `10.0`/`13.6` values to `15.1`.
+- Add `ios:release:readiness:audit` and `ios:release:readiness:check-summary` to guard iOS static release readiness on Windows before macOS archive validation.
+
+Findings:
+
+- `node_modules/react-native/scripts/cocoapods/helpers.rb` reports React Native minimum iOS `15.1` and minimum Xcode `16.1`.
+- Before this branch, static iOS config was below the RN minimum: `Podfile` used `11.0`, and Xcode build settings included `10.0` and `13.6`.
+- Static readiness now passes for required files, guarded schemes, release scripts, Info.plist CodePush/Firebase/permission surfaces, Hermes Podfile wiring, and deployment-target alignment.
+- iOS compile/archive validation remains blocked on this Windows machine because `xcodebuild` requires macOS with Xcode.
+
+Validation:
+
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `node --check scripts\auditIosReleaseReadiness.mjs`
+- `node --check scripts\checkIosReleaseReadinessSummary.mjs`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-warning-audit-summary`
+
 ### BEM-37.208 - Lodash runtime dependency update
 
 - Branch: `feature/bem-37-lodash-runtime-latest`

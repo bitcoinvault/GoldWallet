@@ -28,6 +28,8 @@ Project build settings also define `FIREBASE_CONFIG_FILE` for the main non-beta 
 | Dev | `GoogleService-Info-dev` | `GoldWalletDev-Info.plist` | `com.minebest.goldwalletbtcv.dev` |
 | Beta | not visible in the captured `FIREBASE_CONFIG_FILE` rows | `GoldWallet-beta.plist` | `com.minebest.goldwalletbtcv.beta` |
 
+After `BEM-37.209`, `ios/Podfile` and all Xcode `IPHONEOS_DEPLOYMENT_TARGET` entries are aligned to React Native `0.85.3`'s minimum iOS `15.1`. `corepack yarn ios:release:readiness:audit` verifies that static alignment and writes `local-docs/ios-release-static-readiness-summary.txt`; `corepack yarn ios:release:readiness:check-summary` validates the generated summary. Runtime archive/simulator validation still requires macOS with Xcode `16.1+`.
+
 ## Current Release-Service Keys
 
 Referenced iOS env files carry the current release-service keys as follows:
