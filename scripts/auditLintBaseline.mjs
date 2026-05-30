@@ -12,6 +12,7 @@ const patterns = ['src/**/*.{js,ts,tsx}', 'tests/**/*.{js,ts,tsx}'];
 const result = spawnSync(process.execPath, [eslintBin, ...patterns, '--format', 'json'], {
   cwd: root,
   encoding: 'utf8',
+  maxBuffer: 64 * 1024 * 1024,
 });
 
 if (result.error) {

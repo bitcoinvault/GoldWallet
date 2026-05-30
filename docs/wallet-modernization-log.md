@@ -10,6 +10,58 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.211 - Prettier tooling update
+
+- Branch: `feature/bem-37-prettier-tooling-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade Prettier tooling from the old Prettier 1 stack to the highest compatible checked stable line: `prettier@2.8.8`, `eslint-plugin-prettier@4.2.5`, and `eslint-config-prettier@8.10.2`.
+- Check the latest target first: `prettier@3.8.3`, `eslint-plugin-prettier@5.5.6`, and `eslint-config-prettier@10.1.8`.
+- Defer the Prettier 3 target because it creates repo-wide formatting churn in the current ESLint baseline and should be handled as a separate formatting migration, not mixed into a tooling package bump.
+- Remove the legacy `prettier/react` ESLint extend because modern `eslint-config-prettier` no longer exposes that entry.
+- Add `prettier:tooling:audit` to lock the selected package versions, installed package versions, CLI version, ESLint integration, and Prettier config resolution.
+- Increase the ESLint baseline audit buffer so the repo-wide JSON baseline can still be summarized instead of failing with `ENOBUFS`.
+
+Findings:
+
+- `npm view prettier version dist-tags engines peerDependencies dependencies --json` reports latest `3.8.3`.
+- `npm view eslint-plugin-prettier version dist-tags engines peerDependencies dependencies --json` reports latest `5.5.6`.
+- `npm view eslint-config-prettier version dist-tags engines peerDependencies dependencies --json` reports latest `10.1.8`.
+- `npm view prettier@2 version --json` shows `2.8.8` as the highest checked Prettier 2 target.
+- `npm view eslint-plugin-prettier@4 version peerDependencies --json` shows `4.2.5` as the highest checked plugin 4 target with `prettier >=2.0.0`.
+- `npm view eslint-config-prettier@8 version peerDependencies --json` shows `8.10.2` as the highest checked config 8 target with `eslint >=7.0.0`.
+- `corepack yarn prettier --version` reports `2.8.8`.
+- `corepack yarn lint:baseline:audit` now completes and records the current formatting baseline summary; no mass formatting was performed in this branch.
+
+Validation:
+
+- `npm view prettier version dist-tags engines peerDependencies dependencies --json`
+- `npm view eslint-plugin-prettier version dist-tags engines peerDependencies dependencies --json`
+- `npm view eslint-config-prettier version dist-tags engines peerDependencies dependencies --json`
+- `npm view prettier@2 version --json`
+- `npm view eslint-plugin-prettier@4 version peerDependencies --json`
+- `npm view eslint-config-prettier@8 version peerDependencies --json`
+- `corepack yarn prettier:tooling:audit`
+- `node --check scripts\auditPrettierTooling.mjs`
+- `node --check scripts\auditLintBaseline.mjs`
+- `corepack yarn prettier --version`
+- `corepack yarn eslint --print-config src/App.tsx`
+- `corepack yarn eslint scripts/auditPrettierTooling.mjs --format stylish`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-warning-audit-summary`
+
 ### BEM-37.210 - lint-staged tooling update
 
 - Branch: `feature/bem-37-lint-staged-tooling-update`
