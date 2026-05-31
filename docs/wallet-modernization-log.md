@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.239 - Wallet crypto runtime audit
+
+- Branch: `feature/bem-37-239-wallet-crypto-runtime-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a dedicated wallet/crypto runtime audit before changing BTCV key derivation, signing, transaction construction, or BitcoinVault fork dependencies.
+- Record current package versions, latest npm metadata, and the BitcoinVault `bitcoinjs-lib` fork head checked for this branch.
+- Add `corepack yarn wallet:crypto-runtime:audit` so future crypto branches have a lightweight guard before dependency changes.
+
+Findings:
+
+- `bip39@3.1.0`, `coinselect@3.1.13`, `pbkdf2@3.1.6`, `react-native-randombytes@3.6.2`, and `crypto-js@4.2.0` remain latest checked package lines.
+- `bip32` latest is `5.0.1` and `wif` latest is `5.0.0`; both are major migrations coupled to the newer bitcoin stack and should not be blind bumps.
+- Upstream `bitcoinjs-lib` latest is `7.0.1`, while the app intentionally uses `git+https://github.com/bitcoinvault/bitcoinjs-lib.git`; the BTCV fork `master` resolved to `0854f675114fada32348d51c80a6ccdb33afc360` during this check.
+- Funded send/recovery delivery remains blocked until a funded BTCV testnet wallet is available; offline construction/signing coverage can still be expanded.
+
+Validation:
+
+- `npm view bip39 version peerDependencies dependencies engines --json`
+- `npm view bip32 version peerDependencies dependencies engines --json`
+- `npm view ecurve version peerDependencies dependencies engines --json`
+- `npm view bigi version peerDependencies dependencies engines --json`
+- `npm view coinselect version peerDependencies dependencies engines --json`
+- `npm view wif version peerDependencies dependencies engines --json`
+- `npm view pbkdf2 version peerDependencies dependencies engines --json`
+- `npm view bitcoinjs-lib version peerDependencies dependencies engines --json`
+- `git ls-remote https://github.com/bitcoinvault/bitcoinjs-lib.git HEAD refs/heads/* refs/tags/*`
+- `corepack yarn wallet:crypto-runtime:audit`
+
 ### BEM-37.238 - Release-services package snapshot refresh
 
 - Branch: `feature/bem-37-238-release-services-snapshot-refresh`

@@ -109,6 +109,7 @@
     "check:react-package-coupling-guard": "node scripts/checkReactPackageCouplingGuard.mjs",
     "test:type-coupling:audit": "node scripts/auditTestTypeCoupling.mjs",
     "check:test-type-coupling-guard": "node scripts/checkTestTypeCouplingGuard.mjs",
+    "wallet:crypto-runtime:audit": "node scripts/auditWalletCryptoRuntime.mjs",
     "crypto-js:runtime:audit": "node scripts/auditCryptoJsRuntime.mjs",
     "state:runtime:audit": "node scripts/auditStateRuntime.mjs",
     "lodash:runtime:audit": "node scripts/auditLodashRuntime.mjs",

@@ -46,6 +46,12 @@ Upgrade these as wallet-critical runtime groups, not as casual patch bumps:
 
 Validation must include existing offline wallet tests plus emulator smoke. Funded transaction flow remains blocked until a funded BTCV testnet wallet is available.
 
+Start wallet/crypto runtime work with:
+
+```powershell
+corepack yarn wallet:crypto-runtime:audit
+```
+
 ### 4. Pure JS and Tooling Cohorts
 
 Do these after the runtime foundation and native-module cohorts that own their validation surface are stable:

@@ -57,6 +57,7 @@ Target direction:
 - SDK 36 is now part of the RN 0.81/AGP 8.13 Android foundation baseline.
 - React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.85.3` toward a current supported line instead of walking every minor version or jumping blindly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
+- Wallet/crypto runtime package risk is tracked in `docs/wallet-crypto-runtime-audit.md` and checked with `corepack yarn wallet:crypto-runtime:audit`.
 - RN `0.85.3` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; use `corepack yarn rn:076-foundation:audit` before changing RN packages.
 - The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
