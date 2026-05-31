@@ -251,6 +251,7 @@
     "translate:check-missing": "node --experimental-modules -r @std/esm scripts/checkTranslation.mjs"
   },
   "dependencies": {
+    "@bitcoinerlab/secp256k1": "1.2.0",
     "@react-native-async-storage/async-storage": "3.1.1",
     "@react-native-clipboard/clipboard": "1.16.3",
     "@react-native-community/blur": "4.4.1",
@@ -272,7 +273,7 @@
     "bigi": "^1.4.2",
     "bignumber.js": "11.1.2",
     "bip21": "3.0.0",
-    "bip32": "2.0.6",
+    "bip32": "5.0.1",
     "bip39": "3.1.0",
     "bitcoinjs-lib": "git+https://github.com/bitcoinvault/bitcoinjs-lib.git",
     "buffer": "6.0.3",

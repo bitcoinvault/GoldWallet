@@ -3,13 +3,14 @@ import * as bitcoin from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { NativeModules } from 'react-native';
 
+import { AbstractHDWallet } from './abstract-hd-wallet';
 import config from '../src/config';
 import { electrumVaultMnemonicToSeed, getMasterPublicKeyPrefix } from '../utils/crypto';
-import { AbstractHDWallet } from './abstract-hd-wallet';
 
-const HDNode = require('bip32');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
+
+const HDNode = require('../utils/bip32');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -153,7 +154,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
       this._node0 = hdNode.derive(0);
     }
-    return this._node0.derive(index).publicKey;
+    return Buffer.from(this._node0.derive(index).publicKey);
   }
 
   /**
@@ -355,7 +356,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    */
   static _nodeToBech32SegwitAddress(hdNode) {
     return bitcoin.payments.p2wpkh({
-      pubkey: hdNode.publicKey,
+      pubkey: Buffer.from(hdNode.publicKey),
       network: config.network,
     }).address;
   }

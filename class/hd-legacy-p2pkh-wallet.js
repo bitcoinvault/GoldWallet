@@ -2,14 +2,15 @@ import BigNumber from 'bignumber.js';
 import * as bip39 from 'bip39';
 import { cloneDeep } from 'lodash';
 
+import { AbstractHDWallet } from './abstract-hd-wallet';
 import signer from '../models/signer';
 import config from '../src/config';
 import { ELECTRUM_VAULT_SEED_PREFIXES } from '../src/consts';
 import { electrumVaultMnemonicToSeed, isElectrumVaultMnemonic } from '../utils/crypto';
-import { AbstractHDWallet } from './abstract-hd-wallet';
 
-const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');
+
+const HDNode = require('../utils/bip32');
 
 /**
  * HD Wallet (BIP39).
@@ -41,7 +42,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
       return this._xpub; // cache hit
     }
     this.seed = await this.getSeed();
-    const root = bitcoin.bip32.fromSeed(this.seed, config.network);
+    const root = HDNode.fromSeed(this.seed, config.network);
 
     const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();
@@ -82,11 +83,11 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
   }
 
   async generateAddresses() {
-    const node = bitcoin.bip32.fromBase58(await this.getXpub(), config.network);
+    const node = HDNode.fromBase58(await this.getXpub(), config.network);
 
     for (let index = 0; index < this.num_addresses; index++) {
       const address = bitcoin.payments.p2pkh({
-        pubkey: node.derive(index).publicKey,
+        pubkey: Buffer.from(node.derive(index).publicKey),
         network: config.network,
       }).address;
 

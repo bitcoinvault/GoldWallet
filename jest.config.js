@@ -7,7 +7,7 @@ module.exports = {
     '^.+\\.tsx?$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(jest-)?@react-native|react-native|react-navigation|@react-native-community|@sentry/*)',
+    'node_modules/(?!(jest-)?@react-native|react-native|react-navigation|@react-native-community|@sentry/*|bip32|uint8array-tools|@scure/base|@noble/hashes|valibot|wif)',
   ],
   moduleNameMapper: {
     '^uuid$': '<rootDir>/node_modules/uuid/dist/index.js',

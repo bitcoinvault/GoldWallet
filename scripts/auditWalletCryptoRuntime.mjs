@@ -10,12 +10,13 @@ const packageJson = JSON.parse(read('package.json'));
 const expectedDependencies = new Map([
   ['bitcoinjs-lib', 'git+https://github.com/bitcoinvault/bitcoinjs-lib.git'],
   ['bip39', '3.1.0'],
-  ['bip32', '2.0.6'],
+  ['bip32', '5.0.1'],
   ['coinselect', '3.1.13'],
   ['ecurve', '^1.0.6'],
   ['bigi', '^1.4.2'],
   ['pbkdf2', '3.1.6'],
   ['wif', '2.0.6'],
+  ['@bitcoinerlab/secp256k1', '1.2.0'],
   ['react-native-randombytes', '3.6.2'],
   ['crypto-js', '4.2.0'],
 ]);
@@ -36,7 +37,8 @@ const requiredDocsSnippets = [
 
 const requiredSourceSnippets = [
   ['class/abstract-hd-wallet.js', "import * as bip39 from 'bip39'"],
-  ['class/abstract-hd-segwit-p2sh-wallet.js', "require('bip32')"],
+  ['utils/bip32.js', 'BIP32Factory'],
+  ['utils/bip32.js', "require('@bitcoinerlab/secp256k1')"],
   ['class/hd-segwit-bech32-wallet.js', "require('coinselect/accumulative')"],
   ['class/hd-segwit-bech32-wallet.js', "require('coinselect/split')"],
   ['class/authenticator.ts', "from 'bitcoinjs-lib'"],
@@ -50,7 +52,7 @@ const requiredSourceSnippets = [
   ['tests/unit/signer.test.js', "require('bitcoinjs-lib')"],
 ];
 
-const scanRoots = ['class', 'src', 'tests'];
+const scanRoots = ['class', 'src', 'tests', 'utils'];
 const scanExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 const trackedRuntimePackages = ['bitcoinjs-lib', 'bip39', 'bip32', 'coinselect', 'crypto-js'];
 
