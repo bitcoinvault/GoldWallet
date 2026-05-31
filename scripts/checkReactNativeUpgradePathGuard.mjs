@@ -32,6 +32,7 @@ const validEnvironment = {
     'check:react-package-coupling-guard': 'node scripts/checkReactPackageCouplingGuard.mjs',
     'test:type-coupling:audit': 'node scripts/auditTestTypeCoupling.mjs',
     'check:test-type-coupling-guard': 'node scripts/checkTestTypeCouplingGuard.mjs',
+    'wallet:crypto-runtime:audit': 'node scripts/auditWalletCryptoRuntime.mjs',
     'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
   },
   nvmrc: expectedReactNativeUpgradePathBaseline.nodeRuntime,

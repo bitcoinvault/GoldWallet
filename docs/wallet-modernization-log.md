@@ -10,6 +10,26 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.240 - Wallet crypto audit preflight wiring
+
+- Branch: `feature/bem-37-240-wallet-crypto-preflight-wiring`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire `wallet:crypto-runtime:audit` into `rn:baseline:preflight` so future foundation branches check BTCV wallet/crypto risk before package changes.
+- Update the RN upgrade-path audit expectation so package-script drift is caught.
+- Refresh workflow/baseline docs to list wallet/crypto runtime audit as part of the larger RN readiness gate.
+
+Validation:
+
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.239 - Wallet crypto runtime audit
 
 - Branch: `feature/bem-37-239-wallet-crypto-runtime-audit`
