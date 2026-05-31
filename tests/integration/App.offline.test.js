@@ -1,4 +1,4 @@
-import { LegacyWallet, SegwitP2SHWallet } from '../../class';
+import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 
 jest.mock('../../BlueElectrum', () => ({
   getDustValue: jest.fn().mockResolvedValue(546),
@@ -32,11 +32,19 @@ describe('wallet core offline flows', () => {
     });
   });
 
-  it('SegwitP2SHWallet can generate segwit P2SH address from WIF', async () => {
-    const wallet = new SegwitP2SHWallet();
+  it('single-key wallets derive stable BTCV addresses from the same compressed WIF', async () => {
+    const wif = 'Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct';
+    const legacyWallet = new LegacyWallet();
+    const segwitP2SHWallet = new SegwitP2SHWallet();
+    const segwitBech32Wallet = new SegwitBech32Wallet();
 
-    wallet.setSecret('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
-    assert.strictEqual(wallet.getAddress(), 'RBkrVH6nanQxjQ6n99nPHXcvY73u3jBLdU');
-    assert.strictEqual(wallet.getAddress(), await wallet.getAddressAsync());
+    legacyWallet.setSecret(wif);
+    segwitP2SHWallet.setSecret(wif);
+    segwitBech32Wallet.setSecret(wif);
+
+    assert.strictEqual(legacyWallet.getAddress(), 'YXXDY3hwyVsjzAnFXidgaadF34f1AVpGVi');
+    assert.strictEqual(segwitP2SHWallet.getAddress(), 'RBkrVH6nanQxjQ6n99nPHXcvY73u3jBLdU');
+    assert.strictEqual(segwitBech32Wallet.getAddress(), 'royale1qt97wqg464zrhnx23upykca5annqvwkwunm9fmf');
+    assert.strictEqual(segwitP2SHWallet.getAddress(), await segwitP2SHWallet.getAddressAsync());
   });
 });

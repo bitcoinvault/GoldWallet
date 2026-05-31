@@ -47,6 +47,10 @@ describe('HD wallet offline flows', () => {
     assert.strictEqual(hd.validateMnemonic(), true);
     assert.strictEqual(await hd._getWIFByIndex(0), 'L5KcrwqMGgEtVnsM4ZGS6XdRoBDinfb1hfFW61RhsY9QuumePh8b');
     assert.strictEqual(
+      hd._getWifForAddress(hd.getAddress()[0]),
+      'L5KcrwqMGgEtVnsM4ZGS6XdRoBDinfb1hfFW61RhsY9QuumePh8b',
+    );
+    assert.strictEqual(
       await hd.getXpub(),
       'ypub6Wj9dHZAtSM3DQB6kG37aK5i1yJbBoM2d1W57aMkyLx4cNyGqWYpGvL194zA4HSxWpQyoPrsXE2PP4pNUqu5cvvHUK2ZpfUeHFmuK4THAD3',
     );
@@ -99,6 +103,11 @@ describe('HD wallet offline flows', () => {
     assert.strictEqual(hd.getAddress()[2], 'royale1qjk9php9jn577926wu9sqgnwz9whj2sea68dejp');
     assert.strictEqual(hd._getDerivationPathByAddress(hd.getAddress()[1]), "m/84'/440'/0'/0/1");
     assert.strictEqual(hd._getDerivationPathByAddress(hd.getAddress()[0]), "m/84'/440'/0'/0/0");
+    assert.strictEqual(
+      hd._getWifForAddress(hd.getAddress()[0]),
+      'KwLAKpr3t88u6E6CEQT6Qb2Q9ZJ6RJzoxc4Z2Gx6ALxwgAgaqfEn',
+    );
+    assert.throws(() => hd._getWifForAddress('royale1qmissingaddress'), /Could not find WIF/);
   });
 
   it('can generate Legacy HD BIP44 addresses based on xpub', async () => {
