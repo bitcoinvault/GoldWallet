@@ -108,10 +108,15 @@ const collectIosReleaseReadiness = () => {
   }
 
   [
-    ['react-native-camera', 'after the CameraKit migration'],
-    ['react-native-qrcode-local-image', 'after the QR local-image cleanup'],
-  ].forEach(([podName, reason]) => {
-    if (podfileLock.includes(podName)) {
+    { podName: 'react-native-camera', matchNames: ['react-native-camera'], reason: 'after the CameraKit migration' },
+    { podName: 'react-native-qrcode-local-image', matchNames: ['react-native-qrcode-local-image'], reason: 'after the QR local-image cleanup' },
+    {
+      podName: 'RNCMaskedView',
+      matchNames: ['RNCMaskedView', '@react-native-community/masked-view'],
+      reason: 'after the React Navigation 7 masked-view removal',
+    },
+  ].forEach(({ podName, matchNames, reason }) => {
+    if (matchNames.some(matchName => podfileLock.includes(matchName))) {
       podfileLockDriftIssues.push(`ios/Podfile.lock still references removed ${podName}; run pod install on macOS ${reason}`);
     }
   });

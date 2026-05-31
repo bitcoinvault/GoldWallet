@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.285 - iOS masked-view removed pod readiness
+
+- Branch: `feature/bem-37-285-ios-masked-view-pod-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the iOS release readiness audit to report stale `RNCMaskedView` lockfile references after the React Navigation 7 masked-view removal.
+- Keep the masked-view iOS CocoaPods blocker visible in the main iOS release gate, not only in navigation-specific documentation.
+- Harden the iOS release readiness summary guard so Windows summaries cannot omit the removed masked-view pod while tracking removed-pod drift.
+
+Findings:
+
+- `@react-native-community/masked-view` is no longer in `package.json` and React Navigation 7 no longer requires it.
+- `ios/Podfile.lock` still references `RNCMaskedView` / `@react-native-community/masked-view`.
+- iOS release readiness remains static-only on Windows; macOS `pod install` and archive/simulator validation are still required before claiming iOS runtime delivery.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.284 - iOS removed pods readiness audit
 
 - Branch: `feature/bem-37-284-ios-removed-pods-readiness`
