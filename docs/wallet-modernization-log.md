@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.261 - Android beta release summary override
+
+- Branch: `feature/bem-37-261-android-beta-release-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `android:dev:release:check-summary` respect the same `ANDROID_RELEASE_VARIANTS` override as `android:dev:release:validate-local`.
+- Add guard coverage for a beta-only release summary so intentionally narrowed release validation runs remain checkable.
+- Build and validate `betaRelease` locally after the default `dev`, `stage`, and `prod` release evidence refresh.
+
+Findings:
+
+- `betaRelease` reads `.env.beta.mainnet`, runs the RN release bundle path, and assembles successfully on the current RN `0.85.3` baseline.
+- The beta summary artifact records the APK path, byte size, SHA-256 digest, Gradle task, exit code, Java executable, and JDK 17 version.
+- The checker now fails unsupported variant names consistently instead of silently validating only the default release set.
+
+Validation:
+
+- `corepack yarn check:android-release-summary-guard`
+- `node --check scripts\checkAndroidReleaseSummary.mjs`
+- `node --check scripts\checkAndroidReleaseSummaryGuard.mjs`
+- `ANDROID_RELEASE_VARIANTS=beta JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `ANDROID_RELEASE_VARIANTS=beta corepack yarn android:dev:release:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.260 - Android release variant evidence refresh
 
 - Branch: `feature/bem-37-260-android-release-validation-readiness`
