@@ -73,7 +73,7 @@ corepack yarn release-services:check-summaries
 
 ## Current Release Readiness Snapshot
 
-Checked on 2026-05-31 after the RN `0.85.3` foundation, Android `devRelease` validation, and release-services package refresh:
+Checked on 2026-05-31 after the RN `0.85.3` foundation, Android release variant validation, and release-services package refresh:
 
 ```powershell
 corepack yarn codepush:release:path-audit
@@ -88,7 +88,9 @@ corepack yarn release-services:check-summaries
 Results:
 
 - CodePush release-path wiring is valid for non-dev runtime, Android, iOS, and env key references.
-- CodePush release update validation is not ready locally because `.env.dev.testnet` has blank `CODEPUSH_DEPLOYMENT_KEY_ANDROID` and `CODEPUSH_DEPLOYMENT_KEY_IOS`.
+- CodePush release-path env readiness is now recorded per env file without printing deployment-key values.
+- CodePush update validation is ready from env-key perspective for `.env.stage.mainnet` and `.env.prod.mainnet`.
+- Full CodePush release update validation is not ready locally because `.env.dev.testnet` has blank `CODEPUSH_DEPLOYMENT_KEY_ANDROID` and `CODEPUSH_DEPLOYMENT_KEY_IOS`.
 - Beta CodePush update strategy is still unconfirmed because `.env.beta.testnet` and `.env.beta.mainnet` do not define CodePush deployment keys.
 - Firebase release-services wiring is valid for the current `24.0.0` package family, Android config, iOS plist files, and Messaging runtime paths.
 - Firebase `24.0.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.

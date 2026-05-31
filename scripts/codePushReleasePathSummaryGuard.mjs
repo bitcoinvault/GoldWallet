@@ -28,11 +28,14 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const generatedAt = getLineValue(summary, 'Generated at');
   const wiringValid = getLineValue(summary, 'Release path wiring valid');
   const ready = getLineValue(summary, 'Release path ready for update validation');
+  const readyEnvironmentCount = getLineValue(summary, 'Ready environments');
+  const envReadinessCount = getLineValue(summary, 'Environment readiness entries');
   const warningCount = getLineValue(summary, 'Warnings');
   const readinessCount = getLineValue(summary, 'Readiness issues');
   const wiringErrorCount = getLineValue(summary, 'Wiring errors');
   const secretValuesPrinted = getLineValue(summary, 'Secret values printed');
   const requiredAction = getLineValue(summary, 'Required action');
+  const envReadinessLines = getBulletLinesAfter(summary, 'Environment readiness entries');
   const warningLines = getBulletLinesAfter(summary, 'Warnings');
   const readinessLines = getBulletLinesAfter(summary, 'Readiness issues');
   const wiringErrorLines = getBulletLinesAfter(summary, 'Wiring errors');
@@ -52,6 +55,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   });
 
   [
+    ['Environment readiness entries', envReadinessCount, envReadinessLines.length],
     ['Warnings', warningCount, warningLines.length],
     ['Readiness issues', readinessCount, readinessLines.length],
     ['Wiring errors', wiringErrorCount, wiringErrorLines.length],
@@ -65,6 +69,20 @@ export const getCodePushReleasePathSummaryErrors = summary => {
 
   if (secretValuesPrinted !== 'no') {
     errors.push('CodePush release path summary must not print secret values');
+  }
+
+  if (!/^\d+$/.test(readyEnvironmentCount)) {
+    errors.push(`Ready environments must be a non-negative integer. Received: ${readyEnvironmentCount || 'missing'}`);
+  } else {
+    const listedReadyEnvironments = envReadinessLines.filter(line => line.includes(': ready')).length;
+
+    if (Number(readyEnvironmentCount) !== listedReadyEnvironments) {
+      errors.push(`Ready environments count is ${readyEnvironmentCount}, but listed ${listedReadyEnvironments}`);
+    }
+  }
+
+  if (summary.includes('CODEPUSH_DEPLOYMENT_KEY_ANDROID=') || summary.includes('CODEPUSH_DEPLOYMENT_KEY_IOS=')) {
+    errors.push('CodePush release path summary must not print deployment key assignments');
   }
 
   if (ready === 'yes' && (wiringValid !== 'yes' || readinessCount !== '0' || wiringErrorCount !== '0')) {

@@ -31,6 +31,7 @@ export const collectCodePushReleasePathAudit = () => {
   const errors = [];
   const readinessIssues = [];
   const warnings = [];
+  const envReadiness = [];
 
   requireSnippet(errors, 'App.tsx', appSource, 'react-native-code-push');
   requireSnippet(errors, 'App.tsx', appSource, 'checkFrequency: codePush.CheckFrequency.ON_APP_RESUME');
@@ -57,6 +58,8 @@ export const collectCodePushReleasePathAudit = () => {
   codePushEnvFiles.forEach(relativePath => {
     const content = read(relativePath);
     const keys = parseEnvKeys(content);
+    const missingKeys = [];
+    const blankKeys = [];
 
     requiredCodePushEnvKeys.forEach(key => {
       if (!keys.has(key)) {
@@ -65,6 +68,7 @@ export const collectCodePushReleasePathAudit = () => {
         } else {
           readinessIssues.push(`${relativePath} is missing ${key}`);
         }
+        missingKeys.push(key);
       }
 
       const line = content
@@ -73,7 +77,21 @@ export const collectCodePushReleasePathAudit = () => {
 
       if (line !== undefined && line.trim() === `${key}=`) {
         readinessIssues.push(`${relativePath} has a blank ${key}`);
+        blankKeys.push(key);
       }
+    });
+
+    const isBeta = relativePath.startsWith('.env.beta.');
+    const issues = [
+      ...missingKeys.map(key => `missing ${key}`),
+      ...blankKeys.map(key => `blank ${key}`),
+    ];
+    const status = issues.length === 0 ? 'ready' : isBeta ? 'unconfirmed' : 'blocked';
+
+    envReadiness.push({
+      envFile: relativePath,
+      status,
+      issues,
     });
   });
 
@@ -81,6 +99,7 @@ export const collectCodePushReleasePathAudit = () => {
     errors,
     readinessIssues,
     warnings,
+    envReadiness,
     ready: errors.length === 0 && readinessIssues.length === 0,
   };
 };
@@ -91,6 +110,13 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
     `Generated at: ${generatedAt}`,
     `Release path wiring valid: ${audit.errors.length === 0 ? 'yes' : 'no'}`,
     `Release path ready for update validation: ${audit.ready ? 'yes' : 'no'}`,
+    `Ready environments: ${audit.envReadiness.filter(entry => entry.status === 'ready').length}`,
+    `Environment readiness entries: ${audit.envReadiness.length}`,
+    ...audit.envReadiness.map(entry => {
+      const detail = entry.issues.length > 0 ? `; ${entry.issues.join(', ')}` : '';
+
+      return `- ${entry.envFile}: ${entry.status}${detail}`;
+    }),
     `Warnings: ${audit.warnings.length}`,
   ];
 
@@ -103,7 +129,7 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
   lines.push(
     audit.ready
       ? 'Required action: none; non-beta CodePush release path env keys are present locally.'
-      : 'Required action: provide non-empty non-beta CodePush deployment keys before claiming release update validation.',
+      : 'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation.',
   );
 
   return `${lines.join('\n')}\n`;
