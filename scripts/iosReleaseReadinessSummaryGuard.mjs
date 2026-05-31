@@ -167,5 +167,14 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
     errors.push('Podfile.lock drift summary must include the removed react-native-qrcode-local-image pod when removed camera pods are present');
   }
 
+  if (
+    podfileLockRefreshRequired === 'yes' &&
+    podfileLockDriftLines.some(line => line.includes('removed react-native-camera')) &&
+    !podfileLockDriftLines.some(line => line.includes('removed RNCMaskedView')) &&
+    !podfileLockDriftLines.some(line => line.includes('removed @react-native-community/masked-view'))
+  ) {
+    errors.push('Podfile.lock drift summary must include the removed masked-view pod after React Navigation 7 migration');
+  }
+
   return errors;
 };
