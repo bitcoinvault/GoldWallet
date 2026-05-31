@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.269 - Test report tooling latest refresh
+
+- Branch: `feature/bem-37-269-test-report-tooling-latest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move isolated test-report tooling to current npm latest: `jest-junit@17.0.0` and `junit-report-merger@9.0.3`.
+- Keep the change separate from Jest runtime, transformer, Detox, and app runtime upgrades.
+- Validate package loading, the existing `merge-detox-reports` JUnit merge flow, focused Jest suites, and standard modernization guards.
+
+Findings:
+
+- `jest-junit@17.0.0` requires Node `>=20.0.0`, compatible with the current Node 22 toolchain.
+- `junit-report-merger@9.0.3` requires Node `>=20`, still exposes both `junit-report-merger` and `jrm`, and the repo's relative `artifacts/junit-*.xml` merge command still works.
+- Absolute Windows backslash paths are not a reliable input pattern for `jrm@9.0.3`, so repo scripts should keep using relative or forward-slash glob patterns.
+- This branch changes dev test-report tooling only; it does not change app runtime, native code, Metro, or Jest runtime packages, so emulator smoke is not required for this milestone.
+
+Validation:
+
+- `npm view jest-junit version engines dependencies peerDependencies --json`
+- `npm view junit-report-merger version engines dependencies peerDependencies bin --json`
+- `node -e "const jj=require('jest-junit/package.json'); const jm=require('junit-report-merger/package.json'); console.log(JSON.stringify({jestJunit:jj.version,jestJunitMain:jj.main,jrm:jm.version,jrmBin:jm.bin}, null, 2)); require('jest-junit'); require('junit-report-merger'); console.log('requires ok')"`
+- `node node_modules\junit-report-merger\cli.js --help`
+- `corepack yarn merge-detox-reports`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.268 - Tooling latest snapshot audit
 
 - Branch: `feature/bem-37-268-tooling-latest-snapshot`
