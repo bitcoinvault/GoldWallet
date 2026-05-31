@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.278 - Stream polyfill refresh
+
+- Branch: `feature/bem-37-278-stream-polyfill-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the React Native stream polyfill stack from `stream-browserify@2.0.2` to `stream-browserify@3.0.0`.
+- Move the root `readable-stream` runtime from `3.4.0` to the highest compatible `3.6.2` line.
+- Refresh the `stream-browserify` patch-package file and rn-nodeify shim guard for the deduped dependency layout used by `stream-browserify@3`.
+
+Findings:
+
+- `npm view readable-stream version engines dependencies peerDependencies --json` reports latest `4.7.0`, but that line removes the public `readable-stream/readable` entry used by the app's React Native/browser aliases.
+- `require.resolve('readable-stream/readable')` fails on `readable-stream@4.7.0`, so the latest target is blocked for this repo until the stream aliases are migrated.
+- `readable-stream@3.6.2` keeps `readable-stream/readable` available and matches the `stream-browserify@3.0.0` dependency line.
+- Yarn now dedupes the stream-browserify readable-stream dependency to the root package, so the rn-nodeify shim guard now checks `stream-browserify/index.js` and root `readable-stream/readable.js`.
+
+Validation:
+
+- `npm view readable-stream version engines dependencies peerDependencies --json`
+- `npm view stream-browserify version engines dependencies peerDependencies --json`
+- `node -e "console.log(require.resolve('readable-stream/readable'))"`
+- `corepack yarn postinstall`
+- `corepack yarn check:rn-nodeify-shim-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn upgrade:strategy:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.277 - Jetifier 2 Android tooling refresh
 
 - Branch: `feature/bem-37-277-jetifier-2-tooling-refresh`
