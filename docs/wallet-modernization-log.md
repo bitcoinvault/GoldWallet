@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.257 - Camera candidate current snapshot
+
+- Branch: `feature/bem-37-257-camera-candidate-current-snapshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Camera/QR candidate audit with live npm metadata checked on 2026-05-31.
+- Keep the installed scanner baseline on `react-native-camera-kit@18.0.0`, because it remains current and compatible with the Node 22 modernization baseline.
+- Record that `react-native-vision-camera@5.0.11` still requires `react-native-nitro-modules` and `react-native-nitro-image`, so it stays deferred to a dedicated native-module milestone.
+- Record that `react-native-qrcode-svg@6.3.21` and `qrcode@1.5.4` remain current.
+- Strengthen the camera candidate summary guard so the RN preflight rejects stale candidate metadata.
+
+Findings:
+
+- No Camera/QR package bump is available from the checked stable package lines.
+- CameraKit remains the installed QR scanner baseline.
+- VisionCamera is still a future option only if device coverage or scan quality requires a larger Nitro/native-module migration.
+
+Validation:
+
+- `npm view react-native-camera-kit version peerDependencies dependencies engines --json`
+- `npm view react-native-vision-camera version peerDependencies dependencies engines --json`
+- `npm view react-native-qrcode-svg version peerDependencies dependencies engines --json`
+- `npm view qrcode version engines --json`
+- `corepack yarn check:camera-candidate-summary-guard`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.256 - Sentry release prerequisite readiness
 
 - Branch: `feature/bem-37-256-sentry-release-prereq-readiness`
