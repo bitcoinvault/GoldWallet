@@ -6,7 +6,7 @@ import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const variants = ['dev', 'stage', 'prod'];
+const variants = ['dev', 'stage', 'prod', 'beta'];
 const fixtureApkRelativePath = variant => path.join('local-docs', `android-release-summary-${variant}-fixture.apk`);
 const expectedApkRelativePaths = Object.fromEntries(
   variants.map(variant => [variant, fixtureApkRelativePath(variant)]),
@@ -54,8 +54,11 @@ const validSummary = [
   '',
 ].join('\n');
 
-const assertAccepted = (label, summary) => {
-  const errors = getAndroidReleaseSummaryErrors(summary, root, { expectedApkRelativePaths });
+const assertAccepted = (label, summary, options = {}) => {
+  const errors = getAndroidReleaseSummaryErrors(summary, root, {
+    expectedApkRelativePaths,
+    ...options,
+  });
 
   if (errors.length > 0) {
     console.error(`${label} should be accepted, but produced errors:`);
@@ -64,8 +67,11 @@ const assertAccepted = (label, summary) => {
   }
 };
 
-const assertRejected = (label, summary, expectedError) => {
-  const errors = getAndroidReleaseSummaryErrors(summary, root, { expectedApkRelativePaths });
+const assertRejected = (label, summary, expectedError, options = {}) => {
+  const errors = getAndroidReleaseSummaryErrors(summary, root, {
+    expectedApkRelativePaths,
+    ...options,
+  });
 
   if (!errors.some(error => error.includes(expectedError))) {
     console.error(`${label} should reject with "${expectedError}", but produced:`);
@@ -75,6 +81,33 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid Android dev release summary fixture', validSummary);
+assertAccepted(
+  'Valid Android beta-only release summary fixture',
+  [
+    'Android release validation',
+    'Generated at: 2026-05-30T12:24:20.279Z',
+    'Started at: 2026-05-30T12:23:15.004Z',
+    'Variants: beta',
+    'Variant count: 1',
+    'Java executable: D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10\\bin\\java.exe',
+    'Java version: openjdk version "17.0.19" 2026-04-15',
+    'Sentry auto upload disabled for local build: yes',
+    'Sentry release upload validation: not claimed',
+    'Variant beta Gradle task: :app:assembleBetaRelease',
+    'Variant beta exit code: 0',
+    `Variant beta Release APK: ${fixtureApkRelativePath('beta')}`,
+    'Variant beta Release APK exists: yes',
+    'Variant beta Release APK bytes: 12',
+    'Variant beta Release APK sha256: 8838022187323bcec6806279a0f9bc0b5a7c18a8f931ee45f49589455ab834b9',
+    'Variant beta spawn error: none',
+    'Required Sentry upload follow-up: provide sentry.properties/defaults.org/defaults.project/auth.token or SENTRY_AUTH_TOKEN before claiming source-map upload validation.',
+    '',
+  ].join('\n'),
+  {
+    expectedVariants: ['beta'],
+    expectedApkRelativePaths: { beta: fixtureApkRelativePath('beta') },
+  },
+);
 assertRejected(
   'Bad header fixture',
   validSummary.replace('Android release validation', 'Bad header'),

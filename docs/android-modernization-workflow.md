@@ -64,6 +64,8 @@ Use `corepack yarn upgrade:strategy:audit` before dependency/RN baseline branche
 
 Latest local release evidence refresh: on 2026-05-31, `feature/bem-37-260-android-release-validation-readiness` rebuilt `devRelease`, `stageRelease`, and `prodRelease` with JDK 17 and validated the generated summary artifact. Keep future release proof branches on the same summary/checker flow so APK evidence stays local while the tracked log records the milestone.
 
+Beta release evidence refresh: on 2026-05-31, `feature/bem-37-261-android-beta-release-summary` rebuilt `betaRelease` with `ANDROID_RELEASE_VARIANTS=beta`, then validated the generated summary with the same override. Use the same env override for both validation commands whenever a branch intentionally checks a subset or extension of release variants.
+
 `check:android-remaining-warning-plan` keeps `docs/android-warning-baseline-followups.md` aligned with the active Android warning baseline and the required follow-up branch type for each remaining source.
 
 `check:camera-usage-scope` keeps `react-native-camera-kit` runtime usage isolated to `ScanQrCodeScreen` after the dedicated QR scanner migration branch.
