@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.294 - TypeScript ESLint 8 baseline compatibility
+
+- Branch: `feature/bem-37-294-typescript-eslint-lint-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove the obsolete `@typescript-eslint/ban-types` rule from `.eslintrc` after the TypeScript ESLint 8 update.
+- Keep new TypeScript ESLint v8 recommended errors that were not part of the current baseline disabled until a dedicated lint cleanup stream handles them.
+- Add `check:eslint-config-compatibility` so future parser/plugin updates fail early if the v8 compatibility assumptions drift.
+- Refresh dependency strategy notes for the lint config compatibility decision.
+
+Findings:
+
+- After `BEM-37.293`, `lint:baseline:audit` increased from `35346` to `35980` errors even though the command remained non-blocking.
+- The increase came from `322` missing-rule errors for removed `@typescript-eslint/ban-types`, plus newly active `@typescript-eslint/no-require-imports`, `@typescript-eslint/no-unused-expressions`, and `@typescript-eslint/no-unused-vars` findings.
+- The compatibility config restores the baseline to `35346` errors, all from the existing `prettier/prettier` line-ending baseline.
+
+Validation:
+
+- `corepack yarn check:eslint-config-compatibility`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn eslint --print-config src/App.tsx`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `git diff --check`
+
 ### BEM-37.293 - TypeScript ESLint 8 tooling refresh
 
 - Branch: `feature/bem-37-293-typescript-eslint-8`
