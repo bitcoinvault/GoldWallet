@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.296 - iOS Podfile.lock drift guard refresh
+
+- Branch: `feature/bem-37-296-ios-podfile-lock-drift-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the iOS release readiness guard fixture from the older minimal `4` Podfile.lock drift issues to the current `15` drift issues reported by the live audit.
+- Require the current React Native, removed camera/QR/masked-view, BootSplash, Config, AsyncStorage, DeviceInfo, FastImage, Firebase, GestureHandler, Localize, Screens, Sentry, and VectorIcons pod drift evidence when `Podfile.lock refresh required` is `yes`.
+- Keep iOS runtime/archive validation unclaimed on Windows; this branch only strengthens the static summary guard.
+
+Findings:
+
+- `corepack yarn ios:release:readiness:audit` reports static iOS release files valid, but `Ready for macOS archive validation: no`.
+- `ios/Podfile.lock` still reflects the old React Native `0.65.3` pod graph and multiple stale native pod versions after the Android/RN modernization.
+- Full iOS validation still requires macOS with Xcode `16.1+`, `pod install`, and simulator/archive validation.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.295 - JSDOM runtime latest update
 
 - Branch: `feature/bem-37-295-jsdom-runtime-latest`
