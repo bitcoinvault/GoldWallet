@@ -60,6 +60,12 @@ export const getReactPackageCouplingIssues = ({ dependencies, devDependencies, s
     );
   }
 
+  if (devDependencies['@types/react-navigation']) {
+    errors.push(
+      `package.json has @types/react-navigation@${devDependencies['@types/react-navigation']}; expected @react-navigation v7 packages to provide their own types`,
+    );
+  }
+
   if (devDependencies['react-test-renderer'] !== expectedReactPackageCoupling.reactTestRenderer) {
     errors.push(
       `package.json has react-test-renderer@${devDependencies['react-test-renderer'] || '<missing>'}; expected current renderer baseline ${
@@ -128,6 +134,7 @@ const printReport = environment => {
   console.log(`React: ${environment.dependencies.react || '<missing>'}`);
   console.log(`@types/react: ${environment.devDependencies['@types/react'] || '<missing>'}`);
   console.log(`@types/react-native: ${environment.devDependencies['@types/react-native'] || 'bundled with react-native'}`);
+  console.log(`@types/react-navigation: ${environment.devDependencies['@types/react-navigation'] || 'provided by @react-navigation packages'}`);
   console.log(`react-test-renderer: ${environment.devDependencies['react-test-renderer'] || '<missing>'}`);
   console.log(`Target React peer from RN target snapshot: ${expectedReactNativeTargetSnapshot.targetReactPeer}`);
 

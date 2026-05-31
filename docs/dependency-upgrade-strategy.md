@@ -75,6 +75,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - The TypeScript ESLint v8 config compatibility is guarded after `BEM-37.294`: removed rule `@typescript-eslint/ban-types` must stay out of `.eslintrc`, and newly stricter v8 recommended rules that are not part of the current baseline remain explicitly disabled until a dedicated lint cleanup branch handles them.
 - The unused legacy `@react-native-community/eslint-config` direct dev dependency is removed after `BEM-37.297`; `.eslintrc` already owns the active lint stack directly, and the community config would reintroduce an older nested lint toolchain if upgraded blindly.
 - The deprecated unused `babel-eslint` direct dev dependency is removed after `BEM-37.298`; the active parser is `@typescript-eslint/parser`, and `babel-eslint` has no supported latest path beyond its deprecated `10.1.0` line.
+- The deprecated stub `@types/react-navigation` direct dev dependency is removed after `BEM-37.299`; active `@react-navigation/*` v7 packages ship their own types, and the stub pulled old `react-navigation@4` packages into the lockfile.
 - Jest tooling remains on the checked compatible `29.7.0` line after `BEM-37.212`; the checked Jest 30 line is deferred until the React Native Jest preset stops mixing a Jest 29 environment with a Jest 30 runtime.
 
 These can be batched more aggressively because they either have strong automated gates or are developer-only.
