@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.254 - Android release variant validation
+
+- Branch: `feature/bem-37-254-android-release-variant-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Expand local Android release validation from a single `devRelease` APK to the default release set: `devRelease`, `stageRelease`, and `prodRelease`.
+- Keep local Sentry auto-upload disabled during this validation and continue to avoid claiming source-map upload without real Sentry credentials.
+- Record per-variant Gradle task, exit code, APK path, byte size, SHA-256 digest, and spawn status in `local-docs/android-release-dev-summary.txt`.
+- Add an `ANDROID_RELEASE_VARIANTS` override for intentionally narrowed or extended local release validation runs.
+- Update the Android release summary guard and self-check so stale, missing, failed, or secret-leaking release summaries are rejected.
+
+Findings:
+
+- `devRelease`, `stageRelease`, and `prodRelease` all build locally with JDK 17 and `SENTRY_DISABLE_AUTO_UPLOAD=true`.
+- The release validation summary proves APK generation and bundle/resource processing for the three primary Android release flavors.
+- Sentry source-map upload validation is still not claimed locally; it remains blocked until `sentry.properties` or `SENTRY_AUTH_TOKEN` is provided.
+- Beta release is still excluded from the default set because beta CodePush deployment-key strategy is intentionally not confirmed in the current env files.
+
+Validation:
+
+- `corepack yarn check:android-release-summary-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.253 - ESLint plugin cohort refresh
 
 - Branch: `feature/bem-37-253-eslint-plugin-cohort-refresh`

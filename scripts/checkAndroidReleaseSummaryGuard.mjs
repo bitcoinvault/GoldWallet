@@ -6,32 +6,56 @@ import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const fixtureApkPath = path.join(root, 'local-docs', 'android-release-summary-fixture.apk');
-const fixtureApkRelativePath = 'local-docs\\android-release-summary-fixture.apk';
+const variants = ['dev', 'stage', 'prod'];
+const fixtureApkRelativePath = variant => path.join('local-docs', `android-release-summary-${variant}-fixture.apk`);
+const expectedApkRelativePaths = Object.fromEntries(
+  variants.map(variant => [variant, fixtureApkRelativePath(variant)]),
+);
 
-mkdirSync(path.dirname(fixtureApkPath), { recursive: true });
-writeFileSync(fixtureApkPath, 'fixture');
+variants.forEach(variant => {
+  const fixtureApkPath = path.join(root, fixtureApkRelativePath(variant));
+
+  mkdirSync(path.dirname(fixtureApkPath), { recursive: true });
+  writeFileSync(fixtureApkPath, `fixture-${variant}`);
+});
 
 const validSummary = [
-  'Android dev release validation',
+  'Android release validation',
   'Generated at: 2026-05-30T12:24:20.279Z',
   'Started at: 2026-05-30T12:23:15.004Z',
-  'Gradle task: :app:assembleDevRelease',
-  'Exit code: 0',
+  'Variants: dev, stage, prod',
+  'Variant count: 3',
   'Java executable: D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10\\bin\\java.exe',
   'Java version: openjdk version "17.0.19" 2026-04-15',
   'Sentry auto upload disabled for local build: yes',
   'Sentry release upload validation: not claimed',
-  `Release APK: ${fixtureApkRelativePath}`,
-  'Release APK exists: yes',
-  'Release APK bytes: 7',
-  'Release APK sha256: cd55d3e698d289f2af888a257d8d3bd6dee07bc8d972a902d355bfe1167c31a0',
+  'Variant dev Gradle task: :app:assembleDevRelease',
+  'Variant dev exit code: 0',
+  `Variant dev Release APK: ${fixtureApkRelativePath('dev')}`,
+  'Variant dev Release APK exists: yes',
+  'Variant dev Release APK bytes: 11',
+  'Variant dev Release APK sha256: c70965a4a0911a45a45ccad3459a235078f912273a940ac0e62873f0176efa48',
+  'Variant dev spawn error: none',
+  'Variant stage Gradle task: :app:assembleStageRelease',
+  'Variant stage exit code: 0',
+  `Variant stage Release APK: ${fixtureApkRelativePath('stage')}`,
+  'Variant stage Release APK exists: yes',
+  'Variant stage Release APK bytes: 13',
+  'Variant stage Release APK sha256: bde4070b5100b4d1ebfa93f73b2612d2502ff26154c2f5418e637720c0122ea2',
+  'Variant stage spawn error: none',
+  'Variant prod Gradle task: :app:assembleProdRelease',
+  'Variant prod exit code: 0',
+  `Variant prod Release APK: ${fixtureApkRelativePath('prod')}`,
+  'Variant prod Release APK exists: yes',
+  'Variant prod Release APK bytes: 12',
+  'Variant prod Release APK sha256: 9e2c2dd93a1e7dc43022a3ef8cd707b485c693928e7a918b92914abc957ebfe7',
+  'Variant prod spawn error: none',
   'Required Sentry upload follow-up: provide sentry.properties/defaults.org/defaults.project/auth.token or SENTRY_AUTH_TOKEN before claiming source-map upload validation.',
   '',
 ].join('\n');
 
 const assertAccepted = (label, summary) => {
-  const errors = getAndroidReleaseSummaryErrors(summary, root, { expectedApkRelativePath: fixtureApkRelativePath });
+  const errors = getAndroidReleaseSummaryErrors(summary, root, { expectedApkRelativePaths });
 
   if (errors.length > 0) {
     console.error(`${label} should be accepted, but produced errors:`);
@@ -41,7 +65,7 @@ const assertAccepted = (label, summary) => {
 };
 
 const assertRejected = (label, summary, expectedError) => {
-  const errors = getAndroidReleaseSummaryErrors(summary, root, { expectedApkRelativePath: fixtureApkRelativePath });
+  const errors = getAndroidReleaseSummaryErrors(summary, root, { expectedApkRelativePaths });
 
   if (!errors.some(error => error.includes(expectedError))) {
     console.error(`${label} should reject with "${expectedError}", but produced:`);
@@ -53,7 +77,7 @@ const assertRejected = (label, summary, expectedError) => {
 assertAccepted('Valid Android dev release summary fixture', validSummary);
 assertRejected(
   'Bad header fixture',
-  validSummary.replace('Android dev release validation', 'Bad header'),
+  validSummary.replace('Android release validation', 'Bad header'),
   'summary header',
 );
 assertRejected(
@@ -61,7 +85,11 @@ assertRejected(
   validSummary.replace('Generated at: 2026-05-30T12:24:20.279Z', 'Generated at: now'),
   'ISO timestamp',
 );
-assertRejected('Failed exit fixture', validSummary.replace('Exit code: 0', 'Exit code: 1'), 'Exit code: 0');
+assertRejected(
+  'Failed variant exit fixture',
+  validSummary.replace('Variant stage exit code: 0', 'Variant stage exit code: 1'),
+  'Variant stage exit code: 0',
+);
 assertRejected(
   'Bad Java version fixture',
   validSummary.replace(
@@ -73,8 +101,8 @@ assertRejected(
 assertRejected(
   'Bad APK sha fixture',
   validSummary.replace(
-    'Release APK sha256: cd55d3e698d289f2af888a257d8d3bd6dee07bc8d972a902d355bfe1167c31a0',
-    'Release APK sha256: missing',
+    'Variant prod Release APK sha256: 9e2c2dd93a1e7dc43022a3ef8cd707b485c693928e7a918b92914abc957ebfe7',
+    'Variant prod Release APK sha256: missing',
   ),
   'SHA-256',
 );
@@ -89,4 +117,4 @@ assertRejected(
   'SENTRY_AUTH_TOKEN',
 );
 
-console.log('Android dev release summary guard checks are valid.');
+console.log('Android release summary guard checks are valid.');
