@@ -28,6 +28,24 @@ const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.
 const isNonNegativeInteger = value => /^\d+$/.test(value) && Number(value) >= 0;
 const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 
+const expectedCurrentPodfileLockDriftSnippets = [
+  'React-Core 0.65.3; package.json has react-native 0.85.3',
+  'removed react-native-camera',
+  'removed react-native-qrcode-local-image',
+  'removed RNCMaskedView',
+  'RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
+  'react-native-config 1.4.4; package.json has react-native-config 1.6.1',
+  'RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
+  'RNDeviceInfo 6.2.1; package.json has react-native-device-info 15.0.2',
+  'RNFastImage 8.3.7; package.json has react-native-fast-image 8.6.3',
+  'RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.0.0',
+  'RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.0.0',
+  'RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
+  'RNScreens 3.6.0; package.json has react-native-screens 4.25.2',
+  'RNSentry 3.1.0; package.json has @sentry/react-native 8.13.0',
+  'RNVectorIcons 6.6.0; package.json has react-native-vector-icons 10.3.0',
+];
+
 export const getIosReleaseReadinessSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
@@ -157,6 +175,14 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
 
   if (podfileLockRefreshRequired === 'yes' && !requiredAction.includes('refresh ios/Podfile.lock with pod install on macOS')) {
     errors.push('Podfile.lock drift summary must require refreshing ios/Podfile.lock with pod install on macOS');
+  }
+
+  if (podfileLockRefreshRequired === 'yes') {
+    expectedCurrentPodfileLockDriftSnippets.forEach(snippet => {
+      if (!podfileLockDriftLines.some(line => line.includes(snippet))) {
+        errors.push(`Podfile.lock drift summary is missing current drift evidence: ${snippet}`);
+      }
+    });
   }
 
   if (

@@ -1,5 +1,23 @@
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
 
+const currentPodfileLockDriftLines = [
+  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.85.3',
+  '- ios/Podfile.lock still references removed react-native-camera; run pod install on macOS after the CameraKit migration',
+  '- ios/Podfile.lock still references removed react-native-qrcode-local-image; run pod install on macOS after the QR local-image cleanup',
+  '- ios/Podfile.lock still references removed RNCMaskedView; run pod install on macOS after the React Navigation 7 masked-view removal',
+  '- ios/Podfile.lock has RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
+  '- ios/Podfile.lock has react-native-config 1.4.4; package.json has react-native-config 1.6.1',
+  '- ios/Podfile.lock has RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
+  '- ios/Podfile.lock has RNDeviceInfo 6.2.1; package.json has react-native-device-info 15.0.2',
+  '- ios/Podfile.lock has RNFastImage 8.3.7; package.json has react-native-fast-image 8.6.3',
+  '- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.0.0',
+  '- ios/Podfile.lock has RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.0.0',
+  '- ios/Podfile.lock has RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
+  '- ios/Podfile.lock has RNScreens 3.6.0; package.json has react-native-screens 4.25.2',
+  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.13.0',
+  '- ios/Podfile.lock has RNVectorIcons 6.6.0; package.json has react-native-vector-icons 10.3.0',
+];
+
 const validWindowsSummary = [
   'iOS release static readiness audit',
   'Generated at: 2026-05-30T12:34:56.789Z',
@@ -15,11 +33,8 @@ const validWindowsSummary = [
   'iOS Sentry dSYM upload phases: 3',
   'iOS CodePush plist placeholders: 3',
   'Podfile.lock refresh required: yes',
-  'Podfile.lock drift issues: 4',
-  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.85.3',
-  '- ios/Podfile.lock still references removed react-native-camera; run pod install on macOS after the CameraKit migration',
-  '- ios/Podfile.lock still references removed react-native-qrcode-local-image; run pod install on macOS after the QR local-image cleanup',
-  '- ios/Podfile.lock still references removed RNCMaskedView; run pod install on macOS after the React Navigation 7 masked-view removal',
+  `Podfile.lock drift issues: ${currentPodfileLockDriftLines.length}`,
+  ...currentPodfileLockDriftLines,
   'xcodebuild version: <not available on this machine>',
   'iOS runtime delivery validation: not claimed',
   'Errors: 0',
@@ -32,7 +47,7 @@ const validWindowsSummary = [
 const validMacSummary = validWindowsSummary
   .replace('Ready for macOS archive validation: no', 'Ready for macOS archive validation: yes')
   .replace(
-    'Podfile.lock refresh required: yes\nPodfile.lock drift issues: 4\n- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.85.3\n- ios/Podfile.lock still references removed react-native-camera; run pod install on macOS after the CameraKit migration\n- ios/Podfile.lock still references removed react-native-qrcode-local-image; run pod install on macOS after the QR local-image cleanup\n- ios/Podfile.lock still references removed RNCMaskedView; run pod install on macOS after the React Navigation 7 masked-view removal',
+    `Podfile.lock refresh required: yes\nPodfile.lock drift issues: ${currentPodfileLockDriftLines.length}\n${currentPodfileLockDriftLines.join('\n')}`,
     'Podfile.lock refresh required: no\nPodfile.lock drift issues: 0',
   )
   .replace('xcodebuild version: <not available on this machine>', 'xcodebuild version: Xcode 16.1; Build version 16B40')
@@ -64,6 +79,14 @@ const assertRejected = (label, summary, expectedError) => {
     process.exit(1);
   }
 };
+
+const removeDriftLine = driftLine =>
+  validWindowsSummary
+    .replace(`${driftLine}\n`, '')
+    .replace(
+      `Podfile.lock drift issues: ${currentPodfileLockDriftLines.length}`,
+      `Podfile.lock drift issues: ${currentPodfileLockDriftLines.length - 1}`,
+    );
 
 assertAccepted('Valid Windows iOS release readiness summary fixture', validWindowsSummary);
 assertAccepted('Valid macOS iOS release readiness summary fixture', validMacSummary);
@@ -104,24 +127,31 @@ assertRejected(
 );
 assertRejected(
   'Bad Podfile.lock drift count fixture',
-  validWindowsSummary.replace('Podfile.lock drift issues: 4', 'Podfile.lock drift issues: 3'),
+  validWindowsSummary.replace(
+    `Podfile.lock drift issues: ${currentPodfileLockDriftLines.length}`,
+    `Podfile.lock drift issues: ${currentPodfileLockDriftLines.length - 1}`,
+  ),
   'Podfile.lock drift issues count',
 );
 assertRejected(
   'Missing removed QR local-image pod fixture',
-  validWindowsSummary.replace(
-    '- ios/Podfile.lock still references removed react-native-qrcode-local-image; run pod install on macOS after the QR local-image cleanup\n',
-    '',
-  ).replace('Podfile.lock drift issues: 4', 'Podfile.lock drift issues: 3'),
+  removeDriftLine('- ios/Podfile.lock still references removed react-native-qrcode-local-image; run pod install on macOS after the QR local-image cleanup'),
   'removed react-native-qrcode-local-image',
 );
 assertRejected(
   'Missing removed masked-view pod fixture',
-  validWindowsSummary.replace(
-    '- ios/Podfile.lock still references removed RNCMaskedView; run pod install on macOS after the React Navigation 7 masked-view removal\n',
-    '',
-  ).replace('Podfile.lock drift issues: 4', 'Podfile.lock drift issues: 3'),
+  removeDriftLine('- ios/Podfile.lock still references removed RNCMaskedView; run pod install on macOS after the React Navigation 7 masked-view removal'),
   'removed masked-view pod',
+);
+assertRejected(
+  'Missing Firebase pod drift fixture',
+  removeDriftLine('- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.0.0'),
+  'RNFBApp 12.7.5',
+);
+assertRejected(
+  'Missing Sentry pod drift fixture',
+  removeDriftLine('- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.13.0'),
+  'RNSentry 3.1.0',
 );
 assertRejected(
   'Missing Podfile.lock refresh action fixture',
