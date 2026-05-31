@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.277 - Jetifier 2 Android tooling refresh
+
+- Branch: `feature/bem-37-277-jetifier-2-tooling-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move AndroidX migration tooling from `jetifier@1.6.8` to latest `jetifier@2.0.0`.
+- Keep the existing `postinstall` flow intact: `patch-package`, `rn-nodeify`, shim repair, then `npx jetify`.
+- Add Jetifier to the tooling latest snapshot audit so future tooling checks track this Android build helper explicitly.
+
+Findings:
+
+- `npm view jetifier version engines peerDependencies dependencies bin --json` reports latest `2.0.0`.
+- `corepack yarn add --dev jetifier@2.0.0` completed and ran repository `postinstall`.
+- Jetifier `2.0.0` reports deprecation and still rewrites legacy Android Support references in `detox` and `react-native-prompt-android`; Android debug build and emulator smoke passed after the update.
+- Android smoke installed `io.goldwallet.wallet.dev`, completed first-run terms/PIN/transaction-password setup, reached the wallet empty state, and found `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet` without fatal/runtime logcat findings.
+
+Validation:
+
+- `npm view jetifier version engines peerDependencies dependencies bin --json`
+- `corepack yarn add --dev jetifier@2.0.0`
+- `corepack yarn postinstall`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.276 - Camera candidate live latest audit
 
 - Branch: `feature/bem-37-276-camera-live-latest-audit`

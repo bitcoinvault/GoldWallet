@@ -92,6 +92,10 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
     errors.push('summary must include E2E mail tooling');
   }
 
+  if (!entryLines.some(line => line.includes('jetifier'))) {
+    errors.push('summary must include AndroidX migration tooling');
+  }
+
   if (!entryLines.some(line => line.includes('typescript'))) {
     errors.push('summary must include TypeScript');
   }
