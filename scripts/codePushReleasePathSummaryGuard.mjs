@@ -34,7 +34,18 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const envReadinessCount = getLineValue(summary, 'Environment readiness entries');
   const dependencyVersion = getLineValue(summary, 'CodePush package dependency version');
   const installedVersion = getLineValue(summary, 'CodePush package installed version');
+  const latestVersion = getLineValue(summary, 'CodePush package latest version');
+  const latestPublishedAt = getLineValue(summary, 'CodePush package latest published at');
+  const packageCurrent = getLineValue(summary, 'CodePush package current');
   const packageVersionsAligned = getLineValue(summary, 'CodePush package versions aligned');
+  const upstreamRepository = getLineValue(summary, 'CodePush upstream repository');
+  const npmRepository = getLineValue(summary, 'CodePush npm repository');
+  const appCenterRetirementDate = getLineValue(summary, 'App Center CodePush retirement date');
+  const upstreamRetired = getLineValue(summary, 'CodePush upstream retired');
+  const upstreamArchived = getLineValue(summary, 'CodePush upstream archived');
+  const upstreamNewArchitectureSupport = getLineValue(summary, 'CodePush upstream New Architecture support');
+  const androidNewArchitectureEnabled = getLineValue(summary, 'Android New Architecture enabled');
+  const migrationRequired = getLineValue(summary, 'CodePush migration required');
   const androidReleaseSummaryPresent = getLineValue(summary, 'Android release summary present');
   const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
   const androidReleaseSummaryRequiredVariantsCovered = getLineValue(summary, 'Android release summary required variants covered');
@@ -63,7 +74,13 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   [
     wiringValid,
     ready,
+    packageCurrent,
     packageVersionsAligned,
+    upstreamRetired,
+    upstreamArchived,
+    upstreamNewArchitectureSupport,
+    androidNewArchitectureEnabled,
+    migrationRequired,
     androidReleaseSummaryPresent,
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryValid,
@@ -77,6 +94,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   [
     ['CodePush package dependency version', dependencyVersion],
     ['CodePush package installed version', installedVersion],
+    ['CodePush package latest version', latestVersion],
   ].forEach(([label, value]) => {
     if (!isSemver(value)) {
       errors.push(`${label} must be a semver package version. Received: ${value || 'missing'}`);
@@ -87,8 +105,40 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     errors.push(`CodePush package dependency version ${dependencyVersion} does not match installed version ${installedVersion}`);
   }
 
+  if (latestVersion && dependencyVersion && installedVersion && packageCurrent === 'yes' && (dependencyVersion !== latestVersion || installedVersion !== latestVersion)) {
+    errors.push('CodePush package current cannot be yes when dependency or installed version differs from latest');
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(latestPublishedAt)) {
+    errors.push(`CodePush package latest published at must be an ISO timestamp. Received: ${latestPublishedAt || 'missing'}`);
+  }
+
   if (packageVersionsAligned !== 'yes') {
     errors.push('CodePush package versions must be aligned before release-path validation');
+  }
+
+  if (upstreamRepository !== 'https://github.com/microsoft/react-native-code-push') {
+    errors.push(`CodePush upstream repository must be the Microsoft React Native CodePush repo. Received: ${upstreamRepository || 'missing'}`);
+  }
+
+  if (!npmRepository.includes('github.com/microsoft/react-native-code-push')) {
+    errors.push(`CodePush npm repository must point at the Microsoft React Native CodePush repo. Received: ${npmRepository || 'missing'}`);
+  }
+
+  if (appCenterRetirementDate !== '2025-03-31') {
+    errors.push(`App Center CodePush retirement date must be 2025-03-31. Received: ${appCenterRetirementDate || 'missing'}`);
+  }
+
+  if (upstreamRetired !== 'yes' || upstreamArchived !== 'yes') {
+    errors.push('CodePush upstream must be recorded as retired and archived');
+  }
+
+  if (androidNewArchitectureEnabled === 'yes' && upstreamNewArchitectureSupport !== 'no') {
+    errors.push('CodePush New Architecture support must remain no while Android New Architecture is enabled');
+  }
+
+  if (migrationRequired !== 'yes') {
+    errors.push('CodePush migration required must be yes while App Center CodePush is retired');
   }
 
   [
@@ -158,6 +208,10 @@ export const getCodePushReleasePathSummaryErrors = summary => {
 
   if (ready === 'yes' && (wiringValid !== 'yes' || readinessCount !== '0' || wiringErrorCount !== '0')) {
     errors.push('Ready summary must have valid wiring, 0 readiness issues, and 0 wiring errors');
+  }
+
+  if (!requiredAction.includes('migrate or replace retired App Center CodePush')) {
+    errors.push('Required action must name retired App Center CodePush migration or replacement');
   }
 
   if (ready === 'no' && !requiredAction.includes('CodePush deployment keys')) {

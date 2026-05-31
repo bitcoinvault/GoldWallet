@@ -1,3 +1,4 @@
+import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -19,6 +20,8 @@ export const codePushEnvFiles = ['.env.dev.testnet', '.env.stage.mainnet', '.env
 export const requiredCodePushEnvKeys = ['CODEPUSH_DEPLOYMENT_KEY_ANDROID', 'CODEPUSH_DEPLOYMENT_KEY_IOS'];
 export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod'];
 const codePushPackageName = 'react-native-code-push';
+const appCenterRetirementDate = '2025-03-31';
+const codePushUpstreamRepository = 'https://github.com/microsoft/react-native-code-push';
 
 const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {
@@ -30,12 +33,23 @@ const getSummaryLineValue = (content, label) => {
 
   return line ? line.slice(label.length + 2).trim() : '';
 };
+const npmViewJson = (packageName, fields) =>
+  JSON.parse(
+    execFileSync('npm', ['view', packageName, ...fields, '--json'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      shell: process.platform === 'win32',
+      windowsHide: true,
+    }),
+  );
 
 export const collectCodePushReleasePathAudit = () => {
   const packageJson = JSON.parse(read('package.json'));
   const androidBuildGradle = read('android/app/build.gradle');
   const androidMainApplication = read('android/app/src/main/java/io/goldwallet/wallet/MainApplication.java');
   const androidStrings = read('android/app/src/main/res/values/strings.xml');
+  const androidGradleProperties = read('android/gradle.properties');
   const appSource = read('App.tsx');
   const configSource = read('src/config/index.ts');
   const errors = [];
@@ -45,6 +59,15 @@ export const collectCodePushReleasePathAudit = () => {
   const packageDependencyVersion = packageJson.dependencies?.[codePushPackageName] || packageJson.devDependencies?.[codePushPackageName] || '';
   const packageJsonPath = path.join(root, 'node_modules', codePushPackageName, 'package.json');
   let installedPackageVersion = '';
+  const npmMetadata = npmViewJson(codePushPackageName, ['version', 'time', 'repository.url']);
+  const packageLatestVersion = npmMetadata.version || '';
+  const packageLatestPublishedAt = npmMetadata.time?.[packageLatestVersion] || '';
+  const packageRepositoryUrl = npmMetadata['repository.url'] || npmMetadata.repository?.url || '';
+  const androidNewArchitectureEnabled = /(?:^|\r?\n)\s*newArchEnabled\s*=\s*true\s*(?:\r?\n|$)/.test(androidGradleProperties);
+  const upstreamRetired = true;
+  const upstreamArchived = true;
+  const upstreamNewArchitectureSupported = false;
+  const migrationRequired = upstreamRetired || upstreamArchived || (androidNewArchitectureEnabled && !upstreamNewArchitectureSupported);
   let androidReleaseSummaryPresent = false;
   let androidReleaseSummaryVariants = [];
   let androidReleaseSummaryErrors = [];
@@ -166,6 +189,17 @@ export const collectCodePushReleasePathAudit = () => {
     envReadiness,
     packageDependencyVersion,
     installedPackageVersion,
+    packageLatestVersion,
+    packageLatestPublishedAt,
+    packageRepositoryUrl,
+    packageCurrent: packageDependencyVersion === packageLatestVersion && installedPackageVersion === packageLatestVersion,
+    appCenterRetirementDate,
+    codePushUpstreamRepository,
+    upstreamRetired,
+    upstreamArchived,
+    upstreamNewArchitectureSupported,
+    androidNewArchitectureEnabled,
+    migrationRequired,
     packageVersionsAligned:
       packageDependencyVersion.length > 0 && installedPackageVersion.length > 0 && packageDependencyVersion === installedPackageVersion,
     androidReleaseSummaryPresent,
@@ -196,7 +230,18 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
     }),
     `CodePush package dependency version: ${audit.packageDependencyVersion || 'missing'}`,
     `CodePush package installed version: ${audit.installedPackageVersion || 'missing'}`,
+    `CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`,
+    `CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`,
+    `CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`,
     `CodePush package versions aligned: ${audit.packageVersionsAligned ? 'yes' : 'no'}`,
+    `CodePush upstream repository: ${audit.codePushUpstreamRepository}`,
+    `CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`,
+    `App Center CodePush retirement date: ${audit.appCenterRetirementDate}`,
+    `CodePush upstream retired: ${audit.upstreamRetired ? 'yes' : 'no'}`,
+    `CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`,
+    `CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`,
+    `Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`,
+    `CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`,
     `Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`,
     `Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`,
     `Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`,
@@ -215,8 +260,8 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
   lines.push('Secret values printed: no');
   lines.push(
     audit.ready
-      ? 'Required action: none; non-beta CodePush release path env keys are present locally.'
-      : 'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation.',
+      ? 'Required action: migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.'
+      : 'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation; migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -249,6 +294,14 @@ const printReport = audit => {
   console.log(`Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
+  console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
+  console.log(`CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
+  console.log(`App Center CodePush retirement date: ${audit.appCenterRetirementDate}`);
+  console.log(`CodePush upstream retired: ${audit.upstreamRetired ? 'yes' : 'no'}`);
+  console.log(`CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`);
+  console.log(`CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`);
+  console.log(`Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`);
+  console.log(`CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`);
   console.log('CodePush update validation: not claimed');
   console.log('CodePush release path wiring is present for non-dev runtime, Android, iOS, and env key references.');
 };

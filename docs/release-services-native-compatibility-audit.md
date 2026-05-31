@@ -15,7 +15,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-firebase/crashlytics` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-firebase/messaging` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
-| `react-native-code-push` | `9.0.1` | `9.0.1` | Release update path, deployment keys, native bundle loading. |
+| `react-native-code-push` | `9.0.1` | `9.0.1` | Latest npm package is installed, but App Center CodePush was retired on 2025-03-31 and the Microsoft repositories are archived; treat as migration/removal work, not a normal package refresh. |
 | `@sentry/react-native` | `8.13.0` | `8.13.0` | Latest checked SDK line; source-map and dSYM behavior must still be proven with local credentials. |
 | `@sentry/cli` | `3.4.3` | `3.4.3` | Installed through the Sentry React Native package; prerequisite audit checks binary availability and live latest metadata. |
 
@@ -89,6 +89,8 @@ corepack yarn release-services:check-summaries
 Results:
 
 - CodePush release-path wiring is valid for non-dev runtime, Android, iOS, and env key references.
+- CodePush package readiness now records live npm latest metadata and confirms that the installed package is current.
+- CodePush upstream retirement readiness now records App Center CodePush retirement on 2025-03-31, archived Microsoft upstream state, lack of upstream New Architecture support, Android `newArchEnabled=true`, and `CodePush migration required: yes`.
 - CodePush release-path env readiness is now recorded per env file without printing deployment-key values.
 - CodePush release-path package readiness now verifies that `package.json` and the installed `node_modules/react-native-code-push` package agree before release-path validation is considered usable.
 - CodePush update validation is ready from env-key perspective for `.env.stage.mainnet` and `.env.prod.mainnet`.
@@ -155,7 +157,7 @@ Shared env/config:
 - `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, Messaging runtime wiring, latest local Android `dev`/`stage`/`prod` release summary evidence, and unclaimed runtime-delivery status before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
-- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.85.3` proof, with guarded release bundle alias compatibility for RN Gradle task naming.
+- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.85.3` proof, with guarded release bundle alias compatibility for RN Gradle task naming. Because App Center CodePush is retired and the Microsoft upstream is archived, this is now a migration/removal risk rather than a normal dependency update target.
 - `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, Android bundle resolution, iOS deployment-key placeholders, referenced env keys, local package/install version alignment, latest local Android `dev`/`stage`/`prod` release summary evidence, and unclaimed update-validation status without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.85.3` warning audit no longer reports Sentry `execResult`.
