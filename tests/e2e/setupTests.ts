@@ -5,7 +5,7 @@
 import { device } from 'detox';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: 'tests/e2e/.env.e2e' });
+dotenv.config({ path: 'tests/e2e/.env.e2e', quiet: true });
 
 beforeEach(async () => {
   await device.launchApp({
