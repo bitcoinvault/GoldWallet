@@ -22,4 +22,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('Android dev release summary artifact is valid.');
+console.log('Android release summary artifact is valid.');
