@@ -13,6 +13,7 @@ Latest npm checked on 2026-05-31.
 | `bip32` | `5.0.1` | `5.0.1` | Migrated through `utils/bip32.js`, which adapts the factory-based API to the wallet classes. |
 | `@bitcoinerlab/secp256k1` | `1.2.0` | `1.2.0` | Pure-JavaScript ECC backend for the latest `bip32` factory API; selected because `tiny-secp256k1@2.x` pulls WASM/Node crypto paths that do not bundle cleanly in React Native. |
 | `coinselect` | `3.1.13` | `3.1.13` | Current coin selection package remains latest. |
+| `bech32` | not direct | `2.0.0` | The app does not import the standalone package directly. BTCV Bech32 address behavior is owned by the pinned BitcoinVault `bitcoinjs-lib` fork, which resolves transitive `bech32@1.1.4`; keep the direct package absent unless a future branch introduces direct address-encoding code. |
 | `ecurve` | `1.0.6` | `1.0.6` | Legacy elliptic curve dependency used by `utils/crypto.ts`; pinned exactly because this is wallet-critical runtime code. |
 | `bigi` | `1.4.2` | `1.4.2` | Legacy big integer dependency used by `utils/crypto.ts`; pinned exactly because this is wallet-critical runtime code. |
 | `pbkdf2` | `3.1.6` | `3.1.6` | Current package remains latest. |
@@ -25,6 +26,7 @@ Latest npm checked on 2026-05-31.
 - `bitcoinjs-lib` is imported by wallet classes, transaction screens, config/network setup, signer tests, authenticator tests, and Electrum/HD wallet integration tests.
 - `bip39` and the local `utils/bip32.js` adapter drive HD wallet mnemonic and derivation behavior in the HD wallet class hierarchy.
 - `coinselect` is used by the SegWit bech32 send flow.
+- Direct `bech32` usage is intentionally absent; Bech32 encode/decode behavior is exercised through `bitcoinjs-lib` address/payment APIs and the offline BIP84 fixtures.
 - `crypto-js` is used for wallet-related hashing/encryption helpers and is guarded separately by `corepack yarn crypto-js:runtime:audit`.
 - `ecurve` and `bigi` are not treated as isolated low-risk package bumps because they are coupled to the old bitcoin stack and BTCV fork behavior.
 - Direct `wif` is now latest `5.0.0`; the BitcoinVault `bitcoinjs-lib` fork keeps using nested `wif@2.0.6`, because its old stack still depends on the 2.x WIF line.

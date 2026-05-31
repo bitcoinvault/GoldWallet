@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.251 - Direct Bech32 dependency cleanup
+
+- Branch: `feature/bem-37-251-remove-direct-bech32`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove the unused direct `bech32@1.1.3` dependency from `package.json`.
+- Keep BTCV Bech32 address behavior owned by the pinned BitcoinVault `bitcoinjs-lib` fork.
+- Strengthen `wallet:crypto-runtime:audit` so it verifies direct `bech32` is absent and the BTCV fork still resolves transitive `bech32@1.1.4`.
+- Refresh the wallet crypto audit documentation for the direct dependency cleanup.
+
+Findings:
+
+- `npm view bech32 version dist-tags engines dependencies peerDependencies exports main module types typings --json` reported latest `2.0.0`.
+- `corepack yarn why bech32` showed the app's direct `bech32@1.1.3` was not needed; after removal, `bech32@1.1.4` remains through `bitcoinjs-lib`.
+- App source does not import `bech32` directly; Bech32 address and transaction behavior is covered through `bitcoinjs-lib` APIs and the offline BIP84 fixtures.
+
+Validation:
+
+- `npm view bech32 version dist-tags engines dependencies peerDependencies exports main module types typings --json`
+- `corepack yarn why bech32`
+- `corepack yarn remove bech32`
+- `corepack yarn postinstall`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn crypto-js:runtime:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.250 - UUID runtime compatibility refresh
 
 - Branch: `feature/bem-37-250-uuid-runtime-upgrade`
