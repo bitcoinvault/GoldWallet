@@ -12,6 +12,8 @@ const validSummary = [
   'CameraKit node engine: >=18',
   'QR renderer latest: react-native-qrcode-svg@6.3.21',
   'QR encoder latest: qrcode@1.5.4',
+  'Live npm metadata: matched',
+  'Live npm metadata issues: 0',
   'Selected proof target: CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers',
   'Proof branch: feature/bem-37-camera-kit-qr-proof',
   'Camera candidate baseline stable: yes',
@@ -22,6 +24,8 @@ const validSummary = [
 
 const invalidSummary = validSummary
   .replace('VisionCamera Nitro peers: yes', 'VisionCamera Nitro peers: no')
+  .replace('Live npm metadata: matched', 'Live npm metadata: stale')
+  .replace('Live npm metadata issues: 0', 'Live npm metadata issues: 1\n- VisionCamera latest live npm metadata is react-native-vision-camera@5.1.0; expected react-native-vision-camera@5.0.11')
   .replace('Camera candidate baseline stable: yes', 'Camera candidate baseline stable: no')
   .replace(
     'Required action: none; CameraKit scanner baseline is stable after the dedicated proof branch.',
@@ -51,6 +55,11 @@ const assertRejected = (label, summary, expectedError) => {
 assertAccepted('Valid camera candidate summary fixture', validSummary);
 assertRejected('Invalid VisionCamera Nitro peer fixture', invalidSummary, 'VisionCamera Nitro peers');
 assertRejected('Missing metadata date fixture', validSummary.replace('Metadata checked on: 2026-05-31', 'Metadata checked on: 2026-05-29'), 'Metadata checked on');
+assertRejected(
+  'Stable stale metadata fixture',
+  validSummary.replace('Live npm metadata: matched', 'Live npm metadata: stale'),
+  'Stale live npm metadata summary must list',
+);
 assertRejected(
   'Missing VisionCamera peer fixture',
   validSummary.replace(

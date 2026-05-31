@@ -34,6 +34,9 @@ export const getCameraCandidateSummaryErrors = summary => {
   const cameraKitNodeEngine = getLineValue(summary, 'CameraKit node engine');
   const qrRenderer = getLineValue(summary, 'QR renderer latest');
   const qrEncoder = getLineValue(summary, 'QR encoder latest');
+  const liveMetadata = getLineValue(summary, 'Live npm metadata');
+  const liveMetadataIssueCount = getLineValue(summary, 'Live npm metadata issues');
+  const liveMetadataIssueLines = getBulletLinesAfter(summary, 'Live npm metadata issues');
   const selectedProofTarget = getLineValue(summary, 'Selected proof target');
   const proofBranch = getLineValue(summary, 'Proof branch');
   const baselineStable = getLineValue(summary, 'Camera candidate baseline stable');
@@ -81,6 +84,24 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`QR encoder latest must be qrcode@1.5.4. Received: ${qrEncoder || 'missing'}`);
   }
 
+  if (!['matched', 'stale'].includes(liveMetadata)) {
+    errors.push(`Live npm metadata must be matched or stale. Received: ${liveMetadata || 'missing'}`);
+  }
+
+  if (!/^\d+$/.test(liveMetadataIssueCount)) {
+    errors.push(`Live npm metadata issues must be a non-negative integer. Received: ${liveMetadataIssueCount || 'missing'}`);
+  } else if (Number(liveMetadataIssueCount) !== liveMetadataIssueLines.length) {
+    errors.push(`Live npm metadata issues count must be ${liveMetadataIssueLines.length}. Received: ${liveMetadataIssueCount}`);
+  }
+
+  if (liveMetadata === 'matched' && liveMetadataIssueCount !== '0') {
+    errors.push('Matched live npm metadata summary must have 0 live metadata issues');
+  }
+
+  if (liveMetadata === 'stale' && liveMetadataIssueCount === '0') {
+    errors.push('Stale live npm metadata summary must list at least one live metadata issue');
+  }
+
   if (selectedProofTarget !== 'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers') {
     errors.push(`Selected proof target is unexpected. Received: ${selectedProofTarget || 'missing'}`);
   }
@@ -95,6 +116,10 @@ export const getCameraCandidateSummaryErrors = summary => {
 
   if (Number(warningCount) !== warningLines.length) {
     errors.push(`Warnings count must be ${warningLines.length}. Received: ${warningCount || 'missing'}`);
+  }
+
+  if (baselineStable === 'yes' && liveMetadata !== 'matched') {
+    errors.push('Stable baseline summary must have matched live npm metadata');
   }
 
   if (baselineStable === 'yes' && !requiredAction.includes('none; CameraKit scanner baseline is stable')) {
