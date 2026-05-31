@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.263 - CodePush release readiness evidence refresh
+
+- Branch: `feature/bem-37-263-codepush-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live npm metadata for `react-native-code-push` after the Android release proof branches.
+- Extend the CodePush release-path audit so it records whether the latest local Android release summary artifact is present and valid.
+- Keep update validation status explicit: release APK/bundle generation is proven locally, but CodePush update validation is not claimed without valid deployment-key coverage.
+
+Findings:
+
+- `npm view react-native-code-push version peerDependencies dependencies engines --json` reports latest `9.0.1`, matching the installed package.
+- CodePush non-dev runtime/native wiring remains valid across `App.tsx`, Android Gradle, Android `MainApplication`, Android string resources, iOS plist placeholders, and env references.
+- The current local CodePush summary sees a valid Android release summary artifact for `beta`, but full update validation is blocked because `.env.dev.testnet` has blank Android/iOS deployment keys and beta env files do not define deployment keys.
+
+Validation:
+
+- `npm view react-native-code-push version peerDependencies dependencies engines --json`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:codepush-usage-scope`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.262 - Sentry release prerequisite evidence refresh
 
 - Branch: `feature/bem-37-262-sentry-release-readiness-refresh`

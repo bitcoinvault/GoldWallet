@@ -80,6 +80,8 @@ Beta release evidence refresh: on 2026-05-31, `feature/bem-37-261-android-beta-r
 
 `check:codepush-usage-scope` keeps CodePush runtime usage isolated to `App.tsx` and native integration isolated to the current Android/iOS bundle-loading and deployment-key files before a dedicated CodePush release-path upgrade.
 
+`codepush:release:path-audit` records CodePush non-dev runtime/native/env wiring, per-env deployment-key readiness, whether the latest local Android release summary artifact is present and valid, and whether CodePush update validation is claimed. The expected local state is that APK/bundle generation can be proven by Android release summaries while CodePush update validation remains unclaimed until non-empty deployment keys and the beta strategy are available.
+
 `check:firebase-usage-scope` keeps React Native Firebase runtime usage isolated to notification handling and native integration isolated to the current Android Gradle/config files and iOS Firebase plist/Xcode wiring before a Firebase family upgrade.
 
 `check:push-notification-ios-usage-scope` keeps the iOS push notification bridge isolated to the current badge/notification runtime file and AppDelegate/background-mode wiring before changing `@react-native-community/push-notification-ios`.
