@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.255 - CodePush env readiness audit
+
+- Branch: `feature/bem-37-255-codepush-env-readiness-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the CodePush release-path audit summary with per-env readiness entries.
+- Keep the existing global wiring and readiness status, but add a clearer count of env files that are ready for CodePush update validation.
+- Keep deployment-key values out of command output and summary artifacts.
+- Update release-services documentation to distinguish `stage`/`prod` readiness from blocked `dev` and unconfirmed `beta` readiness.
+
+Findings:
+
+- CodePush release-path wiring remains valid for runtime, Android, iOS, and env key references.
+- `.env.stage.mainnet` and `.env.prod.mainnet` are ready from an env-key presence perspective.
+- `.env.dev.testnet` remains blocked by blank Android/iOS CodePush deployment-key variables.
+- `.env.beta.testnet` and `.env.beta.mainnet` remain unconfirmed because beta CodePush deployment keys are not defined.
+
+Validation:
+
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.254 - Android release variant validation
 
 - Branch: `feature/bem-37-254-android-release-variant-validation`
