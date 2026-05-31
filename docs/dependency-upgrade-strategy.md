@@ -64,6 +64,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - Tooling: ESLint, Prettier, Husky, lint-staged, Jest, ts-jest, Detox.
 - Use `corepack yarn tooling:latest-snapshot:audit` before tooling dependency branches when network access is available. It records live npm latest versions for the tracked tooling cohort into `local-docs/tooling-latest-snapshot.txt` without changing package versions.
 - Use `corepack yarn tooling:latest-snapshot:check-summary` to validate that generated local snapshot before using it as branch-start evidence.
+- The tooling snapshot also tracks isolated report/E2E/coverage tooling after `BEM-37.269` and `BEM-37.270`: `jest-junit@17.0.0`, `junit-report-merger@9.0.3`, `babel-plugin-istanbul@8.0.0`, and `mailosaur@11.1.1`.
 - `lint-staged` is on checked highest compatible `16.4.0` after `BEM-37.210`; latest `17.0.6` requires Node `>=22.22.1`, above the current Node `v22.18.0` baseline.
 - Prettier tooling is on checked highest compatible Prettier 2 line after `BEM-37.211`: `prettier@2.8.8`, `eslint-plugin-prettier@4.2.5`, and `eslint-config-prettier@8.10.2`; the checked latest Prettier 3 line is deferred to a separate formatting migration because it creates repo-wide `prettier/prettier` churn in the current lint baseline.
 - Jest tooling remains on the checked compatible `29.7.0` line after `BEM-37.212`; the checked Jest 30 line is deferred until the React Native Jest preset stops mixing a Jest 29 environment with a Jest 30 runtime.
