@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom';
 import mailosaur from 'mailosaur';
-import { SearchCriteria, Message } from 'mailosaur/lib/models';
+import type { SearchCriteria, Message } from 'mailosaur';
 
 import { envData } from '../data';
 
