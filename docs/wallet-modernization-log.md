@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.236 - Android dev release validation proof
+
+- Branch: `feature/bem-37-236-android-release-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Validate the Android `devRelease` path after the RN/AGP modernization work, including release JS bundling, CodePush bundle compatibility, packaging, and unsigned APK generation.
+- Keep Sentry source-map upload explicitly out of scope for local validation because production upload still requires Sentry credentials.
+- Record the validation artifact in `local-docs/android-release-dev-summary.txt` and keep the tracked repo evidence in this log.
+
+Findings:
+
+- `:app:assembleDevRelease` completed successfully with JDK 17.
+- The unsigned `devRelease` APK was generated at `android\app\build\outputs\apk\dev\release\app-dev-release-unsigned.apk`.
+- The local APK artifact was `249692506` bytes with SHA-256 `0c6cc612618c21e7a86c74c37190ccf8d4f3042608967c12f8bd517576b9bc0e`.
+- Sentry auto upload was disabled for the local build; source-map upload validation still requires `SENTRY_AUTH_TOKEN` or equivalent Sentry config before it can be claimed.
+
+Validation:
+
+- `corepack yarn check:android-release-summary-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+
 ### BEM-37.235 - Jest JUnit reporter patch refresh
 
 - Branch: `feature/bem-37-jest-junit-patch-refresh`
