@@ -62,6 +62,8 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - Lodash runtime is on checked latest `4.18.1` after `BEM-37.208`; `@types/lodash@4.17.24` is also checked latest.
 - CryptoJS runtime is on checked latest `4.2.0` after `BEM-37.206`; future crypto work should focus on behavior coverage and replacement strategy, not another blind package bump.
 - Tooling: ESLint, Prettier, Husky, lint-staged, Jest, ts-jest, Detox.
+- Use `corepack yarn tooling:latest-snapshot:audit` before tooling dependency branches when network access is available. It records live npm latest versions for the tracked tooling cohort into `local-docs/tooling-latest-snapshot.txt` without changing package versions.
+- Use `corepack yarn tooling:latest-snapshot:check-summary` to validate that generated local snapshot before using it as branch-start evidence.
 - `lint-staged` is on checked highest compatible `16.4.0` after `BEM-37.210`; latest `17.0.6` requires Node `>=22.22.1`, above the current Node `v22.18.0` baseline.
 - Prettier tooling is on checked highest compatible Prettier 2 line after `BEM-37.211`: `prettier@2.8.8`, `eslint-plugin-prettier@4.2.5`, and `eslint-config-prettier@8.10.2`; the checked latest Prettier 3 line is deferred to a separate formatting migration because it creates repo-wide `prettier/prettier` churn in the current lint baseline.
 - Jest tooling remains on the checked compatible `29.7.0` line after `BEM-37.212`; the checked Jest 30 line is deferred until the React Native Jest preset stops mixing a Jest 29 environment with a Jest 30 runtime.

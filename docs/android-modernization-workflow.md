@@ -56,6 +56,8 @@ Use `corepack yarn rn:target-snapshot:audit` to verify that the recorded npm tar
 
 Use `corepack yarn upgrade:strategy:audit` before dependency/RN baseline branches to keep the upgrade strategy aligned with layered milestone jumps. The default rule is to try the latest feasible target for the chosen layer, capture the exact blocker if it fails, then pick the highest compatible fallback instead of walking every minor version by default.
 
+Use `corepack yarn tooling:latest-snapshot:audit` before tooling dependency branches when network access is available. It writes `local-docs/tooling-latest-snapshot.txt` with package specs, installed versions, live npm latest versions, and the current defer/upgrade decision for the tracked tooling cohort without changing package versions.
+
 `check:rn-upgrade-path-audit-guard` verifies the React Native upgrade path audit fixtures before the real audit checks the current worktree.
 
 `check:metro-dev-runtime-audit-guard` verifies the Metro dev runtime audit fixtures without depending on the current terminal's Node version.

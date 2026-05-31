@@ -1,0 +1,157 @@
+import { execFileSync } from 'child_process';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { createRequire } from 'module';
+import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+
+const require = createRequire(import.meta.url);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, '..');
+const summaryPath = path.join(root, 'local-docs', 'tooling-latest-snapshot.txt');
+const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+
+const trackedTooling = [
+  {
+    name: 'typescript',
+    source: 'devDependencies',
+    decision: 'deferred - TypeScript belongs with RN/test baseline validation',
+  },
+  {
+    name: 'jest',
+    source: 'devDependencies',
+    decision: 'deferred - React Native Jest preset still owns the Jest 29 environment',
+  },
+  {
+    name: 'babel-jest',
+    source: 'devDependencies',
+    decision: 'deferred - Jest runtime and transformer versions must move together',
+  },
+  {
+    name: 'jest-circus',
+    source: 'devDependencies',
+    decision: 'deferred - Jest runtime and runner versions must move together',
+  },
+  {
+    name: '@typescript-eslint/eslint-plugin',
+    source: 'devDependencies',
+    decision: 'deferred - ESLint major config migration is a separate lint baseline branch',
+  },
+  {
+    name: '@typescript-eslint/parser',
+    source: 'devDependencies',
+    decision: 'deferred - ESLint parser and plugin must move together',
+  },
+  {
+    name: 'eslint',
+    source: 'devDependencies',
+    decision: 'deferred - ESLint major config migration is a separate lint baseline branch',
+  },
+  {
+    name: 'prettier',
+    source: 'devDependencies',
+    decision: 'deferred - Prettier 3 requires a separate formatting migration',
+  },
+  {
+    name: 'eslint-plugin-prettier',
+    source: 'devDependencies',
+    decision: 'deferred - Prettier plugin follows the Prettier major migration',
+  },
+  {
+    name: 'eslint-config-prettier',
+    source: 'devDependencies',
+    decision: 'deferred - Prettier config follows the Prettier major migration',
+  },
+  {
+    name: 'lint-staged',
+    source: 'devDependencies',
+    decision: 'deferred - latest requires a newer Node baseline',
+  },
+  {
+    name: 'husky',
+    source: 'devDependencies',
+    decision: 'deferred - Husky major migration changes hook installation semantics',
+  },
+  {
+    name: 'detox',
+    source: 'devDependencies',
+    decision: 'deferred - Detox major migration requires dedicated Android/iOS E2E runner validation',
+  },
+];
+
+const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmViewVersion = packageName =>
+  JSON.parse(
+    execFileSync(npmCommand, ['view', packageName, 'version', '--json'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      shell: process.platform === 'win32',
+      windowsHide: true,
+    }).trim(),
+  );
+
+const getInstalledVersion = packageName => {
+  try {
+    return require(`${packageName}/package.json`).version;
+  } catch {
+    return null;
+  }
+};
+
+export const collectToolingLatestSnapshot = () =>
+  trackedTooling.map(entry => {
+    const current = packageJson[entry.source]?.[entry.name];
+    const installed = getInstalledVersion(entry.name);
+    const latest = npmViewVersion(entry.name);
+
+    return {
+      ...entry,
+      current,
+      installed,
+      latest,
+      deferred: installed !== latest,
+    };
+  });
+
+export const formatToolingLatestSnapshotSummary = (entries, generatedAt = new Date().toISOString()) => {
+  const deferredEntries = entries.filter(entry => entry.deferred);
+
+  return [
+    'Tooling latest snapshot audit',
+    `Generated at: ${generatedAt}`,
+    `Node version: ${process.version}`,
+    `Entries: ${entries.length}`,
+    ...entries.map(
+      entry =>
+        `- ${entry.name}: package ${entry.current || '<missing>'}, installed ${entry.installed || '<missing>'}, latest ${entry.latest}, decision ${
+          entry.decision
+        }`,
+    ),
+    `Deferred entries: ${deferredEntries.length}`,
+    'Required action: use this snapshot before tooling dependency branches; no package versions are changed by this audit.',
+    '',
+  ].join('\n');
+};
+
+const writeSummary = summary => {
+  mkdirSync(path.dirname(summaryPath), { recursive: true });
+  writeFileSync(summaryPath, summary);
+};
+
+const printReport = entries => {
+  const missing = entries.filter(entry => !entry.current);
+
+  if (missing.length > 0) {
+    console.error('Tooling latest snapshot audit failed:');
+    missing.forEach(entry => console.error(`- ${entry.name} is missing from package.json ${entry.source}`));
+    process.exit(1);
+  }
+
+  const summary = formatToolingLatestSnapshotSummary(entries);
+  writeSummary(summary);
+  console.log(summary.trim());
+  console.log(`Tooling latest snapshot summary written to ${path.relative(root, summaryPath)}`);
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  printReport(collectToolingLatestSnapshot());
+}
