@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.283 - Camera QR iOS lockfile readiness audit
+
+- Branch: `feature/bem-37-283-camera-qr-modernization-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep CameraKit as the installed QR scanner baseline after confirming live npm latest metadata is still current.
+- Extend the camera QR migration audit so stale removed camera pods in `ios/Podfile.lock` are reported explicitly.
+- Refresh camera/native-module docs so Android scanner baseline and iOS CocoaPods readiness are not conflated.
+
+Findings:
+
+- `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4` remain the live latest checked package set.
+- VisionCamera still requires Nitro peer packages, so CameraKit remains the lower-risk installed scanner baseline for this RN foundation.
+- Android/runtime dependency wiring is guarded, but `ios/Podfile.lock` still references removed `react-native-camera` and `react-native-qrcode-local-image` pods.
+- iOS camera QR migration validation remains unclaimed until macOS `pod install` refreshes `ios/Podfile.lock` and iOS scanner behavior is validated.
+
+Validation:
+
+- `npm view react-native-camera-kit version engines peerDependencies dependencies --json`
+- `npm view react-native-vision-camera version peerDependencies dependencies engines --json`
+- `npm view react-native-qrcode-svg version peerDependencies dependencies --json`
+- `npm view qrcode version dependencies --json`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:camera-qr-migration-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.282 - CodePush retirement and migration audit
 
 - Branch: `feature/bem-37-282-codepush-retirement-audit`

@@ -31,6 +31,8 @@ export const getCameraQrMigrationSummaryErrors = summary => {
   const qrLocalImageVersion = getLineValue(summary, 'QR local-image manifest version');
   const qrRendererVersion = getLineValue(summary, 'QR renderer version');
   const qrcodeResolution = getLineValue(summary, 'qrcode resolution');
+  const iosPodfileLockRefreshRequired = getLineValue(summary, 'iOS Podfile.lock refresh required');
+  const iosStaleRemovedCameraPods = getLineValue(summary, 'iOS stale removed camera pods');
   const wiringValid = getLineValue(summary, 'Camera QR migration wiring valid');
   const baselineStable = getLineValue(summary, 'Camera QR migration baseline stable');
   const warningCount = getLineValue(summary, 'Warnings');
@@ -69,11 +71,23 @@ export const getCameraQrMigrationSummaryErrors = summary => {
     errors.push('qrcode resolution is missing');
   }
 
-  [wiringValid, baselineStable].forEach(value => {
+  [iosPodfileLockRefreshRequired, wiringValid, baselineStable].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
       errors.push(`Boolean summary values must be yes or no. Received: ${value || 'missing'}`);
     }
   });
+
+  if (!iosStaleRemovedCameraPods) {
+    errors.push('iOS stale removed camera pods line is missing');
+  }
+
+  if (iosPodfileLockRefreshRequired === 'yes' && iosStaleRemovedCameraPods === 'none') {
+    errors.push('iOS Podfile.lock refresh required cannot be yes when stale removed camera pods is none');
+  }
+
+  if (iosPodfileLockRefreshRequired === 'no' && iosStaleRemovedCameraPods !== 'none') {
+    errors.push('iOS stale removed camera pods must be none when Podfile.lock refresh is not required');
+  }
 
   [
     ['Warnings', warningCount, warningLines.length],
@@ -97,6 +111,10 @@ export const getCameraQrMigrationSummaryErrors = summary => {
 
   if (baselineStable === 'no' && !requiredAction.includes('restore camera QR migration baseline')) {
     errors.push('Unstable baseline summary must include the camera QR restoration required action');
+  }
+
+  if (iosPodfileLockRefreshRequired === 'yes' && !requiredAction.includes('pod install on macOS')) {
+    errors.push('iOS Podfile.lock refresh summary must name pod install on macOS');
   }
 
   return errors;
