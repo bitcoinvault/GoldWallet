@@ -30,6 +30,7 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
   const wiringValid = getLineValue(summary, 'Firebase release-services wiring valid');
   const androidReleaseSummaryPresent = getLineValue(summary, 'Android release summary present');
   const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
+  const androidReleaseSummaryRequiredVariantsCovered = getLineValue(summary, 'Android release summary required variants covered');
   const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
   const androidReleaseSummaryErrorCount = getLineValue(summary, 'Android release summary errors');
   const firebaseRuntimeDeliveryValidation = getLineValue(summary, 'Firebase runtime delivery validation');
@@ -56,7 +57,7 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
     errors.push(`Firebase release-services wiring valid must be yes or no. Received: ${wiringValid || 'missing'}`);
   }
 
-  [androidReleaseSummaryPresent, androidReleaseSummaryValid].forEach(value => {
+  [androidReleaseSummaryPresent, androidReleaseSummaryRequiredVariantsCovered, androidReleaseSummaryValid].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
       errors.push(`Boolean summary values must be yes or no. Received: ${value || 'missing'}`);
     }
@@ -68,6 +69,23 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
 
   if (androidReleaseSummaryPresent === 'no' && androidReleaseSummaryVariants !== 'none') {
     errors.push('Missing Android release summary must report variants as none');
+  }
+
+  if (androidReleaseSummaryPresent === 'yes') {
+    const variants = androidReleaseSummaryVariants
+      .split(',')
+      .map(entry => entry.trim())
+      .filter(Boolean);
+
+    ['dev', 'stage', 'prod'].forEach(variant => {
+      if (!variants.includes(variant)) {
+        errors.push(`Android release summary must include ${variant} release evidence`);
+      }
+    });
+  }
+
+  if (androidReleaseSummaryRequiredVariantsCovered !== 'yes') {
+    errors.push('Android release summary must cover dev, stage, and prod release evidence');
   }
 
   if (firebaseRuntimeDeliveryValidation !== 'not claimed') {

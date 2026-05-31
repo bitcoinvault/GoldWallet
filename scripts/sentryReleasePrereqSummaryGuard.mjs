@@ -43,6 +43,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const readyPropertiesFiles = getLineValue(summary, 'Ready properties files');
   const androidReleaseSummaryPresent = getLineValue(summary, 'Android release summary present');
   const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
+  const androidReleaseSummaryRequiredVariantsCovered = getLineValue(summary, 'Android release summary required variants covered');
   const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
   const androidReleaseSummaryErrors = getLineValue(summary, 'Android release summary errors');
   const sentryReleaseUploadValidation = getLineValue(summary, 'Sentry release upload validation');
@@ -154,6 +155,23 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Missing Android release summary must report variants as none');
   }
 
+  if (androidReleaseSummaryPresent === 'yes') {
+    const variants = androidReleaseSummaryVariants
+      .split(',')
+      .map(entry => entry.trim())
+      .filter(Boolean);
+
+    ['dev', 'stage', 'prod'].forEach(variant => {
+      if (!variants.includes(variant)) {
+        errors.push(`Android release summary must include ${variant} release evidence`);
+      }
+    });
+  }
+
+  if (androidReleaseSummaryRequiredVariantsCovered !== 'yes') {
+    errors.push('Android release summary must cover dev, stage, and prod release evidence');
+  }
+
   if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryErrors !== '0') {
     errors.push('Valid Android release summary must have 0 summary errors');
   }
@@ -164,6 +182,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
 
   [
     androidReleaseSummaryPresent,
+    androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryValid,
     sentryCliBinPresent,
     sentryCliExecutable,

@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.275 - Release service Android evidence alignment
+
+- Branch: `feature/bem-37-275-release-service-summary-evidence-alignment`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align Firebase and Sentry release-service summary guards with the current default Android release evidence set.
+- Require Firebase and Sentry summaries to report Android `dev`, `stage`, and `prod` release evidence when an Android release summary is present.
+- Refresh the release-services documentation so default APK/bundle evidence is distinguished from beta-only validation runs.
+
+Findings:
+
+- The current local Android release summary covers `devRelease`, `stageRelease`, and `prodRelease`.
+- Fresh Firebase and Sentry release summaries now report `Android release summary required variants covered: yes`.
+- Firebase runtime delivery validation and Sentry release upload validation remain explicitly unclaimed; Sentry still needs `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN`.
+- This branch changes audit/guard tooling and documentation only; it does not change app runtime, dependencies, native code, or Metro, so emulator smoke is not required.
+
+Validation:
+
+- `corepack yarn check:firebase-release-services-summary-guard`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.274 - CodePush release readiness evidence hardening
 
 - Branch: `feature/bem-37-274-codepush-release-readiness-refresh`

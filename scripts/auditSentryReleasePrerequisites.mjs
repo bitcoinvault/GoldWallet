@@ -11,6 +11,7 @@ const summaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary
 const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
 export const requiredSentryPropertiesFiles = ['sentry.properties', 'android/sentry.properties', 'ios/sentry.properties'];
 export const requiredSentryPropertiesKeys = ['defaults.url', 'defaults.org', 'defaults.project', 'auth.token'];
+export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod'];
 export const expectedSentryPropertiesValues = {
   'defaults.url': 'https://sentry.io/',
   'defaults.org': 'cloudbest',
@@ -110,6 +111,9 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
         .map(variant => variant.trim())
         .filter(Boolean)
     : [];
+  const androidReleaseSummaryRequiredVariantsCovered = requiredAndroidReleaseVariants.every(variant =>
+    androidReleaseSummaryVariants.includes(variant),
+  );
   const androidReleaseSummaryErrors = hasAndroidReleaseSummary
     ? getAndroidReleaseSummaryErrors(androidReleaseSummary, root, { expectedVariants: androidReleaseSummaryVariants })
     : [];
@@ -139,6 +143,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     readyPropertiesFiles,
     hasAndroidReleaseSummary,
     androidReleaseSummaryVariants,
+    androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryErrors,
     hasCreateScript,
     createScriptUsesToken,
@@ -196,6 +201,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`Ready properties files: ${audit.readyPropertiesFiles.length}`);
   lines.push(`Android release summary present: ${audit.hasAndroidReleaseSummary ? 'yes' : 'no'}`);
   lines.push(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
+  lines.push(`Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`);
   lines.push(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   lines.push(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   audit.androidReleaseSummaryErrors.forEach(error => lines.push(`- ${error}`));
@@ -263,6 +269,7 @@ const printReport = audit => {
   console.log(`Ready properties files: ${audit.readyPropertiesFiles.length}`);
   console.log(`Android release summary present: ${audit.hasAndroidReleaseSummary ? 'yes' : 'no'}`);
   console.log(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
+  console.log(`Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   console.log('Sentry release upload validation: not claimed');
