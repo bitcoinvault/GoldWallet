@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -11,6 +11,12 @@ const outputPath = path.join(outputDir, 'android-warning-audit.log');
 const summaryOutputPath = path.join(outputDir, 'android-warning-audit-summary.txt');
 const auditTimeoutMs = Number(process.env.ANDROID_WARNING_AUDIT_TIMEOUT_MS || 300000);
 const auditMaxBufferBytes = Number(process.env.ANDROID_WARNING_AUDIT_MAX_BUFFER_BYTES || 1024 * 1024 * 64);
+const defaultWindowsJdk17Home = 'D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10';
+const gradleEnv = { ...process.env };
+
+if (!gradleEnv.JAVA_HOME && process.platform === 'win32' && existsSync(path.join(defaultWindowsJdk17Home, 'bin', 'java.exe'))) {
+  gradleEnv.JAVA_HOME = defaultWindowsJdk17Home;
+}
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -38,6 +44,7 @@ const result = spawnSync(
   {
     cwd: root,
     encoding: 'utf8',
+    env: gradleEnv,
     timeout: auditTimeoutMs,
     maxBuffer: auditMaxBufferBytes,
   },
@@ -98,6 +105,7 @@ const summaryHeader = [
   `Android Gradle audit log path: ${outputPath}`,
   `Android Gradle audit timeout: ${auditTimeoutMs}ms`,
   `Android Gradle audit max buffer: ${auditMaxBufferBytes} bytes`,
+  `Android Gradle audit JAVA_HOME: ${gradleEnv.JAVA_HOME || '<unset>'}`,
   `Android Gradle audit exit code: ${auditExitCode}`,
   `Android Gradle warning baseline guard exit code: ${guardExitCode}`,
   ...diagnosticLines,
@@ -122,6 +130,7 @@ writeFileSync(summaryOutputPath, `${summaryLines.join('\n')}\n`);
 
 console.log(`Android Gradle audit timeout: ${auditTimeoutMs}ms`);
 console.log(`Android Gradle audit max buffer: ${auditMaxBufferBytes} bytes`);
+console.log(`Android Gradle audit JAVA_HOME: ${gradleEnv.JAVA_HOME || '<unset>'}`);
 console.log(`Android Gradle audit exit code: ${auditExitCode}`);
 console.log(`Android Gradle warning baseline guard exit code: ${guardExitCode}`);
 diagnosticLines.forEach(line => console.log(line));
