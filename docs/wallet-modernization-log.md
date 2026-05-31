@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.284 - iOS removed pods readiness audit
+
+- Branch: `feature/bem-37-284-ios-removed-pods-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the iOS release readiness audit so removed native pods are tracked from the main iOS release gate, not only from feature-specific audits.
+- Add explicit `ios/Podfile.lock` drift reporting for removed `react-native-qrcode-local-image` alongside removed `react-native-camera`.
+- Harden the iOS release readiness summary guard so Windows summaries cannot omit the removed QR local-image pod while reporting removed camera pod drift.
+- Refresh iOS release documentation to keep macOS `pod install` and archive validation as explicit blockers.
+
+Findings:
+
+- Static iOS release files remain valid for the current RN `0.85.3` baseline.
+- `ios/Podfile.lock` currently has 14 drift issues against the package baseline.
+- The lockfile still references removed `react-native-camera` and removed `react-native-qrcode-local-image`.
+- iOS runtime/archive validation remains unclaimed on this Windows machine because `xcodebuild` requires macOS with Xcode and `pod install` must refresh the lockfile first.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.283 - Camera QR iOS lockfile readiness audit
 
 - Branch: `feature/bem-37-283-camera-qr-modernization-audit`

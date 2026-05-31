@@ -159,5 +159,13 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
     errors.push('Podfile.lock drift summary must require refreshing ios/Podfile.lock with pod install on macOS');
   }
 
+  if (
+    podfileLockRefreshRequired === 'yes' &&
+    podfileLockDriftLines.some(line => line.includes('removed react-native-camera')) &&
+    !podfileLockDriftLines.some(line => line.includes('removed react-native-qrcode-local-image'))
+  ) {
+    errors.push('Podfile.lock drift summary must include the removed react-native-qrcode-local-image pod when removed camera pods are present');
+  }
+
   return errors;
 };

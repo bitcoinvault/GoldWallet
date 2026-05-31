@@ -92,7 +92,7 @@ Beta release evidence refresh: on 2026-05-31, `feature/bem-37-261-android-beta-r
 
 `check:push-notification-ios-usage-scope` keeps the iOS push notification bridge isolated to the current badge/notification runtime file and AppDelegate/background-mode wiring before changing `@react-native-community/push-notification-ios`.
 
-`ios:release:readiness:audit` records static iOS release readiness, Podfile.lock drift, xcodebuild availability, and an explicit iOS runtime delivery claim status. On Windows the expected state is that static files can be audited, while iOS runtime delivery remains unclaimed until macOS `pod install`, simulator/archive validation, and release-service checks are complete.
+`ios:release:readiness:audit` records static iOS release readiness, Podfile.lock drift, removed-pod references, xcodebuild availability, and an explicit iOS runtime delivery claim status. On Windows the expected state is that static files can be audited, while iOS runtime delivery remains unclaimed until macOS `pod install`, simulator/archive validation, and release-service checks are complete.
 
 `release-services:check-summaries` validates the generated Sentry release prerequisite, Sentry Android warning, Firebase, CodePush, push-notification bridge, and iOS release readiness summaries as one aggregate gate before future release-service dependency or runtime changes.
 
