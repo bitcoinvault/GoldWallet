@@ -45,8 +45,15 @@ export default class SecureStorageService {
       value = sha256(value).toString();
     }
 
-    await RNSecureKeyStore.set(key, value, legacySecureStorageOptions);
-    return await Keychain.setGenericPassword(key, value, secureStorageOptions(key));
+    const keychainResult = await Keychain.setGenericPassword(key, value, secureStorageOptions(key));
+
+    try {
+      await RNSecureKeyStore.set(key, value, legacySecureStorageOptions);
+    } catch (_) {
+      // Keychain is the primary backend; legacy dual-write should not block new writes.
+    }
+
+    return keychainResult;
   }
 
   async checkSecuredPassword(key: string, value: string) {

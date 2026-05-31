@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.288 - Secure-storage primary write hardening
+
+- Branch: `feature/bem-37-288-secure-storage-primary-write`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `react-native-keychain` the primary write target for `SecureStorageService`.
+- Keep `react-native-secure-key-store` as a best-effort legacy dual-write and fallback backend during the migration window.
+- Apply the same Keychain-primary write behavior to React Native `AppStorage` secure writes.
+- Add focused regression coverage so a legacy dual-write failure does not fail new PIN, transaction-password, or encrypted wallet writes after Keychain succeeds.
+- Extend the secure-storage migration audit and summary guard to record `Keychain primary write: yes`.
+
+Findings:
+
+- The legacy backend is still installed and readable for fallback migration.
+- `react-native-secure-key-store` is still not safe to remove until release validation proves migrated PIN, transaction-password, and encrypted wallet data without the legacy backend.
+- This branch reduces migration risk by making successful Keychain writes independent from legacy write availability.
+
+Validation:
+
+- `corepack yarn test:secure-storage:unit`
+- `corepack yarn test:storage`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn check:secure-storage-migration-summary-guard`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `git diff --check`
+
 ### BEM-37.287 - Android release variant validation
 
 - Branch: `feature/bem-37-287-android-release-validation`

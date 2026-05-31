@@ -50,8 +50,10 @@ export class AppStorage {
    */
   setItem(key, value) {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return RNSecureKeyStore.set(key, value, legacySecureStorageOptions).then(() =>
-        Keychain.setGenericPassword(key, value, secureStorageOptions(key)),
+      return Keychain.setGenericPassword(key, value, secureStorageOptions(key)).then(result =>
+        RNSecureKeyStore.set(key, value, legacySecureStorageOptions)
+          .then(() => result)
+          .catch(() => result),
       );
     } else {
       return AsyncStorage.setItem(key, value);

@@ -31,6 +31,7 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
   const appStorageFile = getLineValue(summary, 'AppStorage secure-storage file');
   const storesPin = getLineValue(summary, 'Stores PIN');
   const storesTransactionPassword = getLineValue(summary, 'Stores transaction password hash');
+  const keychainPrimaryWrite = getLineValue(summary, 'Keychain primary write');
   const focusedValidation = getLineValue(summary, 'Focused validation script');
   const focusedValidationCommand = getLineValue(summary, 'Focused validation command');
   const warningBaselineMentionsSecureStorage = getLineValue(summary, 'Warning baseline mentions secure-key-store');
@@ -64,6 +65,7 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
   [
     ['Stores PIN', storesPin],
     ['Stores transaction password hash', storesTransactionPassword],
+    ['Keychain primary write', keychainPrimaryWrite],
     ['Warning baseline mentions secure-key-store', warningBaselineMentionsSecureStorage],
     ['Legacy secure-storage removal ready', legacyRemovalReady],
     ['Secure-storage migration baseline stable', baselineStable],
@@ -90,6 +92,10 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
 
   if (legacyRemovalReady !== 'no') {
     errors.push(`Legacy secure-storage removal must stay blocked during the dual-write fallback window. Received: ${legacyRemovalReady || 'missing'}`);
+  }
+
+  if (keychainPrimaryWrite !== 'yes') {
+    errors.push(`Keychain primary write must be yes while legacy secure-storage is a best-effort dual-write. Received: ${keychainPrimaryWrite || 'missing'}`);
   }
 
   if (!legacyRemovalBlocker.includes('dual-write and legacy fallback are still active')) {

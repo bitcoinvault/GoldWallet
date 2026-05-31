@@ -12,6 +12,7 @@ Checked on: 2026-05-29
 - Stored keys: `CONST.pin` and `CONST.transactionPassword`.
 - The transaction password is stored as `sha256(value).toString()`.
 - The current Android accessibility mode is `ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`.
+- Keychain is the primary write target; legacy secure-key-store dual-write is best-effort and should not block new PIN, transaction-password, or encrypted wallet writes.
 - Legacy fallback reads now return the legacy value even if a one-off migration write into Keychain fails.
 - Legacy removal readiness: not ready while dual-write and legacy fallback are still active.
 
