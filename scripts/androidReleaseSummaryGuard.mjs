@@ -1,4 +1,5 @@
-import { existsSync, statSync } from 'fs';
+import { createHash } from 'crypto';
+import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 
 const getLineValue = (content, label) => {
@@ -12,6 +13,7 @@ const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.
 const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 const isNonNegativeInteger = value => /^\d+$/.test(value);
 const isSha256 = value => /^[a-f0-9]{64}$/.test(value);
+const sha256File = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
 
 export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), options = {}) => {
   const errors = [];
@@ -99,8 +101,14 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
 
     if (!apkPath || !existsSync(apkPath)) {
       errors.push(`Variant ${variant} Release APK file does not exist: ${apkRelativePath || 'missing'}`);
-    } else if (isNonNegativeInteger(apkSize) && statSync(apkPath).size !== Number(apkSize)) {
-      errors.push(`Variant ${variant} Release APK byte count does not match file size for ${apkRelativePath}`);
+    } else {
+      if (isNonNegativeInteger(apkSize) && statSync(apkPath).size !== Number(apkSize)) {
+        errors.push(`Variant ${variant} Release APK byte count does not match file size for ${apkRelativePath}`);
+      }
+
+      if (isSha256(apkSha256) && sha256File(apkPath) !== apkSha256) {
+        errors.push(`Variant ${variant} Release APK sha256 does not match file digest for ${apkRelativePath}`);
+      }
     }
   });
 

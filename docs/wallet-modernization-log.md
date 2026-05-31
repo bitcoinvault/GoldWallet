@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.280 - Android release SHA validation
+
+- Branch: `feature/bem-37-280-android-release-sha-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden Android release summary validation so recorded APK SHA-256 values must match the actual generated APK files.
+- Add guard coverage for a syntactically valid but mismatched SHA-256 digest.
+- Re-run the guarded local Android release validation after the current runtime dependency refreshes.
+
+Findings:
+
+- The previous Android release summary guard validated APK existence, byte count, SHA-256 format, JDK 17, Sentry upload non-claiming, and required Sentry follow-up text.
+- It did not compare the recorded SHA-256 against the actual APK file digest, so a stale or copied digest could remain undetected.
+- Fresh local release validation rebuilt `devRelease`, `stageRelease`, and `prodRelease` with `SENTRY_DISABLE_AUTO_UPLOAD=true` and JDK 17; source-map upload remains explicitly unclaimed until Sentry properties/token are available.
+
+Validation:
+
+- `corepack yarn check:android-release-summary-guard`
+- `corepack yarn android:dev:release:check-summary`
+- `node --check scripts\androidReleaseSummaryGuard.mjs`
+- `node --check scripts\checkAndroidReleaseSummaryGuard.mjs`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+
 ### BEM-37.279 - UUID runtime refresh
 
 - Branch: `feature/bem-37-279-uuid-runtime-refresh`
