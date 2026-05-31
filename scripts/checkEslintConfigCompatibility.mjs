@@ -35,8 +35,16 @@ if (Object.prototype.hasOwnProperty.call(devDependencies, '@react-native-communi
   errors.push('@react-native-community/eslint-config is not used by .eslintrc and must not be a direct devDependency');
 }
 
+if (Object.prototype.hasOwnProperty.call(devDependencies, 'babel-eslint')) {
+  errors.push('babel-eslint is deprecated and unused by .eslintrc; @typescript-eslint/parser owns parsing for this baseline');
+}
+
 if (extendsEntries.includes('@react-native-community') || extendsEntries.includes('@react-native-community/eslint-config')) {
   errors.push('Do not re-enable @react-native-community/eslint-config without a dedicated lint baseline migration');
+}
+
+if (eslintConfig.parser === 'babel-eslint') {
+  errors.push('Do not restore babel-eslint as the parser; it is deprecated and not part of the current baseline');
 }
 
 if (Object.prototype.hasOwnProperty.call(rules, '@typescript-eslint/ban-types')) {

@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.298 - Unused deprecated Babel ESLint parser removal
+
+- Branch: `feature/bem-37-298-unused-babel-eslint-removal`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove unused direct `babel-eslint` dev dependency from `package.json` and `yarn.lock`.
+- Keep the active `.eslintrc` parser unchanged on `@typescript-eslint/parser`.
+- Extend `check:eslint-config-compatibility` so deprecated `babel-eslint` cannot silently return as a dependency or parser.
+- Refresh dependency strategy notes for this lint-tooling cleanup.
+
+Findings:
+
+- `corepack yarn why babel-eslint` reported the package existed only because it was a direct dev dependency.
+- `npm view babel-eslint version deprecated dist-tags peerDependencies dependencies --json` reports `10.1.0` as latest, but the package is deprecated and has no supported modern path under that name.
+- Removing it trims another unused parser package from the development dependency graph without changing runtime code or the active lint parser.
+
+Validation:
+
+- `npm view babel-eslint version deprecated dist-tags peerDependencies dependencies --json`
+- `corepack yarn why babel-eslint`
+- `corepack yarn remove babel-eslint`
+- `corepack yarn postinstall`
+- `corepack yarn check:eslint-config-compatibility`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `git diff --check`
+
 ### BEM-37.297 - Unused React Native ESLint config removal
 
 - Branch: `feature/bem-37-297-unused-rn-eslint-config-removal`

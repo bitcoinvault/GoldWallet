@@ -74,6 +74,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - TypeScript ESLint parser/plugin tooling is on checked latest `8.60.0` after `BEM-37.293`; this stays on the current ESLint `8.57.0` baseline because `@typescript-eslint@8.60.0` supports `eslint ^8.57.0 || ^9.0.0 || ^10.0.0`.
 - The TypeScript ESLint v8 config compatibility is guarded after `BEM-37.294`: removed rule `@typescript-eslint/ban-types` must stay out of `.eslintrc`, and newly stricter v8 recommended rules that are not part of the current baseline remain explicitly disabled until a dedicated lint cleanup branch handles them.
 - The unused legacy `@react-native-community/eslint-config` direct dev dependency is removed after `BEM-37.297`; `.eslintrc` already owns the active lint stack directly, and the community config would reintroduce an older nested lint toolchain if upgraded blindly.
+- The deprecated unused `babel-eslint` direct dev dependency is removed after `BEM-37.298`; the active parser is `@typescript-eslint/parser`, and `babel-eslint` has no supported latest path beyond its deprecated `10.1.0` line.
 - Jest tooling remains on the checked compatible `29.7.0` line after `BEM-37.212`; the checked Jest 30 line is deferred until the React Native Jest preset stops mixing a Jest 29 environment with a Jest 30 runtime.
 
 These can be batched more aggressively because they either have strong automated gates or are developer-only.
