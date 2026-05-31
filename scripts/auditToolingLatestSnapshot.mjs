@@ -52,6 +52,11 @@ const trackedTooling = [
     decision: 'current - latest E2E mail helper verified with TypeScript',
   },
   {
+    name: 'jetifier',
+    source: 'devDependencies',
+    decision: 'current - latest AndroidX migration helper verified with postinstall, Android build, and emulator smoke',
+  },
+  {
     name: '@typescript-eslint/eslint-plugin',
     source: 'devDependencies',
     decision: 'deferred - ESLint major config migration is a separate lint baseline branch',
