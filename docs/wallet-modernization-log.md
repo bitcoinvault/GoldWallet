@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.253 - ESLint plugin cohort refresh
+
+- Branch: `feature/bem-37-253-eslint-plugin-cohort-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `eslint-plugin-import` from `2.29.1` to `2.32.0`, the latest npm release checked for this branch.
+- Move `eslint-plugin-react-hooks` from `4.6.2` to `7.1.1`, the latest npm release checked for this branch.
+- Move `eslint-plugin-react-native` from `4.1.0` to `5.0.0`, the latest npm release checked for this branch.
+- Keep `eslint`, `prettier`, `eslint-plugin-prettier`, and `@typescript-eslint/*` pinned for separate migrations because their latest majors require broader config and formatting work.
+
+Findings:
+
+- `eslint-plugin-import@2.32.0`, `eslint-plugin-react-hooks@7.1.1`, and `eslint-plugin-react-native@5.0.0` support the current `eslint@8.57.0` baseline.
+- `eslint-plugin-prettier@5.5.6` requires Prettier 3, so it is intentionally left out of this cohort.
+- `@react-native-community/eslint-config@3.2.0` still pulls older nested lint dependencies and is left for a dedicated lint config migration.
+- The existing lint baseline still reports the historical CRLF/Prettier findings; this branch does not change application formatting policy.
+
+Validation:
+
+- `npm view eslint-plugin-import@2.32.0 peerDependencies engines dependencies --json`
+- `npm view eslint-plugin-react-hooks@7.1.1 peerDependencies engines dependencies --json`
+- `npm view eslint-plugin-react-native@5.0.0 peerDependencies engines dependencies --json`
+- `corepack yarn add -D eslint-plugin-import@2.32.0 eslint-plugin-react-hooks@7.1.1 eslint-plugin-react-native@5.0.0`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.252 - Babel and dotenv tooling refresh
 
 - Branch: `feature/bem-37-252-babel-env-tooling-refresh`
