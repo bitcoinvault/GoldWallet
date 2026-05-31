@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.291 - Android warning audit JDK 17 fallback
+
+- Branch: `feature/bem-37-291-android-warning-audit-jdk17`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `android:dev:audit-warnings` use the local Windows JDK 17 path when `JAVA_HOME` is not set.
+- Record the Java home used by the Android warning audit in the generated local summary.
+- Refresh Android workflow docs so warning-audit behavior matches the current AGP 8.13/JDK 17 baseline.
+
+Findings:
+
+- Running `corepack yarn android:dev:audit-warnings` from a shell without `JAVA_HOME` failed before Gradle because the guarded runner detected JDK 21 from `PATH`.
+- The current Android warning target state is guarded: the audit reports one expected targeted `jcenter()` warning from `react-native-secure-key-store`, with no unexpected targeted warning findings.
+- This branch keeps the strict JDK 17 guard intact while removing a shell-specific false failure from the warning audit helper.
+
+Validation:
+
+- `corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.289 - CodePush runtime retirement gate
 
 - Branch: `feature/bem-37-289-codepush-runtime-gate`
