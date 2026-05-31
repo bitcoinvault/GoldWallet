@@ -1,11 +1,13 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
 import path from 'path';
+import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const packageJson = JSON.parse(read('package.json'));
+const require = createRequire(import.meta.url);
 
 const expectedDependencies = new Map([
   ['bitcoinjs-lib', 'git+https://github.com/bitcoinvault/bitcoinjs-lib.git'],
@@ -15,7 +17,7 @@ const expectedDependencies = new Map([
   ['ecurve', '^1.0.6'],
   ['bigi', '^1.4.2'],
   ['pbkdf2', '3.1.6'],
-  ['wif', '2.0.6'],
+  ['wif', '5.0.0'],
   ['@bitcoinerlab/secp256k1', '1.2.0'],
   ['react-native-randombytes', '3.6.2'],
   ['crypto-js', '4.2.0'],
@@ -51,6 +53,19 @@ const requiredSourceSnippets = [
   ['tests/integration/HDWallet.offline.test.js', 'can create signed Bech32 Segwit HD transactions from offline UTXO fixtures'],
   ['tests/unit/signer.test.js', "require('bitcoinjs-lib')"],
 ];
+
+const packageVersionFromEntry = entryPath => {
+  let directory = path.dirname(entryPath);
+  while (directory !== path.dirname(directory)) {
+    const packagePath = path.join(directory, 'package.json');
+    try {
+      return JSON.parse(readFileSync(packagePath, 'utf8')).version;
+    } catch (error) {
+      directory = path.dirname(directory);
+    }
+  }
+  return undefined;
+};
 
 const scanRoots = ['class', 'src', 'tests', 'utils'];
 const scanExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
@@ -90,6 +105,13 @@ expectedDevDependencies.forEach((expectedVersion, packageName) => {
     errors.push(`package.json has ${packageName}@${actualVersion || '<missing>'}; expected ${expectedVersion}`);
   }
 });
+
+const bitcoinjsPackageDirectory = path.dirname(require.resolve('bitcoinjs-lib/package.json'));
+const bitcoinjsWifEntry = require.resolve('wif', { paths: [bitcoinjsPackageDirectory] });
+const bitcoinjsWifVersion = packageVersionFromEntry(bitcoinjsWifEntry);
+if (bitcoinjsWifVersion !== '2.0.6') {
+  errors.push(`bitcoinjs-lib resolves wif@${bitcoinjsWifVersion || '<unknown>'}; expected nested 2.0.6 for the BTCV fork`);
+}
 
 requiredDocsSnippets.forEach(([relativePath, snippet]) => {
   const content = read(relativePath);
@@ -131,6 +153,7 @@ console.log('Wallet crypto runtime audit');
 expectedDependencies.forEach((expectedVersion, packageName) => {
   console.log(`${packageName}: ${expectedVersion}`);
 });
+console.log(`bitcoinjs-lib nested wif: ${bitcoinjsWifVersion}`);
 packageUsage.forEach((files, packageName) => {
   console.log(`${packageName} usage files: ${files.length}`);
 });

@@ -344,6 +344,12 @@ const completeFirstRunTransactionPasswordIfNeeded = () => {
         ? 'First-run Create transaction password screen detected.'
         : 'First-run Confirm transaction password screen detected.',
     );
+    const passwordInputNode = getNodeByResourceId(
+      passwordHierarchy,
+      hasCreatePassword ? 'create-transaction-password' : 'confirm-transaction-password',
+    );
+    tapNodeCenter(passwordInputNode);
+    sleep(500);
     run(`enter first-run transaction password attempt ${attempt}`, [
       'shell',
       'input',

@@ -16,7 +16,7 @@ Latest npm checked on 2026-05-31.
 | `ecurve` | `^1.0.6` | `1.0.6` | Legacy elliptic curve dependency; mostly retained through the BTCV fork/old bitcoin stack expectations. |
 | `bigi` | `^1.4.2` | `1.4.2` | Legacy big integer dependency paired with old bitcoin stack expectations. |
 | `pbkdf2` | `3.1.6` | `3.1.6` | Current package remains latest. |
-| `wif` | `2.0.6` | `5.0.0` | Major migration coupled to newer bitcoinjs/bip32 stacks. |
+| `wif` | `5.0.0` | `5.0.0` | Direct dependency is current; the BTCV `bitcoinjs-lib` fork still resolves its own nested `wif@2.0.6` and this is guarded by `corepack yarn wallet:crypto-runtime:audit`. |
 | `react-native-randombytes` | `3.6.2` | `3.6.2` | Current native random-bytes bridge remains latest checked. |
 | `crypto-js` | `4.2.0` | `4.2.0` | Current package remains latest and has a separate runtime audit. |
 
@@ -26,8 +26,8 @@ Latest npm checked on 2026-05-31.
 - `bip39` and the local `utils/bip32.js` adapter drive HD wallet mnemonic and derivation behavior in the HD wallet class hierarchy.
 - `coinselect` is used by the SegWit bech32 send flow.
 - `crypto-js` is used for wallet-related hashing/encryption helpers and is guarded separately by `corepack yarn crypto-js:runtime:audit`.
-- `wif`, `ecurve`, and `bigi` are not treated as isolated low-risk package bumps because they are coupled to the old bitcoin stack and BTCV fork behavior.
-- `wif` latest is `5.0.0`, but the direct app dependency remains on `2.0.6` because the BitcoinVault `bitcoinjs-lib` fork and old stack still depend on the 2.x WIF line.
+- `ecurve` and `bigi` are not treated as isolated low-risk package bumps because they are coupled to the old bitcoin stack and BTCV fork behavior.
+- Direct `wif` is now latest `5.0.0`; the BitcoinVault `bitcoinjs-lib` fork keeps using nested `wif@2.0.6`, because its old stack still depends on the 2.x WIF line.
 
 ## Upgrade Decision
 

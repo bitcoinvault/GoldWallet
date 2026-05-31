@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.245 - WIF latest direct dependency probe
+
+- Branch: `feature/bem-37-245-wif-v5-compat-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the direct `wif` dependency from `2.0.6` to latest `5.0.0`.
+- Keep BTCV `bitcoinjs-lib` fork compatibility explicit by verifying that the fork resolves nested `wif@2.0.6`.
+- Extend `corepack yarn wallet:crypto-runtime:audit` so the direct latest package and the fork's nested legacy package are both guarded.
+
+Findings:
+
+- The app does not import `wif` directly; WIF encode/decode behavior is reached through `bitcoinjs-lib` wallet APIs and covered by the single-key and HD wallet fixtures.
+- Yarn keeps `wif@5.0.0` at the direct app level and installs `wif@2.0.6` under `bitcoinjs-lib`, so the BTCV fork continues to use its expected legacy WIF implementation.
+- `wif@5.0.0` uses package exports, so probe scripts should resolve its entry point instead of importing `wif/package.json` directly.
+
+Validation:
+
+- `npm view wif version peerDependencies dependencies engines --json`
+- `corepack yarn add wif@5.0.0`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:modernization-log-ids`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.244 - BIP32 latest compatibility migration
 
 - Branch: `feature/bem-37-244-bip32-v5-compat-probe`
