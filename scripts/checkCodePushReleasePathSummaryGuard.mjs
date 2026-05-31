@@ -12,8 +12,12 @@ const notReadySummary = [
   '- .env.prod.mainnet: ready',
   '- .env.beta.testnet: unconfirmed; missing CODEPUSH_DEPLOYMENT_KEY_ANDROID, missing CODEPUSH_DEPLOYMENT_KEY_IOS',
   '- .env.beta.mainnet: unconfirmed; missing CODEPUSH_DEPLOYMENT_KEY_ANDROID, missing CODEPUSH_DEPLOYMENT_KEY_IOS',
+  'CodePush package dependency version: 9.0.1',
+  'CodePush package installed version: 9.0.1',
+  'CodePush package versions aligned: yes',
   'Android release summary present: yes',
-  'Android release summary variants: beta',
+  'Android release summary variants: dev, stage, prod',
+  'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
   'Android release summary errors: 0',
   'CodePush update validation: not claimed',
@@ -41,8 +45,12 @@ const readySummary = [
   '- .env.prod.mainnet: ready',
   '- .env.beta.testnet: ready',
   '- .env.beta.mainnet: ready',
+  'CodePush package dependency version: 9.0.1',
+  'CodePush package installed version: 9.0.1',
+  'CodePush package versions aligned: yes',
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod',
+  'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
   'Android release summary errors: 0',
   'CodePush update validation: not claimed',
@@ -85,6 +93,16 @@ assertRejected(
   'Claimed CodePush update fixture',
   notReadySummary.replace('CodePush update validation: not claimed', 'CodePush update validation: claimed'),
   'not claimed',
+);
+assertRejected(
+  'Mismatched package version fixture',
+  notReadySummary.replace('CodePush package installed version: 9.0.1', 'CodePush package installed version: 8.0.0'),
+  'does not match installed version',
+);
+assertRejected(
+  'Missing release variant fixture',
+  notReadySummary.replace('Android release summary variants: dev, stage, prod', 'Android release summary variants: dev, stage'),
+  'prod release evidence',
 );
 assertRejected('Secret value leak fixture', notReadySummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');
 assertRejected(

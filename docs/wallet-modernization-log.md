@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.274 - CodePush release readiness evidence hardening
+
+- Branch: `feature/bem-37-274-codepush-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the CodePush release-path audit so it validates local `react-native-code-push` dependency/install version alignment before release readiness is considered usable.
+- Require the local Android release summary evidence to cover the `dev`, `stage`, and `prod` release variants, not only a syntactically valid summary.
+- Keep CodePush update validation explicitly unclaimed until real non-empty deployment keys and update delivery validation are available.
+
+Findings:
+
+- `npm view react-native-code-push version engines peerDependencies dependencies --json` reports current latest `9.0.1`, matching the local dependency.
+- The current local Android release summary covers `devRelease`, `stageRelease`, and `prodRelease` APK evidence.
+- CodePush update validation remains blocked by blank `.env.dev.testnet` Android/iOS deployment keys and unconfirmed beta deployment-key strategy; secret values are not printed or guessed.
+- This branch changes audit/guard tooling and documentation only; it does not change app runtime, dependencies, native code, or Metro, so emulator smoke is not required.
+
+Validation:
+
+- `npm view react-native-code-push version engines peerDependencies dependencies --json`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.273 - iOS release readiness scheme hardening
 
 - Branch: `feature/bem-37-273-ios-release-readiness-hardening`

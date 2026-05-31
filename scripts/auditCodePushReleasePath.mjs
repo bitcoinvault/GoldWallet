@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { parseEnvKeys } from './releaseServiceEnvKeysGuard.mjs';
@@ -17,6 +17,8 @@ export const codePushIosInfoPlists = [
 ];
 export const codePushEnvFiles = ['.env.dev.testnet', '.env.stage.mainnet', '.env.prod.mainnet', '.env.beta.testnet', '.env.beta.mainnet'];
 export const requiredCodePushEnvKeys = ['CODEPUSH_DEPLOYMENT_KEY_ANDROID', 'CODEPUSH_DEPLOYMENT_KEY_IOS'];
+export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod'];
+const codePushPackageName = 'react-native-code-push';
 
 const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {
@@ -30,6 +32,7 @@ const getSummaryLineValue = (content, label) => {
 };
 
 export const collectCodePushReleasePathAudit = () => {
+  const packageJson = JSON.parse(read('package.json'));
   const androidBuildGradle = read('android/app/build.gradle');
   const androidMainApplication = read('android/app/src/main/java/io/goldwallet/wallet/MainApplication.java');
   const androidStrings = read('android/app/src/main/res/values/strings.xml');
@@ -39,9 +42,29 @@ export const collectCodePushReleasePathAudit = () => {
   const readinessIssues = [];
   const warnings = [];
   const envReadiness = [];
+  const packageDependencyVersion = packageJson.dependencies?.[codePushPackageName] || packageJson.devDependencies?.[codePushPackageName] || '';
+  const packageJsonPath = path.join(root, 'node_modules', codePushPackageName, 'package.json');
+  let installedPackageVersion = '';
   let androidReleaseSummaryPresent = false;
   let androidReleaseSummaryVariants = [];
   let androidReleaseSummaryErrors = [];
+  let androidReleaseSummaryRequiredVariantsCovered = false;
+
+  if (existsSync(packageJsonPath)) {
+    installedPackageVersion = JSON.parse(readFileSync(packageJsonPath, 'utf8')).version || '';
+  }
+
+  if (!packageDependencyVersion) {
+    errors.push(`package.json is missing ${codePushPackageName}`);
+  }
+
+  if (!installedPackageVersion) {
+    errors.push(`node_modules/${codePushPackageName}/package.json is missing or has no version`);
+  }
+
+  if (packageDependencyVersion && installedPackageVersion && packageDependencyVersion !== installedPackageVersion) {
+    errors.push(`${codePushPackageName} package.json version ${packageDependencyVersion} does not match installed version ${installedPackageVersion}`);
+  }
 
   requireSnippet(errors, 'App.tsx', appSource, 'react-native-code-push');
   requireSnippet(errors, 'App.tsx', appSource, 'checkFrequency: codePush.CheckFrequency.ON_APP_RESUME');
@@ -113,6 +136,9 @@ export const collectCodePushReleasePathAudit = () => {
       .split(',')
       .map(variant => variant.trim())
       .filter(Boolean);
+    androidReleaseSummaryRequiredVariantsCovered = requiredAndroidReleaseVariants.every(variant =>
+      androidReleaseSummaryVariants.includes(variant),
+    );
     androidReleaseSummaryErrors = getAndroidReleaseSummaryErrors(androidReleaseSummary, root, {
       expectedVariants: androidReleaseSummaryVariants,
     });
@@ -120,17 +146,38 @@ export const collectCodePushReleasePathAudit = () => {
     androidReleaseSummaryPresent = false;
     androidReleaseSummaryVariants = [];
     androidReleaseSummaryErrors = [];
+    androidReleaseSummaryRequiredVariantsCovered = false;
   }
+
+  if (!androidReleaseSummaryPresent) {
+    readinessIssues.push('local Android release summary is missing');
+  } else if (!androidReleaseSummaryRequiredVariantsCovered) {
+    readinessIssues.push(`local Android release summary does not cover ${requiredAndroidReleaseVariants.join(', ')} release variants`);
+  }
+
+  androidReleaseSummaryErrors.forEach(error => {
+    readinessIssues.push(`local Android release summary is invalid: ${error}`);
+  });
 
   return {
     errors,
     readinessIssues,
     warnings,
     envReadiness,
+    packageDependencyVersion,
+    installedPackageVersion,
+    packageVersionsAligned:
+      packageDependencyVersion.length > 0 && installedPackageVersion.length > 0 && packageDependencyVersion === installedPackageVersion,
     androidReleaseSummaryPresent,
     androidReleaseSummaryVariants,
+    androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryErrors,
-    ready: errors.length === 0 && readinessIssues.length === 0,
+    ready:
+      errors.length === 0 &&
+      readinessIssues.length === 0 &&
+      androidReleaseSummaryPresent &&
+      androidReleaseSummaryRequiredVariantsCovered &&
+      androidReleaseSummaryErrors.length === 0,
   };
 };
 
@@ -147,8 +194,12 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
 
       return `- ${entry.envFile}: ${entry.status}${detail}`;
     }),
+    `CodePush package dependency version: ${audit.packageDependencyVersion || 'missing'}`,
+    `CodePush package installed version: ${audit.installedPackageVersion || 'missing'}`,
+    `CodePush package versions aligned: ${audit.packageVersionsAligned ? 'yes' : 'no'}`,
     `Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`,
     `Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`,
+    `Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`,
     `Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`,
     `Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`,
     ...audit.androidReleaseSummaryErrors.map(error => `- ${error}`),
@@ -195,6 +246,7 @@ const printReport = audit => {
 
   console.log(`Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`);
   console.log(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
+  console.log(`Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   console.log('CodePush update validation: not claimed');
