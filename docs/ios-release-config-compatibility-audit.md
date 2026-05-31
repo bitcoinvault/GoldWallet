@@ -30,6 +30,8 @@ Project build settings also define `FIREBASE_CONFIG_FILE` for the main non-beta 
 
 After `BEM-37.209`, `ios/Podfile` and all Xcode `IPHONEOS_DEPLOYMENT_TARGET` entries are aligned to React Native `0.85.3`'s minimum iOS `15.1`. `corepack yarn ios:release:readiness:audit` verifies that static alignment and writes `local-docs/ios-release-static-readiness-summary.txt`; `corepack yarn ios:release:readiness:check-summary` validates the generated summary. Runtime archive/simulator validation still requires macOS with Xcode `16.1+`.
 
+After `BEM-37.258`, the same audit also reports `ios/Podfile.lock` drift against the current native package baseline. On this Windows machine the lockfile still references stale pods such as React Native `0.65.3`, removed `react-native-camera`, older Firebase, Sentry, BootSplash, Config, AsyncStorage, DeviceInfo, GestureHandler, Localize, Screens, and VectorIcons pods. The static iOS project files are valid, but iOS archive readiness is not claimable until `pod install` refreshes `ios/Podfile.lock` on macOS and an affected scheme builds.
+
 ## Current Release-Service Keys
 
 Referenced iOS env files carry the current release-service keys as follows:
@@ -58,6 +60,7 @@ Referenced iOS env files carry the current release-service keys as follows:
 
 - Stage Debug currently pairs `.env.dev.testnet` with `GoogleService-Info-stage.plist`; that may be intentional for testnet stage debugging, but it must be confirmed before changing scheme pre-actions.
 - Beta schemes currently copy beta env files but no Firebase plist in scheme pre-actions; confirm whether beta relies on build settings, bundled resources, or a missing Firebase copy step.
+- `ios/Podfile.lock` is stale after the Android/RN/native modernization stream; refresh it on macOS before claiming any iOS release readiness.
 - Rebranding may require coordinated changes across display names, bundle identifiers, Info.plist files, env `APP_ID`, Firebase plist files, Sentry DSNs, CodePush deployment keys, and store metadata.
 - CodePush is disabled in `__DEV__`, so debug scheme startup alone does not validate release update behavior.
 - Sentry and Firebase config changes need release-build validation, not only Android/iOS debug startup.
@@ -80,6 +83,7 @@ corepack yarn android:dev:check-light
 Release-config implementation:
 
 - Run `corepack yarn android:dev:check-light`.
+- Run `corepack yarn ios:release:readiness:audit` and `corepack yarn ios:release:readiness:check-summary`; if `Podfile.lock refresh required` is `yes`, refresh CocoaPods on macOS before archive validation.
 - Run Android build/smoke if shared env or runtime config changes affect Android.
 - Validate iOS schemes on a Mac runner/device or simulator.
 - Validate at least one non-dev build path for CodePush and Sentry source-map behavior.

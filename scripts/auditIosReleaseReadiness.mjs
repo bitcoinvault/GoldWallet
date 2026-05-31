@@ -36,6 +36,15 @@ const compareVersions = (left, right) => {
   return 0;
 };
 
+const getLockedPodVersion = (podfileLock, podName) => {
+  const escapedPodName = podName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = podfileLock.match(new RegExp(`^  - ${escapedPodName} \\(([^)]+)\\)`, 'm'));
+
+  return match ? match[1] : null;
+};
+
+const normalizePackageVersion = version => (version || '').replace(/^[~^]/, '');
+
 const collectIosReleaseReadiness = () => {
   const errors = [];
   const warnings = [];
@@ -61,6 +70,7 @@ const collectIosReleaseReadiness = () => {
   });
 
   const packageJson = JSON.parse(read('package.json'));
+  const podfileLock = read('ios/Podfile.lock');
   const rnHelpers = read('node_modules/react-native/scripts/cocoapods/helpers.rb');
   const rnMinIosMatch = rnHelpers.match(/min_ios_version_supported\s*\n\s*return '([^']+)'/);
   const rnMinXcodeMatch = rnHelpers.match(/min_xcode_version_supported\s*\n\s*return '([^']+)'/);
@@ -84,6 +94,39 @@ const collectIosReleaseReadiness = () => {
   if (!podfile.includes(':hermes_enabled => true')) {
     errors.push('ios/Podfile is not configured with Hermes enabled');
   }
+
+  const podfileLockDriftIssues = [];
+  const reactNativeVersion = normalizePackageVersion(packageJson.dependencies['react-native']);
+  const reactCoreLockVersion = getLockedPodVersion(podfileLock, 'React-Core');
+
+  if (reactCoreLockVersion && reactCoreLockVersion !== reactNativeVersion) {
+    podfileLockDriftIssues.push(`ios/Podfile.lock has React-Core ${reactCoreLockVersion}; package.json has react-native ${reactNativeVersion}`);
+  }
+
+  if (podfileLock.includes('react-native-camera')) {
+    podfileLockDriftIssues.push('ios/Podfile.lock still references removed react-native-camera; run pod install on macOS after the CameraKit migration');
+  }
+
+  [
+    ['RNBootSplash', 'react-native-bootsplash'],
+    ['react-native-config', 'react-native-config'],
+    ['RNCAsyncStorage', '@react-native-async-storage/async-storage'],
+    ['RNDeviceInfo', 'react-native-device-info'],
+    ['RNFastImage', 'react-native-fast-image'],
+    ['RNFBApp', '@react-native-firebase/app'],
+    ['RNGestureHandler', 'react-native-gesture-handler'],
+    ['RNLocalize', 'react-native-localize'],
+    ['RNScreens', 'react-native-screens'],
+    ['RNSentry', '@sentry/react-native'],
+    ['RNVectorIcons', 'react-native-vector-icons'],
+  ].forEach(([podName, packageName]) => {
+    const lockedVersion = getLockedPodVersion(podfileLock, podName);
+    const packageVersion = normalizePackageVersion(packageJson.dependencies[packageName]);
+
+    if (lockedVersion && packageVersion && lockedVersion !== packageVersion) {
+      podfileLockDriftIssues.push(`ios/Podfile.lock has ${podName} ${lockedVersion}; package.json has ${packageName} ${packageVersion}`);
+    }
+  });
 
   const pbxproj = read('ios/GoldWallet.xcodeproj/project.pbxproj');
   const sentryReleaseIntegrationErrors = getSentryReleaseIntegrationErrors({
@@ -183,10 +226,15 @@ const collectIosReleaseReadiness = () => {
     }
   }
 
+  const staticReady = errors.length === 0;
+  const archiveReady = staticReady && podfileLockDriftIssues.length === 0 && Boolean(xcodebuildVersion);
+
   return {
-    ready: errors.length === 0,
+    ready: archiveReady,
+    staticReady,
     errors,
     warnings,
+    podfileLockDriftIssues,
     reactNativeVersion: packageJson.dependencies['react-native'],
     rnMinIosVersion,
     rnMinXcodeVersion,
@@ -203,6 +251,7 @@ const collectIosReleaseReadiness = () => {
 const formatSummary = (audit, generatedAt = new Date().toISOString()) => [
   'iOS release static readiness audit',
   `Generated at: ${generatedAt}`,
+  `Static iOS release files valid: ${audit.staticReady ? 'yes' : 'no'}`,
   `Ready for macOS archive validation: ${audit.ready ? 'yes' : 'no'}`,
   `React Native version: ${audit.reactNativeVersion}`,
   `React Native minimum iOS: ${audit.rnMinIosVersion || '<unknown>'}`,
@@ -213,6 +262,9 @@ const formatSummary = (audit, generatedAt = new Date().toISOString()) => [
   `iOS Sentry bundle/source-map phases: ${audit.sentryBundlePhaseCount}`,
   `iOS Sentry dSYM upload phases: ${audit.sentryDsymPhaseCount}`,
   `iOS CodePush plist placeholders: ${audit.codePushPlistPlaceholderCount}`,
+  `Podfile.lock refresh required: ${audit.podfileLockDriftIssues.length > 0 ? 'yes' : 'no'}`,
+  `Podfile.lock drift issues: ${audit.podfileLockDriftIssues.length}`,
+  ...audit.podfileLockDriftIssues.map(issue => `- ${issue}`),
   `xcodebuild version: ${audit.xcodebuildVersion || '<not available on this machine>'}`,
   `Errors: ${audit.errors.length}`,
   ...audit.errors.map(error => `- ${error}`),
@@ -220,6 +272,8 @@ const formatSummary = (audit, generatedAt = new Date().toISOString()) => [
   ...audit.warnings.map(warning => `- ${warning}`),
   audit.ready
     ? 'Required action: run pod install and iOS archive/simulator validation on macOS before claiming iOS runtime delivery.'
+    : audit.podfileLockDriftIssues.length > 0
+      ? 'Required action: refresh ios/Podfile.lock with pod install on macOS, then run iOS archive/simulator validation before claiming iOS runtime delivery.'
     : 'Required action: fix static iOS release readiness errors before macOS archive validation.',
   '',
 ].join('\n');
@@ -231,6 +285,6 @@ writeFileSync(path.join(localDocsDir, 'ios-release-static-readiness-summary.txt'
 
 console.log(summary.trim());
 
-if (!audit.ready) {
+if (!audit.staticReady) {
   process.exit(1);
 }
