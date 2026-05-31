@@ -26,6 +26,7 @@ build/
 .gradle
 local.properties
 keystore.properties
+android/app/.cxx/
 *.iml
 !debug.keystore
 
