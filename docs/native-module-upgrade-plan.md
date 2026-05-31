@@ -161,6 +161,7 @@ Branch shape:
 - Run `corepack yarn camera:qr-migration:audit` before scanner follow-up work so the current CameraKit permission/runtime/autolink baseline stays explicit.
 - Validate Android/iOS camera permissions and QR scan behavior manually before claiming scanner follow-up work complete.
 - Latest checked on 2026-05-31: `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4`.
+- `corepack yarn camera:candidate:audit` verifies those candidate/latest values against live npm metadata before scanner dependency follow-up work.
 - VisionCamera remains deferred because its latest line requires `react-native-nitro-modules` and `react-native-nitro-image`; CameraKit remains the installed scanner baseline.
 
 ## Minimum Validation By Branch Type

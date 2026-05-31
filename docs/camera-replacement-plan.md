@@ -15,6 +15,7 @@
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface after the CameraKit migration.
 - `corepack yarn check:qr-scan-caller-guard` verifies the caller-inventory guard fixtures.
 - `corepack yarn check:qr-scan-callers` guards the current QR scanner caller inventory after the CameraKit migration.
+- `corepack yarn camera:candidate:audit` checks live npm metadata for the legacy camera, VisionCamera, CameraKit, QR renderer, and QR encoder before scanner follow-up work, so stale candidate assumptions are visible before a dependency branch.
 - `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, and writes `local-docs/camera-qr-migration-summary.txt`.
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
 
@@ -32,6 +33,7 @@
 - Upstream docs describe barcode/QR scanning for both Android and iOS.
 - The modern API can scan only `qr-code`, which matches GoldWallet's current use.
 - Current latest package checked on 2026-05-31 is `react-native-vision-camera@5.0.11`.
+- The camera candidate audit verifies this against live npm metadata before future scanner work.
 - Risk: the current latest line depends on the Nitro module stack (`react-native-nitro-modules` and `react-native-nitro-image`), so it should be aligned with a future RN/native-module milestone rather than attempted as a small warning cleanup.
 - Highest checked v4 line is `react-native-vision-camera@4.7.3`; it still requires additional native/worklet dependencies and needs a proof build before selection.
 - Current choice: CameraKit selected for the first migration branch because it avoids the Nitro peer dependency stack on the current RN foundation.
@@ -41,6 +43,7 @@
 - Package path: `react-native-camera-kit`.
 - Smaller API surface for scanner use cases.
 - Current latest package checked on 2026-05-31 is `react-native-camera-kit@18.0.0`.
+- The camera candidate audit verifies this against live npm metadata before future scanner work.
 - Node requirement `>=18` is compatible with the current Node 22 modernization baseline.
 - Current proof role: selected implementation for the QR scanner migration.
 
@@ -48,6 +51,7 @@
 
 - Current latest package checked on 2026-05-31 is `react-native-qrcode-svg@6.3.21`.
 - Current latest encoder package checked on 2026-05-31 is `qrcode@1.5.4`.
+- The camera candidate audit verifies both values against live npm metadata before future QR renderer work.
 - The installed QR rendering pair remains current, so scanner follow-up work should focus on runtime camera behavior rather than another QR renderer bump.
 
 ### Not Recommended: Patch `react-native-camera`

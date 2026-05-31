@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.276 - Camera candidate live latest audit
+
+- Branch: `feature/bem-37-276-camera-live-latest-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the Camera/QR candidate audit so it checks live npm metadata before scanner dependency follow-up work.
+- Keep CameraKit as the installed scanner baseline while making stale VisionCamera, CameraKit, QR renderer, or QR encoder assumptions fail the audit.
+- Update the Camera/QR docs so future scanner branches start from the live candidate audit, not only static notes.
+
+Findings:
+
+- Live npm metadata still reports `react-native-camera@4.2.1`, `react-native-vision-camera@5.0.11`, `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4`.
+- VisionCamera still requires `react-native-nitro-modules` and `react-native-nitro-image`, so CameraKit remains the selected scanner baseline for this RN foundation.
+- This branch changes audit/guard tooling and documentation only; it does not change app runtime, dependencies, native code, or Metro, so emulator smoke is not required.
+
+Validation:
+
+- `npm view react-native-camera version engines peerDependencies dependencies --json`
+- `npm view react-native-vision-camera version engines peerDependencies dependencies --json`
+- `npm view react-native-camera-kit version engines peerDependencies dependencies --json`
+- `npm view react-native-qrcode-svg version engines peerDependencies dependencies --json`
+- `npm view qrcode version engines peerDependencies dependencies --json`
+- `corepack yarn check:camera-candidate-summary-guard`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.275 - Release service Android evidence alignment
 
 - Branch: `feature/bem-37-275-release-service-summary-evidence-alignment`
