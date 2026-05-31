@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.265 - iOS release runtime claim guard
+
+- Branch: `feature/bem-37-265-ios-release-runtime-claim-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align iOS release readiness reporting with the Sentry, Firebase, and CodePush release-service summaries.
+- Keep Windows static iOS readiness checks separate from macOS runtime/archive delivery claims.
+- Guard the generated iOS release readiness summary so it cannot claim iOS runtime delivery without an explicit future validation branch.
+
+Findings:
+
+- Static iOS release readiness remains audit-only on this Windows machine because `xcodebuild` is unavailable and `ios/Podfile.lock` still needs a macOS `pod install` refresh after the RN/native dependency modernization.
+- The generated summary now reports `iOS runtime delivery validation: not claimed` before error/warning counts.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.264 - Firebase release readiness evidence refresh
 
 - Branch: `feature/bem-37-264-firebase-release-readiness-refresh`

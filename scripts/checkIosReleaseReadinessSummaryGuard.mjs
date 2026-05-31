@@ -19,6 +19,7 @@ const validWindowsSummary = [
   '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.85.3',
   '- ios/Podfile.lock still references removed react-native-camera; run pod install on macOS after the CameraKit migration',
   'xcodebuild version: <not available on this machine>',
+  'iOS runtime delivery validation: not claimed',
   'Errors: 0',
   'Warnings: 1',
   '- iOS compile/archive validation is blocked on this machine: xcodebuild requires macOS with Xcode.',
@@ -116,6 +117,11 @@ assertRejected(
     '',
   ),
   'xcodebuild unavailable warning',
+);
+assertRejected(
+  'Claimed iOS runtime delivery fixture',
+  validWindowsSummary.replace('iOS runtime delivery validation: not claimed', 'iOS runtime delivery validation: claimed'),
+  'not claimed',
 );
 assertRejected(
   'Missing required action fixture',
