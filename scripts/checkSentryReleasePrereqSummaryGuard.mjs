@@ -6,7 +6,11 @@ const notReadySummary = [
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: not ready',
   '@sentry/react-native version: 8.13.0',
+  '@sentry/react-native latest: 8.13.0',
+  '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.4.3',
+  '@sentry/cli latest: 3.4.3',
+  '@sentry/cli current: yes',
   'Sentry CLI binary present: yes',
   'Sentry CLI version output: sentry-cli 3.4.3',
   'Sentry CLI executable: yes',
@@ -41,7 +45,11 @@ const readySummary = [
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: ready',
   '@sentry/react-native version: 8.13.0',
+  '@sentry/react-native latest: 8.13.0',
+  '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.4.3',
+  '@sentry/cli latest: 3.4.3',
+  '@sentry/cli current: yes',
   'Sentry CLI binary present: yes',
   'Sentry CLI version output: sentry-cli 3.4.3',
   'Sentry CLI executable: yes',
@@ -100,9 +108,29 @@ assertRejected(
   '@sentry/react-native version must be present',
 );
 assertRejected(
+  'Missing Sentry SDK latest fixture',
+  notReadySummary.replace('@sentry/react-native latest: 8.13.0', '@sentry/react-native latest: missing'),
+  '@sentry/react-native latest must be present',
+);
+assertRejected(
+  'Stale Sentry SDK current fixture',
+  notReadySummary.replace('@sentry/react-native latest: 8.13.0', '@sentry/react-native latest: 9.0.0'),
+  '@sentry/react-native current cannot be yes',
+);
+assertRejected(
   'Missing Sentry CLI package version fixture',
   notReadySummary.replace('@sentry/cli package version: 3.4.3', '@sentry/cli package version: missing'),
   '@sentry/cli package version must be present',
+);
+assertRejected(
+  'Missing Sentry CLI latest fixture',
+  notReadySummary.replace('@sentry/cli latest: 3.4.3', '@sentry/cli latest: missing'),
+  '@sentry/cli latest must be present',
+);
+assertRejected(
+  'Stale Sentry CLI current fixture',
+  notReadySummary.replace('@sentry/cli latest: 3.4.3', '@sentry/cli latest: 4.0.0'),
+  '@sentry/cli current cannot be yes',
 );
 assertRejected(
   'Mismatched Sentry CLI output fixture',

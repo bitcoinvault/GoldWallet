@@ -36,12 +36,24 @@ const parseProperties = content =>
       .filter(line => line && !line.startsWith('#') && line.includes('='))
       .map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]),
   );
+const npmViewVersion = packageName =>
+  execFileSync('npm', ['view', packageName, 'version'], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    shell: process.platform === 'win32',
+    windowsHide: true,
+  }).trim();
 
 export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) => {
   const packageJson = readJson('package.json');
   const sentryReactNativeVersion = packageJson.dependencies?.['@sentry/react-native'] || 'missing';
   const sentryCliPackage = existsSync(sentryCliPackagePath) ? JSON.parse(readFileSync(sentryCliPackagePath, 'utf8')) : null;
   const sentryCliPackageVersion = sentryCliPackage?.version || 'missing';
+  const sentryReactNativeLatest = npmViewVersion('@sentry/react-native');
+  const sentryCliLatest = npmViewVersion('@sentry/cli');
+  const sentryReactNativeCurrent = sentryReactNativeVersion === sentryReactNativeLatest;
+  const sentryCliCurrent = sentryCliPackageVersion === sentryCliLatest;
   const sentryCliBinPresent = existsSync(sentryCliBinPath);
   let sentryCliVersionOutput = 'missing';
   let sentryCliExecutable = false;
@@ -132,7 +144,11 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
 
   return {
     sentryReactNativeVersion,
+    sentryReactNativeLatest,
+    sentryReactNativeCurrent,
     sentryCliPackageVersion,
+    sentryCliLatest,
+    sentryCliCurrent,
     sentryCliBinPresent,
     sentryCliVersionOutput,
     sentryCliExecutable,
@@ -162,7 +178,11 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
     `Generated at: ${generatedAt}`,
     `Release source-map prerequisites: ${audit.ready ? 'ready' : 'not ready'}`,
     `@sentry/react-native version: ${audit.sentryReactNativeVersion}`,
+    `@sentry/react-native latest: ${audit.sentryReactNativeLatest}`,
+    `@sentry/react-native current: ${audit.sentryReactNativeCurrent ? 'yes' : 'no'}`,
     `@sentry/cli package version: ${audit.sentryCliPackageVersion}`,
+    `@sentry/cli latest: ${audit.sentryCliLatest}`,
+    `@sentry/cli current: ${audit.sentryCliCurrent ? 'yes' : 'no'}`,
     `Sentry CLI binary present: ${audit.sentryCliBinPresent ? 'yes' : 'no'}`,
     `Sentry CLI version output: ${audit.sentryCliVersionOutput}`,
     `Sentry CLI executable: ${audit.sentryCliExecutable ? 'yes' : 'no'}`,
@@ -225,7 +245,11 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
 const printReport = audit => {
   console.log('Sentry release prerequisite audit');
   console.log(`@sentry/react-native version: ${audit.sentryReactNativeVersion}`);
+  console.log(`@sentry/react-native latest: ${audit.sentryReactNativeLatest}`);
+  console.log(`@sentry/react-native current: ${audit.sentryReactNativeCurrent ? 'yes' : 'no'}`);
   console.log(`@sentry/cli package version: ${audit.sentryCliPackageVersion}`);
+  console.log(`@sentry/cli latest: ${audit.sentryCliLatest}`);
+  console.log(`@sentry/cli current: ${audit.sentryCliCurrent ? 'yes' : 'no'}`);
   console.log(`Sentry CLI binary present: ${audit.sentryCliBinPresent ? 'yes' : 'no'}`);
   console.log(`Sentry CLI version output: ${audit.sentryCliVersionOutput}`);
   console.log(`Sentry CLI executable: ${audit.sentryCliExecutable ? 'yes' : 'no'}`);
