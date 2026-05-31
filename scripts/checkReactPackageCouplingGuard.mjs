@@ -55,6 +55,11 @@ assertRejected(
   '@types/react-native@^0.63.37',
 );
 assertRejected(
+  'External React Navigation types fixture',
+  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react-navigation': '^3.4.0' } },
+  '@types/react-navigation@^3.4.0',
+);
+assertRejected(
   'Wrong renderer fixture',
   { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'react-test-renderer': '19.2.6' } },
   'react-test-renderer@19.2.6',

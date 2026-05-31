@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.299 - Unused React Navigation type stub removal
+
+- Branch: `feature/bem-37-299-unused-react-navigation-types-removal`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove unused direct `@types/react-navigation` dev dependency from `package.json` and `yarn.lock`.
+- Keep the active React Navigation v7 packages unchanged.
+- Extend `react:package-coupling:audit` and its guard so the deprecated type stub cannot silently return.
+- Refresh dependency strategy notes for this navigation/type dependency cleanup.
+
+Findings:
+
+- `corepack yarn why @types/react-navigation` reported the package existed only because it was a direct dev dependency.
+- `npm view @types/react-navigation version deprecated dist-tags peerDependencies dependencies --json` reports latest `3.4.0`, but the package is a deprecated stub because React Navigation ships its own types.
+- The stub pulled historical `react-navigation@4.4.4` and `@react-navigation/native@3.8.4` packages into the lockfile even though the app runtime imports current `@react-navigation/*` v7 packages.
+
+Validation:
+
+- `npm view @types/react-navigation version deprecated dist-tags peerDependencies dependencies --json`
+- `corepack yarn why @types/react-navigation`
+- `corepack yarn remove @types/react-navigation`
+- `corepack yarn postinstall`
+- `corepack yarn check:react-package-coupling-guard`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.298 - Unused deprecated Babel ESLint parser removal
 
 - Branch: `feature/bem-37-298-unused-babel-eslint-removal`
