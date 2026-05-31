@@ -62,6 +62,8 @@ Use `corepack yarn upgrade:strategy:audit` before dependency/RN baseline branche
 
 `android:dev:release:validate-local` validates the Android release package paths without local Sentry upload credentials. By default it sets `SENTRY_DISABLE_AUTO_UPLOAD=true`, builds `devRelease`, `stageRelease`, and `prodRelease`, and writes `local-docs/android-release-dev-summary.txt` with per-variant APK size and SHA-256 evidence. Validate that artifact with `android:dev:release:check-summary` after the build. Override the default set with `ANDROID_RELEASE_VARIANTS=dev,stage,prod` when a branch intentionally narrows or extends release validation. This proves release bundling and APK generation only; Sentry source-map upload remains blocked until `sentry.properties` or equivalent Sentry env values are available.
 
+Latest local release evidence refresh: on 2026-05-31, `feature/bem-37-260-android-release-validation-readiness` rebuilt `devRelease`, `stageRelease`, and `prodRelease` with JDK 17 and validated the generated summary artifact. Keep future release proof branches on the same summary/checker flow so APK evidence stays local while the tracked log records the milestone.
+
 `check:android-remaining-warning-plan` keeps `docs/android-warning-baseline-followups.md` aligned with the active Android warning baseline and the required follow-up branch type for each remaining source.
 
 `check:camera-usage-scope` keeps `react-native-camera-kit` runtime usage isolated to `ScanQrCodeScreen` after the dedicated QR scanner migration branch.
