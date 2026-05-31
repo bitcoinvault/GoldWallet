@@ -77,6 +77,8 @@ corepack yarn release-services:check-summaries
 Checked on 2026-05-31 after the RN `0.85.3` foundation, Android release variant validation, and release-services package refresh:
 
 ```powershell
+JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local
+corepack yarn android:dev:release:check-summary
 corepack yarn codepush:release:path-audit
 corepack yarn codepush:release:path-check-summary
 corepack yarn firebase:release-services:audit
@@ -89,6 +91,7 @@ corepack yarn release-services:check-summaries
 Results:
 
 - CodePush release-path wiring is valid for non-dev runtime, Android, iOS, and env key references.
+- Android `devRelease`, `stageRelease`, and `prodRelease` APK generation is validated locally with Sentry auto upload disabled; the summary records APK path, byte count, and SHA-256 for each unsigned release artifact.
 - CodePush package readiness now records live npm latest metadata and confirms that the installed package is current.
 - CodePush upstream retirement readiness now records App Center CodePush retirement on 2025-03-31, archived Microsoft upstream state, lack of upstream New Architecture support, Android `newArchEnabled=true`, and `CodePush migration required: yes`.
 - CodePush release-path env readiness is now recorded per env file without printing deployment-key values.
@@ -101,7 +104,7 @@ Results:
 - Firebase release-services audit now records whether the latest local Android release summary artifact is present, valid, and covers `dev`, `stage`, and `prod` release APK evidence, so APK/bundle evidence is separate from unclaimed FCM/Crashlytics/Analytics runtime delivery validation.
 - Firebase `24.0.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
 - RN Firebase `24.0.0` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
-- Sentry release source-map validation is not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
+- Sentry release source-map upload validation is still not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
 - The Sentry prerequisite audit now records per-file readiness for the root, Android, and iOS Sentry properties files, validates that `create-sentry-properties.sh` writes all three expected paths with the expected non-secret static defaults, and verifies that the local `@sentry/cli` package binary is present and executable.
 - Sentry `8.13.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.85.3` baseline; release artifact upload still needs credentials before it can be claimed as fully validated.
 - None of these audits print secret values.
