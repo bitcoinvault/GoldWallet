@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.267 - RN online baseline preflight
+
+- Branch: `feature/bem-37-267-rn-online-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add an explicit online RN baseline preflight command for branch-start checks when network access is available.
+- Keep the default `rn:baseline:preflight` offline-friendly, but make the latest-first workflow easier to run without remembering separate commands.
+- Guard the new command from the RN upgrade path audit so future preflight edits do not silently drop live npm target snapshot validation.
+
+Findings:
+
+- The recorded RN target snapshot already had a dedicated live npm check and summary checker, but the command sequence was manual.
+- `rn:baseline:preflight:online` now runs `rn:target-snapshot:current`, validates the generated summary, then runs the normal RN baseline preflight.
+
+Validation:
+
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn rn:baseline:preflight:online`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.266 - iOS release aggregate summary gate
 
 - Branch: `feature/bem-37-266-ios-release-aggregate-check`

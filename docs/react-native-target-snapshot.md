@@ -36,6 +36,12 @@ corepack yarn rn:target-snapshot:current
 
 The live check requires network access and is intentionally not part of the default offline preflight. It writes the latest result to `local-docs/rn-target-snapshot-current-summary.txt`.
 
+For actual RN baseline branches where network access is available, use the online baseline preflight wrapper:
+
+```powershell
+corepack yarn rn:baseline:preflight:online
+```
+
 To validate the latest local summary artifact after a live check, use:
 
 ```powershell
