@@ -13,6 +13,8 @@ export const expectedReactNativeTargetSnapshot = {
   currentNode: '22.18.0',
   npmLatestReactNative: '0.85.3',
   npmNextReactNative: '0.86.0-rc.2',
+  npmNextChannel: 'prerelease',
+  defaultUpgradeChannel: 'latest',
   targetReactPeer: '^19.2.3',
   targetNodeEngine: '^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0',
 };
@@ -24,6 +26,8 @@ export const requiredReactNativeTargetSnapshotSnippets = [
   ['docs/react-native-target-snapshot.md', 'Current repo Metro/dev Node runtime: `22.18.0`'],
   ['docs/react-native-target-snapshot.md', 'npm `latest`: `0.85.3`'],
   ['docs/react-native-target-snapshot.md', 'npm `next`: `0.86.0-rc.2`'],
+  ['docs/react-native-target-snapshot.md', 'npm `next` channel classification: `prerelease`'],
+  ['docs/react-native-target-snapshot.md', 'Default upgrade channel: `latest`'],
   ['docs/react-native-target-snapshot.md', 'React peer for `react-native@0.85.3`: `^19.2.3`'],
   ['docs/react-native-target-snapshot.md', 'Node engine for `react-native@0.85.3`: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`'],
   ['docs/react-native-target-snapshot.md', 'This snapshot is not a direct-upgrade instruction'],

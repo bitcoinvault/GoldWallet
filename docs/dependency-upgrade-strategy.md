@@ -1,10 +1,11 @@
 # Dependency Upgrade Strategy
 
-This project should not upgrade dependencies one package at a time unless the package is isolated and low risk. The app is now on the RN `0.85.3` / React `19.2.3` foundation checkpoint; RN `0.85.3` currently matches npm `latest`, while React `19.2.6` is intentionally blocked by the RN renderer exact-version constraint on this baseline. npm `next` for React Native is an RC line and is not the default wallet target. The upgrade path should therefore keep moving by layers, keep live snapshot checks at each foundation branch, and avoid returning to package-by-package churn.
+This project should not upgrade dependencies one package at a time unless the package is isolated and low risk. The app is now on the RN `0.85.3` / React `19.2.3` foundation checkpoint; RN `0.85.3` currently matches npm `latest`, while React `19.2.6` is intentionally blocked by the RN renderer exact-version constraint on this baseline. npm `next` for React Native is an RC line, is classified as `prerelease`, and is not the default wallet target. The upgrade path should therefore keep moving by layers, keep live snapshot checks at each foundation branch, and avoid returning to package-by-package churn.
 
 ## Current Rule
 
 - Try the latest target first when the change is feasible.
+- Treat npm `latest` as the default React Native target channel; npm `next` is planning evidence until a dedicated branch accepts prerelease risk.
 - If latest fails, capture the exact blocker and choose the highest compatible version only as a temporary stopgap.
 - Do not commit a dependency change that only passes TypeScript or Android assemble; runtime dependencies also need Metro reset and emulator smoke.
 - Do not mix unrelated runtime families in the same branch.

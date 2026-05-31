@@ -12,6 +12,8 @@ const validSummary = [
   'Live check outcome: matched',
   `npm latest react-native: ${expectedReactNativeTargetSnapshot.npmLatestReactNative} (snapshot: ${expectedReactNativeTargetSnapshot.npmLatestReactNative})`,
   `npm next react-native: ${expectedReactNativeTargetSnapshot.npmNextReactNative} (snapshot: ${expectedReactNativeTargetSnapshot.npmNextReactNative})`,
+  `npm next channel classification: ${expectedReactNativeTargetSnapshot.npmNextChannel} (snapshot: ${expectedReactNativeTargetSnapshot.npmNextChannel})`,
+  `default React Native upgrade channel: ${expectedReactNativeTargetSnapshot.defaultUpgradeChannel} (snapshot: latest)`,
   `react-native@${expectedReactNativeTargetSnapshot.npmLatestReactNative} React peer: ${expectedReactNativeTargetSnapshot.targetReactPeer} (snapshot: ${expectedReactNativeTargetSnapshot.targetReactPeer})`,
   `react-native@${expectedReactNativeTargetSnapshot.npmLatestReactNative} Node engine: ${expectedReactNativeTargetSnapshot.targetNodeEngine} (snapshot: ${expectedReactNativeTargetSnapshot.targetNodeEngine})`,
   'Mismatches: 0',

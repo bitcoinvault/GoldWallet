@@ -52,6 +52,12 @@ if (!staleSummary.includes('Live check outcome: stale') || !staleSummary.include
   process.exit(1);
 }
 assertRejected('Changed next fixture', { ...validCurrent, next: '0.87.0-rc.0' }, 'npm next react-native is 0.87.0-rc.0');
+assertRejected('Stable next fixture', { ...validCurrent, next: '0.86.0' }, 'npm next channel classification is stable');
+assertRejected(
+  'Next equals latest fixture',
+  { ...validCurrent, next: expectedReactNativeTargetSnapshot.npmLatestReactNative },
+  'npm next react-native matches latest',
+);
 assertRejected('Changed React peer fixture', { ...validCurrent, reactPeer: '^20.0.0' }, 'React peer is ^20.0.0');
 assertRejected('Missing Node engine fixture', { ...validCurrent, nodeEngine: '' }, 'Node engine is <missing>');
 
