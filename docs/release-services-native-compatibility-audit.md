@@ -17,6 +17,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | `9.0.1` | `9.0.1` | Release update path, deployment keys, native bundle loading. |
 | `@sentry/react-native` | `8.13.0` | `8.13.0` | Latest checked SDK line; source-map and dSYM behavior must still be proven with local credentials. |
+| `@sentry/cli` | `3.4.3` | `3.4.3` | Installed through the Sentry React Native package; prerequisite audit checks binary availability and live latest metadata. |
 
 ## Current Runtime Surface
 

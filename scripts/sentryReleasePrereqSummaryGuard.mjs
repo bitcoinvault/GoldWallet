@@ -30,7 +30,11 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const generatedAt = getLineValue(summary, 'Generated at');
   const readiness = getLineValue(summary, 'Release source-map prerequisites');
   const sentryReactNativeVersion = getLineValue(summary, '@sentry/react-native version');
+  const sentryReactNativeLatest = getLineValue(summary, '@sentry/react-native latest');
+  const sentryReactNativeCurrent = getLineValue(summary, '@sentry/react-native current');
   const sentryCliPackageVersion = getLineValue(summary, '@sentry/cli package version');
+  const sentryCliLatest = getLineValue(summary, '@sentry/cli latest');
+  const sentryCliCurrent = getLineValue(summary, '@sentry/cli current');
   const sentryCliBinPresent = getLineValue(summary, 'Sentry CLI binary present');
   const sentryCliVersionOutput = getLineValue(summary, 'Sentry CLI version output');
   const sentryCliExecutable = getLineValue(summary, 'Sentry CLI executable');
@@ -81,8 +85,28 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push(`@sentry/react-native version must be present. Received: ${sentryReactNativeVersion || 'missing'}`);
   }
 
+  if (!/^\d+\.\d+\.\d+/.test(sentryReactNativeLatest)) {
+    errors.push(`@sentry/react-native latest must be present. Received: ${sentryReactNativeLatest || 'missing'}`);
+  }
+
+  if (!['yes', 'no'].includes(sentryReactNativeCurrent)) {
+    errors.push(`@sentry/react-native current must be yes or no. Received: ${sentryReactNativeCurrent || 'missing'}`);
+  } else if (sentryReactNativeCurrent === 'yes' && sentryReactNativeVersion !== sentryReactNativeLatest) {
+    errors.push('@sentry/react-native current cannot be yes when installed version differs from latest');
+  }
+
   if (!/^\d+\.\d+\.\d+/.test(sentryCliPackageVersion)) {
     errors.push(`@sentry/cli package version must be present. Received: ${sentryCliPackageVersion || 'missing'}`);
+  }
+
+  if (!/^\d+\.\d+\.\d+/.test(sentryCliLatest)) {
+    errors.push(`@sentry/cli latest must be present. Received: ${sentryCliLatest || 'missing'}`);
+  }
+
+  if (!['yes', 'no'].includes(sentryCliCurrent)) {
+    errors.push(`@sentry/cli current must be yes or no. Received: ${sentryCliCurrent || 'missing'}`);
+  } else if (sentryCliCurrent === 'yes' && sentryCliPackageVersion !== sentryCliLatest) {
+    errors.push('@sentry/cli current cannot be yes when installed version differs from latest');
   }
 
   if (!sentryCliVersionOutput) {
@@ -184,6 +208,8 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseSummaryPresent,
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryValid,
+    sentryReactNativeCurrent,
+    sentryCliCurrent,
     sentryCliBinPresent,
     sentryCliExecutable,
     createScriptPresent,

@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.281 - Sentry live latest prerequisite audit
+
+- Branch: `feature/bem-37-281-sentry-live-latest-prereq-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Sentry release prerequisite audit check live npm latest metadata for `@sentry/react-native` and `@sentry/cli`.
+- Record whether the installed SDK and CLI package are current in the generated local summary.
+- Harden the summary guard so stale "current" claims fail when installed and latest versions differ.
+
+Findings:
+
+- Live npm metadata reports `@sentry/react-native@8.13.0` and `@sentry/cli@3.4.3`; both match the installed package set.
+- Android release summary evidence is present, valid, and covers `dev`, `stage`, and `prod`.
+- Sentry source-map upload validation remains explicitly unclaimed because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are not present in the current shell.
+
+Validation:
+
+- `npm view @sentry/react-native version engines peerDependencies dependencies --json`
+- `npm view @sentry/cli version engines dependencies --json`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.280 - Android release SHA validation
 
 - Branch: `feature/bem-37-280-android-release-sha-validation`
