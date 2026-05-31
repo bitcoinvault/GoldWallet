@@ -7,7 +7,7 @@ Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.
 
 ## Snapshot
 
-- NPM snapshot date: `2026-05-30`
+- NPM snapshot date: `2026-05-31`
 - Current repo React Native: `0.85.3`
 - Current repo React: `19.2.3`
 - Current repo Metro/dev Node runtime: `22.18.0`
@@ -18,7 +18,7 @@ Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.
 
 ## Meaning
 
-This snapshot is not a direct-upgrade instruction. It shows the current target line and the minimum ecosystem shift implied by that line: React 19, a newer Node runtime for RN tooling, newer Metro behavior, Android/iOS template changes, and native dependency compatibility work.
+This snapshot is not a direct-upgrade instruction. It shows the current stable target line and the minimum ecosystem shift implied by that line: React 19, a newer Node runtime for RN tooling, newer Metro behavior, Android/iOS template changes, and native dependency compatibility work. The `next` tag is recorded for planning, but RC/nightly builds are not treated as the wallet's default upgrade target unless a dedicated branch proves that tradeoff is needed.
 
 Use it to size and sequence the RN modernization path. Re-check npm and the official React Native release page at the start of the actual RN baseline branch, then update this snapshot in that branch if the target line has changed.
 
