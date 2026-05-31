@@ -5,6 +5,7 @@ import {
   SegwitBech32Wallet,
   SegwitP2SHWallet,
 } from '../../class';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 jest.mock('../../BlueElectrum', () => ({
   getDustValue: jest.fn().mockResolvedValue(546),
@@ -57,6 +58,47 @@ describe('HD wallet offline flows', () => {
       await hd.getXpub(),
       'ypub6Wj9dHZAtSM3DQB6kG37aK5i1yJbBoM2d1W57aMkyLx4cNyGqWYpGvL194zA4HSxWpQyoPrsXE2PP4pNUqu5cvvHUK2ZpfUeHFmuK4THAD3',
     );
+  });
+
+  it('can create signed Segwit HD BIP49 transactions from offline UTXO fixtures', async () => {
+    const mnemonic =
+      'fiber quiz produce chuckle sort crisp price direct speak recipe adult layer thumb lift tape start peace wave jungle fluid green interest cave learn';
+    const hd = new HDSegwitP2SHWallet();
+
+    await hd.setSecret(mnemonic);
+
+    const [fundingAddress, recipientAddress] = hd.getAddress();
+    const expectedChangeAddress = hd.getAddressForTransaction();
+    const utxos = [
+      {
+        txid: 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+        vout: 0,
+        value: 20000,
+        address: fundingAddress,
+      },
+    ];
+
+    const { tx: txHex, fee } = await hd.createTx(utxos, 0.00005, 0.00001, recipientAddress);
+    const tx = bitcoin.Transaction.fromHex(txHex);
+
+    assert.strictEqual(fee, 1000);
+    assert.strictEqual(tx.ins.length, 1);
+    assert.strictEqual(tx.outs.length, 2);
+    assert.deepStrictEqual(
+      tx.outs.map(output => bitcoin.address.fromOutputScript(output.script, config.network)),
+      [recipientAddress, expectedChangeAddress],
+    );
+    assert.strictEqual(tx.outs[0].value, 5000);
+    assert.strictEqual(tx.outs[1].value, 14000);
+
+    const { tx: sendMaxTxHex, fee: sendMaxFee } = await hd.createTx(utxos, BitcoinUnit.MAX, 0.00001, recipientAddress);
+    const sendMaxTx = bitcoin.Transaction.fromHex(sendMaxTxHex);
+
+    assert.strictEqual(sendMaxFee, 1000);
+    assert.strictEqual(sendMaxTx.ins.length, 1);
+    assert.strictEqual(sendMaxTx.outs.length, 1);
+    assert.strictEqual(bitcoin.address.fromOutputScript(sendMaxTx.outs[0].script, config.network), recipientAddress);
+    assert.strictEqual(sendMaxTx.outs[0].value, 19000);
   });
 
   it('can normalize malformed Segwit HD BIP49 mnemonic spacing', async () => {

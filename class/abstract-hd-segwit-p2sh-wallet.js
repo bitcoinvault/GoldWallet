@@ -3,11 +3,11 @@ import * as bip39 from 'bip39';
 import b58 from 'bs58check';
 import { NativeModules } from 'react-native';
 
+import { AbstractHDWallet } from './abstract-hd-wallet';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import config from '../src/config';
 import { ELECTRUM_VAULT_SEED_PREFIXES } from '../src/consts';
 import { electrumVaultMnemonicToSeed, isElectrumVaultMnemonic, getMasterPublicKeyPrefix } from '../utils/crypto';
-import { AbstractHDWallet } from './abstract-hd-wallet';
 
 const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');
@@ -220,15 +220,15 @@ export class AbstractHDSegwitP2SHWallet extends AbstractHDWallet {
   }
 
   calculateTotalAmount({ utxos, amount, fee }) {
-    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
-
     if (amount === BitcoinUnit.MAX) {
-      amountPlusFee = new BigNumber(0);
+      let amountPlusFee = new BigNumber(0);
+
       for (const utxo of utxos) {
         amountPlusFee = amountPlusFee.plus(utxo.value);
       }
-      amountPlusFee = amountPlusFee.dividedBy(100000000).toString(10);
+      return amountPlusFee.dividedBy(100000000).toString(10);
     }
-    return amountPlusFee;
+
+    return parseFloat(new BigNumber(amount).plus(fee).toString(10));
   }
 }

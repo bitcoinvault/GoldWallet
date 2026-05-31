@@ -10,6 +10,28 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.243 - BIP49 transaction fixture and send-max fix
+
+- Branch: `feature/bem-37-243-bip49-transaction-fixtures`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add offline transaction-construction coverage for the SegWit P2SH HD wallet before deeper wallet crypto dependency migrations.
+- Lock signed BIP49 regular-send behavior from a deterministic UTXO fixture.
+- Lock signed BIP49 send-max behavior from the same deterministic fixture.
+- Fix the BIP49 send-max amount calculation path so `BitcoinUnit.MAX` is handled before numeric parsing.
+
+Findings:
+
+- `HDSegwitP2SHWallet.createTx` was passing `newUtxos` to `calculateTotalAmount`, while the helper expects `utxos`; the send-max path also parsed `MAX` as a number before checking the sentinel value.
+- The new fixture catches both issues and verifies target/change output addresses and send-max output value without Electrum.
+
+Validation:
+
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn wallet:crypto-runtime:audit`
+
 ### BEM-37.242 - Bech32 transaction fixture coverage
 
 - Branch: `feature/bem-37-242-bech32-transaction-fixtures`
