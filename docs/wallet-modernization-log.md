@@ -10,6 +10,28 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.246 - Legacy curve runtime exact pins
+
+- Branch: `feature/bem-37-246-pin-legacy-curve-runtime`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin direct `ecurve` from `^1.0.6` to exact latest `1.0.6`.
+- Pin direct `bigi` from `^1.4.2` to exact latest `1.4.2`.
+- Keep the existing runtime implementation unchanged; `utils/crypto.ts` still uses these packages for private-key to public-key conversion.
+
+Findings:
+
+- `npm view ecurve version dependencies engines --json` reports latest `1.0.6`.
+- `npm view bigi version dependencies engines --json` reports latest `1.4.2`.
+- These are wallet-critical runtime packages, so exact pins are safer than semver ranges while the BTCV fork remains on the legacy bitcoin stack.
+
+Validation:
+
+- `npm view ecurve version dependencies engines --json`
+- `npm view bigi version dependencies engines --json`
+
 ### BEM-37.245 - WIF latest direct dependency probe
 
 - Branch: `feature/bem-37-245-wif-v5-compat-probe`
