@@ -84,17 +84,18 @@ const trackedTooling = [
   {
     name: 'prettier',
     source: 'devDependencies',
-    decision: 'deferred - Prettier 3 requires a separate formatting migration',
+    decision:
+      'current - latest Prettier 3 formatting runtime verified against the existing lint baseline without mass formatting',
   },
   {
     name: 'eslint-plugin-prettier',
     source: 'devDependencies',
-    decision: 'deferred - Prettier plugin follows the Prettier major migration',
+    decision: 'current - latest Prettier ESLint plugin verified with Prettier 3 and the existing ESLint 8 baseline',
   },
   {
     name: 'eslint-config-prettier',
     source: 'devDependencies',
-    decision: 'deferred - Prettier config follows the Prettier major migration',
+    decision: 'current - latest Prettier ESLint config verified with the existing ESLint 8 baseline',
   },
   {
     name: 'lint-staged',

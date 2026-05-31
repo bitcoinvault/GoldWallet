@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.303 - Prettier 3 tooling migration
+
+- Branch: `feature/bem-37-303-prettier3-tooling-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move Prettier tooling to the checked latest stable line: `prettier@3.8.3`, `eslint-plugin-prettier@5.5.6`, and `eslint-config-prettier@10.1.8`.
+- Keep the current `.eslintrc` integration and existing format baseline; this branch does not run a repository-wide format rewrite.
+- Refresh `prettier:tooling:audit`, the live tooling snapshot decisions, and dependency strategy notes so Prettier 3 is no longer treated as deferred.
+
+Findings:
+
+- `npm view prettier version dist-tags engines dependencies peerDependencies --json` reports latest `3.8.3` with Node engine `>=14`.
+- `npm view eslint-plugin-prettier version dist-tags engines dependencies peerDependencies --json` reports latest `5.5.6`; it requires Prettier `>=3.0.0` and supports the current ESLint 8 baseline.
+- `npm view eslint-config-prettier version dist-tags engines dependencies peerDependencies --json` reports latest `10.1.8`; it supports ESLint `>=7.0.0`.
+- The previous Prettier 3 blocker did not reproduce as a baseline increase after the current lint-tooling work: `lint:baseline:audit` still reports `35346` existing errors, all tracked by the baseline audit.
+- Only the branch-touched audit/docs files were formatted to LF; no app source mass formatting was performed.
+
+Validation:
+
+- `npm view prettier version dist-tags engines dependencies peerDependencies --json`
+- `npm view eslint-plugin-prettier version dist-tags engines dependencies peerDependencies --json`
+- `npm view eslint-config-prettier version dist-tags engines dependencies peerDependencies --json`
+- `corepack yarn prettier --version`
+- `corepack yarn prettier:tooling:audit`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn eslint scripts/auditPrettierTooling.mjs scripts/auditToolingLatestSnapshot.mjs --format stylish`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+
 ### BEM-37.302 - Husky 9 hook migration
 
 - Branch: `feature/bem-37-302-husky9-hook-migration`
