@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.259 - React patch compatibility blocker refresh
+
+- Branch: `feature/bem-37-259-react-patch-cohort-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live npm metadata for the React/RN target line on 2026-05-31.
+- Confirm RN `latest` remains `0.85.3` and RN `next` remains `0.86.0-rc.2`.
+- Re-check `react@19.2.6` and `react-test-renderer@19.2.6`, then keep the repo pinned to React `19.2.3` because the previous emulator proof showed a `react-native-renderer@19.2.3` runtime mismatch.
+- Strengthen the React package coupling audit and dependency-upgrade strategy docs so the React patch blocker remains explicit.
+
+Findings:
+
+- `react-native@0.85.3` still declares React peer `^19.2.3`, but the app's bundled React Native renderer remains exact-version sensitive at `19.2.3`.
+- `react-test-renderer@19.2.6` requires `react ^19.2.6`, so taking that patch would move the runtime pair together and recreate the previously recorded renderer mismatch.
+- No package version change is committed in this branch; this is a guard/docs refresh after the live latest-first probe.
+
+Validation:
+
+- `npm view react-native dist-tags version peerDependencies engines --json`
+- `npm view react@19.2.6 version peerDependencies dependencies engines --json`
+- `npm view react-test-renderer@19.2.6 version peerDependencies dependencies engines --json`
+- `corepack yarn add react@19.2.6`
+- `corepack yarn add -D react-test-renderer@19.2.6`
+- `corepack yarn add react@19.2.3`
+- `corepack yarn add -D react-test-renderer@19.2.3`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn check:react-package-coupling-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.258 - iOS Podfile.lock drift readiness
 
 - Branch: `feature/bem-37-258-ios-podfile-lock-drift-readiness`
