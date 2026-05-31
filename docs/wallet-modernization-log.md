@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.233 - Dev tooling patch refresh
+
+- Branch: `feature/bem-37-dev-tooling-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `commitizen` from `4.2.4` to `4.3.1`, the latest npm 4.x release checked for this branch.
+- Move `babel-plugin-istanbul` from `6.0.0` to `6.1.1`, the latest npm 6.x release checked for this branch.
+- Move `junit-report-merger` from `3.0.1` to `3.0.6`, the latest npm 3.x release checked for this branch.
+- Move `mailosaur` from `7.3.1` to `7.6.0`, the latest npm 7.x release checked for this branch.
+- Pin the refreshed dev-tooling versions exactly to avoid accidental major upgrades through broad ranges.
+
+Why:
+
+- These packages support commit flow, coverage instrumentation, report merging, and e2e mail helpers, so they can be refreshed without changing wallet runtime code.
+- Major lines are left for separate migrations because Jest, Prettier, ESLint, and Detox upgrades have broader config and test-runner impact.
+
+Validation:
+
+- `npm view commitizen@4 version engines dependencies peerDependencies --json`
+- `npm view babel-plugin-istanbul@6 version engines dependencies peerDependencies --json`
+- `npm view junit-report-merger@3 version engines dependencies peerDependencies --json`
+- `npm view mailosaur@7 version engines dependencies peerDependencies --json`
+- `corepack yarn add commitizen@4.3.1`
+- `corepack yarn add --dev babel-plugin-istanbul@6.1.1 junit-report-merger@3.0.6 mailosaur@7.6.0`
+- `node node_modules\commitizen\bin\commitizen --version`
+- `node -e "const p=require('junit-report-merger/package.json'); console.log(p.version, JSON.stringify(p.bin))"`
+- `node -e "require('babel-plugin-istanbul'); require('mailosaur'); require('junit-report-merger'); console.log('dev tooling requires ok')"`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.232 - Transitive security resolutions refresh
 
 - Branch: `feature/bem-37-transitive-security-resolutions`
