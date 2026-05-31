@@ -10,6 +10,7 @@ export const requiredReleaseServiceEnvKeys = [
   'EXPLORER_URL',
   'SENTRY_DSN_IOS',
   'SENTRY_DSN_ANDROID',
+  'CODEPUSH_ENABLED',
   'EMAIL_NOTIFICATIONS_API',
 ];
 

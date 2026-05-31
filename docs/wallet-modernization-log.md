@@ -46,6 +46,46 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
 - `git diff --check`
 
+### BEM-37.290 - CodePush native bundle retirement gate
+
+- Branch: `feature/bem-37-290-codepush-native-bundle-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Gate Android CodePush JS bundle resolution behind `CODEPUSH_ENABLED=true` and a non-empty Android deployment key.
+- Gate iOS CodePush bundle URL resolution behind `CODEPUSH_ENABLED=true` and a non-empty iOS deployment key.
+- Add explicit `CODEPUSH_ENABLED=false` to release-service env files so retired CodePush remains disabled by default even where legacy deployment keys still exist.
+- Extend CodePush release-path and env-key guards so JS and native gates stay visible.
+- Refresh CodePush/release-service docs for the native bundle-resolution gate.
+
+Findings:
+
+- The previous JS gate prevented mounting the CodePush React wrapper, but native Android/iOS bundle resolution still referenced CodePush.
+- With this branch, legacy CodePush remains present for compatibility but both runtime startup and native bundle resolution are disabled by default.
+- CodePush update validation remains unclaimed until there is an explicit migration/removal decision or a maintained OTA replacement.
+
+Validation:
+
+- `corepack yarn check:release-service-env-keys-guard`
+- `corepack yarn check:release-service-env-keys`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:codepush-usage-guard`
+- `corepack yarn check:codepush-usage-scope`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `git diff --check`
+
 ### BEM-37.288 - Secure-storage primary write hardening
 
 - Branch: `feature/bem-37-288-secure-storage-primary-write`

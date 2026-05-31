@@ -49,7 +49,7 @@ public class MainApplication extends Application implements ReactApplication {
     }
     @Override
     protected String getJSBundleFile() {
-        return CodePush.getJSBundleFile();
+        return getCodePushBundleFile();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class MainApplication extends Application implements ReactApplication {
           buildPackages(),
           "index",
           "index.android.bundle",
-          CodePush.getJSBundleFile(),
+          getCodePushBundleFile(),
           null,
           BuildConfig.DEBUG,
           Collections.emptyList(),
@@ -89,6 +89,19 @@ public class MainApplication extends Application implements ReactApplication {
     }
 
     return mReactHost;
+  }
+
+  private String getCodePushBundleFile() {
+    if (
+      !BuildConfig.DEBUG &&
+      "true".equals(BuildConfig.CODEPUSH_ENABLED) &&
+      BuildConfig.CODEPUSH_DEPLOYMENT_KEY_ANDROID != null &&
+      BuildConfig.CODEPUSH_DEPLOYMENT_KEY_ANDROID.length() > 0
+    ) {
+      return CodePush.getJSBundleFile();
+    }
+
+    return null;
   }
   
     @Override
