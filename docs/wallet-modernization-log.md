@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.297 - Unused React Native ESLint config removal
+
+- Branch: `feature/bem-37-297-unused-rn-eslint-config-removal`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove unused direct `@react-native-community/eslint-config` dev dependency from `package.json` and `yarn.lock`.
+- Keep the active `.eslintrc` stack unchanged; it already extends the concrete React, TypeScript ESLint, import, React Native, hooks, and Prettier plugins directly.
+- Extend `check:eslint-config-compatibility` so the obsolete community config cannot silently return as a direct dependency or lint extend without a dedicated baseline migration.
+- Refresh dependency strategy notes for this lint-tooling cleanup.
+
+Findings:
+
+- `corepack yarn why @react-native-community/eslint-config` reported the package existed only because it was a direct dev dependency.
+- `npm view @react-native-community/eslint-config version dist-tags peerDependencies dependencies --json` reports latest `3.2.0`, but that package still brings an older nested lint stack and is not referenced by the repo ESLint config.
+- Removing the unused package trims stale nested ESLint, TypeScript ESLint 3, Prettier 2.3, and plugin entries from the lockfile without changing runtime code.
+
+Validation:
+
+- `npm view @react-native-community/eslint-config version dist-tags peerDependencies dependencies --json`
+- `corepack yarn why @react-native-community/eslint-config`
+- `corepack yarn remove @react-native-community/eslint-config`
+- `corepack yarn postinstall`
+- `corepack yarn check:eslint-config-compatibility`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `git diff --check`
+
 ### BEM-37.296 - iOS Podfile.lock drift guard refresh
 
 - Branch: `feature/bem-37-296-ios-podfile-lock-drift-guard`
