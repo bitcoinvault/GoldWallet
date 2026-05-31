@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.266 - iOS release aggregate summary gate
+
+- Branch: `feature/bem-37-266-ios-release-aggregate-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Include the generated iOS release readiness summary in the aggregate release-services summary checker.
+- Update the aggregate checker guard so future edits cannot silently drop the iOS release-readiness artifact from `release-services:check-summaries`.
+- Document that the aggregate gate now covers Sentry, Firebase, CodePush, push notification, and iOS release-readiness summaries together.
+
+Findings:
+
+- iOS release readiness was already generated and checked by its dedicated scripts, but the aggregate release-services checker did not include `local-docs/ios-release-static-readiness-summary.txt`.
+- The aggregate gate now validates iOS static release readiness alongside the other release-service summaries before future release-service dependency/runtime changes.
+
+Validation:
+
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.265 - iOS release runtime claim guard
 
 - Branch: `feature/bem-37-265-ios-release-runtime-claim-guard`

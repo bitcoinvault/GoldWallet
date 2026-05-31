@@ -90,6 +90,8 @@ Beta release evidence refresh: on 2026-05-31, `feature/bem-37-261-android-beta-r
 
 `ios:release:readiness:audit` records static iOS release readiness, Podfile.lock drift, xcodebuild availability, and an explicit iOS runtime delivery claim status. On Windows the expected state is that static files can be audited, while iOS runtime delivery remains unclaimed until macOS `pod install`, simulator/archive validation, and release-service checks are complete.
 
+`release-services:check-summaries` validates the generated Sentry release prerequisite, Sentry Android warning, Firebase, CodePush, push-notification bridge, and iOS release readiness summaries as one aggregate gate before future release-service dependency or runtime changes.
+
 `check:release-service-env-keys-guard` verifies the env-key guard fixtures. `check:release-service-env-keys` verifies that Android `envConfigFiles` and iOS schemes reference env files with the release-service keys used by `react-native-config`. It checks key presence only and does not print secret values. Beta env files currently do not require CodePush deployment keys until the beta release/update strategy is confirmed.
 
 `check:android-env-config-files-guard` verifies the Android envConfigFiles guard self-check fixtures. `check:android-env-config-files` verifies that `android/app/build.gradle` still maps every Android flavor/build-type combination to the guarded `.env` file before release-service or rebranding changes alter env selection.
