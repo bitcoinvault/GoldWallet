@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
+import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
 import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';
 import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
@@ -35,6 +36,11 @@ const summaries = [
     label: 'push notification bridge',
     relativePath: 'local-docs/push-notification-bridge-summary.txt',
     getErrors: getPushNotificationBridgeSummaryErrors,
+  },
+  {
+    label: 'iOS release readiness',
+    relativePath: 'local-docs/ios-release-static-readiness-summary.txt',
+    getErrors: getIosReleaseReadinessSummaryErrors,
   },
 ];
 
