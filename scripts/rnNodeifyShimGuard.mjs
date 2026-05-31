@@ -1,7 +1,7 @@
 export const requiredRnNodeifyShims = [
   {
-    file: 'node_modules/stream-browserify/node_modules/readable-stream/readable.js',
-    marker: 'global.StreamModule || require',
+    file: 'node_modules/stream-browserify/index.js',
+    marker: 'module.exports = global.StreamModule = Stream',
   },
   {
     file: 'node_modules/readable-stream/readable.js',
