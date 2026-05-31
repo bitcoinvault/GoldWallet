@@ -2,10 +2,12 @@ import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { parseEnvKeys } from './releaseServiceEnvKeysGuard.mjs';
+import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'codepush-release-path-summary.txt');
+const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
 export const codePushIosInfoPlists = [
@@ -21,6 +23,11 @@ const requireSnippet = (errors, label, content, snippet) => {
     errors.push(`${label} is missing "${snippet}"`);
   }
 };
+const getSummaryLineValue = (content, label) => {
+  const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
+
+  return line ? line.slice(label.length + 2).trim() : '';
+};
 
 export const collectCodePushReleasePathAudit = () => {
   const androidBuildGradle = read('android/app/build.gradle');
@@ -32,6 +39,9 @@ export const collectCodePushReleasePathAudit = () => {
   const readinessIssues = [];
   const warnings = [];
   const envReadiness = [];
+  let androidReleaseSummaryPresent = false;
+  let androidReleaseSummaryVariants = [];
+  let androidReleaseSummaryErrors = [];
 
   requireSnippet(errors, 'App.tsx', appSource, 'react-native-code-push');
   requireSnippet(errors, 'App.tsx', appSource, 'checkFrequency: codePush.CheckFrequency.ON_APP_RESUME');
@@ -95,11 +105,31 @@ export const collectCodePushReleasePathAudit = () => {
     });
   });
 
+  try {
+    const androidReleaseSummary = readFileSync(androidReleaseSummaryPath, 'utf8');
+
+    androidReleaseSummaryPresent = true;
+    androidReleaseSummaryVariants = getSummaryLineValue(androidReleaseSummary, 'Variants')
+      .split(',')
+      .map(variant => variant.trim())
+      .filter(Boolean);
+    androidReleaseSummaryErrors = getAndroidReleaseSummaryErrors(androidReleaseSummary, root, {
+      expectedVariants: androidReleaseSummaryVariants,
+    });
+  } catch {
+    androidReleaseSummaryPresent = false;
+    androidReleaseSummaryVariants = [];
+    androidReleaseSummaryErrors = [];
+  }
+
   return {
     errors,
     readinessIssues,
     warnings,
     envReadiness,
+    androidReleaseSummaryPresent,
+    androidReleaseSummaryVariants,
+    androidReleaseSummaryErrors,
     ready: errors.length === 0 && readinessIssues.length === 0,
   };
 };
@@ -117,6 +147,12 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
 
       return `- ${entry.envFile}: ${entry.status}${detail}`;
     }),
+    `Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`,
+    `Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`,
+    `Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`,
+    `Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`,
+    ...audit.androidReleaseSummaryErrors.map(error => `- ${error}`),
+    'CodePush update validation: not claimed',
     `Warnings: ${audit.warnings.length}`,
   ];
 
@@ -157,6 +193,11 @@ const printReport = audit => {
     console.log('Release path env keys are present for non-beta update validation.');
   }
 
+  console.log(`Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`);
+  console.log(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
+  console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
+  console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
+  console.log('CodePush update validation: not claimed');
   console.log('CodePush release path wiring is present for non-dev runtime, Android, iOS, and env key references.');
 };
 

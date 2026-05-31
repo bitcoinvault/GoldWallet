@@ -12,6 +12,11 @@ const notReadySummary = [
   '- .env.prod.mainnet: ready',
   '- .env.beta.testnet: unconfirmed; missing CODEPUSH_DEPLOYMENT_KEY_ANDROID, missing CODEPUSH_DEPLOYMENT_KEY_IOS',
   '- .env.beta.mainnet: unconfirmed; missing CODEPUSH_DEPLOYMENT_KEY_ANDROID, missing CODEPUSH_DEPLOYMENT_KEY_IOS',
+  'Android release summary present: yes',
+  'Android release summary variants: beta',
+  'Android release summary valid: yes',
+  'Android release summary errors: 0',
+  'CodePush update validation: not claimed',
   'Warnings: 2',
   '- .env.beta.testnet does not define CODEPUSH_DEPLOYMENT_KEY_ANDROID; beta release update strategy is still unconfirmed',
   '- .env.beta.testnet does not define CODEPUSH_DEPLOYMENT_KEY_IOS; beta release update strategy is still unconfirmed',
@@ -36,6 +41,11 @@ const readySummary = [
   '- .env.prod.mainnet: ready',
   '- .env.beta.testnet: ready',
   '- .env.beta.mainnet: ready',
+  'Android release summary present: yes',
+  'Android release summary variants: dev, stage, prod',
+  'Android release summary valid: yes',
+  'Android release summary errors: 0',
+  'CodePush update validation: not claimed',
   'Warnings: 0',
   'Readiness issues: 0',
   'Wiring errors: 0',
@@ -71,6 +81,11 @@ assertRejected('Bad timestamp fixture', notReadySummary.replace('Generated at: 2
 assertRejected('Bad env readiness count fixture', notReadySummary.replace('Environment readiness entries: 5', 'Environment readiness entries: 4'), 'Environment readiness entries count');
 assertRejected('Bad ready env count fixture', notReadySummary.replace('Ready environments: 2', 'Ready environments: 1'), 'Ready environments count');
 assertRejected('Bad warning count fixture', notReadySummary.replace('Warnings: 2', 'Warnings: 1'), 'Warnings count');
+assertRejected(
+  'Claimed CodePush update fixture',
+  notReadySummary.replace('CodePush update validation: not claimed', 'CodePush update validation: claimed'),
+  'not claimed',
+);
 assertRejected('Secret value leak fixture', notReadySummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');
 assertRejected(
   'Secret assignment leak fixture',

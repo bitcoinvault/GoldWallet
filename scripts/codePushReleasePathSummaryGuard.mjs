@@ -30,12 +30,18 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const ready = getLineValue(summary, 'Release path ready for update validation');
   const readyEnvironmentCount = getLineValue(summary, 'Ready environments');
   const envReadinessCount = getLineValue(summary, 'Environment readiness entries');
+  const androidReleaseSummaryPresent = getLineValue(summary, 'Android release summary present');
+  const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
+  const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
+  const androidReleaseSummaryErrorCount = getLineValue(summary, 'Android release summary errors');
+  const codePushUpdateValidation = getLineValue(summary, 'CodePush update validation');
   const warningCount = getLineValue(summary, 'Warnings');
   const readinessCount = getLineValue(summary, 'Readiness issues');
   const wiringErrorCount = getLineValue(summary, 'Wiring errors');
   const secretValuesPrinted = getLineValue(summary, 'Secret values printed');
   const requiredAction = getLineValue(summary, 'Required action');
   const envReadinessLines = getBulletLinesAfter(summary, 'Environment readiness entries');
+  const androidReleaseSummaryErrorLines = getBulletLinesAfter(summary, 'Android release summary errors');
   const warningLines = getBulletLinesAfter(summary, 'Warnings');
   const readinessLines = getBulletLinesAfter(summary, 'Readiness issues');
   const wiringErrorLines = getBulletLinesAfter(summary, 'Wiring errors');
@@ -48,7 +54,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     errors.push(`Generated at must be an ISO timestamp. Received: ${generatedAt || 'missing'}`);
   }
 
-  [wiringValid, ready, secretValuesPrinted].forEach(value => {
+  [wiringValid, ready, androidReleaseSummaryPresent, androidReleaseSummaryValid, secretValuesPrinted].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
       errors.push(`Boolean summary values must be yes or no. Received: ${value || 'missing'}`);
     }
@@ -56,6 +62,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
 
   [
     ['Environment readiness entries', envReadinessCount, envReadinessLines.length],
+    ['Android release summary errors', androidReleaseSummaryErrorCount, androidReleaseSummaryErrorLines.length],
     ['Warnings', warningCount, warningLines.length],
     ['Readiness issues', readinessCount, readinessLines.length],
     ['Wiring errors', wiringErrorCount, wiringErrorLines.length],
@@ -69,6 +76,22 @@ export const getCodePushReleasePathSummaryErrors = summary => {
 
   if (secretValuesPrinted !== 'no') {
     errors.push('CodePush release path summary must not print secret values');
+  }
+
+  if (!androidReleaseSummaryVariants) {
+    errors.push('Android release summary variants line is missing');
+  }
+
+  if (androidReleaseSummaryPresent === 'no' && androidReleaseSummaryVariants !== 'none') {
+    errors.push('Missing Android release summary must report variants as none');
+  }
+
+  if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryErrorCount !== '0') {
+    errors.push('Valid Android release summary must have 0 summary errors');
+  }
+
+  if (codePushUpdateValidation !== 'not claimed') {
+    errors.push(`CodePush update validation must be not claimed. Received: ${codePushUpdateValidation || 'missing'}`);
   }
 
   if (!/^\d+$/.test(readyEnvironmentCount)) {
