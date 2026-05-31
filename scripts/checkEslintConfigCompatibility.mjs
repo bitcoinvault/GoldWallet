@@ -6,6 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const eslintConfig = JSON.parse(readFileSync(path.join(root, '.eslintrc'), 'utf8'));
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+const extendsEntries = Array.isArray(eslintConfig.extends) ? eslintConfig.extends : [eslintConfig.extends].filter(Boolean);
 const rules = eslintConfig.rules || {};
 const devDependencies = packageJson.devDependencies || {};
 const errors = [];
@@ -28,6 +29,14 @@ if (devDependencies['@typescript-eslint/parser'] !== '8.60.0') {
   errors.push(
     `@typescript-eslint/parser must stay on 8.60.0 for this compatibility guard. Found ${devDependencies['@typescript-eslint/parser'] || '<missing>'}`,
   );
+}
+
+if (Object.prototype.hasOwnProperty.call(devDependencies, '@react-native-community/eslint-config')) {
+  errors.push('@react-native-community/eslint-config is not used by .eslintrc and must not be a direct devDependency');
+}
+
+if (extendsEntries.includes('@react-native-community') || extendsEntries.includes('@react-native-community/eslint-config')) {
+  errors.push('Do not re-enable @react-native-community/eslint-config without a dedicated lint baseline migration');
 }
 
 if (Object.prototype.hasOwnProperty.call(rules, '@typescript-eslint/ban-types')) {
