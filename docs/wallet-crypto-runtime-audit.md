@@ -8,7 +8,7 @@ Latest npm checked on 2026-05-31.
 
 | Package | Current package.json | Latest checked | Notes |
 | --- | --- | --- | --- |
-| `bitcoinjs-lib` | `git+https://github.com/bitcoinvault/bitcoinjs-lib.git` | upstream npm `7.0.1`; BTCV fork `master` at `0854f675114fada32348d51c80a6ccdb33afc360` | Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib` without a dedicated compatibility branch. The fork exposes BTCV-specific `VaultTxType`, `alt_networks`, and recovery/alert transaction behavior used by the app. |
+| `bitcoinjs-lib` | `git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360` | upstream npm `7.0.1`; BTCV fork `master` at `0854f675114fada32348d51c80a6ccdb33afc360` | Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib` without a dedicated compatibility branch. The fork exposes BTCV-specific `VaultTxType`, `alt_networks`, and recovery/alert transaction behavior used by the app. The app pins the fork commit so fresh installs cannot drift silently. |
 | `bip39` | `3.1.0` | `3.1.0` | Current mnemonic package remains latest. |
 | `bip32` | `5.0.1` | `5.0.1` | Migrated through `utils/bip32.js`, which adapts the factory-based API to the wallet classes. |
 | `@bitcoinerlab/secp256k1` | `1.2.0` | `1.2.0` | Pure-JavaScript ECC backend for the latest `bip32` factory API; selected because `tiny-secp256k1@2.x` pulls WASM/Node crypto paths that do not bundle cleanly in React Native. |

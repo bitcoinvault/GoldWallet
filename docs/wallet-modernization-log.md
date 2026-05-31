@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.247 - BitcoinVault bitcoinjs fork deterministic pin
+
+- Branch: `feature/bem-37-247-pin-btcv-bitcoinjs-fork`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin the direct `bitcoinjs-lib` git dependency to BitcoinVault fork commit `0854f675114fada32348d51c80a6ccdb33afc360`.
+- Keep the runtime code unchanged; this branch makes fresh installs deterministic.
+- Extend the crypto runtime audit so accidental unpinned fork drift is caught.
+
+Findings:
+
+- `git ls-remote https://github.com/bitcoinvault/bitcoinjs-lib.git refs/heads/master` currently resolves to the same commit already stored in `yarn.lock`.
+- The BTCV fork is not equivalent to upstream npm `bitcoinjs-lib`; it exposes BTCV-specific network and transaction behavior used by wallet and authenticator flows.
+
+Validation:
+
+- `git ls-remote https://github.com/bitcoinvault/bitcoinjs-lib.git refs/heads/master`
+- `corepack yarn install`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.246 - Legacy curve runtime exact pins
 
 - Branch: `feature/bem-37-246-pin-legacy-curve-runtime`

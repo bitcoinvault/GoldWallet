@@ -275,7 +275,7 @@
     "bip21": "3.0.0",
     "bip32": "5.0.1",
     "bip39": "3.1.0",
-    "bitcoinjs-lib": "git+https://github.com/bitcoinvault/bitcoinjs-lib.git",
+    "bitcoinjs-lib": "git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360",
     "buffer": "6.0.3",
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.13",
