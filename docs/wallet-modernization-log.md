@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.231 - Flipper Redux tooling patch
+
+- Branch: `feature/bem-37-flipper-redux-patch`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `redux-flipper` from `2.0.0` to `2.0.3`, the latest npm release checked for this branch.
+- Move `flipper-plugin-redux-debugger` from `2.0.0` to `2.0.2`, the latest npm release checked for this branch.
+- Keep the existing debug-only store integration unchanged; `src/state/store.ts` still loads `redux-flipper` only behind the `__DEV__` guard.
+
+Why:
+
+- These packages are debug tooling, but `redux-flipper` is required by the app store setup in development builds, so the update still needs Android build and emulator smoke validation.
+- The patch versions satisfy the current `react-native`, `react-native-flipper`, and `redux` peer ranges without changing the broader Flipper baseline.
+
+Validation:
+
+- `npm view redux-flipper version peerDependencies dependencies engines --json`
+- `npm view flipper-plugin-redux-debugger version peerDependencies dependencies engines --json`
+- `corepack yarn add redux-flipper@2.0.3`
+- `corepack yarn add --dev flipper-plugin-redux-debugger@2.0.2`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.230 - React 19.2.6 compatibility probe
 
 - Branch: `feature/bem-37-react-19-patch-probe`
