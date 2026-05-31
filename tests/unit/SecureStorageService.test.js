@@ -102,35 +102,28 @@ describe('unit - SecureStorageService', function () {
 
   it('stores plain values with the current accessibility mode', async function () {
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
-    mockLegacySecureStore.set.mockResolvedValueOnce('ok');
 
     await expect(service.setSecuredValue('pin', '1234')).resolves.toEqual({ service: 'pin', storage: 'keychain' });
-    expect(mockLegacySecureStore.set).toHaveBeenCalledWith('pin', '1234', {
-      accessible: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
-    });
     expect(mockSecureStore.setGenericPassword).toHaveBeenCalledWith('pin', '1234', {
       service: 'pin',
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
+    expect(mockLegacySecureStore.set).not.toHaveBeenCalled();
   });
 
-  it('keeps keychain writes successful when the legacy dual-write fails', async function () {
+  it('does not write new values to the legacy secure store', async function () {
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
-    mockLegacySecureStore.set.mockRejectedValueOnce(new Error('legacy write unavailable'));
 
     await expect(service.setSecuredValue('pin', '1234')).resolves.toEqual({ service: 'pin', storage: 'keychain' });
     expect(mockSecureStore.setGenericPassword).toHaveBeenCalledWith('pin', '1234', {
       service: 'pin',
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
-    expect(mockLegacySecureStore.set).toHaveBeenCalledWith('pin', '1234', {
-      accessible: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
-    });
+    expect(mockLegacySecureStore.set).not.toHaveBeenCalled();
   });
 
   it('hashes encoded values before storing them', async function () {
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'transactionPassword', storage: 'keychain' });
-    mockLegacySecureStore.set.mockResolvedValueOnce('ok');
 
     await expect(service.setSecuredValue('transactionPassword', 'secret', true)).resolves.toEqual({
       service: 'transactionPassword',
@@ -144,9 +137,7 @@ describe('unit - SecureStorageService', function () {
         accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
       },
     );
-    expect(mockLegacySecureStore.set).toHaveBeenCalledWith('transactionPassword', sha256('secret').toString(), {
-      accessible: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
-    });
+    expect(mockLegacySecureStore.set).not.toHaveBeenCalled();
   });
 
   it('checks transaction passwords against the stored hash', async function () {

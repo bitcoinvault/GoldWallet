@@ -1,15 +1,11 @@
 import sha256 from 'crypto-js/sha256';
 import * as Keychain from 'react-native-keychain';
-import RNSecureKeyStore, { ACCESSIBLE as LEGACY_ACCESSIBLE } from 'react-native-secure-key-store';
+import RNSecureKeyStore from 'react-native-secure-key-store';
 
 const secureStorageOptions = (key: string) => ({
   service: key,
   accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
 });
-
-const legacySecureStorageOptions = {
-  accessible: LEGACY_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-};
 
 export default class SecureStorageService {
   async getSecuredValue(key: string): Promise<string> {
@@ -45,15 +41,7 @@ export default class SecureStorageService {
       value = sha256(value).toString();
     }
 
-    const keychainResult = await Keychain.setGenericPassword(key, value, secureStorageOptions(key));
-
-    try {
-      await RNSecureKeyStore.set(key, value, legacySecureStorageOptions);
-    } catch (_) {
-      // Keychain is the primary backend; legacy dual-write should not block new writes.
-    }
-
-    return keychainResult;
+    return Keychain.setGenericPassword(key, value, secureStorageOptions(key));
   }
 
   async checkSecuredPassword(key: string, value: string) {

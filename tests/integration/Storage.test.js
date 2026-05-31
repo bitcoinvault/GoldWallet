@@ -175,26 +175,22 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.strictEqual(Storage3.wallets[0].getLabel(), 'fakewallet');
 });
 
-it('Appstorage - React Native storage writes to legacy store and keychain', async () => {
+it('Appstorage - React Native storage writes new values to keychain only', async () => {
   setReactNativeNavigator();
-  mockLegacySecureStore.set.mockResolvedValueOnce('legacy-ok');
   mockKeychain.setGenericPassword.mockResolvedValueOnce({ service: 'data', storage: 'keychain' });
   const Storage = new AppStorage();
 
   await expect(Storage.setItem('data', 'wallet-json')).resolves.toEqual({ service: 'data', storage: 'keychain' });
-  expect(mockLegacySecureStore.set).toHaveBeenCalledWith('data', 'wallet-json', {
-    accessible: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
-  });
   expect(mockKeychain.setGenericPassword).toHaveBeenCalledWith('data', 'wallet-json', {
     service: 'data',
     accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
   });
+  expect(mockLegacySecureStore.set).not.toHaveBeenCalled();
 });
 
-it('Appstorage - React Native storage keeps keychain write when legacy dual-write fails', async () => {
+it('Appstorage - React Native storage does not write new values to the legacy store', async () => {
   setReactNativeNavigator();
   mockKeychain.setGenericPassword.mockResolvedValueOnce({ service: 'data', storage: 'keychain' });
-  mockLegacySecureStore.set.mockRejectedValueOnce(new Error('legacy write unavailable'));
   const Storage = new AppStorage();
 
   await expect(Storage.setItem('data', 'wallet-json')).resolves.toEqual({ service: 'data', storage: 'keychain' });
@@ -202,9 +198,7 @@ it('Appstorage - React Native storage keeps keychain write when legacy dual-writ
     service: 'data',
     accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
   });
-  expect(mockLegacySecureStore.set).toHaveBeenCalledWith('data', 'wallet-json', {
-    accessible: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
-  });
+  expect(mockLegacySecureStore.set).not.toHaveBeenCalled();
 });
 
 it('Appstorage - React Native storage reads keychain before legacy store', async () => {

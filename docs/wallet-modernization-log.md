@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.292 - Secure-storage legacy write retirement
+
+- Branch: `feature/bem-37-292-secure-storage-stop-legacy-dual-write`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Stop writing new PIN, transaction-password, and encrypted wallet storage values to `react-native-secure-key-store`.
+- Keep legacy secure-key-store reads and one-time Keychain migration so existing installs remain recoverable.
+- Keep legacy remove cleanup during factory reset and secure-value deletion.
+- Extend secure-storage migration and Android warning-plan guards to record Keychain-only new writes while legacy fallback reads remain active.
+
+Findings:
+
+- Full `react-native-secure-key-store` removal remains blocked because legacy fallback reads are still active.
+- This narrows the legacy backend surface from read/write fallback to read/delete migration support only.
+- The remaining Android `jcenter()` warning is still expected until a later release validates migrated secure values without the fallback backend.
+
+Validation:
+
+- `corepack yarn test:secure-storage:unit`
+- `corepack yarn test:storage`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn check:secure-storage-migration-summary-guard`
+- `corepack yarn check:android-remaining-warning-plan-guard`
+- `corepack yarn check:android-remaining-warning-plan`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `git diff --check`
+
 ### BEM-37.291 - Android warning audit JDK 17 fallback
 
 - Branch: `feature/bem-37-291-android-warning-audit-jdk17`
