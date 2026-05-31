@@ -8,6 +8,7 @@ import {
   getIosSchemeConfigErrors,
   parseIosSchemeConfig,
 } from './iosSchemeConfigGuard.mjs';
+import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
 
 const require = createRequire(import.meta.url);
 const plist = require('plist');
@@ -85,6 +86,14 @@ const collectIosReleaseReadiness = () => {
   }
 
   const pbxproj = read('ios/GoldWallet.xcodeproj/project.pbxproj');
+  const sentryReleaseIntegrationErrors = getSentryReleaseIntegrationErrors({
+    androidBuildGradle: read('android/app/build.gradle'),
+    iosProject: pbxproj,
+  });
+  errors.push(...sentryReleaseIntegrationErrors);
+  const sentryBundlePhaseCount = (pbxproj.match(/@sentry\/cli\/bin\/sentry-cli react-native xcode/g) || []).length;
+  const sentryDsymPhaseCount = (pbxproj.match(/@sentry\/cli\/bin\/sentry-cli upload-dsym/g) || []).length;
+
   const deploymentTargets = [...pbxproj.matchAll(/IPHONEOS_DEPLOYMENT_TARGET = ([0-9.]+);/g)].map(match => match[1]);
   if (deploymentTargets.length === 0) {
     errors.push('No IPHONEOS_DEPLOYMENT_TARGET entries found in ios/GoldWallet.xcodeproj/project.pbxproj');
@@ -134,6 +143,7 @@ const collectIosReleaseReadiness = () => {
     { path: 'ios/GoldWalletStage-Info.plist', displayName: 'GoldWallet Stage', requiresCodePush: true, requiresRemoteNotification: true },
     { path: 'ios/GoldWallet-beta.plist', displayName: '$(PRODUCT_NAME)', requiresCodePush: false, requiresRemoteNotification: false },
   ];
+  let codePushPlistPlaceholderCount = 0;
 
   infoPlists.forEach(config => {
     const parsed = parsePlist(config.path);
@@ -145,6 +155,9 @@ const collectIosReleaseReadiness = () => {
     }
     if (config.requiresCodePush && parsed.CodePushDeploymentKey !== '$(CODEPUSH_DEPLOYMENT_KEY_IOS)') {
       errors.push(`${config.path} must reference $(CODEPUSH_DEPLOYMENT_KEY_IOS)`);
+    }
+    if (parsed.CodePushDeploymentKey === '$(CODEPUSH_DEPLOYMENT_KEY_IOS)') {
+      codePushPlistPlaceholderCount += 1;
     }
     ['NSCameraUsageDescription', 'NSPhotoLibraryUsageDescription', 'NSFaceIDUsageDescription'].forEach(key => {
       if (!parsed[key]) {
@@ -180,6 +193,9 @@ const collectIosReleaseReadiness = () => {
     podfilePlatform,
     deploymentTargets: [...new Set(deploymentTargets)].sort(compareVersions),
     schemeCount: actualSchemeConfigs.size,
+    sentryBundlePhaseCount,
+    sentryDsymPhaseCount,
+    codePushPlistPlaceholderCount,
     xcodebuildVersion,
   };
 };
@@ -194,6 +210,9 @@ const formatSummary = (audit, generatedAt = new Date().toISOString()) => [
   `Podfile iOS platform: ${audit.podfilePlatform || '<missing>'}`,
   `Xcode deployment targets: ${audit.deploymentTargets.join(', ') || '<none>'}`,
   `Guarded iOS schemes: ${audit.schemeCount}`,
+  `iOS Sentry bundle/source-map phases: ${audit.sentryBundlePhaseCount}`,
+  `iOS Sentry dSYM upload phases: ${audit.sentryDsymPhaseCount}`,
+  `iOS CodePush plist placeholders: ${audit.codePushPlistPlaceholderCount}`,
   `xcodebuild version: ${audit.xcodebuildVersion || '<not available on this machine>'}`,
   `Errors: ${audit.errors.length}`,
   ...audit.errors.map(error => `- ${error}`),

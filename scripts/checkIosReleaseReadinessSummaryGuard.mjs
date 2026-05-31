@@ -10,6 +10,9 @@ const validWindowsSummary = [
   'Podfile iOS platform: 15.1',
   'Xcode deployment targets: 15.1',
   'Guarded iOS schemes: 8',
+  'iOS Sentry bundle/source-map phases: 4',
+  'iOS Sentry dSYM upload phases: 3',
+  'iOS CodePush plist placeholders: 3',
   'xcodebuild version: <not available on this machine>',
   'Errors: 0',
   'Warnings: 1',
@@ -66,6 +69,21 @@ assertRejected(
   'Wrong React Native fixture',
   validWindowsSummary.replace('React Native version: 0.85.3', 'React Native version: 0.84.0'),
   'React Native version',
+);
+assertRejected(
+  'Missing Sentry bundle phase fixture',
+  validWindowsSummary.replace('iOS Sentry bundle/source-map phases: 4', 'iOS Sentry bundle/source-map phases: 3'),
+  'Sentry bundle/source-map phases',
+);
+assertRejected(
+  'Missing Sentry dSYM phase fixture',
+  validWindowsSummary.replace('iOS Sentry dSYM upload phases: 3', 'iOS Sentry dSYM upload phases: 2'),
+  'Sentry dSYM upload phases',
+);
+assertRejected(
+  'Missing CodePush plist placeholder fixture',
+  validWindowsSummary.replace('iOS CodePush plist placeholders: 3', 'iOS CodePush plist placeholders: 2'),
+  'CodePush plist placeholders',
 );
 assertRejected(
   'Missing xcodebuild warning fixture',
