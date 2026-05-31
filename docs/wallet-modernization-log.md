@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.289 - CodePush runtime retirement gate
+
+- Branch: `feature/bem-37-289-codepush-runtime-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add optional `CODEPUSH_ENABLED=true` config support.
+- Keep CodePush wired for legacy compatibility, but mount the non-dev CodePush runtime only when `CODEPUSH_ENABLED=true` and the platform deployment key is non-empty.
+- Extend the CodePush release-path audit and summary guard so the runtime gate is recorded as present and disabled by default.
+- Refresh CodePush/release-service docs for the retired App Center CodePush state.
+
+Findings:
+
+- App Center CodePush remains retired and upstream remains archived.
+- Android New Architecture remains enabled, while upstream CodePush New Architecture support remains unavailable.
+- Current release APK/bundle evidence is still valid, but CodePush update validation remains unclaimed.
+- With this branch, non-dev builds do not start the retired OTA client by default.
+
+Validation:
+
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:codepush-usage-guard`
+- `corepack yarn check:codepush-usage-scope`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `git diff --check`
+
 ### BEM-37.288 - Secure-storage primary write hardening
 
 - Branch: `feature/bem-37-288-secure-storage-primary-write`
