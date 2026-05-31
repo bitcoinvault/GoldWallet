@@ -48,6 +48,7 @@ const normalizePackageVersion = version => (version || '').replace(/^[~^]/, '');
 const collectIosReleaseReadiness = () => {
   const errors = [];
   const warnings = [];
+  const schemesDir = path.join(root, 'ios', 'GoldWallet.xcodeproj', 'xcshareddata', 'xcschemes');
   const requiredFiles = [
     'ios/GoldWallet.xcworkspace',
     'ios/GoldWallet.xcodeproj/project.pbxproj',
@@ -61,6 +62,9 @@ const collectIosReleaseReadiness = () => {
     'ios/GoogleService-Info-prod.plist',
     'ios/GoogleService-Info-stage.plist',
     'ios/GoogleService-Info.plist',
+    ...[...expectedIosSchemeConfigs.keys()].map(schemeFile =>
+      path.join('ios', 'GoldWallet.xcodeproj', 'xcshareddata', 'xcschemes', schemeFile).replace(/\\/g, '/'),
+    ),
   ];
 
   requiredFiles.forEach(relativePath => {
@@ -155,13 +159,16 @@ const collectIosReleaseReadiness = () => {
     }
   });
 
-  const schemesDir = path.join(root, 'ios', 'GoldWallet.xcodeproj', 'xcshareddata', 'xcschemes');
-  const actualSchemeConfigs = new Map(
-    [...expectedIosSchemeConfigs.keys()].map(schemeFile => [
-      schemeFile,
-      parseIosSchemeConfig(readFileSync(path.join(schemesDir, schemeFile), 'utf8')),
-    ]),
-  );
+  const actualSchemeConfigs = new Map();
+
+  [...expectedIosSchemeConfigs.keys()].forEach(schemeFile => {
+    const schemePath = path.join(schemesDir, schemeFile);
+
+    if (existsSync(schemePath)) {
+      actualSchemeConfigs.set(schemeFile, parseIosSchemeConfig(readFileSync(schemePath, 'utf8')));
+    }
+  });
+
   errors.push(...getIosSchemeConfigErrors(actualSchemeConfigs));
 
   const expectedIosScripts = {

@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.273 - iOS release readiness scheme hardening
+
+- Branch: `feature/bem-37-273-ios-release-readiness-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the iOS release readiness audit so expected shared Xcode scheme files are treated as required release files.
+- Avoid throwing while parsing scheme config when an expected scheme file is missing; report it through the existing static readiness errors instead.
+- Update the iOS release config audit docs to make scheme-file coverage explicit.
+
+Findings:
+
+- The current Windows static iOS readiness audit still passes its static checks.
+- The generated summary confirms 8 guarded iOS schemes, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, and 3 CodePush plist placeholders.
+- iOS runtime/archive validation remains not claimed because `xcodebuild` requires macOS/Xcode and `ios/Podfile.lock` still needs refresh via `pod install`.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.272 - Sentry release readiness CLI validation
 
 - Branch: `feature/bem-37-272-sentry-release-readiness-refresh`
