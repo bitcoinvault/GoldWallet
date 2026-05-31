@@ -1,0 +1,52 @@
+# Wallet Crypto Runtime Audit
+
+Scope: wallet-critical JavaScript and native-adjacent crypto/runtime dependencies used for BTCV key derivation, address handling, transaction building, signing, and persistence-adjacent wallet flows.
+
+Latest npm checked on 2026-05-31.
+
+## Current Package State
+
+| Package | Current package.json | Latest checked | Notes |
+| --- | --- | --- | --- |
+| `bitcoinjs-lib` | `git+https://github.com/bitcoinvault/bitcoinjs-lib.git` | upstream npm `7.0.1`; BTCV fork `master` at `0854f675114fada32348d51c80a6ccdb33afc360` | Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib` without a dedicated compatibility branch. The fork exposes BTCV-specific `VaultTxType`, `alt_networks`, and recovery/alert transaction behavior used by the app. |
+| `bip39` | `3.1.0` | `3.1.0` | Current mnemonic package remains latest. |
+| `bip32` | `2.0.6` | `5.0.1` | Major migration; latest line uses newer dependency and API expectations. |
+| `coinselect` | `3.1.13` | `3.1.13` | Current coin selection package remains latest. |
+| `ecurve` | `^1.0.6` | `1.0.6` | Legacy elliptic curve dependency; mostly retained through the BTCV fork/old bitcoin stack expectations. |
+| `bigi` | `^1.4.2` | `1.4.2` | Legacy big integer dependency paired with old bitcoin stack expectations. |
+| `pbkdf2` | `3.1.6` | `3.1.6` | Current package remains latest. |
+| `wif` | `2.0.6` | `5.0.0` | Major migration coupled to newer bitcoinjs/bip32 stacks. |
+| `react-native-randombytes` | `3.6.2` | `3.6.2` | Current native random-bytes bridge remains latest checked. |
+| `crypto-js` | `4.2.0` | `4.2.0` | Current package remains latest and has a separate runtime audit. |
+
+## Runtime Surface
+
+- `bitcoinjs-lib` is imported by wallet classes, transaction screens, config/network setup, signer tests, authenticator tests, and Electrum/HD wallet integration tests.
+- `bip39` and `bip32` drive HD wallet mnemonic and derivation behavior in the HD wallet class hierarchy.
+- `coinselect` is used by the SegWit bech32 send flow.
+- `crypto-js` is used for wallet-related hashing/encryption helpers and is guarded separately by `corepack yarn crypto-js:runtime:audit`.
+- `wif`, `ecurve`, and `bigi` are not treated as isolated low-risk package bumps because they are coupled to the old bitcoin stack and BTCV fork behavior.
+
+## Upgrade Decision
+
+Do not upgrade this group package-by-package unless the package is already isolated and has a narrow fixture. The safe path is a dedicated wallet/crypto runtime branch that keeps the BTCV fork behavior explicit and validates:
+
+- offline wallet tests,
+- authenticator/signing tests,
+- HD wallet derivation fixtures,
+- WIF import/export behavior,
+- transaction construction fixtures,
+- Android build and emulator smoke.
+
+Funded transaction flow remains blocked until a funded BTCV testnet wallet is available. Until then, do not claim live send/recovery transaction delivery; claim only offline construction/signing coverage and app startup/runtime smoke.
+
+## Validation
+
+```powershell
+corepack yarn wallet:crypto-runtime:audit
+corepack yarn crypto-js:runtime:audit
+corepack yarn test:unit --runInBand
+corepack yarn test:storage-network:focused
+corepack yarn test:watchonly:offline
+corepack yarn test:hdwallet:offline
+```
