@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.237 - React Native target snapshot refresh
+
+- Branch: `feature/bem-37-237-rn-target-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the React Native target snapshot after a live npm check on 2026-05-31.
+- Clarify the upgrade strategy now that the repo is already on the current npm `latest` React Native line.
+- Keep npm `next` visible for planning, but do not treat RC/nightly builds as the default wallet upgrade target.
+
+Findings:
+
+- `npm view react-native dist-tags version peerDependencies engines --json` reports `latest` as `0.85.3`, `next` as `0.86.0-rc.2`, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- `npm view react version peerDependencies engines --json` reports React `19.2.6`, but the RN `0.85.3` runtime remains pinned to React `19.2.3` because the RN renderer peer snapshot expects that line.
+- The next RN foundation branch should re-check npm live at branch start and move to the next stable RN line when it exists, not automatically to an RC.
+
+Validation:
+
+- `npm view react-native dist-tags version peerDependencies engines --json`
+- `npm view react version peerDependencies engines --json`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn upgrade:strategy:audit`
+- `corepack yarn check:rn-target-snapshot-current-guard`
+
 ### BEM-37.236 - Android dev release validation proof
 
 - Branch: `feature/bem-37-236-android-release-validation`

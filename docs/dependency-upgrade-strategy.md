@@ -1,6 +1,6 @@
 # Dependency Upgrade Strategy
 
-This project should not upgrade dependencies one package at a time unless the package is isolated and low risk. The app is now on the RN `0.85.3` / React `19.2.3` foundation checkpoint, but the current target line is still ahead of it: `react-native@0.85.3` peers React `^19.2.3` and brings another native template/tooling shift. The upgrade path should therefore keep moving by layers instead of returning to package-by-package churn.
+This project should not upgrade dependencies one package at a time unless the package is isolated and low risk. The app is now on the RN `0.85.3` / React `19.2.3` foundation checkpoint, which currently matches npm `latest`; npm `next` is an RC line and is not the default wallet target. The upgrade path should therefore keep moving by layers, keep live snapshot checks at each foundation branch, and avoid returning to package-by-package churn.
 
 ## Current Rule
 
@@ -22,7 +22,7 @@ Upgrade this layer before chasing most library majors:
 
 Reason: the first foundation checkpoint is complete, but recent proof branches still show that the next jump has coupled blockers that need to move together:
 
-- The current RN target snapshot records `react-native@0.85.3` with React peer `^19.2.3`, while the installed RN `0.85.3` checkpoint must stay on React `19.2.3`.
+- The current RN target snapshot records `react-native@0.85.3` with React peer `^19.2.3`, matching the installed RN `0.85.3` checkpoint and React `19.2.3`.
 - RN `0.85.x` and RN `0.82.x` probes exposed native compatibility blockers around CodePush, React/runtime coupling, and mandatory New Architecture/codegen behavior in older native modules.
 - Package-only RN jumps are invalid for this repo; package versions and template/native files need to move in the same foundation branch.
 
