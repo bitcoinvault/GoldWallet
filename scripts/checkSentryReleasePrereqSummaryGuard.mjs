@@ -6,6 +6,10 @@ const notReadySummary = [
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: not ready',
   '@sentry/react-native version: 8.13.0',
+  '@sentry/cli package version: 3.4.3',
+  'Sentry CLI binary present: yes',
+  'Sentry CLI version output: sentry-cli 3.4.3',
+  'Sentry CLI executable: yes',
   'Sentry release integration wired: yes',
   'Sentry release integration errors: 0',
   'sentry.properties files present: no',
@@ -36,6 +40,10 @@ const readySummary = [
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: ready',
   '@sentry/react-native version: 8.13.0',
+  '@sentry/cli package version: 3.4.3',
+  'Sentry CLI binary present: yes',
+  'Sentry CLI version output: sentry-cli 3.4.3',
+  'Sentry CLI executable: yes',
   'Sentry release integration wired: yes',
   'Sentry release integration errors: 0',
   'sentry.properties files present: yes',
@@ -88,6 +96,21 @@ assertRejected(
   'Missing Sentry SDK version fixture',
   notReadySummary.replace('@sentry/react-native version: 8.13.0', '@sentry/react-native version: missing'),
   '@sentry/react-native version must be present',
+);
+assertRejected(
+  'Missing Sentry CLI package version fixture',
+  notReadySummary.replace('@sentry/cli package version: 3.4.3', '@sentry/cli package version: missing'),
+  '@sentry/cli package version must be present',
+);
+assertRejected(
+  'Mismatched Sentry CLI output fixture',
+  notReadySummary.replace('Sentry CLI version output: sentry-cli 3.4.3', 'Sentry CLI version output: sentry-cli 0.0.0'),
+  'Sentry CLI version output must include',
+);
+assertRejected(
+  'Ready summary without executable Sentry CLI fixture',
+  readySummary.replace('Sentry CLI executable: yes', 'Sentry CLI executable: no'),
+  'executable Sentry CLI',
 );
 assertRejected(
   'Bad release integration count fixture',

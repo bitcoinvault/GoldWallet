@@ -1,3 +1,4 @@
+import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -16,6 +17,8 @@ export const expectedSentryPropertiesValues = {
   'defaults.project': 'goldwallet',
 };
 const createScriptPath = path.join(root, 'create-sentry-properties.sh');
+const sentryCliPackagePath = path.join(root, 'node_modules', '@sentry', 'cli', 'package.json');
+const sentryCliBinPath = path.join(root, 'node_modules', '@sentry', 'cli', 'bin', 'sentry-cli');
 
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const readJson = relativePath => JSON.parse(read(relativePath));
@@ -36,6 +39,26 @@ const parseProperties = content =>
 export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) => {
   const packageJson = readJson('package.json');
   const sentryReactNativeVersion = packageJson.dependencies?.['@sentry/react-native'] || 'missing';
+  const sentryCliPackage = existsSync(sentryCliPackagePath) ? JSON.parse(readFileSync(sentryCliPackagePath, 'utf8')) : null;
+  const sentryCliPackageVersion = sentryCliPackage?.version || 'missing';
+  const sentryCliBinPresent = existsSync(sentryCliBinPath);
+  let sentryCliVersionOutput = 'missing';
+  let sentryCliExecutable = false;
+
+  if (sentryCliBinPresent) {
+    try {
+      sentryCliVersionOutput = execFileSync(process.execPath, [sentryCliBinPath, '--version'], {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+      }).trim();
+      sentryCliExecutable = sentryCliVersionOutput.includes(sentryCliPackageVersion);
+    } catch (error) {
+      sentryCliVersionOutput = `failed: ${error.message}`;
+    }
+  }
+
   const releaseIntegrationErrors = getSentryReleaseIntegrationErrors({
     androidBuildGradle: read('android/app/build.gradle'),
     iosProject: read('ios/GoldWallet.xcodeproj/project.pbxproj'),
@@ -101,10 +124,14 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     ([key, value]) => createScript.includes(`${key}=${value}`),
   );
   const envHasToken = Boolean(env.SENTRY_AUTH_TOKEN);
-  const ready = missingFiles.length === 0 && invalidFiles.length === 0 && releaseIntegrationErrors.length === 0;
+  const ready = missingFiles.length === 0 && invalidFiles.length === 0 && releaseIntegrationErrors.length === 0 && sentryCliExecutable;
 
   return {
     sentryReactNativeVersion,
+    sentryCliPackageVersion,
+    sentryCliBinPresent,
+    sentryCliVersionOutput,
+    sentryCliExecutable,
     releaseIntegrationErrors,
     propertiesFileReadiness,
     missingFiles,
@@ -130,6 +157,10 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
     `Generated at: ${generatedAt}`,
     `Release source-map prerequisites: ${audit.ready ? 'ready' : 'not ready'}`,
     `@sentry/react-native version: ${audit.sentryReactNativeVersion}`,
+    `@sentry/cli package version: ${audit.sentryCliPackageVersion}`,
+    `Sentry CLI binary present: ${audit.sentryCliBinPresent ? 'yes' : 'no'}`,
+    `Sentry CLI version output: ${audit.sentryCliVersionOutput}`,
+    `Sentry CLI executable: ${audit.sentryCliExecutable ? 'yes' : 'no'}`,
     `Sentry release integration wired: ${audit.releaseIntegrationErrors.length === 0 ? 'yes' : 'no'}`,
     `Sentry release integration errors: ${audit.releaseIntegrationErrors.length}`,
     `sentry.properties files present: ${audit.missingFiles.length === 0 ? 'yes' : 'no'}`,
@@ -188,6 +219,10 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
 const printReport = audit => {
   console.log('Sentry release prerequisite audit');
   console.log(`@sentry/react-native version: ${audit.sentryReactNativeVersion}`);
+  console.log(`@sentry/cli package version: ${audit.sentryCliPackageVersion}`);
+  console.log(`Sentry CLI binary present: ${audit.sentryCliBinPresent ? 'yes' : 'no'}`);
+  console.log(`Sentry CLI version output: ${audit.sentryCliVersionOutput}`);
+  console.log(`Sentry CLI executable: ${audit.sentryCliExecutable ? 'yes' : 'no'}`);
   console.log(`Sentry release integration wired: ${audit.releaseIntegrationErrors.length === 0 ? 'yes' : 'no'}`);
 
   if (audit.releaseIntegrationErrors.length > 0) {
