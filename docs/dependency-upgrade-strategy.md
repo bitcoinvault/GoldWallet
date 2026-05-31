@@ -62,6 +62,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - Node/RN polyfills: `buffer`, `events`, `path-browserify`, `stream-browserify`, `readable-stream`, `util`, and `url`; keep these in small runtime cohorts because Metro and wallet crypto flows depend on the same rn-nodeify shims.
 - Lodash runtime is on checked latest `4.18.1` after `BEM-37.208`; `@types/lodash@4.17.24` is also checked latest.
 - CryptoJS runtime is on checked latest `4.2.0` after `BEM-37.206`; future crypto work should focus on behavior coverage and replacement strategy, not another blind package bump.
+- UUID runtime is on checked latest `14.0.0` after `BEM-37.279`; future work should focus on source behavior or Metro compatibility only if new UUID import surfaces are added.
 - Stream polyfills are on `stream-browserify@3.0.0` and highest compatible `readable-stream@3.6.2` after `BEM-37.278`; latest `readable-stream@4.7.0` is blocked until the app's `readable-stream/readable` alias usage is migrated.
 - Tooling: ESLint, Prettier, Husky, lint-staged, Jest, ts-jest, Detox.
 - Use `corepack yarn tooling:latest-snapshot:audit` before tooling dependency branches when network access is available. It records live npm latest versions for the tracked tooling cohort into `local-docs/tooling-latest-snapshot.txt` without changing package versions.

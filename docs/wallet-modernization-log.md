@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.279 - UUID runtime refresh
+
+- Branch: `feature/bem-37-279-uuid-runtime-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move direct `uuid` runtime usage from `11.1.0` to latest `14.0.0`.
+- Keep the app's existing named `v4` imports in `helpers`, toast actions, and contact creation unchanged.
+- Re-run postinstall so rn-nodeify and Jetifier still apply after the dependency graph update.
+
+Findings:
+
+- `npm view uuid version engines type exports main dependencies peerDependencies --json` reports latest `14.0.0` with ESM package metadata.
+- The app has three direct source imports of `uuid`, all using `v4`.
+- `node -e "const { v4 } = require('uuid'); console.log(typeof v4, v4().length);"` confirms the installed package still exposes the expected CJS interop surface on the current Node baseline.
+
+Validation:
+
+- `npm view uuid version engines type exports main dependencies peerDependencies --json`
+- `corepack yarn add uuid@14.0.0`
+- `node -e "const { v4 } = require('uuid'); console.log(typeof v4, v4().length);"`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn upgrade:strategy:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.278 - Stream polyfill refresh
 
 - Branch: `feature/bem-37-278-stream-polyfill-refresh`

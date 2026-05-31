@@ -347,7 +347,7 @@
     "stream-browserify": "3.0.0",
     "url": "0.11.4",
     "util": "0.12.5",
-    "uuid": "11.1.0",
+    "uuid": "14.0.0",
     "wif": "5.0.0"
   },
   "resolutions": {
