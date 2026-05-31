@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.250 - UUID runtime compatibility refresh
+
+- Branch: `feature/bem-37-250-uuid-runtime-upgrade`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `uuid` from `9.0.1` to `11.1.0`, the highest compatible release validated in this branch.
+- Remove direct `@types/uuid` because current `uuid` ships its own TypeScript declarations.
+- Update the Jest `uuid` mapper to the current CJS entrypoint used by `uuid@11.1.0`.
+
+Findings:
+
+- `npm view uuid version` reported latest `14.0.0`.
+- `uuid@14.0.0` was rejected for this repo baseline because Jest resolved the ESM-only `dist/index.js` and failed on `export` syntax from `node_modules`.
+- `uuid@11.1.0` retains a CJS `require` export and passes the app's TypeScript, unit, Android build, and emulator smoke checks.
+
+Validation:
+
+- `npm view uuid@14.0.0 type exports main module browser --json`
+- `npm view uuid@11.1.0 type exports main module browser --json`
+- `corepack yarn add uuid@11.1.0`
+- `corepack yarn remove @types/uuid`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn check:test-type-coupling-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.249 - iOS release static readiness validation
 
 - Branch: `feature/bem-37-249-ios-release-static-validation`
