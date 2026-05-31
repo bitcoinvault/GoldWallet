@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.258 - iOS Podfile.lock drift readiness
+
+- Branch: `feature/bem-37-258-ios-podfile-lock-drift-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the iOS release readiness audit so it separates valid static iOS release files from actual macOS archive readiness.
+- Add `ios/Podfile.lock` drift detection against the current React Native/native package baseline.
+- Keep the audit green for Windows static validation, but stop reporting iOS archive readiness as ready while stale pods remain.
+- Update the iOS release config audit documentation with the exact Mac `pod install` blocker.
+
+Findings:
+
+- iOS static files remain valid: Podfile deployment target, Xcode deployment targets, schemes, Sentry phases, CodePush placeholders, Info.plist permissions, and release scripts are still guarded.
+- `ios/Podfile.lock` is stale and still references old pods, including React Native `0.65.3`, removed `react-native-camera`, older Firebase, Sentry, BootSplash, Config, AsyncStorage, DeviceInfo, GestureHandler, Localize, Screens, and VectorIcons pods.
+- iOS archive/simulator validation cannot be claimed from Windows; it requires macOS with Xcode plus `pod install` to refresh `ios/Podfile.lock`.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.257 - Camera candidate current snapshot
 
 - Branch: `feature/bem-37-257-camera-candidate-current-snapshot`

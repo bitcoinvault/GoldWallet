@@ -5,6 +5,25 @@ const getLineValue = (content, label) => {
 };
 
 const hasLine = (content, expectedLine) => content.split(/\r?\n/).includes(expectedLine);
+const getBulletLinesAfter = (content, label) => {
+  const lines = content.split(/\r?\n/);
+  const startIndex = lines.findIndex(line => line.startsWith(`${label}: `));
+  const bulletLines = [];
+
+  if (startIndex === -1) {
+    return bulletLines;
+  }
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    if (!lines[index].startsWith('- ')) {
+      break;
+    }
+
+    bulletLines.push(lines[index].slice(2));
+  }
+
+  return bulletLines;
+};
 const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value);
 const isNonNegativeInteger = value => /^\d+$/.test(value) && Number(value) >= 0;
 const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
@@ -12,6 +31,7 @@ const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 export const getIosReleaseReadinessSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
+  const staticReady = getLineValue(summary, 'Static iOS release files valid');
   const ready = getLineValue(summary, 'Ready for macOS archive validation');
   const reactNativeVersion = getLineValue(summary, 'React Native version');
   const rnMinIos = getLineValue(summary, 'React Native minimum iOS');
@@ -22,10 +42,13 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   const sentryBundlePhaseCount = getLineValue(summary, 'iOS Sentry bundle/source-map phases');
   const sentryDsymPhaseCount = getLineValue(summary, 'iOS Sentry dSYM upload phases');
   const codePushPlistPlaceholderCount = getLineValue(summary, 'iOS CodePush plist placeholders');
+  const podfileLockRefreshRequired = getLineValue(summary, 'Podfile.lock refresh required');
+  const podfileLockDriftCount = getLineValue(summary, 'Podfile.lock drift issues');
   const xcodebuildVersion = getLineValue(summary, 'xcodebuild version');
   const errorCount = getLineValue(summary, 'Errors');
   const warningCount = getLineValue(summary, 'Warnings');
   const requiredAction = getLineValue(summary, 'Required action');
+  const podfileLockDriftLines = getBulletLinesAfter(summary, 'Podfile.lock drift issues');
 
   if (!summary.startsWith('iOS release static readiness audit')) {
     errors.push('summary header is missing or invalid');
@@ -35,8 +58,12 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
     errors.push(`Generated at must be an ISO timestamp. Received: ${generatedAt || 'missing'}`);
   }
 
-  if (ready !== 'yes') {
-    errors.push(`Ready for macOS archive validation must be yes. Received: ${ready || 'missing'}`);
+  if (staticReady !== 'yes') {
+    errors.push(`Static iOS release files valid must be yes. Received: ${staticReady || 'missing'}`);
+  }
+
+  if (!['yes', 'no'].includes(ready)) {
+    errors.push(`Ready for macOS archive validation must be yes or no. Received: ${ready || 'missing'}`);
   }
 
   [
@@ -70,6 +97,24 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
     errors.push(`iOS CodePush plist placeholders must be 3. Received: ${codePushPlistPlaceholderCount || 'missing'}`);
   }
 
+  if (!['yes', 'no'].includes(podfileLockRefreshRequired)) {
+    errors.push(`Podfile.lock refresh required must be yes or no. Received: ${podfileLockRefreshRequired || 'missing'}`);
+  }
+
+  if (!isNonNegativeInteger(podfileLockDriftCount)) {
+    errors.push(`Podfile.lock drift issues must be a non-negative integer. Received: ${podfileLockDriftCount || 'missing'}`);
+  } else if (Number(podfileLockDriftCount) !== podfileLockDriftLines.length) {
+    errors.push(`Podfile.lock drift issues count is ${podfileLockDriftCount}, but listed ${podfileLockDriftLines.length}`);
+  }
+
+  if (podfileLockRefreshRequired === 'yes' && podfileLockDriftCount === '0') {
+    errors.push('Podfile.lock refresh required cannot be yes with 0 drift issues');
+  }
+
+  if (podfileLockRefreshRequired === 'no' && podfileLockDriftCount !== '0') {
+    errors.push('Podfile.lock refresh required cannot be no with drift issues');
+  }
+
   if (!xcodebuildVersion) {
     errors.push('xcodebuild version line is missing');
   }
@@ -99,6 +144,14 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
     }
   } else if (!isPositiveInteger(warningCount) && warningCount !== '0') {
     errors.push(`Warnings must be 0 or a positive integer. Received: ${warningCount || 'missing'}`);
+  }
+
+  if (ready === 'yes' && (xcodebuildVersion === '<not available on this machine>' || podfileLockRefreshRequired !== 'no' || podfileLockDriftCount !== '0')) {
+    errors.push('Ready summary must have xcodebuild available and no Podfile.lock drift');
+  }
+
+  if (podfileLockRefreshRequired === 'yes' && !requiredAction.includes('refresh ios/Podfile.lock with pod install on macOS')) {
+    errors.push('Podfile.lock drift summary must require refreshing ios/Podfile.lock with pod install on macOS');
   }
 
   return errors;
