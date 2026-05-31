@@ -8,6 +8,8 @@ const validSummary = [
   'QR local-image manifest version: <missing>',
   'QR renderer version: 6.3.21',
   'qrcode resolution: 1.5.4',
+  'iOS Podfile.lock refresh required: no',
+  'iOS stale removed camera pods: none',
   'Camera QR migration wiring valid: yes',
   'Camera QR migration baseline stable: yes',
   'Warnings: 1',
@@ -26,6 +28,8 @@ const invalidSummary = [
   'QR local-image manifest version: 1.0.4',
   'QR renderer version: 6.3.21',
   'qrcode resolution: 1.5.4',
+  'iOS Podfile.lock refresh required: yes',
+  'iOS stale removed camera pods: react-native-camera, react-native-qrcode-local-image',
   'Camera QR migration wiring valid: no',
   'Camera QR migration baseline stable: no',
   'Warnings: 0',
@@ -33,7 +37,7 @@ const invalidSummary = [
   '- package.json still has react-native-camera@^3.33.0; expected removal after CameraKit QR migration',
   'Wiring errors: 1',
   '- ScanQrCodeScreen.tsx is missing CameraKit',
-  'Required action: restore camera QR migration baseline before scanner follow-up work.',
+  'Required action: restore camera QR migration baseline and refresh ios/Podfile.lock with pod install on macOS before claiming iOS camera QR migration validation.',
   '',
 ].join('\n');
 
@@ -63,12 +67,33 @@ assertRejected('Missing header fixture', validSummary.replace('Camera QR migrati
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Bad warning count fixture', validSummary.replace('Warnings: 1', 'Warnings: 0'), 'Warnings count');
 assertRejected(
+  'Missing iOS pod refresh fixture',
+  invalidSummary.replace('iOS Podfile.lock refresh required: yes', 'iOS Podfile.lock refresh required: no'),
+  'stale removed camera pods must be none',
+);
+assertRejected(
+  'Missing iOS stale pod list fixture',
+  invalidSummary.replace(
+    'iOS stale removed camera pods: react-native-camera, react-native-qrcode-local-image',
+    'iOS stale removed camera pods: none',
+  ),
+  'refresh required cannot be yes',
+);
+assertRejected(
   'Missing required action fixture',
   invalidSummary.replace(
-    'Required action: restore camera QR migration baseline before scanner follow-up work.',
+    'Required action: restore camera QR migration baseline and refresh ios/Podfile.lock with pod install on macOS before claiming iOS camera QR migration validation.',
     'Required action: restore QR scanner.',
   ),
   'camera QR restoration required action',
+);
+assertRejected(
+  'Missing iOS pod install action fixture',
+  invalidSummary.replace(
+    'Required action: restore camera QR migration baseline and refresh ios/Podfile.lock with pod install on macOS before claiming iOS camera QR migration validation.',
+    'Required action: restore camera QR migration baseline before scanner follow-up work.',
+  ),
+  'pod install on macOS',
 );
 
 console.log('Camera QR migration summary guard checks are valid.');

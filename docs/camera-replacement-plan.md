@@ -18,6 +18,7 @@
 - `corepack yarn camera:candidate:audit` checks live npm metadata for the legacy camera, VisionCamera, CameraKit, QR renderer, and QR encoder before scanner follow-up work, so stale candidate assumptions are visible before a dependency branch.
 - `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, and writes `local-docs/camera-qr-migration-summary.txt`.
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
+- The QR migration audit also reports stale removed camera pods in `ios/Podfile.lock`; on Windows the expected state is that Android/runtime dependency wiring can be guarded while iOS camera migration validation remains unclaimed until `pod install` refreshes the lockfile on macOS.
 
 ## Why Replace
 
@@ -83,7 +84,7 @@ Scope:
 - Removed unused `@remobile/react-native-qrcode-local-image` from `package.json` and `yarn.lock`.
 - Removed the stale Android autolink disable entry from `react-native.config.js`.
 - Updated camera migration and legacy Android autolink guards so the removed package stays absent.
-- iOS `Podfile.lock` and Xcode project still need a Mac `pod install`/project refresh before iOS validation is claimed.
+- iOS `Podfile.lock` and Xcode project still need a Mac `pod install`/project refresh before iOS validation is claimed. The current lockfile still references removed `react-native-camera` and `react-native-qrcode-local-image` pods, and the guarded QR migration summary records that as an iOS readiness issue.
 
 ## Validation Plan
 

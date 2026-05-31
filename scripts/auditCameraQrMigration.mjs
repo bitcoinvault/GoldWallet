@@ -64,7 +64,13 @@ export const collectCameraQrMigrationAudit = () => {
   const replacementPlan = requireFile(errors, 'docs/camera-replacement-plan.md');
   const nativeModulePlan = requireFile(errors, 'docs/native-module-upgrade-plan.md');
   const warningBaseline = requireFile(errors, 'local-docs/android-warning-audit-summary.txt');
+  const iosPodfileLock = requireFile(errors, 'ios/Podfile.lock');
   const iosInfoPlists = ['ios/GoldWallet/Info.plist', 'ios/GoldWalletDev-Info.plist', 'ios/GoldWalletStage-Info.plist'];
+  const staleRemovedIosPods = [
+    'react-native-camera',
+    'react-native-qrcode-local-image',
+  ].filter(podName => iosPodfileLock.includes(podName));
+  const iosPodfileLockRefreshRequired = staleRemovedIosPods.length > 0;
 
   if (androidAppGradle.includes("missingDimensionStrategy 'react-native-camera', 'general'")) {
     errors.push("android/app/build.gradle still contains missingDimensionStrategy 'react-native-camera', 'general'");
@@ -94,12 +100,18 @@ export const collectCameraQrMigrationAudit = () => {
     warnings.push('local Android warning audit summary still mentions react-native-camera; refresh the warning audit after migration.');
   }
 
+  if (iosPodfileLockRefreshRequired) {
+    readinessIssues.push(`ios/Podfile.lock still references removed camera pods: ${staleRemovedIosPods.join(', ')}`);
+  }
+
   return {
     cameraVersion,
     cameraKitVersion,
     localQrImageVersion,
     qrRendererVersion,
     rootQrcodeVersion,
+    iosPodfileLockRefreshRequired,
+    staleRemovedIosPods,
     errors,
     readinessIssues,
     warnings,
@@ -116,6 +128,8 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
     `QR local-image manifest version: ${audit.localQrImageVersion || '<missing>'}`,
     `QR renderer version: ${audit.qrRendererVersion || '<missing>'}`,
     `qrcode resolution: ${audit.rootQrcodeVersion || '<missing>'}`,
+    `iOS Podfile.lock refresh required: ${audit.iosPodfileLockRefreshRequired ? 'yes' : 'no'}`,
+    `iOS stale removed camera pods: ${audit.staleRemovedIosPods.join(', ') || 'none'}`,
     `Camera QR migration wiring valid: ${audit.errors.length === 0 ? 'yes' : 'no'}`,
     `Camera QR migration baseline stable: ${audit.baselineStable ? 'yes' : 'no'}`,
     `Warnings: ${audit.warnings.length}`,
@@ -129,7 +143,7 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
   lines.push(
     audit.baselineStable
       ? 'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.'
-      : 'Required action: restore camera QR migration baseline before scanner follow-up work.',
+      : 'Required action: restore camera QR migration baseline and refresh ios/Podfile.lock with pod install on macOS before claiming iOS camera QR migration validation.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -140,6 +154,8 @@ const printReport = audit => {
   console.log(`react-native-camera manifest version: ${audit.cameraVersion || '<missing>'}`);
   console.log(`react-native-camera-kit manifest version: ${audit.cameraKitVersion || '<missing>'}`);
   console.log(`QR render pair: react-native-qrcode-svg@${audit.qrRendererVersion || '<missing>'}, qrcode resolution ${audit.rootQrcodeVersion || '<missing>'}`);
+  console.log(`iOS Podfile.lock refresh required: ${audit.iosPodfileLockRefreshRequired ? 'yes' : 'no'}`);
+  console.log(`iOS stale removed camera pods: ${audit.staleRemovedIosPods.join(', ') || 'none'}`);
 
   if (audit.warnings.length > 0) {
     console.log('Warnings:');
