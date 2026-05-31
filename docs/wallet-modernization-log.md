@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.268 - Tooling latest snapshot audit
+
+- Branch: `feature/bem-37-268-tooling-latest-snapshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a network-backed tooling latest snapshot audit for the tracked tooling cohort.
+- Record package specs, installed versions, live npm latest versions, and current defer/upgrade decisions without changing dependency versions.
+- Add a generated summary checker and guard so the local snapshot is reviewable before future tooling dependency branches.
+
+Findings:
+
+- `corepack yarn outdated --json` shows major tooling updates are available across TypeScript, Jest, ESLint, Prettier, Husky, Detox, and related packages.
+- These are not safe as one blind bump: TypeScript/Jest belong with RN/test baseline validation, ESLint/Prettier need dedicated lint/format migrations, lint-staged latest needs a newer Node baseline, and Detox needs dedicated E2E runner validation.
+- This branch commits no package version changes; it creates branch-start evidence for the next tooling cohort decisions.
+
+Validation:
+
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.267 - RN online baseline preflight
 
 - Branch: `feature/bem-37-267-rn-online-preflight`
