@@ -42,7 +42,9 @@ const requiredSourceSnippets = [
   ['class/authenticator.ts', "from 'bitcoinjs-lib'"],
   ['src/config/index.ts', "from 'bitcoinjs-lib'"],
   ['tests/integration/App.offline.test.js', 'wallet core offline flows'],
+  ['tests/integration/App.offline.test.js', 'single-key wallets derive stable BTCV addresses from the same compressed WIF'],
   ['tests/integration/HDWallet.offline.test.js', 'HD wallet offline flows'],
+  ['tests/integration/HDWallet.offline.test.js', '_getWifForAddress'],
   ['tests/unit/signer.test.js', "require('bitcoinjs-lib')"],
 ];
 

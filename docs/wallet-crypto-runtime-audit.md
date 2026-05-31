@@ -34,7 +34,7 @@ Do not upgrade this group package-by-package unless the package is already isola
 - offline wallet tests,
 - authenticator/signing tests,
 - HD wallet derivation fixtures,
-- WIF import/export behavior,
+- WIF import/export behavior and `_getWifForAddress` cache behavior,
 - transaction construction fixtures,
 - Android build and emulator smoke.
 

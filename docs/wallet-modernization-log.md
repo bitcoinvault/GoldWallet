@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.241 - Wallet WIF fixture coverage
+
+- Branch: `feature/bem-37-241-wallet-wif-fixtures`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add wallet/crypto fixture coverage before any `bip32`, `wif`, or BitcoinVault `bitcoinjs-lib` fork migration.
+- Lock single-key compressed WIF address derivation across Legacy P2PKH, SegWit P2SH, and native Bech32 wallet classes.
+- Lock HD wallet `_getWifForAddress` cache behavior for BIP49 and BIP84 derivation fixtures.
+- Extend the wallet crypto runtime audit so future branches keep these coverage points present.
+
+Findings:
+
+- The same compressed BTCV WIF currently derives `YXXDY3hwyVsjzAnFXidgaadF34f1AVpGVi`, `RBkrVH6nanQxjQ6n99nPHXcvY73u3jBLdU`, and `royale1qt97wqg464zrhnx23upykca5annqvwkwunm9fmf` across the guarded single-key wallet classes.
+- HD wallet address-to-WIF cache behavior is now covered for the known BIP49 and BIP84 fixtures before any future major crypto dependency migration.
+
+Validation:
+
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn wallet:crypto-runtime:audit`
+
 ### BEM-37.240 - Wallet crypto audit preflight wiring
 
 - Branch: `feature/bem-37-240-wallet-crypto-preflight-wiring`
