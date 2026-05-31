@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.302 - Husky 9 hook migration
+
+- Branch: `feature/bem-37-302-husky9-hook-migration`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade Husky from the legacy v4 package-json hook model to current `husky@9.1.7`.
+- Add repo-owned `.husky/pre-commit` and `.husky/pre-push` hooks that forward to the existing `yarn precommit` and `yarn prepush` scripts.
+- Add `prepare: husky` so installs configure `core.hooksPath` without relying on Husky v4's package-json `husky.hooks` config.
+- Add `husky:tooling:audit` to verify the installed version, hook files, local `core.hooksPath`, and absence of legacy Husky config.
+- Refresh tooling snapshot docs so Husky is now tracked as current instead of deferred.
+
+Findings:
+
+- `npm view husky version dist-tags engines dependencies peerDependencies --json` reports latest `9.1.7` with Node engine `>=18`, compatible with the current Node `v22.18.0` baseline.
+- Husky 9 does not export `package.json`, so the audit reads the installed package metadata from the resolved package directory.
+- Generated `.husky/_` hook shims are local install output; the tracked hooks remain `.husky/pre-commit` and `.husky/pre-push`.
+
+Validation:
+
+- `npm view husky version dist-tags engines dependencies peerDependencies --json`
+- `corepack yarn husky`
+- `corepack yarn husky:tooling:audit`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `C:\Program Files\Git\usr\bin\sh.exe .husky/_/pre-commit` with Git `usr\bin` and `bin` on `PATH`
+- `C:\Program Files\Git\usr\bin\sh.exe .husky/_/pre-push` with Git `usr\bin` and `bin` on `PATH`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-artifacts`
+
 ### BEM-37.301 - Jest 30 tooling upgrade
 
 - Branch: `feature/bem-37-301-jest30-tooling-upgrade`

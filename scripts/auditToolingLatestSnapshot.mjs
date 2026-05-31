@@ -104,7 +104,7 @@ const trackedTooling = [
   {
     name: 'husky',
     source: 'devDependencies',
-    decision: 'deferred - Husky major migration changes hook installation semantics',
+    decision: 'current - latest hook runner verified with repo-owned .husky hooks and precommit/prepush scripts',
   },
   {
     name: 'detox',

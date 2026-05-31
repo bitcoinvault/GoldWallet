@@ -50,7 +50,7 @@
     "eslint-plugin-react-native": "5.0.0",
     "flipper-plugin-redux-debugger": "2.0.2",
     "googleapis": "173.0.0",
-    "husky": "^4.2.3",
+    "husky": "9.1.7",
     "jest": "30.4.2",
     "jest-circus": "30.4.2",
     "jest-environment-node": "30.4.1",
@@ -74,6 +74,7 @@
   },
   "scripts": {
     "postinstall": "patch-package && ./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack && node scripts/applyRnNodeifyShims.mjs && npx jetify",
+    "prepare": "husky",
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; yarn cache clean --force; yarn install",
     "clean:ios": "rm -fr node_modules && rm -fr ios/Pods && yarn install && cd ios && pod update && cd ..; yarn start -- --reset-cache",
     "start": "react-native start",
@@ -114,6 +115,7 @@
     "tooling:latest-snapshot:check-summary": "node scripts/checkToolingLatestSnapshotSummary.mjs",
     "check:tooling-latest-snapshot-summary-guard": "node scripts/checkToolingLatestSnapshotSummaryGuard.mjs",
     "lint-staged:tooling:audit": "node scripts/auditLintStagedTooling.mjs",
+    "husky:tooling:audit": "node scripts/auditHuskyTooling.mjs",
     "prettier:tooling:audit": "node scripts/auditPrettierTooling.mjs",
     "jest:tooling:audit": "node scripts/auditJestTooling.mjs",
     "check:eslint-config-compatibility": "node scripts/checkEslintConfigCompatibility.mjs",
@@ -385,12 +387,6 @@
     "./**/*.{ts,tsx,js,jsx}": [
       "eslint --fix"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn precommit",
-      "pre-push": "yarn prepush"
-    }
   },
   "config": {
     "commitizen": {

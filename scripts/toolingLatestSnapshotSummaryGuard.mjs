@@ -72,6 +72,10 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
     errors.push('summary must include lint-staged');
   }
 
+  if (!entryLines.some(line => line.includes('husky'))) {
+    errors.push('summary must include Husky tooling');
+  }
+
   if (!entryLines.some(line => line.includes('jest'))) {
     errors.push('summary must include Jest tooling');
   }
