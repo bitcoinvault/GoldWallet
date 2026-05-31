@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.234 - Google APIs tooling refresh
+
+- Branch: `feature/bem-37-googleapis-tooling-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `googleapis` from the broad `>=39.1.0` range, currently resolved to `85.0.0`, to exact `173.0.0`, the latest npm release checked for this branch.
+- Keep usage scoped to `scripts/createGmailApiToken.js`; no wallet runtime import path was added.
+- Validate the new `gaxios`/`google-auth-library` stack against the existing `node-fetch@2.7.0` resolution with a local HTTP request.
+
+Why:
+
+- The Gmail token helper was pinned only by a broad range, which left the lockfile on an old Google APIs client.
+- Refreshing it as a separate dev-tooling branch keeps OAuth helper maintenance isolated from wallet runtime modernization.
+
+Validation:
+
+- `npm view googleapis version engines dependencies peerDependencies --json`
+- `rg -n "googleapis|google\\.auth|gmail" . --glob '!node_modules/**' --glob '!android/build/**' --glob '!ios/Pods/**'`
+- `corepack yarn add --dev googleapis@173.0.0`
+- `node -e "const { google } = require('googleapis'); const auth = new google.auth.OAuth2('id','secret','http://localhost'); console.log(require('googleapis/package.json').version, typeof google.gmail, typeof auth.generateAuthUrl)"`
+- Local `Gaxios` request against a temporary `127.0.0.1` HTTP server returned `200` with JSON data.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` passed on rerun; the first run hit the known onboarding helper input timing issue on transaction-password confirmation without fatal/runtime logcat findings.
+
 ### BEM-37.233 - Dev tooling patch refresh
 
 - Branch: `feature/bem-37-dev-tooling-patch-refresh`
