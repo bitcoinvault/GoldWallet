@@ -107,9 +107,14 @@ const collectIosReleaseReadiness = () => {
     podfileLockDriftIssues.push(`ios/Podfile.lock has React-Core ${reactCoreLockVersion}; package.json has react-native ${reactNativeVersion}`);
   }
 
-  if (podfileLock.includes('react-native-camera')) {
-    podfileLockDriftIssues.push('ios/Podfile.lock still references removed react-native-camera; run pod install on macOS after the CameraKit migration');
-  }
+  [
+    ['react-native-camera', 'after the CameraKit migration'],
+    ['react-native-qrcode-local-image', 'after the QR local-image cleanup'],
+  ].forEach(([podName, reason]) => {
+    if (podfileLock.includes(podName)) {
+      podfileLockDriftIssues.push(`ios/Podfile.lock still references removed ${podName}; run pod install on macOS ${reason}`);
+    }
+  });
 
   [
     ['RNBootSplash', 'react-native-bootsplash'],
