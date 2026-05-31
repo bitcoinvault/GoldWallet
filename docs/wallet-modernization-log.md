@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.282 - CodePush retirement and migration audit
+
+- Branch: `feature/bem-37-282-codepush-retirement-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Stop treating CodePush as a normal package-refresh target after confirming the upstream service state.
+- Extend the CodePush release-path audit so the local summary records live npm latest metadata, App Center CodePush retirement, archived upstream state, New Architecture support status, and whether migration/removal is required.
+- Add `docs/codepush-retirement-migration-plan.md` with the decision path for keeping, replacing, or removing OTA updates.
+- Refresh release-services and Android workflow docs so future planning does not claim CodePush as a supported long-term release capability.
+
+Findings:
+
+- `react-native-code-push@9.0.1` is still the latest npm release and matches the installed package.
+- App Center CodePush was retired on 2025-03-31 and Microsoft upstream repositories are archived/read-only.
+- Upstream Microsoft React Native CodePush does not support New Architecture, while this repo currently has Android `newArchEnabled=true`.
+- Current release wiring can remain guarded for compatibility, but full CodePush update validation remains unclaimed and migration/removal is required before OTA can be treated as supported.
+
+Validation:
+
+- `npm view react-native-code-push version time deprecated repository.url --json`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.281 - Sentry live latest prerequisite audit
 
 - Branch: `feature/bem-37-281-sentry-live-latest-prereq-audit`

@@ -14,7 +14,18 @@ const notReadySummary = [
   '- .env.beta.mainnet: unconfirmed; missing CODEPUSH_DEPLOYMENT_KEY_ANDROID, missing CODEPUSH_DEPLOYMENT_KEY_IOS',
   'CodePush package dependency version: 9.0.1',
   'CodePush package installed version: 9.0.1',
+  'CodePush package latest version: 9.0.1',
+  'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
+  'CodePush package current: yes',
   'CodePush package versions aligned: yes',
+  'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
+  'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
+  'App Center CodePush retirement date: 2025-03-31',
+  'CodePush upstream retired: yes',
+  'CodePush upstream archived: yes',
+  'CodePush upstream New Architecture support: no',
+  'Android New Architecture enabled: yes',
+  'CodePush migration required: yes',
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod',
   'Android release summary required variants covered: yes',
@@ -29,7 +40,7 @@ const notReadySummary = [
   '- .env.dev.testnet has a blank CODEPUSH_DEPLOYMENT_KEY_IOS',
   'Wiring errors: 0',
   'Secret values printed: no',
-  'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation.',
+  'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation; migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',
   '',
 ].join('\n');
 
@@ -47,7 +58,18 @@ const readySummary = [
   '- .env.beta.mainnet: ready',
   'CodePush package dependency version: 9.0.1',
   'CodePush package installed version: 9.0.1',
+  'CodePush package latest version: 9.0.1',
+  'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
+  'CodePush package current: yes',
   'CodePush package versions aligned: yes',
+  'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
+  'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
+  'App Center CodePush retirement date: 2025-03-31',
+  'CodePush upstream retired: yes',
+  'CodePush upstream archived: yes',
+  'CodePush upstream New Architecture support: no',
+  'Android New Architecture enabled: yes',
+  'CodePush migration required: yes',
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod',
   'Android release summary required variants covered: yes',
@@ -58,7 +80,7 @@ const readySummary = [
   'Readiness issues: 0',
   'Wiring errors: 0',
   'Secret values printed: no',
-  'Required action: none; non-beta CodePush release path env keys are present locally.',
+  'Required action: migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',
   '',
 ].join('\n');
 
@@ -100,6 +122,31 @@ assertRejected(
   'does not match installed version',
 );
 assertRejected(
+  'Missing latest package version fixture',
+  notReadySummary.replace('CodePush package latest version: 9.0.1', 'CodePush package latest version: missing'),
+  'CodePush package latest version must be a semver package version',
+);
+assertRejected(
+  'Stale current package fixture',
+  notReadySummary.replace('CodePush package latest version: 9.0.1', 'CodePush package latest version: 10.0.0'),
+  'CodePush package current cannot be yes',
+);
+assertRejected(
+  'Bad upstream retirement fixture',
+  notReadySummary.replace('CodePush upstream retired: yes', 'CodePush upstream retired: no'),
+  'retired and archived',
+);
+assertRejected(
+  'Bad New Architecture support fixture',
+  notReadySummary.replace('CodePush upstream New Architecture support: no', 'CodePush upstream New Architecture support: yes'),
+  'New Architecture support must remain no',
+);
+assertRejected(
+  'Missing migration requirement fixture',
+  notReadySummary.replace('CodePush migration required: yes', 'CodePush migration required: no'),
+  'migration required must be yes',
+);
+assertRejected(
   'Missing release variant fixture',
   notReadySummary.replace('Android release summary variants: dev, stage, prod', 'Android release summary variants: dev, stage'),
   'prod release evidence',
@@ -113,10 +160,18 @@ assertRejected(
 assertRejected(
   'Missing required action fixture',
   notReadySummary.replace(
-    'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation.',
+    'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation; migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',
     'Required action: provide release update values before validation.',
   ),
   'CodePush deployment key required action',
+);
+assertRejected(
+  'Missing migration action fixture',
+  notReadySummary.replace(
+    'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation; migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',
+    'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation.',
+  ),
+  'retired App Center CodePush migration',
 );
 
 console.log('CodePush release path summary guard checks are valid.');
