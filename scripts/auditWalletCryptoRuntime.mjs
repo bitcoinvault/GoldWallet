@@ -92,6 +92,10 @@ const walk = directory => {
 
 const errors = [];
 
+if (packageJson.dependencies?.bech32) {
+  errors.push(`package.json has direct bech32@${packageJson.dependencies.bech32}; expected no direct dependency because address encoding is owned by the BTCV bitcoinjs-lib fork`);
+}
+
 expectedDependencies.forEach((expectedVersion, packageName) => {
   const actualVersion = packageJson.dependencies?.[packageName];
   if (actualVersion !== expectedVersion) {
@@ -109,8 +113,13 @@ expectedDevDependencies.forEach((expectedVersion, packageName) => {
 const bitcoinjsPackageDirectory = path.dirname(require.resolve('bitcoinjs-lib/package.json'));
 const bitcoinjsWifEntry = require.resolve('wif', { paths: [bitcoinjsPackageDirectory] });
 const bitcoinjsWifVersion = packageVersionFromEntry(bitcoinjsWifEntry);
+const bitcoinjsBech32Entry = require.resolve('bech32', { paths: [bitcoinjsPackageDirectory] });
+const bitcoinjsBech32Version = packageVersionFromEntry(bitcoinjsBech32Entry);
 if (bitcoinjsWifVersion !== '2.0.6') {
   errors.push(`bitcoinjs-lib resolves wif@${bitcoinjsWifVersion || '<unknown>'}; expected nested 2.0.6 for the BTCV fork`);
+}
+if (bitcoinjsBech32Version !== '1.1.4') {
+  errors.push(`bitcoinjs-lib resolves bech32@${bitcoinjsBech32Version || '<unknown>'}; expected transitive 1.1.4 for the BTCV fork`);
 }
 
 requiredDocsSnippets.forEach(([relativePath, snippet]) => {
@@ -154,6 +163,8 @@ expectedDependencies.forEach((expectedVersion, packageName) => {
   console.log(`${packageName}: ${expectedVersion}`);
 });
 console.log(`bitcoinjs-lib nested wif: ${bitcoinjsWifVersion}`);
+console.log(`direct bech32 dependency: absent`);
+console.log(`bitcoinjs-lib transitive bech32: ${bitcoinjsBech32Version}`);
 packageUsage.forEach((files, packageName) => {
   console.log(`${packageName} usage files: ${files.length}`);
 });
