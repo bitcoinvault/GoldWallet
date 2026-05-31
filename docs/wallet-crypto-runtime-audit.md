@@ -13,8 +13,8 @@ Latest npm checked on 2026-05-31.
 | `bip32` | `5.0.1` | `5.0.1` | Migrated through `utils/bip32.js`, which adapts the factory-based API to the wallet classes. |
 | `@bitcoinerlab/secp256k1` | `1.2.0` | `1.2.0` | Pure-JavaScript ECC backend for the latest `bip32` factory API; selected because `tiny-secp256k1@2.x` pulls WASM/Node crypto paths that do not bundle cleanly in React Native. |
 | `coinselect` | `3.1.13` | `3.1.13` | Current coin selection package remains latest. |
-| `ecurve` | `^1.0.6` | `1.0.6` | Legacy elliptic curve dependency; mostly retained through the BTCV fork/old bitcoin stack expectations. |
-| `bigi` | `^1.4.2` | `1.4.2` | Legacy big integer dependency paired with old bitcoin stack expectations. |
+| `ecurve` | `1.0.6` | `1.0.6` | Legacy elliptic curve dependency used by `utils/crypto.ts`; pinned exactly because this is wallet-critical runtime code. |
+| `bigi` | `1.4.2` | `1.4.2` | Legacy big integer dependency used by `utils/crypto.ts`; pinned exactly because this is wallet-critical runtime code. |
 | `pbkdf2` | `3.1.6` | `3.1.6` | Current package remains latest. |
 | `wif` | `5.0.0` | `5.0.0` | Direct dependency is current; the BTCV `bitcoinjs-lib` fork still resolves its own nested `wif@2.0.6` and this is guarded by `corepack yarn wallet:crypto-runtime:audit`. |
 | `react-native-randombytes` | `3.6.2` | `3.6.2` | Current native random-bytes bridge remains latest checked. |
