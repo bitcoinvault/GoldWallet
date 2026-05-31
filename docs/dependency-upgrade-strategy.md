@@ -71,6 +71,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - The tooling snapshot also tracks isolated report/E2E/coverage tooling after `BEM-37.269` and `BEM-37.270`: `jest-junit@17.0.0`, `junit-report-merger@9.0.3`, `babel-plugin-istanbul@8.0.0`, and `mailosaur@11.1.1`.
 - `lint-staged` is on checked highest compatible `16.4.0` after `BEM-37.210`; latest `17.0.6` requires Node `>=22.22.1`, above the current Node `v22.18.0` baseline.
 - Prettier tooling is on checked highest compatible Prettier 2 line after `BEM-37.211`: `prettier@2.8.8`, `eslint-plugin-prettier@4.2.5`, and `eslint-config-prettier@8.10.2`; the checked latest Prettier 3 line is deferred to a separate formatting migration because it creates repo-wide `prettier/prettier` churn in the current lint baseline.
+- TypeScript ESLint parser/plugin tooling is on checked latest `8.60.0` after `BEM-37.293`; this stays on the current ESLint `8.57.0` baseline because `@typescript-eslint@8.60.0` supports `eslint ^8.57.0 || ^9.0.0 || ^10.0.0`.
 - Jest tooling remains on the checked compatible `29.7.0` line after `BEM-37.212`; the checked Jest 30 line is deferred until the React Native Jest preset stops mixing a Jest 29 environment with a Jest 30 runtime.
 
 These can be batched more aggressively because they either have strong automated gates or are developer-only.

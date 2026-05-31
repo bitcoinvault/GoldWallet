@@ -59,12 +59,12 @@ const trackedTooling = [
   {
     name: '@typescript-eslint/eslint-plugin',
     source: 'devDependencies',
-    decision: 'deferred - ESLint major config migration is a separate lint baseline branch',
+    decision: 'current - parser/plugin 8.60.0 pair verified on the ESLint 8.57 baseline',
   },
   {
     name: '@typescript-eslint/parser',
     source: 'devDependencies',
-    decision: 'deferred - ESLint parser and plugin must move together',
+    decision: 'current - parser/plugin 8.60.0 pair verified on the ESLint 8.57 baseline',
   },
   {
     name: 'eslint',

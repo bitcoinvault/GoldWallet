@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.293 - TypeScript ESLint 8 tooling refresh
+
+- Branch: `feature/bem-37-293-typescript-eslint-8`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the direct `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` pair from `7.18.0` to latest checked `8.60.0`.
+- Keep the broader ESLint runtime on `8.57.0`; the new TypeScript ESLint pair supports the current ESLint and TypeScript baselines.
+- Refresh tooling snapshot and dependency strategy notes so the pair is no longer tracked as deferred.
+
+Findings:
+
+- `@typescript-eslint/eslint-plugin@8.60.0` peers `@typescript-eslint/parser ^8.60.0`, `eslint ^8.57.0 || ^9.0.0 || ^10.0.0`, and `typescript >=4.8.4 <6.1.0`.
+- `@typescript-eslint/parser@8.60.0` peers `eslint ^8.57.0 || ^9.0.0 || ^10.0.0` and `typescript >=4.8.4 <6.1.0`.
+- This is a tooling-only branch; no runtime package versions or React Native native modules are changed.
+- `lint:baseline:audit` remains a reporting gate with exit code 0, but the stricter parser line increases the recorded baseline finding count; reducing that baseline belongs to a separate lint cleanup stream.
+
+Validation:
+
+- `npm view @typescript-eslint/parser@8.60.0 version peerDependencies engines dependencies --json`
+- `npm view @typescript-eslint/eslint-plugin@8.60.0 version peerDependencies engines dependencies --json`
+- `corepack yarn add -D @typescript-eslint/eslint-plugin@8.60.0 @typescript-eslint/parser@8.60.0`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn eslint --print-config src\App.tsx`
+- `corepack yarn typescript:check`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.292 - Secure-storage legacy write retirement
 
 - Branch: `feature/bem-37-292-secure-storage-stop-legacy-dual-write`
