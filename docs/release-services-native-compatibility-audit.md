@@ -8,7 +8,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 ## Current Package State
 
-| Package | Current package.json | Latest npm checked on 2026-05-30 | Notes |
+| Package | Current package.json | Latest npm checked on 2026-05-31 | Notes |
 | --- | --- | --- | --- |
 | `@react-native-firebase/app` | `24.0.0` | `24.0.0` | Current package pulls `firebase@12.10.0`. |
 | `@react-native-firebase/analytics` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
@@ -73,7 +73,7 @@ corepack yarn release-services:check-summaries
 
 ## Current Release Readiness Snapshot
 
-Checked on 2026-05-30 after the RN `0.85.3` foundation and release-services package refresh:
+Checked on 2026-05-31 after the RN `0.85.3` foundation, Android `devRelease` validation, and release-services package refresh:
 
 ```powershell
 corepack yarn codepush:release:path-audit
@@ -96,6 +96,7 @@ Results:
 - Sentry release source-map validation is not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
 - Sentry `8.13.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.85.3` baseline; release artifact upload still needs credentials before it can be claimed as fully validated.
 - None of these audits print secret values.
+- Do not generate placeholder Sentry or CodePush secrets; missing values remain explicit readiness blockers until provided by environment/config.
 
 The Android flavor-to-env mapping is guarded by:
 

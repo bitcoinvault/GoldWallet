@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.238 - Release-services package snapshot refresh
+
+- Branch: `feature/bem-37-238-release-services-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check current release-service package metadata after the Android `devRelease` validation proof.
+- Refresh the release-services audit snapshot date without changing Firebase, CodePush, Sentry, or push notification package versions.
+- Keep missing Sentry credentials and CodePush deployment keys documented as readiness blockers instead of inventing placeholder secrets.
+
+Findings:
+
+- Latest npm checked on 2026-05-31 remains `@react-native-firebase/*@24.0.0`, `@react-native-community/push-notification-ios@1.12.0`, `react-native-code-push@9.0.1`, and `@sentry/react-native@8.13.0`.
+- `@sentry/react-native@8.13.0` currently pulls Sentry JS packages on the `10.53.1` family and `@sentry/cli@3.4.3`.
+- Release-services summary artifacts remain valid; local release update/source-map validation is still blocked by missing `SENTRY_AUTH_TOKEN`/Sentry properties and blank CodePush dev deployment keys.
+
+Validation:
+
+- `npm view @react-native-firebase/app version peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/analytics version peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/crashlytics version peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/messaging version peerDependencies dependencies engines --json`
+- `npm view @react-native-community/push-notification-ios version peerDependencies dependencies engines --json`
+- `npm view react-native-code-push version peerDependencies dependencies engines --json`
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `corepack yarn release-services:check-summaries`
+
 ### BEM-37.237 - React Native target snapshot refresh
 
 - Branch: `feature/bem-37-237-rn-target-snapshot-refresh`
