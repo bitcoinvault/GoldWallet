@@ -2,7 +2,7 @@ export const expectedRemainingWarningFollowups = [
   {
     packageName: 'react-native-secure-key-store',
     warningSource: 'node_modules/react-native-secure-key-store/android/build.gradle:46',
-    followUp: 'dedicated secure-storage removal after dual-write migration',
+    followUp: 'dedicated secure-storage removal after legacy fallback migration validation',
   },
 ];
 

@@ -53,23 +53,17 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, "from 'react-native-keychain'");
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, "from 'react-native-secure-key-store'");
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
-  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'LEGACY_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'setGenericPassword');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'getGenericPassword');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'resetGenericPassword');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'RNSecureKeyStore.get');
-  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'RNSecureKeyStore.set');
-  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'Keychain is the primary backend; legacy dual-write should not block new writes.');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'sha256(value).toString()');
   requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-keychain'");
   requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-secure-key-store'");
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
-  requireSnippet(errors, 'class/app-storage.js', appStorage, 'LEGACY_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'setGenericPassword');
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'getGenericPassword');
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'RNSecureKeyStore.get');
-  requireSnippet(errors, 'class/app-storage.js', appStorage, 'RNSecureKeyStore.set');
-  requireSnippet(errors, 'class/app-storage.js', appStorage, 'catch(() => result)');
   requireSnippet(errors, 'authentication sagas', authSagas, 'CONST.pin');
   requireSnippet(errors, 'authentication sagas', authSagas, 'CONST.transactionPassword');
   requireSnippet(errors, 'UnlockTransaction.tsx', unlockTransaction, 'checkSecuredPassword(CONST.transactionPassword');
@@ -77,7 +71,7 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'factoryReset.ts', factoryReset, 'removeSecuredPassword(CONST.transactionPassword)');
   requireSnippet(errors, 'docs/storage-network-native-compatibility-audit.md', storageAudit, 'react-native-keychain latest: 10.0.0');
   requireSnippet(errors, 'docs/storage-network-native-compatibility-audit.md', storageAudit, 'react-native-secure-key-store latest: 2.0.10');
-  requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'dedicated secure-storage removal after dual-write migration');
+  requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'dedicated secure-storage removal after legacy fallback migration validation');
 
   if (scripts['test:storage-network:focused'] !== expectedFocusedValidationCommand) {
     errors.push('test:storage-network:focused must keep secure-storage, storage, authenticator, and wallet-core offline checks grouped');
@@ -85,6 +79,18 @@ export const collectSecureStorageMigrationAudit = () => {
 
   if (!warningBaseline.includes('react-native-secure-key-store')) {
     warnings.push('local Android warning audit summary does not mention react-native-secure-key-store; legacy backend removal may already have happened.');
+  }
+
+  const legacyWritesDisabled =
+    !secureStorageService.includes('RNSecureKeyStore.set') && !appStorage.includes('RNSecureKeyStore.set');
+  const legacyFallbackReadsActive =
+    secureStorageService.includes('RNSecureKeyStore.get') && appStorage.includes('RNSecureKeyStore.get');
+  const keychainPrimaryWrite =
+    secureStorageService.includes('return Keychain.setGenericPassword(key, value, secureStorageOptions(key))') &&
+    appStorage.includes('return Keychain.setGenericPassword(key, value, secureStorageOptions(key))');
+
+  if (!legacyWritesDisabled) {
+    errors.push('new secure-storage writes must not call RNSecureKeyStore.set');
   }
 
   return {
@@ -99,11 +105,13 @@ export const collectSecureStorageMigrationAudit = () => {
       secureStorageService.includes('sha256(value).toString()'),
     focusedValidation: 'test:storage-network:focused',
     focusedValidationCommand: scripts['test:storage-network:focused'] || '<missing>',
-    keychainPrimaryWrite: secureStorageService.includes('Keychain is the primary backend') && appStorage.includes('catch(() => result)'),
+    keychainPrimaryWrite,
+    legacyWritesDisabled,
+    legacyFallbackReadsActive,
     warningBaselineMentionsSecureStorage: warningBaseline.includes('react-native-secure-key-store'),
     legacyRemovalReady: false,
     legacyRemovalBlocker:
-      'dual-write and legacy fallback are still active; remove react-native-secure-key-store only after a release validates migrated PIN and transaction-password data',
+      'legacy fallback reads are still active; remove react-native-secure-key-store only after a release validates migrated PIN, transaction-password, and encrypted wallet data without the fallback backend',
     errors,
     warnings,
     baselineStable: errors.length === 0,
@@ -121,6 +129,8 @@ export const formatSecureStorageMigrationSummary = (audit, generatedAt = new Dat
     `Stores PIN: ${audit.storesPin ? 'yes' : 'no'}`,
     `Stores transaction password hash: ${audit.storesTransactionPassword ? 'yes' : 'no'}`,
     `Keychain primary write: ${audit.keychainPrimaryWrite ? 'yes' : 'no'}`,
+    `Legacy secure-storage writes disabled: ${audit.legacyWritesDisabled ? 'yes' : 'no'}`,
+    `Legacy secure-storage fallback reads active: ${audit.legacyFallbackReadsActive ? 'yes' : 'no'}`,
     `Focused validation script: ${audit.focusedValidation}`,
     `Focused validation command: ${audit.focusedValidationCommand}`,
     `Warning baseline mentions secure-key-store: ${audit.warningBaselineMentionsSecureStorage ? 'yes' : 'no'}`,

@@ -15,14 +15,14 @@ Remaining targeted sources:
 
 | Package | Warning source | Follow-up |
 | --- | --- | --- |
-| `react-native-secure-key-store` | `node_modules/react-native-secure-key-store/android/build.gradle:46` | dedicated secure-storage removal after dual-write migration |
+| `react-native-secure-key-store` | `node_modules/react-native-secure-key-store/android/build.gradle:46` | dedicated secure-storage removal after legacy fallback migration validation |
 
 ## Decisions
 
 - Do not patch `node_modules` to hide these warnings.
 - `react-native-camera` was removed in the CameraKit QR scanner migration branch; keep future scanner changes under the guarded QR screen contract.
 - `@react-native-community/masked-view` was removed by the React Navigation 7 migration proof; keep future navigation changes guarded by dashboard, tab, stack, modal, and back-navigation smoke checks.
-- Do not remove `react-native-secure-key-store` in the same release that introduces `react-native-keychain`; keep the legacy backend for fallback and dual-write migration first.
+- Do not remove `react-native-secure-key-store` until a release validates migrated secure values without the fallback backend; new writes no longer dual-write to the legacy store, but fallback reads still protect existing installs.
 
 ## Validation
 

@@ -7,22 +7,22 @@ Checked on: 2026-05-29
 ## Current State
 
 - New package: `react-native-keychain@10.0.0`.
-- Legacy package: `react-native-secure-key-store@2.0.10`, retained temporarily for fallback and dual-write migration.
+- Legacy package: `react-native-secure-key-store@2.0.10`, retained temporarily for fallback reads and cleanup while existing installs migrate.
 - Runtime wrapper: `src/services/SecureStorageService.ts`.
 - Stored keys: `CONST.pin` and `CONST.transactionPassword`.
 - The transaction password is stored as `sha256(value).toString()`.
 - The current Android accessibility mode is `ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`.
-- Keychain is the primary write target; legacy secure-key-store dual-write is best-effort and should not block new PIN, transaction-password, or encrypted wallet writes.
+- Keychain is the only write target for new PIN, transaction-password, and encrypted wallet storage values.
 - Legacy fallback reads now return the legacy value even if a one-off migration write into Keychain fails.
-- Legacy removal readiness: not ready while dual-write and legacy fallback are still active.
+- Legacy removal readiness: not ready while legacy fallback reads are still active.
 
 ## Decision
 
 Do not remove `react-native-secure-key-store` as warning-only cleanup.
 
-This dependency protects app unlock, transaction-password behavior, and legacy wallet storage. The first migration branch must preserve the wrapper API, read legacy values, migrate them into Keychain, and dual-write new values. A later release can remove the legacy backend after migrated data has been validated.
+This dependency protects app unlock, transaction-password behavior, and legacy wallet storage for existing installs. The migration path must preserve the wrapper API, read legacy values, migrate them into Keychain, and avoid writing new values back into the legacy backend. A later release can remove the legacy backend after migrated data has been validated without fallback reads.
 
-`secure-storage:migration:audit` must keep reporting `Legacy secure-storage removal ready: no` until a separate release-validation branch proves migrated PIN and transaction-password data without the legacy backend.
+`secure-storage:migration:audit` must keep reporting `Legacy secure-storage removal ready: no` until a separate release-validation branch proves migrated PIN, transaction-password, and encrypted wallet data without the legacy backend.
 
 Branch: `feature/bem-37-secure-storage-keychain-migration`
 

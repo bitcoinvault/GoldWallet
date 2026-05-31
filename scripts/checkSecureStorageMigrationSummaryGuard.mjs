@@ -10,11 +10,13 @@ const validSummary = [
   'Stores PIN: yes',
   'Stores transaction password hash: yes',
   'Keychain primary write: yes',
+  'Legacy secure-storage writes disabled: yes',
+  'Legacy secure-storage fallback reads active: yes',
   'Focused validation script: test:storage-network:focused',
   'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
   'Warning baseline mentions secure-key-store: yes',
   'Legacy secure-storage removal ready: no',
-  'Legacy secure-storage removal blocker: dual-write and legacy fallback are still active; remove react-native-secure-key-store only after a release validates migrated PIN and transaction-password data',
+  'Legacy secure-storage removal blocker: legacy fallback reads are still active; remove react-native-secure-key-store only after a release validates migrated PIN, transaction-password, and encrypted wallet data without the fallback backend',
   'Secure-storage migration baseline stable: yes',
   'Warnings: 0',
   'Errors: 0',
@@ -69,6 +71,16 @@ assertRejected(
   'Keychain primary write must be yes',
 );
 assertRejected(
+  'Legacy secure-storage writes disabled fixture',
+  validSummary.replace('Legacy secure-storage writes disabled: yes', 'Legacy secure-storage writes disabled: no'),
+  'Legacy secure-storage writes disabled must be yes',
+);
+assertRejected(
+  'Legacy secure-storage fallback reads active fixture',
+  validSummary.replace('Legacy secure-storage fallback reads active: yes', 'Legacy secure-storage fallback reads active: no'),
+  'Legacy secure-storage fallback reads active must be yes',
+);
+assertRejected(
   'Legacy secure-storage removal ready fixture',
   validSummary.replace('Legacy secure-storage removal ready: no', 'Legacy secure-storage removal ready: yes'),
   'Legacy secure-storage removal must stay blocked',
@@ -76,10 +88,10 @@ assertRejected(
 assertRejected(
   'Legacy secure-storage removal blocker fixture',
   validSummary.replace(
-    'Legacy secure-storage removal blocker: dual-write and legacy fallback are still active; remove react-native-secure-key-store only after a release validates migrated PIN and transaction-password data',
+    'Legacy secure-storage removal blocker: legacy fallback reads are still active; remove react-native-secure-key-store only after a release validates migrated PIN, transaction-password, and encrypted wallet data without the fallback backend',
     'Legacy secure-storage removal blocker: none',
   ),
-  'active dual-write and legacy fallback window',
+  'active legacy fallback reads',
 );
 assertRejected('Missing header fixture', validSummary.replace('Secure-storage migration audit', 'Bad header'), 'summary header');
 

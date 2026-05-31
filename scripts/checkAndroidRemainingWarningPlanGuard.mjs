@@ -3,10 +3,10 @@ import { getRemainingWarningPlanErrors } from './androidRemainingWarningPlanGuar
 const validPlan = [
   '| Package | Warning source | Follow-up |',
   '| --- | --- | --- |',
-  '| `react-native-secure-key-store` | `node_modules/react-native-secure-key-store/android/build.gradle:46` | dedicated secure-storage removal after dual-write migration |',
+  '| `react-native-secure-key-store` | `node_modules/react-native-secure-key-store/android/build.gradle:46` | dedicated secure-storage removal after legacy fallback migration validation |',
 ].join('\n');
 
-const invalidPlan = validPlan.replace('dedicated secure-storage removal after dual-write migration', 'generic cleanup');
+const invalidPlan = validPlan.replace('dedicated secure-storage removal after legacy fallback migration validation', 'generic cleanup');
 const resolvedPackagePlan = `${validPlan}\n| \`react-native-vector-icons\` | \`node_modules/react-native-vector-icons/android/build.gradle:41\` | already resolved |`;
 
 const assertAccepted = (label, plan) => {
@@ -30,7 +30,7 @@ const assertRejected = (label, plan, expectedError) => {
 };
 
 assertAccepted('Valid remaining warning plan', validPlan);
-assertRejected('Missing follow-up plan', invalidPlan, 'dedicated secure-storage removal after dual-write migration');
+assertRejected('Missing follow-up plan', invalidPlan, 'dedicated secure-storage removal after legacy fallback migration validation');
 assertRejected('Resolved package listed as remaining', resolvedPackagePlan, 'react-native-vector-icons');
 
 console.log('Android remaining warning plan guard checks are valid.');

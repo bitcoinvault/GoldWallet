@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
-import RNSecureKeyStore, { ACCESSIBLE as LEGACY_ACCESSIBLE } from 'react-native-secure-key-store';
+import RNSecureKeyStore from 'react-native-secure-key-store';
 
 import {
   HDSegwitP2SHWallet,
@@ -22,9 +22,6 @@ const secureStorageOptions = key => ({
   service: key,
   accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
 });
-const legacySecureStorageOptions = {
-  accessible: LEGACY_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-};
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -50,11 +47,7 @@ export class AppStorage {
    */
   setItem(key, value) {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return Keychain.setGenericPassword(key, value, secureStorageOptions(key)).then(result =>
-        RNSecureKeyStore.set(key, value, legacySecureStorageOptions)
-          .then(() => result)
-          .catch(() => result),
-      );
+      return Keychain.setGenericPassword(key, value, secureStorageOptions(key));
     } else {
       return AsyncStorage.setItem(key, value);
     }

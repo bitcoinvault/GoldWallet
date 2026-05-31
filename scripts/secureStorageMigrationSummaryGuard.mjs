@@ -32,6 +32,8 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
   const storesPin = getLineValue(summary, 'Stores PIN');
   const storesTransactionPassword = getLineValue(summary, 'Stores transaction password hash');
   const keychainPrimaryWrite = getLineValue(summary, 'Keychain primary write');
+  const legacyWritesDisabled = getLineValue(summary, 'Legacy secure-storage writes disabled');
+  const legacyFallbackReadsActive = getLineValue(summary, 'Legacy secure-storage fallback reads active');
   const focusedValidation = getLineValue(summary, 'Focused validation script');
   const focusedValidationCommand = getLineValue(summary, 'Focused validation command');
   const warningBaselineMentionsSecureStorage = getLineValue(summary, 'Warning baseline mentions secure-key-store');
@@ -66,6 +68,8 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
     ['Stores PIN', storesPin],
     ['Stores transaction password hash', storesTransactionPassword],
     ['Keychain primary write', keychainPrimaryWrite],
+    ['Legacy secure-storage writes disabled', legacyWritesDisabled],
+    ['Legacy secure-storage fallback reads active', legacyFallbackReadsActive],
     ['Warning baseline mentions secure-key-store', warningBaselineMentionsSecureStorage],
     ['Legacy secure-storage removal ready', legacyRemovalReady],
     ['Secure-storage migration baseline stable', baselineStable],
@@ -91,15 +95,23 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
   }
 
   if (legacyRemovalReady !== 'no') {
-    errors.push(`Legacy secure-storage removal must stay blocked during the dual-write fallback window. Received: ${legacyRemovalReady || 'missing'}`);
+    errors.push(`Legacy secure-storage removal must stay blocked while fallback reads are active. Received: ${legacyRemovalReady || 'missing'}`);
   }
 
   if (keychainPrimaryWrite !== 'yes') {
-    errors.push(`Keychain primary write must be yes while legacy secure-storage is a best-effort dual-write. Received: ${keychainPrimaryWrite || 'missing'}`);
+    errors.push(`Keychain primary write must be yes while legacy secure-storage writes are disabled. Received: ${keychainPrimaryWrite || 'missing'}`);
   }
 
-  if (!legacyRemovalBlocker.includes('dual-write and legacy fallback are still active')) {
-    errors.push('Legacy secure-storage removal blocker must mention the active dual-write and legacy fallback window');
+  if (legacyWritesDisabled !== 'yes') {
+    errors.push(`Legacy secure-storage writes disabled must be yes. Received: ${legacyWritesDisabled || 'missing'}`);
+  }
+
+  if (legacyFallbackReadsActive !== 'yes') {
+    errors.push(`Legacy secure-storage fallback reads active must be yes until removal validation is complete. Received: ${legacyFallbackReadsActive || 'missing'}`);
+  }
+
+  if (!legacyRemovalBlocker.includes('legacy fallback reads are still active')) {
+    errors.push('Legacy secure-storage removal blocker must mention the active legacy fallback reads');
   }
 
   if (baselineStable === 'yes' && !requiredAction.includes('none; secure-storage migration baseline is stable')) {
