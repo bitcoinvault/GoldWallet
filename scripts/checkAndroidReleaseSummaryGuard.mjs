@@ -140,6 +140,14 @@ assertRejected(
   'SHA-256',
 );
 assertRejected(
+  'Mismatched APK sha fixture',
+  validSummary.replace(
+    'Variant prod Release APK sha256: 9e2c2dd93a1e7dc43022a3ef8cd707b485c693928e7a918b92914abc957ebfe7',
+    'Variant prod Release APK sha256: 0000000000000000000000000000000000000000000000000000000000000000',
+  ),
+  'sha256 does not match file digest',
+);
+assertRejected(
   'Sentry upload claimed fixture',
   validSummary.replace('Sentry release upload validation: not claimed', 'Sentry release upload validation: claimed'),
   'not claimed',
