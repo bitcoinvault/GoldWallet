@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
@@ -10,9 +10,10 @@ const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'rn-target-snapshot-current-summary.txt');
 
 const npmView = (pkg, field) =>
-  execSync(`npm view ${pkg} ${field} --json`, {
+  execFileSync('npm', ['view', pkg, field, '--json'], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    shell: process.platform === 'win32',
     windowsHide: true,
   }).trim();
 
@@ -22,11 +23,15 @@ const readString = (pkg, field) => {
   return typeof parsed === 'string' ? parsed : '';
 };
 const readObject = (pkg, field) => parseJson(npmView(pkg, field));
+const classifyReactNativeChannel = version => (version && version.includes('-') ? 'prerelease' : 'stable');
 
 export const getReactNativeTargetSnapshotCurrentIssues = ({ latest, next, reactPeer, nodeEngine }, snapshot = expectedReactNativeTargetSnapshot) => {
+  const nextChannel = classifyReactNativeChannel(next);
   const checks = [
     ['npm latest react-native', latest, snapshot.npmLatestReactNative],
     ['npm next react-native', next, snapshot.npmNextReactNative],
+    ['npm next channel classification', nextChannel, snapshot.npmNextChannel],
+    ['default React Native upgrade channel', snapshot.defaultUpgradeChannel, 'latest'],
     [`react-native@${snapshot.npmLatestReactNative} React peer`, reactPeer, snapshot.targetReactPeer],
     [`react-native@${snapshot.npmLatestReactNative} Node engine`, nodeEngine, snapshot.targetNodeEngine],
   ];
@@ -34,6 +39,10 @@ export const getReactNativeTargetSnapshotCurrentIssues = ({ latest, next, reactP
   const errors = checks
     .filter(([, actual, expected]) => actual !== expected)
     .map(([label, actual, expected]) => `${label} is ${actual || '<missing>'}; snapshot expects ${expected}`);
+
+  if (next && latest && next === latest) {
+    errors.push(`npm next react-native matches latest (${latest}); refresh the target policy before treating next as planning-only`);
+  }
 
   return { checks, errors };
 };

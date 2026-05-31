@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.286 - React Native target channel guard
+
+- Branch: `feature/bem-37-286-rn-target-channel-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Classify the recorded npm `next` React Native line as prerelease planning evidence instead of the default wallet upgrade target.
+- Keep npm `latest` as the guarded default React Native target channel for foundation branches.
+- Harden the live npm checker and summary guards so a stable `next` line, `next == latest`, or changed channel policy forces a target-policy refresh before another RN baseline branch.
+- Use `execFileSync` for npm metadata reads so the checker does not build shell command strings.
+
+Findings:
+
+- Live npm metadata still reports `react-native@latest` as `0.85.3`.
+- Live npm metadata still reports `react-native@next` as `0.86.0-rc.2`, classified as `prerelease`.
+- The current default target remains npm `latest`; RN `next` remains planning evidence unless a dedicated branch accepts prerelease risk.
+
+Validation:
+
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.285 - iOS masked-view removed pod readiness
 
 - Branch: `feature/bem-37-285-ios-masked-view-pod-readiness`
