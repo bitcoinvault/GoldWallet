@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.256 - Sentry release prerequisite readiness
+
+- Branch: `feature/bem-37-256-sentry-release-prereq-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Sentry release prerequisite audit with per-file readiness for `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties`.
+- Validate that `create-sentry-properties.sh` still requires `SENTRY_AUTH_TOKEN`, writes all three required properties paths, and keeps the expected non-secret static defaults.
+- Strengthen the summary guard so it rejects stale readiness counts, missing generator coverage, and accidental token assignment output.
+- Refresh Sentry release/source-map and release-services documentation for the new readiness evidence.
+
+Findings:
+
+- Sentry release integration remains wired for Android Gradle and iOS source-map/dSYM phases.
+- `@sentry/react-native` remains on latest checked `8.13.0`.
+- Local Sentry release source-map validation is still not ready because the three required `sentry.properties` files are missing and `SENTRY_AUTH_TOKEN` is unavailable in the current shell.
+- The local generator script is present and covers root, Android, and iOS properties files without printing secret values.
+
+Validation:
+
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.255 - CodePush env readiness audit
 
 - Branch: `feature/bem-37-255-codepush-env-readiness-audit`

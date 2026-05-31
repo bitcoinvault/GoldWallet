@@ -12,10 +12,17 @@ const notReadySummary = [
   `Missing files: ${requiredSentryPropertiesFiles.length}`,
   ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}`),
   'Invalid files: 0',
+  `Properties file readiness entries: ${requiredSentryPropertiesFiles.length}`,
+  ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}: missing`),
+  'Ready properties files: 0',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
+  'create-sentry-properties.sh writes root properties: yes',
+  'create-sentry-properties.sh writes Android properties: yes',
+  'create-sentry-properties.sh writes iOS properties: yes',
+  'create-sentry-properties.sh static defaults valid: yes',
   'SENTRY_AUTH_TOKEN available in current shell: no',
-  'Required action: generate sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
+  'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
   '',
 ].join('\n');
 
@@ -29,8 +36,15 @@ const readySummary = [
   'sentry.properties files present: yes',
   'Missing files: 0',
   'Invalid files: 0',
+  `Properties file readiness entries: ${requiredSentryPropertiesFiles.length}`,
+  ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}: ready`),
+  `Ready properties files: ${requiredSentryPropertiesFiles.length}`,
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
+  'create-sentry-properties.sh writes root properties: yes',
+  'create-sentry-properties.sh writes Android properties: yes',
+  'create-sentry-properties.sh writes iOS properties: yes',
+  'create-sentry-properties.sh static defaults valid: yes',
   'SENTRY_AUTH_TOKEN available in current shell: yes',
   'Required action: none; release source-map prerequisites are present locally.',
   '',
@@ -72,12 +86,27 @@ assertRejected(
 );
 assertRejected('Bad missing count fixture', notReadySummary.replace(`Missing files: ${requiredSentryPropertiesFiles.length}`, 'Missing files: 0'), 'Missing files count');
 assertRejected(
+  'Bad readiness entries count fixture',
+  notReadySummary.replace(`Properties file readiness entries: ${requiredSentryPropertiesFiles.length}`, 'Properties file readiness entries: 0'),
+  'Properties file readiness entries count',
+);
+assertRejected(
+  'Bad ready properties count fixture',
+  readySummary.replace(`Ready properties files: ${requiredSentryPropertiesFiles.length}`, 'Ready properties files: 0'),
+  'Ready properties files count',
+);
+assertRejected(
+  'Broken create script target fixture',
+  notReadySummary.replace('create-sentry-properties.sh writes Android properties: yes', 'create-sentry-properties.sh writes Android properties: no'),
+  'Present create-sentry-properties.sh',
+);
+assertRejected(
   'Missing required action fixture',
   notReadySummary.replace(
-    'Required action: generate sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
+    'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
     'Required action: generate sentry.properties before claiming Sentry release validation.',
   ),
-  'SENTRY_AUTH_TOKEN required action',
+  'SENTRY_AUTH_TOKEN and all sentry.properties paths',
 );
 assertRejected(
   'Secret assignment fixture',

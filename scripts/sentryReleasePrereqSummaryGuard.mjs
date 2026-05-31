@@ -35,13 +35,20 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const filesPresent = getLineValue(summary, 'sentry.properties files present');
   const missingFiles = getLineValue(summary, 'Missing files');
   const invalidFiles = getLineValue(summary, 'Invalid files');
+  const readinessEntries = getLineValue(summary, 'Properties file readiness entries');
+  const readyPropertiesFiles = getLineValue(summary, 'Ready properties files');
   const createScriptPresent = getLineValue(summary, 'create-sentry-properties.sh present');
   const createScriptUsesToken = getLineValue(summary, 'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN');
+  const createScriptWritesRootProperties = getLineValue(summary, 'create-sentry-properties.sh writes root properties');
+  const createScriptWritesAndroidProperties = getLineValue(summary, 'create-sentry-properties.sh writes Android properties');
+  const createScriptWritesIosProperties = getLineValue(summary, 'create-sentry-properties.sh writes iOS properties');
+  const createScriptStaticDefaultsValid = getLineValue(summary, 'create-sentry-properties.sh static defaults valid');
   const envHasToken = getLineValue(summary, 'SENTRY_AUTH_TOKEN available in current shell');
   const requiredAction = getLineValue(summary, 'Required action');
   const releaseIntegrationErrorLines = getBulletLinesAfter(summary, 'Sentry release integration errors');
   const missingFileLines = getBulletLinesAfter(summary, 'Missing files');
   const invalidFileLines = getBulletLinesAfter(summary, 'Invalid files');
+  const readinessLines = getBulletLinesAfter(summary, 'Properties file readiness entries');
 
   if (/(auth\.token|SENTRY_AUTH_TOKEN)\s*=/.test(summary)) {
     errors.push('summary must not print Sentry token assignments');
@@ -93,7 +100,27 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push(`Invalid files count is ${invalidFiles}, but listed ${invalidFileLines.length}`);
   }
 
-  [createScriptPresent, createScriptUsesToken, envHasToken].forEach(value => {
+  if (!/^\d+$/.test(readinessEntries)) {
+    errors.push(`Properties file readiness entries must be a non-negative integer. Received: ${readinessEntries || 'missing'}`);
+  } else if (Number(readinessEntries) !== readinessLines.length) {
+    errors.push(`Properties file readiness entries count is ${readinessEntries}, but listed ${readinessLines.length}`);
+  } else if (Number(readinessEntries) !== requiredSentryPropertiesFiles.length) {
+    errors.push(`Properties file readiness entries must cover ${requiredSentryPropertiesFiles.length} required sentry.properties files`);
+  }
+
+  if (!/^\d+$/.test(readyPropertiesFiles)) {
+    errors.push(`Ready properties files must be a non-negative integer. Received: ${readyPropertiesFiles || 'missing'}`);
+  }
+
+  [
+    createScriptPresent,
+    createScriptUsesToken,
+    createScriptWritesRootProperties,
+    createScriptWritesAndroidProperties,
+    createScriptWritesIosProperties,
+    createScriptStaticDefaultsValid,
+    envHasToken,
+  ].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
       errors.push(`Boolean summary values must be yes or no. Received: ${value || 'missing'}`);
     }
@@ -105,15 +132,67 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     }
   });
 
-  if (
-    readiness === 'ready' &&
-    (releaseIntegrationWired !== 'yes' || filesPresent !== 'yes' || missingFiles !== '0' || invalidFiles !== '0')
-  ) {
-    errors.push('Ready summary must have wired Sentry release integration, present properties files, 0 missing files, and 0 invalid files');
+  const readinessByFile = new Map();
+  readinessLines.forEach(line => {
+    const match = line.match(/^([^:]+): (ready|missing|invalid)$/);
+
+    if (!match) {
+      errors.push(`Invalid properties readiness line: ${line}`);
+      return;
+    }
+
+    const [, relativePath, status] = match;
+
+    if (!requiredSentryPropertiesFiles.includes(relativePath)) {
+      errors.push(`Unexpected sentry.properties readiness file listed: ${relativePath}`);
+      return;
+    }
+
+    readinessByFile.set(relativePath, status);
+  });
+
+  requiredSentryPropertiesFiles.forEach(relativePath => {
+    if (!readinessByFile.has(relativePath)) {
+      errors.push(`Missing sentry.properties readiness entry: ${relativePath}`);
+    }
+  });
+
+  if (/^\d+$/.test(readyPropertiesFiles)) {
+    const listedReadyFiles = [...readinessByFile.values()].filter(status => status === 'ready').length;
+
+    if (Number(readyPropertiesFiles) !== listedReadyFiles) {
+      errors.push(`Ready properties files count is ${readyPropertiesFiles}, but listed ${listedReadyFiles}`);
+    }
   }
 
-  if (readiness === 'not ready' && !requiredAction.includes('SENTRY_AUTH_TOKEN')) {
-    errors.push('Not ready summary must include the SENTRY_AUTH_TOKEN required action');
+  if (
+    readiness === 'ready' &&
+    (releaseIntegrationWired !== 'yes' ||
+      filesPresent !== 'yes' ||
+      missingFiles !== '0' ||
+      invalidFiles !== '0' ||
+      readyPropertiesFiles !== String(requiredSentryPropertiesFiles.length))
+  ) {
+    errors.push('Ready summary must have wired Sentry release integration, present properties files, 0 missing files, 0 invalid files, and all properties files ready');
+  }
+
+  if (
+    createScriptPresent === 'yes' &&
+    (createScriptUsesToken !== 'yes' ||
+      createScriptWritesRootProperties !== 'yes' ||
+      createScriptWritesAndroidProperties !== 'yes' ||
+      createScriptWritesIosProperties !== 'yes' ||
+      createScriptStaticDefaultsValid !== 'yes')
+  ) {
+    errors.push('Present create-sentry-properties.sh must require SENTRY_AUTH_TOKEN, write root/android/iOS properties, and keep expected static defaults');
+  }
+
+  if (
+    readiness === 'not ready' &&
+    (!requiredAction.includes('SENTRY_AUTH_TOKEN') ||
+      !requiredSentryPropertiesFiles.every(relativePath => requiredAction.includes(relativePath)))
+  ) {
+    errors.push('Not ready summary must include SENTRY_AUTH_TOKEN and all sentry.properties paths in the required action');
   }
 
   return errors;

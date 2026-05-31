@@ -96,6 +96,7 @@ Results:
 - Firebase `24.0.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
 - RN Firebase `24.0.0` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
 - Sentry release source-map validation is not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
+- The Sentry prerequisite audit now records per-file readiness for the root, Android, and iOS Sentry properties files and validates that `create-sentry-properties.sh` writes all three expected paths with the expected non-secret static defaults.
 - Sentry `8.13.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.85.3` baseline; release artifact upload still needs credentials before it can be claimed as fully validated.
 - None of these audits print secret values.
 - Do not generate placeholder Sentry or CodePush secrets; missing values remain explicit readiness blockers until provided by environment/config.
@@ -155,8 +156,8 @@ Shared env/config:
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.85.3` warning audit no longer reports Sentry `execResult`.
 - `@sentry/react-native` is on latest checked `8.13.0` after the Sentry SDK upgrade; Android debug build and smoke validation are required for the branch, while source-map/dSYM upload remains blocked locally until Sentry credentials/properties are available.
-- `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties` files and `SENTRY_AUTH_TOKEN` are available before Sentry release/source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
-- `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary.
+- `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available before Sentry release/source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
+- `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary, including per-file readiness counts, generator output coverage, and secret-safe output.
 - `corepack yarn sentry:android-warning:audit` confirms the current Sentry Android Gradle/source-map wiring remains tracked before a dedicated Sentry release/source-map cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
 - Push notification changes need Android 13+ permission checks, Firebase Messaging token checks, and iOS permission/token validation.
@@ -203,7 +204,7 @@ Release-service-specific validation:
 - Crashlytics: confirm Android Crashlytics Gradle task configuration and iOS pod/build integration; start with `corepack yarn firebase:release-services:audit` and `corepack yarn firebase:release-services:check-summary`.
 - Analytics: confirm app startup does not crash and analytics package initialization remains compatible; start with `corepack yarn firebase:release-services:audit` and `corepack yarn firebase:release-services:check-summary`.
 - CodePush: validate a non-dev build path because CodePush is disabled under `__DEV__`; start with `corepack yarn codepush:release:path-audit` and `corepack yarn codepush:release:path-check-summary`.
-- Sentry: start with `corepack yarn sentry:android-warning:audit`, `corepack yarn sentry:android-warning:check-summary`, and `corepack yarn sentry:release:prereq-audit`, then validate Android release bundling/source maps and iOS dSYM/source-map upload path.
+- Sentry: start with `corepack yarn sentry:android-warning:audit`, `corepack yarn sentry:android-warning:check-summary`, `corepack yarn sentry:release:prereq-audit`, and `corepack yarn sentry:release:prereq-check-summary`, then validate Android release bundling/source maps and iOS dSYM/source-map upload path after the three required properties files and `SENTRY_AUTH_TOKEN` are present.
 - iOS push: start with `corepack yarn push-notification:bridge-audit` and `corepack yarn push-notification:bridge-check-summary`, then validate APNs registration, token, foreground/background delivery, badge reset, and tap-through behavior on a Mac runner/device.
 - Secrets: do not guess `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, CodePush deployment keys, or Firebase config values. If missing locally, record the exact missing variable/file.
 
