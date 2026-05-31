@@ -19,6 +19,7 @@ const notReadySummary = [
   'CodePush package current: yes',
   'CodePush package versions aligned: yes',
   'CodePush runtime gate present: yes',
+  'CodePush native bundle gate present: yes',
   'CodePush runtime enabled by default: no',
   'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
   'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
@@ -65,6 +66,7 @@ const readySummary = [
   'CodePush package current: yes',
   'CodePush package versions aligned: yes',
   'CodePush runtime gate present: yes',
+  'CodePush native bundle gate present: yes',
   'CodePush runtime enabled by default: no',
   'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
   'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
@@ -154,6 +156,11 @@ assertRejected(
   'Missing CodePush runtime gate fixture',
   notReadySummary.replace('CodePush runtime gate present: yes', 'CodePush runtime gate present: no'),
   'CodePush runtime gate must be present',
+);
+assertRejected(
+  'Missing CodePush native bundle gate fixture',
+  notReadySummary.replace('CodePush native bundle gate present: yes', 'CodePush native bundle gate present: no'),
+  'CodePush native bundle gate must be present',
 );
 assertRejected(
   'CodePush runtime enabled by default fixture',

@@ -39,6 +39,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const packageCurrent = getLineValue(summary, 'CodePush package current');
   const packageVersionsAligned = getLineValue(summary, 'CodePush package versions aligned');
   const runtimeGatePresent = getLineValue(summary, 'CodePush runtime gate present');
+  const nativeBundleGatePresent = getLineValue(summary, 'CodePush native bundle gate present');
   const runtimeEnabledByDefault = getLineValue(summary, 'CodePush runtime enabled by default');
   const upstreamRepository = getLineValue(summary, 'CodePush upstream repository');
   const npmRepository = getLineValue(summary, 'CodePush npm repository');
@@ -79,6 +80,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     packageCurrent,
     packageVersionsAligned,
     runtimeGatePresent,
+    nativeBundleGatePresent,
     runtimeEnabledByDefault,
     upstreamRetired,
     upstreamArchived,
@@ -123,6 +125,10 @@ export const getCodePushReleasePathSummaryErrors = summary => {
 
   if (runtimeGatePresent !== 'yes') {
     errors.push(`CodePush runtime gate must be present. Received: ${runtimeGatePresent || 'missing'}`);
+  }
+
+  if (nativeBundleGatePresent !== 'yes') {
+    errors.push(`CodePush native bundle gate must be present. Received: ${nativeBundleGatePresent || 'missing'}`);
   }
 
   if (runtimeEnabledByDefault !== 'no') {

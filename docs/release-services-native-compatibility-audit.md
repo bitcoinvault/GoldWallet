@@ -23,6 +23,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 - `App.tsx` initializes Sentry in non-dev builds and wraps the app with `Sentry.withTouchEventBoundary`.
 - `App.tsx` keeps CodePush wiring for non-dev builds with `ON_APP_RESUME`, immediate install mode, deployment keys from `react-native-config`, and an explicit `CODEPUSH_ENABLED=true` runtime gate.
+- Android `MainApplication.java` and iOS `AppDelegate.m` resolve JS bundles through CodePush only when `CODEPUSH_ENABLED=true` and the platform deployment key is non-empty.
 - `Main.tsx` reports boot splash AppState errors to Sentry.
 - `logger/index.ts` is part of the guarded Sentry runtime import surface.
 - `src/services/NotificationServices.tsx` requests Android 13+ `POST_NOTIFICATIONS`, requests Firebase Messaging permission, and stores the FCM token in Redux.
@@ -96,7 +97,7 @@ Results:
 - CodePush upstream retirement readiness now records App Center CodePush retirement on 2025-03-31, archived Microsoft upstream state, lack of upstream New Architecture support, Android `newArchEnabled=true`, and `CodePush migration required: yes`.
 - CodePush release-path env readiness is now recorded per env file without printing deployment-key values.
 - CodePush release-path package readiness now verifies that `package.json` and the installed `node_modules/react-native-code-push` package agree before release-path validation is considered usable.
-- CodePush runtime startup is gated off by default; `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key is required before the retired OTA client is mounted in non-dev builds.
+- CodePush runtime startup and native bundle resolution are gated off by default; `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key is required before the retired OTA client is mounted or used for bundle resolution in non-dev builds.
 - CodePush update validation is ready from env-key perspective for `.env.stage.mainnet` and `.env.prod.mainnet`.
 - Full CodePush release update validation is not ready locally because `.env.dev.testnet` has blank `CODEPUSH_DEPLOYMENT_KEY_ANDROID` and `CODEPUSH_DEPLOYMENT_KEY_IOS`.
 - Beta CodePush update strategy is still unconfirmed because `.env.beta.testnet` and `.env.beta.mainnet` do not define CodePush deployment keys.
@@ -137,7 +138,7 @@ Android:
 - `android/app/build.gradle` applies `com.google.firebase.crashlytics`, CodePush Gradle script, Sentry Gradle script, and `com.google.gms.google-services`.
 - Android Firebase package versions are now supplied by React Native Firebase `24.0.0` and its default Firebase BoM `34.10.0`; the old manual `firebase-core:16.0.3` and app-level Firebase BoM `28.2.0` entries were removed to avoid duplicate measurement classes.
 - Android Firebase config files exist under flavor-specific `android/app/src/*/google-services.json`.
-- `MainApplication.java` uses CodePush to resolve the JS bundle file.
+- `MainApplication.java` uses CodePush to resolve the JS bundle file only when `CODEPUSH_ENABLED=true` and the Android deployment key is non-empty.
 - `android/app/src/main/res/values/strings.xml` has the native `CodePushDeploymentKey` placeholder.
 
 iOS:
@@ -145,7 +146,7 @@ iOS:
 - Firebase plist files exist for dev, stage, prod, and default variants.
 - Xcode project settings reference flavor-specific `FIREBASE_CONFIG_FILE` values.
 - Xcode project has Sentry React Native bundling and dSYM upload build phases.
-- iOS Info.plist uses `$(CODEPUSH_DEPLOYMENT_KEY_IOS)`.
+- iOS Info.plist uses `$(CODEPUSH_DEPLOYMENT_KEY_IOS)` and `AppDelegate.m` uses CodePush bundle URLs only when `CODEPUSH_ENABLED=true` and the iOS deployment key is non-empty.
 - The main, Dev, and Stage iOS Info.plist files declare `UIBackgroundModes` with `remote-notification`; the app delegate assigns `UNUserNotificationCenter` delegate for foreground presentation callbacks.
 - `docs/ios-release-config-compatibility-audit.md` records the current iOS scheme-to-env/Firebase plist mapping before release-service or rebranding changes.
 
@@ -162,7 +163,7 @@ Shared env/config:
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
 - `react-native-code-push` is on latest checked `9.0.1` after the RN `0.85.3` proof, with guarded release bundle alias compatibility for RN Gradle task naming. Because App Center CodePush is retired and the Microsoft upstream is archived, this is now a migration/removal risk rather than a normal dependency update target.
-- `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, explicit runtime gate, Android bundle resolution, iOS deployment-key placeholders, referenced env keys, local package/install version alignment, latest local Android `dev`/`stage`/`prod` release summary evidence, and unclaimed update-validation status without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
+- `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, explicit JS/native runtime gates, Android bundle resolution, iOS deployment-key placeholders, referenced env keys, local package/install version alignment, latest local Android `dev`/`stage`/`prod` release summary evidence, and unclaimed update-validation status without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.85.3` warning audit no longer reports Sentry `execResult`.
 - `@sentry/react-native` is on latest checked `8.13.0` after the Sentry SDK upgrade; Android debug build and smoke validation are required for the branch, while source-map/dSYM upload remains blocked locally until Sentry credentials/properties are available.
