@@ -84,6 +84,8 @@ Beta release evidence refresh: on 2026-05-31, `feature/bem-37-261-android-beta-r
 
 `check:firebase-usage-scope` keeps React Native Firebase runtime usage isolated to notification handling and native integration isolated to the current Android Gradle/config files and iOS Firebase plist/Xcode wiring before a Firebase family upgrade.
 
+`firebase:release-services:audit` records Firebase package-family alignment, Android config files, iOS plist files, Messaging runtime wiring, whether the latest local Android release summary artifact is present and valid, and whether Firebase runtime delivery validation is claimed. The expected local state is that release APK/bundle generation can be proven by Android release summaries while real FCM delivery, Crashlytics upload, and analytics behavior remain unclaimed until tested with the required release/runtime environment.
+
 `check:push-notification-ios-usage-scope` keeps the iOS push notification bridge isolated to the current badge/notification runtime file and AppDelegate/background-mode wiring before changing `@react-native-community/push-notification-ios`.
 
 `check:release-service-env-keys-guard` verifies the env-key guard fixtures. `check:release-service-env-keys` verifies that Android `envConfigFiles` and iOS schemes reference env files with the release-service keys used by `react-native-config`. It checks key presence only and does not print secret values. Beta env files currently do not require CodePush deployment keys until the beta release/update strategy is confirmed.

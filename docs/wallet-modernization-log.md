@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.264 - Firebase release readiness evidence refresh
+
+- Branch: `feature/bem-37-264-firebase-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live npm metadata for the React Native Firebase package family after the Android release proof branches.
+- Extend the Firebase release-services audit so it records whether the latest local Android release summary artifact is present and valid.
+- Keep runtime delivery status explicit: Firebase package/config wiring is present locally, but FCM/Crashlytics/Analytics delivery validation is not claimed from static checks.
+
+Findings:
+
+- `npm view @react-native-firebase/* version peerDependencies dependencies engines --json` reports latest `24.0.0` for app, analytics, crashlytics, and messaging, matching the installed package family.
+- Firebase release-services wiring remains valid for package alignment, Android Gradle/config files, iOS plist files, and Messaging runtime paths.
+- The current local Firebase summary sees a valid Android release summary artifact for `beta`, but runtime delivery remains unclaimed until real release/runtime FCM, Crashlytics, and analytics behavior is tested.
+
+Validation:
+
+- `npm view @react-native-firebase/app version peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/analytics version peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/crashlytics version peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/messaging version peerDependencies dependencies engines --json`
+- `corepack yarn check:firebase-release-services-summary-guard`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn check:firebase-usage-scope`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.263 - CodePush release readiness evidence refresh
 
 - Branch: `feature/bem-37-263-codepush-release-readiness-refresh`

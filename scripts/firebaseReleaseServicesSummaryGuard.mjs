@@ -28,9 +28,15 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
   const generatedAt = getLineValue(summary, 'Generated at');
   const packageVersionSet = getLineValue(summary, 'React Native Firebase package version set');
   const wiringValid = getLineValue(summary, 'Firebase release-services wiring valid');
+  const androidReleaseSummaryPresent = getLineValue(summary, 'Android release summary present');
+  const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
+  const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
+  const androidReleaseSummaryErrorCount = getLineValue(summary, 'Android release summary errors');
+  const firebaseRuntimeDeliveryValidation = getLineValue(summary, 'Firebase runtime delivery validation');
   const warningCount = getLineValue(summary, 'Warnings');
   const wiringErrorCount = getLineValue(summary, 'Wiring errors');
   const requiredAction = getLineValue(summary, 'Required action');
+  const androidReleaseSummaryErrorLines = getBulletLinesAfter(summary, 'Android release summary errors');
   const warningLines = getBulletLinesAfter(summary, 'Warnings');
   const wiringErrorLines = getBulletLinesAfter(summary, 'Wiring errors');
 
@@ -50,7 +56,26 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
     errors.push(`Firebase release-services wiring valid must be yes or no. Received: ${wiringValid || 'missing'}`);
   }
 
+  [androidReleaseSummaryPresent, androidReleaseSummaryValid].forEach(value => {
+    if (!['yes', 'no'].includes(value)) {
+      errors.push(`Boolean summary values must be yes or no. Received: ${value || 'missing'}`);
+    }
+  });
+
+  if (!androidReleaseSummaryVariants) {
+    errors.push('Android release summary variants line is missing');
+  }
+
+  if (androidReleaseSummaryPresent === 'no' && androidReleaseSummaryVariants !== 'none') {
+    errors.push('Missing Android release summary must report variants as none');
+  }
+
+  if (firebaseRuntimeDeliveryValidation !== 'not claimed') {
+    errors.push(`Firebase runtime delivery validation must be not claimed. Received: ${firebaseRuntimeDeliveryValidation || 'missing'}`);
+  }
+
   [
+    ['Android release summary errors', androidReleaseSummaryErrorCount, androidReleaseSummaryErrorLines.length],
     ['Warnings', warningCount, warningLines.length],
     ['Wiring errors', wiringErrorCount, wiringErrorLines.length],
   ].forEach(([label, value, listedCount]) => {
@@ -63,6 +88,10 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
 
   if (wiringValid === 'yes' && wiringErrorCount !== '0') {
     errors.push('Valid wiring summary must have 0 wiring errors');
+  }
+
+  if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryErrorCount !== '0') {
+    errors.push('Valid Android release summary must have 0 summary errors');
   }
 
   if (wiringValid === 'no' && !requiredAction.includes('Firebase package, Android, iOS, and Messaging wiring')) {
