@@ -45,6 +45,7 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   const podfileLockRefreshRequired = getLineValue(summary, 'Podfile.lock refresh required');
   const podfileLockDriftCount = getLineValue(summary, 'Podfile.lock drift issues');
   const xcodebuildVersion = getLineValue(summary, 'xcodebuild version');
+  const iosRuntimeDeliveryValidation = getLineValue(summary, 'iOS runtime delivery validation');
   const errorCount = getLineValue(summary, 'Errors');
   const warningCount = getLineValue(summary, 'Warnings');
   const requiredAction = getLineValue(summary, 'Required action');
@@ -117,6 +118,10 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
 
   if (!xcodebuildVersion) {
     errors.push('xcodebuild version line is missing');
+  }
+
+  if (iosRuntimeDeliveryValidation !== 'not claimed') {
+    errors.push(`iOS runtime delivery validation must be not claimed. Received: ${iosRuntimeDeliveryValidation || 'missing'}`);
   }
 
   if (!isNonNegativeInteger(errorCount) || Number(errorCount) !== 0) {

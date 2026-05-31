@@ -266,6 +266,7 @@ const formatSummary = (audit, generatedAt = new Date().toISOString()) => [
   `Podfile.lock drift issues: ${audit.podfileLockDriftIssues.length}`,
   ...audit.podfileLockDriftIssues.map(issue => `- ${issue}`),
   `xcodebuild version: ${audit.xcodebuildVersion || '<not available on this machine>'}`,
+  'iOS runtime delivery validation: not claimed',
   `Errors: ${audit.errors.length}`,
   ...audit.errors.map(error => `- ${error}`),
   `Warnings: ${audit.warnings.length}`,
