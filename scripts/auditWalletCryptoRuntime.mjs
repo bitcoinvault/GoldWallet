@@ -10,7 +10,7 @@ const packageJson = JSON.parse(read('package.json'));
 const require = createRequire(import.meta.url);
 
 const expectedDependencies = new Map([
-  ['bitcoinjs-lib', 'git+https://github.com/bitcoinvault/bitcoinjs-lib.git'],
+  ['bitcoinjs-lib', 'git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360'],
   ['bip39', '3.1.0'],
   ['bip32', '5.0.1'],
   ['coinselect', '3.1.13'],
