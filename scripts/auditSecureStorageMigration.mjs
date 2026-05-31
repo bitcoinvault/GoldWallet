@@ -59,6 +59,7 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'resetGenericPassword');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'RNSecureKeyStore.get');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'RNSecureKeyStore.set');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'Keychain is the primary backend; legacy dual-write should not block new writes.');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'sha256(value).toString()');
   requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-keychain'");
   requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-secure-key-store'");
@@ -68,6 +69,7 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'getGenericPassword');
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'RNSecureKeyStore.get');
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'RNSecureKeyStore.set');
+  requireSnippet(errors, 'class/app-storage.js', appStorage, 'catch(() => result)');
   requireSnippet(errors, 'authentication sagas', authSagas, 'CONST.pin');
   requireSnippet(errors, 'authentication sagas', authSagas, 'CONST.transactionPassword');
   requireSnippet(errors, 'UnlockTransaction.tsx', unlockTransaction, 'checkSecuredPassword(CONST.transactionPassword');
@@ -97,6 +99,7 @@ export const collectSecureStorageMigrationAudit = () => {
       secureStorageService.includes('sha256(value).toString()'),
     focusedValidation: 'test:storage-network:focused',
     focusedValidationCommand: scripts['test:storage-network:focused'] || '<missing>',
+    keychainPrimaryWrite: secureStorageService.includes('Keychain is the primary backend') && appStorage.includes('catch(() => result)'),
     warningBaselineMentionsSecureStorage: warningBaseline.includes('react-native-secure-key-store'),
     legacyRemovalReady: false,
     legacyRemovalBlocker:
@@ -117,6 +120,7 @@ export const formatSecureStorageMigrationSummary = (audit, generatedAt = new Dat
     `AppStorage secure-storage file: ${audit.appStorageFile}`,
     `Stores PIN: ${audit.storesPin ? 'yes' : 'no'}`,
     `Stores transaction password hash: ${audit.storesTransactionPassword ? 'yes' : 'no'}`,
+    `Keychain primary write: ${audit.keychainPrimaryWrite ? 'yes' : 'no'}`,
     `Focused validation script: ${audit.focusedValidation}`,
     `Focused validation command: ${audit.focusedValidationCommand}`,
     `Warning baseline mentions secure-key-store: ${audit.warningBaselineMentionsSecureStorage ? 'yes' : 'no'}`,

@@ -114,6 +114,20 @@ describe('unit - SecureStorageService', function () {
     });
   });
 
+  it('keeps keychain writes successful when the legacy dual-write fails', async function () {
+    mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
+    mockLegacySecureStore.set.mockRejectedValueOnce(new Error('legacy write unavailable'));
+
+    await expect(service.setSecuredValue('pin', '1234')).resolves.toEqual({ service: 'pin', storage: 'keychain' });
+    expect(mockSecureStore.setGenericPassword).toHaveBeenCalledWith('pin', '1234', {
+      service: 'pin',
+      accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+    });
+    expect(mockLegacySecureStore.set).toHaveBeenCalledWith('pin', '1234', {
+      accessible: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
+    });
+  });
+
   it('hashes encoded values before storing them', async function () {
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'transactionPassword', storage: 'keychain' });
     mockLegacySecureStore.set.mockResolvedValueOnce('ok');

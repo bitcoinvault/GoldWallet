@@ -191,6 +191,22 @@ it('Appstorage - React Native storage writes to legacy store and keychain', asyn
   });
 });
 
+it('Appstorage - React Native storage keeps keychain write when legacy dual-write fails', async () => {
+  setReactNativeNavigator();
+  mockKeychain.setGenericPassword.mockResolvedValueOnce({ service: 'data', storage: 'keychain' });
+  mockLegacySecureStore.set.mockRejectedValueOnce(new Error('legacy write unavailable'));
+  const Storage = new AppStorage();
+
+  await expect(Storage.setItem('data', 'wallet-json')).resolves.toEqual({ service: 'data', storage: 'keychain' });
+  expect(mockKeychain.setGenericPassword).toHaveBeenCalledWith('data', 'wallet-json', {
+    service: 'data',
+    accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+  });
+  expect(mockLegacySecureStore.set).toHaveBeenCalledWith('data', 'wallet-json', {
+    accessible: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
+  });
+});
+
 it('Appstorage - React Native storage reads keychain before legacy store', async () => {
   setReactNativeNavigator();
   mockKeychain.getGenericPassword.mockResolvedValueOnce({ password: 'wallet-json' });

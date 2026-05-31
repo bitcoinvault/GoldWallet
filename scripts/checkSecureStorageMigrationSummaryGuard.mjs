@@ -9,6 +9,7 @@ const validSummary = [
   'AppStorage secure-storage file: class/app-storage.js',
   'Stores PIN: yes',
   'Stores transaction password hash: yes',
+  'Keychain primary write: yes',
   'Focused validation script: test:storage-network:focused',
   'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
   'Warning baseline mentions secure-key-store: yes',
@@ -62,6 +63,11 @@ assertRejected(
 );
 assertRejected('Invalid AppStorage file fixture', validSummary.replace('AppStorage secure-storage file: class/app-storage.js', 'AppStorage secure-storage file: <missing>'), 'AppStorage secure-storage file');
 assertRejected('Invalid focused validation command fixture', invalidFocusedValidationSummary, 'Focused validation command');
+assertRejected(
+  'Keychain primary write fixture',
+  validSummary.replace('Keychain primary write: yes', 'Keychain primary write: no'),
+  'Keychain primary write must be yes',
+);
 assertRejected(
   'Legacy secure-storage removal ready fixture',
   validSummary.replace('Legacy secure-storage removal ready: no', 'Legacy secure-storage removal ready: yes'),
