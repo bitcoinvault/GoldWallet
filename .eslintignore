@@ -1,6 +1,0 @@
-node_modules/
-scripts/missing-translations/
-
-# Source map
-sourcemap.ios.js
-sourcemap.android.js

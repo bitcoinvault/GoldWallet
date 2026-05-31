@@ -64,7 +64,15 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
     }
   }
 
-  if (!entryLines.every(line => line.includes('package ') && line.includes('installed ') && line.includes('latest ') && line.includes('decision '))) {
+  if (
+    !entryLines.every(
+      line =>
+        line.includes('package ') &&
+        line.includes('installed ') &&
+        line.includes('latest ') &&
+        line.includes('decision '),
+    )
+  ) {
     errors.push('summary entry lines must include package, installed, latest, and decision fields');
   }
 
@@ -112,7 +120,14 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
     errors.push('summary must include TypeScript');
   }
 
-  if (!requiredAction.includes('tooling dependency branches') || !requiredAction.includes('no package versions are changed')) {
+  if (!entryLines.some(line => line.includes('@eslint/js'))) {
+    errors.push('summary must include ESLint flat config tooling');
+  }
+
+  if (
+    !requiredAction.includes('tooling dependency branches') ||
+    !requiredAction.includes('no package versions are changed')
+  ) {
     errors.push('Required action must mention tooling dependency branches and that no package versions are changed');
   }
 
