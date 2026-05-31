@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.272 - Sentry release readiness CLI validation
+
+- Branch: `feature/bem-37-272-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Sentry release prerequisite audit so release/source-map readiness includes the local `@sentry/cli` package and executable, not only Sentry properties files.
+- Keep Sentry SDK/package versions unchanged because live npm latest is still `@sentry/react-native@8.13.0` on the current RN `0.85.3` baseline.
+- Re-run Android release validation with Sentry auto-upload disabled to prove local release APK generation while keeping Sentry upload validation explicitly unclaimed without credentials.
+
+Findings:
+
+- `@sentry/react-native@8.13.0` is still the current npm latest checked for this branch.
+- Local `@sentry/cli@3.4.3` is installed, the binary is present, and `sentry-cli 3.4.3` runs successfully.
+- Android `devRelease`, `stageRelease`, and `prodRelease` APK generation passes locally with `SENTRY_DISABLE_AUTO_UPLOAD=true`.
+- Full Sentry release upload validation remains blocked by missing `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN`; the audits do not print or guess secrets.
+
+Validation:
+
+- `npm view @sentry/react-native version engines peerDependencies dependencies --json`
+- `npm view @sentry/cli version engines bin --json`
+- `node node_modules\@sentry\cli\bin\sentry-cli --version`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:sentry-android-warning-summary-guard`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+
 ### BEM-37.271 - Tooling latest snapshot coverage
 
 - Branch: `feature/bem-37-271-tooling-snapshot-coverage`

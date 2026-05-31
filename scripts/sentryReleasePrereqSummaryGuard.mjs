@@ -30,6 +30,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const generatedAt = getLineValue(summary, 'Generated at');
   const readiness = getLineValue(summary, 'Release source-map prerequisites');
   const sentryReactNativeVersion = getLineValue(summary, '@sentry/react-native version');
+  const sentryCliPackageVersion = getLineValue(summary, '@sentry/cli package version');
+  const sentryCliBinPresent = getLineValue(summary, 'Sentry CLI binary present');
+  const sentryCliVersionOutput = getLineValue(summary, 'Sentry CLI version output');
+  const sentryCliExecutable = getLineValue(summary, 'Sentry CLI executable');
   const releaseIntegrationWired = getLineValue(summary, 'Sentry release integration wired');
   const releaseIntegrationErrors = getLineValue(summary, 'Sentry release integration errors');
   const filesPresent = getLineValue(summary, 'sentry.properties files present');
@@ -74,6 +78,16 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
 
   if (!/^\d+\.\d+\.\d+/.test(sentryReactNativeVersion)) {
     errors.push(`@sentry/react-native version must be present. Received: ${sentryReactNativeVersion || 'missing'}`);
+  }
+
+  if (!/^\d+\.\d+\.\d+/.test(sentryCliPackageVersion)) {
+    errors.push(`@sentry/cli package version must be present. Received: ${sentryCliPackageVersion || 'missing'}`);
+  }
+
+  if (!sentryCliVersionOutput) {
+    errors.push('Sentry CLI version output must be present');
+  } else if (/^\d+\.\d+\.\d+/.test(sentryCliPackageVersion) && !sentryCliVersionOutput.includes(sentryCliPackageVersion)) {
+    errors.push('Sentry CLI version output must include the installed @sentry/cli package version');
   }
 
   if (!['yes', 'no'].includes(releaseIntegrationWired)) {
@@ -151,6 +165,8 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   [
     androidReleaseSummaryPresent,
     androidReleaseSummaryValid,
+    sentryCliBinPresent,
+    sentryCliExecutable,
     createScriptPresent,
     createScriptUsesToken,
     createScriptWritesRootProperties,
@@ -206,12 +222,14 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   if (
     readiness === 'ready' &&
     (releaseIntegrationWired !== 'yes' ||
+      sentryCliBinPresent !== 'yes' ||
+      sentryCliExecutable !== 'yes' ||
       filesPresent !== 'yes' ||
       missingFiles !== '0' ||
       invalidFiles !== '0' ||
       readyPropertiesFiles !== String(requiredSentryPropertiesFiles.length))
   ) {
-    errors.push('Ready summary must have wired Sentry release integration, present properties files, 0 missing files, 0 invalid files, and all properties files ready');
+    errors.push('Ready summary must have wired Sentry release integration, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, and all properties files ready');
   }
 
   if (
