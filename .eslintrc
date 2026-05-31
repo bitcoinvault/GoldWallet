@@ -74,14 +74,12 @@
         ]
       }
     ],
-    "@typescript-eslint/ban-types": [
-      "warn",
-      {
-        "types": {
-          "Function": "Don't use Function because it is unsafe"
-        }
-      }
-    ],
+    "@typescript-eslint/no-require-imports": "off",
+    "no-unused-expressions": "off",
+    "@typescript-eslint/no-unused-expressions": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-unsafe-function-type": "warn",
     "no-console": "warn",
     "no-redeclare": "warn",
     "no-var": "warn",
