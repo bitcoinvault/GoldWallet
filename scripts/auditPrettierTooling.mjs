@@ -15,15 +15,9 @@ const prettierPluginPackage = require('eslint-plugin-prettier/package.json');
 const prettierPackage = require('prettier/package.json');
 
 const expected = {
-  prettier: '2.8.8',
-  'eslint-plugin-prettier': '4.2.5',
-  'eslint-config-prettier': '8.10.2',
-};
-const blockedLatest = {
   prettier: '3.8.3',
   'eslint-plugin-prettier': '5.5.6',
   'eslint-config-prettier': '10.1.8',
-  reason: 'Prettier 3 produced a repo-wide formatting churn in the current ESLint baseline.',
 };
 const errors = [];
 
@@ -84,8 +78,6 @@ console.log('Prettier tooling audit');
 console.log(`prettier: ${expected.prettier}`);
 console.log(`eslint-plugin-prettier: ${expected['eslint-plugin-prettier']}`);
 console.log(`eslint-config-prettier: ${expected['eslint-config-prettier']}`);
-console.log(
-  `latest target deferred: prettier@${blockedLatest.prettier}, eslint-plugin-prettier@${blockedLatest['eslint-plugin-prettier']}, eslint-config-prettier@${blockedLatest['eslint-config-prettier']} - ${blockedLatest.reason}`,
-);
+console.log('latest target: current');
 console.log('ESLint prettier config: passed');
 console.log('Prettier config resolution: passed');
