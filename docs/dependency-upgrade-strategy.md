@@ -76,7 +76,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - The unused legacy `@react-native-community/eslint-config` direct dev dependency is removed after `BEM-37.297`; `.eslintrc` already owns the active lint stack directly, and the community config would reintroduce an older nested lint toolchain if upgraded blindly.
 - The deprecated unused `babel-eslint` direct dev dependency is removed after `BEM-37.298`; the active parser is `@typescript-eslint/parser`, and `babel-eslint` has no supported latest path beyond its deprecated `10.1.0` line.
 - The deprecated stub `@types/react-navigation` direct dev dependency is removed after `BEM-37.299`; active `@react-navigation/*` v7 packages ship their own types, and the stub pulled old `react-navigation@4` packages into the lockfile.
-- Jest tooling remains on the checked compatible `29.7.0` line after `BEM-37.212`; the checked Jest 30 line is deferred until the React Native Jest preset stops mixing a Jest 29 environment with a Jest 30 runtime.
+- Jest tooling is on the checked latest Jest 30 runtime line after `BEM-37.301`: `jest@30.4.2`, `babel-jest@30.4.1`, `jest-circus@30.4.2`, and `jest-environment-node@30.4.1`. The React Native Jest preset still declares a Jest 29 environment internally, so package resolutions keep that environment/mock layer aligned with the Jest 30 runtime.
 
 These can be batched more aggressively because they either have strong automated gates or are developer-only.
 

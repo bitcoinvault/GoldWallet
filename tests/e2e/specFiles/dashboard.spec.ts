@@ -201,7 +201,7 @@ describe('Dashboard', () => {
       }
 
       for (const transaction of walletsData.frozenTxWallets[WalletType.KEY_2].transactions) {
-        jestExpect(await app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).toThrowError();
+        jestExpect(await app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).toThrow();
       }
     });
 
@@ -318,7 +318,7 @@ describe('Dashboard', () => {
         }
 
         for (const transaction of restTransactions) {
-          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrowError();
+          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrow();
         }
       });
 
@@ -336,7 +336,7 @@ describe('Dashboard', () => {
         }
 
         for (const transaction of restTransactions) {
-          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrowError();
+          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrow();
         }
       });
 
@@ -363,7 +363,7 @@ describe('Dashboard', () => {
         }
 
         for (const transaction of restTransactions) {
-          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrowError();
+          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrow();
         }
       });
 
@@ -383,7 +383,7 @@ describe('Dashboard', () => {
         }
 
         for (const transaction of restTransactions) {
-          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrowError();
+          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrow();
         }
       });
 
@@ -404,7 +404,7 @@ describe('Dashboard', () => {
         }
 
         for (const transaction of restTransactions) {
-          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrowError();
+          jestExpect(app.dashboard.dashboardScreen.searchForTransactionWith(transaction.id)).rejects.toThrow();
         }
       });
 

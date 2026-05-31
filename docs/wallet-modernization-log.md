@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.301 - Jest 30 tooling upgrade
+
+- Branch: `feature/bem-37-301-jest30-tooling-upgrade`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the Jest runtime/tooling stack to the current checked stable line: `jest@30.4.2`, `babel-jest@30.4.1`, `jest-circus@30.4.2`, and `jest-environment-node@30.4.1`.
+- Keep `ts-jest@29.4.11` because npm latest is already installed and it declares peer support for Jest `^29.0.0 || ^30.0.0`.
+- Add package resolutions for the React Native Jest preset's transitive Jest environment/mock layer so `@react-native/jest-preset@0.85.3` no longer mixes the Jest 30 runtime with Jest 29 environment internals.
+- Refresh Jest/test-type/tooling snapshot audits and baseline docs so the repo no longer treats Jest 30 as deferred after the compatibility fix.
+
+Findings:
+
+- The first Jest 30 attempt reproduced the previous blocker: `this._moduleMocker.clearMocksOnScope is not a function` before any tests ran.
+- Root cause: `@react-native/jest-preset@0.85.3` still declares `jest-environment-node@^29.7.0`, which pulled a Jest 29 mocker under the Jest 30 runtime.
+- Forcing the preset's `jest-environment-node` and `jest-mock` transitive layer to Jest 30 resolved the startup failure and allowed the focused suites to run.
+- `jest --version` reports `30.4.1` even though the installed `jest` and `jest-cli` packages are `30.4.2`; the Jest tooling audit records that observed CLI output explicitly.
+
+Validation:
+
+- `npm view jest version dist-tags peerDependencies engines --json`
+- `npm view babel-jest version dist-tags peerDependencies engines --json`
+- `npm view jest-circus version dist-tags peerDependencies engines --json`
+- `npm view ts-jest version dist-tags peerDependencies engines --json`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn jest:tooling:audit`
+- `corepack yarn check:test-type-coupling-guard`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn typescript:check`
+- `node node_modules\jest\bin\jest.js --config tests\e2e\config.json --listTests`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-artifacts`
+
 ### BEM-37.300 - CodePush release guard warning refresh
 
 - Branch: `feature/bem-37-300-codepush-release-guard-refresh`

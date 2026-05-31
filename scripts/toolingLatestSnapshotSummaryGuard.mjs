@@ -76,6 +76,10 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
     errors.push('summary must include Jest tooling');
   }
 
+  if (!entryLines.some(line => line.includes('jest-environment-node'))) {
+    errors.push('summary must include Jest environment tooling');
+  }
+
   if (!entryLines.some(line => line.includes('jest-junit'))) {
     errors.push('summary must include Jest JUnit report tooling');
   }
