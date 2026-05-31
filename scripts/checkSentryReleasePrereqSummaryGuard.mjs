@@ -20,7 +20,8 @@ const notReadySummary = [
   ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}: missing`),
   'Ready properties files: 0',
   'Android release summary present: yes',
-  'Android release summary variants: beta',
+  'Android release summary variants: dev, stage, prod',
+  'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
   'Android release summary errors: 0',
   'Sentry release upload validation: not claimed',
@@ -54,6 +55,7 @@ const readySummary = [
   `Ready properties files: ${requiredSentryPropertiesFiles.length}`,
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod',
+  'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
   'Android release summary errors: 0',
   'Sentry release upload validation: not claimed',
@@ -137,6 +139,11 @@ assertRejected(
   'Claimed Sentry upload fixture',
   notReadySummary.replace('Sentry release upload validation: not claimed', 'Sentry release upload validation: claimed'),
   'not claimed',
+);
+assertRejected(
+  'Missing release variant fixture',
+  notReadySummary.replace('Android release summary variants: dev, stage, prod', 'Android release summary variants: dev, stage'),
+  'prod release evidence',
 );
 assertRejected(
   'Missing required action fixture',

@@ -6,7 +6,8 @@ const validSummary = [
   'React Native Firebase package version set: 24.0.0',
   'Firebase release-services wiring valid: yes',
   'Android release summary present: yes',
-  'Android release summary variants: beta',
+  'Android release summary variants: dev, stage, prod',
+  'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
   'Android release summary errors: 0',
   'Firebase runtime delivery validation: not claimed',
@@ -23,6 +24,7 @@ const invalidSummary = [
   'Firebase release-services wiring valid: no',
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod',
+  'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
   'Android release summary errors: 0',
   'Firebase runtime delivery validation: not claimed',
@@ -61,6 +63,11 @@ assertRejected(
   'Claimed Firebase runtime delivery fixture',
   validSummary.replace('Firebase runtime delivery validation: not claimed', 'Firebase runtime delivery validation: claimed'),
   'not claimed',
+);
+assertRejected(
+  'Missing release variant fixture',
+  validSummary.replace('Android release summary variants: dev, stage, prod', 'Android release summary variants: dev, stage'),
+  'prod release evidence',
 );
 assertRejected(
   'Missing required action fixture',

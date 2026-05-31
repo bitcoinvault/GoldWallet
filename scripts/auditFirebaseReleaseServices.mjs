@@ -28,6 +28,7 @@ export const requiredFirebaseIosFiles = [
   'ios/GoogleService-Info-stage.plist',
   'ios/GoogleService-Info.plist',
 ];
+export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod'];
 const getSummaryLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
 
@@ -131,6 +132,7 @@ export const collectFirebaseReleaseServicesAudit = () => {
 
   let androidReleaseSummaryPresent = false;
   let androidReleaseSummaryVariants = [];
+  let androidReleaseSummaryRequiredVariantsCovered = false;
   let androidReleaseSummaryErrors = [];
 
   try {
@@ -141,12 +143,16 @@ export const collectFirebaseReleaseServicesAudit = () => {
       .split(',')
       .map(variant => variant.trim())
       .filter(Boolean);
+    androidReleaseSummaryRequiredVariantsCovered = requiredAndroidReleaseVariants.every(variant =>
+      androidReleaseSummaryVariants.includes(variant),
+    );
     androidReleaseSummaryErrors = getAndroidReleaseSummaryErrors(androidReleaseSummary, root, {
       expectedVariants: androidReleaseSummaryVariants,
     });
   } catch {
     androidReleaseSummaryPresent = false;
     androidReleaseSummaryVariants = [];
+    androidReleaseSummaryRequiredVariantsCovered = false;
     androidReleaseSummaryErrors = [];
   }
 
@@ -156,6 +162,7 @@ export const collectFirebaseReleaseServicesAudit = () => {
     packageVersions: [...uniqueVersions].filter(Boolean),
     androidReleaseSummaryPresent,
     androidReleaseSummaryVariants,
+    androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryErrors,
     ready: errors.length === 0,
   };
@@ -169,6 +176,7 @@ export const formatFirebaseReleaseServicesSummary = (audit, generatedAt = new Da
     `Firebase release-services wiring valid: ${audit.ready ? 'yes' : 'no'}`,
     `Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`,
     `Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`,
+    `Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`,
     `Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`,
     `Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`,
     ...audit.androidReleaseSummaryErrors.map(error => `- ${error}`),
@@ -206,6 +214,7 @@ const printReport = audit => {
 
   console.log(`Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`);
   console.log(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
+  console.log(`Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   console.log('Firebase runtime delivery validation: not claimed');

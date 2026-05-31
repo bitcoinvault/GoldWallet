@@ -95,7 +95,7 @@ Results:
 - Beta CodePush update strategy is still unconfirmed because `.env.beta.testnet` and `.env.beta.mainnet` do not define CodePush deployment keys.
 - CodePush release-path audit now records whether the latest local Android release summary artifact is present, valid, and covers `dev`, `stage`, and `prod` release APK evidence, so APK/bundle evidence is separate from still-unclaimed update validation.
 - Firebase release-services wiring is valid for the current `24.0.0` package family, Android config, iOS plist files, and Messaging runtime paths.
-- Firebase release-services audit now records whether the latest local Android release summary artifact is present and valid, so APK/bundle evidence is separate from unclaimed FCM/Crashlytics/Analytics runtime delivery validation.
+- Firebase release-services audit now records whether the latest local Android release summary artifact is present, valid, and covers `dev`, `stage`, and `prod` release APK evidence, so APK/bundle evidence is separate from unclaimed FCM/Crashlytics/Analytics runtime delivery validation.
 - Firebase `24.0.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
 - RN Firebase `24.0.0` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
 - Sentry release source-map validation is not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
@@ -151,7 +151,7 @@ Shared env/config:
 
 - Firebase RN `24.0.0` is the current package family and must stay aligned across app, analytics, Crashlytics, and messaging.
 - Firebase changes can still affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
-- `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, Messaging runtime wiring, latest local Android release summary evidence, and unclaimed runtime-delivery status before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
+- `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, Messaging runtime wiring, latest local Android `dev`/`stage`/`prod` release summary evidence, and unclaimed runtime-delivery status before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
 - `react-native-code-push` is on latest checked `9.0.1` after the RN `0.85.3` proof, with guarded release bundle alias compatibility for RN Gradle task naming.
@@ -159,7 +159,7 @@ Shared env/config:
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.85.3` warning audit no longer reports Sentry `execResult`.
 - `@sentry/react-native` is on latest checked `8.13.0` after the Sentry SDK upgrade; Android debug build and smoke validation are required for the branch, while source-map/dSYM upload remains blocked locally until Sentry credentials/properties are available.
-- `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available before Sentry release/source-map validation, verifies the local `@sentry/cli` package/bin, and writes `local-docs/sentry-release-prereq-summary.txt`.
+- `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available before Sentry release/source-map validation, verifies the local `@sentry/cli` package/bin, checks latest local Android `dev`/`stage`/`prod` release summary evidence, and writes `local-docs/sentry-release-prereq-summary.txt`.
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary, including per-file readiness counts, Sentry CLI readiness, generator output coverage, and secret-safe output.
 - `corepack yarn sentry:android-warning:audit` confirms the current Sentry Android Gradle/source-map wiring remains tracked before a dedicated Sentry release/source-map cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
