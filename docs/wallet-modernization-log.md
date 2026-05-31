@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.270 - E2E and coverage tooling latest refresh
+
+- Branch: `feature/bem-37-270-e2e-coverage-tooling-latest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move isolated E2E mail helper and coverage instrumentation tooling to current npm latest: `mailosaur@11.1.1` and `babel-plugin-istanbul@8.0.0`.
+- Keep the change separate from Detox runner, Jest runtime, React Native runtime, and app dependency upgrades.
+- Update the E2E Mailosaur helper type import for the v11 package exports model.
+
+Findings:
+
+- `mailosaur@11.1.1` supports Node `>=16` and keeps the default client constructor used by the E2E helper.
+- Mailosaur v11 no longer exposes `mailosaur/lib/models`; model types are exported from the package root for this TypeScript setup.
+- `babel-plugin-istanbul@8.0.0` supports Node `>=18` and works with the current Jest 29 coverage flow in the unit suite.
+- This branch changes dev/E2E/coverage tooling only; it does not change app runtime, native code, Metro, or wallet behavior, so emulator smoke is not required for this milestone.
+
+Validation:
+
+- `npm view mailosaur version engines dependencies peerDependencies --json`
+- `npm view babel-plugin-istanbul version engines dependencies peerDependencies --json`
+- `corepack yarn add --dev mailosaur@11.1.1 babel-plugin-istanbul@8.0.0`
+- `node -e "const fs=require('fs'); const path=require('path'); const mailPkg=JSON.parse(fs.readFileSync(path.join(path.dirname(require.resolve('mailosaur')),'..','package.json'),'utf8')); const istPkg=JSON.parse(fs.readFileSync(require.resolve('babel-plugin-istanbul/package.json'),'utf8')); const Mailosaur=require('mailosaur'); const istanbul=require('babel-plugin-istanbul'); console.log(JSON.stringify({mailosaur:mailPkg.version, mailosaurExports:Object.keys(mailPkg.exports||{}), istanbul:istPkg.version, mailosaurType:typeof Mailosaur, istanbulType:typeof istanbul}, null, 2));"`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `node node_modules/jest/bin/jest.js tests/unit --forceExit --runInBand --collectCoverage --coverageReporters=json-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.269 - Test report tooling latest refresh
 
 - Branch: `feature/bem-37-269-test-report-tooling-latest`
