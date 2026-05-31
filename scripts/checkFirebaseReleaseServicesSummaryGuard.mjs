@@ -3,10 +3,14 @@ import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServic
 const validSummary = [
   'Firebase release-services audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
-  'React Native Firebase package version set: 12.7',
+  'React Native Firebase package version set: 24.0.0',
   'Firebase release-services wiring valid: yes',
-  'Warnings: 1',
-  '- React Native Firebase remains on 12.7; current upgrade plan treats the next 23+/24.x move as a major family upgrade.',
+  'Android release summary present: yes',
+  'Android release summary variants: beta',
+  'Android release summary valid: yes',
+  'Android release summary errors: 0',
+  'Firebase runtime delivery validation: not claimed',
+  'Warnings: 0',
   'Wiring errors: 0',
   'Required action: none; Firebase release-services wiring is present locally.',
   '',
@@ -17,6 +21,11 @@ const invalidSummary = [
   'Generated at: 2026-05-28T00:00:00.000Z',
   'React Native Firebase package version set: 12.7, 13.0',
   'Firebase release-services wiring valid: no',
+  'Android release summary present: yes',
+  'Android release summary variants: dev, stage, prod',
+  'Android release summary valid: yes',
+  'Android release summary errors: 0',
+  'Firebase runtime delivery validation: not claimed',
   'Warnings: 0',
   'Wiring errors: 1',
   '- React Native Firebase package versions are not aligned',
@@ -48,7 +57,11 @@ assertAccepted('Valid Firebase release-services summary fixture', validSummary);
 assertAccepted('Invalid-wiring Firebase release-services summary fixture', invalidSummary);
 assertRejected('Missing header fixture', validSummary.replace('Firebase release-services audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
-assertRejected('Bad warning count fixture', validSummary.replace('Warnings: 1', 'Warnings: 0'), 'Warnings count');
+assertRejected(
+  'Claimed Firebase runtime delivery fixture',
+  validSummary.replace('Firebase runtime delivery validation: not claimed', 'Firebase runtime delivery validation: claimed'),
+  'not claimed',
+);
 assertRejected(
   'Missing required action fixture',
   invalidSummary.replace(

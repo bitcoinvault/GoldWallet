@@ -1,10 +1,12 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'firebase-release-services-summary.txt');
+const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const exists = relativePath => existsSync(path.join(root, relativePath));
 const packageJson = JSON.parse(read('package.json'));
@@ -26,6 +28,11 @@ export const requiredFirebaseIosFiles = [
   'ios/GoogleService-Info-stage.plist',
   'ios/GoogleService-Info.plist',
 ];
+const getSummaryLineValue = (content, label) => {
+  const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
+
+  return line ? line.slice(label.length + 2).trim() : '';
+};
 
 export const collectFirebaseReleaseServicesAudit = () => {
   const errors = [];
@@ -122,10 +129,34 @@ export const collectFirebaseReleaseServicesAudit = () => {
     warnings.push('React Native Firebase remains on 12.7; current upgrade plan treats the next 23+/24.x move as a major family upgrade.');
   }
 
+  let androidReleaseSummaryPresent = false;
+  let androidReleaseSummaryVariants = [];
+  let androidReleaseSummaryErrors = [];
+
+  try {
+    const androidReleaseSummary = readFileSync(androidReleaseSummaryPath, 'utf8');
+
+    androidReleaseSummaryPresent = true;
+    androidReleaseSummaryVariants = getSummaryLineValue(androidReleaseSummary, 'Variants')
+      .split(',')
+      .map(variant => variant.trim())
+      .filter(Boolean);
+    androidReleaseSummaryErrors = getAndroidReleaseSummaryErrors(androidReleaseSummary, root, {
+      expectedVariants: androidReleaseSummaryVariants,
+    });
+  } catch {
+    androidReleaseSummaryPresent = false;
+    androidReleaseSummaryVariants = [];
+    androidReleaseSummaryErrors = [];
+  }
+
   return {
     errors,
     warnings,
     packageVersions: [...uniqueVersions].filter(Boolean),
+    androidReleaseSummaryPresent,
+    androidReleaseSummaryVariants,
+    androidReleaseSummaryErrors,
     ready: errors.length === 0,
   };
 };
@@ -136,6 +167,12 @@ export const formatFirebaseReleaseServicesSummary = (audit, generatedAt = new Da
     `Generated at: ${generatedAt}`,
     `React Native Firebase package version set: ${audit.packageVersions.join(', ') || '<missing>'}`,
     `Firebase release-services wiring valid: ${audit.ready ? 'yes' : 'no'}`,
+    `Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`,
+    `Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`,
+    `Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`,
+    `Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`,
+    ...audit.androidReleaseSummaryErrors.map(error => `- ${error}`),
+    'Firebase runtime delivery validation: not claimed',
     `Warnings: ${audit.warnings.length}`,
   ];
 
@@ -167,6 +204,11 @@ const printReport = audit => {
     return;
   }
 
+  console.log(`Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`);
+  console.log(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
+  console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
+  console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
+  console.log('Firebase runtime delivery validation: not claimed');
   console.log('Firebase release-services wiring is present for package family alignment, Android config, iOS plist files, and Messaging runtime paths.');
 };
 
