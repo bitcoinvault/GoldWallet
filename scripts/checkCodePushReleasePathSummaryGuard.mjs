@@ -18,6 +18,8 @@ const notReadySummary = [
   'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
   'CodePush package current: yes',
   'CodePush package versions aligned: yes',
+  'CodePush runtime gate present: yes',
+  'CodePush runtime enabled by default: no',
   'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
   'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
   'App Center CodePush retirement date: 2025-03-31',
@@ -62,6 +64,8 @@ const readySummary = [
   'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
   'CodePush package current: yes',
   'CodePush package versions aligned: yes',
+  'CodePush runtime gate present: yes',
+  'CodePush runtime enabled by default: no',
   'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
   'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
   'App Center CodePush retirement date: 2025-03-31',
@@ -145,6 +149,16 @@ assertRejected(
   'Missing migration requirement fixture',
   notReadySummary.replace('CodePush migration required: yes', 'CodePush migration required: no'),
   'migration required must be yes',
+);
+assertRejected(
+  'Missing CodePush runtime gate fixture',
+  notReadySummary.replace('CodePush runtime gate present: yes', 'CodePush runtime gate present: no'),
+  'CodePush runtime gate must be present',
+);
+assertRejected(
+  'CodePush runtime enabled by default fixture',
+  notReadySummary.replace('CodePush runtime enabled by default: no', 'CodePush runtime enabled by default: yes'),
+  'CodePush runtime must not be enabled by default',
 );
 assertRejected(
   'Missing release variant fixture',

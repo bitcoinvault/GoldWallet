@@ -90,10 +90,13 @@ export const collectCodePushReleasePathAudit = () => {
   }
 
   requireSnippet(errors, 'App.tsx', appSource, 'react-native-code-push');
+  requireSnippet(errors, 'App.tsx', appSource, 'const codePushDeploymentKey = isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid');
+  requireSnippet(errors, 'App.tsx', appSource, 'const isCodePushEnabled = config.codepushEnabled && Boolean(codePushDeploymentKey)');
   requireSnippet(errors, 'App.tsx', appSource, 'checkFrequency: codePush.CheckFrequency.ON_APP_RESUME');
   requireSnippet(errors, 'App.tsx', appSource, 'installMode: codePush.InstallMode.IMMEDIATE');
-  requireSnippet(errors, 'App.tsx', appSource, 'deploymentKey: isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid');
-  requireSnippet(errors, 'App.tsx', appSource, '!__DEV__ && <WithCodePush />');
+  requireSnippet(errors, 'App.tsx', appSource, 'deploymentKey: codePushDeploymentKey');
+  requireSnippet(errors, 'App.tsx', appSource, '!__DEV__ && isCodePushEnabled && <WithCodePush />');
+  requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_ENABLED');
   requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_IOS');
   requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_ANDROID');
   requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'react-native-code-push/android/codepush.gradle');
@@ -192,6 +195,8 @@ export const collectCodePushReleasePathAudit = () => {
     packageLatestVersion,
     packageLatestPublishedAt,
     packageRepositoryUrl,
+    runtimeGatePresent: appSource.includes('isCodePushEnabled') && configSource.includes('CODEPUSH_ENABLED'),
+    runtimeDefaultEnabled: false,
     packageCurrent: packageDependencyVersion === packageLatestVersion && installedPackageVersion === packageLatestVersion,
     appCenterRetirementDate,
     codePushUpstreamRepository,
@@ -234,6 +239,8 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
     `CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`,
     `CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`,
     `CodePush package versions aligned: ${audit.packageVersionsAligned ? 'yes' : 'no'}`,
+    `CodePush runtime gate present: ${audit.runtimeGatePresent ? 'yes' : 'no'}`,
+    `CodePush runtime enabled by default: ${audit.runtimeDefaultEnabled ? 'yes' : 'no'}`,
     `CodePush upstream repository: ${audit.codePushUpstreamRepository}`,
     `CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`,
     `App Center CodePush retirement date: ${audit.appCenterRetirementDate}`,
@@ -296,6 +303,8 @@ const printReport = audit => {
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
   console.log(`CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
+  console.log(`CodePush runtime gate present: ${audit.runtimeGatePresent ? 'yes' : 'no'}`);
+  console.log(`CodePush runtime enabled by default: ${audit.runtimeDefaultEnabled ? 'yes' : 'no'}`);
   console.log(`App Center CodePush retirement date: ${audit.appCenterRetirementDate}`);
   console.log(`CodePush upstream retired: ${audit.upstreamRetired ? 'yes' : 'no'}`);
   console.log(`CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`);

@@ -32,13 +32,15 @@ const sentryOptions = {
 const isSentryEnabled = config.environment !== 'dev';
 
 const getNewKey = () => new Date().toISOString();
+const codePushDeploymentKey = isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid;
+const isCodePushEnabled = config.codepushEnabled && Boolean(codePushDeploymentKey);
 
 const codePushOptions = {
   checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
   installMode: codePush.InstallMode.IMMEDIATE,
   minimumBackgroundDuration: 30 * 60, // 30 minutes
   updateDialog: false,
-  deploymentKey: isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid,
+  deploymentKey: codePushDeploymentKey,
 };
 
 if (isSentryEnabled) {
@@ -77,7 +79,7 @@ class App extends React.PureComponent {
   render() {
     return (
       <>
-        {!__DEV__ && <WithCodePush />}
+        {!__DEV__ && isCodePushEnabled && <WithCodePush />}
         <TypedI18nextProvider i18n={i18n}>
           <Provider store={store}>
             <AppStateManager

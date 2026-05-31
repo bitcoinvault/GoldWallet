@@ -11,6 +11,7 @@ Scope: `BEM-37.282 - CodePush retirement audit`.
 - The Microsoft `react-native-code-push` and standalone `code-push-server` repositories are archived/read-only.
 - The upstream Microsoft README states that React Native CodePush does not support New Architecture.
 - This repo currently has Android `newArchEnabled=true`, so CodePush must be treated as legacy release infrastructure even when local builds still pass.
+- CodePush runtime startup is gated by optional `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key. Without the flag, non-dev builds keep the wiring available but do not start the retired OTA client by default.
 
 Official references:
 
@@ -36,6 +37,8 @@ Expected summary claims:
 - upstream New Architecture support is recorded as `no`;
 - Android New Architecture enabled state is recorded;
 - CodePush migration required is recorded as `yes`;
+- CodePush runtime gate is recorded as present;
+- CodePush runtime enabled by default is recorded as `no`;
 - no deployment key values are printed.
 
 ## Decision Needed
@@ -46,7 +49,7 @@ Choose one release strategy:
 
 1. Remove CodePush from the app if OTA updates are no longer a product requirement.
 2. Migrate OTA updates to a maintained/self-hosted compatible replacement if OTA remains required.
-3. Keep current CodePush wiring temporarily only as legacy compatibility, with release update validation explicitly unclaimed.
+3. Keep current CodePush wiring temporarily only as legacy compatibility, gated off by default, with release update validation explicitly unclaimed.
 
 ## Implementation Follow-Ups
 
@@ -69,4 +72,4 @@ If replacing CodePush:
 
 ## Current Conclusion
 
-The current CodePush code path is build-compatible enough to keep modernization moving, but it is no longer a supported long-term release capability. Treat it as a migration/removal workstream, not as a normal dependency-refresh item.
+The current CodePush code path is build-compatible enough to keep modernization moving and is gated off by default, but it is no longer a supported long-term release capability. Treat it as a migration/removal workstream, not as a normal dependency-refresh item.

@@ -38,6 +38,8 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const latestPublishedAt = getLineValue(summary, 'CodePush package latest published at');
   const packageCurrent = getLineValue(summary, 'CodePush package current');
   const packageVersionsAligned = getLineValue(summary, 'CodePush package versions aligned');
+  const runtimeGatePresent = getLineValue(summary, 'CodePush runtime gate present');
+  const runtimeEnabledByDefault = getLineValue(summary, 'CodePush runtime enabled by default');
   const upstreamRepository = getLineValue(summary, 'CodePush upstream repository');
   const npmRepository = getLineValue(summary, 'CodePush npm repository');
   const appCenterRetirementDate = getLineValue(summary, 'App Center CodePush retirement date');
@@ -76,6 +78,8 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     ready,
     packageCurrent,
     packageVersionsAligned,
+    runtimeGatePresent,
+    runtimeEnabledByDefault,
     upstreamRetired,
     upstreamArchived,
     upstreamNewArchitectureSupport,
@@ -115,6 +119,14 @@ export const getCodePushReleasePathSummaryErrors = summary => {
 
   if (packageVersionsAligned !== 'yes') {
     errors.push('CodePush package versions must be aligned before release-path validation');
+  }
+
+  if (runtimeGatePresent !== 'yes') {
+    errors.push(`CodePush runtime gate must be present. Received: ${runtimeGatePresent || 'missing'}`);
+  }
+
+  if (runtimeEnabledByDefault !== 'no') {
+    errors.push(`CodePush runtime must not be enabled by default while App Center CodePush is retired. Received: ${runtimeEnabledByDefault || 'missing'}`);
   }
 
   if (upstreamRepository !== 'https://github.com/microsoft/react-native-code-push') {
