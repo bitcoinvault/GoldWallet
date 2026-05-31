@@ -17,6 +17,7 @@ const validEnvironment = {
     typescript: expectedTestTypeCoupling.typescript,
     jest: expectedTestTypeCoupling.jest,
     'babel-jest': expectedTestTypeCoupling.babelJest,
+    'jest-environment-node': expectedTestTypeCoupling.jestEnvironmentNode,
     'ts-jest': expectedTestTypeCoupling.tsJest,
     'react-test-renderer': expectedTestTypeCoupling.reactTestRenderer,
   },
@@ -61,7 +62,12 @@ const assertRejected = (label, environment, expectedError) => {
 
 assertAccepted('Valid test/type coupling fixture', validEnvironment);
 assertRejected('Wrong TypeScript fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, typescript: '^5.9.0' } }, 'typescript@^5.9.0');
-assertRejected('Wrong Jest fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, jest: '30.0.0' } }, 'jest@30.0.0');
+assertRejected('Wrong Jest fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, jest: '29.7.0' } }, 'jest@29.7.0');
+assertRejected(
+  'Wrong Jest environment fixture',
+  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'jest-environment-node': '29.7.0' } },
+  'jest-environment-node@29.7.0',
+);
 assertRejected('Wrong renderer fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'react-test-renderer': '19.2.6' } }, 'react-test-renderer@19.2.6');
 assertRejected('Wrong JSX fixture', { ...validEnvironment, tsconfig: { compilerOptions: { ...validEnvironment.tsconfig.compilerOptions, jsx: 'react-jsx' } } }, 'jsx is react-jsx');
 assertRejected('Missing Jest preset fixture', { ...validEnvironment, jestConfigContent: 'module.exports = { transform: {} };' }, '@react-native/jest-preset preset');

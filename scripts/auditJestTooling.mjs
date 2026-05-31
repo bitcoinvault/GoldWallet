@@ -11,19 +11,21 @@ const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'ut
 const errors = [];
 
 const expectedDevDependencies = {
-  jest: '29.7.0',
-  'babel-jest': '29.7.0',
-  'jest-circus': '29.7.0',
+  jest: '30.4.2',
+  'babel-jest': '30.4.1',
+  'jest-circus': '30.4.2',
+  'jest-environment-node': '30.4.1',
   'ts-jest': '29.4.11',
   '@types/jest': '30.0.0',
   '@react-native/jest-preset': '0.85.3',
 };
 const expectedInstalledPackages = {
-  jest: '29.7.0',
-  'babel-jest': '29.7.0',
-  'jest-circus': '29.7.0',
-  'jest-runtime': '29.7.0',
-  'jest-mock': '29.7.0',
+  jest: '30.4.2',
+  'babel-jest': '30.4.1',
+  'jest-circus': '30.4.2',
+  'jest-environment-node': '30.4.1',
+  'jest-runtime': '30.4.2',
+  'jest-mock': '30.4.1',
   'ts-jest': '29.4.11',
   '@types/jest': '30.0.0',
   '@react-native/jest-preset': '0.85.3',
@@ -33,6 +35,7 @@ const checkedLatest = {
   'babel-jest': '30.4.1',
   'jest-circus': '30.4.2',
 };
+const expectedJestCliOutput = '30.4.1';
 
 for (const [name, version] of Object.entries(expectedDevDependencies)) {
   if (packageJson.devDependencies[name] !== version) {
@@ -56,6 +59,18 @@ if (reactNativeJestPreset.dependencies['jest-environment-node'] !== '^29.7.0') {
   );
 }
 
+const resolutions = packageJson.resolutions || {};
+const requiredResolutions = {
+  '@react-native/jest-preset/jest-environment-node': '30.4.1',
+  '@react-native/jest-preset/jest-mock': '30.4.1',
+};
+
+for (const [name, version] of Object.entries(requiredResolutions)) {
+  if (resolutions[name] !== version) {
+    errors.push(`package.json resolutions has ${name}@${resolutions[name] || '<missing>'}; expected ${version}`);
+  }
+}
+
 const cliVersion = execFileSync(
   process.execPath,
   [path.join(root, 'node_modules', 'jest', 'bin', 'jest.js'), '--version'],
@@ -64,8 +79,8 @@ const cliVersion = execFileSync(
   },
 ).trim();
 
-if (cliVersion !== expectedInstalledPackages.jest) {
-  errors.push(`Jest CLI reports ${cliVersion}; expected ${expectedInstalledPackages.jest}`);
+if (cliVersion !== expectedJestCliOutput) {
+  errors.push(`Jest CLI reports ${cliVersion}; expected ${expectedJestCliOutput}`);
 }
 
 if (errors.length > 0) {
@@ -76,9 +91,11 @@ if (errors.length > 0) {
 
 console.log('Jest tooling audit');
 console.log(`jest: ${expectedInstalledPackages.jest}`);
+console.log(`jest --version: ${expectedJestCliOutput}`);
 console.log(`babel-jest: ${expectedInstalledPackages['babel-jest']}`);
 console.log(`jest-circus: ${expectedInstalledPackages['jest-circus']}`);
+console.log(`jest-environment-node: ${expectedInstalledPackages['jest-environment-node']}`);
 console.log(`ts-jest: ${expectedInstalledPackages['ts-jest']}`);
 console.log(
-  `latest target deferred: jest@${checkedLatest.jest}, babel-jest@${checkedLatest['babel-jest']}, jest-circus@${checkedLatest['jest-circus']} - @react-native/jest-preset@${reactNativeJestPreset.version} still depends on jest-environment-node@${reactNativeJestPreset.dependencies['jest-environment-node']}`,
+  `latest target active: jest@${checkedLatest.jest}, babel-jest@${checkedLatest['babel-jest']}, jest-circus@${checkedLatest['jest-circus']} - @react-native/jest-preset@${reactNativeJestPreset.version} still declares jest-environment-node@${reactNativeJestPreset.dependencies['jest-environment-node']}, so package resolutions keep the runtime/mock environment on Jest 30`,
 );

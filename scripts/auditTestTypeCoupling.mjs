@@ -9,8 +9,9 @@ const exists = relativePath => existsSync(path.join(root, relativePath));
 
 export const expectedTestTypeCoupling = {
   typescript: '5.4.5',
-  jest: '29.7.0',
-  babelJest: '29.7.0',
+  jest: '30.4.2',
+  babelJest: '30.4.1',
+  jestEnvironmentNode: '30.4.1',
   tsJest: '29.4.11',
   reactTestRenderer: '19.2.3',
   tsTarget: 'ES2019',
@@ -48,13 +49,14 @@ export const requiredTestTypeValidationFiles = [
 export const requiredTestTypeCouplingSnippets = [
   ['docs/test-type-coupling-audit.md', 'Test/type coupling audit'],
   ['docs/test-type-coupling-audit.md', 'Current TypeScript: `5.4.5`'],
-  ['docs/test-type-coupling-audit.md', 'Current Jest: `29.7.0`'],
-  ['docs/test-type-coupling-audit.md', 'Current babel-jest: `29.7.0`'],
+  ['docs/test-type-coupling-audit.md', 'Current Jest: `30.4.2`'],
+  ['docs/test-type-coupling-audit.md', 'Current babel-jest: `30.4.1`'],
+  ['docs/test-type-coupling-audit.md', 'Current jest-environment-node: `30.4.1`'],
   ['docs/test-type-coupling-audit.md', 'Current ts-jest: `29.4.11`'],
   ['docs/test-type-coupling-audit.md', 'Current react-test-renderer: `19.2.3`'],
   ['docs/test-type-coupling-audit.md', 'Current TS JSX mode: `react-native`'],
   ['docs/test-type-coupling-audit.md', 'Current TS skipLibCheck: `true`'],
-  ['docs/test-type-coupling-audit.md', 'Do not update TypeScript/Jest separately from the React/RN baseline branch that owns type/runtime behavior.'],
+  ['docs/test-type-coupling-audit.md', 'Move TypeScript/Jest/React/RN baseline pieces only from dedicated branches that own type/runtime behavior and focused validation.'],
   ['docs/test-type-coupling-audit.md', 'Required focused scripts: `test:unit`, `test:storage`, `test:authenticator`, `test:watchonly:offline`, `test:hdwallet:offline`, `test:wallet-core:offline`'],
   ['docs/test-type-coupling-audit.md', 'Required focused files: `tests/unit/signer.test.js`, `tests/unit/encryption.test.js`, `tests/integration/Storage.test.js`, `tests/integration/authenticator.test.js`, `tests/integration/WatchOnlyWallet.offline.test.js`, `tests/integration/HDWallet.offline.test.js`, `tests/integration/App.offline.test.js`'],
   ['docs/test-type-coupling-audit.md', 'corepack yarn test:type-coupling:audit'],
@@ -77,6 +79,14 @@ export const getTestTypeCouplingIssues = ({ devDependencies, scripts, tsconfig, 
 
   if (devDependencies['babel-jest'] !== expectedTestTypeCoupling.babelJest) {
     errors.push(`package.json has babel-jest@${devDependencies['babel-jest'] || '<missing>'}; expected ${expectedTestTypeCoupling.babelJest}`);
+  }
+
+  if (devDependencies['jest-environment-node'] !== expectedTestTypeCoupling.jestEnvironmentNode) {
+    errors.push(
+      `package.json has jest-environment-node@${devDependencies['jest-environment-node'] || '<missing>'}; expected ${
+        expectedTestTypeCoupling.jestEnvironmentNode
+      }`,
+    );
   }
 
   if (devDependencies['ts-jest'] !== expectedTestTypeCoupling.tsJest) {
@@ -185,6 +195,7 @@ const printReport = environment => {
   console.log(`TypeScript: ${environment.devDependencies.typescript || '<missing>'}`);
   console.log(`Jest: ${environment.devDependencies.jest || '<missing>'}`);
   console.log(`babel-jest: ${environment.devDependencies['babel-jest'] || '<missing>'}`);
+  console.log(`jest-environment-node: ${environment.devDependencies['jest-environment-node'] || '<missing>'}`);
   console.log(`ts-jest: ${environment.devDependencies['ts-jest'] || '<missing>'}`);
   console.log(`react-test-renderer: ${environment.devDependencies['react-test-renderer'] || '<missing>'}`);
   console.log(`TS target: ${environment.tsconfig.compilerOptions?.target || '<missing>'}`);

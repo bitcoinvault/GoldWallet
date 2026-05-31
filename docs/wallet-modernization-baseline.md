@@ -19,8 +19,9 @@ All modernization work should be developed on focused task branches and merged i
 - React Native: `0.85.3`
 - React: `19.2.3`
 - TypeScript: `5.4.5`
-- Jest: `29.7.0`
-- babel-jest: `29.7.0`
+- Jest: `30.4.2`
+- babel-jest: `30.4.1`
+- jest-environment-node: `30.4.1`
 - ts-jest: `29.4.11`
 - Detox: `18.20.1`
 - RN Babel preset: `0.85.3`

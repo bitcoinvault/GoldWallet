@@ -19,17 +19,22 @@ const trackedTooling = [
   {
     name: 'jest',
     source: 'devDependencies',
-    decision: 'deferred - React Native Jest preset still owns the Jest 29 environment',
+    decision: 'current - latest Jest runtime verified with RN preset environment resolutions and focused suites',
   },
   {
     name: 'babel-jest',
     source: 'devDependencies',
-    decision: 'deferred - Jest runtime and transformer versions must move together',
+    decision: 'current - latest Jest transformer verified with the Jest 30 runtime',
   },
   {
     name: 'jest-circus',
     source: 'devDependencies',
-    decision: 'deferred - Jest runtime and runner versions must move together',
+    decision: 'current - latest Jest runner verified with the Jest 30 runtime',
+  },
+  {
+    name: 'jest-environment-node',
+    source: 'devDependencies',
+    decision: 'current - latest Jest environment required to keep the RN preset compatible with Jest 30 runtime',
   },
   {
     name: 'jest-junit',
