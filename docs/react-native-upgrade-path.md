@@ -73,6 +73,12 @@ Before changing a React Native baseline, run the broader preflight so the curren
 corepack yarn rn:baseline:preflight
 ```
 
+When network access is available at the start of an actual RN baseline branch, use the online variant first so the live npm target snapshot is refreshed and validated before the offline preflight runs:
+
+```powershell
+corepack yarn rn:baseline:preflight:online
+```
+
 For the first milestone branch, also keep the RN 0.85 foundation plan audit green:
 
 ```powershell

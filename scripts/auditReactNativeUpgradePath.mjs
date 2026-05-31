@@ -25,6 +25,8 @@ export const expectedReactNativeUpgradePathBaseline = {
 
 export const expectedReactNativeBaselinePreflight =
   'yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn check:node-runtime-transition-guard && yarn node:runtime-transition:audit && yarn upgrade:strategy:audit && yarn rn:upgrade-path:audit && yarn rn:076-foundation:audit && yarn check:rn-target-snapshot-guard && yarn check:rn-target-snapshot-current-guard && yarn rn:target-snapshot:audit && yarn check:react19-impact-guard && yarn react19:impact:audit && yarn check:react-package-coupling-guard && yarn react:package-coupling:audit && yarn check:test-type-coupling-guard && yarn test:type-coupling:audit && yarn wallet:crypto-runtime:audit && yarn camera:candidate:audit && yarn camera:candidate:check-summary && yarn camera:qr-migration:audit && yarn camera:qr-migration:check-summary && yarn masked-view:migration:audit && yarn masked-view:migration:check-summary && yarn secure-storage:migration:audit && yarn secure-storage:migration:check-summary && yarn sentry:android-warning:audit && yarn sentry:android-warning:check-summary && yarn check:android-warning-source-summaries-guard && yarn android:dev:check-warning-source-summaries && yarn check:android-warning-audit-summary-guard && yarn android:dev:check-warning-audit-summary && yarn check:android-smoke-summary-guard && yarn android:dev:check-smoke-summary && yarn sentry:release:prereq-audit && yarn sentry:release:prereq-check-summary && yarn firebase:release-services:audit && yarn firebase:release-services:check-summary && yarn codepush:release:path-audit && yarn codepush:release:path-check-summary && yarn push-notification:bridge-audit && yarn push-notification:bridge-check-summary && yarn check:ios-release-readiness-summary-guard && yarn ios:release:readiness:audit && yarn ios:release:readiness:check-summary && yarn check:release-services-summary-guard && yarn release-services:check-summaries';
+export const expectedReactNativeOnlinePreflight =
+  'yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn rn:baseline:preflight';
 
 export const requiredReactNativeUpgradePathDocs = [
   'docs/react-native-upgrade-path.md',
@@ -68,6 +70,7 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:upgrade-path:audit'],
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:076-foundation:audit'],
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:baseline:preflight'],
+  ['docs/react-native-upgrade-path.md', 'corepack yarn rn:baseline:preflight:online'],
   ['docs/dependency-upgrade-strategy.md', 'Try the latest target first when the change is feasible'],
   ['docs/dependency-upgrade-strategy.md', 'Try the latest target first when the change is feasible'],
   ['docs/react-native-076-foundation-plan.md', 'react-native@0.85.3'],
@@ -85,10 +88,12 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/wallet-modernization-baseline.md', 'React package coupling audit is tracked in `docs/react-package-coupling-audit.md`'],
   ['docs/wallet-modernization-baseline.md', 'Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`'],
   ['docs/wallet-modernization-baseline.md', 'corepack yarn rn:baseline:preflight'],
+  ['docs/wallet-modernization-baseline.md', 'corepack yarn rn:baseline:preflight:online'],
   ['docs/native-module-upgrade-plan.md', 'React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`'],
   ['docs/native-module-upgrade-plan.md', 'corepack yarn rn:baseline:preflight'],
   ['docs/android-modernization-workflow.md', 'corepack yarn rn:upgrade-path:audit'],
   ['docs/android-modernization-workflow.md', 'corepack yarn rn:baseline:preflight'],
+  ['docs/android-modernization-workflow.md', 'corepack yarn rn:baseline:preflight:online'],
 ];
 
 const readGradleExtString = (androidBuildGradleContent, propertyName) =>
@@ -189,6 +194,10 @@ export const getReactNativeUpgradePathIssues = ({
 
   if (scripts['rn:baseline:preflight'] !== expectedReactNativeBaselinePreflight) {
     errors.push('package.json is missing rn:baseline:preflight script with the expected RN baseline preflight command');
+  }
+
+  if (scripts['rn:baseline:preflight:online'] !== expectedReactNativeOnlinePreflight) {
+    errors.push('package.json is missing rn:baseline:preflight:online script with the expected live npm RN baseline preflight command');
   }
 
   if (nvmrc !== expectedReactNativeUpgradePathBaseline.nodeRuntime) {
