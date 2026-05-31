@@ -4,13 +4,13 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   modulePathIgnorePatterns: ['<rootDir>/tests/e2e'],
   transform: {
-    '^.+\\.tsx?$': 'babel-jest',
+    '^.+\\.[jt]sx?$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(jest-)?@react-native|react-native|react-navigation|@react-native-community|@sentry/*|bip32|uint8array-tools|@scure/base|@noble/hashes|valibot|wif)',
+    'node_modules/(?!(jest-)?@react-native|react-native|react-navigation|@react-native-community|@sentry/*|bip32|uint8array-tools|@scure/base|@noble/hashes|valibot|wif|uuid)',
   ],
   moduleNameMapper: {
-    '^uuid$': '<rootDir>/node_modules/uuid/dist/cjs/index.js',
+    '^uuid$': '<rootDir>/node_modules/uuid/dist-node/index.js',
     '^react-localization$': '<rootDir>/node_modules/react-localization/lib/react-localization.umd.js',
   },
   coveragePathIgnorePatterns: ['/node_modules/'],
