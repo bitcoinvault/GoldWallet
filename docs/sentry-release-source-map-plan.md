@@ -12,13 +12,14 @@
 - `corepack yarn check:sentry-release-integration` guards the current Android Sentry Gradle integration and iOS source-map/dSYM upload phases.
 - `corepack yarn check:sentry-release-integration-guard` verifies the Sentry release integration guard fixtures.
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available before release source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
-- The prerequisite audit records per-file readiness for the three required Sentry properties files, validates that `create-sentry-properties.sh` writes all three paths, and confirms the expected non-secret static defaults without printing token values.
+- The prerequisite audit records per-file readiness for the three required Sentry properties files, validates that `create-sentry-properties.sh` writes all three paths, confirms the expected non-secret static defaults without printing token values, and records whether the latest local Android release summary artifact is present and valid.
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary, including per-file readiness counts and generator coverage.
 - `corepack yarn sentry:android-warning:audit` verifies that Sentry Gradle/source-map wiring remains tracked before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
 - The active RN `0.81` Android warning audit no longer reports Sentry `execResult`; Sentry still needs release/source-map validation with local credentials before claiming the SDK/tooling change complete for release artifacts.
-- The latest npm release checked for `@sentry/react-native` on 2026-05-29 is `8.13.0`, so a real cleanup would be a major SDK upgrade.
+- The latest npm release checked for `@sentry/react-native` on 2026-05-31 is `8.13.0`, so there is no package bump to take on the current RN `0.85.3` baseline.
 - `@sentry/react-native@8.13.0` declares `react-native >=0.65.0`, but release artifact behavior still has to be proven instead of patching `node_modules` or disabling source-map upload.
+- Android release APK/bundle generation has now been proven locally for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease`, but Sentry source-map upload remains explicitly not claimed until `sentry.properties` and `SENTRY_AUTH_TOKEN` are available.
 
 ## Why This Needs A Dedicated Branch
 

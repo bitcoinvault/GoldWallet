@@ -37,6 +37,11 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const invalidFiles = getLineValue(summary, 'Invalid files');
   const readinessEntries = getLineValue(summary, 'Properties file readiness entries');
   const readyPropertiesFiles = getLineValue(summary, 'Ready properties files');
+  const androidReleaseSummaryPresent = getLineValue(summary, 'Android release summary present');
+  const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
+  const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
+  const androidReleaseSummaryErrors = getLineValue(summary, 'Android release summary errors');
+  const sentryReleaseUploadValidation = getLineValue(summary, 'Sentry release upload validation');
   const createScriptPresent = getLineValue(summary, 'create-sentry-properties.sh present');
   const createScriptUsesToken = getLineValue(summary, 'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN');
   const createScriptWritesRootProperties = getLineValue(summary, 'create-sentry-properties.sh writes root properties');
@@ -49,6 +54,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const missingFileLines = getBulletLinesAfter(summary, 'Missing files');
   const invalidFileLines = getBulletLinesAfter(summary, 'Invalid files');
   const readinessLines = getBulletLinesAfter(summary, 'Properties file readiness entries');
+  const androidReleaseSummaryErrorLines = getBulletLinesAfter(summary, 'Android release summary errors');
 
   if (/(auth\.token|SENTRY_AUTH_TOKEN)\s*=/.test(summary)) {
     errors.push('summary must not print Sentry token assignments');
@@ -112,7 +118,39 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push(`Ready properties files must be a non-negative integer. Received: ${readyPropertiesFiles || 'missing'}`);
   }
 
+  if (!['yes', 'no'].includes(androidReleaseSummaryPresent)) {
+    errors.push(`Android release summary present must be yes or no. Received: ${androidReleaseSummaryPresent || 'missing'}`);
+  }
+
+  if (!androidReleaseSummaryVariants) {
+    errors.push('Android release summary variants line is missing');
+  }
+
+  if (!['yes', 'no'].includes(androidReleaseSummaryValid)) {
+    errors.push(`Android release summary valid must be yes or no. Received: ${androidReleaseSummaryValid || 'missing'}`);
+  }
+
+  if (!/^\d+$/.test(androidReleaseSummaryErrors)) {
+    errors.push(`Android release summary errors must be a non-negative integer. Received: ${androidReleaseSummaryErrors || 'missing'}`);
+  } else if (Number(androidReleaseSummaryErrors) !== androidReleaseSummaryErrorLines.length) {
+    errors.push(`Android release summary errors count is ${androidReleaseSummaryErrors}, but listed ${androidReleaseSummaryErrorLines.length}`);
+  }
+
+  if (androidReleaseSummaryPresent === 'no' && androidReleaseSummaryVariants !== 'none') {
+    errors.push('Missing Android release summary must report variants as none');
+  }
+
+  if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryErrors !== '0') {
+    errors.push('Valid Android release summary must have 0 summary errors');
+  }
+
+  if (sentryReleaseUploadValidation !== 'not claimed') {
+    errors.push(`Sentry release upload validation must be not claimed. Received: ${sentryReleaseUploadValidation || 'missing'}`);
+  }
+
   [
+    androidReleaseSummaryPresent,
+    androidReleaseSummaryValid,
     createScriptPresent,
     createScriptUsesToken,
     createScriptWritesRootProperties,
