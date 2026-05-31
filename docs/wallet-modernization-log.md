@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.252 - Babel and dotenv tooling refresh
+
+- Branch: `feature/bem-37-252-babel-env-tooling-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `babel-plugin-module-resolver` from `4.1.0` to `5.0.3`, the latest npm release checked for this branch.
+- Move `dotenv` from `10.0.0` to `17.4.2`, the latest npm release checked for this branch.
+- Keep the existing Babel `root` and `app` alias configuration unchanged.
+- Add `quiet: true` to the E2E dotenv setup so `dotenv@17` does not print injection noise during test startup.
+
+Findings:
+
+- `npm view babel-plugin-module-resolver@5.0.3 version engines dependencies peerDependencies type main --json` keeps the same plugin entrypoint model used by the current Babel config.
+- `npm view dotenv@17.4.2 version engines dependencies peerDependencies type exports main types --json` supports CommonJS `require`, default import interop, and `config({ path })`.
+- `dotenv@17.4.2` prints an injection message unless `quiet: true` is set; the E2E setup now suppresses that output.
+- Installing `babel-plugin-module-resolver@5.0.3` pulls `glob@9.3.5`, which emits an upstream support warning during install. The branch keeps the latest plugin target because Babel/Jest/Android bundle validation passes.
+
+Validation:
+
+- `npm view babel-plugin-module-resolver@5.0.3 version engines dependencies peerDependencies type main --json`
+- `npm view dotenv@17.4.2 version engines dependencies peerDependencies type exports main types --json`
+- `corepack yarn add -D dotenv@17.4.2 babel-plugin-module-resolver@5.0.3`
+- Dotenv quiet probe: `dotenv.config({ path: 'tests/e2e/.env.e2e', quiet: true })`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.251 - Direct Bech32 dependency cleanup
 
 - Branch: `feature/bem-37-251-remove-direct-bech32`
