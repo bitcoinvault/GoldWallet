@@ -11,6 +11,9 @@ jest.mock('../../BlueElectrum', () => ({
 }));
 
 const assert = require('assert');
+const bitcoin = require('bitcoinjs-lib');
+
+const config = require('../../src/config').default;
 
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 
@@ -108,6 +111,75 @@ describe('HD wallet offline flows', () => {
       'KwLAKpr3t88u6E6CEQT6Qb2Q9ZJ6RJzoxc4Z2Gx6ALxwgAgaqfEn',
     );
     assert.throws(() => hd._getWifForAddress('royale1qmissingaddress'), /Could not find WIF/);
+  });
+
+  it('can create signed Bech32 Segwit HD transactions from offline UTXO fixtures', async () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const hd = new HDSegwitBech32Wallet();
+
+    await hd.setSecret(mnemonic);
+
+    const [fundingAddress, changeAddress, sendMaxFundingAddress] = hd.getAddress();
+    const recipientAddress = 'royale1qf46hgcx6tl90snxz9uuy0742zpuwsnm2ldam6n';
+    const utxos = [
+      {
+        txid: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        vout: 1,
+        value: 20000,
+        address: fundingAddress,
+      },
+    ];
+
+    const { tx, inputs, outputs, fee } = await hd.createTransaction(
+      utxos,
+      [{ address: recipientAddress, value: 5000 }],
+      1,
+      changeAddress,
+    );
+
+    assert.strictEqual(inputs.length, 1);
+    assert.strictEqual(outputs.length, 2);
+    assert.strictEqual(tx.ins.length, 1);
+    assert.strictEqual(tx.outs.length, 2);
+    assert.strictEqual(
+      fee,
+      inputs.reduce((sum, input) => sum + input.value, 0) - outputs.reduce((sum, output) => sum + output.value, 0),
+    );
+    assert.deepStrictEqual(
+      tx.outs.map(output => bitcoin.address.fromOutputScript(output.script, config.network)),
+      [recipientAddress, changeAddress],
+    );
+    assert.strictEqual(tx.outs[0].value, 5000);
+    assert.strictEqual(tx.outs[1].value, outputs[1].value);
+
+    const sendMax = await hd.createTransaction(
+      [
+        {
+          txid: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+          vout: 0,
+          value: 12000,
+          address: fundingAddress,
+        },
+        {
+          txid: 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+          vout: 2,
+          value: 8000,
+          address: sendMaxFundingAddress,
+        },
+      ],
+      [{ address: recipientAddress }],
+      1,
+      changeAddress,
+    );
+
+    assert.strictEqual(sendMax.inputs.length, 2);
+    assert.strictEqual(sendMax.outputs.length, 1);
+    assert.strictEqual(sendMax.tx.outs.length, 1);
+    assert.strictEqual(bitcoin.address.fromOutputScript(sendMax.tx.outs[0].script, config.network), recipientAddress);
+    assert.strictEqual(
+      sendMax.tx.outs[0].value,
+      sendMax.inputs.reduce((sum, input) => sum + input.value, 0) - sendMax.fee,
+    );
   });
 
   it('can generate Legacy HD BIP44 addresses based on xpub', async () => {

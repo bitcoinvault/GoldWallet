@@ -35,7 +35,7 @@ Do not upgrade this group package-by-package unless the package is already isola
 - authenticator/signing tests,
 - HD wallet derivation fixtures,
 - WIF import/export behavior and `_getWifForAddress` cache behavior,
-- transaction construction fixtures,
+- transaction construction fixtures, including signed BIP84 Bech32 regular-send and send-max UTXO coverage,
 - Android build and emulator smoke.
 
 Funded transaction flow remains blocked until a funded BTCV testnet wallet is available. Until then, do not claim live send/recovery transaction delivery; claim only offline construction/signing coverage and app startup/runtime smoke.

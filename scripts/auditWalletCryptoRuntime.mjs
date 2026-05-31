@@ -45,6 +45,7 @@ const requiredSourceSnippets = [
   ['tests/integration/App.offline.test.js', 'single-key wallets derive stable BTCV addresses from the same compressed WIF'],
   ['tests/integration/HDWallet.offline.test.js', 'HD wallet offline flows'],
   ['tests/integration/HDWallet.offline.test.js', '_getWifForAddress'],
+  ['tests/integration/HDWallet.offline.test.js', 'can create signed Bech32 Segwit HD transactions from offline UTXO fixtures'],
   ['tests/unit/signer.test.js', "require('bitcoinjs-lib')"],
 ];
 
