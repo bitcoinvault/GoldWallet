@@ -15,7 +15,7 @@ export class HDSegwitP2SHWallet extends AbstractHDSegwitP2SHWallet {
 
   nodeToAddress(hdNode) {
     const { address } = bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey, network: config.network }),
+      redeem: bitcoin.payments.p2wpkh({ pubkey: Buffer.from(hdNode.publicKey), network: config.network }),
       network: config.network,
     });
 

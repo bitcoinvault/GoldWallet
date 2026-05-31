@@ -9,10 +9,10 @@ import config from '../src/config';
 import { ELECTRUM_VAULT_SEED_PREFIXES } from '../src/consts';
 import { electrumVaultMnemonicToSeed, isElectrumVaultMnemonic, getMasterPublicKeyPrefix } from '../utils/crypto';
 
-const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');
 
 const i18n = require('../loc');
+const HDNode = require('../utils/bip32');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -146,11 +146,11 @@ export class AbstractHDSegwitP2SHWallet extends AbstractHDWallet {
     if (!this.seed) {
       this.seed = await this.getSeed();
     }
-    const root = bitcoin.bip32.fromSeed(this.seed, config.network);
+    const root = HDNode.fromSeed(this.seed, config.network);
     const path = this._getPath(`/0/${index}`);
     const child = root.derivePath(path);
 
-    return bitcoin.ECPair.fromPrivateKey(child.privateKey, { network: config.network }).toWIF();
+    return bitcoin.ECPair.fromPrivateKey(Buffer.from(child.privateKey), { network: config.network }).toWIF();
   }
 
   /**

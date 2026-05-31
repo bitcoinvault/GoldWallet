@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.244 - BIP32 latest compatibility migration
+
+- Branch: `feature/bem-37-244-bip32-v5-compat-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the direct `bip32` dependency from `2.0.6` to latest `5.0.1`.
+- Add `@bitcoinerlab/secp256k1@1.2.0` as the React Native-friendly ECC backend required by the latest `bip32` factory API.
+- Add `utils/bip32.js` as a local adapter so wallet classes keep using the old `fromSeed`/`fromBase58` surface.
+- Convert `Uint8Array` public/private keys from the latest `bip32` line back to `Buffer` where the BTCV `bitcoinjs-lib` fork still expects Buffer inputs.
+- Update Jest handling for modern ESM crypto dependencies used by the new `bip32` stack.
+
+Findings:
+
+- A blind `bip32@5.0.1` bump failed immediately on ESM dependency parsing and then on `Uint8Array`/`Buffer` incompatibility with the existing BTCV `bitcoinjs-lib` fork.
+- `tiny-secp256k1@2.x` passed Node/Jest with a CJS entry but failed Android bundling because Metro hit WASM/Node `crypto` paths, so the branch uses the pure-JavaScript `@bitcoinerlab/secp256k1` backend instead.
+- The adapter plus explicit Buffer conversion keeps BIP49, BIP84, and legacy HD derivation fixtures stable on the latest direct `bip32` package.
+- The direct `wif` package remains at `2.0.6`; moving it to `5.0.0` is a separate fork-coupled migration because the BTCV bitcoin stack still consumes the 2.x line.
+
+Validation:
+
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.243 - BIP49 transaction fixture and send-max fix
 
 - Branch: `feature/bem-37-243-bip49-transaction-fixtures`
