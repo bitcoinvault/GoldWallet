@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.260 - Android release variant evidence refresh
+
+- Branch: `feature/bem-37-260-android-release-validation-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the guarded local Android release validation on the current RN `0.85.3` modernization baseline.
+- Validate the default non-beta release set: `devRelease`, `stageRelease`, and `prodRelease`.
+- Keep release evidence in ignored `local-docs/android-release-dev-summary.txt` while recording the milestone in the tracked modernization log.
+
+Findings:
+
+- All three Android release variants assembled successfully with JDK 17 on 2026-05-31.
+- The generated release summary records APK path, byte size, SHA-256 digest, Gradle task, exit code, Java executable, and Java version for each variant.
+- This proves local Android release bundle/APK generation only. Sentry source-map upload is still not claimed until `sentry.properties` and `SENTRY_AUTH_TOKEN` are available.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.259 - React patch compatibility blocker refresh
 
 - Branch: `feature/bem-37-259-react-patch-cohort-refresh`
