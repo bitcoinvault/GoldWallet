@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.287 - Android release variant validation
+
+- Branch: `feature/bem-37-287-android-release-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Run the guarded local Android release validation for `devRelease`, `stageRelease`, and `prodRelease` with JDK 17.
+- Validate the generated release summary artifact so APK path, size, and SHA-256 evidence match the produced unsigned APK files.
+- Re-run release-services audits against the fresh Android release summary so CodePush, Firebase, Sentry, and push-notification readiness reports distinguish proven APK/bundling from unclaimed runtime delivery.
+- Refresh the release-services compatibility audit with the current release-build evidence and remaining credential/runtime blockers.
+
+Findings:
+
+- `devRelease`, `stageRelease`, and `prodRelease` assembled successfully with `SENTRY_DISABLE_AUTO_UPLOAD=true`.
+- Local APK/bundling evidence is now present for all three guarded non-beta release variants.
+- Sentry source-map upload validation remains unclaimed until `sentry.properties` or `SENTRY_AUTH_TOKEN` is available.
+- CodePush update validation remains unclaimed because App Center CodePush is retired and dev deployment keys are blank; the current branch only proves release APK generation and guarded wiring.
+- Firebase runtime delivery validation remains unclaimed until FCM/Crashlytics/Analytics behavior is tested in a real release/runtime environment.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn check:android-release-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn push-notification:bridge-audit`
+- `corepack yarn push-notification:bridge-check-summary`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.286 - React Native target channel guard
 
 - Branch: `feature/bem-37-286-rn-target-channel-guard`
