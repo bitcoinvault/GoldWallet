@@ -19,6 +19,9 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   const podfilePlatform = getLineValue(summary, 'Podfile iOS platform');
   const deploymentTargets = getLineValue(summary, 'Xcode deployment targets');
   const schemeCount = getLineValue(summary, 'Guarded iOS schemes');
+  const sentryBundlePhaseCount = getLineValue(summary, 'iOS Sentry bundle/source-map phases');
+  const sentryDsymPhaseCount = getLineValue(summary, 'iOS Sentry dSYM upload phases');
+  const codePushPlistPlaceholderCount = getLineValue(summary, 'iOS CodePush plist placeholders');
   const xcodebuildVersion = getLineValue(summary, 'xcodebuild version');
   const errorCount = getLineValue(summary, 'Errors');
   const warningCount = getLineValue(summary, 'Warnings');
@@ -53,6 +56,18 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
 
   if (schemeCount !== '8') {
     errors.push(`Guarded iOS schemes must be 8. Received: ${schemeCount || 'missing'}`);
+  }
+
+  if (sentryBundlePhaseCount !== '4') {
+    errors.push(`iOS Sentry bundle/source-map phases must be 4. Received: ${sentryBundlePhaseCount || 'missing'}`);
+  }
+
+  if (sentryDsymPhaseCount !== '3') {
+    errors.push(`iOS Sentry dSYM upload phases must be 3. Received: ${sentryDsymPhaseCount || 'missing'}`);
+  }
+
+  if (codePushPlistPlaceholderCount !== '3') {
+    errors.push(`iOS CodePush plist placeholders must be 3. Received: ${codePushPlistPlaceholderCount || 'missing'}`);
   }
 
   if (!xcodebuildVersion) {

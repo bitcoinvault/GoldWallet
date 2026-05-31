@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.249 - iOS release static readiness validation
+
+- Branch: `feature/bem-37-249-ios-release-static-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Validate the iOS static release configuration on Windows before handing archive validation to a macOS/Xcode environment.
+- Extend the iOS readiness summary to include Sentry source-map bundle phases, Sentry dSYM upload phases, and CodePush plist placeholder coverage.
+- Keep runtime code unchanged.
+
+Findings:
+
+- Static iOS readiness is green for macOS archive validation.
+- React Native `0.85.3` reports minimum iOS `15.1` and minimum Xcode `16.1`.
+- `ios/Podfile` and Xcode deployment targets are aligned at iOS `15.1`.
+- The project has `8` guarded iOS schemes.
+- The Xcode project currently has `4` Sentry bundle/source-map phases and `3` Sentry dSYM upload phases.
+- Non-beta iOS plists have `3` CodePush deployment-key placeholders.
+- iOS compile/archive validation is blocked on this machine because `xcodebuild` requires macOS with Xcode.
+
+Validation:
+
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+
 ### BEM-37.248 - Android dev release validation
 
 - Branch: `feature/bem-37-248-android-release-validation`
