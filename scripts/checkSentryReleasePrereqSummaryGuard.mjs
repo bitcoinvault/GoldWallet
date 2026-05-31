@@ -15,6 +15,11 @@ const notReadySummary = [
   `Properties file readiness entries: ${requiredSentryPropertiesFiles.length}`,
   ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}: missing`),
   'Ready properties files: 0',
+  'Android release summary present: yes',
+  'Android release summary variants: beta',
+  'Android release summary valid: yes',
+  'Android release summary errors: 0',
+  'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
   'create-sentry-properties.sh writes root properties: yes',
@@ -39,6 +44,11 @@ const readySummary = [
   `Properties file readiness entries: ${requiredSentryPropertiesFiles.length}`,
   ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}: ready`),
   `Ready properties files: ${requiredSentryPropertiesFiles.length}`,
+  'Android release summary present: yes',
+  'Android release summary variants: dev, stage, prod',
+  'Android release summary valid: yes',
+  'Android release summary errors: 0',
+  'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
   'create-sentry-properties.sh writes root properties: yes',
@@ -99,6 +109,11 @@ assertRejected(
   'Broken create script target fixture',
   notReadySummary.replace('create-sentry-properties.sh writes Android properties: yes', 'create-sentry-properties.sh writes Android properties: no'),
   'Present create-sentry-properties.sh',
+);
+assertRejected(
+  'Claimed Sentry upload fixture',
+  notReadySummary.replace('Sentry release upload validation: not claimed', 'Sentry release upload validation: claimed'),
+  'not claimed',
 );
 assertRejected(
   'Missing required action fixture',

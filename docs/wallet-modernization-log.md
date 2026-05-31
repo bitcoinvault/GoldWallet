@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.262 - Sentry release prerequisite evidence refresh
+
+- Branch: `feature/bem-37-262-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live npm metadata for `@sentry/react-native` after the Android release proof branches.
+- Extend the Sentry release prerequisite audit so it records whether the latest local Android release summary artifact is present and valid.
+- Keep source-map upload status explicit: release APK/bundle generation is proven locally, but Sentry upload is not claimed without credentials.
+
+Findings:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json` reports latest `8.13.0`, matching the installed package.
+- Android and iOS Sentry release integration remains wired, and runtime usage remains scoped to `App.tsx`, `Main.tsx`, and `logger/index.ts`.
+- The current local Sentry prerequisite summary sees a valid Android release summary artifact for `beta`, but reports `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` as missing.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn check:sentry-usage-scope`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.261 - Android beta release summary override
 
 - Branch: `feature/bem-37-261-android-beta-release-summary`

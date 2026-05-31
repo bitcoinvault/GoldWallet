@@ -2,10 +2,12 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
+import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary.txt');
+const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
 export const requiredSentryPropertiesFiles = ['sentry.properties', 'android/sentry.properties', 'ios/sentry.properties'];
 export const requiredSentryPropertiesKeys = ['defaults.url', 'defaults.org', 'defaults.project', 'auth.token'];
 export const expectedSentryPropertiesValues = {
@@ -17,6 +19,11 @@ const createScriptPath = path.join(root, 'create-sentry-properties.sh');
 
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const readJson = relativePath => JSON.parse(read(relativePath));
+const getSummaryLineValue = (content, label) => {
+  const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
+
+  return line ? line.slice(label.length + 2).trim() : '';
+};
 const parseProperties = content =>
   new Map(
     content
@@ -72,6 +79,17 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     .map(file => file.relativePath);
   const invalidFiles = propertiesFileReadiness.filter(file => file.status === 'invalid');
   const readyPropertiesFiles = propertiesFileReadiness.filter(file => file.status === 'ready');
+  const hasAndroidReleaseSummary = existsSync(androidReleaseSummaryPath);
+  const androidReleaseSummary = hasAndroidReleaseSummary ? readFileSync(androidReleaseSummaryPath, 'utf8') : '';
+  const androidReleaseSummaryVariants = hasAndroidReleaseSummary
+    ? getSummaryLineValue(androidReleaseSummary, 'Variants')
+        .split(',')
+        .map(variant => variant.trim())
+        .filter(Boolean)
+    : [];
+  const androidReleaseSummaryErrors = hasAndroidReleaseSummary
+    ? getAndroidReleaseSummaryErrors(androidReleaseSummary, root, { expectedVariants: androidReleaseSummaryVariants })
+    : [];
 
   const hasCreateScript = existsSync(createScriptPath);
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';
@@ -92,6 +110,9 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     missingFiles,
     invalidFiles,
     readyPropertiesFiles,
+    hasAndroidReleaseSummary,
+    androidReleaseSummaryVariants,
+    androidReleaseSummaryErrors,
     hasCreateScript,
     createScriptUsesToken,
     createScriptWritesRootProperties,
@@ -142,6 +163,12 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
     lines.push(`- ${file.relativePath}: ${file.status}`);
   });
   lines.push(`Ready properties files: ${audit.readyPropertiesFiles.length}`);
+  lines.push(`Android release summary present: ${audit.hasAndroidReleaseSummary ? 'yes' : 'no'}`);
+  lines.push(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
+  lines.push(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
+  lines.push(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
+  audit.androidReleaseSummaryErrors.forEach(error => lines.push(`- ${error}`));
+  lines.push('Sentry release upload validation: not claimed');
   lines.push(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh writes root properties: ${audit.createScriptWritesRootProperties ? 'yes' : 'no'}`);
@@ -199,6 +226,11 @@ const printReport = audit => {
   console.log('Properties file readiness:');
   audit.propertiesFileReadiness.forEach(file => console.log(`- ${file.relativePath}: ${file.status}`));
   console.log(`Ready properties files: ${audit.readyPropertiesFiles.length}`);
+  console.log(`Android release summary present: ${audit.hasAndroidReleaseSummary ? 'yes' : 'no'}`);
+  console.log(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
+  console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
+  console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
+  console.log('Sentry release upload validation: not claimed');
   console.log(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh writes root properties: ${audit.createScriptWritesRootProperties ? 'yes' : 'no'}`);
