@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.235 - Jest JUnit reporter patch refresh
+
+- Branch: `feature/bem-37-jest-junit-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move `jest-junit` from `12.2.0` to `12.3.0`, the latest npm 12.x release checked for this branch.
+- Keep the Jest major line unchanged at `29.7.0`; Jest 30 remains a separate migration.
+
+Why:
+
+- `jest-junit` is used for test report generation, so this is a low-risk patch/minor tooling refresh that should stay isolated from runner upgrades.
+
+Validation:
+
+- `npm view jest-junit@12 version engines dependencies peerDependencies --json`
+- `corepack yarn add --dev jest-junit@12.3.0`
+- `node -e "console.log(require('jest-junit/package.json').version); require('jest-junit'); console.log('jest-junit require ok')"`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.234 - Google APIs tooling refresh
 
 - Branch: `feature/bem-37-googleapis-tooling-refresh`
