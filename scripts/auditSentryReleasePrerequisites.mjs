@@ -8,17 +8,22 @@ const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary.txt');
 export const requiredSentryPropertiesFiles = ['sentry.properties', 'android/sentry.properties', 'ios/sentry.properties'];
 export const requiredSentryPropertiesKeys = ['defaults.url', 'defaults.org', 'defaults.project', 'auth.token'];
+export const expectedSentryPropertiesValues = {
+  'defaults.url': 'https://sentry.io/',
+  'defaults.org': 'cloudbest',
+  'defaults.project': 'goldwallet',
+};
 const createScriptPath = path.join(root, 'create-sentry-properties.sh');
 
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const readJson = relativePath => JSON.parse(read(relativePath));
-const parsePropertiesKeys = content =>
-  new Set(
+const parseProperties = content =>
+  new Map(
     content
       .split(/\r?\n/)
       .map(line => line.trim())
       .filter(line => line && !line.startsWith('#') && line.includes('='))
-      .map(line => line.slice(0, line.indexOf('='))),
+      .map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]),
   );
 
 export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) => {
@@ -28,42 +33,71 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidBuildGradle: read('android/app/build.gradle'),
     iosProject: read('ios/GoldWallet.xcodeproj/project.pbxproj'),
   });
-  const missingFiles = requiredSentryPropertiesFiles.filter(relativePath => !existsSync(path.join(root, relativePath)));
-  const invalidFiles = [];
+  const propertiesFileReadiness = [];
 
-  requiredSentryPropertiesFiles
-    .filter(relativePath => !missingFiles.includes(relativePath))
-    .forEach(relativePath => {
-      const content = read(relativePath);
-      const keys = parsePropertiesKeys(content);
-      const missingKeys = requiredSentryPropertiesKeys.filter(key => !keys.has(key));
-      const authLine = content
-        .split(/\r?\n/)
-        .find(line => line.trim().startsWith('auth.token='));
-      const hasBlankToken = authLine !== undefined && authLine.trim() === 'auth.token=';
+  requiredSentryPropertiesFiles.forEach(relativePath => {
+    const absolutePath = path.join(root, relativePath);
 
-      if (missingKeys.length > 0 || hasBlankToken) {
-        invalidFiles.push({
-          relativePath,
-          missingKeys,
-          hasBlankToken,
-        });
-      }
+    if (!existsSync(absolutePath)) {
+      propertiesFileReadiness.push({
+        relativePath,
+        status: 'missing',
+        missingKeys: requiredSentryPropertiesKeys,
+        invalidStaticKeys: [],
+        hasBlankToken: false,
+      });
+      return;
+    }
+
+    const content = read(relativePath);
+    const properties = parseProperties(content);
+    const missingKeys = requiredSentryPropertiesKeys.filter(key => !properties.has(key));
+    const invalidStaticKeys = Object.entries(expectedSentryPropertiesValues)
+      .filter(([key, expectedValue]) => properties.has(key) && properties.get(key) !== expectedValue)
+      .map(([key]) => key);
+    const hasBlankToken = properties.has('auth.token') && properties.get('auth.token') === '';
+    const status = missingKeys.length === 0 && invalidStaticKeys.length === 0 && !hasBlankToken ? 'ready' : 'invalid';
+
+    propertiesFileReadiness.push({
+      relativePath,
+      status,
+      missingKeys,
+      invalidStaticKeys,
+      hasBlankToken,
     });
+  });
+
+  const missingFiles = propertiesFileReadiness
+    .filter(file => file.status === 'missing')
+    .map(file => file.relativePath);
+  const invalidFiles = propertiesFileReadiness.filter(file => file.status === 'invalid');
+  const readyPropertiesFiles = propertiesFileReadiness.filter(file => file.status === 'ready');
 
   const hasCreateScript = existsSync(createScriptPath);
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';
   const createScriptUsesToken = createScript.includes('SENTRY_AUTH_TOKEN');
+  const createScriptWritesRootProperties = />\s*sentry\.properties\b/.test(createScript);
+  const createScriptWritesAndroidProperties = />\s*android\/sentry\.properties\b/.test(createScript);
+  const createScriptWritesIosProperties = />\s*ios\/sentry\.properties\b/.test(createScript);
+  const createScriptStaticDefaultsValid = Object.entries(expectedSentryPropertiesValues).every(
+    ([key, value]) => createScript.includes(`${key}=${value}`),
+  );
   const envHasToken = Boolean(env.SENTRY_AUTH_TOKEN);
   const ready = missingFiles.length === 0 && invalidFiles.length === 0 && releaseIntegrationErrors.length === 0;
 
   return {
     sentryReactNativeVersion,
     releaseIntegrationErrors,
+    propertiesFileReadiness,
     missingFiles,
     invalidFiles,
+    readyPropertiesFiles,
     hasCreateScript,
     createScriptUsesToken,
+    createScriptWritesRootProperties,
+    createScriptWritesAndroidProperties,
+    createScriptWritesIosProperties,
+    createScriptStaticDefaultsValid,
     envHasToken,
     ready,
   };
@@ -92,6 +126,10 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
       issues.push(`missing keys: ${file.missingKeys.join(', ')}`);
     }
 
+    if (file.invalidStaticKeys.length > 0) {
+      issues.push(`unexpected static keys: ${file.invalidStaticKeys.join(', ')}`);
+    }
+
     if (file.hasBlankToken) {
       issues.push('blank auth.token');
     }
@@ -99,13 +137,22 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
     lines.push(`- ${file.relativePath}: ${issues.join('; ')}`);
   });
 
+  lines.push(`Properties file readiness entries: ${audit.propertiesFileReadiness.length}`);
+  audit.propertiesFileReadiness.forEach(file => {
+    lines.push(`- ${file.relativePath}: ${file.status}`);
+  });
+  lines.push(`Ready properties files: ${audit.readyPropertiesFiles.length}`);
   lines.push(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
+  lines.push(`create-sentry-properties.sh writes root properties: ${audit.createScriptWritesRootProperties ? 'yes' : 'no'}`);
+  lines.push(`create-sentry-properties.sh writes Android properties: ${audit.createScriptWritesAndroidProperties ? 'yes' : 'no'}`);
+  lines.push(`create-sentry-properties.sh writes iOS properties: ${audit.createScriptWritesIosProperties ? 'yes' : 'no'}`);
+  lines.push(`create-sentry-properties.sh static defaults valid: ${audit.createScriptStaticDefaultsValid ? 'yes' : 'no'}`);
   lines.push(`SENTRY_AUTH_TOKEN available in current shell: ${audit.envHasToken ? 'yes' : 'no'}`);
   lines.push(
     audit.ready
       ? 'Required action: none; release source-map prerequisites are present locally.'
-      : 'Required action: generate sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
+      : 'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -137,6 +184,10 @@ const printReport = audit => {
         issues.push(`missing keys: ${file.missingKeys.join(', ')}`);
       }
 
+      if (file.invalidStaticKeys.length > 0) {
+        issues.push(`unexpected static keys: ${file.invalidStaticKeys.join(', ')}`);
+      }
+
       if (file.hasBlankToken) {
         issues.push('blank auth.token');
       }
@@ -145,13 +196,22 @@ const printReport = audit => {
     });
   }
 
+  console.log('Properties file readiness:');
+  audit.propertiesFileReadiness.forEach(file => console.log(`- ${file.relativePath}: ${file.status}`));
+  console.log(`Ready properties files: ${audit.readyPropertiesFiles.length}`);
   console.log(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
+  console.log(`create-sentry-properties.sh writes root properties: ${audit.createScriptWritesRootProperties ? 'yes' : 'no'}`);
+  console.log(`create-sentry-properties.sh writes Android properties: ${audit.createScriptWritesAndroidProperties ? 'yes' : 'no'}`);
+  console.log(`create-sentry-properties.sh writes iOS properties: ${audit.createScriptWritesIosProperties ? 'yes' : 'no'}`);
+  console.log(`create-sentry-properties.sh static defaults valid: ${audit.createScriptStaticDefaultsValid ? 'yes' : 'no'}`);
   console.log(`SENTRY_AUTH_TOKEN available in current shell: ${audit.envHasToken ? 'yes' : 'no'}`);
 
   if (!audit.ready) {
     console.log('Release source-map validation is not ready locally.');
-    console.log('Required before claiming Sentry release validation: generate sentry.properties with SENTRY_AUTH_TOKEN.');
+    console.log(
+      'Required before claiming Sentry release validation: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN.',
+    );
   } else {
     console.log('Release source-map prerequisites are present locally.');
   }
