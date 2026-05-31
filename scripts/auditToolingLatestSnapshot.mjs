@@ -52,6 +52,11 @@ const trackedTooling = [
     decision: 'current - latest E2E mail helper verified with TypeScript',
   },
   {
+    name: 'jsdom',
+    source: 'devDependencies',
+    decision: 'current - latest E2E mail DOM parser verified with TypeScript and helper probe',
+  },
+  {
     name: 'jetifier',
     source: 'devDependencies',
     decision: 'current - latest AndroidX migration helper verified with postinstall, Android build, and emulator smoke',

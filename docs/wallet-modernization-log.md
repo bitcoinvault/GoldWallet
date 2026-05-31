@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.295 - JSDOM runtime latest update
+
+- Branch: `feature/bem-37-295-jsdom-runtime-latest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the direct `jsdom` E2E mail parser runtime from `^16.6.0` to latest checked `29.1.1`.
+- Keep app runtime code and native configuration unchanged.
+- Add `jsdom` to the tooling latest snapshot so the E2E mail DOM parser stays tracked with Mailosaur and report tooling.
+- Refresh dependency strategy notes for the isolated E2E tooling cohort.
+
+Findings:
+
+- `npm view jsdom version dist-tags peerDependencies dependencies engines --json` reports latest `29.1.1`, with Node engines compatible with the current Node `22.18.0` baseline.
+- Runtime usage is scoped to `tests/e2e/mailing/index.ts`, where it parses the `#id_pincode` email confirmation element.
+- A direct Node probe with `JSDOM('<div id="id_pincode">123456</div>')` returns the expected `123456` text.
+
+Validation:
+
+- `npm view jsdom version dist-tags peerDependencies dependencies engines --json`
+- `corepack yarn add jsdom@29.1.1`
+- JSDOM helper probe for `#id_pincode`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn typescript:check`
+- `node node_modules\jest\bin\jest.js --config tests\e2e\config.json --listTests`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.294 - TypeScript ESLint 8 baseline compatibility
 
 - Branch: `feature/bem-37-294-typescript-eslint-lint-baseline`
