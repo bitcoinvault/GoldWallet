@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.232 - Transitive security resolutions refresh
+
+- Branch: `feature/bem-37-transitive-security-resolutions`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the `node-fetch` Yarn resolution from `^2.6.1` to `2.7.0`, the highest compatible CommonJS v2 release checked for this branch.
+- Move the `semver` Yarn resolution from `^7.3.5` to `7.8.1`, the latest npm 7.x release checked for this branch.
+- Keep `node-fetch` on v2 because v3 is ESM-only and would be a separate compatibility migration.
+
+Why:
+
+- These are transitive/tooling dependency pins, so updating them reduces old dependency exposure without changing wallet runtime code.
+- The existing project already centralizes these packages through Yarn `resolutions`; this branch refreshes the forced versions instead of adding new runtime imports.
+
+Validation:
+
+- `npm view node-fetch@2 version dependencies engines peerDependencies --json`
+- `npm view semver@7 version dependencies engines peerDependencies --json`
+- `corepack yarn install --mode=skip-builds`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.231 - Flipper Redux tooling patch
 
 - Branch: `feature/bem-37-flipper-redux-patch`
