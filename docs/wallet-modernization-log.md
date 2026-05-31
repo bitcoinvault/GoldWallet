@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.304 - ESLint 10 flat config bridge
+
+- Branch: `feature/bem-37-304-eslint10-flat-config-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move ESLint from `8.57.0` to checked latest `10.4.1`.
+- Add the ESLint 10 flat-config bridge with `eslint.config.mjs`, `@eslint/js@10.0.1`, `@eslint/eslintrc@3.3.5`, `@eslint/compat@2.1.0`, and `jiti@2.7.0`.
+- Keep `.eslintrc` as the owned legacy baseline source for now, loaded through `FlatCompat`.
+- Remove `.eslintignore`; ignores are now owned by `eslint.config.mjs`.
+- Extend ESLint/tooling guards so the flat-config bridge, direct helper dependencies, and existing baseline assumptions stay explicit.
+
+Findings:
+
+- `npm view eslint version dist-tags engines dependencies peerDependencies --json` reports latest `10.4.1`; its Node engine accepts the current Node `v22.18.0` baseline.
+- ESLint 10 no longer loads `.eslintrc` by default and fails without `eslint.config.mjs`.
+- The flat-config bridge preserves the current lint baseline: `lint:baseline:audit` reports `35346` errors and `0` warnings after the migration.
+- The first bridge attempt surfaced 5 unused-disable warnings; disabling `reportUnusedDisableDirectives` in flat config preserves the current baseline semantics.
+- `globals` was removed as a direct dev dependency because this bridge does not use it directly; `jiti@2.7.0` is installed explicitly as the current ESLint 10 peer dependency.
+
+Validation:
+
+- `npm view eslint version dist-tags engines dependencies peerDependencies --json`
+- `npm view @eslint/js version dist-tags engines dependencies peerDependencies --json`
+- `npm view @eslint/eslintrc version dist-tags engines dependencies peerDependencies --json`
+- `npm view @eslint/compat version dist-tags engines dependencies peerDependencies --json`
+- `npm view jiti version engines peerDependencies dependencies --json`
+- `corepack yarn eslint --version`
+- `corepack yarn eslint --print-config src/App.tsx`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:eslint-config-compatibility`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+
 ### BEM-37.303 - Prettier 3 tooling migration
 
 - Branch: `feature/bem-37-303-prettier3-tooling-probe`

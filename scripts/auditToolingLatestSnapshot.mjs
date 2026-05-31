@@ -69,17 +69,38 @@ const trackedTooling = [
   {
     name: '@typescript-eslint/eslint-plugin',
     source: 'devDependencies',
-    decision: 'current - parser/plugin 8.60.0 pair verified on the ESLint 8.57 baseline',
+    decision: 'current - parser/plugin 8.60.0 pair verified through the ESLint 10 flat-config bridge',
   },
   {
     name: '@typescript-eslint/parser',
     source: 'devDependencies',
-    decision: 'current - parser/plugin 8.60.0 pair verified on the ESLint 8.57 baseline',
+    decision: 'current - parser/plugin 8.60.0 pair verified through the ESLint 10 flat-config bridge',
   },
   {
     name: 'eslint',
     source: 'devDependencies',
-    decision: 'deferred - ESLint major config migration is a separate lint baseline branch',
+    decision:
+      'current - latest ESLint 10 runtime verified through eslint.config.mjs while preserving the existing lint baseline',
+  },
+  {
+    name: '@eslint/js',
+    source: 'devDependencies',
+    decision: 'current - latest ESLint recommended config package required by the ESLint 10 flat-config bridge',
+  },
+  {
+    name: '@eslint/eslintrc',
+    source: 'devDependencies',
+    decision: 'current - latest FlatCompat package used to bridge the legacy .eslintrc baseline into ESLint 10',
+  },
+  {
+    name: '@eslint/compat',
+    source: 'devDependencies',
+    decision: 'current - latest compatibility helpers used to patch legacy plugin rules for ESLint 10',
+  },
+  {
+    name: 'jiti',
+    source: 'devDependencies',
+    decision: 'current - latest ESLint 10 peer dependency installed explicitly for config loading',
   },
   {
     name: 'prettier',
@@ -90,12 +111,12 @@ const trackedTooling = [
   {
     name: 'eslint-plugin-prettier',
     source: 'devDependencies',
-    decision: 'current - latest Prettier ESLint plugin verified with Prettier 3 and the existing ESLint 8 baseline',
+    decision: 'current - latest Prettier ESLint plugin verified with Prettier 3 and the ESLint 10 flat-config bridge',
   },
   {
     name: 'eslint-config-prettier',
     source: 'devDependencies',
-    decision: 'current - latest Prettier ESLint config verified with the existing ESLint 8 baseline',
+    decision: 'current - latest Prettier ESLint config verified with the ESLint 10 flat-config bridge',
   },
   {
     name: 'lint-staged',
