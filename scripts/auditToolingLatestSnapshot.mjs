@@ -1,5 +1,5 @@
 import { execFileSync } from 'child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -30,6 +30,26 @@ const trackedTooling = [
     name: 'jest-circus',
     source: 'devDependencies',
     decision: 'deferred - Jest runtime and runner versions must move together',
+  },
+  {
+    name: 'jest-junit',
+    source: 'devDependencies',
+    decision: 'current - latest report tooling verified separately from the Jest runtime',
+  },
+  {
+    name: 'junit-report-merger',
+    source: 'devDependencies',
+    decision: 'current - latest JUnit report merge tooling verified with the Detox report script',
+  },
+  {
+    name: 'babel-plugin-istanbul',
+    source: 'devDependencies',
+    decision: 'current - latest coverage instrumentation verified with Jest coverage',
+  },
+  {
+    name: 'mailosaur',
+    source: 'devDependencies',
+    decision: 'current - latest E2E mail helper verified with TypeScript',
   },
   {
     name: '@typescript-eslint/eslint-plugin',
@@ -93,6 +113,26 @@ const getInstalledVersion = packageName => {
   try {
     return require(`${packageName}/package.json`).version;
   } catch {
+    try {
+      let packageDir = path.dirname(require.resolve(packageName));
+
+      while (packageDir !== path.dirname(packageDir)) {
+        const packagePath = path.join(packageDir, 'package.json');
+
+        if (existsSync(packagePath)) {
+          const packageVersion = JSON.parse(readFileSync(packagePath, 'utf8')).version;
+
+          if (packageVersion) {
+            return packageVersion;
+          }
+        }
+
+        packageDir = path.dirname(packageDir);
+      }
+    } catch {
+      return null;
+    }
+
     return null;
   }
 };

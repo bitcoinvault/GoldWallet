@@ -76,6 +76,22 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
     errors.push('summary must include Jest tooling');
   }
 
+  if (!entryLines.some(line => line.includes('jest-junit'))) {
+    errors.push('summary must include Jest JUnit report tooling');
+  }
+
+  if (!entryLines.some(line => line.includes('junit-report-merger'))) {
+    errors.push('summary must include JUnit report merge tooling');
+  }
+
+  if (!entryLines.some(line => line.includes('babel-plugin-istanbul'))) {
+    errors.push('summary must include coverage instrumentation tooling');
+  }
+
+  if (!entryLines.some(line => line.includes('mailosaur'))) {
+    errors.push('summary must include E2E mail tooling');
+  }
+
   if (!entryLines.some(line => line.includes('typescript'))) {
     errors.push('summary must include TypeScript');
   }

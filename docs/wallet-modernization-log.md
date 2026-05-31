@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.271 - Tooling latest snapshot coverage
+
+- Branch: `feature/bem-37-271-tooling-snapshot-coverage`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the tooling latest snapshot audit to track isolated report, E2E mail, and coverage tooling after the latest refresh branches.
+- Add `jest-junit`, `junit-report-merger`, `babel-plugin-istanbul`, and `mailosaur` to the tracked tooling cohort.
+- Harden installed-version detection for packages like `mailosaur@11` that expose a nested package file without a version before the real package root.
+
+Findings:
+
+- The snapshot now records 17 tooling entries instead of 13.
+- The four newly tracked packages are currently on npm latest and are marked as current rather than deferred.
+- `mailosaur@11.1.1` validates as installed after skipping nested package files without a `version` field.
+- This branch changes audit/guard tooling and documentation only; it does not change app runtime, dependencies, native code, Metro, or Jest runtime packages, so emulator smoke is not required.
+
+Validation:
+
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.270 - E2E and coverage tooling latest refresh
 
 - Branch: `feature/bem-37-270-e2e-coverage-tooling-latest`
