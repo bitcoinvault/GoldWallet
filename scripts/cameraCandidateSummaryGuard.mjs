@@ -25,11 +25,15 @@ const getBulletLinesAfter = (content, label) => {
 
 export const getCameraCandidateSummaryErrors = summary => {
   const errors = [];
+  const metadataCheckedOn = getLineValue(summary, 'Metadata checked on');
   const legacyCamera = getLineValue(summary, 'Legacy camera latest');
   const visionCamera = getLineValue(summary, 'VisionCamera latest');
   const visionCameraNitroPeers = getLineValue(summary, 'VisionCamera Nitro peers');
+  const visionCameraRequiredPeers = getLineValue(summary, 'VisionCamera required peer packages');
   const cameraKit = getLineValue(summary, 'CameraKit latest');
   const cameraKitNodeEngine = getLineValue(summary, 'CameraKit node engine');
+  const qrRenderer = getLineValue(summary, 'QR renderer latest');
+  const qrEncoder = getLineValue(summary, 'QR encoder latest');
   const selectedProofTarget = getLineValue(summary, 'Selected proof target');
   const proofBranch = getLineValue(summary, 'Proof branch');
   const baselineStable = getLineValue(summary, 'Camera candidate baseline stable');
@@ -39,6 +43,10 @@ export const getCameraCandidateSummaryErrors = summary => {
 
   if (!summary.startsWith('Camera candidate audit')) {
     errors.push('Camera candidate summary header is missing');
+  }
+
+  if (metadataCheckedOn !== '2026-05-31') {
+    errors.push(`Metadata checked on must be 2026-05-31. Received: ${metadataCheckedOn || 'missing'}`);
   }
 
   if (legacyCamera !== 'react-native-camera@4.2.1') {
@@ -53,12 +61,24 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`VisionCamera Nitro peers must be yes. Received: ${visionCameraNitroPeers || 'missing'}`);
   }
 
+  if (visionCameraRequiredPeers !== 'react-native-nitro-modules, react-native-nitro-image') {
+    errors.push(`VisionCamera required peer packages are unexpected. Received: ${visionCameraRequiredPeers || 'missing'}`);
+  }
+
   if (cameraKit !== 'react-native-camera-kit@18.0.0') {
     errors.push(`CameraKit latest must be react-native-camera-kit@18.0.0. Received: ${cameraKit || 'missing'}`);
   }
 
   if (cameraKitNodeEngine !== '>=18') {
     errors.push(`CameraKit node engine must be >=18. Received: ${cameraKitNodeEngine || 'missing'}`);
+  }
+
+  if (qrRenderer !== 'react-native-qrcode-svg@6.3.21') {
+    errors.push(`QR renderer latest must be react-native-qrcode-svg@6.3.21. Received: ${qrRenderer || 'missing'}`);
+  }
+
+  if (qrEncoder !== 'qrcode@1.5.4') {
+    errors.push(`QR encoder latest must be qrcode@1.5.4. Received: ${qrEncoder || 'missing'}`);
   }
 
   if (selectedProofTarget !== 'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers') {

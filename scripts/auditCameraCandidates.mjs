@@ -9,6 +9,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
+export const cameraCandidateMetadataCheckedOn = '2026-05-31';
 
 export const collectCameraCandidateAudit = () => {
   const warnings = [];
@@ -29,7 +30,11 @@ export const collectCameraCandidateAudit = () => {
 
   [
     'react-native-vision-camera@5.0.11',
+    'react-native-nitro-modules',
+    'react-native-nitro-image',
     'react-native-camera-kit@18.0.0',
+    'react-native-qrcode-svg@6.3.21',
+    'qrcode@1.5.4',
     'Current scanner package: `react-native-camera-kit@18.0.0`',
     'CameraKit selected for the first migration branch',
   ].forEach(snippet => {
@@ -47,11 +52,15 @@ export const collectCameraCandidateAudit = () => {
   }
 
   return {
+    metadataCheckedOn: cameraCandidateMetadataCheckedOn,
     legacyCameraLatest: 'react-native-camera@4.2.1',
     visionCameraLatest: 'react-native-vision-camera@5.0.11',
     visionCameraNitroPeers: true,
+    visionCameraRequiredPeers: ['react-native-nitro-modules', 'react-native-nitro-image'],
     cameraKitLatest: 'react-native-camera-kit@18.0.0',
     cameraKitNodeEngine: '>=18',
+    qrRendererLatest: 'react-native-qrcode-svg@6.3.21',
+    qrEncoderLatest: 'qrcode@1.5.4',
     selectedProofTarget: 'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers',
     proofBranch: 'feature/bem-37-camera-kit-qr-proof',
     warnings,
@@ -64,11 +73,15 @@ export const formatCameraCandidateSummary = (audit, generatedAt = new Date().toI
   const lines = [
     'Camera candidate audit',
     `Generated at: ${generatedAt}`,
+    `Metadata checked on: ${audit.metadataCheckedOn}`,
     `Legacy camera latest: ${audit.legacyCameraLatest}`,
     `VisionCamera latest: ${audit.visionCameraLatest}`,
     `VisionCamera Nitro peers: ${audit.visionCameraNitroPeers ? 'yes' : 'no'}`,
+    `VisionCamera required peer packages: ${audit.visionCameraRequiredPeers.join(', ')}`,
     `CameraKit latest: ${audit.cameraKitLatest}`,
     `CameraKit node engine: ${audit.cameraKitNodeEngine}`,
+    `QR renderer latest: ${audit.qrRendererLatest}`,
+    `QR encoder latest: ${audit.qrEncoderLatest}`,
     `Selected proof target: ${audit.selectedProofTarget}`,
     `Proof branch: ${audit.proofBranch}`,
     `Camera candidate baseline stable: ${audit.baselineStable ? 'yes' : 'no'}`,

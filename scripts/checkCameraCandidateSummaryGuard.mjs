@@ -2,12 +2,16 @@ import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.m
 
 const validSummary = [
   'Camera candidate audit',
-  'Generated at: 2026-05-29T00:00:00.000Z',
+  'Generated at: 2026-05-31T00:00:00.000Z',
+  'Metadata checked on: 2026-05-31',
   'Legacy camera latest: react-native-camera@4.2.1',
   'VisionCamera latest: react-native-vision-camera@5.0.11',
   'VisionCamera Nitro peers: yes',
+  'VisionCamera required peer packages: react-native-nitro-modules, react-native-nitro-image',
   'CameraKit latest: react-native-camera-kit@18.0.0',
   'CameraKit node engine: >=18',
+  'QR renderer latest: react-native-qrcode-svg@6.3.21',
+  'QR encoder latest: qrcode@1.5.4',
   'Selected proof target: CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers',
   'Proof branch: feature/bem-37-camera-kit-qr-proof',
   'Camera candidate baseline stable: yes',
@@ -46,6 +50,16 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid camera candidate summary fixture', validSummary);
 assertRejected('Invalid VisionCamera Nitro peer fixture', invalidSummary, 'VisionCamera Nitro peers');
+assertRejected('Missing metadata date fixture', validSummary.replace('Metadata checked on: 2026-05-31', 'Metadata checked on: 2026-05-29'), 'Metadata checked on');
+assertRejected(
+  'Missing VisionCamera peer fixture',
+  validSummary.replace(
+    'VisionCamera required peer packages: react-native-nitro-modules, react-native-nitro-image',
+    'VisionCamera required peer packages: react-native-nitro-modules',
+  ),
+  'VisionCamera required peer packages',
+);
+assertRejected('Bad QR renderer fixture', validSummary.replace('QR renderer latest: react-native-qrcode-svg@6.3.21', 'QR renderer latest: missing'), 'QR renderer latest');
 assertRejected('Missing header fixture', validSummary.replace('Camera candidate audit', 'Bad header'), 'summary header');
 
 console.log('Camera candidate summary guard checks are valid.');
