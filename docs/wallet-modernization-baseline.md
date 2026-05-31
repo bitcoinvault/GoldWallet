@@ -36,6 +36,7 @@ Current stack:
 - Node.js for Metro/dev runtime: Node 22 LTS-compatible runtime
 - Repository Node hint: `.nvmrc` -> `22.18.0`
 - Yarn: `1.22.22` via Corepack
+- Git hooks: Husky `9.1.7` with repo-owned `.husky/pre-commit` and `.husky/pre-push` forwarding to `yarn precommit` and `yarn prepush`
 - Android build JDK: JDK 17 required by the AGP 8.13 baseline
 - Android Gradle Plugin: `8.13.2`
 - Gradle wrapper: `8.13`

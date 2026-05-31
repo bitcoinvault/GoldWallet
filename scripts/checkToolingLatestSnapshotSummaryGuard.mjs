@@ -4,8 +4,9 @@ const validSummary = [
   'Tooling latest snapshot audit',
   'Generated at: 2026-05-31T00:00:00.000Z',
   'Node version: v22.18.0',
-  'Entries: 10',
+  'Entries: 11',
   '- lint-staged: package 16.4.0, installed 16.4.0, latest 17.0.7, decision deferred - latest requires a newer Node baseline',
+  '- husky: package 9.1.7, installed 9.1.7, latest 9.1.7, decision current - latest hook runner verified with repo-owned .husky hooks and precommit/prepush scripts',
   '- jest: package 30.4.2, installed 30.4.2, latest 30.4.2, decision current - latest Jest runtime verified with RN preset environment resolutions and focused suites',
   '- jest-environment-node: package 30.4.1, installed 30.4.1, latest 30.4.1, decision current - latest Jest environment required to keep the RN preset compatible with Jest 30 runtime',
   '- jest-junit: package 17.0.0, installed 17.0.0, latest 17.0.0, decision current - latest report tooling verified separately from the Jest runtime',
@@ -43,8 +44,16 @@ const assertRejected = (label, summary, expectedError) => {
 assertAccepted('Valid tooling latest snapshot summary fixture', validSummary);
 assertRejected('Missing header fixture', validSummary.replace('Tooling latest snapshot audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-05-31T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 10', 'Entries: 2'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 11', 'Entries: 2'), 'Entries count');
 assertRejected('Missing required action fixture', validSummary.replace('tooling dependency branches', 'future work'), 'Required action');
+assertRejected(
+  'Missing Husky tooling fixture',
+  validSummary.replace(
+    '- husky: package 9.1.7, installed 9.1.7, latest 9.1.7, decision current - latest hook runner verified with repo-owned .husky hooks and precommit/prepush scripts',
+    '- hook-runner: package 9.1.7, installed 9.1.7, latest 9.1.7, decision current - latest hook runner verified with repo-owned hooks and precommit/prepush scripts',
+  ),
+  'Husky tooling',
+);
 assertRejected('Missing report tooling fixture', validSummary.replace('- jest-junit:', '- missing-junit:'), 'Jest JUnit report tooling');
 assertRejected('Missing Jest environment fixture', validSummary.replace('- jest-environment-node:', '- missing-jest-env:'), 'Jest environment tooling');
 assertRejected('Missing merge tooling fixture', validSummary.replace('- junit-report-merger:', '- missing-report-merger:'), 'JUnit report merge tooling');
