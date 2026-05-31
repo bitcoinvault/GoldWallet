@@ -35,9 +35,11 @@ const notReadySummary = [
   'Android release summary valid: yes',
   'Android release summary errors: 0',
   'CodePush update validation: not claimed',
-  'Warnings: 2',
+  'Warnings: 4',
   '- .env.beta.testnet does not define CODEPUSH_DEPLOYMENT_KEY_ANDROID; beta release update strategy is still unconfirmed',
   '- .env.beta.testnet does not define CODEPUSH_DEPLOYMENT_KEY_IOS; beta release update strategy is still unconfirmed',
+  '- .env.beta.mainnet does not define CODEPUSH_DEPLOYMENT_KEY_ANDROID; beta release update strategy is still unconfirmed',
+  '- .env.beta.mainnet does not define CODEPUSH_DEPLOYMENT_KEY_IOS; beta release update strategy is still unconfirmed',
   'Readiness issues: 2',
   '- .env.dev.testnet has a blank CODEPUSH_DEPLOYMENT_KEY_ANDROID',
   '- .env.dev.testnet has a blank CODEPUSH_DEPLOYMENT_KEY_IOS',
@@ -116,7 +118,15 @@ assertRejected('Missing header fixture', notReadySummary.replace('CodePush relea
 assertRejected('Bad timestamp fixture', notReadySummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Bad env readiness count fixture', notReadySummary.replace('Environment readiness entries: 5', 'Environment readiness entries: 4'), 'Environment readiness entries count');
 assertRejected('Bad ready env count fixture', notReadySummary.replace('Ready environments: 2', 'Ready environments: 1'), 'Ready environments count');
-assertRejected('Bad warning count fixture', notReadySummary.replace('Warnings: 2', 'Warnings: 1'), 'Warnings count');
+assertRejected('Bad warning count fixture', notReadySummary.replace('Warnings: 4', 'Warnings: 1'), 'Warnings count');
+assertRejected(
+  'Missing beta mainnet warning fixture',
+  notReadySummary.replace(
+    '- .env.beta.mainnet does not define CODEPUSH_DEPLOYMENT_KEY_IOS; beta release update strategy is still unconfirmed\n',
+    '',
+  ),
+  'Warnings count',
+);
 assertRejected(
   'Claimed CodePush update fixture',
   notReadySummary.replace('CodePush update validation: not claimed', 'CodePush update validation: claimed'),

@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.300 - CodePush release guard warning refresh
+
+- Branch: `feature/bem-37-300-codepush-release-guard-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the CodePush release-path summary guard fixture so it matches the current live audit warning surface.
+- Keep CodePush runtime/native wiring unchanged; this branch only tightens release-readiness evidence.
+- Require both beta env files to remain visible as unconfirmed when their CodePush deployment keys are absent.
+
+Findings:
+
+- `corepack yarn codepush:release:path-audit` reports current CodePush package `9.0.1`, upstream retired/archived, and migration still required.
+- Non-beta stage/prod env files are ready, dev testnet has blank Android/iOS deployment keys, and both beta env files are missing Android/iOS deployment keys.
+- CodePush update validation remains not claimed; App Center CodePush migration/replacement remains required before treating OTA as supported release capability.
+
+Validation:
+
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.299 - Unused React Navigation type stub removal
 
 - Branch: `feature/bem-37-299-unused-react-navigation-types-removal`
