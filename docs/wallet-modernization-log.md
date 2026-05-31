@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.248 - Android dev release validation
+
+- Branch: `feature/bem-37-248-android-release-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Validate the Android `devRelease` build path after the latest React Native/runtime modernization work.
+- Keep Sentry source-map upload disabled for the local build because Sentry credentials are not available in this shell.
+- Confirm the release APK is generated and record the local validation artifact in `local-docs/android-release-dev-summary.txt`.
+
+Findings:
+
+- `:app:assembleDevRelease` completed successfully with JDK 17.
+- Release APK generated at `android\app\build\outputs\apk\dev\release\app-dev-release-unsigned.apk`.
+- Release APK size was `249997126` bytes.
+- Release APK SHA-256 was `8891ecdb39b4fb8442d8cf15772033cdfdcd919d07f6673dfa14de0549825df1`.
+- Sentry release upload validation remains not claimed locally until `sentry.properties` or `SENTRY_AUTH_TOKEN` is provided.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+
 ### BEM-37.247 - BitcoinVault bitcoinjs fork deterministic pin
 
 - Branch: `feature/bem-37-247-pin-btcv-bitcoinjs-fork`
