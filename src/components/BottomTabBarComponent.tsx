@@ -27,6 +27,7 @@ export const BottomTabBarComponent = ({ state, descriptors, navigation }: Bottom
             navigation.navigate(route.name);
           }
         };
+        const imageKey = (isFocused ? route.name : `${route.name}Inactive`) as keyof typeof images;
 
         return (
           <TouchableOpacity
@@ -36,7 +37,7 @@ export const BottomTabBarComponent = ({ state, descriptors, navigation }: Bottom
             onPress={onPress}
             activeOpacity={0.5}
           >
-            <BottomTabBarIcon source={isFocused ? images[route.name] : images[`${route.name}Inactive`]} />
+            <BottomTabBarIcon source={images[imageKey]} />
             <Text style={{ ...typography.subtitle2, color: isFocused ? palette.secondary : palette.textWhiteMuted }}>
               {label}
             </Text>

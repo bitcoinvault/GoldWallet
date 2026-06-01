@@ -4,7 +4,7 @@ Test/type coupling audit for the staged React/RN baseline path.
 
 ## Current Baseline
 
-- Current TypeScript: `5.4.5`
+- Current TypeScript: `6.0.3`
 - Current Jest: `30.4.2`
 - Current babel-jest: `30.4.1`
 - Current jest-environment-node: `30.4.1`
@@ -16,7 +16,7 @@ Test/type coupling audit for the staged React/RN baseline path.
 
 ## Coupling Rules
 
-- TypeScript `5.4.5` is owned by the React Navigation 7 migration proof because Navigation 7 declarations require newer TypeScript syntax.
+- TypeScript `6.0.3` is owned by the dedicated TypeScript compiler probe after removing the deleted `suppressImplicitAnyIndexErrors` option and preserving current module/path behavior with `ignoreDeprecations: "6.0"`.
 - Move TypeScript/Jest/React/RN baseline pieces only from dedicated branches that own type/runtime behavior and focused validation.
 - Keep `jest-environment-node` on the Jest 30 line because `@react-native/jest-preset@0.85.3` still declares a Jest 29 environment internally.
 - Keep `react-test-renderer` aligned with React package changes.

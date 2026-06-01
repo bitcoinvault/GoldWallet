@@ -16,7 +16,7 @@ interface Props {
 
 export class ContactList extends React.PureComponent<Props> {
   get sections(): ReadonlyArray<SectionListData<Contact>> {
-    const sections = {};
+    const sections: Record<string, Contact[]> = {};
 
     this.props.contacts
       .sort((a, b) => a.name.localeCompare(b.name))

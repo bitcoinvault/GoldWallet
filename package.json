@@ -74,7 +74,7 @@
     "redux-devtools-extension": "^2.13.8",
     "rn-nodeify": "github:tradle/rn-nodeify",
     "ts-jest": "29.4.11",
-    "typescript": "5.4.5"
+    "typescript": "6.0.3"
   },
   "scripts": {
     "postinstall": "patch-package && ./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack && node scripts/applyRnNodeifyShims.mjs && npx jetify",

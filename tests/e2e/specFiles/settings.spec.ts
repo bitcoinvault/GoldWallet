@@ -98,7 +98,7 @@ describe('Settings', () => {
           Turkish: 'Cüzdanlar',
         };
 
-        Object.keys(walletsInLocalLanguages).forEach(language =>
+        (Object.keys(walletsInLocalLanguages) as Array<keyof typeof walletsInLocalLanguages>).forEach(language =>
           it(`should be possible to change language from English to ${language}`, async () => {
             await app.settings.settingsScreen.tapOnLanguage();
             await app.settings.languageScreen.chooseLanguage(language as SupportedLanguage);

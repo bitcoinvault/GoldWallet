@@ -66,6 +66,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - UUID runtime is on checked latest `14.0.0` after `BEM-37.279`; future work should focus on source behavior or Metro compatibility only if new UUID import surfaces are added.
 - Stream polyfills are on `stream-browserify@3.0.0` and highest compatible `readable-stream@3.6.2` after `BEM-37.278`; latest `readable-stream@4.7.0` is blocked until the app's `readable-stream/readable` alias usage is migrated.
 - Tooling: ESLint, Prettier, Husky, lint-staged, Jest, ts-jest, Detox.
+- TypeScript compiler tooling is on checked latest `6.0.3` after `BEM-37.305`; the config removes the deleted `suppressImplicitAnyIndexErrors` option and keeps the current RN path/module behavior under `ignoreDeprecations: "6.0"`.
 - Use `corepack yarn tooling:latest-snapshot:audit` before tooling dependency branches when network access is available. It records live npm latest versions for the tracked tooling cohort into `local-docs/tooling-latest-snapshot.txt` without changing package versions.
 - Use `corepack yarn tooling:latest-snapshot:check-summary` to validate that generated local snapshot before using it as branch-start evidence.
 - The tooling snapshot also tracks isolated report/E2E/coverage tooling after `BEM-37.269`, `BEM-37.270`, and `BEM-37.295`: `jest-junit@17.0.0`, `junit-report-merger@9.0.3`, `babel-plugin-istanbul@8.0.0`, `mailosaur@11.1.1`, and `jsdom@29.1.1`.

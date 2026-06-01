@@ -35,18 +35,20 @@ export class Authenticator implements IAuthenticator {
   }
 
   static fromJson(json: string) {
-    const data = JSON.parse(json);
+    const data = JSON.parse(json) as Record<string, unknown>;
     const { keyPair, name, createdAt } = data;
 
-    const parsedKeyPair = privateKeyToKeyPair(keyPair.__D.data);
+    const privateKey = Buffer.from((keyPair as { __D: { data: number[] } }).__D.data).toString('hex');
+    const parsedKeyPair = privateKeyToKeyPair(privateKey);
 
-    const authenticator = new this(name);
+    const authenticator = new this(name as string);
+    const writableAuthenticator = authenticator as unknown as Record<string, unknown>;
 
     for (const key of Object.keys(data)) {
-      authenticator[key] = data[key];
+      writableAuthenticator[key] = data[key];
     }
 
-    authenticator.createdAt = dayjs(createdAt);
+    authenticator.createdAt = dayjs(createdAt as string);
     authenticator.keyPair = parsedKeyPair;
 
     return authenticator;

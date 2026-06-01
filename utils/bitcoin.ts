@@ -7,6 +7,8 @@ import { CONST } from '../src/consts';
 const BigNumber = require('bignumber.js');
 const reverse = require('buffer-reverse');
 
+const altNetworks = bitcoin.alt_networks as Record<string, bitcoin.Network>;
+
 export const btcToSatoshi = (btc: number, precision: number | null = null): number => {
   const satoshis = new BigNumber(btc).multipliedBy(CONST.satoshiInBtc).toNumber();
 
@@ -43,9 +45,9 @@ export const formatToBtcvWithoutUnit = (value: number): string =>
   `${value >= 0 ? '+' : ''}${addMissingZerosToSatoshis(value)}`;
 
 export const checkAddressNetworkName = (address: string): string => {
-  for (const networkName in bitcoin.alt_networks) {
+  for (const networkName in altNetworks) {
     try {
-      const altNetwork = bitcoin.alt_networks[networkName];
+      const altNetwork = altNetworks[networkName];
 
       bitcoin.address.toOutputScript(address, altNetwork);
       return networkName;
