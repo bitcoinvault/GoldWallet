@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.307 - Transaction script Buffer ownership fix
+
+- Branch: `feature/bem-37-307-transaction-script-buffer-fix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep decoded transaction output scripts as `Buffer` values when calculating send-confirmation ownership balances.
+- Align the wallet model contract for `isOutputScriptMine` with the runtime implementation in `class/abstract-wallet.js` and `bitcoinjs-lib` address decoding.
+
+Findings:
+
+- The TypeScript 6 migration initially used `Uint8Array.from(out.script)` to satisfy the old wallet interface type.
+- Review caught that this strips the `Buffer` type before `bitcoin.address.fromOutputScript`, creating a wallet-critical transaction confirmation risk.
+
+Validation:
+
+- `corepack yarn typescript:check`
+- `corepack yarn test:wallet-core:offline`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.306 - Android release validation refresh
 
 - Branch: `feature/bem-37-306-android-release-validation-refresh`

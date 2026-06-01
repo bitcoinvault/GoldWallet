@@ -46,7 +46,7 @@ class SendCoinsConfirmScreen extends Component<Props> {
 
     return txDecoded.outs.reduce<{ my: number; foreign: number }>(
       (amount, out) => {
-        if (fromWallet.isOutputScriptMine(Uint8Array.from(out.script))) {
+        if (fromWallet.isOutputScriptMine(out.script)) {
           return {
             ...amount,
             my: out.value + amount.my,
