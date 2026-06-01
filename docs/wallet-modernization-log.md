@@ -13313,6 +13313,37 @@ Validation:
 - `corepack yarn lint:baseline:audit`
 - `git diff --check`
 
+### BEM-37.308 - Android encrypted-storage prompt autolink fix
+
+- Branch: `feature/bem-37-308-prompt-android-link-fix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Restore Android autolinking for `react-native-prompt-android`.
+- Update the legacy Android autolink guard so the wallet-critical encrypted-storage password prompt cannot be disabled through `react-native.config.js`.
+- Refresh the Android workflow and native-module upgrade documentation for the new guard expectation.
+
+Findings:
+
+- `BlueApp.startAndDecrypt()` still calls `prompt.js` when `storageIsEncrypted()` is true.
+- `prompt.js` depends on `react-native-prompt-android`, which requires the Android native module to be linked so `NativeModules.PromptAndroid.promptWithArgs` is available.
+- Disabling Android autolinking for this package can block users with encrypted wallet storage from loading their wallets.
+
+Validation:
+
+- `corepack yarn check:legacy-android-autolink-guard`
+- `corepack yarn check:legacy-android-autolink`
+- `corepack yarn typescript:check`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:storage-network:focused`
+- `rg -n "Prompt|react-native-prompt-android" android\app\build\generated node_modules\react-native-prompt-android\android -S`
+
 ### BEM-37.220 - JailMonkey 3 security module runtime probe
 
 - Branch: `feature/bem-37-jail-monkey-3-probe`

@@ -7,9 +7,9 @@ const reactNativeConfig = require('../react-native.config.js');
 const errors = getLegacyAndroidAutolinkErrors(reactNativeConfig.dependencies);
 
 if (errors.length > 0) {
-  console.error('Legacy Android autolink guard failed:');
+console.error('Legacy Android autolink guard failed:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('Legacy Android autolinking remains disabled only for guarded legacy packages.');
+console.log('Legacy Android autolinking remains enabled for wallet-critical native prompt modules.');

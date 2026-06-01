@@ -4,11 +4,7 @@ import {
 } from './legacyAndroidAutolinkGuard.mjs';
 
 const validFixture = {
-  'react-native-prompt-android': {
-    platforms: {
-      android: null,
-    },
-  },
+  'react-native-prompt-android': {},
 };
 
 const assertAccepted = (label, dependencies) => {
@@ -30,8 +26,15 @@ const assertRejected = (label, dependencies) => {
   }
 };
 
-assertAccepted('Known legacy Android autolink disables', validFixture);
-assertRejected('Missing prompt Android disable', {});
+assertAccepted('Wallet-critical Android prompt autolink enabled', validFixture);
+assertAccepted('Missing prompt config still allows default autolinking', {});
+assertRejected('Disabled prompt Android autolink', {
+  'react-native-prompt-android': {
+    platforms: {
+      android: null,
+    },
+  },
+});
 assertRejected('Unexpected disabled package', {
   ...validFixture,
   'react-native-new-legacy-module': {
@@ -41,8 +44,8 @@ assertRejected('Unexpected disabled package', {
   },
 });
 
-if (expectedDisabledAndroidAutolinkPackages.size !== 1) {
-  console.error(`Expected 1 guarded legacy Android autolink disable, got ${expectedDisabledAndroidAutolinkPackages.size}.`);
+if (expectedDisabledAndroidAutolinkPackages.size !== 0) {
+  console.error(`Expected no guarded legacy Android autolink disables, got ${expectedDisabledAndroidAutolinkPackages.size}.`);
   process.exit(1);
 }
 
