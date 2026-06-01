@@ -216,7 +216,7 @@ export interface Wallet {
   weOwnAddress: (clipboard: string) => boolean;
   isInvoiceGeneratedByWallet?: (clipboard: string) => void;
   getPreferredBalanceUnit: () => string;
-  isOutputScriptMine: (script: Uint8Array) => boolean;
+  isOutputScriptMine: (script: Buffer) => boolean;
   setMnemonic: (mnemonic: string) => void;
   generate: () => void;
   fetchBalance: () => void;
