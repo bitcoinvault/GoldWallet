@@ -44,9 +44,9 @@ class SendCoinsConfirmScreen extends Component<Props> {
   getAmountByTx = (txDecoded: Transaction): { my: number; foreign: number } => {
     const { fromWallet } = this.props.route.params;
 
-    return txDecoded.outs.reduce(
-      (amount: { my: number; foreign: number }, out: { value: number; script: Uint8Array }) => {
-        if (fromWallet.isOutputScriptMine(out.script)) {
+    return txDecoded.outs.reduce<{ my: number; foreign: number }>(
+      (amount, out) => {
+        if (fromWallet.isOutputScriptMine(Uint8Array.from(out.script))) {
           return {
             ...amount,
             my: out.value + amount.my,
@@ -211,8 +211,10 @@ class SendCoinsConfirmScreen extends Component<Props> {
           <View>
             <View style={styles.chooseWalletButton}>
               <Text style={typography.headline4}>
-                {`${item.amount?.toFixed(8).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/, '$1') ||
-                  satoshiToBtc(item.value).toString()} ${fromWallet.preferredBalanceUnit}`}
+                {`${
+                  item.amount?.toFixed(8).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/, '$1') ||
+                  satoshiToBtc(item.value).toString()
+                } ${fromWallet.preferredBalanceUnit}`}
               </Text>
             </View>
             <View style={styles.descriptionContainer}>

@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.305 - TypeScript 6 compiler probe
+
+- Branch: `feature/bem-37-305-typescript6-compiler-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move TypeScript from `5.4.5` to checked latest `6.0.3`.
+- Remove the deleted `suppressImplicitAnyIndexErrors` compiler option.
+- Keep the current React Native module/path behavior and silence TypeScript 6 deprecation diagnostics with `ignoreDeprecations: "6.0"` until a separate module-resolution cleanup branch owns that migration.
+- Refresh the test/type coupling and tooling snapshot guards so TypeScript 6 is tracked as the current compiler baseline.
+
+Findings:
+
+- `npm view typescript version dist-tags engines --json` reports latest `6.0.3` and supports the current Node runtime.
+- `npm view ts-jest version peerDependencies engines --json` allows `typescript >=4.3 <7`, so the current Jest tooling accepts TypeScript 6.
+- The first `typescript:check` run failed on removed/deprecated TS config options, not app source type errors.
+
+Validation:
+
+- `npm view typescript version dist-tags engines --json`
+- `npm view ts-jest version peerDependencies engines --json`
+- `corepack yarn add -D typescript@6.0.3`
+- `corepack yarn typescript:check`
+- `corepack yarn check:test-type-coupling-guard`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-artifacts`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.304 - ESLint 10 flat config bridge
 
 - Branch: `feature/bem-37-304-eslint10-flat-config-probe`

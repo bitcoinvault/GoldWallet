@@ -61,7 +61,7 @@ const assertRejected = (label, environment, expectedError) => {
 };
 
 assertAccepted('Valid test/type coupling fixture', validEnvironment);
-assertRejected('Wrong TypeScript fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, typescript: '^5.9.0' } }, 'typescript@^5.9.0');
+assertRejected('Wrong TypeScript fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, typescript: '5.4.5' } }, 'typescript@5.4.5');
 assertRejected('Wrong Jest fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, jest: '29.7.0' } }, 'jest@29.7.0');
 assertRejected(
   'Wrong Jest environment fixture',

@@ -12,6 +12,7 @@ const requireConfigValue = (key: keyof typeof Config): string => {
 };
 
 const networkName = requireConfigValue('BTCV_NETWORK');
+const networks = alt_networks as Record<string, Network>;
 
 export default {
   environment: requireConfigValue('ENVIRONMENT'),
@@ -21,7 +22,7 @@ export default {
   hosts: requireConfigValue('HOSTS').split(','),
   port: requireConfigValue('PORT'),
   networkName,
-  network: alt_networks[networkName] as Network,
+  network: networks[networkName],
   protocol: requireConfigValue('PROTOCOL'),
   electrumXProtocolVersion: requireConfigValue('ELECTRUM_X_PROTOCOL_VERSION'),
   explorerUrl: requireConfigValue('EXPLORER_URL'),

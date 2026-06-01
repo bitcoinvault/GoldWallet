@@ -14,7 +14,7 @@ const trackedTooling = [
   {
     name: 'typescript',
     source: 'devDependencies',
-    decision: 'deferred - TypeScript belongs with RN/test baseline validation',
+    decision: 'current - latest TypeScript compiler verified with the RN/test baseline validation gates',
   },
   {
     name: 'jest',

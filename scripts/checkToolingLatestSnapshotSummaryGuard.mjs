@@ -16,8 +16,8 @@ const validSummary = [
   '- mailosaur: package 11.1.1, installed 11.1.1, latest 11.1.1, decision current - latest E2E mail helper verified with TypeScript',
   '- jsdom: package 29.1.1, installed 29.1.1, latest 29.1.1, decision current - latest E2E mail DOM parser verified with TypeScript and helper probe',
   '- jetifier: package 2.0.0, installed 2.0.0, latest 2.0.0, decision current - latest AndroidX migration helper verified with postinstall, Android build, and emulator smoke',
-  '- typescript: package 5.4.5, installed 5.4.5, latest 6.0.3, decision deferred - TypeScript belongs with RN/test baseline validation',
-  'Deferred entries: 2',
+  '- typescript: package 6.0.3, installed 6.0.3, latest 6.0.3, decision current - latest TypeScript compiler verified with the RN/test baseline validation gates',
+  'Deferred entries: 1',
   'Required action: use this snapshot before tooling dependency branches; no package versions are changed by this audit.',
   '',
 ].join('\n');

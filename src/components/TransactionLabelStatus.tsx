@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   DONE: {
     backgroundColor: palette.green,
   },
-  'CANCELED-DONE': {
+  CANCELED_DONE: {
     backgroundColor: palette.green,
   },
   CANCELED: {

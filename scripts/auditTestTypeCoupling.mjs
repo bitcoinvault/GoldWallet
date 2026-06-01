@@ -8,7 +8,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 const exists = relativePath => existsSync(path.join(root, relativePath));
 
 export const expectedTestTypeCoupling = {
-  typescript: '5.4.5',
+  typescript: '6.0.3',
   jest: '30.4.2',
   babelJest: '30.4.1',
   jestEnvironmentNode: '30.4.1',
@@ -48,7 +48,7 @@ export const requiredTestTypeValidationFiles = [
 
 export const requiredTestTypeCouplingSnippets = [
   ['docs/test-type-coupling-audit.md', 'Test/type coupling audit'],
-  ['docs/test-type-coupling-audit.md', 'Current TypeScript: `5.4.5`'],
+  ['docs/test-type-coupling-audit.md', 'Current TypeScript: `6.0.3`'],
   ['docs/test-type-coupling-audit.md', 'Current Jest: `30.4.2`'],
   ['docs/test-type-coupling-audit.md', 'Current babel-jest: `30.4.1`'],
   ['docs/test-type-coupling-audit.md', 'Current jest-environment-node: `30.4.1`'],

@@ -6,8 +6,8 @@ export function takeLatestPerKey(
   keySelector: (...args: any[]) => any,
   ...args: any[]
 ) {
-  return fork(function*() {
-    const tasks = {};
+  return fork(function* () {
+    const tasks: Record<string, any> = {};
 
     while (true) {
       const action: string = yield take(patternOrChannel);
