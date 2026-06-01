@@ -2,11 +2,6 @@ const path = require('path');
 
 module.exports = {
   dependencies: {
-    'react-native-prompt-android': {
-      platforms: {
-        android: null,
-      },
-    },
     'react-native-config': {
       platforms: {
         android: {

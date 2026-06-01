@@ -1,16 +1,14 @@
-export const expectedDisabledAndroidAutolinkPackages = new Set(['react-native-prompt-android']);
+export const expectedDisabledAndroidAutolinkPackages = new Set();
 
 export const getLegacyAndroidAutolinkErrors = dependencies => {
   const errors = [];
   const dependencyConfig = dependencies || {};
 
-  expectedDisabledAndroidAutolinkPackages.forEach(packageName => {
-    const androidConfig = dependencyConfig[packageName]?.platforms?.android;
+  const promptAndroidConfig = dependencyConfig['react-native-prompt-android']?.platforms?.android;
 
-    if (androidConfig !== null) {
-      errors.push(`${packageName} must keep Android autolinking disabled in react-native.config.js`);
-    }
-  });
+  if (promptAndroidConfig === null) {
+    errors.push('react-native-prompt-android must keep Android autolinking enabled for encrypted-storage password prompts');
+  }
 
   Object.entries(dependencyConfig).forEach(([packageName, config]) => {
     if (config?.platforms?.android === null && !expectedDisabledAndroidAutolinkPackages.has(packageName)) {
