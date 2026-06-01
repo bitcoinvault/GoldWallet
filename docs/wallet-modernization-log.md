@@ -10,6 +10,28 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.306 - Android release validation refresh
+
+- Branch: `feature/bem-37-306-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release evidence after the TypeScript 6 and tooling baseline updates.
+- Build `devRelease`, `stageRelease`, and `prodRelease` with JDK 17.
+- Keep Sentry source-map upload explicitly unclaimed because local `sentry.properties` / `SENTRY_AUTH_TOKEN` are still unavailable.
+
+Findings:
+
+- `devRelease`, `stageRelease`, and `prodRelease` all build unsigned APK artifacts locally.
+- The generated local summary records file size and SHA-256 for each APK and passes the release summary checker.
+- Sentry module collection runs during release bundling, while upload cleanup remains skipped because local upload is disabled.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+
 ### BEM-37.305 - TypeScript 6 compiler probe
 
 - Branch: `feature/bem-37-305-typescript6-compiler-probe`
