@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.321 - BL buffer dependency compatibility probe
+
+- Branch: `feature/bem-37-321-bl-major-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the live latest `bl@7.0.2` target for the shared buffer-list dependency used through `react-native-level-fs`, `levelup`, and CLI tooling.
+- Capture the exact blocker for the latest line and move the resolution to the highest CommonJS-compatible fallback, `bl@6.1.6`.
+- Validate the fallback across CommonJS consumers, storage/offline wallet tests, Android Metro bundling, and emulator startup.
+
+Findings:
+
+- `bl@7.0.2` requires Node `>=20`, which this repo satisfies, but it is ESM/export-only and has no CommonJS main export.
+- `require('bl/package.json')`, `levelup`, and `ora` fail against `bl@7.0.2` with `ERR_PACKAGE_PATH_NOT_EXPORTED` / missing package export errors.
+- `bl@6.1.6` keeps `main: bl.js`, `require('bl')` works, and direct CommonJS consumers `levelup` and `ora` load successfully.
+- Yarn still reports the explicit resolution as outside transitive requested ranges, so this branch treats `6.1.6` as a validated compatibility override rather than an upstream-declared range update.
+- Android emulator smoke installed and launched the dev APK, completed first-run setup, found `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`, and reported no fatal/runtime logcat findings.
+
+Validation:
+
+- `npm view bl version engines dependencies peerDependencies type main exports types dist-tags --json`
+- `npm view bl@6 version engines dependencies type main exports types --json`
+- `npm view bl@7.0.2 version engines dependencies peerDependencies type main exports types --json`
+- `corepack yarn install`
+- `node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync(require.resolve('bl').replace(/\\\\bl\\.js$/, '\\\\package.json'),'utf8')); console.log('bl',pkg.version, require.resolve('bl')); const bl=require('bl'); console.log('require bl ok', typeof bl);"`
+- `node -e "for (const p of ['levelup','ora']) { try { console.log(p, '->', require.resolve(p)); require(p); console.log(p, 'require ok'); } catch (e) { console.error(p, 'require failed:', e.code, e.message); process.exitCode=1; } }"`
+- `corepack yarn check:bl-compatibility`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.320 - Readable stream v4 polyfill upgrade
 
 - Branch: `feature/bem-37-320-readable-stream-v4-probe`
