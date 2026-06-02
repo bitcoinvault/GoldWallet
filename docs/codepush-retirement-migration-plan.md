@@ -5,10 +5,10 @@ Scope: `BEM-37.282 - CodePush retirement audit`.
 ## Current State
 
 - The app still has `react-native-code-push` wired in JavaScript, Android, iOS, and env files.
-- `react-native-code-push@9.0.1` is the latest npm release checked on 2026-05-31.
+- `react-native-code-push@9.0.1` is the latest npm release checked on 2026-06-02.
 - The latest npm release was published on 2024-12-19.
 - Microsoft App Center CodePush was retired on 2025-03-31.
-- The Microsoft `react-native-code-push` and standalone `code-push-server` repositories are archived/read-only.
+- The Microsoft `react-native-code-push` and standalone `code-push-server` repositories are archived/read-only. `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,defaultBranchRef,description,url` confirmed `isArchived: true` on 2026-06-02.
 - The upstream Microsoft README states that React Native CodePush does not support New Architecture.
 - This repo currently has Android `newArchEnabled=true`, so CodePush must be treated as legacy release infrastructure even when local builds still pass.
 - CodePush runtime startup and native bundle resolution are gated by optional `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key. Without the flag, non-dev builds keep the wiring available but do not start the retired OTA client or resolve JS bundles through CodePush by default.
@@ -40,6 +40,7 @@ Expected summary claims:
 - CodePush runtime gate is recorded as present;
 - CodePush native bundle gate is recorded as present;
 - CodePush runtime enabled by default is recorded as `no`;
+- Android release build evidence is recorded separately from CodePush update validation;
 - no deployment key values are printed.
 
 ## Decision Needed

@@ -29,6 +29,7 @@ const notReadySummary = [
   'CodePush upstream New Architecture support: no',
   'Android New Architecture enabled: yes',
   'CodePush migration required: yes',
+  'CodePush release build evidence ready: yes',
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod',
   'Android release summary required variants covered: yes',
@@ -78,6 +79,7 @@ const readySummary = [
   'CodePush upstream New Architecture support: no',
   'Android New Architecture enabled: yes',
   'CodePush migration required: yes',
+  'CodePush release build evidence ready: yes',
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod',
   'Android release summary required variants covered: yes',
@@ -161,6 +163,11 @@ assertRejected(
   'Missing migration requirement fixture',
   notReadySummary.replace('CodePush migration required: yes', 'CodePush migration required: no'),
   'migration required must be yes',
+);
+assertRejected(
+  'Invalid release build evidence fixture',
+  notReadySummary.replace('Android release summary valid: yes', 'Android release summary valid: no'),
+  'release build evidence cannot be ready',
 );
 assertRejected(
   'Missing CodePush runtime gate fixture',

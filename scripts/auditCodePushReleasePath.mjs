@@ -239,6 +239,11 @@ export const collectCodePushReleasePathAudit = () => {
     androidReleaseSummaryVariants,
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryErrors,
+    releaseBuildEvidenceReady:
+      errors.length === 0 &&
+      androidReleaseSummaryPresent &&
+      androidReleaseSummaryRequiredVariantsCovered &&
+      androidReleaseSummaryErrors.length === 0,
     ready:
       errors.length === 0 &&
       readinessIssues.length === 0 &&
@@ -278,6 +283,7 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
     `CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`,
     `Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`,
     `CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`,
+    `CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`,
     `Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`,
     `Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`,
     `Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`,
@@ -341,6 +347,7 @@ const printReport = audit => {
   console.log(`CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`);
   console.log(`Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`);
   console.log(`CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`);
+  console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
   console.log('CodePush update validation: not claimed');
   console.log('CodePush release path wiring is present for non-dev runtime, Android, iOS, and env key references.');
 };
