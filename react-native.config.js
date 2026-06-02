@@ -11,6 +11,11 @@ module.exports = {
         },
       },
     },
+    'react-native-camera': {
+      platforms: {
+        android: null,
+      },
+    },
   },
   project: {
     ios: {},
