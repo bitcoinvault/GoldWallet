@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.323 - Sentry release readiness checkpoint
+
+- Branch: `feature/bem-37-323-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check the Sentry release/source-map path after the latest RN/tooling/runtime modernization branches.
+- Verify live npm latest for `@sentry/react-native` and `@sentry/cli` before attempting any Sentry package change.
+- Rebuild the guarded Android release variants locally with Sentry upload disabled so release bundling/APK generation stays proven without claiming source-map upload.
+- Refresh the iOS static readiness evidence and keep the macOS/Xcode/pod-lock blocker explicit.
+
+Findings:
+
+- Live npm metadata reports `@sentry/react-native@8.13.0` as `latest`; the app is already on that version, so no Sentry SDK package bump is available on the stable channel.
+- Live npm metadata reports `@sentry/cli@3.5.0` as `latest`; the installed CLI is executable and reports `sentry-cli 3.5.0`.
+- Android and iOS Sentry release integration remains wired, and runtime usage remains scoped to `App.tsx`, `Main.tsx`, and `logger/index.ts`.
+- Local Android release validation rebuilt `devRelease`, `stageRelease`, and `prodRelease` with JDK 17 and `SENTRY_DISABLE_AUTO_UPLOAD=true`; all three unsigned APKs exist and the summary validates their byte counts and SHA-256 hashes.
+- Sentry release upload/source-map validation remains explicitly unclaimed because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
+- iOS static readiness remains valid for schemes, deployment target, Sentry phases, and CodePush placeholders, but runtime/archive validation is blocked on macOS/Xcode and `ios/Podfile.lock` still needs a macOS `pod install` refresh.
+
+Validation:
+
+- `npm view @sentry/react-native version versions engines peerDependencies dependencies dist-tags --json`
+- `npm view @sentry/cli version engines dependencies dist-tags --json`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn check:sentry-usage-scope`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn release-services:check-summaries`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+
 ### BEM-37.322 - Tooling patch cohort refresh
 
 - Branch: `feature/bem-37-322-tooling-patch-cohort`
