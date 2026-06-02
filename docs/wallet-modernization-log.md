@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.317 - React Native target snapshot refresh
+
+- Branch: `feature/bem-37-317-react-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the live React Native target snapshot after npm `next` moved from `0.86.0-rc.2` to `0.86.0-rc.3`.
+- Re-check the latest React patch line and keep React/runtime packages pinned to the validated RN `0.85.3` renderer baseline.
+- Update React package coupling docs and guard fixtures from the previous blocked `19.2.6` patch to the current blocked `19.2.7` patch.
+
+Findings:
+
+- Live npm metadata on 2026-06-02 still reports `react-native@0.85.3` as stable `latest`; `react-native@next` is `0.86.0-rc.3` and remains a prerelease planning signal, not the default wallet target.
+- `react@19.2.7`, `react-test-renderer@19.2.7`, and `@types/react@19.2.16` are newer than the installed baseline, but React stays pinned to `19.2.3` because `react-native-renderer` remains exact-version sensitive on RN `0.85.3`.
+- No package versions were changed in this branch.
+
+Validation:
+
+- `npm view react-native version peerDependencies engines dist-tags --json`
+- `npm view react version peerDependencies engines dist-tags --json`
+- `npm view react-test-renderer version peerDependencies engines dist-tags --json`
+- `npm view @types/react version dist-tags --json`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn react19:impact:audit`
+- `corepack yarn check:react-package-coupling-guard`
+- `corepack yarn check:react19-impact-guard`
+- `corepack yarn check:test-type-coupling-guard`
+
 ### BEM-37.316 - Camera QR autolink readiness guard
 
 - Branch: `feature/bem-37-316-camera-qr-config-readiness`
