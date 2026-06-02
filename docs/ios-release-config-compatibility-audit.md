@@ -32,6 +32,8 @@ After `BEM-37.209`, `ios/Podfile` and all Xcode `IPHONEOS_DEPLOYMENT_TARGET` ent
 
 After `BEM-37.285`, the same audit also reports `ios/Podfile.lock` drift against the current native package baseline. On this Windows machine the lockfile still references stale pods such as React Native `0.65.3`, removed `react-native-camera`, removed `react-native-qrcode-local-image`, removed `RNCMaskedView`, older Firebase, Sentry, BootSplash, Config, AsyncStorage, DeviceInfo, GestureHandler, Localize, Screens, and VectorIcons pods. The static iOS project files are valid, but iOS archive readiness is not claimable until `pod install` refreshes `ios/Podfile.lock` on macOS and an affected scheme builds.
 
+After `BEM-37.314`, Detox iOS build commands are routed through `scripts/runDetoxIosBuild.mjs`. The wrapper keeps `RN_SRC_EXT=e2e.tsx` and `CHAMBER_OF_SECRETS=true`, fails clearly outside macOS/Xcode, and maps production Detox builds to the existing `GoldWallet (Debug/Release)` schemes instead of the non-existent `GoldWallet Prod` schemes. `corepack yarn check:detox-readiness` guards that mapping before iOS simulator validation can run on macOS.
+
 ## Current Release-Service Keys
 
 Referenced iOS env files carry the current release-service keys as follows:

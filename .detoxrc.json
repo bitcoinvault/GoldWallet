@@ -12,32 +12,32 @@
     "ios.dev.debug": {
       "type": "ios.app",
       "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/GoldWallet Dev.app",
-      "build": "RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true xcodebuild -workspace ios/GoldWallet.xcworkspace -UseNewBuildSystem=NO -scheme \"GoldWallet Dev (Debug)\" -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -quiet"
+      "build": "node scripts/runDetoxIosBuild.mjs dev debug"
     },
     "ios.dev.release": {
       "type": "ios.app",
       "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/GoldWallet Dev.app",
-      "build": "RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true xcodebuild -workspace ios/GoldWallet.xcworkspace -UseNewBuildSystem=NO -scheme \"GoldWallet Dev (Release)\" -configuration Release -sdk iphonesimulator -derivedDataPath ios/build -quiet"
+      "build": "node scripts/runDetoxIosBuild.mjs dev release"
     },
     "ios.stage.debug": {
       "type": "ios.app",
       "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/GoldWallet Stage.app",
-      "build": "RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true xcodebuild -workspace ios/GoldWallet.xcworkspace -UseNewBuildSystem=NO -scheme \"GoldWallet Stage (Debug)\" -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -quiet"
+      "build": "node scripts/runDetoxIosBuild.mjs stage debug"
     },
     "ios.stage.release": {
       "type": "ios.app",
       "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/GoldWallet Stage.app",
-      "build": "RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true xcodebuild -workspace ios/GoldWallet.xcworkspace -UseNewBuildSystem=NO -scheme \"GoldWallet Stage (Release)\" -configuration Release -sdk iphonesimulator -derivedDataPath ios/build -quiet"
+      "build": "node scripts/runDetoxIosBuild.mjs stage release"
     },
     "ios.prod.debug": {
       "type": "ios.app",
-      "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/GoldWallet Prod.app",
-      "build": "RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true xcodebuild -workspace ios/GoldWallet.xcworkspace -UseNewBuildSystem=NO -scheme \"GoldWallet Prod (Debug)\" -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -quiet"
+      "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/GoldWallet.app",
+      "build": "node scripts/runDetoxIosBuild.mjs prod debug"
     },
     "ios.prod.release": {
       "type": "ios.app",
-      "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/GoldWallet Prod.app",
-      "build": "RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true xcodebuild -workspace ios/GoldWallet.xcworkspace -UseNewBuildSystem=NO -scheme \"GoldWallet Prod (Release)\" -configuration Release -sdk iphonesimulator -derivedDataPath ios/build -quiet"
+      "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/GoldWallet.app",
+      "build": "node scripts/runDetoxIosBuild.mjs prod release"
     },
     "android.dev.debug": {
       "type": "android.apk",

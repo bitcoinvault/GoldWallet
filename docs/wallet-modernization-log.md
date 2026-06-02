@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.314 - iOS Detox static readiness mapping
+
+- Branch: `feature/bem-37-314-ios-static-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Route iOS Detox builds through `scripts/runDetoxIosBuild.mjs` instead of inline shell env commands in `.detoxrc.json`.
+- Keep iOS Detox E2E build env values `RN_SRC_EXT=e2e.tsx` and `CHAMBER_OF_SECRETS=true` in one wrapper.
+- Correct production iOS Detox app paths and build mapping from the non-existent `GoldWallet Prod (Debug/Release)` schemes to the existing `GoldWallet (Debug/Release)` schemes.
+- Extend `check:detox-readiness` so Android and iOS Detox build mappings are both statically guarded before macOS simulator validation.
+
+Findings:
+
+- `ios/GoldWallet.xcodeproj/xcshareddata/xcschemes` contains `GoldWallet (Debug).xcscheme` and `GoldWallet (Release).xcscheme`, but no `GoldWallet Prod` schemes.
+- Existing `ios.prod.*` Detox entries pointed at `GoldWallet Prod.app` and `GoldWallet Prod (...)`, so a macOS Detox production build would fail before testing the app.
+- iOS runtime/simulator validation remains blocked on this Windows machine because `xcodebuild` requires macOS with Xcode and `ios/Podfile.lock` still needs a macOS `pod install` refresh.
+
+Validation:
+
+- `npm view detox@20.51.3 version peerDependencies engines dist-tags --json`
+- `corepack yarn check:detox-readiness`
+- `node scripts\runDetoxIosBuild.mjs prod debug` fails clearly on Windows with the expected macOS/Xcode requirement.
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.313 - Sentry release properties preflight hardening
 
 - Branch: `feature/bem-37-313-sentry-sdk-readiness`
