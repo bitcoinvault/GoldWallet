@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.322 - Tooling patch cohort refresh
+
+- Branch: `feature/bem-37-322-tooling-patch-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the small tooling patch cohort that was still behind npm `latest`: `@types/react`, `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser`, and `junit-report-merger`.
+- Keep React runtime and test renderer pinned to the RN `0.85.3` React `19.2.3` contract; this branch updates only type/tooling packages.
+- Keep `@types/react` direct dev dependency and root `resolutions` aligned so Yarn installs a single React type package version.
+
+Findings:
+
+- Live npm metadata reports `@types/react@19.2.16` as `latest`, including the `ts6.0` dist-tag.
+- Live npm metadata reports `@typescript-eslint/eslint-plugin@8.60.1` and `@typescript-eslint/parser@8.60.1` as `latest`; both support Node `^18.18.0 || ^20.9.0 || >=21.1.0`, ESLint `^8.57.0 || ^9.0.0 || ^10.0.0`, and TypeScript `>=4.8.4 <6.1.0`.
+- Live npm metadata reports `junit-report-merger@9.0.4` as `latest`, requiring Node `>=20`, which matches the current Node 22 development baseline.
+- The TypeScript ESLint patch keeps the lint baseline audit non-blocking but changes the recorded count from `35346` to `35360` existing errors / `0` warnings; the branch updates the compatibility guard and strategy notes to match that checked baseline.
+- React `19.2.7`, React test renderer `19.2.7`, `lint-staged@17`, `node-fetch@3`, `react-native-flipper@0.273.0`, and `bl@7` remain separate or blocked targets and are not mixed into this tooling patch branch.
+
+Validation:
+
+- `npm view @types/react version engines dependencies peerDependencies dist-tags --json`
+- `npm view @typescript-eslint/parser version engines peerDependencies dependencies dist-tags --json`
+- `npm view @typescript-eslint/eslint-plugin version engines peerDependencies dependencies dist-tags --json`
+- `npm view junit-report-merger version engines dependencies peerDependencies dist-tags --json`
+- `corepack yarn add --dev --exact @types/react@19.2.16 @typescript-eslint/eslint-plugin@8.60.1 @typescript-eslint/parser@8.60.1 junit-report-merger@9.0.4`
+- `corepack yarn install`
+- `node -e "console.log('jrm', require('junit-report-merger/package.json').version); console.log('typescript-eslint parser', require('@typescript-eslint/parser/package.json').version); console.log('types react', require('@types/react/package.json').version)"`
+- `corepack yarn merge-detox-reports --help`
+- `corepack yarn check:eslint-config-compatibility`
+- `corepack yarn rn:076-foundation:audit`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.321 - BL buffer dependency compatibility probe
 
 - Branch: `feature/bem-37-321-bl-major-probe`
