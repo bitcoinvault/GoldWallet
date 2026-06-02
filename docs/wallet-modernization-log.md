@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.316 - Camera QR autolink readiness guard
+
+- Branch: `feature/bem-37-316-camera-qr-config-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Restore explicit Android autolinking guard for removed `react-native-camera` after the CameraKit QR scanner migration.
+- Keep `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4` as the current latest checked Camera/QR baseline.
+- Re-run Camera/QR migration audits so the Android scanner wiring is valid while iOS Podfile.lock drift remains explicitly tracked.
+
+Findings:
+
+- Live npm metadata still reports `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4` as latest.
+- `camera:qr-migration:audit` failed because `react-native.config.js` was missing the `android: null` guard for removed `react-native-camera`.
+- Adding the explicit `react-native-camera` Android null platform restores the guard without reintroducing the removed package.
+- iOS scanner validation remains unclaimed until macOS `pod install` refreshes `ios/Podfile.lock`, which still references removed `react-native-camera` and `react-native-qrcode-local-image` pods.
+
+Validation:
+
+- `npm view react-native-camera-kit version peerDependencies engines dist-tags --json`
+- `npm view react-native-qrcode-svg version peerDependencies dependencies engines dist-tags --json`
+- `npm view qrcode version dependencies engines dist-tags --json`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:camera-qr-migration-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.315 - Android release build evidence refresh
 
 - Branch: `feature/bem-37-315-android-release-readiness`
