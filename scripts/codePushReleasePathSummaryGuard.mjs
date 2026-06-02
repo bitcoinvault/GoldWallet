@@ -49,6 +49,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const upstreamNewArchitectureSupport = getLineValue(summary, 'CodePush upstream New Architecture support');
   const androidNewArchitectureEnabled = getLineValue(summary, 'Android New Architecture enabled');
   const migrationRequired = getLineValue(summary, 'CodePush migration required');
+  const releaseBuildEvidenceReady = getLineValue(summary, 'CodePush release build evidence ready');
   const androidReleaseSummaryPresent = getLineValue(summary, 'Android release summary present');
   const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
   const androidReleaseSummaryRequiredVariantsCovered = getLineValue(summary, 'Android release summary required variants covered');
@@ -87,6 +88,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     upstreamNewArchitectureSupport,
     androidNewArchitectureEnabled,
     migrationRequired,
+    releaseBuildEvidenceReady,
     androidReleaseSummaryPresent,
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryValid,
@@ -157,6 +159,17 @@ export const getCodePushReleasePathSummaryErrors = summary => {
 
   if (migrationRequired !== 'yes') {
     errors.push('CodePush migration required must be yes while App Center CodePush is retired');
+  }
+
+  if (
+    releaseBuildEvidenceReady === 'yes' &&
+    (wiringValid !== 'yes' ||
+      androidReleaseSummaryPresent !== 'yes' ||
+      androidReleaseSummaryRequiredVariantsCovered !== 'yes' ||
+      androidReleaseSummaryValid !== 'yes' ||
+      androidReleaseSummaryErrorCount !== '0')
+  ) {
+    errors.push('CodePush release build evidence cannot be ready without valid wiring and Android dev/stage/prod release evidence');
   }
 
   [

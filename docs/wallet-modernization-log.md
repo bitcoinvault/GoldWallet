@@ -13388,6 +13388,45 @@ Notes:
 - The first emulator smoke attempt failed because no Android device/emulator was connected; `Medium_Phone_API_36.0` was started and the repeated smoke passed.
 - Fresh Android release validation produced unsigned APK evidence for `dev`, `stage`, and `prod`; source-map upload remains unclaimed until Sentry credentials/properties are present.
 
+### BEM-37.310 - CodePush retirement evidence refresh
+
+- Branch: `feature/bem-37-310-codepush-retirement-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep `react-native-code-push` on latest checked `9.0.1`.
+- Add a dedicated CodePush release-build evidence readiness line to the release-path audit summary.
+- Keep CodePush update validation explicitly separate from Android release APK/bundle evidence.
+- Refresh CodePush retirement/migration docs with the 2026-06-02 live GitHub archive check.
+
+Findings:
+
+- `npm view react-native-code-push version time deprecated peerDependencies dependencies engines repository --json` reports latest `9.0.1`, published on 2024-12-19.
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,defaultBranchRef,description,url` reports `isArchived: true`.
+- `corepack yarn codepush:release:path-audit` reports valid non-dev runtime/native wiring, current/aligned package versions, valid Android `dev`/`stage`/`prod` release summary evidence, runtime disabled by default, and `CodePush migration required: yes`.
+- CodePush update validation remains explicitly not claimed because `.env.dev.testnet` has blank Android/iOS deployment keys and beta env key strategy is still unconfirmed.
+
+Validation:
+
+- `npm view react-native-code-push version time deprecated peerDependencies dependencies engines repository --json`
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,defaultBranchRef,description,url`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit` passed with the existing baseline count: 35350 errors, 0 warnings.
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids` passed with 432 unique IDs and 18 legacy duplicate IDs.
+- `corepack yarn android:dev:release:check-summary`
+- `git diff --check` passed with only existing CRLF normalization warnings.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` passed on `emulator-5554`, completed first-run terms, PIN, transaction-password, skipped email, and reached the Wallets screen with expected `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet` UI text.
+
 ### BEM-37.220 - JailMonkey 3 security module runtime probe
 
 - Branch: `feature/bem-37-jail-monkey-3-probe`
