@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.315 - Android release build evidence refresh
+
+- Branch: `feature/bem-37-315-android-release-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Revalidate Android release APK generation after the React Native Gradle plugin and CodePush release bundle compatibility changes.
+- Confirm the local release validation uses JDK 17 and disables automatic Sentry upload while still building the release bundle/source-map path.
+- Refresh CodePush release path evidence so downstream release-service audits can rely on current dev/stage/prod release APK output.
+
+Findings:
+
+- `android:dev:release:validate-local` successfully built `devRelease`, `stageRelease`, and `prodRelease` APKs with JDK 17.
+- The release build path executed React Native release bundle tasks and Sentry module collection without the missing legacy CodePush bundle task failure.
+- `codepush:release:path-audit` now reports Android release summary variants `dev, stage, prod`, required variants covered, summary valid, and release build evidence ready.
+- CodePush update validation is still intentionally not claimed because dev deployment keys are blank and App Center CodePush is retired upstream.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+
 ### BEM-37.314 - iOS Detox static readiness mapping
 
 - Branch: `feature/bem-37-314-ios-static-readiness-refresh`
