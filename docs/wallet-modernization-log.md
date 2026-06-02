@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.319 - Tooling latest snapshot summary guard
+
+- Branch: `feature/bem-37-319-tooling-snapshot-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Fix the tooling latest snapshot summary so the `Deferred entries` count follows explicit `decision deferred` entries.
+- Keep patch-level upstream drift visible for tooling that is still accepted as current after validation.
+- Add guard coverage for an installed/latest version mismatch that is intentionally marked `decision current`.
+
+Findings:
+
+- `tooling:latest-snapshot:audit` generated a snapshot with four installed/latest mismatches, but only two entries were explicitly deferred.
+- `tooling:latest-snapshot:check-summary` correctly rejected the mismatch because the visible `Deferred entries` count did not match the listed decisions.
+- The count now reflects deferred decisions instead of raw upstream drift, so current-but-drifted tooling remains auditable without failing the summary contract.
+
+Validation:
+
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.318 - Legacy Android autolink allowlist refresh
 
 - Branch: `feature/bem-37-318-legacy-autolink-allowlist`

@@ -11,7 +11,7 @@ const validSummary = [
   '- jest: package 30.4.2, installed 30.4.2, latest 30.4.2, decision current - latest Jest runtime verified with RN preset environment resolutions and focused suites',
   '- jest-environment-node: package 30.4.1, installed 30.4.1, latest 30.4.1, decision current - latest Jest environment required to keep the RN preset compatible with Jest 30 runtime',
   '- jest-junit: package 17.0.0, installed 17.0.0, latest 17.0.0, decision current - latest report tooling verified separately from the Jest runtime',
-  '- junit-report-merger: package 9.0.3, installed 9.0.3, latest 9.0.3, decision current - latest JUnit report merge tooling verified with the Detox report script',
+  '- junit-report-merger: package 9.0.3, installed 9.0.3, latest 9.0.4, decision current - latest JUnit report merge tooling verified with the Detox report script',
   '- babel-plugin-istanbul: package 8.0.0, installed 8.0.0, latest 8.0.0, decision current - latest coverage instrumentation verified with Jest coverage',
   '- mailosaur: package 11.1.1, installed 11.1.1, latest 11.1.1, decision current - latest E2E mail helper verified with TypeScript',
   '- jsdom: package 29.1.1, installed 29.1.1, latest 29.1.1, decision current - latest E2E mail DOM parser verified with TypeScript and helper probe',

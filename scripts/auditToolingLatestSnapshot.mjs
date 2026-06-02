@@ -190,7 +190,7 @@ export const collectToolingLatestSnapshot = () =>
   });
 
 export const formatToolingLatestSnapshotSummary = (entries, generatedAt = new Date().toISOString()) => {
-  const deferredEntries = entries.filter(entry => entry.deferred);
+  const deferredEntries = entries.filter(entry => entry.decision.startsWith('deferred'));
 
   return [
     'Tooling latest snapshot audit',
