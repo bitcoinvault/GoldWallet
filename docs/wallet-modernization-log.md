@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.318 - Legacy Android autolink allowlist refresh
+
+- Branch: `feature/bem-37-318-legacy-autolink-allowlist`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the legacy Android autolink guard after `BEM-37.316` restored the explicit `react-native-camera` Android null-platform guard.
+- Keep `react-native-prompt-android` Android autolinking enabled because encrypted-storage startup still depends on the native prompt module.
+- Allow only the removed `react-native-camera` package to disable Android autolinking; reject any other future unreviewed disabled Android autolink entries.
+- Update Android modernization workflow docs so `android:dev:check-light` describes the exact legacy autolink allowlist.
+
+Findings:
+
+- `android:dev:check-light` failed because `react-native-camera` disabled Android autolinking but was not in the guarded legacy allowlist.
+- The camera disable is intentional after the CameraKit QR scanner migration because `react-native-camera` is no longer a package dependency and must not be autolinked back into Android.
+- The guard still rejects disabling `react-native-prompt-android`, preventing a repeat of the encrypted-wallet startup regression.
+
+Validation:
+
+- `corepack yarn check:legacy-android-autolink-guard`
+- `corepack yarn check:legacy-android-autolink`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.317 - React Native target snapshot refresh
 
 - Branch: `feature/bem-37-317-react-patch-refresh`

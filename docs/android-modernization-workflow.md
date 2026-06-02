@@ -78,7 +78,7 @@ Beta release evidence refresh: on 2026-05-31, `feature/bem-37-261-android-beta-r
 
 `check:qr-render-usage` keeps `react-native-qrcode-svg` rendering isolated to the known QR display screens before `react-native-svg` or QR rendering dependency upgrades.
 
-`check:legacy-android-autolink-guard` verifies the legacy Android autolink guard fixtures. `check:legacy-android-autolink` verifies that wallet-critical prompt modules keep Android autolinking enabled and that any future legacy Android autolink disables are explicitly guarded in `react-native.config.js`.
+`check:legacy-android-autolink-guard` verifies the legacy Android autolink guard fixtures. `check:legacy-android-autolink` verifies that wallet-critical prompt modules keep Android autolinking enabled, that the removed `react-native-camera` package is the only guarded legacy Android autolink disable, and that any future legacy Android autolink disables are explicitly rejected until reviewed.
 
 `check:sentry-usage-scope` keeps `@sentry/react-native` runtime usage isolated to `App.tsx`, `Main.tsx`, and `logger/index.ts` until the dedicated Sentry release/source-map validation branch handles the remaining Gradle warning and release tooling behavior.
 
