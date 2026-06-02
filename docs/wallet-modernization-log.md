@@ -13344,6 +13344,50 @@ Validation:
 - `corepack yarn test:storage-network:focused`
 - `rg -n "Prompt|react-native-prompt-android" android\app\build\generated node_modules\react-native-prompt-android\android -S`
 
+### BEM-37.309 - Sentry CLI release-readiness refresh
+
+- Branch: `feature/bem-37-309-sentry-cli-release-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep `@sentry/react-native` on latest checked `8.13.0`.
+- Add explicit `@sentry/cli@3.5.0` dev tooling instead of relying only on the transitive CLI bundled by the Sentry SDK.
+- Refresh Sentry release-source-map plan, release-services compatibility audit, and Sentry prerequisite guard fixtures for the current CLI baseline.
+
+Findings:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json` reports latest `8.13.0`.
+- `npm view @sentry/cli version peerDependencies dependencies engines --json` reports latest `3.5.0` and Node engine `>= 18`.
+- `corepack yarn sentry:release:prereq-audit` reports `@sentry/react-native@8.13.0`, `@sentry/cli@3.5.0`, executable `sentry-cli 3.5.0`, wired Android/iOS release integration, and valid Android `dev`/`stage`/`prod` release-summary evidence.
+- Sentry source-map upload remains explicitly not claimed because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable locally.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version peerDependencies dependencies engines --json`
+- `corepack yarn add --dev @sentry/cli@3.5.0`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+
+Notes:
+
+- The first emulator smoke attempt failed because no Android device/emulator was connected; `Medium_Phone_API_36.0` was started and the repeated smoke passed.
+- Fresh Android release validation produced unsigned APK evidence for `dev`, `stage`, and `prod`; source-map upload remains unclaimed until Sentry credentials/properties are present.
+
 ### BEM-37.220 - JailMonkey 3 security module runtime probe
 
 - Branch: `feature/bem-37-jail-monkey-3-probe`
