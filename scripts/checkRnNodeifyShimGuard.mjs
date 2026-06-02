@@ -1,14 +1,12 @@
 import { getRnNodeifyShimErrors, requiredRnNodeifyShims } from './rnNodeifyShimGuard.mjs';
 
-const validContents = new Map(
-  requiredRnNodeifyShims.map(({ file, marker }) => [file, `module.exports = global.StreamModule || require('stream'); // ${marker}`]),
-);
+const validContents = new Map(requiredRnNodeifyShims.map(({ file, marker }) => [file, `// ${marker}`]));
 
 const missingContents = new Map(validContents);
 missingContents.delete(requiredRnNodeifyShims[0].file);
 
 const missingMarkerContents = new Map(validContents);
-missingMarkerContents.set(requiredRnNodeifyShims[1].file, "module.exports = require('stream');");
+missingMarkerContents.set(requiredRnNodeifyShims[1].file, '"_stream_readable": "readable-stream/readable"');
 
 const assertAccepted = (label, contents) => {
   const errors = getRnNodeifyShimErrors(contents);

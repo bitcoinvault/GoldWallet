@@ -4,8 +4,12 @@ export const requiredRnNodeifyShims = [
     marker: 'module.exports = global.StreamModule = Stream',
   },
   {
-    file: 'node_modules/readable-stream/readable.js',
-    marker: 'global.StreamModule || require',
+    file: 'node_modules/readable-stream/package.json',
+    marker: 'readable-stream/lib/_stream_readable',
+  },
+  {
+    file: 'node_modules/readable-stream/lib/_stream_readable.js',
+    marker: "module.exports = require('./stream').Readable",
   },
 ];
 

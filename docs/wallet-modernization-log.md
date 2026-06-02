@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.320 - Readable stream v4 polyfill upgrade
+
+- Branch: `feature/bem-37-320-readable-stream-v4-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the direct React Native stream polyfill dependency from `readable-stream@3.6.2` to checked latest `4.7.0`.
+- Migrate app-level `_stream_*` React Native/browser aliases from removed v3 public paths such as `readable-stream/readable` to v4 `readable-stream/lib/_stream_*` entry points.
+- Extend the rn-nodeify postinstall fix so `rn-nodeify` cannot restore stale `readable-stream/readable` aliases in the root package or installed `readable-stream` package metadata.
+- Update the rn-nodeify shim guard to verify the v4 alias contract and root readable stream entry file instead of the removed `readable.js` file.
+
+Findings:
+
+- Live npm metadata reports `readable-stream@4.7.0` as `latest`; its package no longer ships root files such as `readable-stream/readable`.
+- `rn-nodeify` rewrites root and installed package alias metadata during postinstall, so the v4 migration must repair both `package.json` and `node_modules/readable-stream/package.json` after `rn-nodeify` runs.
+- `require.resolve('readable-stream/lib/_stream_readable')` resolves on the v4 package, and Android Metro bundling completed through `createBundleDevDebugJsAndAssets`.
+- Android emulator smoke installed and launched the dev APK, completed first-run setup, found `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`, and reported no fatal/runtime logcat findings.
+
+Validation:
+
+- `npm view readable-stream version engines dependencies peerDependencies dist-tags --json`
+- `npm pack readable-stream@4.7.0 --dry-run --json`
+- `corepack yarn install`
+- `node -e "for (const p of ['readable-stream','readable-stream/lib/_stream_readable','readable-stream/lib/_stream_writable','readable-stream/lib/_stream_duplex','readable-stream/lib/_stream_transform','readable-stream/lib/_stream_passthrough']) console.log(p+' -> '+require.resolve(p)); console.log('version='+require('readable-stream/package.json').version);"`
+- `corepack yarn check:rn-nodeify-shim-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.319 - Tooling latest snapshot summary guard
 
 - Branch: `feature/bem-37-319-tooling-snapshot-summary`
