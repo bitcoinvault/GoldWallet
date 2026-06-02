@@ -17,7 +17,7 @@ This matrix defines how to move the app foundation forward without upgrading eve
 ## Latest Snapshot
 
 - npm `react-native@latest`: `0.85.3`
-- npm `react-native@next`: `0.86.0-rc.2`
+- npm `react-native@next`: `0.86.0-rc.3`
 - `react-native@0.85.3` peer React: `^19.2.3`
 - `react-native@0.85.3` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
 

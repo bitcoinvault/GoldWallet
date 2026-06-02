@@ -61,7 +61,7 @@ Target direction:
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
 - Wallet/crypto runtime package risk is tracked in `docs/wallet-crypto-runtime-audit.md` and checked with `corepack yarn wallet:crypto-runtime:audit`.
 - RN `0.85.3` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; use `corepack yarn rn:076-foundation:audit` before changing RN packages.
-- The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.85.3` latest, `0.86.0-rc.3` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
 - React 19 impact audit is tracked in `docs/react19-impact-audit.md`; use it before changing React/RN package versions.
 - React package coupling audit is tracked in `docs/react-package-coupling-audit.md`; use it to keep React, renderer, and type packages moving together.
@@ -158,7 +158,7 @@ Passing:
 - Removed Android warning sources include the stale app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, the previous Sentry `execResult` finding, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, two `@react-native-community/slider` `jcenter()` entries, `react-native-device-info` `jcenter()`, `react-native-vector-icons` `jcenter()`, and `@react-native-community/toolbar-android` `jcenter()`.
 - The current CameraKit scanner migration state is covered by `corepack yarn camera:qr-migration:audit`; Sentry Gradle/source-map wiring is still covered by `corepack yarn sentry:android-warning:audit` even though the active warning audit no longer reports Sentry `execResult`.
 - The latest live RN target snapshot check reports `Live check outcome: matched` with `Mismatches: 0`.
-- Latest live RN target snapshot summary was refreshed from npm on `2026-05-29` and still matches `react-native@0.85.3` latest, `0.86.0-rc.2` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- Latest live RN target snapshot summary was refreshed from npm on `2026-06-02` and still matches `react-native@0.85.3` latest, `0.86.0-rc.3` next, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
 - `corepack yarn android:dev:check-artifact-guard` verifies the warning-summary source guard with known-source, zero-warning, mismatched-count, and unexpected-source cases
 - `corepack yarn android:dev:audit-smoke` runs the Android environment audit, refreshes warning audit, emulator smoke, and artifact checker evidence in one pass
