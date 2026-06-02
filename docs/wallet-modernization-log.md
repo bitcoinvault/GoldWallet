@@ -13461,6 +13461,49 @@ Validation:
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check` passed with only existing CRLF normalization warnings.
 
+### BEM-37.312 - Detox 20 Android readiness
+
+- Branch: `feature/bem-37-312-detox-20-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the e2e runner dependency from `detox@18.20.1` to latest checked `detox@20.51.3`.
+- Align Android `androidTestImplementation` with the npm Detox version.
+- Migrate `.detoxrc.json` away from deprecated string `testRunner` / `runnerConfig` fields.
+- Replace Unix-only Android Detox build commands with the cross-platform `scripts/runDetoxAndroidBuild.mjs` wrapper.
+- Add `check:detox-readiness` so future Detox changes cannot leave npm/native/config versions out of sync.
+
+Findings:
+
+- `npm view detox@20.51.3 version peerDependencies dependencies engines bin dist-tags --json` reports latest `20.51.3` and Jest peer support for `30.x.x || 29.x.x || 28.x.x || ^27.2.5`.
+- The existing `detox@18.20.1` declared old Jest Circus / Jest environment peers and used `com.wix:detox:18.20.1` in Android tests.
+- Detox 20 still provides the internal `detox/src/utils/argparse` helper used by the current e2e utility, but its `getAttributes()` types are stricter, so `tests/e2e/actions.ts` now handles collection attributes before reading `text`.
+- `npx detox build -c android.emu.dev.debug` passes on Windows with JDK 17 through `scripts/runDetoxAndroidBuild.mjs`.
+- The Android encrypted-storage prompt review finding is already covered by `BEM-37.308`: `react-native.config.js` keeps `react-native-prompt-android` linked, and `check:legacy-android-autolink` still blocks disabling that wallet-critical native module.
+- Gradle still logs `[Fatal Error] detox-20.51.3.pom:1:44: Content is not allowed in prolog.`, but the Detox Android test APK build completes with `BUILD SUCCESSFUL`; keep this as a warning to watch in future Gradle dependency cleanup.
+- Android dev emulator smoke passed after reinstalling a normal `devDebug` APK, completing first-run terms, PIN setup, transaction-password setup, email skip, and dashboard readiness checks for `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
+
+Validation:
+
+- `npm view detox@20.51.3 version peerDependencies dependencies engines bin dist-tags --json`
+- `npm view detox@18.20.1 version peerDependencies dependencies engines bin --json`
+- `npx detox --version`
+- `npx detox config --configuration android.emu.dev.debug`
+- `corepack yarn check:detox-readiness`
+- `node node_modules\jest\bin\jest.js --config tests\e2e\config.json --listTests`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:legacy-android-autolink-guard`
+- `corepack yarn check:legacy-android-autolink`
+- `corepack yarn lint:baseline:audit` passed with the existing baseline count: 35342 errors, 0 warnings.
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 node scripts\runAndroidGradle.mjs :app:assembleDevDebugAndroidTest -DtestBuildType=debug -x lint`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 npx detox build -c android.emu.dev.debug`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.220 - JailMonkey 3 security module runtime probe
 
 - Branch: `feature/bem-37-jail-monkey-3-probe`

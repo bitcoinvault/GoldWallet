@@ -77,19 +77,14 @@ const Actions = () => {
   ) => {
     const { pixels = 100, direction = 'down', startX = NaN, startY = NaN } = options ?? {};
 
-    await waitFor(target)
-      .toBeVisible()
-      .whileElement(by.id(scrollable))
-      .scroll(pixels, direction, startX, startY);
+    await waitFor(target).toBeVisible().whileElement(by.id(scrollable)).scroll(pixels, direction, startX, startY);
   };
 
   const swipeCarousel = async (
     carousel: Detox.IndexableNativeElement | Detox.NativeElement,
     direction: 'left' | 'right',
   ) => {
-    await waitFor(carousel)
-      .toBeVisible()
-      .withTimeout(WAIT_FOR_ELEMENT_TIMEOUT.DEFAULT);
+    await waitFor(carousel).toBeVisible().withTimeout(WAIT_FOR_ELEMENT_TIMEOUT.DEFAULT);
 
     await carousel.swipe(direction, 'fast', 0.75, 0.5);
   };
@@ -108,19 +103,13 @@ const Actions = () => {
     const pixels = 100;
 
     try {
-      await waitFor(target)
-        .toBeVisible()
-        .whileElement(by.id(scrollable))
-        .scroll(pixels, 'down', NaN, 0.5);
+      await waitFor(target).toBeVisible().whileElement(by.id(scrollable)).scroll(pixels, 'down', NaN, 0.5);
 
       return;
     } catch (error) {}
 
     try {
-      await waitFor(target)
-        .toBeVisible()
-        .whileElement(by.id(scrollable))
-        .scroll(pixels, 'up', NaN, 0.5);
+      await waitFor(target).toBeVisible().whileElement(by.id(scrollable)).scroll(pixels, 'up', NaN, 0.5);
 
       return;
     } catch (error) {
@@ -137,7 +126,17 @@ const Actions = () => {
       // @ts-ignore
       const attr = await target.getAttributes();
 
-      return attr.text;
+      if ('text' in attr && typeof attr.text === 'string') {
+        return attr.text;
+      }
+
+      const firstElement = 'elements' in attr ? attr.elements[0] : undefined;
+
+      if (firstElement && 'text' in firstElement && typeof firstElement.text === 'string') {
+        return firstElement.text;
+      }
+
+      return '';
     }
   };
 

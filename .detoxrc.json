@@ -1,6 +1,13 @@
 {
-  "testRunner": "jest",
-  "runnerConfig": "tests/e2e/config.json",
+  "testRunner": {
+    "args": {
+      "$0": "jest",
+      "config": "tests/e2e/config.json"
+    },
+    "jest": {
+      "setupTimeout": 300000
+    }
+  },
   "apps": {
     "ios.dev.debug": {
       "type": "ios.app",
@@ -35,35 +42,35 @@
     "android.dev.debug": {
       "type": "android.apk",
       "binaryPath": "android/app/build/outputs/apk/dev/debug/app-dev-debug.apk",
-      "build": "cd android && RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true ./gradlew assembleDevDebug assembleDevDebugAndroidTest -DtestBuildType=debug && cd .."
+      "build": "node scripts/runDetoxAndroidBuild.mjs dev debug"
     },
     "android.dev.release": {
       "type": "android.apk",
       "binaryPath": "android/app/build/outputs/apk/dev/release/app-dev-release-bitrise-signed.apk",
       "testBinaryPath": "android/app/build/outputs/apk/androidTest/dev/release/app-dev-release-androidTest-bitrise-signed.apk",
-      "build": "cd android && RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true ./gradlew assembleDevRelease assembleDevReleaseAndroidTest -DtestBuildType=release && cd .."
+      "build": "node scripts/runDetoxAndroidBuild.mjs dev release"
     },
     "android.stage.debug": {
       "type": "android.apk",
       "binaryPath": "android/app/build/outputs/apk/stage/debug/app-stage-debug.apk",
-      "build": "cd android && RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true ./gradlew assembleStageDebug assembleStageDebugAndroidTest -DtestBuildType=debug && cd .."
+      "build": "node scripts/runDetoxAndroidBuild.mjs stage debug"
     },
     "android.stage.release": {
       "type": "android.apk",
       "binaryPath": "android/app/build/outputs/apk/stage/release/app-stage-release-bitrise-signed.apk",
       "testBinaryPath": "android/app/build/outputs/apk/androidTest/stage/release/app-stage-release-androidTest-bitrise-signed.apk",
-      "build": "cd android && RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true ./gradlew assembleStageRelease assembleStageReleaseAndroidTest -DtestBuildType=release && cd .."
+      "build": "node scripts/runDetoxAndroidBuild.mjs stage release"
     },
     "android.prod.debug": {
       "type": "android.apk",
       "binaryPath": "android/app/build/outputs/apk/prod/debug/app-prod-debug.apk",
-      "build": "cd android && RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true ./gradlew assembleProdDebug assembleProdDebugAndroidTest -DtestBuildType=debug && cd .."
+      "build": "node scripts/runDetoxAndroidBuild.mjs prod debug"
     },
     "android.prod.release": {
       "type": "android.apk",
       "binaryPath": "android/app/build/outputs/apk/prod/release/app-prod-release-bitrise-signed.apk",
       "testBinaryPath": "android/app/build/outputs/apk/androidTest/prod/release/app-prod-release-androidTest-bitrise-signed.apk",
-      "build": "cd android && RN_SRC_EXT=e2e.tsx CHAMBER_OF_SECRETS=true ./gradlew assembleProdRelease assembleProdReleaseAndroidTest -DtestBuildType=release && cd .."
+      "build": "node scripts/runDetoxAndroidBuild.mjs prod release"
     }
   },
   "devices": {
