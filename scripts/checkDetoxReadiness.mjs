@@ -11,6 +11,14 @@ const androidBuildGradle = read('android/app/build.gradle');
 const e2eEnvironment = read('tests/e2e/environment.js');
 const expectedDetoxVersion = packageJson.devDependencies.detox;
 const errors = [];
+const expectedIosApps = new Map([
+  ['ios.dev.debug', { build: 'node scripts/runDetoxIosBuild.mjs dev debug', binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/GoldWallet Dev.app' }],
+  ['ios.dev.release', { build: 'node scripts/runDetoxIosBuild.mjs dev release', binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/GoldWallet Dev.app' }],
+  ['ios.stage.debug', { build: 'node scripts/runDetoxIosBuild.mjs stage debug', binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/GoldWallet Stage.app' }],
+  ['ios.stage.release', { build: 'node scripts/runDetoxIosBuild.mjs stage release', binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/GoldWallet Stage.app' }],
+  ['ios.prod.debug', { build: 'node scripts/runDetoxIosBuild.mjs prod debug', binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/GoldWallet.app' }],
+  ['ios.prod.release', { build: 'node scripts/runDetoxIosBuild.mjs prod release', binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/GoldWallet.app' }],
+]);
 
 if (!expectedDetoxVersion) {
   errors.push('package.json is missing devDependencies.detox');
@@ -36,6 +44,38 @@ const androidApps = Object.entries(detoxConfig.apps || {}).filter(([, app]) => a
 for (const [appName, app] of androidApps) {
   if (!app.build?.startsWith('node scripts/runDetoxAndroidBuild.mjs ')) {
     errors.push(`${appName} must use scripts/runDetoxAndroidBuild.mjs for a cross-platform Android Detox build`);
+  }
+}
+
+const iosApps = Object.entries(detoxConfig.apps || {}).filter(([, app]) => app.type === 'ios.app');
+if (iosApps.length !== expectedIosApps.size) {
+  errors.push(`.detoxrc.json must define ${expectedIosApps.size} iOS Detox apps, found ${iosApps.length}`);
+}
+
+for (const [appName, expected] of expectedIosApps) {
+  const app = detoxConfig.apps?.[appName];
+
+  if (!app) {
+    errors.push(`.detoxrc.json is missing ${appName}`);
+    continue;
+  }
+
+  if (app.build !== expected.build) {
+    errors.push(`${appName} must use "${expected.build}"`);
+  }
+
+  if (app.binaryPath !== expected.binaryPath) {
+    errors.push(`${appName} binaryPath must be ${expected.binaryPath}`);
+  }
+}
+
+for (const [appName, app] of iosApps) {
+  if (app.build?.includes('GoldWallet Prod')) {
+    errors.push(`${appName} references non-existent GoldWallet Prod iOS scheme`);
+  }
+
+  if (!app.build?.startsWith('node scripts/runDetoxIosBuild.mjs ')) {
+    errors.push(`${appName} must use scripts/runDetoxIosBuild.mjs for guarded iOS Detox build mapping`);
   }
 }
 
