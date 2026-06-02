@@ -58,6 +58,8 @@ Use `corepack yarn upgrade:strategy:audit` before dependency/RN baseline branche
 
 Use `corepack yarn tooling:latest-snapshot:audit` before tooling dependency branches when network access is available. It writes `local-docs/tooling-latest-snapshot.txt` with package specs, installed versions, live npm latest versions, and the current defer/upgrade decision for the tracked tooling cohort without changing package versions.
 
+Use `corepack yarn check:detox-readiness` after Detox runner changes. It verifies that the npm `detox` version matches Android `com.wix:detox`, that `.detoxrc.json` uses the Detox 20 runner-object format, that Android Detox builds use the cross-platform `scripts/runDetoxAndroidBuild.mjs` wrapper, and that the e2e environment imports `detox/runners/jest` instead of the deprecated `jest-circus` path.
+
 `check:rn-upgrade-path-audit-guard` verifies the React Native upgrade path audit fixtures before the real audit checks the current worktree.
 
 `check:metro-dev-runtime-audit-guard` verifies the Metro dev runtime audit fixtures without depending on the current terminal's Node version.
