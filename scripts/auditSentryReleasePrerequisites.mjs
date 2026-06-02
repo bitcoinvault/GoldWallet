@@ -133,6 +133,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const hasCreateScript = existsSync(createScriptPath);
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';
   const createScriptUsesToken = createScript.includes('SENTRY_AUTH_TOKEN');
+  const createScriptRejectsMissingToken = /SENTRY_AUTH_TOKEN:\?/.test(createScript);
   const createScriptWritesRootProperties = />\s*sentry\.properties\b/.test(createScript);
   const createScriptWritesAndroidProperties = />\s*android\/sentry\.properties\b/.test(createScript);
   const createScriptWritesIosProperties = />\s*ios\/sentry\.properties\b/.test(createScript);
@@ -163,6 +164,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseSummaryErrors,
     hasCreateScript,
     createScriptUsesToken,
+    createScriptRejectsMissingToken,
     createScriptWritesRootProperties,
     createScriptWritesAndroidProperties,
     createScriptWritesIosProperties,
@@ -228,6 +230,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push('Sentry release upload validation: not claimed');
   lines.push(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
+  lines.push(`create-sentry-properties.sh rejects missing SENTRY_AUTH_TOKEN: ${audit.createScriptRejectsMissingToken ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh writes root properties: ${audit.createScriptWritesRootProperties ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh writes Android properties: ${audit.createScriptWritesAndroidProperties ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh writes iOS properties: ${audit.createScriptWritesIosProperties ? 'yes' : 'no'}`);
@@ -299,6 +302,7 @@ const printReport = audit => {
   console.log('Sentry release upload validation: not claimed');
   console.log(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
+  console.log(`create-sentry-properties.sh rejects missing SENTRY_AUTH_TOKEN: ${audit.createScriptRejectsMissingToken ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh writes root properties: ${audit.createScriptWritesRootProperties ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh writes Android properties: ${audit.createScriptWritesAndroidProperties ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh writes iOS properties: ${audit.createScriptWritesIosProperties ? 'yes' : 'no'}`);

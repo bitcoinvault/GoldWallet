@@ -53,6 +53,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const sentryReleaseUploadValidation = getLineValue(summary, 'Sentry release upload validation');
   const createScriptPresent = getLineValue(summary, 'create-sentry-properties.sh present');
   const createScriptUsesToken = getLineValue(summary, 'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN');
+  const createScriptRejectsMissingToken = getLineValue(summary, 'create-sentry-properties.sh rejects missing SENTRY_AUTH_TOKEN');
   const createScriptWritesRootProperties = getLineValue(summary, 'create-sentry-properties.sh writes root properties');
   const createScriptWritesAndroidProperties = getLineValue(summary, 'create-sentry-properties.sh writes Android properties');
   const createScriptWritesIosProperties = getLineValue(summary, 'create-sentry-properties.sh writes iOS properties');
@@ -214,6 +215,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     sentryCliExecutable,
     createScriptPresent,
     createScriptUsesToken,
+    createScriptRejectsMissingToken,
     createScriptWritesRootProperties,
     createScriptWritesAndroidProperties,
     createScriptWritesIosProperties,
@@ -280,12 +282,13 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   if (
     createScriptPresent === 'yes' &&
     (createScriptUsesToken !== 'yes' ||
+      createScriptRejectsMissingToken !== 'yes' ||
       createScriptWritesRootProperties !== 'yes' ||
       createScriptWritesAndroidProperties !== 'yes' ||
       createScriptWritesIosProperties !== 'yes' ||
       createScriptStaticDefaultsValid !== 'yes')
   ) {
-    errors.push('Present create-sentry-properties.sh must require SENTRY_AUTH_TOKEN, write root/android/iOS properties, and keep expected static defaults');
+    errors.push('Present create-sentry-properties.sh must require and reject missing SENTRY_AUTH_TOKEN, write root/android/iOS properties, and keep expected static defaults');
   }
 
   if (
