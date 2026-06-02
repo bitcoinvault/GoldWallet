@@ -12,4 +12,4 @@ console.error('Legacy Android autolink guard failed:');
   process.exit(1);
 }
 
-console.log('Legacy Android autolinking remains enabled for wallet-critical native prompt modules.');
+console.log('Legacy Android autolinking remains enabled for wallet-critical native prompt modules and guarded for the removed camera package.');

@@ -1,4 +1,4 @@
-export const expectedDisabledAndroidAutolinkPackages = new Set();
+export const expectedDisabledAndroidAutolinkPackages = new Set(['react-native-camera']);
 
 export const getLegacyAndroidAutolinkErrors = dependencies => {
   const errors = [];
