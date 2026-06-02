@@ -17,7 +17,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | `9.0.1` | `9.0.1` | Latest npm package is installed, but App Center CodePush was retired on 2025-03-31 and the Microsoft repositories are archived; treat as migration/removal work, not a normal package refresh. |
 | `@sentry/react-native` | `8.13.0` | `8.13.0` | Latest checked SDK line; source-map and dSYM behavior must still be proven with local credentials. |
-| `@sentry/cli` | `3.4.3` | `3.4.3` | Installed through the Sentry React Native package; prerequisite audit checks binary availability and live latest metadata. |
+| `@sentry/cli` | `3.5.0` | `3.5.0` | Explicit release-tooling dependency; prerequisite audit checks binary availability and live latest metadata. |
 
 ## Current Runtime Surface
 
