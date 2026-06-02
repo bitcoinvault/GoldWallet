@@ -31,6 +31,7 @@ const notReadySummary = [
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
+  'create-sentry-properties.sh rejects missing SENTRY_AUTH_TOKEN: yes',
   'create-sentry-properties.sh writes root properties: yes',
   'create-sentry-properties.sh writes Android properties: yes',
   'create-sentry-properties.sh writes iOS properties: yes',
@@ -69,6 +70,7 @@ const readySummary = [
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
+  'create-sentry-properties.sh rejects missing SENTRY_AUTH_TOKEN: yes',
   'create-sentry-properties.sh writes root properties: yes',
   'create-sentry-properties.sh writes Android properties: yes',
   'create-sentry-properties.sh writes iOS properties: yes',
@@ -161,6 +163,14 @@ assertRejected(
 assertRejected(
   'Broken create script target fixture',
   notReadySummary.replace('create-sentry-properties.sh writes Android properties: yes', 'create-sentry-properties.sh writes Android properties: no'),
+  'Present create-sentry-properties.sh',
+);
+assertRejected(
+  'Missing create script token preflight fixture',
+  notReadySummary.replace(
+    'create-sentry-properties.sh rejects missing SENTRY_AUTH_TOKEN: yes',
+    'create-sentry-properties.sh rejects missing SENTRY_AUTH_TOKEN: no',
+  ),
   'Present create-sentry-properties.sh',
 );
 assertRejected(

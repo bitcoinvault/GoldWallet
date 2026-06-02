@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.313 - Sentry release properties preflight hardening
+
+- Branch: `feature/bem-37-313-sentry-sdk-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep `@sentry/react-native` and `@sentry/cli` on the latest checked versions for the current React Native baseline.
+- Harden `create-sentry-properties.sh` so missing `SENTRY_AUTH_TOKEN` fails before writing release properties files.
+- Extend the Sentry release prerequisite audit and guard so the missing-token preflight is tracked as part of release/source-map readiness.
+- Refresh the Sentry release-source-map plan and README release setup notes.
+
+Findings:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines dist-tags --json` reports latest `8.13.0`, matching the installed SDK.
+- `npm view @sentry/cli version engines dist-tags --json` reports latest `3.5.0`, matching the installed release CLI tooling.
+- The release upload path remains intentionally unclaimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available locally.
+- A missing token must not generate `auth.token=` files that make release setup look configured but fail later during source-map upload.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines dist-tags --json`
+- `npm view @sentry/cli version engines dist-tags --json`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:sentry-release-integration-guard`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.307 - Transaction script Buffer ownership fix
 
 - Branch: `feature/bem-37-307-transaction-script-buffer-fix`

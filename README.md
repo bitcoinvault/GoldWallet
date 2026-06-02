@@ -39,7 +39,7 @@ $ cd ios
 $ pod install
 ```
 
-To build a binary of any variant, you must have `sentry.properties` files created in root, `./ios`, and `./android`. You can create them by executing `create-sentry-properties.sh` script with the valid Sentry Auth token:
+To build a binary of any variant with Sentry upload enabled, you must have `sentry.properties` files created in root, `./ios`, and `./android`. You can create them by executing `create-sentry-properties.sh` script with the valid Sentry Auth token; the script fails before writing files if `SENTRY_AUTH_TOKEN` is missing:
 
 ```sh
 $ SENTRY_AUTH_TOKEN=${TOKEN} bash ./create-sentry-properties.sh  
