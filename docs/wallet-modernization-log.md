@@ -13427,6 +13427,40 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` passed on `emulator-5554`, completed first-run terms, PIN, transaction-password, skipped email, and reached the Wallets screen with expected `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet` UI text.
 
+### BEM-37.311 - React 19 patch blocker refresh
+
+- Branch: `feature/bem-37-311-react-19-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check the latest React patch line after the RN `0.85.3` foundation.
+- Avoid committing a React package patch unless the bundled React Native renderer can support it.
+- Keep the blocker tied to live package metadata and local renderer evidence.
+
+Findings:
+
+- `corepack yarn outdated --json` reports `react@19.2.7`, `react-test-renderer@19.2.7`, and `@types/react@19.2.16` as newer than the installed baseline.
+- `npm view react-native@0.85.3 peerDependencies engines version --json` reports React peer `^19.2.3`, but `node_modules/react-native/Libraries/Renderer/implementations/ReactNativeRenderer-*.js` still hard-code `react-native-renderer: 19.2.3` and throw on exact React version mismatch.
+- A package probe to `react@19.2.7` and `react-test-renderer@19.2.7` made `corepack yarn android:dev:check-light` fail at `rn:upgrade-path:audit`, because the current guarded baseline intentionally remains React `19.2.3`.
+- The attempted package changes were not kept. React and `react-test-renderer` remain pinned to `19.2.3`; `@types/react` remains pinned to `19.2.15`.
+
+Validation:
+
+- `corepack yarn outdated --json`
+- `npm view react-native@0.85.3 peerDependencies engines version --json`
+- `npm view react@19.2.7 version peerDependencies engines --json`
+- `npm view react-test-renderer@19.2.7 version peerDependencies engines --json`
+- `npm view @types/react@19.2.16 version dependencies dist-tags --json`
+- Renderer exact-version evidence checked with `rg -n "19\.2\.3|react-native-renderer|React version" node_modules\react-native\Libraries\Renderer node_modules\react-native\package.json`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit` passed with the existing baseline count: 35350 errors, 0 warnings.
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check` passed with only existing CRLF normalization warnings.
+
 ### BEM-37.220 - JailMonkey 3 security module runtime probe
 
 - Branch: `feature/bem-37-jail-monkey-3-probe`
