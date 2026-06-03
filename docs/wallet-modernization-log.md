@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.332 - CodePush retirement readiness refresh
+
+- Branch: `feature/bem-37-332-codepush-retirement-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live npm/latest metadata for `react-native-code-push`.
+- Re-check Microsoft upstream archive status for `react-native-code-push` and `code-push-server`.
+- Refresh the CodePush retirement/migration plan and release-services compatibility audit.
+- Keep CodePush update validation explicitly unclaimed while treating the current wiring as gated legacy compatibility.
+
+Findings:
+
+- `react-native-code-push@9.0.1` is still npm `latest`; the latest package was published on 2024-12-19.
+- `microsoft/react-native-code-push` and `microsoft/code-push-server` are still archived on GitHub.
+- The local CodePush release-path audit reports wiring valid, package versions aligned, runtime/native gates present, runtime disabled by default, and Android release build evidence ready for `dev`, `stage`, and `prod`.
+- CodePush update validation is still not claimed: `.env.dev.testnet` has blank Android/iOS deployment keys, beta key strategy is unconfirmed, and App Center CodePush was retired on 2025-03-31.
+- Because Android New Architecture is enabled and upstream New Architecture support is not available, CodePush remains a migration/removal workstream rather than a normal package refresh.
+
+Validation:
+
+- `npm view react-native-code-push version time repository.url dist-tags peerDependencies dependencies --json`
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,defaultBranchRef,description,url`
+- `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,defaultBranchRef,description,url`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn check:codepush-usage-scope`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn lint:baseline:audit`
+
 ### BEM-37.331 - Sentry release readiness refresh
 
 - Branch: `feature/bem-37-331-sentry-release-readiness-refresh`
