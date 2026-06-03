@@ -58,6 +58,8 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const createScriptWritesAndroidProperties = getLineValue(summary, 'create-sentry-properties.sh writes Android properties');
   const createScriptWritesIosProperties = getLineValue(summary, 'create-sentry-properties.sh writes iOS properties');
   const createScriptStaticDefaultsValid = getLineValue(summary, 'create-sentry-properties.sh static defaults valid');
+  const createScriptSupportsOrgOverride = getLineValue(summary, 'create-sentry-properties.sh supports SENTRY_ORG override');
+  const createScriptSupportsProjectOverride = getLineValue(summary, 'create-sentry-properties.sh supports SENTRY_PROJECT override');
   const envHasToken = getLineValue(summary, 'SENTRY_AUTH_TOKEN available in current shell');
   const requiredAction = getLineValue(summary, 'Required action');
   const releaseIntegrationErrorLines = getBulletLinesAfter(summary, 'Sentry release integration errors');
@@ -220,6 +222,8 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     createScriptWritesAndroidProperties,
     createScriptWritesIosProperties,
     createScriptStaticDefaultsValid,
+    createScriptSupportsOrgOverride,
+    createScriptSupportsProjectOverride,
     envHasToken,
   ].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
@@ -286,9 +290,11 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       createScriptWritesRootProperties !== 'yes' ||
       createScriptWritesAndroidProperties !== 'yes' ||
       createScriptWritesIosProperties !== 'yes' ||
-      createScriptStaticDefaultsValid !== 'yes')
+      createScriptStaticDefaultsValid !== 'yes' ||
+      createScriptSupportsOrgOverride !== 'yes' ||
+      createScriptSupportsProjectOverride !== 'yes')
   ) {
-    errors.push('Present create-sentry-properties.sh must require and reject missing SENTRY_AUTH_TOKEN, write root/android/iOS properties, and keep expected static defaults');
+    errors.push('Present create-sentry-properties.sh must require and reject missing SENTRY_AUTH_TOKEN, write root/android/iOS properties, keep expected static defaults, and support SENTRY_ORG/SENTRY_PROJECT overrides');
   }
 
   if (
