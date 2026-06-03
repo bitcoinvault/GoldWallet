@@ -114,6 +114,10 @@
 		<string>Ubuntu-Medium.ttf</string>
 		<string>Ubuntu-Regular.ttf</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>Launch Screen beta</string>
 	<key>UIRequiredDeviceCapabilities</key>

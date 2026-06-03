@@ -206,9 +206,10 @@ const collectIosReleaseReadiness = () => {
     { path: 'ios/GoldWallet/Info.plist', displayName: 'GoldWallet', requiresCodePush: true, requiresRemoteNotification: true },
     { path: 'ios/GoldWalletDev-Info.plist', displayName: 'GoldWallet Dev', requiresCodePush: true, requiresRemoteNotification: true },
     { path: 'ios/GoldWalletStage-Info.plist', displayName: 'GoldWallet Stage', requiresCodePush: true, requiresRemoteNotification: true },
-    { path: 'ios/GoldWallet-beta.plist', displayName: '$(PRODUCT_NAME)', requiresCodePush: false, requiresRemoteNotification: false },
+    { path: 'ios/GoldWallet-beta.plist', displayName: '$(PRODUCT_NAME)', requiresCodePush: false, requiresRemoteNotification: true },
   ];
   let codePushPlistPlaceholderCount = 0;
+  let remoteNotificationPlistCount = 0;
 
   infoPlists.forEach(config => {
     const parsed = parsePlist(config.path);
@@ -231,6 +232,9 @@ const collectIosReleaseReadiness = () => {
     });
     if (!Array.isArray(parsed.UISupportedInterfaceOrientations) || !parsed.UISupportedInterfaceOrientations.includes('UIInterfaceOrientationPortrait')) {
       errors.push(`${config.path} must support portrait orientation`);
+    }
+    if (parsed.UIBackgroundModes?.includes('remote-notification')) {
+      remoteNotificationPlistCount += 1;
     }
     if (config.requiresRemoteNotification && !parsed.UIBackgroundModes?.includes('remote-notification')) {
       errors.push(`${config.path} must include remote-notification background mode`);
@@ -266,6 +270,7 @@ const collectIosReleaseReadiness = () => {
     sentryBundlePhaseCount,
     sentryDsymPhaseCount,
     codePushPlistPlaceholderCount,
+    remoteNotificationPlistCount,
     xcodebuildVersion,
   };
 };
@@ -284,6 +289,7 @@ const formatSummary = (audit, generatedAt = new Date().toISOString()) => [
   `iOS Sentry bundle/source-map phases: ${audit.sentryBundlePhaseCount}`,
   `iOS Sentry dSYM upload phases: ${audit.sentryDsymPhaseCount}`,
   `iOS CodePush plist placeholders: ${audit.codePushPlistPlaceholderCount}`,
+  `iOS remote-notification plists: ${audit.remoteNotificationPlistCount}`,
   `Podfile.lock refresh required: ${audit.podfileLockDriftIssues.length > 0 ? 'yes' : 'no'}`,
   `Podfile.lock drift issues: ${audit.podfileLockDriftIssues.length}`,
   ...audit.podfileLockDriftIssues.map(issue => `- ${issue}`),
