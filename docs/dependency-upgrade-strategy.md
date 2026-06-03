@@ -10,6 +10,7 @@ This project should not upgrade dependencies one package at a time unless the pa
 - Do not commit a dependency change that only passes TypeScript or Android assemble; runtime dependencies also need Metro reset and emulator smoke.
 - Do not mix unrelated runtime families in the same branch.
 - Validate the strategy guard with `corepack yarn upgrade:strategy:audit` before starting a foundation or cohort upgrade branch.
+- When network access is available for a React Native foundation branch, use `corepack yarn rn:baseline:preflight:online` so the live RN target snapshot, git dependency snapshot, and node-fetch resolution summaries are refreshed before the offline baseline gate runs.
 
 ## Upgrade Layers
 
