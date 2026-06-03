@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.341 - Android release workflow beta documentation guard
+
+- Branch: `feature/bem-37-341-android-release-workflow-beta-docs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align Android modernization workflow documentation with the current release validation default set.
+- Record that `android:dev:release:validate-local` now validates `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` by default.
+- Extend the lightweight documentation guard so the workflow cannot silently drift back to the old non-beta default.
+
+Findings:
+
+- `docs/android-modernization-workflow.md` still described the older default `devRelease`, `stageRelease`, and `prodRelease` release set.
+- The actual release validation scripts and summary guards now require `dev`, `stage`, `prod`, and `beta` evidence by default after `BEM-37.338`.
+- No runtime behavior changed in this branch.
+
+Validation:
+
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn android:dev:release:check-summary`
+
 ### BEM-37.340 - Sentry properties release-target readiness
 
 - Branch: `feature/bem-37-340-sentry-properties-env-readiness`
