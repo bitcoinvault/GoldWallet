@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.334 - React Native latest target probe
+
+- Branch: `feature/bem-37-334-rn-latest-target-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live npm metadata for React Native, React, RN Babel preset, and RN Metro config.
+- Refresh the React Native target snapshot with the current nightly channel as a planning signal.
+- Keep the package baseline unchanged because the current repo is already on npm `latest` for the stable React Native line.
+
+Findings:
+
+- `react-native@0.85.3`, `@react-native/babel-preset@0.85.3`, and `@react-native/metro-config@0.85.3` remain npm `latest`.
+- npm `next` for React Native remains `0.86.0-rc.3`, classified as prerelease.
+- npm `nightly` is `0.87.0-nightly-20260602-23ce90bd3`, so it is useful for planning only, not a default target for this wallet-critical baseline.
+- `react@19.2.7` is available, but the current RN stable peer is `^19.2.3`, so React remains pinned to the existing validated `19.2.3` runtime baseline unless a dedicated React coupling branch proves a newer renderer pair.
+
+Validation:
+
+- `npm view react-native version dist-tags engines peerDependencies dependencies --json`
+- `npm view react version dist-tags engines peerDependencies dependencies --json`
+- `npm view @react-native/babel-preset version dist-tags engines peerDependencies dependencies --json`
+- `npm view @react-native/metro-config version dist-tags engines peerDependencies dependencies --json`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+
 ### BEM-37.333 - iOS release readiness refresh
 
 - Branch: `feature/bem-37-333-ios-release-readiness-refresh`
