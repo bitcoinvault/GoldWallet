@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.364 - Android release APK manifest guard
+
+- Branch: `feature/bem-37-364-android-release-apk-manifest-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add an Android release APK manifest checker that reads generated APKs with `aapt2`.
+- Verify `dev`, `stage`, `prod`, and `beta` release package IDs, app version, min/target/compile SDK levels, and `android.permission.POST_NOTIFICATIONS` in the actual release artifacts.
+- Add `android:dev:release:verify-local` as the single local release proof command for build, summary validation, and APK manifest validation.
+- Document the checker as part of the Android release validation workflow.
+
+Findings:
+
+- The existing Android release summary proved APK paths, byte counts, SHA-256 digests, and release-input fingerprint freshness.
+- It did not prove that the generated APK manifests still carried the expected package IDs, SDK levels, app version, or Android 13 notification permission.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `corepack yarn release-services:check-summaries`
+- `git diff --check`
+
 ### BEM-37.363 - iOS removed pod summary guard
 
 - Branch: `feature/bem-37-363-ios-removed-pod-summary-guard`
