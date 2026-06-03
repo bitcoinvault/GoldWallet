@@ -10,6 +10,29 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.325 - Android release validation checkpoint
+
+- Branch: `feature/bem-37-325-android-release-validation-checkpoint`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the guarded local Android release validation after the Flipper debug stack removal and latest Android/RN modernization baseline.
+- Prove APK generation for `devRelease`, `stageRelease`, and `prodRelease` with JDK 17.
+- Keep Sentry upload validation explicitly unclaimed because local Sentry properties/token are still not available.
+
+Findings:
+
+- Local release validation assembled all three release variants after Flipper removal.
+- The summary artifact covers APK existence, byte counts, and SHA-256 hashes for `dev`, `stage`, and `prod`.
+- The build still reports Gradle 8.13 deprecation warnings for future Gradle 9 compatibility; this remains a follow-up modernization stream, not a release build blocker.
+- Sentry source-map upload remains a separate follow-up requiring `sentry.properties` or equivalent `SENTRY_AUTH_TOKEN`.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+
 ### BEM-37.324 - Flipper debug stack removal
 
 - Branch: `feature/bem-37-324-flipper-stack-removal`
