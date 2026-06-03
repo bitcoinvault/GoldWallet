@@ -11,6 +11,8 @@ const validSummary = [
   'Android release summary valid: yes',
   'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
   'Firebase runtime delivery validation: not claimed',
   'Warnings: 0',
   'Wiring errors: 0',
@@ -29,6 +31,8 @@ const invalidSummary = [
   'Android release summary valid: yes',
   'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
   'Firebase runtime delivery validation: not claimed',
   'Warnings: 0',
   'Wiring errors: 1',
@@ -75,6 +79,14 @@ assertRejected(
   'Stale Android release inputs fixture',
   validSummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
   'current release inputs',
+);
+assertRejected(
+  'Invalid Android release APK manifest fixture',
+  validSummary.replace(
+    'Android release APK manifest valid: yes\nAndroid release APK manifest errors: 0',
+    'Android release APK manifest valid: yes\nAndroid release APK manifest errors: 1\n- Variant prod package name mismatch: expected io.goldwallet.wallet, received io.goldwallet.wallet.prod',
+  ),
+  '0 manifest errors',
 );
 assertRejected(
   'Missing required action fixture',

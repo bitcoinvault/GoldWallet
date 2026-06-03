@@ -56,6 +56,8 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
   const androidReleaseSummaryCurrentInputsCovered = getLineValue(summary, 'Android release summary current inputs covered');
   const androidReleaseSummaryErrorCount = getLineValue(summary, 'Android release summary errors');
+  const androidReleaseApkManifestValid = getLineValue(summary, 'Android release APK manifest valid');
+  const androidReleaseApkManifestErrorCount = getLineValue(summary, 'Android release APK manifest errors');
   const codePushUpdateValidation = getLineValue(summary, 'CodePush update validation');
   const warningCount = getLineValue(summary, 'Warnings');
   const readinessCount = getLineValue(summary, 'Readiness issues');
@@ -64,6 +66,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const requiredAction = getLineValue(summary, 'Required action');
   const envReadinessLines = getBulletLinesAfter(summary, 'Environment readiness entries');
   const androidReleaseSummaryErrorLines = getBulletLinesAfter(summary, 'Android release summary errors');
+  const androidReleaseApkManifestErrorLines = getBulletLinesAfter(summary, 'Android release APK manifest errors');
   const warningLines = getBulletLinesAfter(summary, 'Warnings');
   const readinessLines = getBulletLinesAfter(summary, 'Readiness issues');
   const wiringErrorLines = getBulletLinesAfter(summary, 'Wiring errors');
@@ -94,6 +97,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryValid,
     androidReleaseSummaryCurrentInputsCovered,
+    androidReleaseApkManifestValid,
     secretValuesPrinted,
   ].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
@@ -170,14 +174,17 @@ export const getCodePushReleasePathSummaryErrors = summary => {
       androidReleaseSummaryRequiredVariantsCovered !== 'yes' ||
       androidReleaseSummaryValid !== 'yes' ||
       androidReleaseSummaryCurrentInputsCovered !== 'yes' ||
-      androidReleaseSummaryErrorCount !== '0')
+      androidReleaseSummaryErrorCount !== '0' ||
+      androidReleaseApkManifestValid !== 'yes' ||
+      androidReleaseApkManifestErrorCount !== '0')
   ) {
-    errors.push('CodePush release build evidence cannot be ready without valid wiring and current Android dev/stage/prod/beta release evidence');
+    errors.push('CodePush release build evidence cannot be ready without valid wiring, current Android dev/stage/prod/beta release evidence, and valid release APK manifests');
   }
 
   [
     ['Environment readiness entries', envReadinessCount, envReadinessLines.length],
     ['Android release summary errors', androidReleaseSummaryErrorCount, androidReleaseSummaryErrorLines.length],
+    ['Android release APK manifest errors', androidReleaseApkManifestErrorCount, androidReleaseApkManifestErrorLines.length],
     ['Warnings', warningCount, warningLines.length],
     ['Readiness issues', readinessCount, readinessLines.length],
     ['Wiring errors', wiringErrorCount, wiringErrorLines.length],
@@ -224,6 +231,10 @@ export const getCodePushReleasePathSummaryErrors = summary => {
 
   if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryCurrentInputsCovered !== 'yes') {
     errors.push('Valid Android release summary must cover the current release inputs');
+  }
+
+  if (androidReleaseApkManifestValid === 'yes' && androidReleaseApkManifestErrorCount !== '0') {
+    errors.push('Valid Android release APK manifest proof must have 0 manifest errors');
   }
 
   if (codePushUpdateValidation !== 'not claimed') {

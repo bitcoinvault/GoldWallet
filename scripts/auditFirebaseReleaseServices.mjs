@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
+import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -135,6 +136,7 @@ export const collectFirebaseReleaseServicesAudit = () => {
   let androidReleaseSummaryRequiredVariantsCovered = false;
   let androidReleaseSummaryErrors = [];
   let androidReleaseSummaryCurrentInputsCovered = false;
+  let androidReleaseApkManifestErrors = [];
 
   try {
     const androidReleaseSummary = readFileSync(androidReleaseSummaryPath, 'utf8');
@@ -153,12 +155,17 @@ export const collectFirebaseReleaseServicesAudit = () => {
     androidReleaseSummaryCurrentInputsCovered = androidReleaseSummaryErrors.every(
       error => !error.includes('Release input fingerprint'),
     );
+    androidReleaseApkManifestErrors = getAndroidReleaseApkManifestErrors({
+      root,
+      expectedVariants: androidReleaseSummaryVariants,
+    });
   } catch {
     androidReleaseSummaryPresent = false;
     androidReleaseSummaryVariants = [];
     androidReleaseSummaryRequiredVariantsCovered = false;
     androidReleaseSummaryErrors = [];
     androidReleaseSummaryCurrentInputsCovered = false;
+    androidReleaseApkManifestErrors = [];
   }
 
   return {
@@ -170,6 +177,7 @@ export const collectFirebaseReleaseServicesAudit = () => {
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryErrors,
     androidReleaseSummaryCurrentInputsCovered,
+    androidReleaseApkManifestErrors,
     ready: errors.length === 0,
   };
 };
@@ -187,6 +195,9 @@ export const formatFirebaseReleaseServicesSummary = (audit, generatedAt = new Da
     `Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`,
     `Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`,
     ...audit.androidReleaseSummaryErrors.map(error => `- ${error}`),
+    `Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`,
+    `Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`,
+    ...audit.androidReleaseApkManifestErrors.map(error => `- ${error}`),
     'Firebase runtime delivery validation: not claimed',
     `Warnings: ${audit.warnings.length}`,
   ];
@@ -225,6 +236,8 @@ const printReport = audit => {
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
+  console.log(`Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`);
+  console.log(`Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`);
   console.log('Firebase runtime delivery validation: not claimed');
   console.log('Firebase release-services wiring is present for package family alignment, Android config, iOS plist files, and Messaging runtime paths.');
 };

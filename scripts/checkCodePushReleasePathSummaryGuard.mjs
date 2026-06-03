@@ -36,6 +36,8 @@ const notReadySummary = [
   'Android release summary valid: yes',
   'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
   'CodePush update validation: not claimed',
   'Warnings: 4',
   '- .env.beta.testnet does not define CODEPUSH_DEPLOYMENT_KEY_ANDROID; beta release update strategy is still unconfirmed',
@@ -87,6 +89,8 @@ const readySummary = [
   'Android release summary valid: yes',
   'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
   'CodePush update validation: not claimed',
   'Warnings: 0',
   'Readiness issues: 0',
@@ -175,6 +179,14 @@ assertRejected(
   'Stale Android release inputs fixture',
   notReadySummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
   'current Android dev/stage/prod/beta release evidence',
+);
+assertRejected(
+  'Invalid Android release APK manifest fixture',
+  notReadySummary.replace(
+    'Android release APK manifest valid: yes\nAndroid release APK manifest errors: 0',
+    'Android release APK manifest valid: no\nAndroid release APK manifest errors: 1\n- Variant prod release APK is missing android.permission.POST_NOTIFICATIONS',
+  ),
+  'valid release APK manifests',
 );
 assertRejected(
   'Missing CodePush runtime gate fixture',

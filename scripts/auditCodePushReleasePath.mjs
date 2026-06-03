@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { parseEnvKeys } from './releaseServiceEnvKeysGuard.mjs';
 import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
+import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -74,6 +75,7 @@ export const collectCodePushReleasePathAudit = () => {
   let androidReleaseSummaryErrors = [];
   let androidReleaseSummaryRequiredVariantsCovered = false;
   let androidReleaseSummaryCurrentInputsCovered = false;
+  let androidReleaseApkManifestErrors = [];
 
   if (existsSync(packageJsonPath)) {
     installedPackageVersion = JSON.parse(readFileSync(packageJsonPath, 'utf8')).version || '';
@@ -195,12 +197,17 @@ export const collectCodePushReleasePathAudit = () => {
     androidReleaseSummaryCurrentInputsCovered = androidReleaseSummaryErrors.every(
       error => !error.includes('Release input fingerprint'),
     );
+    androidReleaseApkManifestErrors = getAndroidReleaseApkManifestErrors({
+      root,
+      expectedVariants: androidReleaseSummaryVariants,
+    });
   } catch {
     androidReleaseSummaryPresent = false;
     androidReleaseSummaryVariants = [];
     androidReleaseSummaryErrors = [];
     androidReleaseSummaryRequiredVariantsCovered = false;
     androidReleaseSummaryCurrentInputsCovered = false;
+    androidReleaseApkManifestErrors = [];
   }
 
   if (!androidReleaseSummaryPresent) {
@@ -211,6 +218,10 @@ export const collectCodePushReleasePathAudit = () => {
 
   androidReleaseSummaryErrors.forEach(error => {
     readinessIssues.push(`local Android release summary is invalid: ${error}`);
+  });
+
+  androidReleaseApkManifestErrors.forEach(error => {
+    readinessIssues.push(`local Android release APK manifest is invalid: ${error}`);
   });
 
   return {
@@ -245,19 +256,22 @@ export const collectCodePushReleasePathAudit = () => {
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryErrors,
     androidReleaseSummaryCurrentInputsCovered,
+    androidReleaseApkManifestErrors,
     releaseBuildEvidenceReady:
       errors.length === 0 &&
       androidReleaseSummaryPresent &&
       androidReleaseSummaryRequiredVariantsCovered &&
       androidReleaseSummaryCurrentInputsCovered &&
-      androidReleaseSummaryErrors.length === 0,
+      androidReleaseSummaryErrors.length === 0 &&
+      androidReleaseApkManifestErrors.length === 0,
     ready:
       errors.length === 0 &&
       readinessIssues.length === 0 &&
       androidReleaseSummaryPresent &&
       androidReleaseSummaryRequiredVariantsCovered &&
       androidReleaseSummaryCurrentInputsCovered &&
-      androidReleaseSummaryErrors.length === 0,
+      androidReleaseSummaryErrors.length === 0 &&
+      androidReleaseApkManifestErrors.length === 0,
   };
 };
 
@@ -299,6 +313,9 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
     `Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`,
     `Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`,
     ...audit.androidReleaseSummaryErrors.map(error => `- ${error}`),
+    `Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`,
+    `Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`,
+    ...audit.androidReleaseApkManifestErrors.map(error => `- ${error}`),
     'CodePush update validation: not claimed',
     `Warnings: ${audit.warnings.length}`,
   ];
@@ -346,6 +363,8 @@ const printReport = audit => {
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
+  console.log(`Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`);
+  console.log(`Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`);
   console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
   console.log(`CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
   console.log(`CodePush runtime gate present: ${audit.runtimeGatePresent ? 'yes' : 'no'}`);
