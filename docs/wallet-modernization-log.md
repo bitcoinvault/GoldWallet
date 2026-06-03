@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.342 - React Native target live refresh
+
+- Branch: `feature/bem-37-342-rn-target-live-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the network-backed React Native target snapshot check after the latest release-readiness branches.
+- Confirm whether a newer stable React Native target exists before starting another RN baseline branch.
+- Keep package versions unchanged when the live npm target still matches the recorded snapshot.
+
+Findings:
+
+- Live npm metadata still reports `react-native@0.85.3` as `latest`.
+- Live npm metadata still reports `react-native@0.86.0-rc.3` as `next`, classified as prerelease.
+- `react-native@0.85.3` still declares React peer `^19.2.3` and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- The current repo baseline already uses `react-native@0.85.3`, `react@19.2.3`, and Node `22.18.0`, so this branch does not change package versions.
+
+Validation:
+
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.341 - Android release workflow beta documentation guard
 
 - Branch: `feature/bem-37-341-android-release-workflow-beta-docs`
