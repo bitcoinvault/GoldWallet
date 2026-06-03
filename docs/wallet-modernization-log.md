@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.366 - Camera QR live target proof
+
+- Branch: `feature/bem-37-366-camera-qr-live-target-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add live Camera/QR target proof to the Camera QR migration summary.
+- Reuse the existing camera candidate live npm metadata check so QR migration evidence includes current `react-native-camera-kit`, `react-native-qrcode-svg`, and `qrcode` targets.
+- Harden the Camera QR migration summary guard so a stable scanner baseline requires matched live QR targets and `0` live target issues.
+
+Findings:
+
+- `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4` remain the current checked live targets on 2026-06-03.
+- The QR migration summary already proved local package/runtime wiring, but did not expose the live target proof directly in that artifact.
+- The generated Camera QR migration summary now reports `Live QR targets: matched` and `Live QR target issues: 0`.
+
+Validation:
+
+- `corepack yarn check:camera-qr-migration-summary-guard`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.365 - Release-services APK manifest proof
 
 - Branch: `feature/bem-37-365-release-services-apk-manifest-proof`

@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { collectCameraCandidateAudit } from './auditCameraCandidates.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -29,6 +30,7 @@ export const collectCameraQrMigrationAudit = () => {
   const errors = [];
   const readinessIssues = [];
   const warnings = [];
+  const cameraCandidateAudit = collectCameraCandidateAudit();
   const cameraVersion = dependencies['react-native-camera'];
   const cameraKitVersion = dependencies['react-native-camera-kit'];
   const localQrImageVersion = dependencies['@remobile/react-native-qrcode-local-image'];
@@ -110,12 +112,16 @@ export const collectCameraQrMigrationAudit = () => {
     localQrImageVersion,
     qrRendererVersion,
     rootQrcodeVersion,
+    cameraKitLatest: cameraCandidateAudit.cameraKitLatest,
+    qrRendererLatest: cameraCandidateAudit.qrRendererLatest,
+    qrEncoderLatest: cameraCandidateAudit.qrEncoderLatest,
+    liveQrTargetIssues: cameraCandidateAudit.liveMetadataIssues,
     iosPodfileLockRefreshRequired,
     staleRemovedIosPods,
     errors,
     readinessIssues,
     warnings,
-    baselineStable: errors.length === 0 && readinessIssues.length === 0,
+    baselineStable: errors.length === 0 && readinessIssues.length === 0 && cameraCandidateAudit.liveMetadataIssues.length === 0,
   };
 };
 
@@ -128,6 +134,12 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
     `QR local-image manifest version: ${audit.localQrImageVersion || '<missing>'}`,
     `QR renderer version: ${audit.qrRendererVersion || '<missing>'}`,
     `qrcode resolution: ${audit.rootQrcodeVersion || '<missing>'}`,
+    `CameraKit latest target: ${audit.cameraKitLatest}`,
+    `QR renderer latest target: ${audit.qrRendererLatest}`,
+    `QR encoder latest target: ${audit.qrEncoderLatest}`,
+    `Live QR targets: ${audit.liveQrTargetIssues.length === 0 ? 'matched' : 'stale'}`,
+    `Live QR target issues: ${audit.liveQrTargetIssues.length}`,
+    ...audit.liveQrTargetIssues.map(issue => `- ${issue}`),
     `iOS Podfile.lock refresh required: ${audit.iosPodfileLockRefreshRequired ? 'yes' : 'no'}`,
     `iOS stale removed camera pods: ${audit.staleRemovedIosPods.join(', ') || 'none'}`,
     `Camera QR migration wiring valid: ${audit.errors.length === 0 ? 'yes' : 'no'}`,

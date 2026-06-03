@@ -31,6 +31,11 @@ export const getCameraQrMigrationSummaryErrors = summary => {
   const qrLocalImageVersion = getLineValue(summary, 'QR local-image manifest version');
   const qrRendererVersion = getLineValue(summary, 'QR renderer version');
   const qrcodeResolution = getLineValue(summary, 'qrcode resolution');
+  const cameraKitLatest = getLineValue(summary, 'CameraKit latest target');
+  const qrRendererLatest = getLineValue(summary, 'QR renderer latest target');
+  const qrEncoderLatest = getLineValue(summary, 'QR encoder latest target');
+  const liveQrTargets = getLineValue(summary, 'Live QR targets');
+  const liveQrTargetIssueCount = getLineValue(summary, 'Live QR target issues');
   const iosPodfileLockRefreshRequired = getLineValue(summary, 'iOS Podfile.lock refresh required');
   const iosStaleRemovedCameraPods = getLineValue(summary, 'iOS stale removed camera pods');
   const wiringValid = getLineValue(summary, 'Camera QR migration wiring valid');
@@ -39,6 +44,7 @@ export const getCameraQrMigrationSummaryErrors = summary => {
   const readinessCount = getLineValue(summary, 'Readiness issues');
   const wiringErrorCount = getLineValue(summary, 'Wiring errors');
   const requiredAction = getLineValue(summary, 'Required action');
+  const liveQrTargetIssueLines = getBulletLinesAfter(summary, 'Live QR target issues');
   const warningLines = getBulletLinesAfter(summary, 'Warnings');
   const readinessLines = getBulletLinesAfter(summary, 'Readiness issues');
   const wiringErrorLines = getBulletLinesAfter(summary, 'Wiring errors');
@@ -71,6 +77,22 @@ export const getCameraQrMigrationSummaryErrors = summary => {
     errors.push('qrcode resolution is missing');
   }
 
+  if (cameraKitLatest !== 'react-native-camera-kit@18.0.0') {
+    errors.push(`CameraKit latest target must be react-native-camera-kit@18.0.0. Received: ${cameraKitLatest || 'missing'}`);
+  }
+
+  if (qrRendererLatest !== 'react-native-qrcode-svg@6.3.21') {
+    errors.push(`QR renderer latest target must be react-native-qrcode-svg@6.3.21. Received: ${qrRendererLatest || 'missing'}`);
+  }
+
+  if (qrEncoderLatest !== 'qrcode@1.5.4') {
+    errors.push(`QR encoder latest target must be qrcode@1.5.4. Received: ${qrEncoderLatest || 'missing'}`);
+  }
+
+  if (!['matched', 'stale'].includes(liveQrTargets)) {
+    errors.push(`Live QR targets must be matched or stale. Received: ${liveQrTargets || 'missing'}`);
+  }
+
   [iosPodfileLockRefreshRequired, wiringValid, baselineStable].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
       errors.push(`Boolean summary values must be yes or no. Received: ${value || 'missing'}`);
@@ -90,6 +112,7 @@ export const getCameraQrMigrationSummaryErrors = summary => {
   }
 
   [
+    ['Live QR target issues', liveQrTargetIssueCount, liveQrTargetIssueLines.length],
     ['Warnings', warningCount, warningLines.length],
     ['Readiness issues', readinessCount, readinessLines.length],
     ['Wiring errors', wiringErrorCount, wiringErrorLines.length],
@@ -103,6 +126,18 @@ export const getCameraQrMigrationSummaryErrors = summary => {
 
   if (baselineStable === 'yes' && (wiringValid !== 'yes' || readinessCount !== '0' || wiringErrorCount !== '0')) {
     errors.push('Stable baseline summary must have valid wiring, 0 readiness issues, and 0 wiring errors');
+  }
+
+  if (baselineStable === 'yes' && liveQrTargets !== 'matched') {
+    errors.push('Stable baseline summary must have matched live QR targets');
+  }
+
+  if (liveQrTargets === 'matched' && liveQrTargetIssueCount !== '0') {
+    errors.push('Matched live QR target summary must have 0 live QR target issues');
+  }
+
+  if (liveQrTargets === 'stale' && liveQrTargetIssueCount === '0') {
+    errors.push('Stale live QR target summary must list at least one live QR target issue');
   }
 
   if (baselineStable === 'yes' && !requiredAction.includes('none; camera QR migration baseline is stable')) {
