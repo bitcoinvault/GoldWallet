@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.345 - Node fetch resolution compatibility guard
+
+- Branch: `feature/bem-37-345-node-fetch-resolution-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a repo-owned guard for the root `node-fetch@2.7.0` Yarn resolution.
+- Keep the current dependency graph unchanged while making the `node-fetch@3` blocker explicit and testable.
+- Cover the transitive CommonJS consumers that currently depend on this resolution: `gaxios` through `googleapis`, and `isomorphic-fetch` through legacy UI dependencies.
+
+Findings:
+
+- Live npm metadata reports `node-fetch@3.3.2` as `latest`, with package type `module`.
+- The installed `node-fetch@2.7.0` still supports `require('node-fetch')` and exposes the compatibility default export.
+- `gaxios` and `isomorphic-fetch` both remain require-compatible under the current `node-fetch@2.7.0` resolution.
+- The v3 target remains a separate ESM-only migration and should not be taken from a generic `yarn outdated` result.
+
+Validation:
+
+- `npm view node-fetch@3.3.2 version type engines dependencies exports dist-tags --json`
+- `corepack yarn why node-fetch`
+- `node -e "const nf=require('node-fetch'); console.log(typeof nf); console.log(nf.default ? 'has-default' : 'no-default'); console.log(require('node-fetch/package.json').version);"`
+- `corepack yarn node-fetch:resolution:audit`
+- `corepack yarn node-fetch:resolution:check-summary`
+- `corepack yarn check:node-fetch-resolution-summary-guard`
+
 ### BEM-37.344 - Git dependency live snapshot
 
 - Branch: `feature/bem-37-344-git-dependency-live-snapshot`
