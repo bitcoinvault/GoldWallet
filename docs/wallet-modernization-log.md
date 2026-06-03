@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.356 - Sentry properties package script readiness
+
+- Branch: `feature/bem-37-356-sentry-properties-package-script`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `corepack yarn sentry:release:create-properties` as the official cross-platform Sentry release-properties generation command.
+- Extend the Sentry prerequisite audit and summary guard so the package script remains part of release readiness.
+- Update Sentry release documentation to point release setup at the package script instead of requiring direct `node` invocation.
+
+Findings:
+
+- The Node generator is already secret-safe and temp-root tested, but release setup needed a stable package script entry.
+- Sentry release upload validation remains not claimed until `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are actually available.
+
+Validation:
+
+- `corepack yarn check:sentry-properties-generator`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.355 - CodePush migration env readiness
 
 - Branch: `feature/bem-37-355-codepush-migration-env-readiness`

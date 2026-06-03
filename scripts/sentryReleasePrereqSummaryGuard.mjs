@@ -70,6 +70,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const createNodeScriptSupportsOrgOverride = getLineValue(summary, 'createSentryProperties.mjs supports SENTRY_ORG override');
   const createNodeScriptSupportsProjectOverride = getLineValue(summary, 'createSentryProperties.mjs supports SENTRY_PROJECT override');
   const createNodeScriptSupportsRootOverride = getLineValue(summary, 'createSentryProperties.mjs supports --root override');
+  const createNodePackageScriptPresent = getLineValue(summary, 'sentry:release:create-properties script present');
   const envHasToken = getLineValue(summary, 'SENTRY_AUTH_TOKEN available in current shell');
   const requiredAction = getLineValue(summary, 'Required action');
   const releaseIntegrationErrorLines = getBulletLinesAfter(summary, 'Sentry release integration errors');
@@ -244,6 +245,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     createNodeScriptSupportsOrgOverride,
     createNodeScriptSupportsProjectOverride,
     createNodeScriptSupportsRootOverride,
+    createNodePackageScriptPresent,
     envHasToken,
   ].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
@@ -327,9 +329,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       createNodeScriptStaticDefaultsValid !== 'yes' ||
       createNodeScriptSupportsOrgOverride !== 'yes' ||
       createNodeScriptSupportsProjectOverride !== 'yes' ||
-      createNodeScriptSupportsRootOverride !== 'yes')
+      createNodeScriptSupportsRootOverride !== 'yes' ||
+      createNodePackageScriptPresent !== 'yes')
   ) {
-    errors.push('Present createSentryProperties.mjs must require and reject missing SENTRY_AUTH_TOKEN, write root/android/iOS properties, keep expected static defaults, support SENTRY_ORG/SENTRY_PROJECT overrides, and support --root test output');
+    errors.push('Present createSentryProperties.mjs must require and reject missing SENTRY_AUTH_TOKEN, write root/android/iOS properties, keep expected static defaults, support SENTRY_ORG/SENTRY_PROJECT overrides, support --root test output, and have a package script entry');
   }
 
   if (

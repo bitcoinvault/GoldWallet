@@ -176,6 +176,7 @@
     "check:android-smoke-summary-guard": "node scripts/checkAndroidSmokeSummaryGuard.mjs",
     "sentry:release:prereq-audit": "node scripts/auditSentryReleasePrerequisites.mjs",
     "sentry:release:prereq-check-summary": "node scripts/checkSentryReleasePrereqSummary.mjs",
+    "sentry:release:create-properties": "node scripts/createSentryProperties.mjs",
     "check:sentry-release-prereq-summary-guard": "node scripts/checkSentryReleasePrereqSummaryGuard.mjs",
     "check:sentry-properties-generator": "node scripts/checkCreateSentryPropertiesGuard.mjs",
     "android:dev:check-warning-guard": "node scripts/checkAndroidWarningBaselineGuard.mjs",

@@ -48,6 +48,7 @@ const notReadySummary = [
   'createSentryProperties.mjs supports SENTRY_ORG override: yes',
   'createSentryProperties.mjs supports SENTRY_PROJECT override: yes',
   'createSentryProperties.mjs supports --root override: yes',
+  'sentry:release:create-properties script present: yes',
   'SENTRY_AUTH_TOKEN available in current shell: no',
   'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
   '',
@@ -99,6 +100,7 @@ const readySummary = [
   'createSentryProperties.mjs supports SENTRY_ORG override: yes',
   'createSentryProperties.mjs supports SENTRY_PROJECT override: yes',
   'createSentryProperties.mjs supports --root override: yes',
+  'sentry:release:create-properties script present: yes',
   'SENTRY_AUTH_TOKEN available in current shell: yes',
   'Required action: none; release source-map prerequisites are present locally.',
   '',
@@ -216,6 +218,11 @@ assertRejected(
 assertRejected(
   'Missing Node generator root override fixture',
   notReadySummary.replace('createSentryProperties.mjs supports --root override: yes', 'createSentryProperties.mjs supports --root override: no'),
+  'Present createSentryProperties.mjs',
+);
+assertRejected(
+  'Missing Node generator package script fixture',
+  notReadySummary.replace('sentry:release:create-properties script present: yes', 'sentry:release:create-properties script present: no'),
   'Present createSentryProperties.mjs',
 );
 assertRejected(
