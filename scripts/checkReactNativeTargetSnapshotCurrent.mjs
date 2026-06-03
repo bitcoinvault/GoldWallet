@@ -25,11 +25,12 @@ const readString = (pkg, field) => {
 const readObject = (pkg, field) => parseJson(npmView(pkg, field));
 const classifyReactNativeChannel = version => (version && version.includes('-') ? 'prerelease' : 'stable');
 
-export const getReactNativeTargetSnapshotCurrentIssues = ({ latest, next, reactPeer, nodeEngine }, snapshot = expectedReactNativeTargetSnapshot) => {
+export const getReactNativeTargetSnapshotCurrentIssues = ({ latest, next, nightly, reactPeer, nodeEngine }, snapshot = expectedReactNativeTargetSnapshot) => {
   const nextChannel = classifyReactNativeChannel(next);
   const checks = [
     ['npm latest react-native', latest, snapshot.npmLatestReactNative],
     ['npm next react-native', next, snapshot.npmNextReactNative],
+    ['npm nightly react-native', nightly, snapshot.npmNightlyReactNative],
     ['npm next channel classification', nextChannel, snapshot.npmNextChannel],
     ['default React Native upgrade channel', snapshot.defaultUpgradeChannel, 'latest'],
     [`react-native@${snapshot.npmLatestReactNative} React peer`, reactPeer, snapshot.targetReactPeer],
@@ -42,6 +43,10 @@ export const getReactNativeTargetSnapshotCurrentIssues = ({ latest, next, reactP
 
   if (next && latest && next === latest) {
     errors.push(`npm next react-native matches latest (${latest}); refresh the target policy before treating next as planning-only`);
+  }
+
+  if (nightly && latest && nightly === latest) {
+    errors.push(`npm nightly react-native matches latest (${latest}); refresh the target policy before treating nightly as planning-only`);
   }
 
   return { checks, errors };
@@ -75,6 +80,7 @@ const collectCurrentNpmMetadata = () => {
   return {
     latest,
     next: distTags.next,
+    nightly: distTags.nightly,
     reactPeer: peerDependencies.react,
     nodeEngine: engines.node,
   };
