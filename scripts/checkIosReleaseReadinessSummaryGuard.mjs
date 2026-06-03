@@ -2,8 +2,6 @@ import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummar
 
 const currentPodfileLockDriftLines = [
   '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.85.3',
-  '- ios/Podfile.lock still references removed react-native-camera; run pod install on macOS after the CameraKit migration',
-  '- ios/Podfile.lock still references removed react-native-qrcode-local-image; run pod install on macOS after the QR local-image cleanup',
   '- ios/Podfile.lock still references removed RNCMaskedView; run pod install on macOS after the React Navigation 7 masked-view removal',
   '- ios/Podfile.lock still references removed FlipperKit; run pod install on macOS after the Flipper debug stack removal',
   '- ios/Podfile.lock has RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
@@ -141,14 +139,9 @@ assertRejected(
   'Podfile.lock drift issues count',
 );
 assertRejected(
-  'Missing removed QR local-image pod fixture',
-  removeDriftLine('- ios/Podfile.lock still references removed react-native-qrcode-local-image; run pod install on macOS after the QR local-image cleanup'),
-  'removed react-native-qrcode-local-image',
-);
-assertRejected(
   'Missing removed masked-view pod fixture',
   removeDriftLine('- ios/Podfile.lock still references removed RNCMaskedView; run pod install on macOS after the React Navigation 7 masked-view removal'),
-  'removed masked-view pod',
+  'removed RNCMaskedView',
 );
 assertRejected(
   'Missing removed Flipper pod fixture',

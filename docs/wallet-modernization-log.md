@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.361 - iOS camera Podfile.lock cleanup
+
+- Branch: `feature/bem-37-361-ios-camera-podlock-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove stale `react-native-camera` and `react-native-qrcode-local-image` entries from `ios/Podfile.lock` after the CameraKit QR scanner migration.
+- Refresh camera QR and iOS release readiness guards so the removed camera pod drift is no longer expected.
+- Keep broader iOS Podfile.lock drift explicit instead of claiming macOS archive readiness on Windows.
+
+Findings:
+
+- `camera:qr-migration:audit` still reported removed camera pods in `ios/Podfile.lock`, even though package/runtime/Android scanner migration was already complete.
+- The iOS release readiness audit still has other lockfile drift, so this branch only closes the camera/QR-specific stale pod evidence.
+
+Validation:
+
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:camera-qr-migration-summary-guard`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.360 - Android store metadata baseline
 
 - Branch: `feature/bem-37-360-android-store-metadata-baseline`
