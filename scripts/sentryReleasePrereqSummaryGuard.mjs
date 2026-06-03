@@ -186,7 +186,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       .map(entry => entry.trim())
       .filter(Boolean);
 
-    ['dev', 'stage', 'prod'].forEach(variant => {
+    ['dev', 'stage', 'prod', 'beta'].forEach(variant => {
       if (!variants.includes(variant)) {
         errors.push(`Android release summary must include ${variant} release evidence`);
       }
@@ -194,7 +194,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   }
 
   if (androidReleaseSummaryRequiredVariantsCovered !== 'yes') {
-    errors.push('Android release summary must cover dev, stage, and prod release evidence');
+    errors.push('Android release summary must cover dev, stage, prod, and beta release evidence');
   }
 
   if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryErrors !== '0') {

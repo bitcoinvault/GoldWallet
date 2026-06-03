@@ -11,7 +11,7 @@ const summaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary
 const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
 export const requiredSentryPropertiesFiles = ['sentry.properties', 'android/sentry.properties', 'ios/sentry.properties'];
 export const requiredSentryPropertiesKeys = ['defaults.url', 'defaults.org', 'defaults.project', 'auth.token'];
-export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod'];
+export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod', 'beta'];
 export const expectedSentryPropertiesValues = {
   'defaults.url': 'https://sentry.io/',
   'defaults.org': 'cloudbest',

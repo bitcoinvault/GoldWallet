@@ -169,7 +169,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
       androidReleaseSummaryValid !== 'yes' ||
       androidReleaseSummaryErrorCount !== '0')
   ) {
-    errors.push('CodePush release build evidence cannot be ready without valid wiring and Android dev/stage/prod release evidence');
+    errors.push('CodePush release build evidence cannot be ready without valid wiring and Android dev/stage/prod/beta release evidence');
   }
 
   [
@@ -199,7 +199,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   }
 
   if (androidReleaseSummaryPresent === 'yes') {
-    ['dev', 'stage', 'prod'].forEach(variant => {
+    ['dev', 'stage', 'prod', 'beta'].forEach(variant => {
       const variants = androidReleaseSummaryVariants
         .split(',')
         .map(entry => entry.trim())
@@ -212,7 +212,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   }
 
   if (androidReleaseSummaryRequiredVariantsCovered !== 'yes') {
-    errors.push('Android release summary must cover dev, stage, and prod release evidence');
+    errors.push('Android release summary must cover dev, stage, prod, and beta release evidence');
   }
 
   if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryErrorCount !== '0') {

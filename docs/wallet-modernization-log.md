@@ -10,6 +10,54 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.338 - Android release validation beta coverage
+
+- Branch: `feature/bem-37-338-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android local release validation and extend default release evidence from `dev`, `stage`, and `prod` to `dev`, `stage`, `prod`, and `beta`.
+- Fix beta release compilation when beta env files intentionally omit CodePush deployment keys.
+- Update release summary guards and CodePush/Firebase/Sentry release-service audits so release evidence is not considered complete unless beta release APK evidence is present.
+
+Findings:
+
+- Initial `ANDROID_RELEASE_VARIANTS=dev,stage,prod,beta corepack yarn android:dev:release:validate-local` failed on `betaRelease` because `MainApplication.java` references `BuildConfig.CODEPUSH_DEPLOYMENT_KEY_ANDROID`, while `.env.beta.mainnet` does not define that optional key.
+- `android/app/build.gradle` now provides an empty default `BuildConfig.CODEPUSH_DEPLOYMENT_KEY_ANDROID`, preserving the existing runtime gate: CodePush bundle resolution still requires non-dev, `CODEPUSH_ENABLED=true`, and a non-empty Android deployment key.
+- `betaRelease` now compiles locally without adding placeholder CodePush secrets.
+- The refreshed Android release summary covers `dev`, `stage`, `prod`, and `beta` unsigned release APK paths, byte counts, and SHA-256 digests.
+- CodePush update validation remains unclaimed because deployment-key strategy is still blocked/unconfirmed for some envs and App Center CodePush is retired.
+- Sentry source-map upload validation remains unclaimed because the required Sentry properties files and `SENTRY_AUTH_TOKEN` are unavailable locally.
+
+Validation:
+
+- `ANDROID_RELEASE_VARIANTS=beta corepack yarn android:dev:release:validate-local`
+- `ANDROID_RELEASE_VARIANTS=dev,stage,prod,beta corepack yarn android:dev:release:validate-local`
+- `corepack yarn check:android-release-summary-guard`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn check:firebase-release-services-summary-guard`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.337 - Store metadata readiness
 
 - Branch: `feature/bem-37-337-store-metadata-readiness`

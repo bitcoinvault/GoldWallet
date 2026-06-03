@@ -7,7 +7,7 @@ import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
-const defaultVariants = ['dev', 'stage', 'prod'];
+const defaultVariants = ['dev', 'stage', 'prod', 'beta'];
 const allowedVariants = new Set(['dev', 'stage', 'prod', 'beta']);
 const expectedVariants = (process.env.ANDROID_RELEASE_VARIANTS || defaultVariants.join(','))
   .split(',')

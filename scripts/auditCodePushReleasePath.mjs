@@ -18,7 +18,7 @@ export const codePushIosInfoPlists = [
 ];
 export const codePushEnvFiles = ['.env.dev.testnet', '.env.stage.mainnet', '.env.prod.mainnet', '.env.beta.testnet', '.env.beta.mainnet'];
 export const requiredCodePushEnvKeys = ['CODEPUSH_DEPLOYMENT_KEY_ANDROID', 'CODEPUSH_DEPLOYMENT_KEY_IOS'];
-export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod'];
+export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod', 'beta'];
 const codePushPackageName = 'react-native-code-push';
 const appCenterRetirementDate = '2025-03-31';
 const codePushUpstreamRepository = 'https://github.com/microsoft/react-native-code-push';
