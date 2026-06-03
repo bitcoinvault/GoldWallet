@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.328 - React RN coupling checkpoint refresh
+
+- Branch: `feature/bem-37-328-react-coupling-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live React Native and React package metadata after the current RN `0.85.3` baseline.
+- Refresh the guarded React Native target snapshot date to `2026-06-03`.
+- Align React package coupling and React 19 impact audits with the current `@types/react@19.2.16` baseline.
+- Keep runtime React and `react-test-renderer` pinned to `19.2.3`.
+
+Findings:
+
+- Live npm metadata still reports `react-native@0.85.3` as stable `latest`; `react-native@next` is still `0.86.0-rc.3`, so there is no newer stable RN line to target by default.
+- `react@19.2.7` and `react-test-renderer@19.2.7` are available, but React remains pinned to `19.2.3` because this RN baseline records exact renderer sensitivity at `react-native-renderer@19.2.3`.
+- `@types/react@19.2.16` is the current installed and latest types baseline and now matches the React package coupling and React 19 impact guards.
+
+Validation:
+
+- `npm view react-native version dist-tags engines peerDependencies dependencies --json`
+- `npm view react version dist-tags engines peerDependencies dependencies --json`
+- `npm view react-test-renderer version dist-tags peerDependencies dependencies --json`
+- `npm view @types/react version dist-tags --json`
+- `npm view @types/react-test-renderer version dist-tags --json`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn check:rn-target-snapshot-guard`
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn check:react-package-coupling-guard`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn check:react19-impact-guard`
+- `corepack yarn react19:impact:audit`
+- `corepack yarn rn:upgrade-path:audit`
+
 ### BEM-37.327 - Camera QR readiness refresh
 
 - Branch: `feature/bem-37-327-camera-qr-readiness-refresh`

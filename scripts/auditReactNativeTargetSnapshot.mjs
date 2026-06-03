@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
 export const expectedReactNativeTargetSnapshot = {
-  snapshotDate: '2026-06-02',
+  snapshotDate: '2026-06-03',
   currentReactNative: '0.85.3',
   currentReact: '19.2.3',
   currentNode: '22.18.0',
@@ -20,7 +20,7 @@ export const expectedReactNativeTargetSnapshot = {
 };
 
 export const requiredReactNativeTargetSnapshotSnippets = [
-  ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-06-02`'],
+  ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-06-03`'],
   ['docs/react-native-target-snapshot.md', 'Current repo React Native: `0.85.3`'],
   ['docs/react-native-target-snapshot.md', 'Current repo React: `19.2.3`'],
   ['docs/react-native-target-snapshot.md', 'Current repo Metro/dev Node runtime: `22.18.0`'],

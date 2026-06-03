@@ -10,7 +10,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 export const expectedReactPackageCoupling = {
   react: '19.2.3',
   blockedReactPatch: '19.2.7',
-  reactTypes: '19.2.15',
+  reactTypes: '19.2.16',
   reactNativeTypes: 'bundled',
   reactTestRenderer: '19.2.3',
   targetReactPeer: '^19.2.3',
@@ -26,9 +26,9 @@ export const requiredReactPackageCouplingDocs = [
 export const requiredReactPackageCouplingSnippets = [
   ['docs/react-package-coupling-audit.md', 'React package coupling audit'],
   ['docs/react-package-coupling-audit.md', 'Current React: `19.2.3`'],
-  ['docs/react-package-coupling-audit.md', 'Latest React patch checked on 2026-06-02: `19.2.7`'],
+  ['docs/react-package-coupling-audit.md', 'Latest React patch checked on 2026-06-03: `19.2.7`'],
   ['docs/react-package-coupling-audit.md', 'React `19.2.7` remains blocked on this RN `0.85.3` baseline because `react-native-renderer` is exact-version sensitive at `19.2.3`.'],
-  ['docs/react-package-coupling-audit.md', 'Current React types: `19.2.15`'],
+  ['docs/react-package-coupling-audit.md', 'Current React types: `19.2.16`'],
   ['docs/react-package-coupling-audit.md', 'Current React Native types: bundled with `react-native@0.85.3`'],
   ['docs/react-package-coupling-audit.md', 'Current react-test-renderer: `19.2.3`'],
   ['docs/react-package-coupling-audit.md', 'Target React peer from RN target snapshot: `^19.2.3`'],
