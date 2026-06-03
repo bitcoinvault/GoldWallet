@@ -178,7 +178,7 @@ Known gaps:
 ## Recommended Upgrade Order
 
 1. Keep Android validation tooling green and use `android:dev:verify` for app-affecting changes.
-2. Continue CameraKit QR scanner validation on Android hardware and iOS after a Mac pod refresh.
+2. Continue CameraKit QR scanner validation on Android hardware and iOS after a Mac pod refresh; removed camera pods are no longer present in `ios/Podfile.lock`, but broader iOS pod drift remains.
 3. Handle Sentry Gradle/source-map behavior in a dedicated release tooling branch.
 4. Upgrade native modules in controlled groups using `docs/native-module-upgrade-plan.md`.
 5. Continue from RN `0.85.3` on the current supported line, then move only to newer supported lines with the same build and emulator proof.

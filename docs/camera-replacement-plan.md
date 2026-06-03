@@ -84,7 +84,7 @@ Scope:
 - Removed unused `@remobile/react-native-qrcode-local-image` from `package.json` and `yarn.lock`.
 - Removed the stale Android autolink disable entry from `react-native.config.js`.
 - Updated camera migration and legacy Android autolink guards so the removed package stays absent.
-- iOS `Podfile.lock` and Xcode project still need a Mac `pod install`/project refresh before iOS validation is claimed. The current lockfile still references removed `react-native-camera` and `react-native-qrcode-local-image` pods, and the guarded QR migration summary records that as an iOS readiness issue.
+- iOS `Podfile.lock` and Xcode project still need a Mac `pod install`/project refresh before iOS validation is claimed. The lockfile no longer references removed `react-native-camera` and `react-native-qrcode-local-image` pods, but broader RN/native pod drift remains tracked by the iOS release readiness audit.
 
 ## Validation Plan
 

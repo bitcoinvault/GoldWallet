@@ -30,8 +30,6 @@ const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 
 const expectedCurrentPodfileLockDriftSnippets = [
   'React-Core 0.65.3; package.json has react-native 0.85.3',
-  'removed react-native-camera',
-  'removed react-native-qrcode-local-image',
   'removed RNCMaskedView',
   'removed FlipperKit',
   'RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
@@ -189,23 +187,6 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
         errors.push(`Podfile.lock drift summary is missing current drift evidence: ${snippet}`);
       }
     });
-  }
-
-  if (
-    podfileLockRefreshRequired === 'yes' &&
-    podfileLockDriftLines.some(line => line.includes('removed react-native-camera')) &&
-    !podfileLockDriftLines.some(line => line.includes('removed react-native-qrcode-local-image'))
-  ) {
-    errors.push('Podfile.lock drift summary must include the removed react-native-qrcode-local-image pod when removed camera pods are present');
-  }
-
-  if (
-    podfileLockRefreshRequired === 'yes' &&
-    podfileLockDriftLines.some(line => line.includes('removed react-native-camera')) &&
-    !podfileLockDriftLines.some(line => line.includes('removed RNCMaskedView')) &&
-    !podfileLockDriftLines.some(line => line.includes('removed @react-native-community/masked-view'))
-  ) {
-    errors.push('Podfile.lock drift summary must include the removed masked-view pod after React Navigation 7 migration');
   }
 
   return errors;
