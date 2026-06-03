@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.326 - Release-services readiness refresh
+
+- Branch: `feature/bem-37-326-release-services-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh release-services readiness summaries after the fresh Android `devRelease`, `stageRelease`, and `prodRelease` APK evidence.
+- Re-check Sentry Android warning state, Sentry release prerequisites, Firebase release-service wiring, CodePush release-path wiring, push-notification bridge wiring, and iOS static release readiness.
+- Keep generated summary artifacts local under `local-docs/`.
+
+Findings:
+
+- Sentry `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0` remain current; Sentry CLI is executable, but release upload validation is still blocked by missing `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN`.
+- Firebase release-service wiring sees valid Android `dev`, `stage`, and `prod` release evidence, but runtime delivery validation is still not claimed.
+- CodePush release-path wiring sees valid Android release build evidence and confirms `react-native-code-push@9.0.1` is current, but migration remains required because App Center CodePush is retired, upstream is archived, New Architecture support is absent, and local update validation is blocked by blank dev deployment keys plus unconfirmed beta keys.
+- iOS static release files remain valid, but macOS `pod install` plus Xcode archive/simulator validation are still required before claiming iOS runtime delivery.
+
+Validation:
+
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn push-notification:bridge-audit`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn ios:release:readiness:check-summary`
+
 ### BEM-37.325 - Android release validation checkpoint
 
 - Branch: `feature/bem-37-325-android-release-validation-checkpoint`
