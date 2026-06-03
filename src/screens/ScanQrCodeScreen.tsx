@@ -14,7 +14,7 @@ import {
 import { Camera, CameraType } from 'react-native-camera-kit';
 
 import { images } from 'app/assets';
-import { Route, RootStackParams } from 'app/consts';
+import type { Route, RootStackParams } from 'app/consts';
 import { getStatusBarHeight } from 'app/styles';
 
 const { width } = Dimensions.get('window');
@@ -61,6 +61,10 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props, State> 
     const { onBarCodeScan } = this.props.route.params;
     const data = event.nativeEvent.codeStringValue;
 
+    if (!data) {
+      return;
+    }
+
     // Prevents multiple scans in one second
     if (this.state.isBarcodeRead) {
       return;
@@ -68,10 +72,8 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props, State> 
 
     this.setState({ isBarcodeRead: true });
 
-    if (data) {
-      this.goBack();
-      onBarCodeScan(data);
-    }
+    this.goBack();
+    onBarCodeScan(data);
   };
 
   render() {
