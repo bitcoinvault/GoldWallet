@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.359 - Release-services summary fingerprint reporting
+
+- Branch: `feature/bem-37-359-release-summary-fingerprint-reporting`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `Android release summary current inputs covered` to Sentry, Firebase, and CodePush release summary artifacts.
+- Extend each summary guard fixture so valid Android release evidence must also cover the current release-input fingerprint.
+- Refresh release-services documentation so current-input coverage is visible in the release-readiness workflow.
+
+Findings:
+
+- `BEM-37.358` made the Android release summary validator reject stale fingerprints, but downstream Sentry/Firebase/CodePush summaries only exposed `valid: yes/no`.
+- The new line makes stale release evidence visible in the same summary files that release-services checks already aggregate.
+
+Validation:
+
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn check:firebase-release-services-summary-guard`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.358 - Android release summary fingerprint guard
 
 - Branch: `feature/bem-37-358-android-release-summary-fingerprint`

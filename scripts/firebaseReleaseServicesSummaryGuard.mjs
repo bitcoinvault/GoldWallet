@@ -32,6 +32,7 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
   const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
   const androidReleaseSummaryRequiredVariantsCovered = getLineValue(summary, 'Android release summary required variants covered');
   const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
+  const androidReleaseSummaryCurrentInputsCovered = getLineValue(summary, 'Android release summary current inputs covered');
   const androidReleaseSummaryErrorCount = getLineValue(summary, 'Android release summary errors');
   const firebaseRuntimeDeliveryValidation = getLineValue(summary, 'Firebase runtime delivery validation');
   const warningCount = getLineValue(summary, 'Warnings');
@@ -57,7 +58,12 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
     errors.push(`Firebase release-services wiring valid must be yes or no. Received: ${wiringValid || 'missing'}`);
   }
 
-  [androidReleaseSummaryPresent, androidReleaseSummaryRequiredVariantsCovered, androidReleaseSummaryValid].forEach(value => {
+  [
+    androidReleaseSummaryPresent,
+    androidReleaseSummaryRequiredVariantsCovered,
+    androidReleaseSummaryValid,
+    androidReleaseSummaryCurrentInputsCovered,
+  ].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
       errors.push(`Boolean summary values must be yes or no. Received: ${value || 'missing'}`);
     }
@@ -110,6 +116,10 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
 
   if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryErrorCount !== '0') {
     errors.push('Valid Android release summary must have 0 summary errors');
+  }
+
+  if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryCurrentInputsCovered !== 'yes') {
+    errors.push('Valid Android release summary must cover the current release inputs');
   }
 
   if (wiringValid === 'no' && !requiredAction.includes('Firebase package, Android, iOS, and Messaging wiring')) {

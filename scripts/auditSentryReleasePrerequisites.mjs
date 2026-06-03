@@ -136,6 +136,9 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const androidReleaseSummaryErrors = hasAndroidReleaseSummary
     ? getAndroidReleaseSummaryErrors(androidReleaseSummary, root, { expectedVariants: androidReleaseSummaryVariants })
     : [];
+  const androidReleaseSummaryCurrentInputsCovered =
+    hasAndroidReleaseSummary &&
+    androidReleaseSummaryErrors.every(error => !error.includes('Release input fingerprint'));
 
   const hasCreateScript = existsSync(createScriptPath);
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';
@@ -187,6 +190,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseSummaryVariants,
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryErrors,
+    androidReleaseSummaryCurrentInputsCovered,
     hasCreateScript,
     createScriptUsesToken,
     createScriptRejectsMissingToken,
@@ -263,6 +267,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
   lines.push(`Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`);
   lines.push(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
+  lines.push(`Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`);
   lines.push(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   audit.androidReleaseSummaryErrors.forEach(error => lines.push(`- ${error}`));
   lines.push('Sentry release upload validation: not claimed');
@@ -349,6 +354,7 @@ const printReport = audit => {
   console.log(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
   console.log(`Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
+  console.log(`Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   console.log('Sentry release upload validation: not claimed');
   console.log(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);

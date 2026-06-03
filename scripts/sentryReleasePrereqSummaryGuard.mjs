@@ -49,6 +49,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
   const androidReleaseSummaryRequiredVariantsCovered = getLineValue(summary, 'Android release summary required variants covered');
   const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
+  const androidReleaseSummaryCurrentInputsCovered = getLineValue(summary, 'Android release summary current inputs covered');
   const androidReleaseSummaryErrors = getLineValue(summary, 'Android release summary errors');
   const sentryReleaseUploadValidation = getLineValue(summary, 'Sentry release upload validation');
   const createScriptPresent = getLineValue(summary, 'create-sentry-properties.sh present');
@@ -214,6 +215,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Valid Android release summary must have 0 summary errors');
   }
 
+  if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryCurrentInputsCovered !== 'yes') {
+    errors.push('Valid Android release summary must cover the current release inputs');
+  }
+
   if (sentryReleaseUploadValidation !== 'not claimed') {
     errors.push(`Sentry release upload validation must be not claimed. Received: ${sentryReleaseUploadValidation || 'missing'}`);
   }
@@ -222,6 +227,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseSummaryPresent,
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryValid,
+    androidReleaseSummaryCurrentInputsCovered,
     sentryReactNativeCurrent,
     sentryCliCurrent,
     sentryCliBinPresent,

@@ -54,6 +54,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
   const androidReleaseSummaryRequiredVariantsCovered = getLineValue(summary, 'Android release summary required variants covered');
   const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
+  const androidReleaseSummaryCurrentInputsCovered = getLineValue(summary, 'Android release summary current inputs covered');
   const androidReleaseSummaryErrorCount = getLineValue(summary, 'Android release summary errors');
   const codePushUpdateValidation = getLineValue(summary, 'CodePush update validation');
   const warningCount = getLineValue(summary, 'Warnings');
@@ -92,6 +93,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     androidReleaseSummaryPresent,
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryValid,
+    androidReleaseSummaryCurrentInputsCovered,
     secretValuesPrinted,
   ].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
@@ -167,9 +169,10 @@ export const getCodePushReleasePathSummaryErrors = summary => {
       androidReleaseSummaryPresent !== 'yes' ||
       androidReleaseSummaryRequiredVariantsCovered !== 'yes' ||
       androidReleaseSummaryValid !== 'yes' ||
+      androidReleaseSummaryCurrentInputsCovered !== 'yes' ||
       androidReleaseSummaryErrorCount !== '0')
   ) {
-    errors.push('CodePush release build evidence cannot be ready without valid wiring and Android dev/stage/prod/beta release evidence');
+    errors.push('CodePush release build evidence cannot be ready without valid wiring and current Android dev/stage/prod/beta release evidence');
   }
 
   [
@@ -217,6 +220,10 @@ export const getCodePushReleasePathSummaryErrors = summary => {
 
   if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryErrorCount !== '0') {
     errors.push('Valid Android release summary must have 0 summary errors');
+  }
+
+  if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryCurrentInputsCovered !== 'yes') {
+    errors.push('Valid Android release summary must cover the current release inputs');
   }
 
   if (codePushUpdateValidation !== 'not claimed') {

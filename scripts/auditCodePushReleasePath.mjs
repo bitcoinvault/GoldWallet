@@ -73,6 +73,7 @@ export const collectCodePushReleasePathAudit = () => {
   let androidReleaseSummaryVariants = [];
   let androidReleaseSummaryErrors = [];
   let androidReleaseSummaryRequiredVariantsCovered = false;
+  let androidReleaseSummaryCurrentInputsCovered = false;
 
   if (existsSync(packageJsonPath)) {
     installedPackageVersion = JSON.parse(readFileSync(packageJsonPath, 'utf8')).version || '';
@@ -191,11 +192,15 @@ export const collectCodePushReleasePathAudit = () => {
     androidReleaseSummaryErrors = getAndroidReleaseSummaryErrors(androidReleaseSummary, root, {
       expectedVariants: androidReleaseSummaryVariants,
     });
+    androidReleaseSummaryCurrentInputsCovered = androidReleaseSummaryErrors.every(
+      error => !error.includes('Release input fingerprint'),
+    );
   } catch {
     androidReleaseSummaryPresent = false;
     androidReleaseSummaryVariants = [];
     androidReleaseSummaryErrors = [];
     androidReleaseSummaryRequiredVariantsCovered = false;
+    androidReleaseSummaryCurrentInputsCovered = false;
   }
 
   if (!androidReleaseSummaryPresent) {
@@ -239,16 +244,19 @@ export const collectCodePushReleasePathAudit = () => {
     androidReleaseSummaryVariants,
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryErrors,
+    androidReleaseSummaryCurrentInputsCovered,
     releaseBuildEvidenceReady:
       errors.length === 0 &&
       androidReleaseSummaryPresent &&
       androidReleaseSummaryRequiredVariantsCovered &&
+      androidReleaseSummaryCurrentInputsCovered &&
       androidReleaseSummaryErrors.length === 0,
     ready:
       errors.length === 0 &&
       readinessIssues.length === 0 &&
       androidReleaseSummaryPresent &&
       androidReleaseSummaryRequiredVariantsCovered &&
+      androidReleaseSummaryCurrentInputsCovered &&
       androidReleaseSummaryErrors.length === 0,
   };
 };
@@ -288,6 +296,7 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
     `Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`,
     `Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`,
     `Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`,
+    `Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`,
     `Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`,
     ...audit.androidReleaseSummaryErrors.map(error => `- ${error}`),
     'CodePush update validation: not claimed',
@@ -335,6 +344,7 @@ const printReport = audit => {
   console.log(`Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`);
   console.log(`Android release summary required variants covered: ${audit.androidReleaseSummaryRequiredVariantsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
+  console.log(`Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
   console.log(`CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`);

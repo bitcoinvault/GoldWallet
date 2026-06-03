@@ -34,6 +34,7 @@ const notReadySummary = [
   'Android release summary variants: dev, stage, prod, beta',
   'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
   'CodePush update validation: not claimed',
   'Warnings: 4',
@@ -84,6 +85,7 @@ const readySummary = [
   'Android release summary variants: dev, stage, prod, beta',
   'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
   'CodePush update validation: not claimed',
   'Warnings: 0',
@@ -168,6 +170,11 @@ assertRejected(
   'Invalid release build evidence fixture',
   notReadySummary.replace('Android release summary valid: yes', 'Android release summary valid: no'),
   'release build evidence cannot be ready',
+);
+assertRejected(
+  'Stale Android release inputs fixture',
+  notReadySummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
+  'current Android dev/stage/prod/beta release evidence',
 );
 assertRejected(
   'Missing CodePush runtime gate fixture',

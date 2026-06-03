@@ -9,6 +9,7 @@ const validSummary = [
   'Android release summary variants: dev, stage, prod, beta',
   'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
   'Firebase runtime delivery validation: not claimed',
   'Warnings: 0',
@@ -26,6 +27,7 @@ const invalidSummary = [
   'Android release summary variants: dev, stage, prod, beta',
   'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
   'Firebase runtime delivery validation: not claimed',
   'Warnings: 0',
@@ -68,6 +70,11 @@ assertRejected(
   'Missing release variant fixture',
   validSummary.replace('Android release summary variants: dev, stage, prod, beta', 'Android release summary variants: dev, stage, prod'),
   'beta release evidence',
+);
+assertRejected(
+  'Stale Android release inputs fixture',
+  validSummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
+  'current release inputs',
 );
 assertRejected(
   'Missing required action fixture',
