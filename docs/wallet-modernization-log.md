@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.349 - Camera scanner contract tests
+
+- Branch: `feature/bem-37-349-camera-scanner-contract-tests`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused unit coverage for the CameraKit QR scanner screen contract.
+- Verify Android camera permission gating, CameraKit QR-only scanner props, duplicate-read protection, and caller callback behavior.
+- Fix the empty-read edge case so a blank CameraKit event does not mark the scanner as consumed before the next valid QR read.
+
+Findings:
+
+- The CameraKit migration was already scoped to `src/screens/ScanQrCodeScreen.tsx`, but the scanner callback contract did not have direct Jest coverage.
+- Empty scanner events should be ignored before setting `isBarcodeRead`; otherwise a transient blank read can block the next valid QR value.
+- The branch does not change camera package versions; `react-native-camera-kit@18.0.0` remains the installed latest checked scanner baseline.
+
+Validation:
+
+- `npx eslint tests\unit\ScanQrCodeScreen.test.tsx`
+- `node node_modules\jest\bin\jest.js tests/unit/ScanQrCodeScreen.test.tsx --runInBand --forceExit --verbose`
+- `corepack yarn typescript:check`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:camera-usage-scope`
+- `corepack yarn check:qr-scan-callers`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `git diff --check`
+
+Notes:
+
+- Embedded smoke validated app install, first-run setup, dashboard UI text, and absence of fatal/runtime logcat findings.
+- Physical QR camera input was not claimed; the scanner callback behavior is covered by the focused Jest contract test.
+
 ### BEM-37.348 - Secure-storage removal readiness guard
 
 - Branch: `feature/bem-37-348-secure-storage-removal-readiness`
