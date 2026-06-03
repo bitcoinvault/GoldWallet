@@ -60,6 +60,16 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const createScriptStaticDefaultsValid = getLineValue(summary, 'create-sentry-properties.sh static defaults valid');
   const createScriptSupportsOrgOverride = getLineValue(summary, 'create-sentry-properties.sh supports SENTRY_ORG override');
   const createScriptSupportsProjectOverride = getLineValue(summary, 'create-sentry-properties.sh supports SENTRY_PROJECT override');
+  const createNodeScriptPresent = getLineValue(summary, 'createSentryProperties.mjs present');
+  const createNodeScriptUsesToken = getLineValue(summary, 'createSentryProperties.mjs requires SENTRY_AUTH_TOKEN');
+  const createNodeScriptRejectsMissingToken = getLineValue(summary, 'createSentryProperties.mjs rejects missing SENTRY_AUTH_TOKEN');
+  const createNodeScriptWritesRootProperties = getLineValue(summary, 'createSentryProperties.mjs writes root properties');
+  const createNodeScriptWritesAndroidProperties = getLineValue(summary, 'createSentryProperties.mjs writes Android properties');
+  const createNodeScriptWritesIosProperties = getLineValue(summary, 'createSentryProperties.mjs writes iOS properties');
+  const createNodeScriptStaticDefaultsValid = getLineValue(summary, 'createSentryProperties.mjs static defaults valid');
+  const createNodeScriptSupportsOrgOverride = getLineValue(summary, 'createSentryProperties.mjs supports SENTRY_ORG override');
+  const createNodeScriptSupportsProjectOverride = getLineValue(summary, 'createSentryProperties.mjs supports SENTRY_PROJECT override');
+  const createNodeScriptSupportsRootOverride = getLineValue(summary, 'createSentryProperties.mjs supports --root override');
   const envHasToken = getLineValue(summary, 'SENTRY_AUTH_TOKEN available in current shell');
   const requiredAction = getLineValue(summary, 'Required action');
   const releaseIntegrationErrorLines = getBulletLinesAfter(summary, 'Sentry release integration errors');
@@ -224,6 +234,16 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     createScriptStaticDefaultsValid,
     createScriptSupportsOrgOverride,
     createScriptSupportsProjectOverride,
+    createNodeScriptPresent,
+    createNodeScriptUsesToken,
+    createNodeScriptRejectsMissingToken,
+    createNodeScriptWritesRootProperties,
+    createNodeScriptWritesAndroidProperties,
+    createNodeScriptWritesIosProperties,
+    createNodeScriptStaticDefaultsValid,
+    createNodeScriptSupportsOrgOverride,
+    createNodeScriptSupportsProjectOverride,
+    createNodeScriptSupportsRootOverride,
     envHasToken,
   ].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
@@ -295,6 +315,21 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       createScriptSupportsProjectOverride !== 'yes')
   ) {
     errors.push('Present create-sentry-properties.sh must require and reject missing SENTRY_AUTH_TOKEN, write root/android/iOS properties, keep expected static defaults, and support SENTRY_ORG/SENTRY_PROJECT overrides');
+  }
+
+  if (
+    createNodeScriptPresent === 'yes' &&
+    (createNodeScriptUsesToken !== 'yes' ||
+      createNodeScriptRejectsMissingToken !== 'yes' ||
+      createNodeScriptWritesRootProperties !== 'yes' ||
+      createNodeScriptWritesAndroidProperties !== 'yes' ||
+      createNodeScriptWritesIosProperties !== 'yes' ||
+      createNodeScriptStaticDefaultsValid !== 'yes' ||
+      createNodeScriptSupportsOrgOverride !== 'yes' ||
+      createNodeScriptSupportsProjectOverride !== 'yes' ||
+      createNodeScriptSupportsRootOverride !== 'yes')
+  ) {
+    errors.push('Present createSentryProperties.mjs must require and reject missing SENTRY_AUTH_TOKEN, write root/android/iOS properties, keep expected static defaults, support SENTRY_ORG/SENTRY_PROJECT overrides, and support --root test output');
   }
 
   if (
