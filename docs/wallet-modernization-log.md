@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.350 - Android release validation checkpoint
+
+- Branch: `feature/bem-37-350-android-release-validation-checkpoint`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run guarded local Android release validation on the current modernization baseline after the scanner contract and release-service guard changes.
+- Build all default release variants: `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease`.
+- Refresh ignored local APK evidence in `local-docs/android-release-dev-summary.txt` with per-variant byte counts and SHA-256 digests.
+- Re-run Sentry, Firebase, CodePush, and aggregate release-service summary validation against the fresh Android release evidence.
+
+Findings:
+
+- All four unsigned Android release APKs were generated with JDK 17 and `SENTRY_DISABLE_AUTO_UPLOAD=true`.
+- The release summary checker validated APK paths, byte counts, SHA-256 digests, Gradle exit codes, and JDK 17 usage.
+- Sentry SDK and CLI remain current, but Sentry source-map upload validation is still not claimed because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not available locally.
+- CodePush release build evidence is ready, but update validation remains unclaimed because deployment keys are blank or missing and App Center CodePush remains retired/upstream archived.
+
+Validation:
+
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn release-services:check-summaries`
+
 ### BEM-37.349 - Camera scanner contract tests
 
 - Branch: `feature/bem-37-349-camera-scanner-contract-tests`
