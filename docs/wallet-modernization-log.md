@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.347 - CodePush migration readiness guard
+
+- Branch: `feature/bem-37-347-codepush-migration-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guarded CodePush migration-readiness audit alongside the existing CodePush release-path audit.
+- Keep CodePush classified as temporary legacy compatibility instead of a normal dependency-refresh target while App Center CodePush is retired and upstream is archived.
+- Wire the migration-readiness summary into the RN baseline preflight and release-services summary aggregate.
+
+Findings:
+
+- `react-native-code-push@9.0.1` remains current, but the release capability still requires a remove-or-replace decision before OTA updates can be treated as supported.
+- CodePush runtime remains gated off by default and update validation remains explicitly unclaimed.
+- Android release build evidence is available separately from CodePush update validation.
+
+Validation:
+
+- `corepack yarn check:codepush-migration-readiness-summary-guard`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn rn:upgrade-path:audit`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn android:dev:env-audit`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:modernization-log-ids`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn rn:baseline:preflight`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:rn-nodeify-shims`
+- `git diff --check`
+
 ### BEM-37.346 - Dependency guard preflight integration
 
 - Branch: `feature/bem-37-346-dependency-guard-preflight-integration`
