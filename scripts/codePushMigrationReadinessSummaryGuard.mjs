@@ -15,6 +15,8 @@ const yesNoLabels = [
   'Decision document covers replacement',
   'Decision document rejects blind package upgrade',
   'Release path summary valid',
+  'CodePush release build evidence ready',
+  'Beta CodePush strategy confirmed',
   'Secret values printed',
 ];
 
@@ -37,6 +39,11 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
   const rejectsBlindUpgrade = getLineValue(summary, 'Decision document rejects blind package upgrade');
   const releasePathSummaryValid = getLineValue(summary, 'Release path summary valid');
   const releasePathSummaryErrors = getLineValue(summary, 'Release path summary errors');
+  const releaseBuildEvidenceReady = getLineValue(summary, 'CodePush release build evidence ready');
+  const readyEnvironmentCount = getLineValue(summary, 'Ready CodePush environments');
+  const blockedEnvironmentCount = getLineValue(summary, 'Blocked CodePush environments');
+  const unconfirmedEnvironmentCount = getLineValue(summary, 'Unconfirmed CodePush environments');
+  const betaStrategyConfirmed = getLineValue(summary, 'Beta CodePush strategy confirmed');
   const secretValuesPrinted = getLineValue(summary, 'Secret values printed');
   const requiredAction = getLineValue(summary, 'Required action');
 
@@ -97,6 +104,24 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
 
   if (releasePathSummaryValid !== 'yes' || releasePathSummaryErrors !== '0') {
     errors.push('CodePush migration readiness requires a valid CodePush release path summary');
+  }
+
+  if (releaseBuildEvidenceReady !== 'yes') {
+    errors.push('CodePush release build evidence must be ready before migration readiness is useful');
+  }
+
+  [
+    ['Ready CodePush environments', readyEnvironmentCount],
+    ['Blocked CodePush environments', blockedEnvironmentCount],
+    ['Unconfirmed CodePush environments', unconfirmedEnvironmentCount],
+  ].forEach(([label, value]) => {
+    if (!/^\d+$/.test(value)) {
+      errors.push(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
+    }
+  });
+
+  if (betaStrategyConfirmed !== 'no') {
+    errors.push('Beta CodePush strategy must remain unconfirmed until beta deployment keys/strategy are provided');
   }
 
   if (secretValuesPrinted !== 'no') {

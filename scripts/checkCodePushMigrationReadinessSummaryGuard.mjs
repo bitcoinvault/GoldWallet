@@ -19,6 +19,11 @@ const validSummary = [
   'Decision document rejects blind package upgrade: yes',
   'Release path summary valid: yes',
   'Release path summary errors: 0',
+  'CodePush release build evidence ready: yes',
+  'Ready CodePush environments: 2',
+  'Blocked CodePush environments: 1',
+  'Unconfirmed CodePush environments: 2',
+  'Beta CodePush strategy confirmed: no',
   'Secret values printed: no',
   'Required action: choose remove or replace before treating OTA updates as a supported release capability.',
   '',
@@ -54,6 +59,21 @@ assertRejected('Bad posture fixture', validSummary.replace('Current posture: tem
 assertRejected('Bad options fixture', validSummary.replace('Long-term options: remove or replace', 'Long-term options: upgrade'), 'remove or replace');
 assertRejected('Bad decision doc fixture', validSummary.replace('Decision document covers removal: yes', 'Decision document covers removal: no'), 'decision document');
 assertRejected('Bad release path fixture', validSummary.replace('Release path summary valid: yes', 'Release path summary valid: no'), 'valid CodePush release path summary');
+assertRejected(
+  'Missing release build evidence fixture',
+  validSummary.replace('CodePush release build evidence ready: yes', 'CodePush release build evidence ready: no'),
+  'release build evidence',
+);
+assertRejected(
+  'Bad environment count fixture',
+  validSummary.replace('Blocked CodePush environments: 1', 'Blocked CodePush environments: missing'),
+  'Blocked CodePush environments',
+);
+assertRejected(
+  'Beta strategy claimed fixture',
+  validSummary.replace('Beta CodePush strategy confirmed: no', 'Beta CodePush strategy confirmed: yes'),
+  'Beta CodePush strategy',
+);
 assertRejected('Secret value leak fixture', validSummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');
 assertRejected(
   'Missing required action fixture',
