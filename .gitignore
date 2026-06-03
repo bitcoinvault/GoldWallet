@@ -85,6 +85,9 @@ token.json
 .mcp.json
 .claude
 .codex/
+.agents/
+AGENTS.override.md
+AGENTS.local.md
 
 # Local planning/proposal drafts
 local-docs/
