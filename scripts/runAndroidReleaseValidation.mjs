@@ -10,7 +10,7 @@ const summaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.t
 const javaCommand = process.env.JAVA_HOME
   ? path.join(process.env.JAVA_HOME, 'bin', process.platform === 'win32' ? 'java.exe' : 'java')
   : 'java';
-const defaultVariants = ['dev', 'stage', 'prod'];
+const defaultVariants = ['dev', 'stage', 'prod', 'beta'];
 const requestedVariants = (process.env.ANDROID_RELEASE_VARIANTS || defaultVariants.join(','))
   .split(',')
   .map(variant => variant.trim().toLowerCase())

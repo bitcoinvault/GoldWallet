@@ -28,7 +28,7 @@ export const requiredFirebaseIosFiles = [
   'ios/GoogleService-Info-stage.plist',
   'ios/GoogleService-Info.plist',
 ];
-export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod'];
+export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod', 'beta'];
 const getSummaryLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
 

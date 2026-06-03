@@ -17,7 +17,7 @@ const sha256File = filePath => createHash('sha256').update(readFileSync(filePath
 
 export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), options = {}) => {
   const errors = [];
-  const expectedVariants = options.expectedVariants || ['dev', 'stage', 'prod'];
+  const expectedVariants = options.expectedVariants || ['dev', 'stage', 'prod', 'beta'];
   const variants = getLineValue(summary, 'Variants')
     .split(',')
     .map(variant => variant.trim())

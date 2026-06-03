@@ -31,7 +31,7 @@ const notReadySummary = [
   'CodePush migration required: yes',
   'CodePush release build evidence ready: yes',
   'Android release summary present: yes',
-  'Android release summary variants: dev, stage, prod',
+  'Android release summary variants: dev, stage, prod, beta',
   'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
   'Android release summary errors: 0',
@@ -81,7 +81,7 @@ const readySummary = [
   'CodePush migration required: yes',
   'CodePush release build evidence ready: yes',
   'Android release summary present: yes',
-  'Android release summary variants: dev, stage, prod',
+  'Android release summary variants: dev, stage, prod, beta',
   'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
   'Android release summary errors: 0',
@@ -186,8 +186,8 @@ assertRejected(
 );
 assertRejected(
   'Missing release variant fixture',
-  notReadySummary.replace('Android release summary variants: dev, stage, prod', 'Android release summary variants: dev, stage'),
-  'prod release evidence',
+  notReadySummary.replace('Android release summary variants: dev, stage, prod, beta', 'Android release summary variants: dev, stage, prod'),
+  'beta release evidence',
 );
 assertRejected('Secret value leak fixture', notReadySummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');
 assertRejected(
