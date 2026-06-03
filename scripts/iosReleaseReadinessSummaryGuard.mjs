@@ -61,6 +61,7 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   const sentryBundlePhaseCount = getLineValue(summary, 'iOS Sentry bundle/source-map phases');
   const sentryDsymPhaseCount = getLineValue(summary, 'iOS Sentry dSYM upload phases');
   const codePushPlistPlaceholderCount = getLineValue(summary, 'iOS CodePush plist placeholders');
+  const remoteNotificationPlistCount = getLineValue(summary, 'iOS remote-notification plists');
   const podfileLockRefreshRequired = getLineValue(summary, 'Podfile.lock refresh required');
   const podfileLockDriftCount = getLineValue(summary, 'Podfile.lock drift issues');
   const xcodebuildVersion = getLineValue(summary, 'xcodebuild version');
@@ -115,6 +116,10 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
 
   if (codePushPlistPlaceholderCount !== '3') {
     errors.push(`iOS CodePush plist placeholders must be 3. Received: ${codePushPlistPlaceholderCount || 'missing'}`);
+  }
+
+  if (remoteNotificationPlistCount !== '4') {
+    errors.push(`iOS remote-notification plists must be 4. Received: ${remoteNotificationPlistCount || 'missing'}`);
   }
 
   if (!['yes', 'no'].includes(podfileLockRefreshRequired)) {

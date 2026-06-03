@@ -33,6 +33,7 @@ const validWindowsSummary = [
   'iOS Sentry bundle/source-map phases: 4',
   'iOS Sentry dSYM upload phases: 3',
   'iOS CodePush plist placeholders: 3',
+  'iOS remote-notification plists: 4',
   'Podfile.lock refresh required: yes',
   `Podfile.lock drift issues: ${currentPodfileLockDriftLines.length}`,
   ...currentPodfileLockDriftLines,
@@ -125,6 +126,11 @@ assertRejected(
   'Missing CodePush plist placeholder fixture',
   validWindowsSummary.replace('iOS CodePush plist placeholders: 3', 'iOS CodePush plist placeholders: 2'),
   'CodePush plist placeholders',
+);
+assertRejected(
+  'Missing remote-notification plist fixture',
+  validWindowsSummary.replace('iOS remote-notification plists: 4', 'iOS remote-notification plists: 3'),
+  'remote-notification plists',
 );
 assertRejected(
   'Bad Podfile.lock drift count fixture',

@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.339 - iOS beta remote-notification release readiness
+
+- Branch: `feature/bem-37-339-ios-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh static iOS release readiness after extending Android release validation to beta.
+- Add missing `remote-notification` background mode to the Beta iOS plist so beta release config matches the notification-capable release variants.
+- Harden the iOS release readiness summary so it reports and requires all 4 iOS plist files to declare remote-notification coverage.
+
+Findings:
+
+- `ios/GoldWallet-beta.plist` did not declare `UIBackgroundModes` with `remote-notification`, while main, Dev, and Stage plists already did.
+- `AppDelegate.m` and the push notification bridge are shared runtime surface, so beta should not be excluded from static notification readiness.
+- Beta CodePush deployment key placeholders remain intentionally unrequired because beta CodePush update strategy is still unconfirmed.
+- iOS runtime/archive validation is still not claimed on Windows because `xcodebuild` requires macOS and `ios/Podfile.lock` still has 16 drift issues requiring `pod install`.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.338 - Android release validation beta coverage
 
 - Branch: `feature/bem-37-338-android-release-validation-refresh`

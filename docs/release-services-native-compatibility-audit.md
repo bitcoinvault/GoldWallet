@@ -150,7 +150,7 @@ iOS:
 - Xcode project settings reference flavor-specific `FIREBASE_CONFIG_FILE` values.
 - Xcode project has Sentry React Native bundling and dSYM upload build phases.
 - iOS Info.plist uses `$(CODEPUSH_DEPLOYMENT_KEY_IOS)` and `AppDelegate.m` uses CodePush bundle URLs only when `CODEPUSH_ENABLED=true` and the iOS deployment key is non-empty.
-- The main, Dev, and Stage iOS Info.plist files declare `UIBackgroundModes` with `remote-notification`; the app delegate assigns `UNUserNotificationCenter` delegate for foreground presentation callbacks.
+- The main, Dev, Stage, and Beta iOS Info.plist files declare `UIBackgroundModes` with `remote-notification`; the app delegate assigns `UNUserNotificationCenter` delegate for foreground presentation callbacks.
 - `docs/ios-release-config-compatibility-audit.md` records the current iOS scheme-to-env/Firebase plist mapping before release-service or rebranding changes.
 
 Shared env/config:
@@ -179,7 +179,7 @@ Shared env/config:
 - `@react-native-community/push-notification-ios` is on latest checked `1.12.0` after `BEM-36.75`; this Android-side branch does not replace dedicated iOS push validation.
 - `corepack yarn push-notification:bridge-audit` verifies current iOS push notification bridge wiring and static readiness. It writes `local-docs/push-notification-bridge-summary.txt`.
 - `corepack yarn push-notification:bridge-check-summary` validates the generated local push notification bridge summary. After `BEM-37.79`, the audit reports no static readiness issues, but APNs registration, token, foreground/background delivery, badge, and tap-through behavior still require iOS simulator/device validation.
-- `corepack yarn ios:release:readiness:audit` verifies static iOS release files, schemes, Firebase plist mapping, CodePush plist placeholders, Sentry source-map/dSYM phases, Podfile.lock drift, and xcodebuild availability. The 2026-06-03 refresh reports static iOS files valid, 16 Podfile.lock drift issues, missing local xcodebuild on Windows, and iOS runtime delivery validation not claimed until `pod install`, simulator/archive validation, and device/service checks run on macOS.
+- `corepack yarn ios:release:readiness:audit` verifies static iOS release files, schemes, Firebase plist mapping, CodePush plist placeholders, Sentry source-map/dSYM phases, remote-notification plist coverage, Podfile.lock drift, and xcodebuild availability. The 2026-06-03 refresh reports static iOS files valid, 4 remote-notification plists including Beta, 16 Podfile.lock drift issues, missing local xcodebuild on Windows, and iOS runtime delivery validation not claimed until `pod install`, simulator/archive validation, and device/service checks run on macOS.
 - `corepack yarn release-services:check-summaries` validates the generated Sentry, Firebase, CodePush, push-notification, and iOS release-readiness summary artifacts together so the aggregate release-services gate covers both Android release evidence and static iOS release readiness.
 
 ## Branching Decision
