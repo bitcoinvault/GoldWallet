@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.346 - Dependency guard preflight integration
+
+- Branch: `feature/bem-37-346-dependency-guard-preflight-integration`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire the git dependency snapshot and node-fetch resolution audits into the online RN baseline preflight.
+- Keep live network checks out of the ordinary offline Android lightweight gate.
+- Add guard self-checks for both dependency summaries to the lightweight Android gate so future changes cannot stale the generated summaries silently.
+
+Validation:
+
+- `corepack yarn check:git-deps-snapshot-summary-guard`
+- `corepack yarn check:node-fetch-resolution-summary-guard`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn git-deps:snapshot:audit`
+- `corepack yarn node-fetch:resolution:audit`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn git-deps:snapshot:check-summary`
+- `corepack yarn node-fetch:resolution:check-summary`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn android:dev:env-audit`
+- `corepack yarn check:push-notification-ios-usage-guard`
+- `corepack yarn check:push-notification-ios-usage-scope`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn android:dev:check-light`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn rn:baseline:preflight:online`
+
 ### BEM-37.345 - Node fetch resolution compatibility guard
 
 - Branch: `feature/bem-37-345-node-fetch-resolution-guard`
