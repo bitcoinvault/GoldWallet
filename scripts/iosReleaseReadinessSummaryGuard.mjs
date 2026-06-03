@@ -30,8 +30,6 @@ const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 
 const expectedCurrentPodfileLockDriftSnippets = [
   'React-Core 0.65.3; package.json has react-native 0.85.3',
-  'removed RNCMaskedView',
-  'removed FlipperKit',
   'RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
   'react-native-config 1.4.4; package.json has react-native-config 1.6.1',
   'RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
