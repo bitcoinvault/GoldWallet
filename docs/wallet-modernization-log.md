@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.327 - Camera QR readiness refresh
+
+- Branch: `feature/bem-37-327-camera-qr-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live camera and QR package metadata before any further scanner migration work.
+- Refresh the guarded CameraKit/VisionCamera/QR candidate metadata date to `2026-06-03`.
+- Re-run camera candidate, camera QR migration, scanner caller, QR render, and iOS static release readiness checks.
+
+Findings:
+
+- `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4` remain latest and match the installed scanner/rendering baseline.
+- `react-native-vision-camera@5.0.11` remains the latest VisionCamera line, but still requires Nitro peers (`react-native-nitro-modules`, `react-native-nitro-image`), so it remains a larger scanner migration target rather than a drop-in package bump.
+- CameraKit scanner runtime usage remains scoped to `src/screens/ScanQrCodeScreen.tsx`; QR scanner callers remain stable at 8 and QR render screens remain stable at 5.
+- Camera QR migration wiring is valid, but iOS scanner migration completion remains blocked until macOS `pod install` refreshes stale removed camera pods in `ios/Podfile.lock` and real iOS camera/runtime validation runs.
+
+Validation:
+
+- `npm view react-native-camera-kit version engines peerDependencies dependencies dist-tags --json`
+- `npm view react-native-vision-camera version engines peerDependencies dependencies dist-tags --json`
+- `npm view react-native-qrcode-svg version engines peerDependencies dependencies dist-tags --json`
+- `npm view qrcode version engines dependencies dist-tags --json`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn check:camera-candidate-summary-guard`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:camera-usage-scope`
+- `corepack yarn check:qr-scan-callers`
+- `corepack yarn check:qr-render-usage`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn android:dev:check-light-docs`
+
 ### BEM-37.326 - Release-services readiness refresh
 
 - Branch: `feature/bem-37-326-release-services-refresh`
