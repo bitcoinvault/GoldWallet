@@ -8,7 +8,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 ## Current Package State
 
-| Package | Current package.json | Latest npm checked on 2026-06-02 | Notes |
+| Package | Current package.json | Latest npm checked on 2026-06-03 | Notes |
 | --- | --- | --- | --- |
 | `@react-native-firebase/app` | `24.0.0` | `24.0.0` | Current package pulls `firebase@12.10.0`. |
 | `@react-native-firebase/analytics` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
@@ -75,7 +75,7 @@ corepack yarn release-services:check-summaries
 
 ## Current Release Readiness Snapshot
 
-Checked on 2026-05-31 after the RN `0.85.3` foundation, Android release variant validation, and release-services package refresh:
+Checked on 2026-06-03 after the RN `0.85.3` foundation, Android release variant validation, and release-services package refresh:
 
 ```powershell
 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local
@@ -107,6 +107,7 @@ Results:
 - Firebase `24.0.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
 - RN Firebase `24.0.0` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
 - Sentry release source-map upload validation is still not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
+- Sentry SDK and CLI package targets remain current on 2026-06-03: `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0`.
 - The Sentry prerequisite audit now records per-file readiness for the root, Android, and iOS Sentry properties files, validates that `create-sentry-properties.sh` writes all three expected paths with the expected non-secret static defaults, and verifies that the local `@sentry/cli` package binary is present and executable.
 - Sentry `8.13.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.85.3` baseline; release artifact upload still needs credentials before it can be claimed as fully validated.
 - None of these audits print secret values.

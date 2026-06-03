@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.331 - Sentry release readiness refresh
+
+- Branch: `feature/bem-37-331-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live npm/latest metadata for the Sentry SDK and Sentry CLI release tooling after the current RN `0.85.3` baseline.
+- Refresh the Sentry release/source-map plan and release-services compatibility audit date to `2026-06-03`.
+- Keep release upload validation explicitly unclaimed until local Sentry credentials/properties are available.
+
+Findings:
+
+- `@sentry/react-native@8.13.0` is still npm `latest` and remains compatible with the RN `0.85.3` baseline according to its `react-native >=0.65.0` peer range.
+- `@sentry/cli@3.5.0` is still npm `latest`, requires Node `>= 18`, and remains executable locally as `sentry-cli 3.5.0`.
+- Sentry release integration remains wired for Android and iOS, and the local Android release summary still covers `dev`, `stage`, and `prod`.
+- Full source-map/dSYM upload validation is still blocked locally by missing `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN`.
+
+Validation:
+
+- `npm view @sentry/react-native version dist-tags engines peerDependencies dependencies --json`
+- `npm view @sentry/cli version dist-tags engines peerDependencies dependencies --json`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn android:dev:check-light`
+
 ### BEM-37.330 - Secure-storage migration readiness refresh
 
 - Branch: `feature/bem-37-330-secure-storage-readiness-refresh`
