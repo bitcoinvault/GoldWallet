@@ -34,11 +34,14 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
   const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
   const androidReleaseSummaryCurrentInputsCovered = getLineValue(summary, 'Android release summary current inputs covered');
   const androidReleaseSummaryErrorCount = getLineValue(summary, 'Android release summary errors');
+  const androidReleaseApkManifestValid = getLineValue(summary, 'Android release APK manifest valid');
+  const androidReleaseApkManifestErrorCount = getLineValue(summary, 'Android release APK manifest errors');
   const firebaseRuntimeDeliveryValidation = getLineValue(summary, 'Firebase runtime delivery validation');
   const warningCount = getLineValue(summary, 'Warnings');
   const wiringErrorCount = getLineValue(summary, 'Wiring errors');
   const requiredAction = getLineValue(summary, 'Required action');
   const androidReleaseSummaryErrorLines = getBulletLinesAfter(summary, 'Android release summary errors');
+  const androidReleaseApkManifestErrorLines = getBulletLinesAfter(summary, 'Android release APK manifest errors');
   const warningLines = getBulletLinesAfter(summary, 'Warnings');
   const wiringErrorLines = getBulletLinesAfter(summary, 'Wiring errors');
 
@@ -63,6 +66,7 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryValid,
     androidReleaseSummaryCurrentInputsCovered,
+    androidReleaseApkManifestValid,
   ].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
       errors.push(`Boolean summary values must be yes or no. Received: ${value || 'missing'}`);
@@ -100,6 +104,7 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
 
   [
     ['Android release summary errors', androidReleaseSummaryErrorCount, androidReleaseSummaryErrorLines.length],
+    ['Android release APK manifest errors', androidReleaseApkManifestErrorCount, androidReleaseApkManifestErrorLines.length],
     ['Warnings', warningCount, warningLines.length],
     ['Wiring errors', wiringErrorCount, wiringErrorLines.length],
   ].forEach(([label, value, listedCount]) => {
@@ -120,6 +125,10 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
 
   if (androidReleaseSummaryValid === 'yes' && androidReleaseSummaryCurrentInputsCovered !== 'yes') {
     errors.push('Valid Android release summary must cover the current release inputs');
+  }
+
+  if (androidReleaseApkManifestValid === 'yes' && androidReleaseApkManifestErrorCount !== '0') {
+    errors.push('Valid Android release APK manifest proof must have 0 manifest errors');
   }
 
   if (wiringValid === 'no' && !requiredAction.includes('Firebase package, Android, iOS, and Messaging wiring')) {

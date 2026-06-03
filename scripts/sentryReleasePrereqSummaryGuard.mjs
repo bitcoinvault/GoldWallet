@@ -51,6 +51,8 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseSummaryValid = getLineValue(summary, 'Android release summary valid');
   const androidReleaseSummaryCurrentInputsCovered = getLineValue(summary, 'Android release summary current inputs covered');
   const androidReleaseSummaryErrors = getLineValue(summary, 'Android release summary errors');
+  const androidReleaseApkManifestValid = getLineValue(summary, 'Android release APK manifest valid');
+  const androidReleaseApkManifestErrors = getLineValue(summary, 'Android release APK manifest errors');
   const sentryReleaseUploadValidation = getLineValue(summary, 'Sentry release upload validation');
   const createScriptPresent = getLineValue(summary, 'create-sentry-properties.sh present');
   const createScriptUsesToken = getLineValue(summary, 'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN');
@@ -79,6 +81,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const invalidFileLines = getBulletLinesAfter(summary, 'Invalid files');
   const readinessLines = getBulletLinesAfter(summary, 'Properties file readiness entries');
   const androidReleaseSummaryErrorLines = getBulletLinesAfter(summary, 'Android release summary errors');
+  const androidReleaseApkManifestErrorLines = getBulletLinesAfter(summary, 'Android release APK manifest errors');
 
   if (/(auth\.token|SENTRY_AUTH_TOKEN)\s*=/.test(summary)) {
     errors.push('summary must not print Sentry token assignments');
@@ -190,6 +193,12 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push(`Android release summary errors count is ${androidReleaseSummaryErrors}, but listed ${androidReleaseSummaryErrorLines.length}`);
   }
 
+  if (!/^\d+$/.test(androidReleaseApkManifestErrors)) {
+    errors.push(`Android release APK manifest errors must be a non-negative integer. Received: ${androidReleaseApkManifestErrors || 'missing'}`);
+  } else if (Number(androidReleaseApkManifestErrors) !== androidReleaseApkManifestErrorLines.length) {
+    errors.push(`Android release APK manifest errors count is ${androidReleaseApkManifestErrors}, but listed ${androidReleaseApkManifestErrorLines.length}`);
+  }
+
   if (androidReleaseSummaryPresent === 'no' && androidReleaseSummaryVariants !== 'none') {
     errors.push('Missing Android release summary must report variants as none');
   }
@@ -219,6 +228,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Valid Android release summary must cover the current release inputs');
   }
 
+  if (androidReleaseApkManifestValid === 'yes' && androidReleaseApkManifestErrors !== '0') {
+    errors.push('Valid Android release APK manifest proof must have 0 manifest errors');
+  }
+
   if (sentryReleaseUploadValidation !== 'not claimed') {
     errors.push(`Sentry release upload validation must be not claimed. Received: ${sentryReleaseUploadValidation || 'missing'}`);
   }
@@ -228,6 +241,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryValid,
     androidReleaseSummaryCurrentInputsCovered,
+    androidReleaseApkManifestValid,
     sentryReactNativeCurrent,
     sentryCliCurrent,
     sentryCliBinPresent,

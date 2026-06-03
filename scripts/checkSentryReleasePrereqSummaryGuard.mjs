@@ -29,6 +29,8 @@ const notReadySummary = [
   'Android release summary valid: yes',
   'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
@@ -82,6 +84,8 @@ const readySummary = [
   'Android release summary valid: yes',
   'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
@@ -241,6 +245,14 @@ assertRejected(
   'Stale Android release inputs fixture',
   notReadySummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
   'current release inputs',
+);
+assertRejected(
+  'Invalid Android release APK manifest fixture',
+  notReadySummary.replace(
+    'Android release APK manifest valid: yes\nAndroid release APK manifest errors: 0',
+    'Android release APK manifest valid: yes\nAndroid release APK manifest errors: 1\n- Variant stage targetSdkVersion mismatch: expected 36, received 35',
+  ),
+  '0 manifest errors',
 );
 assertRejected(
   'Missing required action fixture',

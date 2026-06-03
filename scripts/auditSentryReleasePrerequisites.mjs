@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
 import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
+import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -139,6 +140,9 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const androidReleaseSummaryCurrentInputsCovered =
     hasAndroidReleaseSummary &&
     androidReleaseSummaryErrors.every(error => !error.includes('Release input fingerprint'));
+  const androidReleaseApkManifestErrors = hasAndroidReleaseSummary
+    ? getAndroidReleaseApkManifestErrors({ root, expectedVariants: androidReleaseSummaryVariants })
+    : [];
 
   const hasCreateScript = existsSync(createScriptPath);
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';
@@ -191,6 +195,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseSummaryRequiredVariantsCovered,
     androidReleaseSummaryErrors,
     androidReleaseSummaryCurrentInputsCovered,
+    androidReleaseApkManifestErrors,
     hasCreateScript,
     createScriptUsesToken,
     createScriptRejectsMissingToken,
@@ -270,6 +275,9 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`);
   lines.push(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   audit.androidReleaseSummaryErrors.forEach(error => lines.push(`- ${error}`));
+  lines.push(`Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`);
+  lines.push(`Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`);
+  audit.androidReleaseApkManifestErrors.forEach(error => lines.push(`- ${error}`));
   lines.push('Sentry release upload validation: not claimed');
   lines.push(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
@@ -356,6 +364,8 @@ const printReport = audit => {
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
+  console.log(`Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`);
+  console.log(`Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`);
   console.log('Sentry release upload validation: not claimed');
   console.log(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);

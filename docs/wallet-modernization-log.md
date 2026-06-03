@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.365 - Release-services APK manifest proof
+
+- Branch: `feature/bem-37-365-release-services-apk-manifest-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Reuse the Android release APK manifest checker from release-service audits.
+- Add `Android release APK manifest valid` and `Android release APK manifest errors` to Sentry, Firebase, and CodePush release summary artifacts.
+- Harden the Sentry, Firebase, and CodePush summary guards so release-service evidence cannot ignore invalid release APK manifests.
+- Make `CodePush release build evidence ready` require valid Android release summary evidence and valid release APK manifest proof.
+
+Findings:
+
+- `BEM-37.364` proved the generated release APK manifests directly, but Sentry/Firebase/CodePush summaries still only exposed Android release summary validity and current-input freshness.
+- After refreshing local Android release evidence, Sentry, Firebase, and CodePush summary artifacts all report Android release APK manifest proof as valid with `0` manifest errors.
+- CodePush update validation remains unclaimed because `.env.dev.testnet` has blank CodePush deployment keys and beta deployment-key strategy is still unconfirmed.
+- Sentry release upload validation remains unclaimed because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are not available locally.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn check:firebase-release-services-summary-guard`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.364 - Android release APK manifest guard
 
 - Branch: `feature/bem-37-364-android-release-apk-manifest-guard`
