@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.351 - iOS release readiness checkpoint
+
+- Branch: `feature/bem-37-351-ios-release-readiness-checkpoint`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the guarded iOS static release readiness audit on the current RN `0.85.3` modernization baseline.
+- Validate iOS schemes, plist release-service wiring, Sentry source-map/dSYM phases, CodePush placeholders, remote-notification plist coverage, and push notification bridge wiring.
+- Refresh ignored local evidence in `local-docs/ios-release-static-readiness-summary.txt`.
+
+Findings:
+
+- Static iOS release files are valid for the guarded baseline: RN minimum iOS `15.1`, minimum Xcode `16.1`, Podfile platform `15.1`, 8 guarded schemes, 4 Sentry bundle/source-map phases, 3 Sentry dSYM phases, 3 CodePush plist placeholders, and 4 remote-notification plists.
+- iOS archive/runtime delivery is still not claimed on this Windows machine because `xcodebuild` requires macOS with Xcode.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh. Current drift includes React-Core `0.65.3`, removed `react-native-camera`, removed `react-native-qrcode-local-image`, removed `RNCMaskedView`, removed Flipper pods, and stale native pod versions for BootSplash, Config, AsyncStorage, DeviceInfo, FastImage, Firebase, Gesture Handler, Localize, Screens, Sentry, and VectorIcons.
+
+Validation:
+
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:ios-scheme-config`
+- `corepack yarn check:push-notification-ios-usage-scope`
+- `corepack yarn push-notification:bridge-audit`
+- `corepack yarn push-notification:bridge-check-summary`
+- `corepack yarn release-services:check-summaries`
+
 ### BEM-37.350 - Android release validation checkpoint
 
 - Branch: `feature/bem-37-350-android-release-validation-checkpoint`
