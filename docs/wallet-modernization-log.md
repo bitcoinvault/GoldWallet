@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.352 - React Native target nightly probe guard
+
+- Branch: `feature/bem-37-352-rn-target-nightly-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the React Native live target snapshot guard so it validates the npm `nightly` channel as a planning signal, not only `latest` and `next`.
+- Keep the current wallet baseline on `react-native@0.85.3` because npm `latest` still matches the installed RN line.
+- Refresh the ignored local live npm summary in `local-docs/rn-target-snapshot-current-summary.txt`.
+
+Findings:
+
+- Live npm metadata still matches the recorded snapshot: `latest` is `0.85.3`, `next` is `0.86.0-rc.3`, and `nightly` is `0.87.0-nightly-20260602-23ce90bd3`.
+- `next` remains a prerelease channel and `nightly` remains planning-only, so this branch does not change React Native package versions.
+- Future RN baseline work should continue from the current stable line and re-check live npm metadata at branch start.
+
+Validation:
+
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.351 - iOS release readiness checkpoint
 
 - Branch: `feature/bem-37-351-ios-release-readiness-checkpoint`

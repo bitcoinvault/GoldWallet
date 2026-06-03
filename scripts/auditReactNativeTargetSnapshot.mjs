@@ -13,6 +13,7 @@ export const expectedReactNativeTargetSnapshot = {
   currentNode: '22.18.0',
   npmLatestReactNative: '0.85.3',
   npmNextReactNative: '0.86.0-rc.3',
+  npmNightlyReactNative: '0.87.0-nightly-20260602-23ce90bd3',
   npmNextChannel: 'prerelease',
   defaultUpgradeChannel: 'latest',
   targetReactPeer: '^19.2.3',
@@ -26,6 +27,7 @@ export const requiredReactNativeTargetSnapshotSnippets = [
   ['docs/react-native-target-snapshot.md', 'Current repo Metro/dev Node runtime: `22.18.0`'],
   ['docs/react-native-target-snapshot.md', 'npm `latest`: `0.85.3`'],
   ['docs/react-native-target-snapshot.md', 'npm `next`: `0.86.0-rc.3`'],
+  ['docs/react-native-target-snapshot.md', 'npm `nightly`: `0.87.0-nightly-20260602-23ce90bd3`'],
   ['docs/react-native-target-snapshot.md', 'npm `next` channel classification: `prerelease`'],
   ['docs/react-native-target-snapshot.md', 'Default upgrade channel: `latest`'],
   ['docs/react-native-target-snapshot.md', 'React peer for `react-native@0.85.3`: `^19.2.3`'],
@@ -100,6 +102,7 @@ const printReport = environment => {
   console.log(`Current .nvmrc: ${environment.nvmrc || '<missing>'}`);
   console.log(`npm latest snapshot: react-native@${expectedReactNativeTargetSnapshot.npmLatestReactNative}`);
   console.log(`npm next snapshot: react-native@${expectedReactNativeTargetSnapshot.npmNextReactNative}`);
+  console.log(`npm nightly snapshot: react-native@${expectedReactNativeTargetSnapshot.npmNightlyReactNative}`);
   console.log(`Target React peer snapshot: ${expectedReactNativeTargetSnapshot.targetReactPeer}`);
   console.log(`Target Node engine snapshot: ${expectedReactNativeTargetSnapshot.targetNodeEngine}`);
 
