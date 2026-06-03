@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.335 - Rebranding release-config readiness
+
+- Branch: `feature/bem-37-335-rebranding-release-config-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a dedicated rebranding/release-config readiness audit before changing app identity, explorers, store metadata, or release-service wiring.
+- Map the current Android, iOS, JavaScript/runtime, env, explorer, asset, deep-link, and Fastlane metadata surfaces touched by a GoldWallet rebrand.
+- Keep the branch docs-only so runtime behavior, package identifiers, bundle identifiers, assets, and env values remain unchanged.
+
+Findings:
+
+- Rebrand is a release-config change, not only a UI/name change: Android package IDs, iOS bundle IDs, Firebase configs, Sentry DSNs, CodePush keys, env `APP_ID`, `APPLICATION_NAME`, `EXPLORER_URL`, deep links, fastlane metadata, and logo assets must move together.
+- Android currently uses `io.goldwallet.wallet` namespace/build config package, per-flavor app IDs, native app names, flavor-specific Firebase JSON files, and `goldwallet` deep-link scheme.
+- iOS currently uses `GoldWallet` schemes, `com.minebest.goldwalletbtcv` bundle IDs, `goldwallet` and `lapp` URL schemes, release-service placeholders, and dev/stage/prod Firebase plists.
+- Beta remains a decision point: beta env files do not currently require CodePush deployment keys, and iOS beta behavior differs from dev/stage/prod Firebase plist handling.
+- Explorer/Electrum changes must be validated separately from visual rebrand because they affect network routing, transaction links, address behavior, and funded-flow confidence.
+
+Validation:
+
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:android-env-config-files`
+- `corepack yarn check:ios-scheme-config`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit` passed with the existing baseline count: 35357 errors, 0 warnings.
+- `git diff --check` passed through `android:dev:check-light` with only existing CRLF normalization warnings.
+
 ### BEM-37.334 - React Native latest target probe
 
 - Branch: `feature/bem-37-334-rn-latest-target-probe`
