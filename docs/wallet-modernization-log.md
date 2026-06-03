@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.343 - Axios latest runtime update
+
+- Branch: `feature/bem-37-343-axios-latest-runtime-update`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the API HTTP client dependency from `axios@1.16.1` to the current live npm `latest`, `axios@1.17.0`.
+- Keep the existing React Native Metro workaround in `src/api/client.ts`, which imports the browser CJS bundle instead of the default axios export.
+- Avoid mixing this runtime dependency update with React, CodePush, Sentry, or scanner changes.
+
+Findings:
+
+- `npm view axios@1.17.0 version engines peerDependencies dependencies dist-tags --json` reports `1.17.0` as npm `latest`.
+- Axios is still used through the narrow API client wrapper in `src/api/client.ts`.
+- `node -e "const axios=require('axios/dist/browser/axios.cjs'); console.log(axios.VERSION); console.log(typeof axios.create);"` reports `1.17.0` and `function`, so the Metro-safe CJS entrypoint remains present after the package update.
+
+Validation:
+
+- `npm view axios@1.17.0 version engines peerDependencies dependencies dist-tags --json`
+- `corepack yarn add axios@1.17.0`
+- `node -e "const axios=require('axios/dist/browser/axios.cjs'); console.log(axios.VERSION); console.log(typeof axios.create);"`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.342 - React Native target live refresh
 
 - Branch: `feature/bem-37-342-rn-target-live-refresh`

@@ -282,7 +282,7 @@
     "@react-navigation/stack": "7.9.3",
     "@sentry/react-native": "8.13.0",
     "@std/esm": "^0.26.0",
-    "axios": "1.16.1",
+    "axios": "1.17.0",
     "bigi": "1.4.2",
     "bignumber.js": "11.1.2",
     "bip21": "3.0.0",
