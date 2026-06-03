@@ -27,6 +27,7 @@ const notReadySummary = [
   'Android release summary variants: dev, stage, prod, beta',
   'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
@@ -79,6 +80,7 @@ const readySummary = [
   'Android release summary variants: dev, stage, prod, beta',
   'Android release summary required variants covered: yes',
   'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
   'Android release summary errors: 0',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
@@ -234,6 +236,11 @@ assertRejected(
   'Missing release variant fixture',
   notReadySummary.replace('Android release summary variants: dev, stage, prod, beta', 'Android release summary variants: dev, stage, prod'),
   'beta release evidence',
+);
+assertRejected(
+  'Stale Android release inputs fixture',
+  notReadySummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
+  'current release inputs',
 );
 assertRejected(
   'Missing required action fixture',
