@@ -199,6 +199,8 @@
     "check:ios-scheme-config": "node scripts/checkIosSchemeConfig.mjs",
     "check:explorer-env-config-readiness-guard": "node scripts/checkExplorerEnvConfigReadinessGuard.mjs",
     "check:explorer-env-config-readiness": "node scripts/checkExplorerEnvConfigReadiness.mjs",
+    "check:store-metadata-readiness-guard": "node scripts/checkStoreMetadataReadinessGuard.mjs",
+    "check:store-metadata-readiness": "node scripts/checkStoreMetadataReadiness.mjs",
     "check:storage-network-usage-guard": "node scripts/checkStorageNetworkUsageGuard.mjs",
     "check:storage-network-usage": "node scripts/checkStorageNetworkUsage.mjs",
     "check:storage-network-validation-scripts-guard": "node scripts/checkStorageNetworkValidationScriptsGuard.mjs",
