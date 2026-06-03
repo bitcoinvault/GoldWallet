@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.344 - Git dependency live snapshot
+
+- Branch: `feature/bem-37-344-git-dependency-live-snapshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a repo-owned live snapshot audit for direct git/GitHub dependencies that `yarn outdated` reports as exotic.
+- Track wallet-critical fork and native-tooling hashes for `bitcoinjs-lib`, `electrum-client`, `react-native-prompt-android`, and `rn-nodeify`.
+- Keep this as an audit/guard branch only; no package versions or runtime code are changed.
+
+Findings:
+
+- `bitcoinjs-lib` remains pinned to BitcoinVault fork commit `0854f675114fada32348d51c80a6ccdb33afc360`, matching the current remote `master` head.
+- `electrum-client` lockfile hash `d4b653dd9c505b04b3132b9bc49450f00cad0f17` matches the current `bitcoinvault/rn-electrum-client` remote `master` head.
+- `react-native-prompt-android` lockfile hash `87bf3adb5f22b4d1ecaa517e93347101372398f5` matches its current remote `master` head and remains wallet-critical for encrypted-storage prompts.
+- `rn-nodeify` lockfile hash `338d8d6ba8438403093e9409e9a9d88ad884926f` matches the current `tradle/rn-nodeify` remote `master` head.
+
+Validation:
+
+- `git ls-remote https://github.com/bitcoinvault/bitcoinjs-lib.git refs/heads/master`
+- `git ls-remote https://github.com/bitcoinvault/rn-electrum-client.git HEAD refs/heads/master refs/heads/main`
+- `git ls-remote https://github.com/marcosrdz/react-native-prompt-android.git HEAD refs/heads/master refs/heads/main`
+- `git ls-remote https://github.com/tradle/rn-nodeify.git HEAD refs/heads/master refs/heads/main`
+- `corepack yarn git-deps:snapshot:audit`
+- `corepack yarn git-deps:snapshot:check-summary`
+- `corepack yarn check:git-deps-snapshot-summary-guard`
+
 ### BEM-37.343 - Axios latest runtime update
 
 - Branch: `feature/bem-37-343-axios-latest-runtime-update`
