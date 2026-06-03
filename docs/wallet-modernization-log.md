@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.337 - Store metadata readiness
+
+- Branch: `feature/bem-37-337-store-metadata-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a store metadata readiness audit before changing app names, privacy/support URLs, screenshots, icons, or localized store copy.
+- Add a guard that verifies the current iOS Fastlane metadata tree, localized metadata files, pre-rebrand GoldWallet URL/name baseline, and Android playstore icon presence.
+- Keep runtime behavior and store copy unchanged while making store metadata a separate rebranding workstream.
+
+Findings:
+
+- iOS Fastlane metadata exists for 8 locales: `da`, `en-US`, `es-ES`, `no`, `pt-BR`, `pt-PT`, `ru`, and `sv`.
+- Current localized app names still include `GoldWallet`; privacy URLs still point to `goldwallet.io`; support URLs still point to GitHub GoldWallet issues.
+- Android store metadata is not represented by a dedicated Fastlane metadata tree in this repo; only `android/app/src/main/ic_launcher-playstore.png` is visible as a store-facing Android asset.
+- Store metadata must move with rebrand, explorer/network wording, support/privacy URLs, screenshots, and legal/copyright decisions.
+
+Validation:
+
+- `corepack yarn check:store-metadata-readiness-guard`
+- `corepack yarn check:store-metadata-readiness`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit` passed with the existing baseline count: 35357 errors, 0 warnings.
+- `git diff --check` passed through `android:dev:check-light` with only existing CRLF normalization warnings.
+
 ### BEM-37.336 - Explorer env alignment readiness
 
 - Branch: `feature/bem-37-336-explorer-env-readiness`
