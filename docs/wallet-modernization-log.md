@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.367 - i18next runtime patch
+
+- Branch: `feature/bem-37-367-i18next-runtime-patch`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the direct `i18next` runtime dependency from `26.3.0` to the current checked npm latest `26.3.1`.
+- Keep `react-i18next` on `17.0.8` because it remains npm latest and already satisfies the `i18next >= 26.2.0` peer range.
+- Leave React and `react-test-renderer` on the React Native-coupled `19.2.3` line; `19.2.7` remains blocked by the current RN renderer coupling, not by this localization patch.
+
+Findings:
+
+- `npm outdated --json` showed `i18next` as the only actionable runtime patch drift outside the known React coupling blocker.
+- `npm view i18next version peerDependencies dependencies --json` reported latest `26.3.1` with TypeScript `^5 || ^6` peer compatibility.
+- `npm view react-i18next version peerDependencies dependencies --json` reported `17.0.8` as latest with `i18next >= 26.2.0`, so no companion `react-i18next` update was needed.
+
+Validation:
+
+- `corepack yarn add i18next@26.3.1`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `node scripts/androidSmokeDevEmbedded.mjs`
+
 ### BEM-37.366 - Camera QR live target proof
 
 - Branch: `feature/bem-37-366-camera-qr-live-target-proof`
