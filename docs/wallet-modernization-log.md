@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.330 - Secure-storage migration readiness refresh
+
+- Branch: `feature/bem-37-330-secure-storage-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live npm/latest metadata for the current secure-storage packages after the RN `0.85.3` baseline.
+- Refresh the storage/native compatibility audit and Android warning follow-up date to `2026-06-03`.
+- Keep `react-native-secure-key-store` in place because legacy fallback reads are still active for existing encrypted wallet data.
+
+Findings:
+
+- `react-native-keychain@10.0.0` is still npm `latest` and remains the primary secure-storage write backend.
+- `react-native-secure-key-store@2.0.10` is still npm `latest` and remains required as a staged fallback-read backend until a release validates migrated PIN, transaction-password, and encrypted wallet data without the legacy backend.
+- `corepack yarn secure-storage:migration:audit` reports Keychain primary writes enabled, legacy writes disabled, fallback reads active, and zero errors.
+- Removing the legacy package now would be premature because it would drop the current fallback path before real migrated-wallet validation.
+
+Validation:
+
+- `npm view react-native-keychain version dist-tags peerDependencies engines --json`
+- `npm view react-native-secure-key-store version dist-tags peerDependencies engines --json`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+
 ### BEM-37.329 - Wallet crypto runtime checkpoint refresh
 
 - Branch: `feature/bem-37-329-wallet-crypto-runtime-refresh`

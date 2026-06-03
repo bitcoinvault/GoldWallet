@@ -2,7 +2,7 @@
 
 This document tracks the remaining Android Gradle warning sources after the RN `0.85.3` baseline proof and cleanup stream.
 
-Checked on: 2026-05-29
+Checked on: 2026-06-03
 
 ## Current Baseline
 
@@ -22,7 +22,7 @@ Remaining targeted sources:
 - Do not patch `node_modules` to hide these warnings.
 - `react-native-camera` was removed in the CameraKit QR scanner migration branch; keep future scanner changes under the guarded QR screen contract.
 - `@react-native-community/masked-view` was removed by the React Navigation 7 migration proof; keep future navigation changes guarded by dashboard, tab, stack, modal, and back-navigation smoke checks.
-- Do not remove `react-native-secure-key-store` until a release validates migrated secure values without the fallback backend; new writes no longer dual-write to the legacy store, but fallback reads still protect existing installs.
+- Do not remove `react-native-secure-key-store` until a release validates migrated secure values without the fallback backend; new writes no longer dual-write to the legacy store, but fallback reads still protect existing installs. The 2026-06-03 secure-storage readiness refresh keeps this as the only targeted Android warning source.
 
 ## Validation
 
