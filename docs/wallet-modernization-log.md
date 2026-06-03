@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.362 - iOS removed pod lockfile cleanup
+
+- Branch: `feature/bem-37-362-ios-removed-podlock-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove stale `RNCMaskedView` and Flipper debug-stack entries from `ios/Podfile.lock`.
+- Remove Flipper-only transitive lockfile entries that no longer have an active dependency path.
+- Refresh iOS release readiness guards and docs so the remaining drift is limited to older active pods plus the stale React-Core baseline.
+
+Findings:
+
+- `ios:release:readiness:audit` still reported removed `RNCMaskedView` and Flipper pods after the app-side migrations were already complete.
+- `libevent` remains in `ios/Podfile.lock` because it is still required by `RCT-Folly/Futures`; `OpenSSL-Universal` and `YogaKit` were Flipper-only in the current lockfile.
+- This branch does not claim iOS archive readiness on Windows; the lockfile still needs a macOS `pod install` refresh for active pod versions.
+
+Validation:
+
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:flipper-removal`
+- `corepack yarn check:masked-view-migration-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.361 - iOS camera Podfile.lock cleanup
 
 - Branch: `feature/bem-37-361-ios-camera-podlock-cleanup`
