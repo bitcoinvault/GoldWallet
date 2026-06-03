@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.329 - Wallet crypto runtime checkpoint refresh
+
+- Branch: `feature/bem-37-329-wallet-crypto-runtime-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live npm/latest metadata for wallet-critical crypto and transaction-building dependencies after the current RN `0.85.3` baseline.
+- Re-check the BitcoinVault `bitcoinjs-lib` fork `master` HEAD.
+- Refresh the wallet crypto runtime audit date to `2026-06-03` without changing package versions.
+
+Findings:
+
+- Direct wallet crypto dependencies remain current: `bip39@3.1.0`, `bip32@5.0.1`, `coinselect@3.1.13`, `ecurve@1.0.6`, `bigi@1.4.2`, `pbkdf2@3.1.6`, `wif@5.0.0`, `@bitcoinerlab/secp256k1@1.2.0`, `react-native-randombytes@3.6.2`, and `crypto-js@4.2.0`.
+- Upstream npm `bitcoinjs-lib@7.0.1` remains a separate compatibility target; the app still intentionally uses the pinned BitcoinVault fork because BTCV-specific network and transaction behavior is wallet-critical.
+- `git ls-remote https://github.com/bitcoinvault/bitcoinjs-lib.git refs/heads/master` still resolves to `0854f675114fada32348d51c80a6ccdb33afc360`, matching the pinned dependency.
+- The BTCV fork still resolves nested `wif@2.0.6` and transitive `bech32@1.1.4`; direct `bech32` remains absent.
+
+Validation:
+
+- `npm view bip39 version dist-tags engines dependencies peerDependencies --json`
+- `npm view bip32 version dist-tags engines dependencies peerDependencies --json`
+- `npm view coinselect version dist-tags engines dependencies peerDependencies --json`
+- `npm view ecurve version dist-tags engines dependencies peerDependencies --json`
+- `npm view bigi version dist-tags engines dependencies peerDependencies --json`
+- `npm view pbkdf2 version dist-tags engines dependencies peerDependencies --json`
+- `npm view wif version dist-tags engines dependencies peerDependencies --json`
+- `npm view @bitcoinerlab/secp256k1 version dist-tags engines dependencies peerDependencies --json`
+- `npm view react-native-randombytes version dist-tags engines dependencies peerDependencies --json`
+- `npm view crypto-js version dist-tags engines dependencies peerDependencies --json`
+- `npm view bitcoinjs-lib version dist-tags engines dependencies peerDependencies --json`
+- `git ls-remote https://github.com/bitcoinvault/bitcoinjs-lib.git refs/heads/master`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn crypto-js:runtime:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:watchonly:offline`
+- `corepack yarn test:hdwallet:offline`
+
 ### BEM-37.328 - React RN coupling checkpoint refresh
 
 - Branch: `feature/bem-37-328-react-coupling-refresh`
