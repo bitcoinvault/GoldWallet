@@ -10,7 +10,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
-export const cameraCandidateMetadataCheckedOn = '2026-05-31';
+export const cameraCandidateMetadataCheckedOn = '2026-06-03';
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const expectedCameraMetadata = {
   legacyCameraLatest: 'react-native-camera@4.2.1',
