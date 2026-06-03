@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.357 - Sentry properties generator preflight integration
+
+- Branch: `feature/bem-37-357-sentry-generator-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire `check:sentry-properties-generator` into `rn:baseline:preflight` before the Sentry release prerequisite audit.
+- Update the React Native upgrade-path guard so future RN baseline branches require this Sentry generator validation.
+- Refresh the Android modernization workflow description for the expanded RN baseline preflight.
+
+Findings:
+
+- The Sentry properties generator was available as a package script, but the main RN baseline preflight did not yet execute its temp-root, missing-token, and secret-safe output checks.
+- Sentry release upload validation still remains not claimed until `SENTRY_AUTH_TOKEN` and generated Sentry properties files are available.
+
+Validation:
+
+- `corepack yarn check:sentry-properties-generator`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.356 - Sentry properties package script readiness
 
 - Branch: `feature/bem-37-356-sentry-properties-package-script`
