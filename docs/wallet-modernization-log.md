@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.354 - Sentry properties generator readiness
+
+- Branch: `feature/bem-37-354-sentry-properties-generator`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a cross-platform Node Sentry properties generator for Windows/CI release setup without committing any generated Sentry secrets or properties files.
+- Keep the existing bash generator available, but make `scripts/createSentryProperties.mjs` the guarded temp-root path for local validation.
+- Extend the Sentry release prerequisite summary so it records the Node generator readiness alongside the existing shell generator readiness.
+
+Findings:
+
+- Sentry SDK and CLI packages are already current; this branch improves the release prerequisite path rather than changing dependency versions.
+- The Node generator requires `SENTRY_AUTH_TOKEN`, supports `SENTRY_ORG` and `SENTRY_PROJECT` overrides, writes root/Android/iOS `sentry.properties`, and supports `--root` so guard tests can validate output outside the repo.
+- The generator guard verifies that missing-token execution fails before writing files and that command output does not print token values.
+
+Validation:
+
+- `corepack yarn check:sentry-properties-generator`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.353 - Release services latest snapshot refresh
 
 - Branch: `feature/bem-37-353-release-services-snapshot-refresh`
