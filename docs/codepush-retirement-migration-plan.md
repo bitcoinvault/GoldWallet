@@ -27,6 +27,9 @@ The guarded local audit now records:
 corepack yarn codepush:release:path-audit
 corepack yarn codepush:release:path-check-summary
 corepack yarn check:codepush-release-path-summary-guard
+corepack yarn codepush:migration:readiness-audit
+corepack yarn codepush:migration:readiness-check-summary
+corepack yarn check:codepush-migration-readiness-summary-guard
 ```
 
 Expected summary claims:
@@ -42,6 +45,9 @@ Expected summary claims:
 - CodePush runtime enabled by default is recorded as `no`;
 - Android release build evidence is recorded separately from CodePush update validation;
 - local Android release evidence currently covers `dev`, `stage`, and `prod` release variants;
+- the migration readiness summary records the current posture as temporary legacy compatibility;
+- the long-term options are recorded as remove or replace;
+- the readiness guard keeps the migration/removal decision visible even while the package remains on npm latest;
 - no deployment key values are printed.
 
 ## Decision Needed
