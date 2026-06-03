@@ -2,6 +2,27 @@ import { createHash } from 'crypto';
 import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 
+export const androidReleaseFingerprintInputs = [
+  'package.json',
+  'yarn.lock',
+  'android/build.gradle',
+  'android/app/build.gradle',
+  'android/gradle.properties',
+  'android/gradle/wrapper/gradle-wrapper.properties',
+  'android/app/src/main/AndroidManifest.xml',
+  'android/app/src/main/java/io/goldwallet/wallet/MainApplication.java',
+  'android/app/src/main/res/values/strings.xml',
+  'android/app/src/beta/google-services.json',
+  'android/app/src/dev/google-services.json',
+  'android/app/src/prod/google-services.json',
+  'android/app/src/stage/google-services.json',
+  '.env.beta.mainnet',
+  '.env.beta.testnet',
+  '.env.dev.testnet',
+  '.env.prod.mainnet',
+  '.env.stage.mainnet',
+];
+
 const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
 
@@ -15,6 +36,27 @@ const isNonNegativeInteger = value => /^\d+$/.test(value);
 const isSha256 = value => /^[a-f0-9]{64}$/.test(value);
 const sha256File = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
 
+export const getAndroidReleaseInputFingerprint = (root = process.cwd(), inputs = androidReleaseFingerprintInputs) => {
+  const hash = createHash('sha256');
+
+  inputs.forEach(relativePath => {
+    const absolutePath = path.join(root, relativePath);
+
+    hash.update(relativePath.replaceAll(path.sep, '/'));
+    hash.update('\0');
+
+    if (existsSync(absolutePath)) {
+      hash.update(readFileSync(absolutePath));
+    } else {
+      hash.update('<missing>');
+    }
+
+    hash.update('\0');
+  });
+
+  return hash.digest('hex');
+};
+
 export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), options = {}) => {
   const errors = [];
   const expectedVariants = options.expectedVariants || ['dev', 'stage', 'prod', 'beta'];
@@ -26,6 +68,9 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
   const requiredAction = getLineValue(summary, 'Required Sentry upload follow-up');
   const javaExecutable = getLineValue(summary, 'Java executable');
   const javaVersion = getLineValue(summary, 'Java version');
+  const releaseInputFingerprint = getLineValue(summary, 'Release input fingerprint');
+  const releaseInputFingerprintFiles = getLineValue(summary, 'Release input fingerprint files');
+  const currentReleaseInputFingerprint = getAndroidReleaseInputFingerprint(root);
 
   if (!summary.startsWith('Android release validation')) {
     errors.push('summary header is missing or invalid');
@@ -54,6 +99,20 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
 
   if (!isPositiveInteger(variantCount) || Number(variantCount) !== expectedVariants.length) {
     errors.push(`Variant count must be ${expectedVariants.length}. Received: ${variantCount || 'missing'}`);
+  }
+
+  if (!isSha256(releaseInputFingerprint)) {
+    errors.push(`Release input fingerprint must be a lowercase SHA-256 digest. Received: ${releaseInputFingerprint || 'missing'}`);
+  } else if (releaseInputFingerprint !== currentReleaseInputFingerprint) {
+    errors.push('Release input fingerprint does not match current release inputs; rerun android:dev:release:validate-local');
+  }
+
+  if (!isPositiveInteger(releaseInputFingerprintFiles) || Number(releaseInputFingerprintFiles) !== androidReleaseFingerprintInputs.length) {
+    errors.push(
+      `Release input fingerprint files must be ${androidReleaseFingerprintInputs.length}. Received: ${
+        releaseInputFingerprintFiles || 'missing'
+      }`,
+    );
   }
 
   expectedVariants.forEach(variant => {

@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.358 - Android release summary fingerprint guard
+
+- Branch: `feature/bem-37-358-android-release-summary-fingerprint`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a release-input fingerprint to `android:dev:release:validate-local` summaries.
+- Make `android:dev:release:check-summary` reject stale release summaries when current release inputs no longer match the recorded fingerprint.
+- Refresh the Android modernization workflow so future release proof branches know the local summary must prove both APK artifacts and current release inputs.
+
+Findings:
+
+- The Android release summary already validated APK existence, byte counts, SHA-256 digests, JDK 17, and Sentry upload not-claimed status.
+- Before this guard, release-services audits could still treat an old local APK summary as valid after package, Gradle, env, or native release config changed.
+
+Validation:
+
+- `corepack yarn check:android-release-summary-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.357 - Sentry properties generator preflight integration
 
 - Branch: `feature/bem-37-357-sentry-generator-preflight`
