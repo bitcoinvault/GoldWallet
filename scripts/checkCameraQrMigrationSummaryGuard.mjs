@@ -8,6 +8,11 @@ const validSummary = [
   'QR local-image manifest version: <missing>',
   'QR renderer version: 6.3.21',
   'qrcode resolution: 1.5.4',
+  'CameraKit latest target: react-native-camera-kit@18.0.0',
+  'QR renderer latest target: react-native-qrcode-svg@6.3.21',
+  'QR encoder latest target: qrcode@1.5.4',
+  'Live QR targets: matched',
+  'Live QR target issues: 0',
   'iOS Podfile.lock refresh required: no',
   'iOS stale removed camera pods: none',
   'Camera QR migration wiring valid: yes',
@@ -28,6 +33,12 @@ const invalidSummary = [
   'QR local-image manifest version: 1.0.4',
   'QR renderer version: 6.3.21',
   'qrcode resolution: 1.5.4',
+  'CameraKit latest target: react-native-camera-kit@18.0.0',
+  'QR renderer latest target: react-native-qrcode-svg@6.3.21',
+  'QR encoder latest target: qrcode@1.5.4',
+  'Live QR targets: stale',
+  'Live QR target issues: 1',
+  '- CameraKit latest live npm metadata is react-native-camera-kit@19.0.0; expected react-native-camera-kit@18.0.0',
   'iOS Podfile.lock refresh required: yes',
   'iOS stale removed camera pods: react-native-camera, react-native-qrcode-local-image',
   'Camera QR migration wiring valid: no',
@@ -70,6 +81,19 @@ assertRejected(
   'Missing iOS pod refresh fixture',
   invalidSummary.replace('iOS Podfile.lock refresh required: yes', 'iOS Podfile.lock refresh required: no'),
   'stale removed camera pods must be none',
+);
+assertRejected(
+  'Stable stale live QR target fixture',
+  validSummary.replace(
+    'Live QR targets: matched\nLive QR target issues: 0',
+    'Live QR targets: stale\nLive QR target issues: 1\n- QR renderer latest live npm metadata is react-native-qrcode-svg@7.0.0; expected react-native-qrcode-svg@6.3.21',
+  ),
+  'matched live QR targets',
+);
+assertRejected(
+  'Bad live QR target count fixture',
+  validSummary.replace('Live QR target issues: 0', 'Live QR target issues: 1'),
+  'Live QR target issues count',
 );
 assertRejected(
   'Missing iOS stale pod list fixture',
