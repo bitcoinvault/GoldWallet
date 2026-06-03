@@ -73,7 +73,7 @@ async function connectMain() {
 
     mainClient.onConnect = () => onConnect();
 
-    mainClient.onError = function(e) {
+    mainClient.onError = function (e) {
       logger.error({
         message: e.message,
         category: 'BlueElectrum',
@@ -102,30 +102,30 @@ async function connectMain() {
 
   if (!mainConnected) {
     await wait(50);
-    await connectMain;
+    await connectMain();
   }
 }
 
-module.exports.getBlockchainHeaders = function() {
+module.exports.getBlockchainHeaders = function () {
   return mainClient.blockchainHeaders_subscribe();
 };
 
-module.exports.subscribe = function(event, handler) {
+module.exports.subscribe = function (event, handler) {
   return mainClient.subscribe.on(event, handler);
 };
 
-module.exports.unsubscribe = function(event) {
+module.exports.unsubscribe = function (event) {
   return mainClient.subscribe.off(event);
 };
 
-module.exports.subscribeToOnConnect = function(handler) {
+module.exports.subscribeToOnConnect = function (handler) {
   mainClient.onConnect = () => {
     onConnect();
     handler();
   };
 };
 
-module.exports.subscribeToOnClose = function(handler) {
+module.exports.subscribeToOnClose = function (handler) {
   mainClient.onConnectionClose = () => {
     onClose();
     handler();
@@ -139,7 +139,7 @@ connectMain();
  * @param address {String}
  * @returns {Promise<Object>}
  */
-module.exports.getBalanceByAddress = async function(address) {
+module.exports.getBalanceByAddress = async function (address) {
   try {
     if (!mainConnected) throw new AppErrors.ElectrumXConnectionError();
     const script = bitcoin.address.toOutputScript(address, config.network);
@@ -157,7 +157,7 @@ module.exports.getBalanceByAddress = async function(address) {
   }
 };
 
-module.exports.getConfig = async function() {
+module.exports.getConfig = async function () {
   try {
     if (!mainConnected) throw new AppErrors.ElectrumXConnectionError();
     return {
@@ -178,7 +178,7 @@ module.exports.getConfig = async function() {
  * @param address {String}
  * @returns {Promise<Array>}
  */
-module.exports.getTransactionsByAddress = async function(address) {
+module.exports.getTransactionsByAddress = async function (address) {
   try {
     if (!mainConnected) throw new AppErrors.ElectrumXConnectionError();
     const script = bitcoin.address.toOutputScript(address, config.network);
@@ -195,7 +195,7 @@ module.exports.getTransactionsByAddress = async function(address) {
   }
 };
 
-module.exports.ping = async function() {
+module.exports.ping = async function () {
   try {
     await mainClient.server_ping();
   } catch (_) {
@@ -206,7 +206,7 @@ module.exports.ping = async function() {
   return true;
 };
 
-module.exports.multiGetTransactionsFullByTxid = async function(txIds) {
+module.exports.multiGetTransactionsFullByTxid = async function (txIds) {
   try {
     const txs = await this.multiGetTransactionByTxid(uniq(txIds));
 
@@ -269,7 +269,7 @@ module.exports.unsubscribeFromSriptHashes = scriptHashes => {
  * @param batchsize {Number}
  * @returns {Promise<{balance: number, unconfirmed_balance: number, addresses: object}>}
  */
-module.exports.multiGetBalanceByAddress = async function(addresses, batchsize) {
+module.exports.multiGetBalanceByAddress = async function (addresses, batchsize) {
   try {
     batchsize = batchsize || 100;
     if (!mainConnected) throw new AppErrors.ElectrumXConnectionError();
@@ -311,7 +311,7 @@ module.exports.multiGetBalanceByAddress = async function(addresses, batchsize) {
   }
 };
 
-module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
+module.exports.multiGetUtxoByAddress = async function (addresses, batchsize) {
   try {
     batchsize = batchsize || 100;
     if (!mainConnected) throw new AppErrors.ElectrumXConnectionError();
@@ -356,7 +356,7 @@ module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
   }
 };
 
-module.exports.multiGetHistoryByAddress = async function(addresses, batchsize) {
+module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) {
   try {
     batchsize = batchsize || 100;
     if (!mainConnected) throw new AppErrors.ElectrumXConnectionError();
@@ -397,7 +397,7 @@ module.exports.multiGetHistoryByAddress = async function(addresses, batchsize) {
   }
 };
 
-module.exports.multiGetTransactionByTxid = async function(txids, batchsize, verbose) {
+module.exports.multiGetTransactionByTxid = async function (txids, batchsize, verbose) {
   try {
     batchsize = batchsize || 100;
     verbose = verbose !== false;
@@ -429,7 +429,7 @@ module.exports.multiGetTransactionByTxid = async function(txids, batchsize, verb
  *
  * @returns {Promise<Promise<*> | Promise<*>>}
  */
-module.exports.waitTillConnected = async function() {
+module.exports.waitTillConnected = async function () {
   try {
     const retriesMax = 30;
 
@@ -449,7 +449,7 @@ module.exports.waitTillConnected = async function() {
   }
 };
 
-module.exports.estimateFees = async function() {
+module.exports.estimateFees = async function () {
   try {
     if (!mainConnected) throw new AppErrors.ElectrumXConnectionError();
     let fast = await mainClient.blockchainEstimatefee(1);
@@ -474,19 +474,14 @@ module.exports.estimateFees = async function() {
  * @param numberOfBlocks {number} The number of blocks to target for confirmation
  * @returns {Promise<number>} Satoshis per byte
  */
-module.exports.estimateFee = async function(numberOfBlocks) {
+module.exports.estimateFee = async function (numberOfBlocks) {
   try {
     if (!mainConnected) throw new AppErrors.ElectrumXConnectionError();
     numberOfBlocks = numberOfBlocks || 1;
     const coinUnitsPerKilobyte = await mainClient.blockchainEstimatefee(numberOfBlocks);
 
     if (coinUnitsPerKilobyte < 1) return 1;
-    return Math.round(
-      new BigNumber(coinUnitsPerKilobyte)
-        .dividedBy(1024)
-        .multipliedBy(100000000)
-        .toNumber(),
-    );
+    return Math.round(new BigNumber(coinUnitsPerKilobyte).dividedBy(1024).multipliedBy(100000000).toNumber());
   } catch (error) {
     logger.error({
       message: error.message,
@@ -509,7 +504,7 @@ module.exports.getDustValue = async () => {
   }
 };
 
-module.exports.broadcast = async function(hex) {
+module.exports.broadcast = async function (hex) {
   try {
     if (!mainConnected) throw new AppErrors.ElectrumXConnectionError();
     try {
@@ -543,7 +538,7 @@ module.exports.broadcast = async function(hex) {
  * @param tcpPort
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
-module.exports.testConnection = async function(host, tcpPort) {
+module.exports.testConnection = async function (host, tcpPort) {
   const client = new ElectrumClient(tcpPort, host, 'tcp');
 
   try {
@@ -564,7 +559,7 @@ module.exports.forceDisconnect = () => {
 
 module.exports.hardcodedPeers = hardcodedPeers;
 
-const splitIntoChunks = function(arr, chunkSize) {
+const splitIntoChunks = function (arr, chunkSize) {
   const groups = [];
   let i;
 

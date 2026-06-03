@@ -15432,3 +15432,33 @@ Validation:
 - `corepack yarn lint:baseline:audit`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
+
+### BEM-37.369 - Electrum reconnect invocation fix
+
+- Branch: `feature/bem-37-369-electrum-reconnect-invoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Fix the failed Electrum reconnect path so the retry branch invokes `connectMain()` after a failed initial connection instead of awaiting the function reference.
+- Add a focused unit regression test that mocks the Electrum client and proves the first failed connection attempt is followed by a second client initialization.
+
+Findings:
+
+- `BlueElectrum.js` used `await connectMain;` after `wait(50)`, which does not call the retry function.
+- This could leave the wallet waiting on the normal 30-second connection timeout path after an initial Electrum failure instead of immediately retrying another configured host.
+
+Validation:
+
+- `node node_modules/jest/bin/jest.js tests/unit/BlueElectrum.test.js --runInBand --forceExit`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `npx eslint tests\unit\BlueElectrum.test.js`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
