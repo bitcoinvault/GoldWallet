@@ -13,6 +13,7 @@ const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release
 export const requiredSentryPropertiesFiles = ['sentry.properties', 'android/sentry.properties', 'ios/sentry.properties'];
 export const requiredSentryPropertiesKeys = ['defaults.url', 'defaults.org', 'defaults.project', 'auth.token'];
 export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod', 'beta'];
+const missingAndroidReleaseSummaryError = 'Android release summary artifact is missing';
 export const defaultSentryPropertiesValues = {
   'defaults.url': 'https://sentry.io/',
   'defaults.org': 'cloudbest',
@@ -136,13 +137,13 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   );
   const androidReleaseSummaryErrors = hasAndroidReleaseSummary
     ? getAndroidReleaseSummaryErrors(androidReleaseSummary, root, { expectedVariants: androidReleaseSummaryVariants })
-    : [];
+    : [missingAndroidReleaseSummaryError];
   const androidReleaseSummaryCurrentInputsCovered =
     hasAndroidReleaseSummary &&
     androidReleaseSummaryErrors.every(error => !error.includes('Release input fingerprint'));
   const androidReleaseApkManifestErrors = hasAndroidReleaseSummary
     ? getAndroidReleaseApkManifestErrors({ root, expectedVariants: androidReleaseSummaryVariants })
-    : [];
+    : [missingAndroidReleaseSummaryError];
 
   const hasCreateScript = existsSync(createScriptPath);
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';

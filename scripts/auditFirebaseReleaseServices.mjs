@@ -30,6 +30,7 @@ export const requiredFirebaseIosFiles = [
   'ios/GoogleService-Info.plist',
 ];
 export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod', 'beta'];
+const missingAndroidReleaseSummaryError = 'Android release summary artifact is missing';
 const getSummaryLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
 
@@ -163,9 +164,9 @@ export const collectFirebaseReleaseServicesAudit = () => {
     androidReleaseSummaryPresent = false;
     androidReleaseSummaryVariants = [];
     androidReleaseSummaryRequiredVariantsCovered = false;
-    androidReleaseSummaryErrors = [];
+    androidReleaseSummaryErrors = [missingAndroidReleaseSummaryError];
     androidReleaseSummaryCurrentInputsCovered = false;
-    androidReleaseApkManifestErrors = [];
+    androidReleaseApkManifestErrors = [missingAndroidReleaseSummaryError];
   }
 
   return {

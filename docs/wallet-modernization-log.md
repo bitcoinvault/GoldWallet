@@ -15399,3 +15399,36 @@ Validation:
 - `corepack yarn test:storage-network:focused`
 - `corepack yarn lint:baseline:audit`
 - `git diff --check`
+
+### BEM-37.368 - Release summary missing-evidence audit guard
+
+- Branch: `feature/bem-37-368-release-summary-missing-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make CodePush, Firebase, and Sentry release-service audits report a missing Android release summary as explicit release-summary and APK-manifest evidence errors.
+- Keep successful release-summary behavior unchanged when `local-docs/android-release-dev-summary.txt` is present and current.
+
+Findings:
+
+- The release-service audit scripts already blocked readiness when the Android release summary was missing, but the printed summary could still show zero summary/APK-manifest errors.
+- A missing release summary now reports `Android release summary artifact is missing` in the summary-error and APK-manifest-error sections.
+
+Validation:
+
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn sentry:release:prereq-audit`
+- Temporarily hid `local-docs/android-release-dev-summary.txt`, reran the three audits, and confirmed missing-summary output reports invalid Android release summary and invalid APK manifest evidence.
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
