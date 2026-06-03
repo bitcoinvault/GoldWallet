@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.353 - Release services latest snapshot refresh
+
+- Branch: `feature/bem-37-353-release-services-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check current release-service package targets before starting another release-service dependency branch.
+- Refresh the wallet baseline dependency-risk note so Firebase reflects the current checked latest package family instead of the older `12.7` planning note.
+- Refresh ignored release-service summaries in `local-docs/` for Sentry prerequisites, Firebase release services, and CodePush release path.
+
+Findings:
+
+- `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0` are still current npm latest versions.
+- `@react-native-firebase/app`, `analytics`, `crashlytics`, and `messaging` are aligned on the checked latest `24.0.0` package family.
+- `react-native-code-push@9.0.1` is still current npm latest, but App Center CodePush remains retired and upstream archived, so CodePush stays a migration/removal workstream rather than a normal package upgrade.
+- Android release APK evidence is available for `dev`, `stage`, `prod`, and `beta`.
+- Sentry source-map upload validation remains not claimed until `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are available.
+- CodePush update validation remains not claimed until deployment keys and the beta update strategy are available.
+- Firebase runtime delivery validation remains not claimed until FCM/Crashlytics/Analytics behavior is tested in the required runtime environment.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version engines --json`
+- `npm view @react-native-firebase/app version peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/messaging version peerDependencies dependencies engines --json`
+- `npm view react-native-code-push version dist-tags time --json`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn release-services:check-summaries`
+
 ### BEM-37.352 - React Native target nightly probe guard
 
 - Branch: `feature/bem-37-352-rn-target-nightly-probe`
