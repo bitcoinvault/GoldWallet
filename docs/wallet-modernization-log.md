@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.336 - Explorer env alignment readiness
+
+- Branch: `feature/bem-37-336-explorer-env-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a secret-safe explorer/env readiness audit before changing explorers, Electrum hosts, app IDs, or environment naming.
+- Add a guard that verifies tracked env files contain the required explorer/network key group without printing values.
+- Keep runtime behavior unchanged while making the explorer/env alignment workstream explicit after the rebranding release-config readiness audit.
+
+Findings:
+
+- All tracked env files must keep `APP_ID`, `APPLICATION_NAME`, `ENVIRONMENT`, `BTCV_NETWORK`, `HOSTS`, `PORT`, `PROTOCOL`, `ELECTRUM_X_PROTOCOL_VERSION`, and `EXPLORER_URL` aligned with `src/config/index.ts`.
+- Explorer changes are not visual-only changes; they affect transaction links, support/debug flows, Electrum connectivity expectations, network naming, and funded send/recovery validation.
+- BTCV/ELCASH split decisions cannot be made from env names alone; wallet model, address formats, explorers, terms copy, and store metadata must agree.
+- The new guard intentionally validates key presence and documentation snippets only, and does not print env values or secret-like release-service keys.
+
+Validation:
+
+- `corepack yarn check:explorer-env-config-readiness-guard`
+- `corepack yarn check:explorer-env-config-readiness`
+- `corepack yarn check:android-env-config-files`
+- `corepack yarn check:ios-scheme-config`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit` passed with the existing baseline count: 35357 errors, 0 warnings.
+- `git diff --check` passed through `android:dev:check-light` with only existing CRLF normalization warnings.
+
 ### BEM-37.335 - Rebranding release-config readiness
 
 - Branch: `feature/bem-37-335-rebranding-release-config-readiness`
