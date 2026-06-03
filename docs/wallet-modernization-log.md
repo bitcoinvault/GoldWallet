@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.333 - iOS release readiness refresh
+
+- Branch: `feature/bem-37-333-ios-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the guarded iOS release readiness audit after the current RN `0.85.3` and release-services baseline.
+- Refresh the iOS release-config compatibility audit with the current Podfile.lock drift evidence.
+- Keep iOS archive/runtime validation explicitly unclaimed on Windows.
+
+Findings:
+
+- Static iOS release files are valid: required workspace/project files, Info.plists, shared schemes, Firebase plist mapping, Sentry phases, CodePush placeholders, and iOS deployment target `15.1` are guarded.
+- React Native `0.85.3` reports minimum iOS `15.1` and minimum Xcode `16.1`; the Podfile and Xcode deployment targets are aligned to iOS `15.1`.
+- `ios/Podfile.lock` is still stale and has 16 drift issues, including React Native `0.65.3`, removed camera/QR/masked-view/Flipper pods, and older BootSplash, Config, AsyncStorage, DeviceInfo, FastImage, Firebase, Gesture Handler, Localize, Screens, Sentry, and VectorIcons pods.
+- `xcodebuild` is not available on this Windows machine, so iOS archive/simulator/runtime delivery validation remains blocked until macOS with Xcode runs `pod install` and validates an affected scheme.
+
+Validation:
+
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:ios-scheme-config`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+
 ### BEM-37.332 - CodePush retirement readiness refresh
 
 - Branch: `feature/bem-37-332-codepush-retirement-readiness-refresh`
