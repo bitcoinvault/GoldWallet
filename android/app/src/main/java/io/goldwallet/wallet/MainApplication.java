@@ -1,13 +1,11 @@
 package io.goldwallet.wallet;
 
 import android.app.Application;
-import android.content.Context;
 
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactHost;
 import com.facebook.react.ReactNativeApplicationEntryPoint;
-import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.defaults.DefaultReactHost;
@@ -16,8 +14,6 @@ import com.microsoft.codepush.react.CodePush;
 import io.goldwallet.PreventScreenshotPackage;
 import java.util.Collections;
 import java.util.List;
-import java.lang.reflect.InvocationTargetException;
-import okhttp3.OkHttpClient;
 
 public class MainApplication extends Application implements ReactApplication {  
   private ReactHost mReactHost;
@@ -108,38 +104,5 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
       super.onCreate();
       ReactNativeApplicationEntryPoint.loadReactNative(this);
-      // The legacy Flipper bootstrap references Fresco classes that are no longer
-      // bundled by the current RN debug runtime.
-    }
-  
-    /**
-     * Loads Flipper in React Native templates. Call this in the onCreate method with something like
-     * initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
-     *
-     * @param context
-     * @param reactInstanceManager
-     */
-    private static void initializeFlipper(
-        Context context, ReactInstanceManager reactInstanceManager) {
-      if (BuildConfig.DEBUG) {
-        try {
-          /*
-           We use reflection here to pick up the class that initializes
-           Flipper, since Flipper library is not available in release mode
-          */
-          Class<?> aClass = Class.forName("io.goldwallet.wallet.ReactNativeFlipper");
-          aClass
-              .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
-              .invoke(null, context, reactInstanceManager);
-        } catch (ClassNotFoundException e) {
-          e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-          e.printStackTrace();
-        } catch (IllegalAccessException e) {
-          e.printStackTrace();
-        } catch (InvocationTargetException e) {
-          e.printStackTrace();
-        }
-      }
     }
 }

@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.324 - Flipper debug stack removal
+
+- Branch: `feature/bem-37-324-flipper-stack-removal`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove the obsolete Flipper debug stack instead of bumping `react-native-flipper` to an incompatible latest line.
+- Drop `react-native-flipper`, `redux-flipper`, and `flipper-plugin-redux-debugger` from package dependencies and lockfile.
+- Remove Android Flipper Gradle dependencies, diagnostic activity, debug bootstrap source, and dead reflection code.
+- Remove iOS Flipper Podfile/AppDelegate wiring while leaving `ios/Podfile.lock` for the required macOS `pod install` refresh.
+- Remove the development-only Redux Flipper middleware and keep Redux DevTools extension support as the development enhancer path.
+- Add `check:flipper-removal` and include it in `android:dev:check-light`.
+
+Findings:
+
+- Live npm metadata reports `react-native-flipper@0.273.0` as `latest`, but it still peers React `^16.8.0 || ^17.0.0 || ^18.0.0`; the app is on React `19.2.3`.
+- `redux-flipper@2.0.3` is already latest but peers `react-native-flipper >=0.100.0`, so keeping it would retain the incompatible Flipper stack.
+- Android `MainApplication` already did not call the legacy Flipper bootstrap after the RN upgrade, so the remaining Android Flipper source/dependencies were dead debug wiring.
+- iOS runtime validation is not claimed on Windows; static cleanup removes Podfile/AppDelegate Flipper wiring, but `ios/Podfile.lock` still needs macOS refresh together with the existing stale pod drift.
+
+Validation:
+
+- `npm view react-native-flipper version versions engines peerDependencies dependencies deprecated dist-tags --json`
+- `npm view redux-flipper version peerDependencies dependencies engines dist-tags --json`
+- `npm view flipper-plugin-redux-debugger version peerDependencies dependencies engines dist-tags --json`
+- `corepack yarn remove react-native-flipper redux-flipper flipper-plugin-redux-debugger`
+- `corepack yarn check:flipper-removal`
+- `corepack yarn install`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit` (static iOS files valid; macOS `pod install`/archive still required; Podfile.lock drift now includes removed FlipperKit)
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:legacy-android-autolink`
+- `corepack yarn check:legacy-android-autolink-guard`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` (initial run failed because no Android device/emulator was connected; rerun passed on `emulator-5554`)
+- `corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.323 - Sentry release readiness checkpoint
 
 - Branch: `feature/bem-37-323-sentry-release-readiness-refresh`

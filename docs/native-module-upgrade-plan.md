@@ -115,6 +115,13 @@ Branch shape:
 - `react-native-version-number` is pinned to the already-resolved `0.3.6` after `BEM-36.69`; future app metadata work should validate displayed/build version behavior on both platforms.
 - `react-native-webview` is on latest checked `13.16.1` after `BEM-37.162`; future WebView work should focus on Terms screens validation, release builds, and the next RN baseline.
 
+### Debug Tooling Removed From Runtime
+
+- `react-native-flipper`, `redux-flipper`, and `flipper-plugin-redux-debugger` are removed after `BEM-37.324` instead of bumped to `react-native-flipper@0.273.0`.
+- `react-native-flipper@0.273.0` is npm `latest`, but still peers React `^16.8.0 || ^17.0.0 || ^18.0.0`; the current RN `0.85.3` baseline is React `19.2.3`.
+- Android Flipper bootstrap was already disabled before this cleanup; the branch removes the remaining package, Gradle, manifest, debug source, iOS Podfile/AppDelegate, and Redux middleware wiring.
+- `corepack yarn check:flipper-removal` guards the completed removal state. `ios/Podfile.lock` still requires a macOS `pod install` refresh together with the other stale iOS pod drift.
+
 ### Group D - Notifications And Release Services
 
 - `@react-native-firebase/app` -> `24.0.0`

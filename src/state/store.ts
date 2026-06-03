@@ -12,9 +12,6 @@ const middlewares: Middleware[] = [sagaMiddleware as Middleware];
 function bindMiddleware(middleware: Middleware[]) {
   if (__DEV__) {
     const composeEnhancers = (global as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-    const createDebugger = require('redux-flipper').default;
-
-    middleware.push(createDebugger());
 
     return composeEnhancers(applyMiddleware(...middleware), reduxReset());
   }

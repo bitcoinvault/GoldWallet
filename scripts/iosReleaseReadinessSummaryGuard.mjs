@@ -33,6 +33,7 @@ const expectedCurrentPodfileLockDriftSnippets = [
   'removed react-native-camera',
   'removed react-native-qrcode-local-image',
   'removed RNCMaskedView',
+  'removed FlipperKit',
   'RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
   'react-native-config 1.4.4; package.json has react-native-config 1.6.1',
   'RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',

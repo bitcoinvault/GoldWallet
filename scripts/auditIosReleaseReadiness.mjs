@@ -115,6 +115,11 @@ const collectIosReleaseReadiness = () => {
       matchNames: ['RNCMaskedView', '@react-native-community/masked-view'],
       reason: 'after the React Navigation 7 masked-view removal',
     },
+    {
+      podName: 'FlipperKit',
+      matchNames: ['FlipperKit', 'Flipper-Folly', 'Flipper-RSocket'],
+      reason: 'after the Flipper debug stack removal',
+    },
   ].forEach(({ podName, matchNames, reason }) => {
     if (matchNames.some(matchName => podfileLock.includes(matchName))) {
       podfileLockDriftIssues.push(`ios/Podfile.lock still references removed ${podName}; run pod install on macOS ${reason}`);

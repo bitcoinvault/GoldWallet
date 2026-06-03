@@ -5,6 +5,7 @@ const currentPodfileLockDriftLines = [
   '- ios/Podfile.lock still references removed react-native-camera; run pod install on macOS after the CameraKit migration',
   '- ios/Podfile.lock still references removed react-native-qrcode-local-image; run pod install on macOS after the QR local-image cleanup',
   '- ios/Podfile.lock still references removed RNCMaskedView; run pod install on macOS after the React Navigation 7 masked-view removal',
+  '- ios/Podfile.lock still references removed FlipperKit; run pod install on macOS after the Flipper debug stack removal',
   '- ios/Podfile.lock has RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
   '- ios/Podfile.lock has react-native-config 1.4.4; package.json has react-native-config 1.6.1',
   '- ios/Podfile.lock has RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
@@ -142,6 +143,11 @@ assertRejected(
   'Missing removed masked-view pod fixture',
   removeDriftLine('- ios/Podfile.lock still references removed RNCMaskedView; run pod install on macOS after the React Navigation 7 masked-view removal'),
   'removed masked-view pod',
+);
+assertRejected(
+  'Missing removed Flipper pod fixture',
+  removeDriftLine('- ios/Podfile.lock still references removed FlipperKit; run pod install on macOS after the Flipper debug stack removal'),
+  'removed FlipperKit',
 );
 assertRejected(
   'Missing Firebase pod drift fixture',
