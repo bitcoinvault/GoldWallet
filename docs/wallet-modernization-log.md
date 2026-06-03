@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.348 - Secure-storage removal readiness guard
+
+- Branch: `feature/bem-37-348-secure-storage-removal-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a dedicated secure-storage removal-readiness audit and summary guard for the legacy `react-native-secure-key-store` removal blocker.
+- Keep the remaining Android `jcenter()` warning tied to release validation instead of allowing warning-only dependency removal.
+- Wire the removal-readiness self-check into `android:dev:check-light` and the generated readiness audit into `rn:baseline:preflight`.
+
+Findings:
+
+- `react-native-keychain@10.0.0` remains the primary write backend.
+- `react-native-secure-key-store@2.0.10` remains installed because legacy fallback reads are still active.
+- Focused fallback migration tests are present for `SecureStorageService` and `AppStorage`.
+- Legacy package removal remains blocked until migrated PIN, transaction-password, and encrypted wallet data are validated without the fallback backend.
+
+Validation:
+
+- `corepack yarn check:secure-storage-removal-readiness-summary-guard`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn secure-storage:removal-readiness:audit`
+- `corepack yarn secure-storage:removal-readiness:check-summary`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn rn:upgrade-path:audit`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn android:dev:check-light`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn rn:baseline:preflight`
+
 ### BEM-37.347 - CodePush migration readiness guard
 
 - Branch: `feature/bem-37-347-codepush-migration-readiness`
