@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { androidReleaseFingerprintInputs, getAndroidReleaseInputFingerprint } from './androidReleaseSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -69,6 +70,8 @@ const summary = [
   `Variant count: ${variantResults.length}`,
   `Java executable: ${javaCommand}`,
   `Java version: ${javaVersionLine}`,
+  `Release input fingerprint: ${getAndroidReleaseInputFingerprint(root)}`,
+  `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
   'Sentry auto upload disabled for local build: yes',
   'Sentry release upload validation: not claimed',
   ...variantResults.flatMap(result => [

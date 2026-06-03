@@ -2,7 +2,11 @@ import { mkdirSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
+import {
+  androidReleaseFingerprintInputs,
+  getAndroidReleaseInputFingerprint,
+  getAndroidReleaseSummaryErrors,
+} from './androidReleaseSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -11,6 +15,7 @@ const fixtureApkRelativePath = variant => path.join('local-docs', `android-relea
 const expectedApkRelativePaths = Object.fromEntries(
   variants.map(variant => [variant, fixtureApkRelativePath(variant)]),
 );
+const releaseInputFingerprint = getAndroidReleaseInputFingerprint(root);
 
 variants.forEach(variant => {
   const fixtureApkPath = path.join(root, fixtureApkRelativePath(variant));
@@ -27,6 +32,8 @@ const validSummary = [
   'Variant count: 4',
   'Java executable: D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10\\bin\\java.exe',
   'Java version: openjdk version "17.0.19" 2026-04-15',
+  `Release input fingerprint: ${releaseInputFingerprint}`,
+  `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
   'Sentry auto upload disabled for local build: yes',
   'Sentry release upload validation: not claimed',
   'Variant dev Gradle task: :app:assembleDevRelease',
@@ -98,6 +105,8 @@ assertAccepted(
     'Variant count: 1',
     'Java executable: D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10\\bin\\java.exe',
     'Java version: openjdk version "17.0.19" 2026-04-15',
+    `Release input fingerprint: ${releaseInputFingerprint}`,
+    `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
     'Sentry auto upload disabled for local build: yes',
     'Sentry release upload validation: not claimed',
     'Variant beta Gradle task: :app:assembleBetaRelease',
@@ -137,6 +146,27 @@ assertRejected(
     'Java version: openjdk version "11.0.28" 2026-07-15',
   ),
   'JDK 17',
+);
+assertRejected(
+  'Missing release input fingerprint fixture',
+  validSummary.replace(`Release input fingerprint: ${releaseInputFingerprint}\n`, ''),
+  'Release input fingerprint',
+);
+assertRejected(
+  'Stale release input fingerprint fixture',
+  validSummary.replace(
+    `Release input fingerprint: ${releaseInputFingerprint}`,
+    'Release input fingerprint: 0000000000000000000000000000000000000000000000000000000000000000',
+  ),
+  'Release input fingerprint does not match current release inputs',
+);
+assertRejected(
+  'Bad release input fingerprint file count fixture',
+  validSummary.replace(
+    `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
+    'Release input fingerprint files: 1',
+  ),
+  'Release input fingerprint files',
 );
 assertRejected(
   'Bad APK sha fixture',
