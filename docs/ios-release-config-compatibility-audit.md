@@ -62,7 +62,7 @@ Referenced iOS env files carry the current release-service keys as follows:
 
 - Stage Debug currently pairs `.env.dev.testnet` with `GoogleService-Info-stage.plist`; that may be intentional for testnet stage debugging, but it must be confirmed before changing scheme pre-actions.
 - Beta schemes currently copy beta env files but no Firebase plist in scheme pre-actions; confirm whether beta relies on build settings, bundled resources, or a missing Firebase copy step.
-- `ios/Podfile.lock` is stale after the Android/RN/native modernization stream; refresh it on macOS before claiming any iOS archive/runtime readiness. The current audit records 16 drift issues and confirms `xcodebuild` is unavailable on this Windows machine.
+- `ios/Podfile.lock` is stale after the Android/RN/native modernization stream; refresh it on macOS before claiming any iOS archive/runtime readiness. The current audit records 0 removed Podfile.lock pod references, 12 active drift issues, and confirms `xcodebuild` is unavailable on this Windows machine.
 - Rebranding may require coordinated changes across display names, bundle identifiers, Info.plist files, env `APP_ID`, Firebase plist files, Sentry DSNs, CodePush deployment keys, and store metadata.
 - CodePush is disabled in `__DEV__`, so debug scheme startup alone does not validate release update behavior.
 - Sentry and Firebase config changes need release-build validation, not only Android/iOS debug startup.

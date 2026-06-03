@@ -107,7 +107,8 @@ const collectIosReleaseReadiness = () => {
     podfileLockDriftIssues.push(`ios/Podfile.lock has React-Core ${reactCoreLockVersion}; package.json has react-native ${reactNativeVersion}`);
   }
 
-  [
+  const removedPodfileLockDriftIssues = [];
+  const removedPodChecks = [
     { podName: 'react-native-camera', matchNames: ['react-native-camera'], reason: 'after the CameraKit migration' },
     { podName: 'react-native-qrcode-local-image', matchNames: ['react-native-qrcode-local-image'], reason: 'after the QR local-image cleanup' },
     {
@@ -120,9 +121,13 @@ const collectIosReleaseReadiness = () => {
       matchNames: ['FlipperKit', 'Flipper-Folly', 'Flipper-RSocket'],
       reason: 'after the Flipper debug stack removal',
     },
-  ].forEach(({ podName, matchNames, reason }) => {
+  ];
+
+  removedPodChecks.forEach(({ podName, matchNames, reason }) => {
     if (matchNames.some(matchName => podfileLock.includes(matchName))) {
-      podfileLockDriftIssues.push(`ios/Podfile.lock still references removed ${podName}; run pod install on macOS ${reason}`);
+      const issue = `ios/Podfile.lock still references removed ${podName}; run pod install on macOS ${reason}`;
+      podfileLockDriftIssues.push(issue);
+      removedPodfileLockDriftIssues.push(issue);
     }
   });
 
@@ -261,6 +266,7 @@ const collectIosReleaseReadiness = () => {
     errors,
     warnings,
     podfileLockDriftIssues,
+    removedPodfileLockDriftIssues,
     reactNativeVersion: packageJson.dependencies['react-native'],
     rnMinIosVersion,
     rnMinXcodeVersion,
@@ -291,6 +297,8 @@ const formatSummary = (audit, generatedAt = new Date().toISOString()) => [
   `iOS CodePush plist placeholders: ${audit.codePushPlistPlaceholderCount}`,
   `iOS remote-notification plists: ${audit.remoteNotificationPlistCount}`,
   `Podfile.lock refresh required: ${audit.podfileLockDriftIssues.length > 0 ? 'yes' : 'no'}`,
+  `Removed Podfile.lock pod references: ${audit.removedPodfileLockDriftIssues.length}`,
+  ...audit.removedPodfileLockDriftIssues.map(issue => `- ${issue}`),
   `Podfile.lock drift issues: ${audit.podfileLockDriftIssues.length}`,
   ...audit.podfileLockDriftIssues.map(issue => `- ${issue}`),
   `xcodebuild version: ${audit.xcodebuildVersion || '<not available on this machine>'}`,
