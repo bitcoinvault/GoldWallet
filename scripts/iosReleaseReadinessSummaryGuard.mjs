@@ -59,6 +59,7 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   const codePushPlistPlaceholderCount = getLineValue(summary, 'iOS CodePush plist placeholders');
   const remoteNotificationPlistCount = getLineValue(summary, 'iOS remote-notification plists');
   const podfileLockRefreshRequired = getLineValue(summary, 'Podfile.lock refresh required');
+  const removedPodfileLockReferenceCount = getLineValue(summary, 'Removed Podfile.lock pod references');
   const podfileLockDriftCount = getLineValue(summary, 'Podfile.lock drift issues');
   const xcodebuildVersion = getLineValue(summary, 'xcodebuild version');
   const iosRuntimeDeliveryValidation = getLineValue(summary, 'iOS runtime delivery validation');
@@ -66,6 +67,7 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   const warningCount = getLineValue(summary, 'Warnings');
   const requiredAction = getLineValue(summary, 'Required action');
   const podfileLockDriftLines = getBulletLinesAfter(summary, 'Podfile.lock drift issues');
+  const removedPodfileLockReferenceLines = getBulletLinesAfter(summary, 'Removed Podfile.lock pod references');
 
   if (!summary.startsWith('iOS release static readiness audit')) {
     errors.push('summary header is missing or invalid');
@@ -120,6 +122,18 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
 
   if (!['yes', 'no'].includes(podfileLockRefreshRequired)) {
     errors.push(`Podfile.lock refresh required must be yes or no. Received: ${podfileLockRefreshRequired || 'missing'}`);
+  }
+
+  if (!isNonNegativeInteger(removedPodfileLockReferenceCount)) {
+    errors.push(`Removed Podfile.lock pod references must be a non-negative integer. Received: ${removedPodfileLockReferenceCount || 'missing'}`);
+  } else if (Number(removedPodfileLockReferenceCount) !== removedPodfileLockReferenceLines.length) {
+    errors.push(
+      `Removed Podfile.lock pod references count is ${removedPodfileLockReferenceCount}, but listed ${removedPodfileLockReferenceLines.length}`,
+    );
+  }
+
+  if (removedPodfileLockReferenceCount !== '0') {
+    errors.push(`Removed Podfile.lock pod references must be 0 after removed-pod cleanup. Received: ${removedPodfileLockReferenceCount || 'missing'}`);
   }
 
   if (!isNonNegativeInteger(podfileLockDriftCount)) {

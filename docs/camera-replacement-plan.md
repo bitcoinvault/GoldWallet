@@ -18,7 +18,7 @@
 - `corepack yarn camera:candidate:audit` checks live npm metadata for the legacy camera, VisionCamera, CameraKit, QR renderer, and QR encoder before scanner follow-up work, so stale candidate assumptions are visible before a dependency branch.
 - `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, and writes `local-docs/camera-qr-migration-summary.txt`.
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
-- The QR migration audit also reports stale removed camera pods in `ios/Podfile.lock`; on Windows the expected state is that Android/runtime dependency wiring can be guarded while iOS camera migration validation remains unclaimed until `pod install` refreshes the lockfile on macOS.
+- The QR migration audit verifies that removed camera pods are absent from `ios/Podfile.lock`; on Windows the expected state is that Android/runtime dependency wiring can be guarded while iOS camera migration validation remains unclaimed until `pod install` refreshes the broader lockfile drift on macOS.
 
 ## Why Replace
 

@@ -31,6 +31,7 @@ const validWindowsSummary = [
   'iOS CodePush plist placeholders: 3',
   'iOS remote-notification plists: 4',
   'Podfile.lock refresh required: yes',
+  'Removed Podfile.lock pod references: 0',
   `Podfile.lock drift issues: ${currentPodfileLockDriftLines.length}`,
   ...currentPodfileLockDriftLines,
   'xcodebuild version: <not available on this machine>',
@@ -45,8 +46,8 @@ const validWindowsSummary = [
 const validMacSummary = validWindowsSummary
   .replace('Ready for macOS archive validation: no', 'Ready for macOS archive validation: yes')
   .replace(
-    `Podfile.lock refresh required: yes\nPodfile.lock drift issues: ${currentPodfileLockDriftLines.length}\n${currentPodfileLockDriftLines.join('\n')}`,
-    'Podfile.lock refresh required: no\nPodfile.lock drift issues: 0',
+    `Podfile.lock refresh required: yes\nRemoved Podfile.lock pod references: 0\nPodfile.lock drift issues: ${currentPodfileLockDriftLines.length}\n${currentPodfileLockDriftLines.join('\n')}`,
+    'Podfile.lock refresh required: no\nRemoved Podfile.lock pod references: 0\nPodfile.lock drift issues: 0',
   )
   .replace('xcodebuild version: <not available on this machine>', 'xcodebuild version: Xcode 16.1; Build version 16B40')
   .replace(
@@ -135,6 +136,14 @@ assertRejected(
     `Podfile.lock drift issues: ${currentPodfileLockDriftLines.length - 1}`,
   ),
   'Podfile.lock drift issues count',
+);
+assertRejected(
+  'Removed pod references fixture',
+  validWindowsSummary.replace(
+    'Removed Podfile.lock pod references: 0',
+    'Removed Podfile.lock pod references: 1\n- ios/Podfile.lock still references removed FlipperKit; run pod install on macOS after the Flipper debug stack removal',
+  ),
+  'Removed Podfile.lock pod references must be 0',
 );
 assertRejected(
   'Missing Firebase pod drift fixture',

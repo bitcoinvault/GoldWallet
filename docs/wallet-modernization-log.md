@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.363 - iOS removed pod summary guard
+
+- Branch: `feature/bem-37-363-ios-removed-pod-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a dedicated `Removed Podfile.lock pod references` line to the iOS release readiness summary.
+- Harden the iOS release readiness summary guard so removed pod references must stay at `0` after the lockfile cleanups.
+- Refresh current docs that still described removed camera pods or the older `16` drift count.
+
+Findings:
+
+- After `BEM-37.361` and `BEM-37.362`, removed pods were cleaned from `ios/Podfile.lock`, but the iOS summary only exposed the aggregate drift count.
+- The current Windows iOS readiness state is: static files valid, 0 removed pod references, 12 active Podfile.lock drift issues, and iOS runtime delivery not claimed until macOS `pod install` plus simulator/archive validation.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+
 ### BEM-37.362 - iOS removed pod lockfile cleanup
 
 - Branch: `feature/bem-37-362-ios-removed-podlock-cleanup`
