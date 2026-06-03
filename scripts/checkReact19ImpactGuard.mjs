@@ -14,7 +14,7 @@ const validEnvironment = {
     react: '19.2.3',
   },
   devDependencies: {
-    '@types/react': '19.2.15',
+    '@types/react': '19.2.16',
     'react-test-renderer': '19.2.3',
   },
   scripts: {
