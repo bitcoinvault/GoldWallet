@@ -48,6 +48,7 @@ const npmViewVersion = packageName =>
 
 export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) => {
   const packageJson = readJson('package.json');
+  const scripts = packageJson.scripts || {};
   const expectedSentryPropertiesValues = {
     ...defaultSentryPropertiesValues,
     'defaults.org': env.SENTRY_ORG || defaultSentryPropertiesValues['defaults.org'],
@@ -163,6 +164,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const createNodeScriptSupportsOrgOverride = createNodeScript.includes('env.SENTRY_ORG ||');
   const createNodeScriptSupportsProjectOverride = createNodeScript.includes('env.SENTRY_PROJECT ||');
   const createNodeScriptSupportsRootOverride = createNodeScript.includes("arg === '--root'");
+  const createNodePackageScriptPresent = scripts['sentry:release:create-properties'] === 'node scripts/createSentryProperties.mjs';
   const envHasToken = Boolean(env.SENTRY_AUTH_TOKEN);
   const ready = missingFiles.length === 0 && invalidFiles.length === 0 && releaseIntegrationErrors.length === 0 && sentryCliExecutable;
 
@@ -204,6 +206,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     createNodeScriptSupportsOrgOverride,
     createNodeScriptSupportsProjectOverride,
     createNodeScriptSupportsRootOverride,
+    createNodePackageScriptPresent,
     envHasToken,
     ready,
   };
@@ -282,6 +285,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`createSentryProperties.mjs supports SENTRY_ORG override: ${audit.createNodeScriptSupportsOrgOverride ? 'yes' : 'no'}`);
   lines.push(`createSentryProperties.mjs supports SENTRY_PROJECT override: ${audit.createNodeScriptSupportsProjectOverride ? 'yes' : 'no'}`);
   lines.push(`createSentryProperties.mjs supports --root override: ${audit.createNodeScriptSupportsRootOverride ? 'yes' : 'no'}`);
+  lines.push(`sentry:release:create-properties script present: ${audit.createNodePackageScriptPresent ? 'yes' : 'no'}`);
   lines.push(`SENTRY_AUTH_TOKEN available in current shell: ${audit.envHasToken ? 'yes' : 'no'}`);
   lines.push(
     audit.ready
@@ -366,6 +370,7 @@ const printReport = audit => {
   console.log(`createSentryProperties.mjs supports SENTRY_ORG override: ${audit.createNodeScriptSupportsOrgOverride ? 'yes' : 'no'}`);
   console.log(`createSentryProperties.mjs supports SENTRY_PROJECT override: ${audit.createNodeScriptSupportsProjectOverride ? 'yes' : 'no'}`);
   console.log(`createSentryProperties.mjs supports --root override: ${audit.createNodeScriptSupportsRootOverride ? 'yes' : 'no'}`);
+  console.log(`sentry:release:create-properties script present: ${audit.createNodePackageScriptPresent ? 'yes' : 'no'}`);
   console.log(`SENTRY_AUTH_TOKEN available in current shell: ${audit.envHasToken ? 'yes' : 'no'}`);
 
   if (!audit.ready) {
