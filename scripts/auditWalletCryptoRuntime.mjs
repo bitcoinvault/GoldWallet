@@ -31,7 +31,7 @@ const expectedDevDependencies = new Map([
 
 const requiredDocsSnippets = [
   ['docs/wallet-crypto-runtime-audit.md', 'bitcoinvault/bitcoinjs-lib'],
-  ['docs/wallet-crypto-runtime-audit.md', 'Latest npm checked on 2026-05-31'],
+  ['docs/wallet-crypto-runtime-audit.md', 'Latest npm checked on 2026-06-03'],
   ['docs/wallet-crypto-runtime-audit.md', 'Funded transaction flow remains blocked until a funded BTCV testnet wallet is available'],
   ['docs/wallet-crypto-runtime-audit.md', 'Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib`'],
   ['docs/dependency-upgrade-strategy.md', 'corepack yarn wallet:crypto-runtime:audit'],
