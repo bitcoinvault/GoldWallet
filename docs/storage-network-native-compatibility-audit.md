@@ -2,7 +2,7 @@
 
 This audit supports `BEM-36 - Native modules upgrade` before changing storage, environment, secure storage, Electrum networking, or WebView dependencies.
 
-Checked on: 2026-05-28
+Checked on: 2026-06-03
 Baseline refreshed on: 2026-05-29 after the RN `0.85.3` foundation checkpoint.
 
 ## Current Repository State
@@ -102,7 +102,14 @@ Note: npm marks `react-native-randombytes@3.6.2` as deprecated with a recommenda
 Windows validation for `BEM-36.49` covered Android build and emulator smoke. `ios/Podfile.lock` still needs a Mac `pod install` refresh before iOS validation is claimed for the `react-native-randombytes` bump.
 
 react-native-keychain latest: 10.0.0
+dist-tags:
+- latest: 10.0.0
+engines:
+- node: >=16
+
 react-native-secure-key-store latest: 2.0.10
+dist-tags:
+- latest: 2.0.10
 
 react-native-tcp-socket latest: 6.4.1
 peerDependencies:
@@ -122,7 +129,7 @@ peerDependencies:
 - `react-native-config` is now on latest checked `1.6.1` after `BEM-37.167`; the earlier Android compile failure on older React Native Android APIs (`BaseReactPackage` / `WritableMap.putLong`) is resolved on the RN `0.85.3` baseline.
 - `react-native-device-info` is now on checked `15.0.2` after `BEM-37.109`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
-- `react-native-keychain@10.0.0` is installed as the new secure-storage backend, while `react-native-secure-key-store@2.0.10` remains temporarily for legacy fallback reads and cleanup.
+- `react-native-keychain@10.0.0` remains the npm latest checked secure-storage backend on 2026-06-03, while `react-native-secure-key-store@2.0.10` remains npm latest and is retained temporarily for legacy fallback reads and cleanup.
 - `corepack yarn secure-storage:migration:audit` keeps the current PIN and transaction-password storage surface explicit before any replacement branch starts.
 - `tests/unit/SecureStorageService.test.js` locks the current wrapper contract for missing-value fallback, legacy fallback, failed Keychain migration writes, Keychain-only new writes, plain storage, hashed transaction-password storage, password verification, and value removal across the native secure-storage package boundary.
 - `tests/integration/Storage.test.js` locks the React Native `AppStorage` fallback path so legacy wallet data remains readable even if the Keychain migration write fails during a read, while new encrypted wallet writes go to Keychain only.
