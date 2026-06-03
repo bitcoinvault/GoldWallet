@@ -46,6 +46,7 @@ const requiredCheckLightScripts = [
   'check:native-module-inventory',
   'check:native-module-upgrade-plan-guard',
   'check:native-module-upgrade-plan',
+  'check:flipper-removal',
   'check:rn-nodeify-shim-guard',
   'check:rn-nodeify-shims',
   'check:modernization-log-id-guard',

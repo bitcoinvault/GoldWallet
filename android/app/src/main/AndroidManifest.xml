@@ -40,6 +40,5 @@
           <data android:scheme="blue" />
         </intent-filter>
       </activity>
-      <activity android:name="com.facebook.flipper.android.diagnostics.FlipperDiagnosticActivity" android:exported="true" />
     </application>
 </manifest>
