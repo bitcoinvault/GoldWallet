@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.355 - CodePush migration env readiness
+
+- Branch: `feature/bem-37-355-codepush-migration-env-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the CodePush migration-readiness summary with release-build evidence readiness and ready/blocked/unconfirmed environment counts.
+- Keep beta CodePush strategy explicitly unconfirmed until beta deployment keys or a no-OTA beta decision are provided.
+- Refresh the CodePush retirement plan so it reflects the current Android release evidence covering `dev`, `stage`, `prod`, and `beta`.
+
+Findings:
+
+- CodePush package and release wiring remain current/build-compatible, but App Center CodePush is still retired and upstream archived.
+- Android release build evidence is ready, while CodePush OTA update validation remains not claimed.
+- The release path currently has ready, blocked, and unconfirmed environment states, so migration readiness should not collapse that into a generic yes/no.
+
+Validation:
+
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:codepush-migration-readiness-summary-guard`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.354 - Sentry properties generator readiness
 
 - Branch: `feature/bem-37-354-sentry-properties-generator`

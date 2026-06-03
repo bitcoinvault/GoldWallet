@@ -44,7 +44,10 @@ Expected summary claims:
 - CodePush native bundle gate is recorded as present;
 - CodePush runtime enabled by default is recorded as `no`;
 - Android release build evidence is recorded separately from CodePush update validation;
-- local Android release evidence currently covers `dev`, `stage`, and `prod` release variants;
+- local Android release evidence currently covers `dev`, `stage`, `prod`, and `beta` release variants;
+- release build evidence readiness is recorded separately from OTA update validation;
+- ready, blocked, and unconfirmed CodePush env counts are recorded without printing deployment-key values;
+- beta CodePush strategy remains explicitly unconfirmed until beta deployment keys or a no-OTA beta decision are provided;
 - the migration readiness summary records the current posture as temporary legacy compatibility;
 - the long-term options are recorded as remove or replace;
 - the readiness guard keeps the migration/removal decision visible even while the package remains on npm latest;

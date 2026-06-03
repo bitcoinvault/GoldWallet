@@ -41,6 +41,13 @@ export const collectCodePushMigrationReadinessAudit = () => {
     decisionDocumentRejectsBlindPackageUpgrade: decisionDocument.includes('Do not plan another blind CodePush package upgrade'),
     releasePathSummaryValid,
     releasePathSummaryErrors,
+    releaseBuildEvidenceReady: releasePathAudit.releaseBuildEvidenceReady,
+    readyEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'ready').length,
+    blockedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'blocked').length,
+    unconfirmedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'unconfirmed').length,
+    betaStrategyConfirmed: releasePathAudit.envReadiness
+      .filter(entry => entry.envFile.startsWith('.env.beta.'))
+      .every(entry => entry.status === 'ready'),
   };
 };
 
@@ -65,6 +72,11 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
     `Release path summary valid: ${audit.releasePathSummaryValid ? 'yes' : 'no'}`,
     `Release path summary errors: ${audit.releasePathSummaryErrors.length}`,
     ...audit.releasePathSummaryErrors.map(error => `- ${error}`),
+    `CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`,
+    `Ready CodePush environments: ${audit.readyEnvironmentCount}`,
+    `Blocked CodePush environments: ${audit.blockedEnvironmentCount}`,
+    `Unconfirmed CodePush environments: ${audit.unconfirmedEnvironmentCount}`,
+    `Beta CodePush strategy confirmed: ${audit.betaStrategyConfirmed ? 'yes' : 'no'}`,
     'Secret values printed: no',
     'Required action: choose remove or replace before treating OTA updates as a supported release capability.',
   ];
@@ -84,6 +96,11 @@ const printReport = audit => {
   console.log(`Current posture: ${audit.currentPosture}`);
   console.log(`Long-term options: ${audit.longTermOptions}`);
   console.log(`Release path summary valid: ${audit.releasePathSummaryValid ? 'yes' : 'no'}`);
+  console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`Ready CodePush environments: ${audit.readyEnvironmentCount}`);
+  console.log(`Blocked CodePush environments: ${audit.blockedEnvironmentCount}`);
+  console.log(`Unconfirmed CodePush environments: ${audit.unconfirmedEnvironmentCount}`);
+  console.log(`Beta CodePush strategy confirmed: ${audit.betaStrategyConfirmed ? 'yes' : 'no'}`);
   console.log('CodePush update validation: not claimed');
 };
 
