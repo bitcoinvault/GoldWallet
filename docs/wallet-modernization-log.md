@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.360 - Android store metadata baseline
+
+- Branch: `feature/bem-37-360-android-store-metadata-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a repo-owned Android Fastlane metadata baseline under `android/fastlane/metadata/android/en-US`.
+- Extend the store metadata readiness guard so Android title, short description, full description, and Play Store icon stay represented in source.
+- Refresh rebranding/store metadata docs so Android metadata is no longer treated as completely external to the repo.
+
+Findings:
+
+- `BEM-37.337` guarded iOS Fastlane metadata and the Android Play Store icon, but Android listing copy was still documented as not represented by a dedicated Fastlane metadata tree.
+- The new Android baseline records the current pre-rebrand GoldWallet title and full description, while Play Console screenshots and live listing state remain external verification items.
+
+Validation:
+
+- `corepack yarn check:store-metadata-readiness-guard`
+- `corepack yarn check:store-metadata-readiness`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.359 - Release-services summary fingerprint reporting
 
 - Branch: `feature/bem-37-359-release-summary-fingerprint-reporting`

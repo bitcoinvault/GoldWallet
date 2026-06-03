@@ -1,0 +1,37 @@
+Store, send and receive bitcoin with the wallet focused on security and simplicity.
+
+On GoldWallet you own your private keys. A Bitcoin wallet focused on users.
+
+You can instantly transact with anyone in the world and transform the financial system right from your pocket.
+
+Create for free an unlimited number of bitcoin wallets or access your existing wallet on your Android device. It's simple and fast.
+
+Here's what you get:
+
+1 - Security by design
+
+Open Source
+MIT licensed, you can build it and run it on your own. Made with React Native.
+
+Plausible deniability
+Password which decrypts fake wallets if you are forced to disclose your access.
+
+Full encryption
+On top of Android encryption, we encrypt everything with added passwords.
+
+SegWit & HD wallets
+SegWit support and HD wallets enabled.
+
+2 - Focused on your experience
+
+Be in control
+Private keys never leave your device. You control your private keys.
+
+Flexible fees
+Starting from 1 Satoshi. Defined by you, the user.
+
+Replace-By-Fee
+(RBF) Speed-up your transactions by increasing the fee (BIP125).
+
+Sentinel wallets
+Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.

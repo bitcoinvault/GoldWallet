@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 
 export const expectedStoreMetadataLocales = ['da', 'en-US', 'es-ES', 'no', 'pt-BR', 'pt-PT', 'ru', 'sv'];
+export const expectedAndroidStoreMetadataLocales = ['en-US'];
 
 export const requiredLocalizedStoreMetadataFiles = [
   'name.txt',
@@ -28,9 +29,16 @@ export const requiredRootStoreMetadataFiles = [
   'secondary_second_sub_category.txt',
 ];
 
+export const requiredAndroidLocalizedStoreMetadataFiles = [
+  'title.txt',
+  'short_description.txt',
+  'full_description.txt',
+];
+
 export const requiredStoreMetadataDocSnippets = [
   ['docs/store-metadata-readiness.md', 'Scope: `BEM-37.337`, store metadata and rebranding preparation.'],
-  ['docs/store-metadata-readiness.md', 'Android store metadata is not represented by a dedicated Fastlane metadata tree in this repo.'],
+  ['docs/store-metadata-readiness.md', 'Android Fastlane metadata baseline is present under `android/fastlane/metadata/android/en-US`.'],
+  ['docs/store-metadata-readiness.md', 'Play Console screenshots still need external/store-side verification.'],
   ['docs/store-metadata-readiness.md', '`GoldWallet`'],
   ['docs/store-metadata-readiness.md', '`goldwallet.io`'],
   ['docs/store-metadata-readiness.md', '`https://github.com/GoldWallet/GoldWallet/issues`'],
@@ -43,6 +51,7 @@ const normalizePath = relativePath => relativePath.split('/').join(path.sep);
 export const getStoreMetadataReadinessErrors = ({ root, readFile = readFileSync, fileExists = existsSync }) => {
   const errors = [];
   const metadataRoot = path.join(root, 'ios', 'fastlane', 'metadata');
+  const androidMetadataRoot = path.join(root, 'android', 'fastlane', 'metadata', 'android');
 
   requiredRootStoreMetadataFiles.forEach(fileName => {
     const fullPath = path.join(metadataRoot, fileName);
@@ -80,6 +89,26 @@ export const getStoreMetadataReadinessErrors = ({ root, readFile = readFileSync,
   if (!fileExists(androidPlayIconPath)) {
     errors.push('android/app/src/main/ic_launcher-playstore.png is missing');
   }
+
+  expectedAndroidStoreMetadataLocales.forEach(locale => {
+    requiredAndroidLocalizedStoreMetadataFiles.forEach(fileName => {
+      const fullPath = path.join(androidMetadataRoot, locale, fileName);
+      if (!fileExists(fullPath)) {
+        errors.push(`android/fastlane/metadata/android/${locale}/${fileName} is missing`);
+      }
+    });
+
+    const titlePath = path.join(androidMetadataRoot, locale, 'title.txt');
+    const descriptionPath = path.join(androidMetadataRoot, locale, 'full_description.txt');
+
+    if (fileExists(titlePath) && !readFile(titlePath, 'utf8').includes('GoldWallet')) {
+      errors.push(`android/fastlane/metadata/android/${locale}/title.txt no longer records the pre-rebrand GoldWallet baseline`);
+    }
+
+    if (fileExists(descriptionPath) && !readFile(descriptionPath, 'utf8').includes('GoldWallet')) {
+      errors.push(`android/fastlane/metadata/android/${locale}/full_description.txt no longer records the pre-rebrand GoldWallet baseline`);
+    }
+  });
 
   requiredStoreMetadataDocSnippets.forEach(([relativePath, snippet]) => {
     const fullPath = path.join(root, normalizePath(relativePath));

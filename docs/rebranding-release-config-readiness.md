@@ -47,6 +47,8 @@ Store metadata:
 | iOS Fastlane names | localized `name.txt` files reference `GoldWallet - Bitcoin wallet` or equivalent |
 | iOS Fastlane privacy URLs | localized `privacy_url.txt` files point to `goldwallet.io` |
 | iOS Fastlane support URLs | localized `support_url.txt` files point to GitHub GoldWallet issues |
+| Android Fastlane metadata | `android/fastlane/metadata/android/en-US` records the pre-rebrand GoldWallet title and full description baseline |
+| Android Play Store icon | `android/app/src/main/ic_launcher-playstore.png` is present in source |
 | Copyright metadata | `2019 GoldWallet Services S.R.L.` |
 
 ## Env And Explorer Surface
@@ -135,5 +137,5 @@ iOS implementation validation remains blocked on this Windows machine until macO
 
 1. Rebrand implementation spike: update app names/assets/copy only where product decisions are confirmed.
 2. Explorer/env alignment: validate explorer URLs, Electrum hosts, and transaction link behavior per network.
-3. Store metadata refresh: update Fastlane metadata, privacy/support URLs, screenshots, and release notes.
+3. Store metadata refresh: update iOS and Android Fastlane metadata, privacy/support URLs, screenshots, and release notes.
 4. iOS/macOS release validation: refresh Pods and validate schemes after bundle/display-name changes.

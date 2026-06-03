@@ -1,7 +1,9 @@
 import path from 'path';
 import {
+  expectedAndroidStoreMetadataLocales,
   expectedStoreMetadataLocales,
   getStoreMetadataReadinessErrors,
+  requiredAndroidLocalizedStoreMetadataFiles,
   requiredLocalizedStoreMetadataFiles,
   requiredRootStoreMetadataFiles,
 } from './storeMetadataReadinessGuard.mjs';
@@ -11,6 +13,14 @@ const put = (relativePath, content = 'fixture') => files.set(path.normalize(rela
 
 requiredRootStoreMetadataFiles.forEach(fileName => put(path.join('ios', 'fastlane', 'metadata', fileName)));
 put(path.join('android', 'app', 'src', 'main', 'ic_launcher-playstore.png'));
+
+expectedAndroidStoreMetadataLocales.forEach(locale => {
+  requiredAndroidLocalizedStoreMetadataFiles.forEach(fileName =>
+    put(path.join('android', 'fastlane', 'metadata', 'android', locale, fileName)),
+  );
+  put(path.join('android', 'fastlane', 'metadata', 'android', locale, 'title.txt'), 'GoldWallet - Bitcoin wallet');
+  put(path.join('android', 'fastlane', 'metadata', 'android', locale, 'full_description.txt'), 'GoldWallet description baseline');
+});
 
 expectedStoreMetadataLocales.forEach(locale => {
   requiredLocalizedStoreMetadataFiles.forEach(fileName => put(path.join('ios', 'fastlane', 'metadata', locale, fileName)));
@@ -23,7 +33,8 @@ put(
   path.join('docs', 'store-metadata-readiness.md'),
   [
     'Scope: `BEM-37.337`, store metadata and rebranding preparation.',
-    'Android store metadata is not represented by a dedicated Fastlane metadata tree in this repo.',
+    'Android Fastlane metadata baseline is present under `android/fastlane/metadata/android/en-US`.',
+    'Play Console screenshots still need external/store-side verification.',
     '`GoldWallet`',
     '`goldwallet.io`',
     '`https://github.com/GoldWallet/GoldWallet/issues`',
@@ -80,5 +91,17 @@ assertRejected('Changed privacy baseline fixture', changedPrivacyBaseline, 'priv
 const missingAndroidIcon = new Map(files);
 missingAndroidIcon.delete(path.normalize(path.join('android', 'app', 'src', 'main', 'ic_launcher-playstore.png')));
 assertRejected('Missing Android play icon fixture', missingAndroidIcon, 'android/app/src/main/ic_launcher-playstore.png is missing');
+
+const missingAndroidTitle = new Map(files);
+missingAndroidTitle.delete(path.normalize(path.join('android', 'fastlane', 'metadata', 'android', 'en-US', 'title.txt')));
+assertRejected(
+  'Missing Android metadata fixture',
+  missingAndroidTitle,
+  'android/fastlane/metadata/android/en-US/title.txt is missing',
+);
+
+const changedAndroidTitleBaseline = new Map(files);
+changedAndroidTitleBaseline.set(path.normalize(path.join('android', 'fastlane', 'metadata', 'android', 'en-US', 'title.txt')), 'New Wallet');
+assertRejected('Changed Android title baseline fixture', changedAndroidTitleBaseline, 'title.txt no longer records');
 
 console.log('Store metadata readiness guard checks are valid.');
