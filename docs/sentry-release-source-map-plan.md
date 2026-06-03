@@ -12,8 +12,9 @@
 - `corepack yarn check:sentry-release-integration` guards the current Android Sentry Gradle integration and iOS source-map/dSYM upload phases.
 - `corepack yarn check:sentry-release-integration-guard` verifies the Sentry release integration guard fixtures.
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available before release source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
-- The prerequisite audit records per-file readiness for the three required Sentry properties files, validates that `create-sentry-properties.sh` writes all three paths, confirms the expected non-secret static defaults without printing token values, records local `@sentry/cli` package/bin executability, and records whether the latest local Android release summary artifact is present and valid.
+- The prerequisite audit records per-file readiness for the three required Sentry properties files, validates that `create-sentry-properties.sh` writes all three paths, confirms the expected non-secret defaults without printing token values, records local `@sentry/cli` package/bin executability, and records whether the latest local Android release summary artifact is present and valid.
 - `create-sentry-properties.sh` now rejects a missing `SENTRY_AUTH_TOKEN` before writing any properties files, so local release setup cannot accidentally create `auth.token=` files that look configured but fail during upload.
+- `create-sentry-properties.sh` accepts optional `SENTRY_ORG` and `SENTRY_PROJECT` overrides, defaulting to the current `cloudbest` / `goldwallet` release target, so a future rebrand or Sentry project move does not require editing the generator script.
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary, including per-file readiness counts and generator coverage.
 - `corepack yarn sentry:android-warning:audit` verifies that Sentry Gradle/source-map wiring remains tracked before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
@@ -65,6 +66,7 @@ Scope:
 - Android emulator smoke after Metro `--reset-cache`.
 - Android release bundle/build check for at least one non-production flavor.
 - Confirm whether `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` files are available locally.
+- If the release target changes, set `SENTRY_ORG` and `SENTRY_PROJECT` before generating properties instead of editing committed files.
 - iOS release validation remains required on a Mac runner or device before calling the Sentry upgrade complete.
 
 ## Acceptance Criteria

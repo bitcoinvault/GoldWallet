@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.340 - Sentry properties release-target readiness
+
+- Branch: `feature/bem-37-340-sentry-properties-env-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Sentry properties generator ready for future release-target or rebrand changes without editing committed scripts.
+- Keep `SENTRY_AUTH_TOKEN` mandatory and secret-safe while allowing optional `SENTRY_ORG` and `SENTRY_PROJECT` overrides.
+- Harden the Sentry release prerequisite summary guard so generator override support is part of release-source-map readiness.
+
+Findings:
+
+- `create-sentry-properties.sh` previously hardcoded `cloudbest` and `goldwallet` inside generated properties content.
+- The script now defaults to the same `cloudbest` / `goldwallet` release target, but can be run with `SENTRY_ORG` and `SENTRY_PROJECT` when the Sentry release target changes.
+- `corepack yarn sentry:release:prereq-audit` reports generator override support without printing token values.
+- Sentry release upload/source-map validation remains explicitly unclaimed because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable locally.
+
+Validation:
+
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.339 - iOS beta remote-notification release readiness
 
 - Branch: `feature/bem-37-339-ios-release-readiness-refresh`

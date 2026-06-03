@@ -36,6 +36,8 @@ const notReadySummary = [
   'create-sentry-properties.sh writes Android properties: yes',
   'create-sentry-properties.sh writes iOS properties: yes',
   'create-sentry-properties.sh static defaults valid: yes',
+  'create-sentry-properties.sh supports SENTRY_ORG override: yes',
+  'create-sentry-properties.sh supports SENTRY_PROJECT override: yes',
   'SENTRY_AUTH_TOKEN available in current shell: no',
   'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
   '',
@@ -75,6 +77,8 @@ const readySummary = [
   'create-sentry-properties.sh writes Android properties: yes',
   'create-sentry-properties.sh writes iOS properties: yes',
   'create-sentry-properties.sh static defaults valid: yes',
+  'create-sentry-properties.sh supports SENTRY_ORG override: yes',
+  'create-sentry-properties.sh supports SENTRY_PROJECT override: yes',
   'SENTRY_AUTH_TOKEN available in current shell: yes',
   'Required action: none; release source-map prerequisites are present locally.',
   '',
@@ -172,6 +176,22 @@ assertRejected(
     'create-sentry-properties.sh rejects missing SENTRY_AUTH_TOKEN: no',
   ),
   'Present create-sentry-properties.sh',
+);
+assertRejected(
+  'Missing Sentry org override fixture',
+  notReadySummary.replace(
+    'create-sentry-properties.sh supports SENTRY_ORG override: yes',
+    'create-sentry-properties.sh supports SENTRY_ORG override: no',
+  ),
+  'SENTRY_ORG/SENTRY_PROJECT overrides',
+);
+assertRejected(
+  'Missing Sentry project override fixture',
+  notReadySummary.replace(
+    'create-sentry-properties.sh supports SENTRY_PROJECT override: yes',
+    'create-sentry-properties.sh supports SENTRY_PROJECT override: no',
+  ),
+  'SENTRY_ORG/SENTRY_PROJECT overrides',
 );
 assertRejected(
   'Claimed Sentry upload fixture',
