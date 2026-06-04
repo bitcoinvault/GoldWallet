@@ -1833,6 +1833,34 @@ Validation:
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.378 - Prompt Android jcenter cleanup
+
+- Branch: `feature/bem-37-378-prompt-android-jcenter-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a minimal `patch-package` patch for `react-native-prompt-android@0.3.6` that replaces the package Android `jcenter()` repository with `mavenCentral()`.
+- Keep `react-native-prompt-android` installed and Android-autolinked because it remains wallet-critical for encrypted-storage password prompts.
+
+Findings:
+
+- `corepack yarn android:dev:audit-warnings` reported an unexpected targeted `jcenter()` warning from `node_modules\react-native-prompt-android\android\build.gradle:25`.
+- Secure-storage legacy package removal is still blocked because fallback reads remain active, so `react-native-secure-key-store` stays as the only expected targeted Android warning source.
+- After the prompt patch, Android warning audit returns to one targeted warning with zero unexpected targeted warnings.
+
+Validation:
+
+- `corepack yarn secure-storage:removal-readiness:audit`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn android:dev:audit-warnings`
+- `rg "react-native-prompt-android|prompt-android|jcenter" -n package.json yarn.lock patches docs scripts android src tests`
+- `corepack yarn patch-package react-native-prompt-android`
+- `corepack yarn postinstall`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.321 - BL buffer dependency compatibility probe
 
 - Branch: `feature/bem-37-321-bl-major-probe`
