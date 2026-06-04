@@ -1,3 +1,4 @@
+import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -11,6 +12,8 @@ const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const exists = relativePath => existsSync(path.join(root, relativePath));
 const packageJson = JSON.parse(read('package.json'));
+const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 export const firebaseReleasePackages = [
   '@react-native-firebase/app',
   '@react-native-firebase/analytics',
@@ -36,6 +39,15 @@ const getSummaryLineValue = (content, label) => {
 
   return line ? line.slice(label.length + 2).trim() : '';
 };
+const npmViewJson = (packageName, fields) =>
+  JSON.parse(
+    execFileSync(npmCommand, npmArgs(['view', packageName, ...fields, '--json']), {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    }),
+  );
 
 export const collectFirebaseReleaseServicesAudit = () => {
   const errors = [];
@@ -43,6 +55,19 @@ export const collectFirebaseReleaseServicesAudit = () => {
   const dependencies = packageJson.dependencies || {};
   const firebaseVersions = new Map(firebaseReleasePackages.map(packageName => [packageName, dependencies[packageName]]));
   const uniqueVersions = new Set(firebaseVersions.values());
+  const appMetadata = npmViewJson('@react-native-firebase/app', ['version', 'time', 'repository.url']);
+  const messagingMetadata = npmViewJson('@react-native-firebase/messaging', ['version', 'peerDependencies.@react-native-firebase/app']);
+  const packageLatestVersion = appMetadata.version || '';
+  const packageLatestPublishedAt = appMetadata.time?.[packageLatestVersion] || '';
+  const packageRepositoryUrl = appMetadata['repository.url'] || appMetadata.repository?.url || '';
+  const messagingLatestVersion = messagingMetadata.version || '';
+  const messagingPeerAppVersion =
+    messagingMetadata['peerDependencies.@react-native-firebase/app'] || messagingMetadata.peerDependencies?.['@react-native-firebase/app'] || '';
+  const packageCurrent =
+    packageLatestVersion &&
+    messagingLatestVersion === packageLatestVersion &&
+    messagingPeerAppVersion === packageLatestVersion &&
+    [...firebaseVersions.values()].every(version => version === packageLatestVersion);
 
   firebaseVersions.forEach((version, packageName) => {
     if (typeof version !== 'string') {
@@ -173,6 +198,12 @@ export const collectFirebaseReleaseServicesAudit = () => {
     errors,
     warnings,
     packageVersions: [...uniqueVersions].filter(Boolean),
+    packageLatestVersion,
+    packageLatestPublishedAt,
+    packageRepositoryUrl,
+    messagingLatestVersion,
+    messagingPeerAppVersion,
+    packageCurrent,
     androidReleaseSummaryPresent,
     androidReleaseSummaryVariants,
     androidReleaseSummaryRequiredVariantsCovered,
@@ -188,6 +219,12 @@ export const formatFirebaseReleaseServicesSummary = (audit, generatedAt = new Da
     'Firebase release-services audit',
     `Generated at: ${generatedAt}`,
     `React Native Firebase package version set: ${audit.packageVersions.join(', ') || '<missing>'}`,
+    `React Native Firebase latest version: ${audit.packageLatestVersion || 'missing'}`,
+    `React Native Firebase latest published at: ${audit.packageLatestPublishedAt || 'missing'}`,
+    `React Native Firebase npm repository: ${audit.packageRepositoryUrl || 'missing'}`,
+    `React Native Firebase Messaging latest version: ${audit.messagingLatestVersion || 'missing'}`,
+    `React Native Firebase Messaging peer app version: ${audit.messagingPeerAppVersion || 'missing'}`,
+    `React Native Firebase package current: ${audit.packageCurrent ? 'yes' : 'no'}`,
     `Firebase release-services wiring valid: ${audit.ready ? 'yes' : 'no'}`,
     `Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`,
     `Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`,
@@ -218,6 +255,12 @@ export const formatFirebaseReleaseServicesSummary = (audit, generatedAt = new Da
 const printReport = audit => {
   console.log('Firebase release-services audit');
   console.log(`React Native Firebase package version set: ${audit.packageVersions.join(', ') || '<missing>'}`);
+  console.log(`React Native Firebase latest version: ${audit.packageLatestVersion || 'missing'}`);
+  console.log(`React Native Firebase latest published at: ${audit.packageLatestPublishedAt || 'missing'}`);
+  console.log(`React Native Firebase npm repository: ${audit.packageRepositoryUrl || 'missing'}`);
+  console.log(`React Native Firebase Messaging latest version: ${audit.messagingLatestVersion || 'missing'}`);
+  console.log(`React Native Firebase Messaging peer app version: ${audit.messagingPeerAppVersion || 'missing'}`);
+  console.log(`React Native Firebase package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
 
   if (audit.warnings.length > 0) {
     console.log('Warnings:');

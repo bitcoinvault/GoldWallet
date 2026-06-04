@@ -27,6 +27,12 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
   const packageVersionSet = getLineValue(summary, 'React Native Firebase package version set');
+  const packageLatestVersion = getLineValue(summary, 'React Native Firebase latest version');
+  const packageLatestPublishedAt = getLineValue(summary, 'React Native Firebase latest published at');
+  const packageRepositoryUrl = getLineValue(summary, 'React Native Firebase npm repository');
+  const messagingLatestVersion = getLineValue(summary, 'React Native Firebase Messaging latest version');
+  const messagingPeerAppVersion = getLineValue(summary, 'React Native Firebase Messaging peer app version');
+  const packageCurrent = getLineValue(summary, 'React Native Firebase package current');
   const wiringValid = getLineValue(summary, 'Firebase release-services wiring valid');
   const androidReleaseSummaryPresent = getLineValue(summary, 'Android release summary present');
   const androidReleaseSummaryVariants = getLineValue(summary, 'Android release summary variants');
@@ -55,6 +61,30 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
 
   if (!packageVersionSet) {
     errors.push('React Native Firebase package version set is missing');
+  }
+
+  if (!/^\d+\.\d+\.\d+$/.test(packageLatestVersion)) {
+    errors.push(`React Native Firebase latest version must be present. Received: ${packageLatestVersion || 'missing'}`);
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(packageLatestPublishedAt)) {
+    errors.push(`React Native Firebase latest published timestamp must be present. Received: ${packageLatestPublishedAt || 'missing'}`);
+  }
+
+  if (!packageRepositoryUrl.includes('invertase/react-native-firebase')) {
+    errors.push(`React Native Firebase npm repository must reference invertase/react-native-firebase. Received: ${packageRepositoryUrl || 'missing'}`);
+  }
+
+  if (messagingLatestVersion !== packageLatestVersion) {
+    errors.push(`React Native Firebase Messaging latest version must match app latest version. Received: ${messagingLatestVersion || 'missing'}`);
+  }
+
+  if (messagingPeerAppVersion !== packageLatestVersion) {
+    errors.push(`React Native Firebase Messaging peer app version must match app latest version. Received: ${messagingPeerAppVersion || 'missing'}`);
+  }
+
+  if (packageCurrent !== 'yes') {
+    errors.push(`React Native Firebase package current must be yes. Received: ${packageCurrent || 'missing'}`);
   }
 
   if (!['yes', 'no'].includes(wiringValid)) {
