@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.401 - QR scanner validation gate
+
+- Branch: `feature/bem-37-401-qr-scanner-validation-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a focused `test:qr-scanner:unit` package script for the CameraKit scanner screen contract.
+- Add `check:qr-scanner-validation-scripts` to keep the scanner unit test, package script, lightweight Android gate, and prepush wiring present.
+- Wire the guard into `android:dev:check-light` so scanner validation coverage does not silently drop before future CameraKit, VisionCamera, or QR scanner changes.
+- Update the camera replacement plan, Android workflow docs, README, and baseline docs for the new scanner validation gate.
+
+Findings:
+
+- Live npm metadata still reports the current scanner target as `react-native-camera-kit@18.0.0`; VisionCamera latest remains a future option that requires Nitro peer packages.
+- `tests/unit/ScanQrCodeScreen.test.tsx` already covers Android camera permission, CameraKit QR-only configuration, callback delivery, empty scans, and duplicate-scan suppression.
+- The missing piece was gate wiring: the scanner contract test was available but not exposed as a focused script or guarded in `android:dev:check-light`.
+- This branch does not claim physical camera scan validation; hardware/device scanner QA remains a follow-up for Android hardware and iOS after the macOS pod refresh.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:qr-scanner-validation-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-scanner:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.400 - Release-services validation handoff runner
 
 - Branch: `feature/bem-37-400-release-services-validation-handoff`
