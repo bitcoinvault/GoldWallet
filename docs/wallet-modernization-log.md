@@ -1804,6 +1804,35 @@ Validation:
 - `corepack yarn android:dev:check-smoke-summary`
 - `corepack yarn android:dev:check-light`
 
+### BEM-37.377 - React Native nightly target snapshot refresh
+
+- Branch: `feature/bem-37-377-rn-nightly-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded React Native target snapshot after the live npm `nightly` tag moved.
+- Keep `react-native@0.85.3` as the default stable upgrade target because npm `latest` still matches the validated repo baseline and npm `next` remains an RC prerelease.
+
+Findings:
+
+- Live npm metadata on 2026-06-04 reports `react-native@0.85.3` latest, `0.86.0-rc.3` next, and `0.87.0-nightly-20260604-63683f091` nightly.
+- The previous snapshot was stale only for the planning-only nightly tag.
+- This branch does not change React Native package versions or runtime code.
+
+Validation:
+
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn check:rn-target-snapshot-guard`
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.321 - BL buffer dependency compatibility probe
 
 - Branch: `feature/bem-37-321-bl-major-probe`
