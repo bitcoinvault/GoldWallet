@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.398 - Android notification permission flow guard
+
+- Branch: `feature/bem-37-398-android-notification-permission-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a focused Android notification permission flow guard for the Android 13+ `POST_NOTIFICATIONS` runtime permission path.
+- Verify that the Android manifest declares `android.permission.POST_NOTIFICATIONS`, `NotificationServices` keeps the Android 13+ helper and ordering before Firebase Messaging permission/token flow, and the focused unit tests remain present.
+- Wire the guard into `android:dev:check-light` so future Firebase or notification changes fail before build/smoke validation if the runtime permission flow regresses.
+- Make the local Android release validation runner clean generated React bundle/assets/resource/sourcemap outputs per release variant before rebuilding, so repeated RN Gradle plugin plus CodePush hash validation does not fail on stale generated asset state.
+
+Findings:
+
+- The Android 13+ runtime permission flow now has both focused Jest coverage and a lightweight static guard.
+- The guard keeps the Android permission request before `messaging().requestPermission`, which preserves FCM token registration behavior on Android 13+ installs after targeting modern Android SDK levels.
+- The first `android:dev:release:verify-local` attempt exposed an incremental release-build issue: `prodRelease` could fail with a duplicate generated `CodePushHash` asset after previous release variant builds.
+- Cleaning only generated RN release outputs for the requested variant before each release build made the full `dev`, `stage`, `prod`, and `beta` release validation deterministic while keeping APK manifest validation intact.
+- Notification runtime behavior was validated in `BEM-37.397`; this branch adds guard coverage and release-validation determinism.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-notification-permission-flow-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-notification-permission-flow`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules/jest/bin/jest.js tests/unit/NotificationServices.test.tsx --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.397 - Android notification permission tests
 
 - Branch: `feature/bem-37-397-android-notification-permission-tests`
