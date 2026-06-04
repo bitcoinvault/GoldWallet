@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.396 - Push notification bridge latest evidence
+
+- Branch: `feature/bem-37-396-push-notification-bridge-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add live npm latest metadata for `@react-native-community/push-notification-ios` to the push-notification bridge audit.
+- Require the push-notification bridge summary to include dependency version, installed version, latest version, latest published timestamp, npm repository, package-current state, and runtime-delivery validation state.
+- Extend the push-notification bridge summary guard self-test with negative fixtures for stale package evidence and claimed runtime delivery.
+- Update the Android modernization workflow docs so push-notification bridge evidence is treated consistently with other release-service gates.
+
+Findings:
+
+- Live npm metadata reports `@react-native-community/push-notification-ios@1.12.0` as the current latest package.
+- The latest package was published at `2025-12-16T09:38:54.096Z` and the npm repository points to `react-native-community/push-notification-ios`.
+- The existing bridge audit proved static package/runtime/AppDelegate/plist wiring, but did not expose live package evidence or explicitly record that runtime delivery validation remains unclaimed.
+- iOS runtime delivery validation remains `not claimed` on this Windows machine; this branch does not claim APNs/foreground/background notification behavior without macOS/iOS runtime validation.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-community/push-notification-ios version time repository.url peerDependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:push-notification-bridge-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:push-notification-ios-usage-scope`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.395 - Firebase latest evidence in release-services summary
 
 - Branch: `feature/bem-37-395-firebase-latest-evidence`

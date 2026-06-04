@@ -1,4 +1,5 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { execFileSync } from 'child_process';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -6,7 +7,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'push-notification-bridge-summary.txt');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
+const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 export const pushNotificationInfoPlists = ['ios/GoldWallet/Info.plist', 'ios/GoldWalletDev-Info.plist', 'ios/GoldWalletStage-Info.plist'];
+const packageName = '@react-native-community/push-notification-ios';
+
+const npmViewJson = (npmPackageName, fields) =>
+  JSON.parse(
+    execFileSync(npmCommand, npmArgs(['view', npmPackageName, ...fields, '--json']), {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    }),
+  );
 
 const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {
@@ -21,8 +35,26 @@ export const collectPushNotificationBridgeAudit = () => {
   const appDelegateHeader = read('ios/GoldWallet/AppDelegate.h');
   const appDelegateSource = read('ios/GoldWallet/AppDelegate.m');
   const packageJson = JSON.parse(read('package.json'));
+  const dependencyVersion = packageJson.dependencies?.[packageName] || '';
+  const installedPackageJsonPath = path.join(root, 'node_modules', packageName, 'package.json');
+  const installedVersion = existsSync(installedPackageJsonPath) ? JSON.parse(readFileSync(installedPackageJsonPath, 'utf8')).version || '' : '';
+  const npmMetadata = npmViewJson(packageName, ['version', 'time', 'repository.url']);
+  const packageLatestVersion = npmMetadata.version || '';
+  const packageLatestPublishedAt = npmMetadata.time?.[packageLatestVersion] || '';
+  const packageRepositoryUrl = npmMetadata['repository.url'] || npmMetadata.repository?.url || '';
+  const packageCurrent = dependencyVersion === packageLatestVersion && installedVersion === packageLatestVersion;
 
-  requireSnippet(errors, 'package.json', JSON.stringify(packageJson.dependencies || {}), '"@react-native-community/push-notification-ios":"1.12.0"');
+  if (!dependencyVersion) {
+    errors.push(`package.json is missing ${packageName}`);
+  }
+
+  if (!installedVersion) {
+    errors.push(`node_modules/${packageName}/package.json is missing or has no version`);
+  }
+
+  if (dependencyVersion && installedVersion && dependencyVersion !== installedVersion) {
+    errors.push(`${packageName} package.json version ${dependencyVersion} does not match installed version ${installedVersion}`);
+  }
   requireSnippet(errors, 'Navigator.tsx', runtimeSource, "from '@react-native-community/push-notification-ios'");
   requireSnippet(errors, 'Navigator.tsx', runtimeSource, 'PushNotificationIOS.setApplicationIconBadgeNumber');
   requireSnippet(errors, 'AppDelegate.h', appDelegateHeader, 'UNUserNotificationCenterDelegate');
@@ -50,6 +82,12 @@ export const collectPushNotificationBridgeAudit = () => {
   return {
     errors,
     readinessIssues,
+    dependencyVersion,
+    installedVersion,
+    packageLatestVersion,
+    packageLatestPublishedAt,
+    packageRepositoryUrl,
+    packageCurrent,
     ready: errors.length === 0 && readinessIssues.length === 0,
   };
 };
@@ -58,7 +96,14 @@ export const formatPushNotificationBridgeSummary = (audit, generatedAt = new Dat
   const lines = [
     'Push notification bridge audit',
     `Generated at: ${generatedAt}`,
+    `Push notification package dependency version: ${audit.dependencyVersion || 'missing'}`,
+    `Push notification package installed version: ${audit.installedVersion || 'missing'}`,
+    `Push notification package latest version: ${audit.packageLatestVersion || 'missing'}`,
+    `Push notification package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`,
+    `Push notification package npm repository: ${audit.packageRepositoryUrl || 'missing'}`,
+    `Push notification package current: ${audit.packageCurrent ? 'yes' : 'no'}`,
     `Push notification bridge wiring valid: ${audit.errors.length === 0 ? 'yes' : 'no'}`,
+    'Push notification runtime delivery validation: not claimed',
     `Static readiness issues: ${audit.readinessIssues.length}`,
   ];
 
@@ -76,6 +121,12 @@ export const formatPushNotificationBridgeSummary = (audit, generatedAt = new Dat
 
 const printReport = audit => {
   console.log('Push notification bridge audit');
+  console.log(`Push notification package dependency version: ${audit.dependencyVersion || 'missing'}`);
+  console.log(`Push notification package installed version: ${audit.installedVersion || 'missing'}`);
+  console.log(`Push notification package latest version: ${audit.packageLatestVersion || 'missing'}`);
+  console.log(`Push notification package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`);
+  console.log(`Push notification package npm repository: ${audit.packageRepositoryUrl || 'missing'}`);
+  console.log(`Push notification package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
 
   if (audit.errors.length > 0) {
     console.log('Push notification bridge wiring is invalid:');
