@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.402 - Secure-storage cleanup contract
+
+- Branch: `feature/bem-37-402-secure-storage-cleanup-contract`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused unit coverage for secure-storage cleanup when the legacy `react-native-secure-key-store` removal path fails because the legacy value is already absent or unavailable.
+- Keep the staged Keychain migration contract explicit before any later branch removes the legacy secure-storage package from Android/iOS.
+
+Findings:
+
+- Live npm metadata still reports `react-native-keychain@10.0.0` and `react-native-secure-key-store@2.0.10` as current/latest for the secure-storage pair.
+- `SecureStorageService.removeSecuredPassword()` already continues to `Keychain.resetGenericPassword()` after a legacy remove failure; this branch locks that wallet-critical cleanup behavior in a unit test.
+- Legacy secure-storage package removal remains blocked until migrated PIN, transaction-password, and encrypted wallet data are validated without fallback reads on a release/device path.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-keychain version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-secure-key-store version --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:secure-storage:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.401 - QR scanner validation gate
 
 - Branch: `feature/bem-37-401-qr-scanner-validation-gate`

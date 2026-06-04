@@ -159,4 +159,16 @@ describe('unit - SecureStorageService', function () {
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
   });
+
+  it('continues keychain cleanup when legacy secure store removal fails', async function () {
+    mockLegacySecureStore.remove.mockRejectedValueOnce(new Error('legacy value absent'));
+    mockSecureStore.resetGenericPassword.mockResolvedValueOnce(true);
+
+    await expect(service.removeSecuredPassword('pin')).resolves.toBe(true);
+    expect(mockLegacySecureStore.remove).toHaveBeenCalledWith('pin');
+    expect(mockSecureStore.resetGenericPassword).toHaveBeenCalledWith({
+      service: 'pin',
+      accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+    });
+  });
 });
