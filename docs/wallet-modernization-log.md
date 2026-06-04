@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.388 - Git dependency pin hardening
+
+- Branch: `feature/bem-37-388-git-dependency-pin-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Pin the remaining floating direct git dependencies to their audited lockfile/remote hashes.
+- Keep package contents unchanged while preventing fresh installs or lockfile refreshes from silently moving wallet-critical forks.
+- Refresh the git dependency snapshot documentation for the pinned-spec policy.
+
+Findings:
+
+- `git-deps:snapshot:audit` showed `electrum-client`, `react-native-prompt-android`, and `rn-nodeify` were current, but their `package.json` specs did not include the verified commit hash.
+- `electrum-client` is now pinned to `d4b653dd9c505b04b3132b9bc49450f00cad0f17`.
+- `react-native-prompt-android` is now pinned to `87bf3adb5f22b4d1ecaa517e93347101372398f5`.
+- `rn-nodeify` is now pinned to `338d8d6ba8438403093e9409e9a9d88ad884926f`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --mode=skip-builds`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:git-deps-snapshot-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.387 - BL latest blocker refresh
 
 - Branch: `feature/bem-37-387-bl-latest-blocker-refresh`
