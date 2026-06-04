@@ -4,7 +4,7 @@ const validSummary = [
   'Tooling latest snapshot audit',
   'Generated at: 2026-05-31T00:00:00.000Z',
   'Node version: v24.16.0',
-  'Entries: 12',
+  'Entries: 13',
   '- @eslint/js: package 10.0.1, installed 10.0.1, latest 10.0.1, decision current - latest ESLint recommended config package required by the ESLint 10 flat-config bridge',
   '- lint-staged: package 17.0.7, installed 17.0.7, latest 17.0.7, decision current - latest lint-staged verified on the Node 24 tooling baseline',
   '- husky: package 9.1.7, installed 9.1.7, latest 9.1.7, decision current - latest hook runner verified with repo-owned .husky hooks and precommit/prepush scripts',
@@ -16,6 +16,7 @@ const validSummary = [
   '- mailosaur: package 11.1.1, installed 11.1.1, latest 11.1.1, decision current - latest E2E mail helper verified with TypeScript',
   '- jsdom: package 29.1.1, installed 29.1.1, latest 29.1.1, decision current - latest E2E mail DOM parser verified with TypeScript and helper probe',
   '- jetifier: package 2.0.0, installed 2.0.0, latest 2.0.0, decision current - latest AndroidX migration helper verified with postinstall, Android build, and emulator smoke',
+  '- detox: package 20.51.3, installed 20.51.3, latest 20.51.3, decision current - latest Detox runner version is guarded by check:detox-readiness; Android Detox build passed and iOS runtime validation remains a macOS follow-up',
   '- typescript: package 6.0.3, installed 6.0.3, latest 6.0.3, decision current - latest TypeScript compiler verified with the RN/test baseline validation gates',
   'Deferred entries: 0',
   'Required action: use this snapshot before tooling dependency branches; no package versions are changed by this audit.',
@@ -53,7 +54,7 @@ assertRejected(
   validSummary.replace('Generated at: 2026-05-31T00:00:00.000Z', 'Generated at: now'),
   'ISO timestamp',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 12', 'Entries: 2'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 13', 'Entries: 2'), 'Entries count');
 assertRejected(
   'Missing required action fixture',
   validSummary.replace('tooling dependency branches', 'future work'),
@@ -101,6 +102,11 @@ assertRejected(
   'Missing AndroidX tooling fixture',
   validSummary.replace('- jetifier:', '- missing-androidx-tool:'),
   'AndroidX migration tooling',
+);
+assertRejected(
+  'Missing Detox runner tooling fixture',
+  validSummary.replace('- detox:', '- missing-runner:'),
+  'Detox runner tooling',
 );
 assertRejected(
   'Missing ESLint flat config tooling fixture',

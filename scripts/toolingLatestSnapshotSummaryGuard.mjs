@@ -116,6 +116,10 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
     errors.push('summary must include AndroidX migration tooling');
   }
 
+  if (!entryLines.some(line => line.startsWith('detox: package '))) {
+    errors.push('summary must include Detox runner tooling');
+  }
+
   if (!entryLines.some(line => line.includes('typescript'))) {
     errors.push('summary must include TypeScript');
   }
