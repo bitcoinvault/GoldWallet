@@ -48,7 +48,7 @@ corepack yarn check:storage-network-validation-scripts-guard
 corepack yarn check:storage-network-validation-scripts
 ```
 
-The guard verifies that `test:terms-webview:unit`, `test:secure-storage:unit`, `test:storage`, `test:authenticator`, and `test:wallet-core:offline` keep pointing at existing focused Jest files and remain part of `prepush`.
+The guard verifies that `test:terms-webview:unit`, `test:electrum-reconnect:unit`, `test:secure-storage:unit`, `test:storage`, `test:authenticator`, and `test:wallet-core:offline` keep pointing at existing focused Jest files and remain part of `prepush`.
 
 ## Latest Npm Snapshot
 
@@ -166,7 +166,7 @@ Focused tests by dependency:
 - Secure storage wrapper contract: `corepack yarn test:secure-storage:unit`.
 - AsyncStorage: `corepack yarn test:storage`, `corepack yarn test:wallet-core:offline`.
 - Secure storage: `corepack yarn test:authenticator`.
-- TCP socket / NetInfo: Android smoke plus Electrum connectivity observation; funded transaction flow remains blocked until a funded BTCV testnet wallet is available.
+- TCP socket / NetInfo: run `corepack yarn test:electrum-reconnect:unit`, Android smoke, and Electrum connectivity observation; funded transaction flow remains blocked until a funded BTCV testnet wallet is available.
 - Config: verify app starts with the expected flavor/env and does not lose Electrum, explorer, Sentry, or CodePush values.
 - WebView: run `corepack yarn test:terms-webview:unit`, then manually open terms screens and verify WebView content loads for release-candidate validation.
 

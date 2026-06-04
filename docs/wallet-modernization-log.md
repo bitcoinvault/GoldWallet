@@ -16953,3 +16953,26 @@ Validation:
 - `corepack yarn test:terms-webview:unit`
 - `corepack yarn check:storage-network-validation-scripts-guard`
 - `corepack yarn check:storage-network-validation-scripts`
+
+### BEM-37.417 - Electrum reconnect unit validation gate
+
+- Branch: `feature/bem-37-417-electrum-reconnect-unit-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `test:electrum-reconnect:unit` for the existing offline `BlueElectrum` reconnect handling test.
+- Include the Electrum reconnect unit test in the guarded storage/network focused validation script set.
+- Keep live Electrum connectivity and funded transaction QA separate from this offline validation gate.
+
+Findings:
+
+- `tests/unit/BlueElectrum.test.js` mocks `electrum-client` and `react-native-config`, so it validates reconnect scheduling without opening a real Electrum socket.
+- The focused storage/network validation set now covers Terms WebView, Electrum reconnect, secure storage, storage fallback, authenticator, and wallet-core offline behavior.
+- Live Electrum connectivity still needs Android runtime observation when env host/protocol values change; this branch only makes the offline reconnect contract part of the default focused gate.
+
+Validation:
+
+- `corepack yarn test:electrum-reconnect:unit`
+- `corepack yarn check:storage-network-validation-scripts-guard`
+- `corepack yarn check:storage-network-validation-scripts`
