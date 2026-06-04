@@ -14,6 +14,7 @@ jest.mock('../../BlueElectrum', () => ({
 const assert = require('assert');
 const bitcoin = require('bitcoinjs-lib');
 
+const signer = require('../../models/signer');
 const config = require('../../src/config').default;
 
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
@@ -99,6 +100,51 @@ describe('HD wallet offline flows', () => {
     assert.strictEqual(sendMaxTx.outs.length, 1);
     assert.strictEqual(bitcoin.address.fromOutputScript(sendMaxTx.outs[0].script, config.network), recipientAddress);
     assert.strictEqual(sendMaxTx.outs[0].value, 19000);
+  });
+
+  it('uses the cached WIF values when signing Segwit HD BIP49 UTXOs', async () => {
+    const mnemonic =
+      'fiber quiz produce chuckle sort crisp price direct speak recipe adult layer thumb lift tape start peace wave jungle fluid green interest cave learn';
+    const hd = new HDSegwitP2SHWallet();
+
+    await hd.setSecret(mnemonic);
+
+    const [fundingAddress, recipientAddress] = hd.getAddress();
+    const expectedChangeAddress = hd.getAddressForTransaction();
+    const expectedWif = hd._getWifForAddress(fundingAddress);
+    const utxos = [
+      {
+        txid: 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        vout: 0,
+        value: 30000,
+        address: fundingAddress,
+      },
+    ];
+    const originalUtxos = JSON.parse(JSON.stringify(utxos));
+    const createHDSegwitTransactionSpy = jest
+      .spyOn(signer, 'createHDSegwitTransaction')
+      .mockResolvedValueOnce({ tx: 'mocked-signed-transaction', fee: 1000 });
+
+    await expect(hd.createTx(utxos, 0.00005, 0.00001, recipientAddress)).resolves.toEqual({
+      tx: 'mocked-signed-transaction',
+      fee: 1000,
+    });
+
+    assert.deepStrictEqual(originalUtxos, utxos);
+    assert.strictEqual(createHDSegwitTransactionSpy.mock.calls.length, 1);
+    const [signedUtxos, signedToAddress, signedAmountPlusFee, signedFee, signedChangeAddress] =
+      createHDSegwitTransactionSpy.mock.calls[0];
+    const [signedUtxo] = signedUtxos;
+
+    assert.strictEqual(signedUtxo.address, fundingAddress);
+    assert.strictEqual(signedUtxo.wif, expectedWif);
+    assert.strictEqual(signedToAddress, recipientAddress);
+    assert.strictEqual(signedAmountPlusFee, 0.00006);
+    assert.strictEqual(signedFee, 0.00001);
+    assert.strictEqual(signedChangeAddress, expectedChangeAddress);
+    assert.throws(() => hd._getWifForAddress('RVmissingAddress'), /Could not find WIF/);
+
+    createHDSegwitTransactionSpy.mockRestore();
   });
 
   it('can normalize malformed Segwit HD BIP49 mnemonic spacing', async () => {

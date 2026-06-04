@@ -31,7 +31,7 @@ const expectedDevDependencies = new Map([
 
 const requiredDocsSnippets = [
   ['docs/wallet-crypto-runtime-audit.md', 'bitcoinvault/bitcoinjs-lib'],
-  ['docs/wallet-crypto-runtime-audit.md', 'Latest npm checked on 2026-06-03'],
+  ['docs/wallet-crypto-runtime-audit.md', 'Latest npm checked on 2026-06-04'],
   ['docs/wallet-crypto-runtime-audit.md', 'Funded transaction flow remains blocked until a funded BTCV testnet wallet is available'],
   ['docs/wallet-crypto-runtime-audit.md', 'Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib`'],
   ['docs/dependency-upgrade-strategy.md', 'corepack yarn wallet:crypto-runtime:audit'],
@@ -49,6 +49,7 @@ const requiredSourceSnippets = [
   ['tests/integration/App.offline.test.js', 'single-key wallets derive stable BTCV addresses from the same compressed WIF'],
   ['tests/integration/HDWallet.offline.test.js', 'HD wallet offline flows'],
   ['tests/integration/HDWallet.offline.test.js', '_getWifForAddress'],
+  ['tests/integration/HDWallet.offline.test.js', 'uses the cached WIF values when signing Segwit HD BIP49 UTXOs'],
   ['tests/integration/HDWallet.offline.test.js', 'can create signed Segwit HD BIP49 transactions from offline UTXO fixtures'],
   ['tests/integration/HDWallet.offline.test.js', 'can create signed Bech32 Segwit HD transactions from offline UTXO fixtures'],
   ['tests/unit/signer.test.js', "require('bitcoinjs-lib')"],
