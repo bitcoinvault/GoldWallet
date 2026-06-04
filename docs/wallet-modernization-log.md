@@ -16751,3 +16751,26 @@ Validation:
 - `corepack yarn lint:baseline:audit`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
+
+### BEM-37.409 - Release-services handoff preflight guard
+
+- Branch: `feature/bem-37-409-release-handoff-preflight-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:release-services-validation-handoff-guard` to `rn:baseline:preflight`.
+- Keep the RN upgrade path audit aligned with the stricter baseline preflight command.
+- Document that the RN baseline pass now guards the release-services handoff sequence before aggregate release summary validation.
+
+Findings:
+
+- `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0` are already the latest checked package targets, so this branch does not change release-service package versions.
+- Sentry release source-map upload remains explicitly not claimed until `SENTRY_AUTH_TOKEN` and `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are available.
+- The release-services handoff already refreshes Android release evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, refreshes Sentry/Firebase/CodePush/push/iOS summaries, and ends with the aggregate release summary checker; the RN baseline now guards that command sequence.
+
+Validation:
+
+- `corepack yarn check:release-services-validation-handoff-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn release-services:validation:handoff:dry-run`
