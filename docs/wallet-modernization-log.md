@@ -1762,6 +1762,37 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
 - `corepack yarn android:dev:check-smoke-summary`
+
+### BEM-37.379 - Android release evidence refresh
+
+- Branch: `feature/bem-37-379-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release validation evidence after release-input fingerprint drift from recent modernization branches.
+- Rebuild `dev`, `stage`, `prod`, and `beta` release APK evidence with Sentry auto-upload disabled locally.
+- Re-run Sentry, Firebase, and CodePush release-service audits against the fresh release summary and APK manifest proof.
+
+Findings:
+
+- Sentry and Firebase release-service audits are on the current package lines but previously reported a stale Android release summary fingerprint.
+- `android:dev:release:verify-local` rebuilt all required release variants and validated APK paths, byte counts, SHA-256 digests, the current release-input fingerprint, and actual release APK manifests.
+- Sentry release upload validation remains unclaimed locally because `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing.
+- CodePush release build evidence is ready, but CodePush update validation remains unclaimed and the long-term remove-or-replace decision is still required.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn release-services:check-summaries`
 - `corepack yarn android:dev:check-light`
 
 ### BEM-37.376 - Noble hashes Metro export compatibility
