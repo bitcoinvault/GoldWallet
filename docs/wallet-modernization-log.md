@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.403 - Android integration smoke checkpoint
+
+- Branch: `feature/bem-37-403-android-integration-smoke-checkpoint`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Record an integration-level Android build and emulator smoke checkpoint after the QR scanner validation gate and secure-storage cleanup contract branches were merged.
+- Keep the validation evidence in committed docs while leaving generated screenshots, UI hierarchy, and local smoke logs in ignored `local-docs/`.
+
+Findings:
+
+- `:app:assembleDevDebug` completed successfully on JDK 17 with the current RN `0.85.3` and Android SDK 36 baseline.
+- Embedded emulator smoke installed `app-dev-debug.apk` on `emulator-5554`, cleared app data, completed first-run terms, PIN, transaction-password, email skip, and success-close flow.
+- The smoke helper reached the empty-wallet dashboard and found `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
+- The app process stayed alive, UI hierarchy was captured, screenshot artifact was non-empty, and logcat had no fatal Android runtime or React Native runtime findings.
+- The run did not require Metro because `android:dev:smoke:embedded` validated the bundled dev APK.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.402 - Secure-storage cleanup contract
 
 - Branch: `feature/bem-37-402-secure-storage-cleanup-contract`
