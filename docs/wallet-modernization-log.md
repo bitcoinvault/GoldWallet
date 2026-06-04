@@ -16643,3 +16643,44 @@ Validation:
 - `corepack yarn lint:baseline:audit`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
+
+### BEM-37.406 - React 19 patch blocker refresh
+
+- Branch: `feature/bem-37-406-react-19-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check the latest stable React and React Native metadata for the current RN `0.85.3` baseline.
+- Probe the package-only `react@19.2.7` and `react-test-renderer@19.2.7` patch path.
+- Keep the committed package baseline on `react@19.2.3` and `react-test-renderer@19.2.3` because the current RN renderer remains exact-version sensitive.
+
+Findings:
+
+- `npm view react version --json` reports `19.2.7`.
+- `npm view react-test-renderer version peerDependencies --json` reports `19.2.7` and peer `react: ^19.2.7`.
+- `npm view react-native@0.85.3 peerDependencies dependencies version --json` reports peer `react: ^19.2.3`, so `react@19.2.7` remains within the React Native peer range.
+- `npm view react-native version --json` reports `0.85.3`.
+- The package probe made `corepack yarn android:dev:check-light` fail at `rn:upgrade-path:audit`, because the guarded baseline intentionally rejects package-only React movement past `19.2.3`.
+- Prior Android emulator evidence in this log records the runtime blocker: `react-native-renderer` is still exact-version sensitive at `19.2.3` and redboxes when React moves to a newer patch without a matching RN renderer.
+- The attempted package changes were not kept; React patch movement must happen with the next React Native renderer/foundation jump.
+
+Validation:
+
+- `npm view react version --json`
+- `npm view react-test-renderer version peerDependencies --json`
+- `npm view react-native@0.85.3 peerDependencies dependencies version --json`
+- `npm view react-native version --json`
+- `corepack yarn outdated --json`
+- `corepack yarn add react@19.2.7`
+- `corepack yarn add -D react-test-renderer@19.2.7`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn android:dev:check-light` (expected failure while probing package-only React patch)
+- `git restore package.json yarn.lock`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
