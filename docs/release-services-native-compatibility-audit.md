@@ -26,7 +26,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 - Android `MainApplication.java` and iOS `AppDelegate.m` resolve JS bundles through CodePush only when `CODEPUSH_ENABLED=true` and the platform deployment key is non-empty.
 - `Main.tsx` reports boot splash AppState errors to Sentry.
 - `logger/index.ts` is part of the guarded Sentry runtime import surface.
-- `src/services/NotificationServices.tsx` requests Android 13+ `POST_NOTIFICATIONS`, requests Firebase Messaging permission, and stores the FCM token in Redux.
+- `src/services/NotificationServices.tsx` requests Android 13+ `POST_NOTIFICATIONS` before Firebase Messaging permission, requests Firebase Messaging permission, and stores the FCM token in Redux.
 - `src/navigators/Navigator.tsx` imports Firebase Messaging for notification handling.
 
 The Sentry runtime import scope is already guarded by:
@@ -48,6 +48,8 @@ The Firebase runtime/native integration scope is guarded by:
 ```powershell
 corepack yarn check:firebase-usage-guard
 corepack yarn check:firebase-usage-scope
+corepack yarn check:android-notification-permission-flow-guard
+corepack yarn check:android-notification-permission-flow
 ```
 
 The iOS push notification bridge scope is guarded by:
@@ -219,7 +221,7 @@ corepack yarn android:dev:smoke
 
 Release-service-specific validation:
 
-- Firebase Messaging: confirm Android 13+ notification permission, FCM token retrieval, and notification handling path; start with `corepack yarn firebase:release-services:audit` and `corepack yarn firebase:release-services:check-summary`.
+- Firebase Messaging: confirm Android 13+ notification permission, FCM token retrieval, and notification handling path; start with `corepack yarn check:android-notification-permission-flow-guard`, `corepack yarn check:android-notification-permission-flow`, `corepack yarn firebase:release-services:audit`, and `corepack yarn firebase:release-services:check-summary`.
 - Crashlytics: confirm Android Crashlytics Gradle task configuration and iOS pod/build integration; start with `corepack yarn firebase:release-services:audit` and `corepack yarn firebase:release-services:check-summary`.
 - Analytics: confirm app startup does not crash and analytics package initialization remains compatible; start with `corepack yarn firebase:release-services:audit` and `corepack yarn firebase:release-services:check-summary`.
 - CodePush: validate a non-dev build path because CodePush is disabled under `__DEV__`; start with `corepack yarn codepush:release:path-audit` and `corepack yarn codepush:release:path-check-summary`.

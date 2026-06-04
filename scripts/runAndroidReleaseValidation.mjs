@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -27,6 +27,13 @@ if (invalidVariants.length > 0) {
 const capitalize = value => `${value[0].toUpperCase()}${value.slice(1)}`;
 const getApkPath = variant =>
   path.join(root, 'android', 'app', 'build', 'outputs', 'apk', variant, 'release', `app-${variant}-release-unsigned.apk`);
+const getReleaseVariantName = variant => `${variant}Release`;
+const getGeneratedReactPaths = variant => [
+  path.join(root, 'android', 'app', 'build', 'generated', 'assets', 'react', getReleaseVariantName(variant)),
+  path.join(root, 'android', 'app', 'build', 'generated', 'res', 'react', getReleaseVariantName(variant)),
+  path.join(root, 'android', 'app', 'build', 'generated', 'sourcemaps', 'react', getReleaseVariantName(variant)),
+  path.join(root, 'android', 'app', 'build', 'intermediates', 'sourcemaps', 'react', getReleaseVariantName(variant)),
+];
 
 const env = {
   ...process.env,
@@ -35,6 +42,11 @@ const env = {
 
 const startedAt = new Date().toISOString();
 const variantResults = requestedVariants.map(variant => {
+  const cleanedGeneratedReactPaths = getGeneratedReactPaths(variant);
+  cleanedGeneratedReactPaths.forEach(generatedPath => {
+    rmSync(generatedPath, { recursive: true, force: true });
+  });
+
   const task = `:app:assemble${capitalize(variant)}Release`;
   const result = spawnSync(process.execPath, [path.join(root, 'scripts', 'runAndroidGradle.mjs'), task, '--stacktrace'], {
     cwd: root,
@@ -55,6 +67,7 @@ const variantResults = requestedVariants.map(variant => {
     apkExists,
     apkSize,
     apkSha256,
+    cleanedGeneratedReactPaths,
   };
 });
 const javaVersion = spawnSync(javaCommand, ['-version'], {
@@ -81,6 +94,7 @@ const summary = [
     `Variant ${result.variant} Release APK exists: ${result.apkExists ? 'yes' : 'no'}`,
     `Variant ${result.variant} Release APK bytes: ${result.apkSize}`,
     `Variant ${result.variant} Release APK sha256: ${result.apkSha256}`,
+    `Variant ${result.variant} cleaned generated React paths: ${result.cleanedGeneratedReactPaths.map(cleanedPath => path.relative(root, cleanedPath)).join(', ')}`,
     `Variant ${result.variant} spawn error: ${result.error || 'none'}`,
   ]),
   'Required Sentry upload follow-up: provide sentry.properties/defaults.org/defaults.project/auth.token or SENTRY_AUTH_TOKEN before claiming source-map upload validation.',
