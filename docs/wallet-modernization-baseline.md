@@ -23,7 +23,7 @@ All modernization work should be developed on focused task branches and merged i
 - babel-jest: `30.4.1`
 - jest-environment-node: `30.4.1`
 - ts-jest: `29.4.11`
-- Detox: `18.20.1`
+- Detox: `20.51.3`
 - RN Babel preset: `0.85.3`
 - RN Metro config: `0.85.3`
 - Hermes: disabled

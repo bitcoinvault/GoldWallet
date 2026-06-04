@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.391 - Detox latest readiness evidence
+
+- Branch: `feature/bem-37-391-detox-latest-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire `check:detox-readiness` into `rn:baseline:preflight` so Detox runner wiring is guarded during RN/tooling baseline checks.
+- Refresh the tooling latest snapshot decision for Detox now that the repo is already on `detox@20.51.3`.
+- Update the baseline documentation from the old Detox `18.20.1` entry to the current Detox `20.51.3` line.
+- Extend the tooling latest snapshot summary guard so Detox remains a required tracked tooling entry.
+
+Findings:
+
+- Live npm metadata reports `detox@20.51.3` as the current version, matching `package.json`.
+- Android `com.wix:detox` is already pinned to `20.51.3`, matching the npm package.
+- `.detoxrc.json` already uses the Detox 20 runner-object format and guarded Android/iOS build wrappers.
+- The prior tooling latest snapshot marked Detox as deferred even though the latest package and static runner wiring were already adopted.
+- The first full `rn:baseline:preflight` run correctly detected stale Android release evidence after `package.json` changed; `android:dev:release:verify-local` refreshed dev, stage, prod, and beta release evidence before the second preflight passed.
+- iOS Detox runtime validation remains a macOS/Xcode follow-up; this branch does not claim iOS simulator execution on Windows.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view detox version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:detox-readiness`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:tooling-latest-snapshot-summary-guard` failed once while tightening the new Detox negative fixture; the fixture was corrected and rerun.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:baseline:preflight` failed once on stale Android release evidence, as expected after `package.json` changed.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.390 - Tooling latest online preflight coverage
 
 - Branch: `feature/bem-37-390-tooling-online-preflight`

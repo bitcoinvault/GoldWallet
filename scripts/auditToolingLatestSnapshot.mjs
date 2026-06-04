@@ -131,7 +131,7 @@ const trackedTooling = [
   {
     name: 'detox',
     source: 'devDependencies',
-    decision: 'deferred - Detox major migration requires dedicated Android/iOS E2E runner validation',
+    decision: 'current - latest Detox runner version is guarded by check:detox-readiness; Android Detox build passed and iOS runtime validation remains a macOS follow-up',
   },
 ];
 
