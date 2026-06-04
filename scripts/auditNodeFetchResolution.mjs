@@ -10,17 +10,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'node-fetch-resolution-summary.txt');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 const expectedResolution = '2.7.0';
 const commonJsConsumers = ['gaxios', 'isomorphic-fetch'];
 
 const npmViewJson = (packageName, fields) =>
   JSON.parse(
-    execFileSync(npmCommand, ['view', packageName, ...fields, '--json'], {
+    execFileSync(npmCommand, npmArgs(['view', packageName, ...fields, '--json']), {
       cwd: root,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: process.platform === 'win32',
       windowsHide: true,
     }),
   );

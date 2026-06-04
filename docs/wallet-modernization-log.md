@@ -1514,6 +1514,68 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
 - `corepack yarn android:dev:check-smoke-summary`
+
+### BEM-37.370 - Node 24 tooling runtime
+
+- Branch: `feature/bem-37-370-node24-tooling-runtime`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the local Node runtime baseline from `22.18.0` to `24.16.0`.
+- Update `lint-staged` from `16.4.0` to `17.0.7`.
+- Update Metro, Android dev environment, React Native target, and tooling snapshot guards to the Node 24 baseline.
+- Keep Windows npm metadata audits compatible with Node 24 by using `cmd.exe /d /s /c npm ...` instead of deprecated `shell: true` helpers.
+
+Findings:
+
+- The Node.js release index reports `v24.16.0` as the current Node 24 LTS line.
+- `npm view lint-staged version engines --json` reports latest `17.0.7` with `node >=22.22.1`, so the Node 24 runtime satisfies the current tooling engine floor.
+- Direct `spawnSync('npm.cmd', ...)` failed on Windows under Node 24, so npm metadata helpers now route through `cmd.exe` without enabling generic shell execution.
+- Refreshing Android release evidence after the package update restored current release-summary fingerprints for CodePush, Firebase, and Sentry summary guards.
+- Release-service audits still do not claim update/upload validation without the missing external secrets and environment decisions: blank dev CodePush keys, unconfirmed beta CodePush keys, and missing `SENTRY_AUTH_TOKEN`/`sentry.properties`.
+
+Validation:
+
+- `node --version`
+- `npm --version`
+- `corepack yarn --version`
+- `npm view lint-staged version engines --json`
+- `corepack yarn add --dev lint-staged@17.0.7`
+- `corepack yarn metro:dev-runtime:audit`
+- `corepack yarn check:node-runtime-transition-guard`
+- `corepack yarn node:runtime-transition:audit`
+- `corepack yarn lint-staged:tooling:audit`
+- `corepack yarn check:rn-target-snapshot-guard`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:076-foundation:audit`
+- `corepack yarn check:metro-dev-runtime-audit-guard`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:env-audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn rn:baseline:preflight`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
 

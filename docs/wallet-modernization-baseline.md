@@ -33,8 +33,8 @@ All modernization work should be developed on focused task branches and merged i
 
 Current stack:
 
-- Node.js for Metro/dev runtime: Node 22 LTS-compatible runtime
-- Repository Node hint: `.nvmrc` -> `22.18.0`
+- Node.js for Metro/dev runtime: Node 24 LTS runtime
+- Repository Node hint: `.nvmrc` -> `24.16.0`
 - Yarn: `1.22.22` via Corepack
 - Git hooks: Husky `9.1.7` with repo-owned `.husky/pre-commit` and `.husky/pre-push` forwarding to `yarn precommit` and `yarn prepush`
 - Android build JDK: JDK 17 required by the AGP 8.13 baseline
@@ -87,10 +87,10 @@ corepack yarn android:dev:verify
 
 ## Current Metro Setup
 
-Metro should be started with Node 22 for the current React Native 0.81 stack:
+Metro should be started with Node 24 for the current React Native 0.85 stack:
 
 ```powershell
-$env:Path='D:\tmp\node\node-v22.18.0-win-x64;' + $env:Path
+$env:Path='D:\tmp\node\node-v24.16.0-win-x64;' + $env:Path
 corepack yarn start --reset-cache
 ```
 
@@ -138,7 +138,7 @@ Passing:
 - `corepack yarn rn:baseline:preflight`
 - `corepack yarn rn:baseline:preflight:online`
 - `corepack yarn android:dev:check-light`
-- Metro dev runtime audit verifies the Node 22 `.nvmrc`, React Native `0.85.3`, RN Babel/Metro config packages, start script, and documentation baseline.
+- Metro dev runtime audit verifies the Node 24 `.nvmrc`, React Native `0.85.3`, RN Babel/Metro config packages, start script, and documentation baseline.
 - Android lightweight check runs the Android warning baseline guard, Android warning artifact guard, Android dev environment audit self-check, Metro dev runtime audit self-check, React Native upgrade path audit self-check, React Native upgrade path audit, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, QR render usage self-check/inventory guard, legacy Android autolink self-check/guard, Sentry usage self-check/inventory guard, Sentry release integration self-check/guard, CodePush usage self-check/inventory guard, Firebase usage self-check/inventory guard, iOS push notification usage self-check/inventory guard, release-service env key self-check/guard, Android env mapping self-check/guard, iOS scheme config self-check/guard, storage/network usage self-check/guard, storage/network validation script self-check/guard, native module inventory self-check/inventory guard, native module upgrade-plan self-check/coverage guard, git dependency snapshot guard, node-fetch resolution guard, secure-storage removal readiness guard, RN nodeify shim self-check/inventory guard, modernization log ID guard self-check, modernization log ID guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
 - `corepack yarn prepush` starts with `android:dev:check-light` before promoted offline Jest suites.
 - `corepack yarn typescript:check`

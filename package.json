@@ -62,7 +62,7 @@
     "jiti": "2.7.0",
     "jsdom": "29.1.1",
     "junit-report-merger": "9.0.4",
-    "lint-staged": "16.4.0",
+    "lint-staged": "17.0.7",
     "mailosaur": "11.1.1",
     "patch-package": "8.0.1",
     "prettier": "3.8.3",

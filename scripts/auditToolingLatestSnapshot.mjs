@@ -121,7 +121,7 @@ const trackedTooling = [
   {
     name: 'lint-staged',
     source: 'devDependencies',
-    decision: 'deferred - latest requires a newer Node baseline',
+    decision: 'current - latest lint-staged verified on the Node 24 tooling baseline',
   },
   {
     name: 'husky',
@@ -135,13 +135,13 @@ const trackedTooling = [
   },
 ];
 
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 const npmViewVersion = packageName =>
   JSON.parse(
-    execFileSync(npmCommand, ['view', packageName, 'version', '--json'], {
+    execFileSync(npmCommand, npmArgs(['view', packageName, 'version', '--json']), {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: process.platform === 'win32',
       windowsHide: true,
     }).trim(),
   );

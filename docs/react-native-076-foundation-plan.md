@@ -8,7 +8,7 @@ This document records the first completed React Native foundation checkpoint. Th
 - React: `19.2.3`
 - RN Babel preset: `0.85.3`
 - RN Metro config: `0.85.3`
-- Metro/dev Node runtime: `22.18.0`
+- Metro/dev Node runtime: `24.16.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
 - Android Gradle Plugin: `8.13.2`
@@ -32,13 +32,13 @@ Important metadata:
 
 - `react-native@0.85.3` peers: React `^19.2.3`; the app pins React `19.2.3` to match `react-native-renderer` exactly.
 - `react-native@0.85.3` Node engine: `>=20.19.4`.
-- The repository keeps Metro/dev runtime on Node `22.18.0`, which satisfies the RN `0.85.3` engine range and the recorded later target snapshot.
+- The repository keeps Metro/dev runtime on Node `24.16.0`, which satisfies the RN `0.85.3` engine range and the recorded later target snapshot.
 
 ## Completed Template Scope
 
 The RN `0.85.3` checkpoint included package and template/native migration together:
 
-- Node/dev runtime move from the old Node 16 baseline to Node 22 for Metro and RN tooling.
+- Node/dev runtime move from the old Node 16/22 baselines to Node 24 LTS for Metro and RN tooling.
 - Babel config migration from `metro-react-native-babel-preset` to the RN 0.85 preset stack.
 - Metro config migration to the RN 0.85 Metro config package.
 - Android Gradle settings and plugin wiring for `@react-native/gradle-plugin`.
@@ -83,7 +83,7 @@ Then move to the next milestone target with package and template/native changes 
 - `corepack yarn typescript:check`
 - `git diff --check`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
-- Metro restart with Node 22 and `--reset-cache`.
+- Metro restart with Node 24 and `--reset-cache`.
 - Install dev APK on emulator, run `adb reverse tcp:8081 tcp:8081`, launch the app, and inspect UI/logcat.
 - Smoke pass: dashboard renders `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`; no AndroidRuntime crash; no React Native runtime/bundle error.
 

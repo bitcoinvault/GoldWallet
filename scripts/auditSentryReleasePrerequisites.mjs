@@ -23,6 +23,8 @@ const createScriptPath = path.join(root, 'create-sentry-properties.sh');
 const createNodeScriptPath = path.join(root, 'scripts', 'createSentryProperties.mjs');
 const sentryCliPackagePath = path.join(root, 'node_modules', '@sentry', 'cli', 'package.json');
 const sentryCliBinPath = path.join(root, 'node_modules', '@sentry', 'cli', 'bin', 'sentry-cli');
+const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const readJson = relativePath => JSON.parse(read(relativePath));
@@ -40,11 +42,10 @@ const parseProperties = content =>
       .map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]),
   );
 const npmViewVersion = packageName =>
-  execFileSync('npm', ['view', packageName, 'version'], {
+  execFileSync(npmCommand, npmArgs(['view', packageName, 'version']), {
     cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
-    shell: process.platform === 'win32',
     windowsHide: true,
   }).trim();
 

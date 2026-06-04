@@ -3,10 +3,10 @@ import { getToolingLatestSnapshotSummaryErrors } from './toolingLatestSnapshotSu
 const validSummary = [
   'Tooling latest snapshot audit',
   'Generated at: 2026-05-31T00:00:00.000Z',
-  'Node version: v22.18.0',
+  'Node version: v24.16.0',
   'Entries: 12',
   '- @eslint/js: package 10.0.1, installed 10.0.1, latest 10.0.1, decision current - latest ESLint recommended config package required by the ESLint 10 flat-config bridge',
-  '- lint-staged: package 16.4.0, installed 16.4.0, latest 17.0.7, decision deferred - latest requires a newer Node baseline',
+  '- lint-staged: package 17.0.7, installed 17.0.7, latest 17.0.7, decision current - latest lint-staged verified on the Node 24 tooling baseline',
   '- husky: package 9.1.7, installed 9.1.7, latest 9.1.7, decision current - latest hook runner verified with repo-owned .husky hooks and precommit/prepush scripts',
   '- jest: package 30.4.2, installed 30.4.2, latest 30.4.2, decision current - latest Jest runtime verified with RN preset environment resolutions and focused suites',
   '- jest-environment-node: package 30.4.1, installed 30.4.1, latest 30.4.1, decision current - latest Jest environment required to keep the RN preset compatible with Jest 30 runtime',
@@ -17,7 +17,7 @@ const validSummary = [
   '- jsdom: package 29.1.1, installed 29.1.1, latest 29.1.1, decision current - latest E2E mail DOM parser verified with TypeScript and helper probe',
   '- jetifier: package 2.0.0, installed 2.0.0, latest 2.0.0, decision current - latest AndroidX migration helper verified with postinstall, Android build, and emulator smoke',
   '- typescript: package 6.0.3, installed 6.0.3, latest 6.0.3, decision current - latest TypeScript compiler verified with the RN/test baseline validation gates',
-  'Deferred entries: 1',
+  'Deferred entries: 0',
   'Required action: use this snapshot before tooling dependency branches; no package versions are changed by this audit.',
   '',
 ].join('\n');

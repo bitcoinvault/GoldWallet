@@ -8,7 +8,7 @@ This matrix defines how to move the app foundation forward without upgrading eve
 - React: `19.2.3`
 - RN Babel preset: `0.85.3`
 - RN Metro config: `0.85.3`
-- Metro/dev Node runtime: `22.18.0`
+- Metro/dev Node runtime: `24.16.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
 - Android Gradle Plugin: `8.13.2`
@@ -42,7 +42,7 @@ Expected branch scope:
 
 - React Native, React, React Test Renderer, React types.
 - Metro/Babel preset/runtime packages required by RN 0.85.
-- Node dev runtime move from 16 to 22 for this branch.
+- Node dev runtime move from 16/22 to 24 LTS for this branch.
 - Android template, Gradle, Kotlin, AGP, manifest, New Architecture, and native autolinking changes required by RN 0.85.
 - iOS Podfile/template drift documented separately if it cannot be validated on this Windows machine.
 
