@@ -16716,3 +16716,38 @@ Validation:
 - `corepack yarn lint:baseline:audit`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
+
+### BEM-37.408 - QR render validation gate
+
+- Branch: `feature/bem-37-408-qr-render-validation-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused QR render unit coverage for the five guarded `react-native-qrcode-svg` screens.
+- Add `test:qr-render:unit` and `check:qr-render-validation-scripts`.
+- Wire the QR render validation guard into `android:dev:check-light` and `prepush`.
+- Export the unconnected Receive and Options Authenticator screen classes for focused unit testing while preserving their existing connected default exports.
+
+Findings:
+
+- Live npm metadata still reports `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4` as the latest stable packages checked for this branch.
+- Live npm metadata reports `react-native-vision-camera@5.0.11`, but it peers `react-native-nitro-image` and `react-native-nitro-modules`; that migration remains a separate camera architecture branch, not a QR render validation branch.
+- The QR render surface covers wallet-sensitive values: receive address URI, contact address, wallet secret, wallet xpub, and authenticator QR payload.
+
+Validation:
+
+- `npm view react-native-camera-kit version engines peerDependencies dependencies --json`
+- `npm view react-native-qrcode-svg version peerDependencies dependencies --json`
+- `npm view qrcode version dependencies --json`
+- `npm view react-native-vision-camera version engines peerDependencies dependencies --json`
+- `node --check scripts/checkQrRenderValidationScripts.mjs`
+- `corepack yarn check:qr-render-validation-scripts`
+- `corepack yarn test:qr-render:unit`
+- `corepack yarn test:qr-scanner:unit`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`

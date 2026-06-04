@@ -26,6 +26,8 @@ Guard commands:
 ```powershell
 corepack yarn check:qr-render-usage-guard
 corepack yarn check:qr-render-usage
+corepack yarn check:qr-render-validation-scripts
+corepack yarn test:qr-render:unit
 ```
 
 ## Npm Compatibility Snapshot
@@ -61,6 +63,7 @@ dependencies:
 - `BEM-37.158` revalidates the latest `react-native-qrcode-svg@6.3.21` line with root `qrcode@1.5.4` on RN `0.85.3`; upstream documents RN `0.75+` as compatible without the TextEncoder Metro transform required for older React Native versions.
 - A future major QR rendering upgrade should still treat `react-native-svg` and `react-native-qrcode-svg` as a coupled compatibility pair, not as independent patch bumps.
 - The QR render surface is small and now guarded, but it covers sensitive flows: receive address QR, contact QR, wallet secret export, xpub export, and authenticator QR display.
+- `BEM-37.408` adds focused unit coverage for those five guarded QR render screens so future `react-native-svg`, `react-native-qrcode-svg`, or QR payload changes must keep the expected values wired into `QRCode`.
 
 ## Decision
 
