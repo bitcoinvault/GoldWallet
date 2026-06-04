@@ -30,6 +30,9 @@ corepack yarn check:codepush-release-path-summary-guard
 corepack yarn codepush:migration:readiness-audit
 corepack yarn codepush:migration:readiness-check-summary
 corepack yarn check:codepush-migration-readiness-summary-guard
+corepack yarn codepush:removal-readiness:audit
+corepack yarn codepush:removal-readiness:check-summary
+corepack yarn check:codepush-removal-readiness-summary-guard
 ```
 
 Expected summary claims:
@@ -51,6 +54,8 @@ Expected summary claims:
 - the migration readiness summary records the current posture as temporary legacy compatibility;
 - the long-term options are recorded as remove or replace;
 - the readiness guard keeps the migration/removal decision visible even while the package remains on npm latest;
+- the removal-readiness summary records the exact runtime, Android, iOS, plist, and env-key surfaces that must be deleted or replaced;
+- the removal-readiness summary keeps `Safe to remove now: no` until the team chooses remove or replace;
 - no deployment key values are printed.
 
 ## Decision Needed
