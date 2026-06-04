@@ -19,7 +19,7 @@ const expectedDependencies = new Map([
   ['pbkdf2', '3.1.6'],
   ['wif', '5.0.0'],
   ['@bitcoinerlab/secp256k1', '1.2.0'],
-  ['react-native-randombytes', '3.6.2'],
+  ['react-native-get-random-values', '2.0.0'],
   ['crypto-js', '4.2.0'],
 ]);
 
@@ -52,6 +52,7 @@ const requiredSourceSnippets = [
   ['tests/integration/HDWallet.offline.test.js', 'can create signed Segwit HD BIP49 transactions from offline UTXO fixtures'],
   ['tests/integration/HDWallet.offline.test.js', 'can create signed Bech32 Segwit HD transactions from offline UTXO fixtures'],
   ['tests/unit/signer.test.js', "require('bitcoinjs-lib')"],
+  ['index.js', "import 'react-native-get-random-values'"],
 ];
 
 const packageVersionFromEntry = entryPath => {

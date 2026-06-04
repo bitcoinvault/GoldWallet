@@ -1717,6 +1717,53 @@ Validation:
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.375 - Remove deprecated randombytes bridge
+
+- Branch: `feature/bem-37-375-randombytes-removal-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove deprecated `react-native-randombytes` from `package.json` and `yarn.lock`.
+- Keep the existing `react-native-get-random-values@2.0.0` import in `index.js` as the app startup random-value provider.
+- Update wallet crypto, native inventory, and storage/network audits so guards track the active random-value provider instead of the removed bridge.
+- Remove stale iOS `RNRandomBytes` Xcode project and `Podfile.lock` references.
+
+Findings:
+
+- `npm view react-native-randombytes version deprecated peerDependencies dependencies engines --json` reports `3.6.2` as deprecated with the guidance to use `react-native-get-random-values` instead.
+- Source search found no direct app imports of `react-native-randombytes`; random-value runtime coverage already comes from `import 'react-native-get-random-values';` in `index.js`.
+- Initial guard failures were expected because the native inventory and wallet crypto audits still expected the removed package; the guards now validate `react-native-get-random-values@2.0.0`.
+- Static iOS readiness confirms no removed `react-native-randombytes` pod references remain, but broader `Podfile.lock` drift still requires macOS/Xcode pod refresh and archive validation.
+
+Validation:
+
+- `npm view react-native-randombytes version deprecated peerDependencies dependencies engines --json`
+- `npm view react-native-get-random-values version peerDependencies dependencies engines --json`
+- `rg "RNRandomBytes|react-native-randombytes" -n package.json yarn.lock scripts docs ios android src tests index.js`
+- `corepack yarn remove react-native-randombytes`
+- `corepack yarn postinstall`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn check:storage-network-usage-guard`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:watchonly:offline`
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn crypto-js:runtime:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+
 ### BEM-37.321 - BL buffer dependency compatibility probe
 
 - Branch: `feature/bem-37-321-bl-major-probe`

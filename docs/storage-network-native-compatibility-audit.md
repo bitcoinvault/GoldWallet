@@ -14,7 +14,6 @@ Tracked package versions:
 - `react-native-device-info`: manifest and lockfile `15.0.2`
 - `react-native-config`: manifest and lockfile `1.6.1`
 - `react-native-localize`: manifest and lockfile `3.7.0`
-- `react-native-randombytes`: manifest and lockfile `3.6.2`
 - `react-native-keychain`: manifest and lockfile `10.0.0`
 - `react-native-secure-key-store`: manifest and lockfile `2.0.10`
 - `react-native-tcp-socket`: manifest and lockfile `6.4.1`
@@ -31,7 +30,7 @@ Direct usage found in this audit:
 - `react-native-secure-key-store`: retained as a legacy fallback-read and cleanup backend during the Keychain migration window.
 - `react-native-tcp-socket`: TLS Electrum socket implementation. Updated from `6.0.6` to `6.4.1` in `BEM-36.50`.
 - `react-native-webview`: terms and conditions screens.
-- `react-native-randombytes`: tracked native dependency for crypto random byte behavior even though direct source usage is indirect through wallet/crypto dependencies. Updated from `3.5.3` to `3.6.2` in `BEM-36.49`.
+- `react-native-get-random-values`: manifest and lockfile `2.0.0`; imported in `index.js` before app startup. Deprecated `react-native-randombytes` is removed.
 
 The current usage surface is guarded by:
 
@@ -40,7 +39,7 @@ corepack yarn check:storage-network-usage-guard
 corepack yarn check:storage-network-usage
 ```
 
-The guard covers source and test imports for this group before storage, config, network, secure storage, randombytes, or WebView dependencies are changed.
+The guard covers source and test imports for this group before storage, config, network, secure storage, random-value, or WebView dependencies are changed.
 
 Focused storage/network validation scripts are guarded by:
 
@@ -95,11 +94,11 @@ peerDependencies:
 - react-native: *
 - react-native-macos: *
 
-react-native-randombytes latest: 3.6.2
+react-native-get-random-values latest: 2.0.0
 
-Note: npm marks `react-native-randombytes@3.6.2` as deprecated with a recommendation to use `react-native-get-random-values`. This audit keeps the existing package and treats replacement as a separate crypto/runtime migration.
+Note: npm marks `react-native-randombytes@3.6.2` as deprecated with a recommendation to use `react-native-get-random-values`. The deprecated bridge is removed; random-value runtime coverage now depends on the existing `react-native-get-random-values` import in `index.js`.
 
-Windows validation for `BEM-36.49` covered Android build and emulator smoke. `ios/Podfile.lock` still needs a Mac `pod install` refresh before iOS validation is claimed for the `react-native-randombytes` bump.
+Windows validation for the random-value provider migration must cover wallet crypto runtime audit, focused wallet/storage tests, Android build, and emulator smoke. `ios/Podfile.lock` still needs a Mac `pod install` refresh before iOS validation is claimed for the broader native dependency baseline.
 
 react-native-keychain latest: 10.0.0
 dist-tags:

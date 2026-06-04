@@ -104,7 +104,7 @@ Subset release evidence refreshes can still use `ANDROID_RELEASE_VARIANTS=beta` 
 
 `check:ios-scheme-config-guard` verifies the iOS scheme config guard self-check fixtures. `check:ios-scheme-config` verifies that the shared Xcode schemes still copy the guarded `.env` and Firebase plist files before release-service or rebranding changes alter iOS env selection.
 
-`check:storage-network-usage-guard` verifies the storage/network usage guard self-check fixtures. `check:storage-network-usage` verifies current imports for AsyncStorage, NetInfo, device-info, react-native-config, localization, secure storage, TCP socket, WebView, and randombytes before Group C native dependency changes.
+`check:storage-network-usage-guard` verifies the storage/network usage guard self-check fixtures. `check:storage-network-usage` verifies current imports for AsyncStorage, NetInfo, device-info, react-native-config, localization, secure storage, TCP socket, WebView, and the random-value provider before Group C native dependency changes.
 
 `check:storage-network-validation-scripts-guard` verifies the focused validation script guard self-check fixtures. `check:storage-network-validation-scripts` verifies that secure-storage, storage, authenticator, and wallet-core offline tests still exist as package scripts and remain part of `prepush` before Group C dependency changes.
 
