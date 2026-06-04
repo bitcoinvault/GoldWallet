@@ -175,7 +175,18 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const createNodeScriptSupportsRootOverride = createNodeScript.includes("arg === '--root'");
   const createNodePackageScriptPresent = scripts['sentry:release:create-properties'] === 'node scripts/createSentryProperties.mjs';
   const envHasToken = Boolean(env.SENTRY_AUTH_TOKEN);
-  const ready = missingFiles.length === 0 && invalidFiles.length === 0 && releaseIntegrationErrors.length === 0 && sentryCliExecutable;
+  const androidReleaseEvidenceReady =
+    hasAndroidReleaseSummary &&
+    androidReleaseSummaryRequiredVariantsCovered &&
+    androidReleaseSummaryErrors.length === 0 &&
+    androidReleaseSummaryCurrentInputsCovered &&
+    androidReleaseApkManifestErrors.length === 0;
+  const ready =
+    missingFiles.length === 0 &&
+    invalidFiles.length === 0 &&
+    releaseIntegrationErrors.length === 0 &&
+    sentryCliExecutable &&
+    androidReleaseEvidenceReady;
 
   return {
     sentryReactNativeVersion,
@@ -198,6 +209,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseSummaryErrors,
     androidReleaseSummaryCurrentInputsCovered,
     androidReleaseApkManifestErrors,
+    androidReleaseEvidenceReady,
     hasCreateScript,
     createScriptUsesToken,
     createScriptRejectsMissingToken,

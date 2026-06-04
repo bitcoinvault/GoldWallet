@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.392 - Sentry prereq release evidence readiness
+
+- Branch: `feature/bem-37-392-sentry-prereq-release-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Tighten Sentry release prerequisite readiness so it cannot report `ready` without current Android release evidence.
+- Require the Sentry prerequisite ready state to include a present Android release summary, dev/stage/prod/beta coverage, current release-input fingerprint coverage, and valid APK manifest proof.
+- Extend the Sentry prerequisite guard self-test with a ready-summary fixture that has stale Android release inputs.
+- Document the stronger readiness rule in the release-services compatibility audit.
+
+Findings:
+
+- Live npm metadata reports `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0` as current latest targets.
+- The existing Sentry prerequisite summary already printed Android release evidence fields, but the audit-level `ready` boolean did not include them.
+- The first Sentry prereq audit after this change correctly reported stale Android release evidence; `android:dev:release:verify-local` refreshed dev, stage, prod, and beta release evidence before the second prereq audit passed with current release inputs.
+- `SENTRY_AUTH_TOKEN` and the three Sentry properties files remain missing locally, so this branch does not claim Sentry release upload validation.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native version peerDependencies engines dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli version engines dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-properties-generator`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+
 ### BEM-37.391 - Detox latest readiness evidence
 
 - Branch: `feature/bem-37-391-detox-latest-evidence`
