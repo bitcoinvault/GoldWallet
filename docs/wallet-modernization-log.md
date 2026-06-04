@@ -1651,6 +1651,41 @@ Validation:
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.373 - Deprecated Redux DevTools dependency cleanup
+
+- Branch: `feature/bem-37-373-deprecated-redux-devtools-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove the deprecated and unused `redux-devtools-extension` package from `package.json` and `yarn.lock`.
+- Keep Redux DevTools runtime behavior unchanged through the existing `global.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__` enhancer in `src/state/store.ts`.
+- Pin the already-resolved `process` polyfill dependency to `0.11.10`, the current npm latest, so package metadata matches the lockfile/runtime baseline.
+
+Findings:
+
+- `npm view redux-devtools-extension version peerDependencies dependencies engines deprecated --json` reports latest `2.13.9` and deprecation message `Package moved to @redux-devtools/extension.`
+- `rg "redux-devtools-extension"` only found `package.json` and `yarn.lock`, so the package was not imported by runtime, tests, docs, or scripts.
+- `npm view process version peerDependencies dependencies engines --json` reports latest `0.11.10`, matching the lockfile version already used by the app.
+
+Validation:
+
+- `npm view redux-devtools-extension version peerDependencies dependencies engines deprecated --json`
+- `npm view process version peerDependencies dependencies engines --json`
+- `rg "redux-devtools-extension" -n package.json yarn.lock src docs scripts tests`
+- `corepack yarn remove redux-devtools-extension`
+- `corepack yarn add process@^0.11.10`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.321 - BL buffer dependency compatibility probe
 
 - Branch: `feature/bem-37-321-bl-major-probe`
