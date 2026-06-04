@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.400 - Release-services validation handoff runner
+
+- Branch: `feature/bem-37-400-release-services-validation-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guarded release-services handoff runner that can execute the full local validation sequence in one command.
+- Keep Android release APK evidence refresh as the default first step with Sentry auto-upload disabled.
+- Refresh and validate Sentry Android warning, Sentry release prerequisites, Firebase release services, CodePush release path, CodePush migration/removal readiness, push notification bridge, static iOS release readiness, and iOS macOS prerequisite summaries.
+- End the sequence with the aggregate `release-services:check-summaries` gate.
+
+Findings:
+
+- Release-service readiness was already covered by individual scripts, but the execution order was spread across docs and package scripts.
+- The handoff runner keeps local Android release evidence, release-service summaries, and aggregate summary validation together so a branch cannot claim release-service readiness from stale local artifacts.
+- The runner does not generate or guess Sentry tokens, CodePush deployment keys, Firebase files, or iOS/macOS validation results; those remain explicit blockers in the existing summaries.
+- `--skip-android-release` is available only for known-current summary refreshes, while the default full handoff includes Android release APK evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.399 - iOS macOS validation handoff runner
 
 - Branch: `feature/bem-37-399-ios-mac-validation-handoff`

@@ -75,6 +75,15 @@ corepack yarn check:release-services-summary-guard
 corepack yarn release-services:check-summaries
 ```
 
+After `BEM-37.400`, the same sequence can be executed as one guarded handoff:
+
+```powershell
+corepack yarn release-services:validation:handoff:dry-run
+corepack yarn release-services:validation:handoff
+```
+
+The full handoff refreshes Android release APK evidence with Sentry auto-upload disabled, refreshes Sentry/Firebase/CodePush/push/iOS summaries, and then runs the aggregate release-services summary checker. Use `--skip-android-release` only when the latest Android release summary already matches the current release inputs.
+
 ## Current Release Readiness Snapshot
 
 Checked on 2026-06-03 after the RN `0.85.3` foundation, Android release variant validation, and release-services package refresh:
