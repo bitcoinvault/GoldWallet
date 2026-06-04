@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.395 - Firebase latest evidence in release-services summary
+
+- Branch: `feature/bem-37-395-firebase-latest-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add live npm latest metadata for `@react-native-firebase/app` and `@react-native-firebase/messaging` to the Firebase release-services audit.
+- Require the Firebase release-services summary to include latest version, latest published timestamp, npm repository, messaging latest version, messaging peer app version, and package-current state.
+- Extend the Firebase summary guard self-test with negative fixtures for stale or missing package/upstream evidence.
+- Update the Android modernization workflow docs so Firebase release-services evidence is treated consistently with Sentry and CodePush gates.
+
+Findings:
+
+- Live npm metadata reports `@react-native-firebase/app@24.0.0` and `@react-native-firebase/messaging@24.0.0` as current latest packages.
+- `@react-native-firebase/messaging@24.0.0` peers `@react-native-firebase/app@24.0.0`, matching the installed package family.
+- The Firebase release-services summary already proved wiring and Android release evidence, but did not expose live latest package evidence directly.
+- Firebase runtime delivery validation remains `not claimed`; this branch does not claim push delivery behavior without a real runtime notification path test.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/app version dist-tags peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/messaging version dist-tags peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+
 ### BEM-37.394 - CodePush removal evidence guard
 
 - Branch: `feature/bem-37-394-codepush-removal-evidence`
