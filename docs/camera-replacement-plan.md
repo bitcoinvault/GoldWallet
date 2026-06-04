@@ -45,7 +45,7 @@
 - Smaller API surface for scanner use cases.
 - Current latest package checked on 2026-06-03 is `react-native-camera-kit@18.0.0`.
 - The camera candidate audit verifies this against live npm metadata before future scanner work.
-- Node requirement `>=18` is compatible with the current Node 22 modernization baseline.
+- Node requirement `>=18` is compatible with the current Node 24 modernization baseline.
 - Current proof role: selected implementation for the QR scanner migration.
 
 ### QR Rendering Pair

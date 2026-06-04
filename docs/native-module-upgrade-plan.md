@@ -14,7 +14,7 @@ React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use
 
 ## Current Constraints
 
-- Keep Metro/dev runtime on Node 22.
+- Keep Metro/dev runtime on Node 24.
 - Use JDK 17 for Android build and smoke validation.
 - Keep scanner changes separate from small native module cleanup branches.
 - Keep Sentry SDK/release source-map changes separate from small native module cleanup branches.

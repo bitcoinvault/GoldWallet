@@ -25,7 +25,7 @@ const requiredPlanSnippets = [
   'corepack yarn rn:baseline:preflight',
   'corepack yarn rn:target-snapshot:current',
   'corepack yarn rn:076-foundation:audit',
-  'Metro restart with Node 22 and `--reset-cache`',
+  'Metro restart with Node 24 and `--reset-cache`',
 ];
 
 const requiredMatrixSnippets = [
@@ -84,7 +84,7 @@ if (!plan.includes('Sentry release/source-map upgrade') || !plan.includes('react
 console.log('React Native 0.85 foundation checkpoint audit');
 console.log(`Current react-native: ${dependencies['react-native'] || '<missing>'}`);
 console.log(`Current react: ${dependencies.react || '<missing>'}`);
-console.log('Current checkpoint: react-native@0.85.3 with React 19 and Node 22');
+console.log('Current checkpoint: react-native@0.85.3 with React 19 and Node 24');
 
 if (warnings.length > 0) {
   console.log('Warnings:');

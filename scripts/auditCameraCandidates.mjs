@@ -11,7 +11,8 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
 export const cameraCandidateMetadataCheckedOn = '2026-06-03';
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 const expectedCameraMetadata = {
   legacyCameraLatest: 'react-native-camera@4.2.1',
   visionCameraLatest: 'react-native-vision-camera@5.0.11',
@@ -24,10 +25,9 @@ const expectedCameraMetadata = {
 
 const npmView = (packageName, field) =>
   JSON.parse(
-    execFileSync(npmCommand, ['view', packageName, field, '--json'], {
+    execFileSync(npmCommand, npmArgs(['view', packageName, field, '--json']), {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: process.platform === 'win32',
       windowsHide: true,
     }).trim(),
   );

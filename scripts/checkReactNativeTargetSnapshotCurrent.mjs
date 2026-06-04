@@ -8,12 +8,13 @@ import { expectedReactNativeTargetSnapshot } from './auditReactNativeTargetSnaps
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'rn-target-snapshot-current-summary.txt');
+const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 
 const npmView = (pkg, field) =>
-  execFileSync('npm', ['view', pkg, field, '--json'], {
+  execFileSync(npmCommand, npmArgs(['view', pkg, field, '--json']), {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
-    shell: process.platform === 'win32',
     windowsHide: true,
   }).trim();
 

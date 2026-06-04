@@ -24,6 +24,8 @@ const missingAndroidReleaseSummaryError = 'Android release summary artifact is m
 const codePushPackageName = 'react-native-code-push';
 const appCenterRetirementDate = '2025-03-31';
 const codePushUpstreamRepository = 'https://github.com/microsoft/react-native-code-push';
+const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 
 const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {
@@ -37,11 +39,10 @@ const getSummaryLineValue = (content, label) => {
 };
 const npmViewJson = (packageName, fields) =>
   JSON.parse(
-    execFileSync('npm', ['view', packageName, ...fields, '--json'], {
+    execFileSync(npmCommand, npmArgs(['view', packageName, ...fields, '--json']), {
       cwd: root,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: process.platform === 'win32',
       windowsHide: true,
     }),
   );

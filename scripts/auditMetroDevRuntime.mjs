@@ -8,8 +8,8 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 const packageJson = JSON.parse(read('package.json'));
 
 export const expectedMetroDevRuntime = {
-  nodeMajor: 22,
-  nodeVersion: '22.18.0',
+  nodeMajor: 24,
+  nodeVersion: '24.16.0',
   reactNative: '0.85.3',
   babelPreset: '0.85.3',
   metroConfig: '0.85.3',
@@ -17,11 +17,11 @@ export const expectedMetroDevRuntime = {
 };
 
 export const requiredMetroDevRuntimeSnippets = [
-  ['README.md', 'Node.js `22.18.0` is the current development runtime'],
+  ['README.md', 'Node.js `24.16.0` is the current development runtime'],
   ['README.md', '$ yarn start --reset-cache'],
-  ['docs/android-modernization-workflow.md', 'node-v22.18.0-win-x64'],
+  ['docs/android-modernization-workflow.md', 'node-v24.16.0-win-x64'],
   ['docs/android-modernization-workflow.md', 'react-native start --reset-cache --port 8081'],
-  ['docs/wallet-modernization-baseline.md', 'Node.js for Metro/dev runtime: Node 22 LTS-compatible runtime'],
+  ['docs/wallet-modernization-baseline.md', 'Node.js for Metro/dev runtime: Node 24 LTS runtime'],
   ['docs/wallet-modernization-baseline.md', 'corepack yarn start --reset-cache'],
 ];
 
@@ -67,7 +67,7 @@ export const getMetroDevRuntimeIssues = ({ nodeVersion, nvmrc, dependencies, dev
   }
 
   if (nodeMajor !== expectedMetroDevRuntime.nodeMajor) {
-    warnings.push(`Current Node is ${nodeVersion}; Metro/dev runtime is documented for Node 22 (${nvmrc}).`);
+    warnings.push(`Current Node is ${nodeVersion}; Metro/dev runtime is documented for Node 24 (${nvmrc}).`);
   }
 
   requiredMetroDevRuntimeSnippets.forEach(([relativePath, snippet]) => {
@@ -117,7 +117,7 @@ const printReport = environment => {
     process.exit(1);
   }
 
-  console.log('Metro dev runtime baseline is documented for Node 22 and the current React Native/Metro package line.');
+  console.log('Metro dev runtime baseline is documented for Node 24 and the current React Native/Metro package line.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

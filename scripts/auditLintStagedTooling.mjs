@@ -10,9 +10,8 @@ const root = path.resolve(__dirname, '..');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const lintStagedPackage = require('lint-staged/package.json');
 
-const expectedVersion = '16.4.0';
-const blockedLatestVersion = '17.0.6';
-const blockedLatestNodeEngine = '>=22.22.1';
+const expectedVersion = '17.0.7';
+const expectedNodeEngine = '>=22.22.1';
 const errors = [];
 
 const compareVersions = (left, right) => {
@@ -55,8 +54,8 @@ if (cliVersion !== expectedVersion) {
   errors.push(`lint-staged CLI reports ${cliVersion}; expected ${expectedVersion}`);
 }
 
-if (compareVersions(process.version, '22.22.1') >= 0) {
-  errors.push(`Current Node ${process.version} can run lint-staged@${blockedLatestVersion}; re-check the latest target instead of keeping ${expectedVersion}`);
+if (compareVersions(process.version, '22.22.1') < 0) {
+  errors.push(`Current Node ${process.version} cannot run lint-staged@${expectedVersion}; expected Node ${expectedNodeEngine}`);
 }
 
 if (errors.length > 0) {
@@ -67,6 +66,6 @@ if (errors.length > 0) {
 
 console.log('lint-staged tooling audit');
 console.log(`lint-staged: ${expectedVersion}`);
-console.log(`lint-staged latest blocked: ${blockedLatestVersion} requires Node ${blockedLatestNodeEngine}`);
+console.log(`lint-staged Node engine: ${expectedNodeEngine}`);
 console.log(`current Node: ${process.version}`);
 console.log('precommit lint-staged wiring: passed');

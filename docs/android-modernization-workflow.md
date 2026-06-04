@@ -36,21 +36,21 @@ corepack yarn android:dev:env-audit
 
 The environment audit verifies JDK 17, adb access, the required validation scripts, and the Android SDK 36 platform/build-tools directories used by the current Android baseline.
 
-The environment audit checks the active Node version, `.nvmrc`, `JAVA_HOME`/Java major version, Android SDK/ADB discovery, Gradle wrappers, required validation helper files, and the package scripts used by the Android validation workflow, including the RN upgrade path audit scripts. It warns when Metro/dev runtime is not on Node 22 and fails when Java/ADB or required helper files are missing.
+The environment audit checks the active Node version, `.nvmrc`, `JAVA_HOME`/Java major version, Android SDK/ADB discovery, Gradle wrappers, required validation helper files, and the package scripts used by the Android validation workflow, including the RN upgrade path audit scripts. It warns when Metro/dev runtime is not on Node 24 and fails when Java/ADB or required helper files are missing.
 
 `check:android-dev-env-audit-guard` verifies the environment audit guard fixtures without depending on the current terminal's Java, Node, SDK, or ADB state.
 
-Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Native, RN Babel/Metro config packages, README, workflow, and baseline docs still agree on the Node 22 Metro/dev runtime baseline.
+Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Native, RN Babel/Metro config packages, README, workflow, and baseline docs still agree on the Node 24 Metro/dev runtime baseline.
 
 Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.85.3` package baseline, Android SDK 36 toolchain baseline, and related documentation still agree.
 
-Use the legacy-named `corepack yarn rn:076-foundation:audit` before the next React Native foundation branch to verify that the RN `0.85.3` checkpoint still includes React 19, Node 22, Metro/Babel, Android template, iOS Podfile, and package-only blocker scope.
+Use the legacy-named `corepack yarn rn:076-foundation:audit` before the next React Native foundation branch to verify that the RN `0.85.3` checkpoint still includes React 19, Node 24, Metro/Babel, Android template, iOS Podfile, and package-only blocker scope.
 
 Use `corepack yarn rn:baseline:preflight` before changing React Native package versions. It runs the lightweight Android gate plus the Metro runtime, Node runtime transition audit, RN upgrade path, RN target snapshot, offline target comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, wallet/crypto runtime audit, camera candidate and QR migration audits with generated summary validation, masked-view navigation migration with generated summary validation, secure-storage migration and removal-readiness audits with generated summary validation, Sentry warning/source-map readiness audits with generated Android-warning and prerequisite-summary validation, the Sentry properties-generator guard, the aggregate warning-source summary checker, standalone Android warning-audit and smoke-summary checkers, Firebase release-service with generated summary validation, CodePush release-path and migration-readiness audits with generated summary validation, push-notification bridge audit with generated summary validation, iOS release readiness summary guard validation, the aggregate release-services summary guard self-check, and the aggregate release-services summary checker as a single RN-baseline readiness pass.
 
 Use `corepack yarn rn:baseline:preflight:online` at the start of an actual RN baseline branch when network access is available. It refreshes and validates the live npm RN target snapshot, the git dependency snapshot, and the node-fetch resolution summary first, then runs the normal offline RN baseline preflight.
 
-Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 22 Metro/dev runtime remains aligned with React Native `0.85.3` while the recorded RN target snapshot still implies a later Node engine move. Do not change `.nvmrc` as a standalone cleanup; keep it tied to the dedicated React Native baseline branch.
+Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 24 Metro/dev runtime remains aligned with React Native `0.85.3` and the tooling baseline. Do not change `.nvmrc` as a standalone cleanup; keep it tied to a dedicated Node/tooling or React Native baseline branch.
 
 Use `corepack yarn rn:target-snapshot:audit` to verify that the recorded npm target snapshot still matches the current repo baseline and supporting documentation. Use `corepack yarn rn:target-snapshot:current` when network access is available to compare the recorded snapshot against current npm metadata. Use `corepack yarn check:rn-target-snapshot-current-guard` for an offline self-check of the live comparison rules. Refresh `docs/react-native-target-snapshot.md` at the start of an actual RN baseline branch if npm/latest has moved.
 
@@ -202,7 +202,7 @@ corepack yarn android:dev:audit-smoke
 After dependency, native, Metro, or runtime changes, restart Metro with a clean transform cache before testing:
 
 ```powershell
-D:\tmp\node\node-v22.18.0-win-x64\npx.cmd react-native start --reset-cache --port 8081
+D:\tmp\node\node-v24.16.0-win-x64\npx.cmd react-native start --reset-cache --port 8081
 ```
 
 Then install and launch the dev APK:

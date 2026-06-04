@@ -19,7 +19,7 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 - React: `19.2.3`
 - RN Babel preset: `0.85.3`
 - RN Metro config: `0.85.3`
-- Metro/dev Node runtime: `22.18.0`
+- Metro/dev Node runtime: `24.16.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
 - Android build tools: `36.0.0`

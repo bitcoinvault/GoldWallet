@@ -14,7 +14,7 @@ const run = (command, args = []) =>
   spawnSync(command, args, {
     cwd: root,
     encoding: 'utf8',
-    shell: process.platform === 'win32',
+    windowsHide: true,
   });
 
 const trimOutput = result => `${result.stdout || ''}${result.stderr || ''}`.trim();
@@ -217,8 +217,8 @@ export const getAndroidDevEnvironmentIssues = ({
     warnings.push('JAVA_HOME is not set; Gradle runner will fall back to java from PATH.');
   }
 
-  if (nodeMajor !== 22) {
-    warnings.push(`Current Node is ${nodeVersion}; Metro/dev runtime is documented for Node 22 (${nvmrc || 'no .nvmrc found'}).`);
+  if (nodeMajor !== 24) {
+    warnings.push(`Current Node is ${nodeVersion}; Metro/dev runtime is documented for Node 24 (${nvmrc || 'no .nvmrc found'}).`);
   }
 
   if (!androidSdkRoot) {
