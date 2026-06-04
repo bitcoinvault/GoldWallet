@@ -1,4 +1,5 @@
 export const requiredStorageNetworkValidationScripts = new Map([
+  ['test:terms-webview:unit', 'tests/unit/TermsWebViewScreens.test.tsx'],
   ['test:secure-storage:unit', 'tests/unit/SecureStorageService.test.js'],
   ['test:storage', 'tests/integration/Storage.test.js'],
   ['test:authenticator', 'tests/integration/authenticator.test.js'],

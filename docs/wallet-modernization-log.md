@@ -16930,3 +16930,26 @@ Validation:
 - `npm view react-native-tcp-socket version dist-tags peerDependencies engines deprecated --json`
 - `npm view react-native-webview version dist-tags peerDependencies engines deprecated --json`
 - `npm view react-native-get-random-values version dist-tags peerDependencies engines deprecated --json`
+
+### BEM-37.416 - Terms WebView unit validation gate
+
+- Branch: `feature/bem-37-416-terms-webview-unit-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused unit coverage for the two Terms WebView screens.
+- Add `test:terms-webview:unit` and include it in the guarded storage/network focused validation script set.
+- Keep runtime behavior unchanged while making future WebView or Terms changes fail earlier than manual emulator QA.
+
+Findings:
+
+- Onboarding Terms checkboxes remain hidden until the WebView load callback fires, and the agree button stays disabled until both checkboxes are selected.
+- External Terms links are opened through `Linking.openURL` instead of being loaded inside the embedded WebView.
+- Settings Terms keeps WebView scrolling disabled and resizes from the embedded document height event.
+
+Validation:
+
+- `corepack yarn test:terms-webview:unit`
+- `corepack yarn check:storage-network-validation-scripts-guard`
+- `corepack yarn check:storage-network-validation-scripts`

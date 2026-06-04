@@ -43,7 +43,11 @@ export const expectedStorageNetworkUsage = new Map([
   ['react-native-tcp-socket', new Set(['src/network/socket.tsx'])],
   [
     'react-native-webview',
-    new Set(['src/screens/Settings/TermsConditionsSettingsScreen.tsx', 'src/screens/TermsConditionsScreen.tsx']),
+    new Set([
+      'src/screens/Settings/TermsConditionsSettingsScreen.tsx',
+      'src/screens/TermsConditionsScreen.tsx',
+      'tests/unit/TermsWebViewScreens.test.tsx',
+    ]),
   ],
 ]);
 
