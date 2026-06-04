@@ -15,6 +15,8 @@
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface after the CameraKit migration.
 - `corepack yarn check:qr-scan-caller-guard` verifies the caller-inventory guard fixtures.
 - `corepack yarn check:qr-scan-callers` guards the current QR scanner caller inventory after the CameraKit migration.
+- `corepack yarn test:qr-scanner:unit` validates the scanner screen contract for Android camera permission, CameraKit QR-only configuration, callback delivery, empty scans, and duplicate-scan suppression.
+- `corepack yarn check:qr-scanner-validation-scripts` keeps that focused scanner test wired into the lightweight Android gate and prepush validation.
 - `corepack yarn camera:candidate:audit` checks live npm metadata for the legacy camera, VisionCamera, CameraKit, QR renderer, and QR encoder before scanner follow-up work, so stale candidate assumptions are visible before a dependency branch.
 - `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, and writes `local-docs/camera-qr-migration-summary.txt`.
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
@@ -93,6 +95,8 @@ Scope:
 - `corepack yarn check:camera-usage-scope`.
 - `corepack yarn check:qr-scan-caller-guard`.
 - `corepack yarn check:qr-scan-callers`.
+- `corepack yarn check:qr-scanner-validation-scripts`.
+- `corepack yarn test:qr-scanner:unit`.
 - `corepack yarn camera:candidate:audit`.
 - `corepack yarn camera:candidate:check-summary`.
 - `corepack yarn camera:qr-migration:audit`.
