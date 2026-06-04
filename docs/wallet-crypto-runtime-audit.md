@@ -52,6 +52,7 @@ Funded transaction flow remains blocked until a funded BTCV testnet wallet is av
 corepack yarn wallet:crypto-runtime:audit
 corepack yarn crypto-js:runtime:audit
 corepack yarn check:wallet-crypto-validation-scripts
+corepack yarn test:wallet-crypto:signer
 corepack yarn test:wallet-crypto:offline
 corepack yarn test:unit --runInBand
 corepack yarn test:storage-network:focused

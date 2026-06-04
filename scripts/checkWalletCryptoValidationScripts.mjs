@@ -10,7 +10,8 @@ const packageJson = JSON.parse(read('package.json'));
 const scripts = packageJson.scripts || {};
 const aggregateScript = 'test:wallet-crypto:offline';
 const expectedAggregate =
-  'yarn wallet:crypto-runtime:audit && yarn test:hdwallet:offline && yarn test:watchonly:offline && yarn test:wallet-core:offline && yarn test:unit --runInBand';
+  'yarn wallet:crypto-runtime:audit && yarn test:hdwallet:offline && yarn test:watchonly:offline && yarn test:wallet-core:offline && yarn test:wallet-crypto:signer';
+const signerScript = 'node node_modules/jest/bin/jest.js tests/unit/signer.test.js --forceExit --runInBand';
 const expectedTests = [
   'tests/integration/HDWallet.offline.test.js',
   'tests/integration/WatchOnlyWallet.offline.test.js',
@@ -22,6 +23,10 @@ const errors = [];
 
 if (scripts[aggregateScript] !== expectedAggregate) {
   errors.push(`package.json ${aggregateScript} must be "${expectedAggregate}"`);
+}
+
+if (scripts['test:wallet-crypto:signer'] !== signerScript) {
+  errors.push(`package.json test:wallet-crypto:signer must be "${signerScript}"`);
 }
 
 if (!scripts.prepush?.includes(`yarn ${aggregateScript}`)) {
