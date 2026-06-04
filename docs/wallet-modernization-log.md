@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.389 - Node 24 tooling preflight gate
+
+- Branch: `feature/bem-37-389-node24-tooling-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire `lint-staged:tooling:audit` into `rn:baseline:preflight` after the Node runtime transition audit.
+- Update the React Native upgrade-path guard so future baseline branches require the Node/tooling engine check.
+- Document that full baseline preflight must run under the `.nvmrc` Node runtime.
+
+Findings:
+
+- The current shell Node `v22.18.0` can still run many RN checks, but `lint-staged@17.0.7` requires Node `>=22.22.1`.
+- `corepack yarn install --mode=skip-builds` fails on Node `v22.18.0` with a `lint-staged@17.0.7` engine error.
+- `lint-staged:tooling:audit` already catches this; this branch makes the main baseline preflight catch it too.
+
+Validation:
+
+- `corepack yarn lint-staged:tooling:audit` failed on Node `v22.18.0`, as expected.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint-staged:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:baseline:preflight`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.388 - Git dependency pin hardening
 
 - Branch: `feature/bem-37-388-git-dependency-pin-hardening`
