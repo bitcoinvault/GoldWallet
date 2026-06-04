@@ -54,6 +54,8 @@ Use `corepack yarn rn:baseline:preflight:online` at the start of an actual RN ba
 
 Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 24 Metro/dev runtime remains aligned with React Native `0.85.3` and the tooling baseline. Do not change `.nvmrc` as a standalone cleanup; keep it tied to a dedicated Node/tooling or React Native baseline branch.
 
+Run React Native baseline preflight from the `.nvmrc` Node runtime. The preflight includes `corepack yarn lint-staged:tooling:audit`, which intentionally fails on Node versions below the current `lint-staged@17.0.7` engine requirement even if React Native itself can still start on that Node line.
+
 Use `corepack yarn rn:target-snapshot:audit` to verify that the recorded npm target snapshot still matches the current repo baseline and supporting documentation. Use `corepack yarn rn:target-snapshot:current` when network access is available to compare the recorded snapshot against current npm metadata. Use `corepack yarn check:rn-target-snapshot-current-guard` for an offline self-check of the live comparison rules. Refresh `docs/react-native-target-snapshot.md` at the start of an actual RN baseline branch if npm/latest has moved.
 
 Use `corepack yarn upgrade:strategy:audit` before dependency/RN baseline branches to keep the upgrade strategy aligned with layered milestone jumps. The default rule is to try the latest feasible target for the chosen layer, capture the exact blocker if it fails, then pick the highest compatible fallback instead of walking every minor version by default.

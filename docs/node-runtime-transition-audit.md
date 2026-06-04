@@ -26,3 +26,5 @@ Node runtime transition audit for the staged React Native modernization path.
 ```powershell
 corepack yarn node:runtime-transition:audit
 ```
+
+`corepack yarn rn:baseline:preflight` also runs `corepack yarn lint-staged:tooling:audit` so package install and hook tooling cannot pass silently under an older Node shell. Use the `.nvmrc` Node runtime before running the full baseline preflight.
