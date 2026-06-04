@@ -34,6 +34,8 @@ After `BEM-37.333`, the same audit reports `ios/Podfile.lock` drift against the 
 
 After `BEM-37.314`, Detox iOS build commands are routed through `scripts/runDetoxIosBuild.mjs`. The wrapper keeps `RN_SRC_EXT=e2e.tsx` and `CHAMBER_OF_SECRETS=true`, fails clearly outside macOS/Xcode, and maps production Detox builds to the existing `GoldWallet (Debug/Release)` schemes instead of the non-existent `GoldWallet Prod` schemes. `corepack yarn check:detox-readiness` guards that mapping before iOS simulator validation can run on macOS.
 
+After `BEM-37.399`, `scripts/runIosMacValidationHandoff.mjs` provides an executable macOS handoff for iOS validation. `corepack yarn ios:mac-validation:handoff:dry-run` is Windows-safe and prints the required command order without claiming runtime validation. On macOS, `corepack yarn ios:mac-validation:handoff --scheme "GoldWallet Dev (Debug)"` runs prerequisite audit/check, refreshes pods, runs release readiness audit/check, builds the selected shared scheme with `xcodebuild` against `ios/GoldWallet.xcworkspace`, and re-runs release readiness checks after the build. `corepack yarn check:ios-mac-validation-handoff-guard` guards the eight known shared scheme/configuration pairs and handoff command sequence.
+
 ## Current Release-Service Keys
 
 Referenced iOS env files carry the current release-service keys as follows:

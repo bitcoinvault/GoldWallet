@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.399 - iOS macOS validation handoff runner
+
+- Branch: `feature/bem-37-399-ios-mac-validation-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a Windows-safe dry-run and macOS execution runner for the iOS validation handoff.
+- Guard the eight known shared Xcode scheme/configuration pairs before macOS simulator/archive validation.
+- Keep the handoff command order explicit: macOS prerequisite audit/check, `pod install`, static iOS release readiness audit/check, selected Xcode simulator build, and post-build readiness audit/check.
+- Document that Windows can verify the handoff sequence but cannot claim iOS runtime validation.
+
+Findings:
+
+- iOS release readiness is still blocked on this Windows machine by macOS/Xcode/CocoaPods and stale `ios/Podfile.lock` drift.
+- The repo now has a single command sequence for the Mac handoff instead of scattered notes across prereq/readiness audits.
+- The handoff defaults to `GoldWallet Dev (Debug)` on `iphonesimulator`, while allowing the existing Dev, Stage, Beta, and production shared Debug/Release schemes.
+- The runner fails outside macOS when invoked for execution and only permits Windows use through `--dry-run`, so it does not create a false iOS runtime delivery claim.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-release-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.398 - Android notification permission flow guard
 
 - Branch: `feature/bem-37-398-android-notification-permission-guard`
