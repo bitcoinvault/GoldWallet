@@ -17000,3 +17000,30 @@ Validation:
 
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
+### BEM-37.419 - Android release evidence refresh
+
+- Branch: `feature/bem-37-419-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release APK evidence after the RN Gradle plugin and CodePush release-path compatibility work.
+- Build `dev`, `stage`, `prod`, and `beta` release APKs with Sentry auto-upload disabled for local validation.
+- Validate the generated Android release summary and APK manifests so release-service audits can rely on current release-build evidence.
+
+Findings:
+
+- `dev`, `stage`, `prod`, and `beta` release builds completed successfully with JDK `17.0.19` and Node `24.16.0`.
+- The generated local release summary reports exit code `0` for all four release variants.
+- Release APK manifest validation passed for all four variants using Android build-tools `36.0.0` `aapt2.exe`.
+- Release-services summary refresh passed against the new Android release evidence; aggregate Sentry, Firebase, CodePush, push-notification, and static iOS release summary artifacts are valid.
+- CodePush release-path and migration summaries now report current Android release build evidence as ready for `dev`, `stage`, `prod`, and `beta`.
+- Sentry source-map upload validation remains not claimed locally because Sentry credentials/properties are intentionally not generated or guessed.
+- iOS runtime delivery validation remains not claimed on this Windows machine; static iOS readiness is valid, but `ios/Podfile.lock` refresh and archive/simulator validation require macOS with Xcode and CocoaPods.
+- The release build still reports expected upstream/native deprecation warnings, including NetInfo `onCatalystInstanceDestroy()` removal warning and deprecated API notes from several third-party native modules.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release`
