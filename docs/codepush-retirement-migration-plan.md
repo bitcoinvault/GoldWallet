@@ -43,6 +43,7 @@ Expected summary claims:
 - upstream New Architecture support is recorded as `no`;
 - Android New Architecture enabled state is recorded;
 - CodePush migration required is recorded as `yes`;
+- npm latest version, latest published timestamp, npm repository, and upstream repository are recorded in the migration-readiness summary so the remove-or-replace decision carries package/upstream evidence directly;
 - CodePush runtime gate is recorded as present;
 - CodePush native bundle gate is recorded as present;
 - CodePush runtime enabled by default is recorded as `no`;

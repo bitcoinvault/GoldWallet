@@ -24,6 +24,10 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
   const packageCurrent = getLineValue(summary, 'CodePush package current');
+  const packageLatestVersion = getLineValue(summary, 'CodePush package latest version');
+  const packageLatestPublishedAt = getLineValue(summary, 'CodePush package latest published at');
+  const packageRepositoryUrl = getLineValue(summary, 'CodePush npm repository');
+  const upstreamRepository = getLineValue(summary, 'CodePush upstream repository');
   const appCenterRetirementDate = getLineValue(summary, 'App Center CodePush retirement date');
   const upstreamArchived = getLineValue(summary, 'CodePush upstream archived');
   const upstreamNewArchitectureSupport = getLineValue(summary, 'CodePush upstream New Architecture support');
@@ -64,6 +68,22 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
 
   if (packageCurrent !== 'yes') {
     errors.push('CodePush package should remain current before migration/removal decisions');
+  }
+
+  if (!/^\d+\.\d+\.\d+$/.test(packageLatestVersion)) {
+    errors.push(`CodePush package latest version must be present. Received: ${packageLatestVersion || 'missing'}`);
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(packageLatestPublishedAt)) {
+    errors.push(`CodePush package latest published timestamp must be present. Received: ${packageLatestPublishedAt || 'missing'}`);
+  }
+
+  if (!packageRepositoryUrl.includes('microsoft/react-native-code-push')) {
+    errors.push(`CodePush npm repository must reference microsoft/react-native-code-push. Received: ${packageRepositoryUrl || 'missing'}`);
+  }
+
+  if (!upstreamRepository.includes('microsoft/react-native-code-push')) {
+    errors.push(`CodePush upstream repository must reference microsoft/react-native-code-push. Received: ${upstreamRepository || 'missing'}`);
   }
 
   if (appCenterRetirementDate !== '2025-03-31') {
