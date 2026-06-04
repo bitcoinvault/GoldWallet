@@ -70,7 +70,6 @@
     "react-native-config-node": "^0.0.3",
     "react-native-default-preference": "1.4.4",
     "react-test-renderer": "19.2.3",
-    "redux-devtools-extension": "^2.13.8",
     "rn-nodeify": "github:tradle/rn-nodeify",
     "ts-jest": "29.4.11",
     "typescript": "6.0.3"
@@ -324,7 +323,7 @@
     "lodash": "4.18.1",
     "path-browserify": "1.0.1",
     "pbkdf2": "3.1.6",
-    "process": "^0.11.0",
+    "process": "0.11.10",
     "react": "19.2.3",
     "react-i18next": "17.0.8",
     "react-localization": "2.0.6",
