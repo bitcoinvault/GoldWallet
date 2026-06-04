@@ -16797,3 +16797,28 @@ Validation:
 - `npm view react-native@latest version peerDependencies engines --json`
 - `npm view react-native@next version peerDependencies engines --json`
 - `corepack yarn rn:target-snapshot:current`
+
+### BEM-37.411 - Android release validation refresh
+
+- Branch: `feature/bem-37-411-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release APK evidence for the current RN `0.85.3` modernization tree.
+- Validate release summary and generated APK manifests for all configured release variants.
+- Refresh iOS macOS prerequisite evidence and keep iOS runtime/archive validation explicitly blocked on this Windows host.
+
+Findings:
+
+- `android:dev:release:verify-local` completed successfully with `SENTRY_DISABLE_AUTO_UPLOAD=true`.
+- Android release validation covered `dev`, `stage`, `prod`, and `beta` release APKs.
+- `android:dev:release:check-summary` accepted the refreshed release summary artifact.
+- `android:dev:release:check-apk-manifest` accepted generated APK manifests for `dev`, `stage`, `prod`, and `beta`.
+- Sentry source-map upload remains not claimed because local Sentry credentials/properties are still unavailable.
+- iOS macOS prerequisite audit still reports Windows/macOS/Xcode/CocoaPods blockers and `ios/Podfile.lock` drift, so iOS archive/runtime validation remains a Mac handoff.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `corepack yarn ios:mac-validation-prereq:audit`
