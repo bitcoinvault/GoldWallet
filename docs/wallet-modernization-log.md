@@ -16822,3 +16822,25 @@ Validation:
 
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
 - `corepack yarn ios:mac-validation-prereq:audit`
+
+### BEM-37.412 - Camera candidate metadata refresh
+
+- Branch: `feature/bem-37-412-camera-candidate-metadata-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded Camera/QR candidate metadata date to 2026-06-04.
+- Keep CameraKit as the installed scanner baseline and VisionCamera as a future architecture branch because the latest line still requires Nitro peer packages.
+- Update camera replacement and native-module planning docs so scanner follow-up work starts from current live npm evidence.
+
+Findings:
+
+- Live npm metadata still reports `react-native-camera@4.2.1`, `react-native-vision-camera@5.0.11`, `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4`.
+- VisionCamera latest still requires `react-native-nitro-modules` and `react-native-nitro-image`, so it remains a larger scanner architecture branch rather than a drop-in update.
+- `camera:qr-migration:audit` still reports CameraKit/QR migration wiring stable with no removed camera pods in `ios/Podfile.lock`.
+
+Validation:
+
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:qr-migration:audit`
