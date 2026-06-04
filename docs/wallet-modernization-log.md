@@ -281,6 +281,41 @@ Validation:
 - `corepack yarn codepush:migration:readiness-audit`
 - `corepack yarn codepush:migration:readiness-check-summary`
 - `corepack yarn release-services:check-summaries`
+
+### BEM-37.380 - React renderer transitive refresh
+
+- Branch: `feature/bem-37-380-react-patch-current`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check the current npm React patch line against the RN `0.85.3` baseline.
+- Keep `react` and `react-test-renderer` pinned to `19.2.3` because the RN renderer remains exact-version sensitive.
+- Refresh the lockfile-only `react-test-renderer -> react-is` transitive resolution from `19.2.6` to `19.2.7`.
+
+Findings:
+
+- `npm outdated --json` reports `react@19.2.7` and `react-test-renderer@19.2.7` as newer package lines, but prior Android emulator proof already showed the runtime redbox when React moves past the bundled `react-native-renderer@19.2.3`.
+- A probe to `react@19.2.7` / `react-test-renderer@19.2.7` made the React package coupling guards fail as expected, so those package changes were not kept.
+- `react-is@19.2.7` is used only under `react-test-renderer` in the updated lockfile; the app runtime React package remains unchanged.
+
+Validation:
+
+- `npm view react-native@0.85.3 peerDependencies dependencies engines --json`
+- `npm view react@19.2.7 version peerDependencies engines --json`
+- `npm view react-test-renderer@19.2.7 version peerDependencies engines --json`
+- `npm outdated --json`
+- `corepack yarn why react-is`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn react19:impact:audit`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn typescript:check`
 - `corepack yarn check:modernization-log-ids`
