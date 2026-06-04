@@ -1576,6 +1576,39 @@ Validation:
 - `corepack yarn rn:baseline:preflight`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
 - `corepack yarn android:dev:check-smoke-summary`
+
+### BEM-37.371 - React 19 patch-family runtime blocker refresh
+
+- Branch: `feature/bem-37-371-react-19-patch-family`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check the live React package patch line after the Node 24 tooling baseline.
+- Probe `react@19.2.7` and `react-test-renderer@19.2.7`, the latest stable npm releases checked for this branch.
+- Keep the committed runtime baseline unchanged after Android emulator smoke confirmed the React Native renderer still requires exact React `19.2.3`.
+
+Findings:
+
+- `npm view react version dist-tags --json` reports latest React `19.2.7`.
+- `npm view react-test-renderer version peerDependencies --json` reports latest `19.2.7` with peer `react ^19.2.7`.
+- `npm view react-native dist-tags version peerDependencies engines --json` still reports latest React Native `0.85.3`, next `0.86.0-rc.3`, and React peer `^19.2.3`.
+- `corepack yarn add react@19.2.7 react-test-renderer@19.2.7` passed package install, TypeScript, unit tests, and Android dev assemble.
+- Android emulator smoke failed with a redbox: `Error: Incompatible React versions: The "react" and "react-native-renderer" packages must have the exact same version. Instead got: react 19.2.7, react-native-renderer 19.2.3`.
+- The attempted package changes were not kept. React and `react-test-renderer` remain pinned to `19.2.3` until a React Native baseline moves the renderer with them.
+
+Validation:
+
+- `npm view react version dist-tags --json`
+- `npm view react-test-renderer version peerDependencies --json`
+- `npm view react-native dist-tags version peerDependencies engines --json`
+- `corepack yarn add react@19.2.7 react-test-renderer@19.2.7`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn add react@19.2.3 react-test-renderer@19.2.3`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
