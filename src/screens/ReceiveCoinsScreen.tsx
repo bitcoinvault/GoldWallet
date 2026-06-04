@@ -29,7 +29,7 @@ interface State {
   amount: number | string;
 }
 
-class ReceiveCoinsScreen extends Component<Props, State> {
+export class ReceiveCoinsScreen extends Component<Props, State> {
   state = {
     amount: 0,
   };

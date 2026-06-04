@@ -41,7 +41,7 @@ interface State {
 
 type Props = MapStateProps & ActionProps & NavigationProps;
 
-class OptionsAuthenticatorScreen extends Component<Props, State> {
+export class OptionsAuthenticatorScreen extends Component<Props, State> {
   state = {
     name: this.props.authenticator?.name || '',
   };
