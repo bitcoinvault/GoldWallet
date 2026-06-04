@@ -405,6 +405,32 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
 - `corepack yarn rn:baseline:preflight`
 
+### BEM-37.386 - Android AGP 9 toolchain target audit
+
+- Branch: `feature/bem-37-386-agp-9-toolchain-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the latest stable Android toolchain direction before changing the validated Android baseline.
+- Add an online Android toolchain target audit with generated summary validation.
+- Wire the Android toolchain target audit into `rn:baseline:preflight:online` so future RN baseline work records AGP/Gradle/Kotlin latest-target status.
+
+Findings:
+
+- Live metadata on 2026-06-04 reports stable AGP `9.2.1`, Gradle current `9.5.1`, and Kotlin Gradle Plugin `2.4.0`.
+- A direct probe to AGP `9.2.1`, Gradle `9.5.1`, and Kotlin `2.4.0` failed before app compilation while compiling `:gradle-plugin:settings-plugin:compileKotlin`.
+- AGP `9.2.1` requires Gradle `9.4.1+`; Gradle `9.2.1` is rejected by AGP before build evaluation.
+- Gradle `9.4.1` also fails compiling the included React Native Gradle plugin because its embedded Kotlin `2.3.0` metadata is incompatible with the RN `0.85.3` Gradle plugin compiler path.
+- The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17` until a newer React Native Gradle plugin baseline clears the AGP 9 blocker.
+
+Validation:
+
+- `npm view` / Maven metadata checks via `scripts/auditAndroidToolchainTarget.mjs`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` failed on AGP `9.2.1` / Gradle `9.5.1` with Kotlin metadata incompatibility in `ReactSettingsExtension.kt`.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` failed on AGP `9.2.1` / Gradle `9.2.1` because AGP requires Gradle `9.4.1+`.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble` failed on AGP `9.2.1` / Gradle `9.4.1` with the same Kotlin metadata incompatibility in the React Native Gradle plugin.
+
 ### BEM-37.381 - Android release evidence refresh after React renderer lock
 
 - Branch: `feature/bem-37-381-release-evidence-after-react-is-lock`
