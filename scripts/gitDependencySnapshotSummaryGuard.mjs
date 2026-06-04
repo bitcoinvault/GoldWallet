@@ -55,6 +55,7 @@ export const getGitDependencySnapshotSummaryErrors = summary => {
 
     [
       'package spec:',
+      'package hash:',
       'lock hash:',
       'remote:',
       'remote ref:',
@@ -68,6 +69,22 @@ export const getGitDependencySnapshotSummaryErrors = summary => {
 
     if (!block.includes('status: current')) {
       errors.push(`${name} entry must be current before the snapshot can pass`);
+    }
+
+    const packageHash = block.match(/package hash: ([a-f0-9]{40}|<missing>)/)?.[1] || '';
+    const lockHash = block.match(/lock hash: ([a-f0-9]{40}|<missing>)/)?.[1] || '';
+    const remoteHash = block.match(/remote hash: ([a-f0-9]{40}|<missing>)/)?.[1] || '';
+
+    if (!/^[a-f0-9]{40}$/.test(packageHash)) {
+      errors.push(`${name} entry must include a pinned package hash`);
+    }
+
+    if (/^[a-f0-9]{40}$/.test(packageHash) && /^[a-f0-9]{40}$/.test(lockHash) && packageHash !== lockHash) {
+      errors.push(`${name} package hash must match the lock hash`);
+    }
+
+    if (/^[a-f0-9]{40}$/.test(lockHash) && /^[a-f0-9]{40}$/.test(remoteHash) && lockHash !== remoteHash) {
+      errors.push(`${name} lock hash must match the remote hash`);
     }
   });
 

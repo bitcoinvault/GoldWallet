@@ -21,6 +21,6 @@ The generated summary is local-only at `local-docs/git-dependency-snapshot.txt`.
 
 ## Decision
 
-Do not update or replace these dependencies from a generic `yarn outdated` result. Check the live remote hash, compare it with the lockfile hash, and keep wallet-critical fork changes in dedicated compatibility branches with focused wallet/network validation.
+Do not update or replace these dependencies from a generic `yarn outdated` result. Check the pinned `package.json` hash, compare it with the lockfile hash and the live remote hash, and keep wallet-critical fork changes in dedicated compatibility branches with focused wallet/network validation.
 
-As of `BEM-37.388`, all tracked direct git dependencies are pinned in `package.json` to their audited lockfile/remote hashes. Keep that hash suffix in the package spec so a future lockfile refresh cannot silently move wallet-critical forks or the local polyfill tool.
+As of `BEM-37.388`, all tracked direct git dependencies are pinned in `package.json` to their audited lockfile/remote hashes. As of `BEM-37.407`, the summary guard requires that manifest hash, lockfile hash, and live remote hash all match before an entry can be reported as current. Keep that hash suffix in the package spec so a future lockfile refresh cannot silently move wallet-critical forks or the local polyfill tool.

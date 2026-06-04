@@ -16684,3 +16684,35 @@ Validation:
 - `corepack yarn lint:baseline:audit`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
+
+### BEM-37.407 - Git dependency manifest hash guard
+
+- Branch: `feature/bem-37-407-git-dependency-manifest-hash-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the git dependency snapshot so `package.json` hash, `yarn.lock` hash, and live remote hash must all match before a dependency is reported as current.
+- Print `package hash` explicitly in `local-docs/git-dependency-snapshot.txt`.
+- Update the git dependency snapshot docs and guard fixture coverage for missing manifest hashes and manifest/lock/remote hash mismatches.
+
+Findings:
+
+- `yarn outdated --json` reports direct git dependencies as `exotic`, so they need repo-owned hash checks instead of normal semver latest handling.
+- The existing snapshot already compared lockfile and remote hashes, but the summary fixture still allowed package specs without hash suffixes.
+- The current live snapshot remains clean: BitcoinVault `bitcoinjs-lib`, BitcoinVault `rn-electrum-client`, `react-native-prompt-android`, and `rn-nodeify` all have matching package, lockfile, and remote hashes.
+
+Validation:
+
+- `node --check scripts/auditGitDependencySnapshot.mjs`
+- `node --check scripts/gitDependencySnapshotSummaryGuard.mjs`
+- `node --check scripts/checkGitDependencySnapshotSummaryGuard.mjs`
+- `corepack yarn check:git-deps-snapshot-summary-guard`
+- `corepack yarn git-deps:snapshot:audit`
+- `corepack yarn git-deps:snapshot:check-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
