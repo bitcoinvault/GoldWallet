@@ -2,15 +2,15 @@ import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
 
-import en from '../loc/en';
-import es from '../loc/es';
-import id from '../loc/id_ID';
-import jo from '../loc/jp_JP';
-import ko from '../loc/ko_KR';
-import pt from '../loc/pt_PT';
-import tr from '../loc/tr_TR';
-import vi from '../loc/vi_VN';
-import zh from '../loc/zh_cn';
+import en from '../loc/en.js';
+import es from '../loc/es.js';
+import id from '../loc/id_ID.js';
+import jo from '../loc/jp_JP.js';
+import ko from '../loc/ko_KR.js';
+import pt from '../loc/pt_PT.js';
+import tr from '../loc/tr_TR.js';
+import vi from '../loc/vi_VN.js';
+import zh from '../loc/zh_cn.js';
 
 const REAL_PATH = fs.realpathSync(process.cwd());
 const RESULT_PATH = path.resolve(REAL_PATH, 'scripts/missing-translations');

@@ -1686,6 +1686,37 @@ Validation:
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.374 - Remove discontinued std ESM loader
+
+- Branch: `feature/bem-37-374-remove-std-esm-loader`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove discontinued `@std/esm` from `package.json` and `yarn.lock`.
+- Run `scripts/checkTranslation.mjs` through native Node ESM instead of `node --experimental-modules -r @std/esm`.
+- Add explicit `.js` extensions to the translation helper's CommonJS locale imports so the `.mjs` script works under current Node without a custom loader.
+
+Findings:
+
+- `npm view @std/esm version versions deprecated engines --json` reports `0.26.0` with deprecation message `This package is discontinued. Use https://npmjs.com/esm`.
+- `rg "@std/esm|--experimental-modules|checkTranslation"` showed the loader was only used by `translate:check-missing`.
+- `corepack yarn translate:check-missing` passes on native Node ESM and writes the expected missing-translation files.
+- Generated `scripts/missing-translations/*_to-improve.js` files were restored after validation so the commit stays scoped to loader removal.
+
+Validation:
+
+- `npm view @std/esm version versions deprecated engines --json`
+- `rg "@std/esm|--experimental-modules|checkTranslation" -n package.json yarn.lock scripts docs tests src`
+- `corepack yarn remove @std/esm`
+- `corepack yarn translate:check-missing`
+- `corepack yarn postinstall`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.321 - BL buffer dependency compatibility probe
 
 - Branch: `feature/bem-37-321-bl-major-probe`
