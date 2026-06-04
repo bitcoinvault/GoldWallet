@@ -16898,3 +16898,35 @@ Validation:
 - `corepack yarn ios:mac-validation-prereq:check-summary`
 - `corepack yarn ios:mac-validation:handoff:dry-run`
 - `corepack yarn check:ios-mac-validation-handoff-guard`
+
+### BEM-37.415 - Storage/network latest snapshot refresh
+
+- Branch: `feature/bem-37-415-storage-network-latest-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the storage, config, secure-storage, network, random-value, and WebView latest metadata before choosing the next runtime branch.
+- Keep dependency changes out of this branch because the checked package group already matches the current npm latest lines.
+- Update the storage/network compatibility audit so the next actual change starts from current package evidence.
+
+Findings:
+
+- Live npm metadata on 2026-06-04 reports these tracked packages already on `latest`: `@react-native-async-storage/async-storage@3.1.1`, `@react-native-community/netinfo@12.0.1`, `react-native-config@1.6.1`, `react-native-device-info@15.0.2`, `react-native-localize@3.7.0`, `react-native-keychain@10.0.0`, `react-native-secure-key-store@2.0.10`, `react-native-tcp-socket@6.4.1`, `react-native-webview@13.16.1`, and `react-native-get-random-values@2.0.0`.
+- No package bump is useful in this group until a runtime branch targets Electrum connectivity, terms WebView behavior, or secure-storage legacy fallback removal.
+- `react-native-secure-key-store` remains installed because legacy fallback reads are still active; removal stays blocked until migrated PIN, transaction-password, and encrypted wallet data are validated without the fallback backend.
+
+Validation:
+
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn check:storage-network-validation-scripts`
+- `npm view @react-native-async-storage/async-storage version dist-tags peerDependencies engines deprecated --json`
+- `npm view @react-native-community/netinfo version dist-tags peerDependencies engines deprecated --json`
+- `npm view react-native-device-info version dist-tags peerDependencies engines deprecated --json`
+- `npm view react-native-config version dist-tags peerDependencies engines deprecated --json`
+- `npm view react-native-localize version dist-tags peerDependencies engines deprecated --json`
+- `npm view react-native-keychain version dist-tags peerDependencies engines deprecated --json`
+- `npm view react-native-secure-key-store version dist-tags peerDependencies engines deprecated --json`
+- `npm view react-native-tcp-socket version dist-tags peerDependencies engines deprecated --json`
+- `npm view react-native-webview version dist-tags peerDependencies engines deprecated --json`
+- `npm view react-native-get-random-values version dist-tags peerDependencies engines deprecated --json`
