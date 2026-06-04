@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationReadinessSummaryGuard.mjs';
+import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
@@ -37,6 +38,11 @@ const summaries = [
     label: 'CodePush migration readiness',
     relativePath: 'local-docs/codepush-migration-readiness-summary.txt',
     getErrors: getCodePushMigrationReadinessSummaryErrors,
+  },
+  {
+    label: 'CodePush removal readiness',
+    relativePath: 'local-docs/codepush-removal-readiness-summary.txt',
+    getErrors: getCodePushRemovalReadinessSummaryErrors,
   },
   {
     label: 'push notification bridge',

@@ -1612,6 +1612,45 @@ Validation:
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.372 - CodePush removal readiness inventory
+
+- Branch: `feature/bem-37-372-codepush-removal-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guarded CodePush removal-readiness audit that inventories the runtime, Android, iOS, plist, and env-key surfaces that must be deleted or replaced before removing CodePush.
+- Add the generated removal-readiness summary to the release-services aggregate checker and RN baseline preflight.
+- Keep runtime behavior unchanged while CodePush remains gated off by default and the remove-or-replace decision is still open.
+
+Findings:
+
+- CodePush remains installed and scoped to one runtime file, `App.tsx`.
+- Native CodePush integration remains scoped to eight guarded Android/iOS files.
+- Five env files carry CodePush flags or deployment-key entries, but the removal-readiness summary does not print key values.
+- The current summary records `Safe to remove now: no` because neither removal nor replacement has been chosen.
+- Android release summary evidence had to be refreshed after package/script changes so CodePush release-path and migration-readiness summaries could prove current release inputs again.
+
+Validation:
+
+- `corepack yarn check:codepush-removal-readiness-summary-guard`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn check:codepush-usage-scope`
+- `corepack yarn codepush:removal-readiness:audit`
+- `corepack yarn codepush:removal-readiness:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.321 - BL buffer dependency compatibility probe
 
 - Branch: `feature/bem-37-321-bl-major-probe`
