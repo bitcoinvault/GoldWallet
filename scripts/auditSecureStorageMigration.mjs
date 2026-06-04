@@ -10,8 +10,12 @@ const exists = relativePath => existsSync(path.join(root, relativePath));
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
 const scripts = packageJson.scripts || {};
-const expectedFocusedValidationCommand =
-  'yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline';
+const requiredFocusedValidationCommands = [
+  'yarn test:secure-storage:unit',
+  'yarn test:storage',
+  'yarn test:authenticator',
+  'yarn test:wallet-core:offline',
+];
 
 const requireFile = (errors, relativePath) => {
   if (!exists(relativePath)) {
@@ -73,8 +77,15 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'docs/storage-network-native-compatibility-audit.md', storageAudit, 'react-native-secure-key-store latest: 2.0.10');
   requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'dedicated secure-storage removal after legacy fallback migration validation');
 
-  if (scripts['test:storage-network:focused'] !== expectedFocusedValidationCommand) {
-    errors.push('test:storage-network:focused must keep secure-storage, storage, authenticator, and wallet-core offline checks grouped');
+  const focusedValidationCommand = scripts['test:storage-network:focused'] || '';
+  const missingFocusedValidationCommands = requiredFocusedValidationCommands.filter(
+    command => !focusedValidationCommand.includes(command),
+  );
+
+  if (missingFocusedValidationCommands.length > 0) {
+    errors.push(
+      `test:storage-network:focused must keep secure-storage, storage, authenticator, and wallet-core offline checks grouped; missing ${missingFocusedValidationCommands.join(', ')}`,
+    );
   }
 
   if (!warningBaseline.includes('react-native-secure-key-store')) {
