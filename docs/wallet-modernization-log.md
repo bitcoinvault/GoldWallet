@@ -16871,3 +16871,30 @@ Validation:
 - `npm view react-native-code-push version time repository.url --json`
 - `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
 - `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
+
+### BEM-37.414 - iOS release readiness blocker refresh
+
+- Branch: `feature/bem-37-414-ios-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the iOS release-config audit after the current static readiness and macOS prerequisite checks.
+- Keep iOS runtime/archive delivery explicitly blocked on macOS/Xcode/CocoaPods instead of implying Windows validation.
+- Record the exact `ios/Podfile.lock` drift count and required macOS handoff path for the RN `0.85.3` tree.
+
+Findings:
+
+- `ios:release:readiness:audit` reports static iOS release files valid for React Native `0.85.3`, iOS deployment target `15.1`, and Xcode minimum `16.1`.
+- The same audit reports `Podfile.lock refresh required: yes`, `Removed Podfile.lock pod references: 0`, and `Podfile.lock drift issues: 12`.
+- `ios:mac-validation-prereq:audit` reports this Windows host cannot run iOS archive/simulator validation because macOS, `xcodebuild`, and CocoaPods are unavailable here.
+- iOS runtime delivery validation remains not claimed until `pod install` refreshes `ios/Podfile.lock` on macOS and at least one affected shared scheme builds.
+
+Validation:
+
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn ios:mac-validation-prereq:audit`
+- `corepack yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn ios:mac-validation:handoff:dry-run`
+- `corepack yarn check:ios-mac-validation-handoff-guard`
