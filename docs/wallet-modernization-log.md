@@ -377,6 +377,34 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
 - `corepack yarn rn:baseline:preflight:online`
 
+### BEM-37.385 - iOS macOS validation prerequisite gate
+
+- Branch: `feature/bem-37-385-ios-mac-validation-prereqs`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add an iOS macOS validation prerequisite audit and summary checker.
+- Wire the prerequisite gate into `rn:baseline:preflight` after the existing iOS release readiness audit.
+- Update the RN upgrade-path guard and workflow documentation so the added iOS handoff gate remains part of the guarded baseline.
+
+Findings:
+
+- Static iOS release files remain valid, but iOS runtime delivery is still not claimable from Windows.
+- The new prerequisite summary records the current host platform, `xcodebuild` availability, React Native minimum Xcode `16.1`, CocoaPods availability, active `ios/Podfile.lock` drift, and explicit blockers.
+- On this Windows machine the expected blockers are: non-macOS host, missing `xcodebuild`, missing CocoaPods access, and 12 active `ios/Podfile.lock` drift issues.
+- The first `rn:baseline:preflight` run correctly detected stale Android release evidence after `package.json` changed; `android:dev:release:verify-local` refreshed dev, stage, prod, and beta release evidence before the second preflight passed.
+
+Validation:
+
+- `corepack yarn check:ios-mac-validation-prereq-summary-guard`
+- `corepack yarn ios:mac-validation-prereq:audit`
+- `corepack yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:baseline:preflight` failed once on stale Android release evidence, as expected after `package.json` changed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn rn:baseline:preflight`
+
 ### BEM-37.381 - Android release evidence refresh after React renderer lock
 
 - Branch: `feature/bem-37-381-release-evidence-after-react-is-lock`
