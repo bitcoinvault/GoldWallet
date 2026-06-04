@@ -16613,3 +16613,33 @@ Validation:
 - `corepack yarn lint:baseline:audit`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
+
+### BEM-37.405 - Wallet crypto aggregate scope
+
+- Branch: `feature/bem-37-405-wallet-crypto-aggregate-scope`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a focused `test:wallet-crypto:signer` script for the wallet signer unit fixture.
+- Narrow `test:wallet-crypto:offline` to wallet crypto audit, HD wallet offline, watch-only offline, wallet-core offline, and signer unit coverage.
+- Update the wallet crypto validation guard and audit docs so the aggregate remains scoped to wallet crypto behavior.
+
+Findings:
+
+- The previous aggregate passed, but it invoked the full `test:unit --runInBand` suite and could surface unrelated async BlueElectrum log noise after Jest completed.
+- `tests/unit/signer.test.js` is the focused unit target for transaction signing, WIF, URI, and PSBT wallet crypto behavior.
+- The narrowed aggregate keeps wallet crypto coverage without pulling unrelated unit suites into the branch-level wallet crypto check.
+
+Validation:
+
+- `node --check scripts/checkWalletCryptoValidationScripts.mjs`
+- `corepack yarn check:wallet-crypto-validation-scripts`
+- `corepack yarn test:wallet-crypto:signer`
+- `corepack yarn test:wallet-crypto:offline`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
