@@ -42,7 +42,7 @@ Each cohort needs Android build and emulator smoke. iOS changes need a separate 
 
 Upgrade these as wallet-critical runtime groups, not as casual patch bumps:
 
-- Mnemonic and key derivation: `bip39`, `bip32`, `bitcoinjs-lib`, `wif`, `ecurve`, `bigi`, `pbkdf2`, `randombytes`.
+- Mnemonic and key derivation: `bip39`, `bip32`, `bitcoinjs-lib`, `wif`, `ecurve`, `bigi`, `pbkdf2`, and the React Native random-value provider.
 - Transaction building and coin selection: `coinselect`, BitcoinVault forks, Electrum client.
 - Serialization, QR, URI parsing: `bech32`, `bip21`, QR packages.
 

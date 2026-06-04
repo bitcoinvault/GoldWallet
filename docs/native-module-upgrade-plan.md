@@ -83,7 +83,7 @@ Branch shape:
 - `react-native-exit-app` -> `2.0.0`
 - `react-native-config` -> `1.6.1`
 - `react-native-localize` -> `3.7.0`
-- `react-native-randombytes` -> `3.6.2`
+- `react-native-get-random-values` -> `2.0.0`
 - `react-native-secure-key-store` -> `2.0.10`
 - `react-native-keychain` -> `10.0.0`
 - `react-native-tcp-socket` -> `6.4.1`
@@ -111,7 +111,7 @@ Branch shape:
 - `corepack yarn secure-storage:migration:audit` records that secure storage protects PIN and transaction-password behavior before any replacement branch starts.
 - `tests/integration/Storage.test.js` now locks the React Native `AppStorage` Keychain-only write and legacy fallback-read contract for encrypted wallet data before any later legacy secure-store removal.
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
-- `react-native-randombytes` is on latest checked `3.6.2` after `BEM-36.49`; future random-value work should be a dedicated crypto/runtime replacement branch for `react-native-get-random-values`, not another package bump.
+- `react-native-randombytes` was removed after the dedicated crypto/runtime replacement branch; random values are provided by `react-native-get-random-values@2.0.0`, imported in `index.js` before app startup.
 - `react-native-version-number` is pinned to the already-resolved `0.3.6` after `BEM-36.69`; future app metadata work should validate displayed/build version behavior on both platforms.
 - `react-native-webview` is on latest checked `13.16.1` after `BEM-37.162`; future WebView work should focus on Terms screens validation, release builds, and the next RN baseline.
 
@@ -208,6 +208,6 @@ Release-service change:
 
 1. Use `docs/svg-qr-render-compatibility-audit.md` before changing `react-native-svg` or `react-native-qrcode-svg`.
 2. Use `docs/navigation-native-compatibility-audit.md` before changing `react-native-gesture-handler`, `react-native-screens`, or `react-native-safe-area-context`.
-3. Use `docs/storage-network-native-compatibility-audit.md` before changing storage, config, secure storage, socket, NetInfo, device-info, localization, randombytes, or WebView dependencies.
+3. Use `docs/storage-network-native-compatibility-audit.md` before changing storage, config, secure storage, socket, NetInfo, device-info, localization, random-value, or WebView dependencies.
 4. Use `docs/release-services-native-compatibility-audit.md` before changing Firebase, push notification, CodePush, or Sentry release-service dependencies.
 5. Keep CameraKit scanner follow-up work scoped to the dedicated QR scanner screen.

@@ -18,7 +18,7 @@ Latest npm checked on 2026-06-03.
 | `bigi` | `1.4.2` | `1.4.2` | Legacy big integer dependency used by `utils/crypto.ts`; pinned exactly because this is wallet-critical runtime code. |
 | `pbkdf2` | `3.1.6` | `3.1.6` | Current package remains latest. |
 | `wif` | `5.0.0` | `5.0.0` | Direct dependency is current; the BTCV `bitcoinjs-lib` fork still resolves its own nested `wif@2.0.6` and this is guarded by `corepack yarn wallet:crypto-runtime:audit`. |
-| `react-native-randombytes` | `3.6.2` | `3.6.2` | Current native random-bytes bridge remains latest checked. |
+| `react-native-get-random-values` | `2.0.0` | `2.0.0` | Current random-value provider is imported before app startup in `index.js`; deprecated `react-native-randombytes` is removed. |
 | `crypto-js` | `4.2.0` | `4.2.0` | Current package remains latest and has a separate runtime audit. |
 
 ## Runtime Surface
@@ -30,6 +30,7 @@ Latest npm checked on 2026-06-03.
 - `crypto-js` is used for wallet-related hashing/encryption helpers and is guarded separately by `corepack yarn crypto-js:runtime:audit`.
 - `ecurve` and `bigi` are not treated as isolated low-risk package bumps because they are coupled to the old bitcoin stack and BTCV fork behavior.
 - Direct `wif` is now latest `5.0.0`; the BitcoinVault `bitcoinjs-lib` fork keeps using nested `wif@2.0.6`, because its old stack still depends on the 2.x WIF line.
+- `react-native-get-random-values` is imported in `index.js` before app startup so RN runtime code has `crypto.getRandomValues`; the deprecated `react-native-randombytes` native bridge is intentionally absent.
 
 ## Upgrade Decision
 

@@ -351,7 +351,6 @@
     "react-native-modal": "14.0.0-rc.1",
     "react-native-prompt-android": "git+https://github.com/marcosrdz/react-native-prompt-android.git",
     "react-native-qrcode-svg": "6.3.21",
-    "react-native-randombytes": "3.6.2",
     "react-native-rate": "1.2.12",
     "react-native-safe-area-context": "5.8.0",
     "react-native-screens": "4.25.2",
