@@ -7,13 +7,13 @@ const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
 export const expectedReactNativeTargetSnapshot = {
-  snapshotDate: '2026-06-03',
+  snapshotDate: '2026-06-04',
   currentReactNative: '0.85.3',
   currentReact: '19.2.3',
   currentNode: '24.16.0',
   npmLatestReactNative: '0.85.3',
   npmNextReactNative: '0.86.0-rc.3',
-  npmNightlyReactNative: '0.87.0-nightly-20260602-23ce90bd3',
+  npmNightlyReactNative: '0.87.0-nightly-20260604-63683f091',
   npmNextChannel: 'prerelease',
   defaultUpgradeChannel: 'latest',
   targetReactPeer: '^19.2.3',
@@ -21,13 +21,13 @@ export const expectedReactNativeTargetSnapshot = {
 };
 
 export const requiredReactNativeTargetSnapshotSnippets = [
-  ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-06-03`'],
+  ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-06-04`'],
   ['docs/react-native-target-snapshot.md', 'Current repo React Native: `0.85.3`'],
   ['docs/react-native-target-snapshot.md', 'Current repo React: `19.2.3`'],
   ['docs/react-native-target-snapshot.md', 'Current repo Metro/dev Node runtime: `24.16.0`'],
   ['docs/react-native-target-snapshot.md', 'npm `latest`: `0.85.3`'],
   ['docs/react-native-target-snapshot.md', 'npm `next`: `0.86.0-rc.3`'],
-  ['docs/react-native-target-snapshot.md', 'npm `nightly`: `0.87.0-nightly-20260602-23ce90bd3`'],
+  ['docs/react-native-target-snapshot.md', 'npm `nightly`: `0.87.0-nightly-20260604-63683f091`'],
   ['docs/react-native-target-snapshot.md', 'npm `next` channel classification: `prerelease`'],
   ['docs/react-native-target-snapshot.md', 'Default upgrade channel: `latest`'],
   ['docs/react-native-target-snapshot.md', 'React peer for `react-native@0.85.3`: `^19.2.3`'],
