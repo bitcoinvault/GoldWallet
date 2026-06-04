@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.393 - CodePush upstream evidence in migration readiness
+
+- Branch: `feature/bem-37-393-codepush-upstream-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add CodePush package latest version, latest published timestamp, npm repository, and upstream repository to the migration-readiness summary.
+- Extend the migration-readiness guard so the summary must carry direct package/upstream evidence for the remove-or-replace decision.
+- Update the CodePush retirement migration plan to document that these evidence fields are part of the guarded summary.
+
+Findings:
+
+- Live npm metadata reports `react-native-code-push@9.0.1` as current latest.
+- `codepush:release:path-audit` reports latest published timestamp `2024-12-19T14:31:05.513Z`, npm repository `git+https://github.com/microsoft/react-native-code-push.git`, and upstream repository `https://github.com/microsoft/react-native-code-push`.
+- `gh repo view microsoft/react-native-code-push` reports the upstream repository is archived, with `pushedAt` `2025-05-20T11:58:16Z` and `updatedAt` `2026-06-03T23:29:43Z`.
+- The release-path audit already collected package/upstream details, but the migration-readiness summary did not expose them.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-code-push version repository dist-tags --json`
+- `gh repo view microsoft/react-native-code-push --json isArchived,pushedAt,updatedAt,url`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-migration-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+
 ### BEM-37.392 - Sentry prereq release evidence readiness
 
 - Branch: `feature/bem-37-392-sentry-prereq-release-evidence`

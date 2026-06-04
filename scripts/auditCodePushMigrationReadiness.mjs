@@ -26,6 +26,10 @@ export const collectCodePushMigrationReadinessAudit = () => {
 
   return {
     packageCurrent: releasePathAudit.packageCurrent,
+    packageLatestVersion: releasePathAudit.packageLatestVersion,
+    packageLatestPublishedAt: releasePathAudit.packageLatestPublishedAt,
+    packageRepositoryUrl: releasePathAudit.packageRepositoryUrl,
+    codePushUpstreamRepository: releasePathAudit.codePushUpstreamRepository,
     appCenterRetirementDate: releasePathAudit.appCenterRetirementDate,
     upstreamArchived: releasePathAudit.upstreamArchived,
     upstreamNewArchitectureSupported: releasePathAudit.upstreamNewArchitectureSupported,
@@ -56,6 +60,10 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
     'CodePush migration readiness audit',
     `Generated at: ${generatedAt}`,
     `CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`,
+    `CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`,
+    `CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`,
+    `CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`,
+    `CodePush upstream repository: ${audit.codePushUpstreamRepository || 'missing'}`,
     `App Center CodePush retirement date: ${audit.appCenterRetirementDate}`,
     `CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`,
     `CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`,
@@ -87,6 +95,10 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
 const printReport = audit => {
   console.log('CodePush migration readiness audit');
   console.log(`CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
+  console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
+  console.log(`CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`);
+  console.log(`CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`);
+  console.log(`CodePush upstream repository: ${audit.codePushUpstreamRepository || 'missing'}`);
   console.log(`App Center CodePush retirement date: ${audit.appCenterRetirementDate}`);
   console.log(`CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`);
   console.log(`CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`);

@@ -4,6 +4,10 @@ const validSummary = [
   'CodePush migration readiness audit',
   'Generated at: 2026-06-03T00:00:00.000Z',
   'CodePush package current: yes',
+  'CodePush package latest version: 9.0.1',
+  'CodePush package latest published at: 2024-12-19T15:55:45.376Z',
+  'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
+  'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
   'App Center CodePush retirement date: 2025-03-31',
   'CodePush upstream archived: yes',
   'CodePush upstream New Architecture support: no',
@@ -52,6 +56,22 @@ const assertRejected = (label, summary, expectedError) => {
 assertAccepted('Valid CodePush migration readiness summary fixture', validSummary);
 assertRejected('Missing header fixture', validSummary.replace('CodePush migration readiness audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-03T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
+assertRejected('Missing latest package fixture', validSummary.replace('CodePush package latest version: 9.0.1', 'CodePush package latest version: missing'), 'latest version');
+assertRejected(
+  'Missing published timestamp fixture',
+  validSummary.replace('CodePush package latest published at: 2024-12-19T15:55:45.376Z', 'CodePush package latest published at: missing'),
+  'published timestamp',
+);
+assertRejected(
+  'Wrong npm repository fixture',
+  validSummary.replace('CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git', 'CodePush npm repository: missing'),
+  'npm repository',
+);
+assertRejected(
+  'Wrong upstream repository fixture',
+  validSummary.replace('CodePush upstream repository: https://github.com/microsoft/react-native-code-push', 'CodePush upstream repository: missing'),
+  'upstream repository',
+);
 assertRejected('Runtime enabled fixture', validSummary.replace('CodePush runtime gated off by default: yes', 'CodePush runtime gated off by default: no'), 'gated off by default');
 assertRejected('Claimed update validation fixture', validSummary.replace('CodePush update validation: not claimed', 'CodePush update validation: claimed'), 'not claimed');
 assertRejected('Missing migration fixture', validSummary.replace('CodePush migration required: yes', 'CodePush migration required: no'), 'migration required');
