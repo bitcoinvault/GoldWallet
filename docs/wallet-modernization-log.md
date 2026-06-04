@@ -16976,3 +16976,27 @@ Validation:
 - `corepack yarn test:electrum-reconnect:unit`
 - `corepack yarn check:storage-network-validation-scripts-guard`
 - `corepack yarn check:storage-network-validation-scripts`
+
+### BEM-37.418 - Android runtime smoke checkpoint
+
+- Branch: `feature/bem-37-418-android-runtime-smoke-checkpoint`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Rebuild the current `devDebug` APK and run the embedded Android emulator smoke flow after the storage/network validation gate work.
+- Verify real runtime startup, first-run onboarding, dashboard readiness, and fatal/runtime logcat checks on `emulator-5554`.
+- Record the local environment correction needed before the passing smoke run.
+
+Findings:
+
+- The first smoke attempt launched the app but surfaced a React runtime redbox: `react` was loaded from local `node_modules` as `19.2.7` while `react-native-renderer` remained `19.2.3`.
+- `package.json` and `yarn.lock` still pinned `react@19.2.3`; reinstalling with Node `24.16.0` restored `node_modules/react` to the locked `19.2.3` version without changing committed dependency versions.
+- The second `devDebug` build completed successfully and the embedded smoke passed on `emulator-5554`.
+- Smoke completed first-run Terms, PIN, transaction password, email skip, success close, then reached the dashboard with `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
+- The smoke summary reports no fatal Android runtime or React Native runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
