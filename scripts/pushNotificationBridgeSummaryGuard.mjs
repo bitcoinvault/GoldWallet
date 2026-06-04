@@ -26,7 +26,14 @@ const getBulletLinesAfter = (content, label) => {
 export const getPushNotificationBridgeSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
+  const packageDependencyVersion = getLineValue(summary, 'Push notification package dependency version');
+  const packageInstalledVersion = getLineValue(summary, 'Push notification package installed version');
+  const packageLatestVersion = getLineValue(summary, 'Push notification package latest version');
+  const packageLatestPublishedAt = getLineValue(summary, 'Push notification package latest published at');
+  const packageRepositoryUrl = getLineValue(summary, 'Push notification package npm repository');
+  const packageCurrent = getLineValue(summary, 'Push notification package current');
   const wiringValid = getLineValue(summary, 'Push notification bridge wiring valid');
+  const runtimeDeliveryValidation = getLineValue(summary, 'Push notification runtime delivery validation');
   const readinessCount = getLineValue(summary, 'Static readiness issues');
   const wiringErrorCount = getLineValue(summary, 'Wiring errors');
   const requiredAction = getLineValue(summary, 'Required action');
@@ -43,6 +50,34 @@ export const getPushNotificationBridgeSummaryErrors = summary => {
 
   if (!['yes', 'no'].includes(wiringValid)) {
     errors.push(`Push notification bridge wiring valid must be yes or no. Received: ${wiringValid || 'missing'}`);
+  }
+
+  if (!/^\d+\.\d+\.\d+$/.test(packageDependencyVersion)) {
+    errors.push(`Push notification package dependency version must be present. Received: ${packageDependencyVersion || 'missing'}`);
+  }
+
+  if (packageInstalledVersion !== packageDependencyVersion) {
+    errors.push(`Push notification package installed version must match dependency version. Received: ${packageInstalledVersion || 'missing'}`);
+  }
+
+  if (packageLatestVersion !== packageDependencyVersion) {
+    errors.push(`Push notification package latest version must match dependency version. Received: ${packageLatestVersion || 'missing'}`);
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(packageLatestPublishedAt)) {
+    errors.push(`Push notification package latest published timestamp must be present. Received: ${packageLatestPublishedAt || 'missing'}`);
+  }
+
+  if (!packageRepositoryUrl.includes('react-native-community/push-notification-ios')) {
+    errors.push(`Push notification package npm repository must reference react-native-community/push-notification-ios. Received: ${packageRepositoryUrl || 'missing'}`);
+  }
+
+  if (packageCurrent !== 'yes') {
+    errors.push(`Push notification package current must be yes. Received: ${packageCurrent || 'missing'}`);
+  }
+
+  if (runtimeDeliveryValidation !== 'not claimed') {
+    errors.push(`Push notification runtime delivery validation must be not claimed. Received: ${runtimeDeliveryValidation || 'missing'}`);
   }
 
   [
