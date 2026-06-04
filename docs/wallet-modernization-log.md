@@ -1764,6 +1764,46 @@ Validation:
 - `corepack yarn android:dev:check-smoke-summary`
 - `corepack yarn android:dev:check-light`
 
+### BEM-37.376 - Noble hashes Metro export compatibility
+
+- Branch: `feature/bem-37-376-noble-hashes-export-warning`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a `patch-package` patch for `@noble/hashes@1.8.0` so Metro can resolve `@noble/hashes/crypto.js` through package exports instead of falling back to file-based resolution.
+- Keep the current wallet crypto stack versions unchanged while removing the Android bundling warning introduced by the existing `@noble/hashes` subpath export gap.
+
+Findings:
+
+- Android bundling previously warned that `@noble/hashes/crypto.js` was not listed in `@noble/hashes` package exports.
+- `@noble/hashes@1.8.0` already ships `crypto.js` and exports `./crypto`; it does not export `./crypto.js`.
+- Latest `@noble/hashes@2.2.0` and `@noble/curves@2.2.0` are ESM-only and require Node `>=20.19.0`; `@bitcoinerlab/secp256k1@1.2.0` remains latest, so forcing the noble 2.x stack is a separate wallet-crypto migration risk rather than a warning cleanup.
+- After the patch, `require.resolve('@noble/hashes/crypto.js')` resolves through the package exports path and Android dev bundling no longer prints the Metro package-export fallback warning.
+
+Validation:
+
+- `npm view @noble/hashes version versions engines dependencies peerDependencies exports type --json`
+- `npm view @noble/curves version versions engines dependencies exports type --json`
+- `npm view @bitcoinerlab/secp256k1 version versions engines dependencies peerDependencies exports type --json`
+- `npm view bip32 version versions engines dependencies peerDependencies exports type --json`
+- `rg "@noble/hashes|crypto\.js|@bitcoinerlab/secp256k1|secp256k1" -n package.json yarn.lock src scripts tests node_modules\@bitcoinerlab node_modules\@noble node_modules\bip32`
+- `corepack yarn postinstall`
+- `node -e "for (const spec of ['@noble/hashes/crypto','@noble/hashes/crypto.js','@noble/hashes/utils.js']) { console.log(spec, '=>', require.resolve(spec)); }"`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `Select-String -Path local-docs\android-assemble-bem-37-376.log -Pattern '@noble/hashes/crypto.js','not listed in the "exports"','Falling back to file-based resolution','BUILD SUCCESSFUL'`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:check-light`
+
 ### BEM-37.321 - BL buffer dependency compatibility probe
 
 - Branch: `feature/bem-37-321-bl-major-probe`
