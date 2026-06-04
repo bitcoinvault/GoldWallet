@@ -316,6 +316,37 @@ Validation:
 - `corepack yarn lint:baseline:audit`
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
+
+### BEM-37.381 - Android release evidence refresh after React renderer lock
+
+- Branch: `feature/bem-37-381-release-evidence-after-react-is-lock`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release validation evidence after the `react-test-renderer -> react-is` lockfile refresh changed release-input fingerprints.
+- Rebuild `dev`, `stage`, `prod`, and `beta` release APK evidence with Sentry auto-upload disabled locally.
+- Re-run Sentry, Firebase, CodePush release-path, and CodePush migration-readiness audits against the fresh release summary.
+
+Findings:
+
+- `rn:baseline:preflight` correctly failed after BEM-37.380 because the local Android release summary fingerprint no longer matched current release inputs.
+- `android:dev:release:verify-local` rebuilt all required release variants and restored current release-summary and APK-manifest proof.
+- Sentry release upload validation remains unclaimed locally because `SENTRY_AUTH_TOKEN` and generated Sentry properties files are missing.
+- CodePush release build evidence is ready again, but update validation remains unclaimed because dev deployment keys are blank and beta deployment-key strategy is still unconfirmed.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn release-services:check-summaries`
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn typescript:check`
 - `corepack yarn check:modernization-log-ids`
