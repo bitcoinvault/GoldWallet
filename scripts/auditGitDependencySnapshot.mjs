@@ -77,16 +77,20 @@ const getLockHash = name => {
   return resolvedLine.match(/#([a-f0-9]{40})/)?.[1] || resolvedLine.match(/tar\.gz\/([a-f0-9]{40})/)?.[1] || '';
 };
 
+const getPackageSpecHash = packageSpec => packageSpec.match(/#([a-f0-9]{40})/)?.[1] || '';
+
 export const collectGitDependencySnapshot = () =>
   trackedDependencies.map(entry => {
     const packageSpec = packageJson[entry.source]?.[entry.name] || '';
+    const packageHash = getPackageSpecHash(packageSpec);
     const lockHash = getLockHash(entry.name);
     const remoteHash = getRemoteHash(entry);
-    const status = lockHash && remoteHash && lockHash === remoteHash ? 'current' : 'review';
+    const status = packageHash && lockHash && remoteHash && packageHash === lockHash && lockHash === remoteHash ? 'current' : 'review';
 
     return {
       ...entry,
       packageSpec,
+      packageHash,
       lockHash,
       remoteHash,
       status,
@@ -104,7 +108,7 @@ export const formatGitDependencySnapshotSummary = (entries, generatedAt = new Da
       entry =>
         `- ${entry.name}: package spec: ${entry.packageSpec || '<missing>'}; lock hash: ${
           entry.lockHash || '<missing>'
-        }; remote: ${entry.remote}; remote ref: ${entry.ref}; remote hash: ${entry.remoteHash || '<missing>'}; wallet critical: ${
+        }; package hash: ${entry.packageHash || '<missing>'}; remote: ${entry.remote}; remote ref: ${entry.ref}; remote hash: ${entry.remoteHash || '<missing>'}; wallet critical: ${
           entry.walletCritical ? 'yes' : 'no'
         }; status: ${entry.status}`,
     ),
