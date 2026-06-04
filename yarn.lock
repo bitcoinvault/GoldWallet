@@ -5869,7 +5869,7 @@ electron-to-chromium@^1.5.328:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.355.tgz#ea6acfbb850595c54814125a3906336edd619856"
   integrity sha512-LUPZhKzZPYSPme1jEYohpkA+ybYCJztr1quAdBd7E7h3+VOBVcKkwwtBJu41nrjawrRzfb8mtMfzWozoaK0ZIQ==
 
-"electrum-client@git+https://github.com/bitcoinvault/rn-electrum-client.git":
+"electrum-client@git+https://github.com/bitcoinvault/rn-electrum-client.git#d4b653dd9c505b04b3132b9bc49450f00cad0f17":
   version "2.0.0"
   resolved "git+https://github.com/bitcoinvault/rn-electrum-client.git#d4b653dd9c505b04b3132b9bc49450f00cad0f17"
 
@@ -10898,7 +10898,7 @@ react-native-modal@14.0.0-rc.1:
   dependencies:
     react-native-animatable "1.4.0"
 
-"react-native-prompt-android@git+https://github.com/marcosrdz/react-native-prompt-android.git":
+"react-native-prompt-android@git+https://github.com/marcosrdz/react-native-prompt-android.git#87bf3adb5f22b4d1ecaa517e93347101372398f5":
   version "0.3.6"
   resolved "git+https://github.com/marcosrdz/react-native-prompt-android.git#87bf3adb5f22b4d1ecaa517e93347101372398f5"
 
@@ -11417,7 +11417,7 @@ ripemd160@^2.0.3:
     hash-base "^3.1.2"
     inherits "^2.0.4"
 
-"rn-nodeify@github:tradle/rn-nodeify":
+"rn-nodeify@github:tradle/rn-nodeify#338d8d6ba8438403093e9409e9a9d88ad884926f":
   version "10.3.0"
   resolved "https://codeload.github.com/tradle/rn-nodeify/tar.gz/338d8d6ba8438403093e9409e9a9d88ad884926f"
   dependencies:

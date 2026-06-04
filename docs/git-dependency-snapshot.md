@@ -22,3 +22,5 @@ The generated summary is local-only at `local-docs/git-dependency-snapshot.txt`.
 ## Decision
 
 Do not update or replace these dependencies from a generic `yarn outdated` result. Check the live remote hash, compare it with the lockfile hash, and keep wallet-critical fork changes in dedicated compatibility branches with focused wallet/network validation.
+
+As of `BEM-37.388`, all tracked direct git dependencies are pinned in `package.json` to their audited lockfile/remote hashes. Keep that hash suffix in the package spec so a future lockfile refresh cannot silently move wallet-critical forks or the local polyfill tool.
