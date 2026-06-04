@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.404 - Wallet crypto WIF cache coverage
+
+- Branch: `feature/bem-37-404-wallet-wif-cache-coverage`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `test:wallet-crypto:offline` as a focused wallet/crypto validation aggregate for the BTCV fork, HD wallet, watch-only wallet, wallet-core, and signer offline fixtures.
+- Add `check:wallet-crypto-validation-scripts` and wire it into `android:dev:check-light` so wallet/crypto validation wiring cannot silently disappear before future crypto runtime dependency work.
+- Extend HD BIP49 offline coverage to verify that signing resolves WIF values from `_getWifForAddress()` cache on cloned UTXOs without mutating caller-provided UTXO fixtures.
+- Refresh wallet crypto audit documentation for the 2026-06-04 live npm check and the new WIF cache/clone-before-signing contract.
+
+Findings:
+
+- Live npm metadata still reports the installed direct wallet crypto packages as current/latest for `bip39`, `bip32`, `coinselect`, `ecurve`, `bigi`, `pbkdf2`, `wif`, and `react-native-get-random-values`.
+- Upstream `bitcoinjs-lib@7.0.1` remains unsuitable as a blind replacement because this app depends on the pinned BitcoinVault fork for BTCV-specific network and vault transaction behavior.
+- `bl@7.0.3` remains blocked for the current dependency graph because it is ESM/export-only while legacy CommonJS consumers still require the compatible `bl@6.1.6` line.
+- This branch does not claim funded transaction delivery; live funded BTCV transaction QA remains blocked until a funded testnet wallet is available.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view bip39 bip32 bitcoinjs-lib wif ecurve bigi pbkdf2 coinselect bech32 bip21 react-native-get-random-values buffer readable-stream stream-browserify bl`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkWalletCryptoValidationScripts.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:wallet-crypto-validation-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:hdwallet:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.403 - Android integration smoke checkpoint
 
 - Branch: `feature/bem-37-403-android-integration-smoke-checkpoint`

@@ -2,7 +2,7 @@
 
 Scope: wallet-critical JavaScript and native-adjacent crypto/runtime dependencies used for BTCV key derivation, address handling, transaction building, signing, and persistence-adjacent wallet flows.
 
-Latest npm checked on 2026-06-03.
+Latest npm checked on 2026-06-04.
 
 ## Current Package State
 
@@ -40,6 +40,7 @@ Do not upgrade this group package-by-package unless the package is already isola
 - authenticator/signing tests,
 - HD wallet derivation fixtures,
 - WIF import/export behavior and `_getWifForAddress` cache behavior,
+- clone-before-signing behavior so HD wallet signing adds cached WIF values to cloned UTXOs instead of mutating caller-provided UTXO fixtures,
 - transaction construction fixtures, including signed BIP49 P2SH and BIP84 Bech32 regular-send/send-max UTXO coverage,
 - Android build and emulator smoke.
 
@@ -50,6 +51,8 @@ Funded transaction flow remains blocked until a funded BTCV testnet wallet is av
 ```powershell
 corepack yarn wallet:crypto-runtime:audit
 corepack yarn crypto-js:runtime:audit
+corepack yarn check:wallet-crypto-validation-scripts
+corepack yarn test:wallet-crypto:offline
 corepack yarn test:unit --runInBand
 corepack yarn test:storage-network:focused
 corepack yarn test:watchonly:offline
