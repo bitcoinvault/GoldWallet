@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.387 - BL latest blocker refresh
+
+- Branch: `feature/bem-37-387-bl-latest-blocker-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh dependency strategy text for the current live `bl@7.0.3` latest target.
+- Keep the repo-owned `bl` resolution on `6.1.6` because the latest `bl` line remains ESM/export-only and incompatible with current CommonJS consumers.
+- Revalidate the BL readiness audit after refreshing release-service evidence.
+
+Findings:
+
+- `npm view bl version type exports main module dependencies engines --json` reports latest `7.0.3`, `type: module`, and Node `>=20`.
+- `corepack yarn outdated --json` still reports `bl` as a known major drift item, but this is a tracked blocker rather than an actionable blind bump.
+- The current audit confirms `require('bl')`, `require('levelup')`, and `require('ora')` still load under the `6.1.6` CommonJS-compatible resolution.
+
+Validation:
+
+- `npm view bl version type exports main module dependencies engines --json`
+- `corepack yarn outdated --json`
+- `corepack yarn check:bl-resolution-summary-guard`
+- `corepack yarn bl:resolution:audit`
+- `corepack yarn bl:resolution:check-summary`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:baseline:preflight:online`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.367 - i18next runtime patch
 
 - Branch: `feature/bem-37-367-i18next-runtime-patch`
