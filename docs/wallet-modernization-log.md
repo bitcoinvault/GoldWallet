@@ -16774,3 +16774,26 @@ Validation:
 - `corepack yarn check:release-services-validation-handoff-guard`
 - `corepack yarn rn:upgrade-path:audit`
 - `corepack yarn release-services:validation:handoff:dry-run`
+
+### BEM-37.410 - React Native target matrix refresh
+
+- Branch: `feature/bem-37-410-rn-target-matrix-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the React Native foundation target matrix after the live npm target snapshot.
+- Clarify that RN `0.85.3` is the current stable checkpoint and that `0.86.0-rc.3` is a prerelease spike target, not the default wallet target.
+- Remove stale fixed React/Node peer assumptions from future RN milestones so branch-time live metadata drives the next stable jump.
+
+Findings:
+
+- Live npm metadata on 2026-06-04 reports `react-native@latest` as `0.85.3`, `react-native@next` as `0.86.0-rc.3`, and `react-native@nightly` as `0.87.0-nightly-20260604-63683f091`.
+- `react-native@next` currently peers React `^19.2.3` and uses the same Node engine shape as the current checkpoint, but it remains a prerelease channel.
+- The next production RN foundation branch should wait for a newer stable `latest` line or explicitly open a separate RC spike with rollback criteria.
+
+Validation:
+
+- `npm view react-native@latest version peerDependencies engines --json`
+- `npm view react-native@next version peerDependencies engines --json`
+- `corepack yarn rn:target-snapshot:current`

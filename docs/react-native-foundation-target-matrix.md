@@ -20,6 +20,8 @@ This matrix defines how to move the app foundation forward without upgrading eve
 - npm `react-native@next`: `0.86.0-rc.3`
 - `react-native@0.85.3` peer React: `^19.2.3`
 - `react-native@0.85.3` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
+- Snapshot refreshed: `2026-06-04`
+- `react-native@next` is currently a prerelease channel and is not the default wallet target.
 
 ## Milestone Jump Strategy
 
@@ -46,32 +48,34 @@ Expected branch scope:
 - Android template, Gradle, Kotlin, AGP, manifest, New Architecture, and native autolinking changes required by RN 0.85.
 - iOS Podfile/template drift documented separately if it cannot be validated on this Windows machine.
 
-### Milestone B: Next stable RN line
+### Milestone B: Next stable RN line after 0.85.3
 
 - Target React Native: next stable RN line after `0.85.3`, checked at branch time.
-- React peer: `^19.1.1`
-- Node engine: `>=20.19.4`
+- React peer: checked from the chosen stable RN package at branch time.
+- Node engine: checked from the chosen stable RN package at branch time.
 
 Why:
 
-- This is the React 19 and Node 20 transition checkpoint.
-- Native modules such as latest `react-native-screens` already point at RN `>=0.82.0`, so this is the first line that should unlock a larger native-module cohort.
+- RN `0.85.3` is already the current stable checkpoint, so the next foundation jump should wait for a newer stable `latest` line or a deliberate prerelease spike.
+- Do not treat `0.86.0-rc.3` as the default production target just because it is visible on npm `next`.
+- If the team wants to evaluate `0.86.0-rc.x`, run it as a separate RC spike with Android assemble, release validation, emulator smoke, and explicit rollback criteria.
 
 ### Milestone C: Future current line
 
 - Target React Native: future current stable line after the next baseline has been proven.
-- React peer: `^19.2.3`
-- Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
+- React peer: checked from the future stable RN package at branch time.
+- Node engine: checked from the future stable RN package at branch time.
 
 Why:
 
-- This is the current npm latest line recorded on `2026-05-29`.
-- Treat it as the current destination, not the first jump.
+- This is the next destination after Milestone B has a stable package target and has been proven in the wallet.
+- Treat future RN lines as full foundation branches, not package-only React/RN edits.
 
 ## Validation Gates
 
 Every foundation milestone needs:
 
+- Live `corepack yarn rn:target-snapshot:current` evidence when network access is available.
 - `corepack yarn rn:baseline:preflight` before package changes.
 - Package install and postinstall shim verification.
 - TypeScript check.
