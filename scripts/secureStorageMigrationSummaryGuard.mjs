@@ -23,6 +23,13 @@ const getBulletLinesAfter = (content, label) => {
   return bulletLines;
 };
 
+const requiredFocusedValidationCommands = [
+  'yarn test:secure-storage:unit',
+  'yarn test:storage',
+  'yarn test:authenticator',
+  'yarn test:wallet-core:offline',
+];
+
 export const getSecureStorageMigrationSummaryErrors = summary => {
   const errors = [];
   const currentPackage = getLineValue(summary, 'Current secure-storage package');
@@ -83,11 +90,14 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
     errors.push(`Focused validation script must be test:storage-network:focused. Received: ${focusedValidation || 'missing'}`);
   }
 
-  if (
-    focusedValidationCommand !==
-    'yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline'
-  ) {
-    errors.push(`Focused validation command must include secure-storage, storage, authenticator, and wallet-core checks. Received: ${focusedValidationCommand || 'missing'}`);
+  const missingFocusedValidationCommands = requiredFocusedValidationCommands.filter(
+    command => !focusedValidationCommand.includes(command),
+  );
+
+  if (missingFocusedValidationCommands.length > 0) {
+    errors.push(
+      `Focused validation command must include secure-storage, storage, authenticator, and wallet-core checks. Missing: ${missingFocusedValidationCommands.join(', ')}. Received: ${focusedValidationCommand || 'missing'}`,
+    );
   }
 
   if (Number(warningCount) !== warningLines.length) {

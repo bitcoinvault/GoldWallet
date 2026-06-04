@@ -17027,3 +17027,31 @@ Validation:
 
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release`
+
+### BEM-37.420 - Latest compatibility refresh
+
+- Branch: `feature/bem-37-420-latest-compatibility-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the online/latest React Native baseline preflight after the Android runtime and release evidence checkpoints.
+- Verify the current stable React Native target, current tooling packages, wallet-critical git dependency pins, Android toolchain latest target, and guarded transitive resolutions.
+- Fix the secure-storage migration audit so expanded focused validation commands are accepted when the required secure-storage, storage, authenticator, and wallet-core checks remain present.
+
+Findings:
+
+- Live npm check reports `react-native@0.85.3` as `latest`; `0.86.0-rc.3` remains a prerelease `next` channel and `0.87.0-nightly-20260604-63683f091` remains nightly.
+- The current RN baseline remains `react-native@0.85.3`, React `19.2.3`, Node `24.16.0`, Android compile/target SDK `36`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, and JDK `17`.
+- Tooling snapshot reports all 24 tracked tooling entries current, including TypeScript `6.0.3`, Jest `30.4.2`, ESLint `10.4.1`, lint-staged `17.0.7`, and Detox `20.51.3`.
+- Wallet-critical git dependencies remain pinned to their remote heads with no mismatches: `bitcoinjs-lib`, `electrum-client`, `react-native-prompt-android`, and `rn-nodeify`.
+- Latest Android toolchain target is still blocked: AGP `9.2.1` requires Gradle `9.4.1+`, but Gradle `9.4.1`/`9.5.1` load Kotlin `2.3.x` runtime metadata that the current React Native Gradle plugin `0.85.3` Kotlin compiler path cannot read.
+- `bl@7.0.3` and `node-fetch@3.3.2` remain intentionally blocked by CommonJS/transitive consumer compatibility; the validated resolutions stay `bl@6.1.6` and `node-fetch@2.7.0`.
+- The first online preflight exposed an overly strict secure-storage audit string comparison after the focused storage/network gate gained Terms WebView and Electrum reconnect checks. The audit now checks required command presence instead of rejecting extra focused tests.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-migration-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
