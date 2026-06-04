@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.397 - Android notification permission tests
+
+- Branch: `feature/bem-37-397-android-notification-permission-tests`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract the Android `POST_NOTIFICATIONS` runtime permission check from `NotificationServices` into a named helper with dependency injection for focused tests.
+- Add unit coverage for non-Android platforms, Android versions below 13, already-granted Android 13+ permission, newly granted permission, and denied permission.
+- Keep the `NotificationServices` component behavior unchanged: it still requests Android notification permission before Firebase Messaging permission/token flow.
+
+Findings:
+
+- The previous Android 13+ notification permission path was covered by manual app validation and TypeScript, but not by a focused unit test.
+- The helper keeps the existing behavior while making target-SDK notification permission handling directly testable.
+- A first attempted `yarn jest tests/unit/NotificationServices.test.tsx --runInBand` invocation used the repo's broad `jest` script and ran legacy integration tests, which failed on existing Electrum network instability; the focused direct Jest invocation passed.
+- `test:unit --runInBand` passed all 7 unit suites and 40 tests, while still printing the existing async BlueElectrum log-after-tests warning from the unit harness.
+- Android dev smoke installed the dev APK on `emulator-5554`, completed first-run terms/PIN/transaction-password/email/success flow, reached the wallet dashboard, and found `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet` with no fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules/jest/bin/jest.js tests/unit/NotificationServices.test.tsx --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.396 - Push notification bridge latest evidence
 
 - Branch: `feature/bem-37-396-push-notification-bridge-evidence`
