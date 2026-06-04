@@ -15903,3 +15903,37 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
 - `corepack yarn android:dev:check-smoke-summary`
+
+### BEM-37.382 - Rebrand readiness preflight coverage
+
+- Branch: `feature/bem-37-382-rebrand-readiness-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire explorer/env config readiness and store metadata readiness into `rn:baseline:preflight`.
+- Update the React Native upgrade-path guard so future baseline branches require those rebrand/explorer/store metadata checks.
+- Refresh Android release evidence after the package-script change updated release-input fingerprints.
+
+Findings:
+
+- `check:explorer-env-config-readiness` and `check:store-metadata-readiness` already passed, but they were standalone checks and were not part of the main RN baseline preflight.
+- The first preflight attempt correctly failed until `expectedReactNativeBaselinePreflight` was updated in `scripts/auditReactNativeUpgradePath.mjs`.
+- The next preflight attempt correctly detected stale Android release evidence after the package script changed, so `android:dev:release:verify-local` was rerun for `dev`, `stage`, `prod`, and `beta`.
+- Sentry upload validation remains unclaimed without `SENTRY_AUTH_TOKEN` and generated Sentry properties files; CodePush update validation remains unclaimed because deployment keys/beta strategy are still blocked.
+
+Validation:
+
+- `corepack yarn check:explorer-env-config-readiness-guard`
+- `corepack yarn check:explorer-env-config-readiness`
+- `corepack yarn check:store-metadata-readiness-guard`
+- `corepack yarn check:store-metadata-readiness`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn rn:baseline:preflight`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
