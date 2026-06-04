@@ -25,6 +25,11 @@ const getBulletLinesAfter = (content, label) => {
 
 const yesNoLabels = [
   'CodePush package installed',
+  'CodePush upstream archived',
+  'CodePush upstream New Architecture support',
+  'Android New Architecture enabled',
+  'CodePush migration required',
+  'CodePush release build evidence ready',
   'Android native integration present',
   'iOS native integration present',
   'CodePush runtime gated off by default',
@@ -37,6 +42,15 @@ const yesNoLabels = [
 export const getCodePushRemovalReadinessSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
+  const packageLatestVersion = getLineValue(summary, 'CodePush package latest version');
+  const packageLatestPublishedAt = getLineValue(summary, 'CodePush package latest published at');
+  const packageRepositoryUrl = getLineValue(summary, 'CodePush npm repository');
+  const upstreamRepository = getLineValue(summary, 'CodePush upstream repository');
+  const upstreamArchived = getLineValue(summary, 'CodePush upstream archived');
+  const upstreamNewArchitectureSupport = getLineValue(summary, 'CodePush upstream New Architecture support');
+  const androidNewArchitectureEnabled = getLineValue(summary, 'Android New Architecture enabled');
+  const migrationRequired = getLineValue(summary, 'CodePush migration required');
+  const releaseBuildEvidenceReady = getLineValue(summary, 'CodePush release build evidence ready');
   const runtimeUsageCount = getLineValue(summary, 'Runtime usage files');
   const nativeIntegrationCount = getLineValue(summary, 'Native integration files');
   const envFileCount = getLineValue(summary, 'Env files carrying CodePush keys');
@@ -64,6 +78,42 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
       errors.push(`${label} must be yes or no. Received: ${value || 'missing'}`);
     }
   });
+
+  if (!/^\d+\.\d+\.\d+$/.test(packageLatestVersion)) {
+    errors.push(`CodePush package latest version must be present. Received: ${packageLatestVersion || 'missing'}`);
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(packageLatestPublishedAt)) {
+    errors.push(`CodePush package latest published timestamp must be present. Received: ${packageLatestPublishedAt || 'missing'}`);
+  }
+
+  if (!packageRepositoryUrl.includes('microsoft/react-native-code-push')) {
+    errors.push(`CodePush npm repository must reference microsoft/react-native-code-push. Received: ${packageRepositoryUrl || 'missing'}`);
+  }
+
+  if (!upstreamRepository.includes('microsoft/react-native-code-push')) {
+    errors.push(`CodePush upstream repository must reference microsoft/react-native-code-push. Received: ${upstreamRepository || 'missing'}`);
+  }
+
+  if (upstreamArchived !== 'yes') {
+    errors.push(`CodePush upstream archived must remain yes for the removal decision. Received: ${upstreamArchived || 'missing'}`);
+  }
+
+  if (upstreamNewArchitectureSupport !== 'no') {
+    errors.push(`CodePush upstream New Architecture support must remain no. Received: ${upstreamNewArchitectureSupport || 'missing'}`);
+  }
+
+  if (androidNewArchitectureEnabled !== 'yes') {
+    errors.push(`Android New Architecture enabled must remain yes. Received: ${androidNewArchitectureEnabled || 'missing'}`);
+  }
+
+  if (migrationRequired !== 'yes') {
+    errors.push(`CodePush migration required must remain yes. Received: ${migrationRequired || 'missing'}`);
+  }
+
+  if (releaseBuildEvidenceReady !== 'yes') {
+    errors.push(`CodePush release build evidence must be ready before removal planning. Received: ${releaseBuildEvidenceReady || 'missing'}`);
+  }
 
   [
     ['Runtime usage files', runtimeUsageCount, runtimeUsageLines.length],

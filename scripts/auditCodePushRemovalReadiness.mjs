@@ -30,6 +30,15 @@ export const collectCodePushRemovalReadinessAudit = () => {
 
   return {
     packageInstalled,
+    packageLatestVersion: releasePathAudit.packageLatestVersion,
+    packageLatestPublishedAt: releasePathAudit.packageLatestPublishedAt,
+    packageRepositoryUrl: releasePathAudit.packageRepositoryUrl,
+    codePushUpstreamRepository: releasePathAudit.codePushUpstreamRepository,
+    upstreamArchived: releasePathAudit.upstreamArchived,
+    upstreamNewArchitectureSupported: releasePathAudit.upstreamNewArchitectureSupported,
+    androidNewArchitectureEnabled: releasePathAudit.androidNewArchitectureEnabled,
+    migrationRequired: releasePathAudit.migrationRequired,
+    releaseBuildEvidenceReady: releasePathAudit.releaseBuildEvidenceReady,
     runtimeUsageFiles: [...expectedCodePushRuntimeUsageFiles],
     nativeIntegrationFiles: [...expectedCodePushNativeUsageFiles],
     envFilesCarryingCodePushKeys,
@@ -52,6 +61,15 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
     'CodePush removal readiness audit',
     `Generated at: ${generatedAt}`,
     `CodePush package installed: ${audit.packageInstalled ? 'yes' : 'no'}`,
+    `CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`,
+    `CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`,
+    `CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`,
+    `CodePush upstream repository: ${audit.codePushUpstreamRepository || 'missing'}`,
+    `CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`,
+    `CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`,
+    `Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`,
+    `CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`,
+    `CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`,
     `Runtime usage files: ${audit.runtimeUsageFiles.length}`,
     ...audit.runtimeUsageFiles.map(filePath => `- ${filePath}`),
     `Native integration files: ${audit.nativeIntegrationFiles.length}`,
@@ -75,6 +93,15 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
 const printReport = audit => {
   console.log('CodePush removal readiness audit');
   console.log(`CodePush package installed: ${audit.packageInstalled ? 'yes' : 'no'}`);
+  console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
+  console.log(`CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`);
+  console.log(`CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`);
+  console.log(`CodePush upstream repository: ${audit.codePushUpstreamRepository || 'missing'}`);
+  console.log(`CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`);
+  console.log(`CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`);
+  console.log(`Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`);
+  console.log(`CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`);
+  console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
   console.log(`Runtime usage files: ${audit.runtimeUsageFiles.length}`);
   console.log(`Native integration files: ${audit.nativeIntegrationFiles.length}`);
   console.log(`Env files carrying CodePush keys: ${audit.envFilesCarryingCodePushKeys.length}`);

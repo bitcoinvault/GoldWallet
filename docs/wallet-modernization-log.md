@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.394 - CodePush removal evidence guard
+
+- Branch: `feature/bem-37-394-codepush-removal-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add CodePush package/upstream evidence to the removal-readiness audit and summary.
+- Require removal-readiness summaries to include latest npm version, latest published timestamp, npm repository, upstream repository, upstream archived state, upstream New Architecture support, Android New Architecture enabled state, migration-required state, and release build evidence readiness.
+- Extend the removal-readiness guard self-test with negative fixtures for missing or incorrect package/upstream evidence.
+- Update the CodePush retirement migration plan so removal planning is tied to package/upstream evidence, not only file inventory.
+
+Findings:
+
+- Removal readiness already inventoried runtime, native, env, and plist surfaces, but it did not repeat the upstream retirement evidence that explains why removal/replacement is required.
+- The app should not claim CodePush is safe to remove until a remove-or-replace decision exists, but the summary should still prove the current package/upstream and Android New Architecture context.
+- The expected state remains temporary legacy compatibility: package present, runtime gated off by default, migration required, release build evidence ready, update validation not claimed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-removal-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+
 ### BEM-37.393 - CodePush upstream evidence in migration readiness
 
 - Branch: `feature/bem-37-393-codepush-upstream-evidence`

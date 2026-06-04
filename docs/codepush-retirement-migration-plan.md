@@ -56,6 +56,7 @@ Expected summary claims:
 - the long-term options are recorded as remove or replace;
 - the readiness guard keeps the migration/removal decision visible even while the package remains on npm latest;
 - the removal-readiness summary records the exact runtime, Android, iOS, plist, and env-key surfaces that must be deleted or replaced;
+- the removal-readiness summary also records the CodePush package latest version, latest published timestamp, npm repository, upstream repository, archived state, New Architecture support, Android New Architecture enabled state, migration-required state, and Android release evidence readiness before any removal is planned;
 - the removal-readiness summary keeps `Safe to remove now: no` until the team chooses remove or replace;
 - no deployment key values are printed.
 
