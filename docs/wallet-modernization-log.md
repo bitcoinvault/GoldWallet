@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.390 - Tooling latest online preflight coverage
+
+- Branch: `feature/bem-37-390-tooling-online-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire `tooling:latest-snapshot:audit` and `tooling:latest-snapshot:check-summary` into `rn:baseline:preflight:online`.
+- Update the React Native upgrade-path guard so future online baseline branches keep tooling latest evidence in the preflight command.
+- Document that online baseline preflight refreshes tooling latest evidence alongside RN, git dependency, Android toolchain, BL, and node-fetch evidence.
+
+Findings:
+
+- `tooling:latest-snapshot` already records current/latest npm evidence for the tracked tooling cohort.
+- The online RN baseline preflight did not refresh that tooling evidence, so a dependency baseline branch could start from stale tooling latest data.
+- The first full online preflight correctly detected stale Android release evidence after `package.json` changed; `android:dev:release:verify-local` refreshed dev, stage, prod, and beta release evidence before the second online preflight passed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:baseline:preflight:online` failed once on stale Android release evidence, as expected after `package.json` changed.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.389 - Node 24 tooling preflight gate
 
 - Branch: `feature/bem-37-389-node24-tooling-preflight`
