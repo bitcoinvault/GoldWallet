@@ -6,7 +6,34 @@ import { Dispatch } from 'redux';
 
 import { setFCMToken } from 'app/state/appSettings/actions';
 
-const POST_NOTIFICATIONS_PERMISSION = 'android.permission.POST_NOTIFICATIONS';
+export const POST_NOTIFICATIONS_PERMISSION = 'android.permission.POST_NOTIFICATIONS';
+
+type AndroidNotificationPermissionOptions = {
+  platformOS?: typeof Platform.OS;
+  platformVersion?: typeof Platform.Version;
+  permissionsAndroid?: Pick<typeof PermissionsAndroid, 'check' | 'request' | 'RESULTS'>;
+};
+
+export const requestAndroidPostNotificationsPermission = async ({
+  platformOS = Platform.OS,
+  platformVersion = Platform.Version,
+  permissionsAndroid = PermissionsAndroid,
+}: AndroidNotificationPermissionOptions = {}) => {
+  if (platformOS !== 'android' || Number(platformVersion) < 33) {
+    return true;
+  }
+
+  const permission = POST_NOTIFICATIONS_PERMISSION as any;
+  const hasPermission = await permissionsAndroid.check(permission);
+
+  if (hasPermission) {
+    return true;
+  }
+
+  const result = await permissionsAndroid.request(permission);
+
+  return result === permissionsAndroid.RESULTS.GRANTED;
+};
 
 const NotificationsServices = () => {
   const dispatch = useDispatch<Dispatch<any>>();
@@ -20,20 +47,7 @@ const NotificationsServices = () => {
   }, [dispatch]);
 
   const requestAndroidNotificationPermission = useCallback(async () => {
-    if (Platform.OS !== 'android' || Number(Platform.Version) < 33) {
-      return true;
-    }
-
-    const permission = POST_NOTIFICATIONS_PERMISSION as any;
-    const hasPermission = await PermissionsAndroid.check(permission);
-
-    if (hasPermission) {
-      return true;
-    }
-
-    const result = await PermissionsAndroid.request(permission);
-
-    return result === PermissionsAndroid.RESULTS.GRANTED;
+    return requestAndroidPostNotificationsPermission();
   }, []);
 
   const requestUserPermission = useCallback(async () => {
