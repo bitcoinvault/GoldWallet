@@ -350,6 +350,33 @@ Validation:
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
 
+### BEM-37.384 - BL resolution readiness audit
+
+- Branch: `feature/bem-37-384-bl-resolution-readiness-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a BL resolution readiness audit and summary checker for the pinned `bl@6.1.6` resolution.
+- Wire BL resolution readiness into `rn:baseline:preflight:online`, next to the existing git dependency and node-fetch online checks.
+- Update the React Native upgrade-path guard and workflow documentation so the online preflight command remains guarded.
+
+Findings:
+
+- `bl@7.0.3` is the latest npm release and targets Node `>=20`, but it is not currently safe for this dependency tree because CommonJS consumers still need the `bl@6.1.6` export shape.
+- The new audit verifies `require('bl')`, `require('levelup')`, and `require('ora')` under the current Node 24 baseline.
+- The first `rn:baseline:preflight:online` run correctly detected stale Android release evidence after `package.json` changed; `android:dev:release:verify-local` refreshed dev, stage, prod, and beta release evidence before the second online preflight passed.
+
+Validation:
+
+- `corepack yarn check:bl-resolution-summary-guard`
+- `corepack yarn bl:resolution:audit`
+- `corepack yarn bl:resolution:check-summary`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn rn:baseline:preflight:online` failed once on stale Android release evidence, as expected after `package.json` changed.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn rn:baseline:preflight:online`
+
 ### BEM-37.381 - Android release evidence refresh after React renderer lock
 
 - Branch: `feature/bem-37-381-release-evidence-after-react-is-lock`
