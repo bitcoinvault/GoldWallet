@@ -2,10 +2,10 @@ import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationR
 
 const validSummary = [
   'CodePush migration readiness audit',
-  'Generated at: 2026-06-03T00:00:00.000Z',
+  'Generated at: 2026-06-04T00:00:00.000Z',
   'CodePush package current: yes',
   'CodePush package latest version: 9.0.1',
-  'CodePush package latest published at: 2024-12-19T15:55:45.376Z',
+  'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
   'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
   'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
   'App Center CodePush retirement date: 2025-03-31',
@@ -55,11 +55,11 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid CodePush migration readiness summary fixture', validSummary);
 assertRejected('Missing header fixture', validSummary.replace('CodePush migration readiness audit', 'Bad header'), 'summary header');
-assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-03T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
+assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-04T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Missing latest package fixture', validSummary.replace('CodePush package latest version: 9.0.1', 'CodePush package latest version: missing'), 'latest version');
 assertRejected(
   'Missing published timestamp fixture',
-  validSummary.replace('CodePush package latest published at: 2024-12-19T15:55:45.376Z', 'CodePush package latest published at: missing'),
+  validSummary.replace('CodePush package latest published at: 2024-12-19T14:31:05.513Z', 'CodePush package latest published at: missing'),
   'published timestamp',
 );
 assertRejected(

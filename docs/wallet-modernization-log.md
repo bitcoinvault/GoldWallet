@@ -16844,3 +16844,30 @@ Validation:
 
 - `corepack yarn camera:candidate:audit`
 - `corepack yarn camera:qr-migration:audit`
+
+### BEM-37.413 - CodePush retirement metadata refresh
+
+- Branch: `feature/bem-37-413-codepush-retirement-metadata-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh CodePush retirement/migration metadata after live npm and GitHub checks.
+- Align the migration-readiness guard fixture with the actual latest npm publish timestamp.
+- Update the CodePush retirement plan to show the 2026-06-04 package/upstream evidence refresh.
+
+Findings:
+
+- `npm view react-native-code-push version time repository.url --json` still reports latest `9.0.1`, published at `2024-12-19T14:31:05.513Z`.
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` reports `isArchived: true`, `pushedAt: 2025-05-20T11:58:16Z`, and `updatedAt: 2026-06-03T23:29:43Z`.
+- `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` reports `isArchived: true`, `pushedAt: 2025-05-20T11:27:24Z`, and `updatedAt: 2026-05-07T05:58:26Z`.
+- CodePush release path remains build-compatible but not ready for update validation because dev deployment keys are blank and beta strategy is unconfirmed.
+
+Validation:
+
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:removal-readiness:audit`
+- `npm view react-native-code-push version time repository.url --json`
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
+- `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
