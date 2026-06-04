@@ -247,6 +247,11 @@ assertRejected(
   'current release inputs',
 );
 assertRejected(
+  'Ready summary with stale Android release inputs fixture',
+  readySummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
+  'current Android release evidence',
+);
+assertRejected(
   'Invalid Android release APK manifest fixture',
   notReadySummary.replace(
     'Android release APK manifest valid: yes\nAndroid release APK manifest errors: 0',

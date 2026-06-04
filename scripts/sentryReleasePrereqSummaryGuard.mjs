@@ -320,9 +320,14 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       filesPresent !== 'yes' ||
       missingFiles !== '0' ||
       invalidFiles !== '0' ||
-      readyPropertiesFiles !== String(requiredSentryPropertiesFiles.length))
+      readyPropertiesFiles !== String(requiredSentryPropertiesFiles.length) ||
+      androidReleaseSummaryPresent !== 'yes' ||
+      androidReleaseSummaryRequiredVariantsCovered !== 'yes' ||
+      androidReleaseSummaryValid !== 'yes' ||
+      androidReleaseSummaryCurrentInputsCovered !== 'yes' ||
+      androidReleaseApkManifestValid !== 'yes')
   ) {
-    errors.push('Ready summary must have wired Sentry release integration, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, and all properties files ready');
+    errors.push('Ready summary must have wired Sentry release integration, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, and current Android release evidence with valid APK manifests');
   }
 
   if (
