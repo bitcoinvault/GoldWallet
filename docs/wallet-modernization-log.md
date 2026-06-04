@@ -317,6 +317,39 @@ Validation:
 - `corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.383 - Resolution dependency patch refresh
+
+- Branch: `feature/bem-37-383-resolution-dependency-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the pinned `semver` package resolution from `7.8.1` to `7.8.2`.
+- Keep `node-fetch` pinned to CommonJS `2.7.0` because the existing node-fetch resolution audit still blocks ESM-only `3.x`.
+- Probe `bl@7.0.3` as the highest current target, then keep `bl@6.1.6` after compatibility checks showed it is not safe for this dependency tree.
+
+Findings:
+
+- `npm view semver@7.8.2 engines dependencies peerDependencies --json` reports Node `>=10`, which is compatible with the Node 24 baseline.
+- `bl@7.0.3` requires Node `>=20`, but `require('bl')`, `require('levelup')`, and `require('ora')` failed with `ERR_PACKAGE_PATH_NOT_EXPORTED`, so the `bl` resolution remains on `6.1.6`.
+- `node-fetch@3.3.2` remains blocked by the documented CommonJS consumer requirement.
+
+Validation:
+
+- `corepack yarn outdated --json`
+- `npm view bl@7.0.3 engines dependencies peerDependencies --json`
+- `npm view semver@7.8.2 engines dependencies peerDependencies --json`
+- `npm view node-fetch@3.3.2 engines dependencies peerDependencies --json`
+- `corepack yarn install --mode=skip-builds`
+- `corepack yarn check:bl-compatibility`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn test:type-coupling:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.381 - Android release evidence refresh after React renderer lock
 
 - Branch: `feature/bem-37-381-release-evidence-after-react-is-lock`
