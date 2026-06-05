@@ -71,8 +71,8 @@ Target direction:
 ## Current Android Build Setup
 
 - Root Android Gradle Plugin: `com.android.tools.build:gradle:8.13.2`
-- Firebase Crashlytics Gradle plugin: `2.9.0`
-- Google Services Gradle plugin: `4.3.15`
+- Firebase Crashlytics Gradle plugin: `3.0.7`
+- Google Services Gradle plugin: `4.4.4`
 - Build tools configured as `36.0.0`
 - Android environment audit requires local `platforms;android-36` and `build-tools;36.0.0`.
 - Flavors: `dev`, `stage`, `prod`, `beta`
