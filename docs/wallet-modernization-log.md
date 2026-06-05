@@ -17221,6 +17221,39 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.432 - Android release retry evidence hardening
+
+- Branch: `feature/bem-37-432-android-release-retry-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the Android release validation runner after the previous release evidence refresh hit a transient Windows CMake/Ninja native-build exit `1073807364` / `0x40010004`.
+- Add bounded retry support only for configured known transient Gradle exit codes, with default max attempts set to `2`.
+- Extend the release summary and summary guard so every variant records Gradle attempt count, attempt exit codes, and retry reason while still requiring final exit code `0`, APK existence, byte-count matching, SHA-256 matching, and valid release manifests.
+- Document that retry metadata is evidence, not a substitute for release APK/hash/manifest validation.
+
+Findings:
+
+- The current full release validation passed for `dev`, `stage`, `prod`, and `beta` without needing a retry; the generated summary records one Gradle attempt and exit code `0` for each variant.
+- The guard fixture accepts a bounded transient retry case where the first attempt exits `1073807364` and the second attempt exits `0`.
+- The guard rejects missing retry metadata, mismatched attempt counts, and retry attempts without a non-`none` retry reason.
+- No runtime code, dependency versions, native app code, or Metro behavior changed in this branch, so Android emulator smoke is not required for this release-runner hardening branch.
+
+Validation:
+
+- `node --check scripts\runAndroidReleaseValidation.mjs`
+- `node --check scripts\androidReleaseSummaryGuard.mjs`
+- `node --check scripts\checkAndroidReleaseSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-release-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.431 - React renderer exact-version guard
 
 - Branch: `feature/bem-37-431-react-patch-compat-probe`

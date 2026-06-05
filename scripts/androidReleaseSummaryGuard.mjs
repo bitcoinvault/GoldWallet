@@ -72,6 +72,8 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
   const javaVersion = getLineValue(summary, 'Java version');
   const releaseInputFingerprint = getLineValue(summary, 'Release input fingerprint');
   const releaseInputFingerprintFiles = getLineValue(summary, 'Release input fingerprint files');
+  const gradleRetryMaxAttempts = getLineValue(summary, 'Gradle retry max attempts');
+  const gradleRetryExitCodes = getLineValue(summary, 'Gradle retry exit codes');
   const currentReleaseInputFingerprint = getAndroidReleaseInputFingerprint(root);
 
   if (!summary.startsWith('Android release validation')) {
@@ -117,11 +119,22 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
     );
   }
 
+  if (!isPositiveInteger(gradleRetryMaxAttempts)) {
+    errors.push(`Gradle retry max attempts must be a positive integer. Received: ${gradleRetryMaxAttempts || 'missing'}`);
+  }
+
+  if (gradleRetryExitCodes !== 'none' && !/^\d+(, \d+)*$/.test(gradleRetryExitCodes)) {
+    errors.push(`Gradle retry exit codes must be comma-separated integer exit codes or none. Received: ${gradleRetryExitCodes || 'missing'}`);
+  }
+
   expectedVariants.forEach(variant => {
     const expectedTask = `:app:assemble${variant[0].toUpperCase()}${variant.slice(1)}Release`;
     const apkRelativePath = getLineValue(summary, `Variant ${variant} Release APK`);
     const apkSize = getLineValue(summary, `Variant ${variant} Release APK bytes`);
     const apkSha256 = getLineValue(summary, `Variant ${variant} Release APK sha256`);
+    const gradleAttempts = getLineValue(summary, `Variant ${variant} Gradle attempts`);
+    const gradleAttemptExitCodes = getLineValue(summary, `Variant ${variant} Gradle attempt exit codes`);
+    const gradleRetryReason = getLineValue(summary, `Variant ${variant} Gradle retry reason`);
     const apkPath = apkRelativePath ? path.join(root, apkRelativePath) : '';
 
     [
@@ -158,6 +171,31 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
 
     if (!isSha256(apkSha256)) {
       errors.push(`Variant ${variant} Release APK sha256 must be a lowercase SHA-256 digest. Received: ${apkSha256 || 'missing'}`);
+    }
+
+    if (!isPositiveInteger(gradleAttempts)) {
+      errors.push(`Variant ${variant} Gradle attempts must be a positive integer. Received: ${gradleAttempts || 'missing'}`);
+    }
+
+    const attemptExitCodes = gradleAttemptExitCodes
+      .split(',')
+      .map(code => code.trim())
+      .filter(Boolean);
+
+    if (attemptExitCodes.length === 0 || attemptExitCodes.some(code => !/^\d+$/.test(code))) {
+      errors.push(`Variant ${variant} Gradle attempt exit codes must be comma-separated integers. Received: ${gradleAttemptExitCodes || 'missing'}`);
+    }
+
+    if (isPositiveInteger(gradleAttempts) && attemptExitCodes.length !== Number(gradleAttempts)) {
+      errors.push(`Variant ${variant} Gradle attempt exit code count must match Gradle attempts`);
+    }
+
+    if (isPositiveInteger(gradleAttempts) && Number(gradleAttempts) > 1 && gradleRetryReason === 'none') {
+      errors.push(`Variant ${variant} Gradle retry reason must describe retry when attempts exceed 1`);
+    }
+
+    if (isPositiveInteger(gradleAttempts) && Number(gradleAttempts) === 1 && gradleRetryReason !== 'none') {
+      errors.push(`Variant ${variant} Gradle retry reason must be none for a single attempt`);
     }
 
     if (!apkPath || !existsSync(apkPath)) {

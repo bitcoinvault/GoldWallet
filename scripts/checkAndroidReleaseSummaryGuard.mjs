@@ -74,8 +74,13 @@ const validSummary = [
   `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
   'Sentry auto upload disabled for local build: yes',
   'Sentry release upload validation: not claimed',
+  'Gradle retry max attempts: 2',
+  'Gradle retry exit codes: 1073807364',
   'Variant dev Gradle task: :app:assembleDevRelease',
   'Variant dev exit code: 0',
+  'Variant dev Gradle attempts: 1',
+  'Variant dev Gradle attempt exit codes: 0',
+  'Variant dev Gradle retry reason: none',
   `Variant dev Release APK: ${fixtureApkRelativePath('dev')}`,
   'Variant dev Release APK exists: yes',
   'Variant dev Release APK bytes: 11',
@@ -83,6 +88,9 @@ const validSummary = [
   'Variant dev spawn error: none',
   'Variant stage Gradle task: :app:assembleStageRelease',
   'Variant stage exit code: 0',
+  'Variant stage Gradle attempts: 1',
+  'Variant stage Gradle attempt exit codes: 0',
+  'Variant stage Gradle retry reason: none',
   `Variant stage Release APK: ${fixtureApkRelativePath('stage')}`,
   'Variant stage Release APK exists: yes',
   'Variant stage Release APK bytes: 13',
@@ -90,6 +98,9 @@ const validSummary = [
   'Variant stage spawn error: none',
   'Variant prod Gradle task: :app:assembleProdRelease',
   'Variant prod exit code: 0',
+  'Variant prod Gradle attempts: 1',
+  'Variant prod Gradle attempt exit codes: 0',
+  'Variant prod Gradle retry reason: none',
   `Variant prod Release APK: ${fixtureApkRelativePath('prod')}`,
   'Variant prod Release APK exists: yes',
   'Variant prod Release APK bytes: 12',
@@ -97,6 +108,9 @@ const validSummary = [
   'Variant prod spawn error: none',
   'Variant beta Gradle task: :app:assembleBetaRelease',
   'Variant beta exit code: 0',
+  'Variant beta Gradle attempts: 1',
+  'Variant beta Gradle attempt exit codes: 0',
+  'Variant beta Gradle retry reason: none',
   `Variant beta Release APK: ${fixtureApkRelativePath('beta')}`,
   'Variant beta Release APK exists: yes',
   'Variant beta Release APK bytes: 12',
@@ -134,6 +148,16 @@ const assertRejected = (label, summary, expectedError, options = {}) => {
 
 assertAccepted('Valid Android dev release summary fixture', validSummary);
 assertAccepted(
+  'Valid Android dev release summary fixture after a bounded transient retry',
+  validSummary
+    .replace('Variant stage Gradle attempts: 1', 'Variant stage Gradle attempts: 2')
+    .replace('Variant stage Gradle attempt exit codes: 0', 'Variant stage Gradle attempt exit codes: 1073807364, 0')
+    .replace(
+      'Variant stage Gradle retry reason: none',
+      'Variant stage Gradle retry reason: attempt 1 exited with known transient Windows native-build code 1073807364; retrying next attempt',
+    ),
+);
+assertAccepted(
   'Valid Android beta-only release summary fixture',
   [
     'Android release validation',
@@ -147,8 +171,13 @@ assertAccepted(
     `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
     'Sentry auto upload disabled for local build: yes',
     'Sentry release upload validation: not claimed',
+    'Gradle retry max attempts: 2',
+    'Gradle retry exit codes: 1073807364',
     'Variant beta Gradle task: :app:assembleBetaRelease',
     'Variant beta exit code: 0',
+    'Variant beta Gradle attempts: 1',
+    'Variant beta Gradle attempt exit codes: 0',
+    'Variant beta Gradle retry reason: none',
     `Variant beta Release APK: ${fixtureApkRelativePath('beta')}`,
     'Variant beta Release APK exists: yes',
     'Variant beta Release APK bytes: 12',
@@ -189,6 +218,28 @@ assertRejected(
   'Missing release input fingerprint fixture',
   validSummary.replace(`Release input fingerprint: ${releaseInputFingerprint}\n`, ''),
   'Release input fingerprint',
+);
+assertRejected(
+  'Missing Gradle retry metadata fixture',
+  validSummary.replace('Gradle retry max attempts: 2\n', ''),
+  'Gradle retry max attempts',
+);
+assertRejected(
+  'Missing variant Gradle attempt metadata fixture',
+  validSummary.replace('Variant dev Gradle attempts: 1\n', ''),
+  'Variant dev Gradle attempts',
+);
+assertRejected(
+  'Mismatched variant Gradle attempt metadata fixture',
+  validSummary.replace('Variant prod Gradle attempts: 1', 'Variant prod Gradle attempts: 2'),
+  'Gradle attempt exit code count',
+);
+assertRejected(
+  'Missing retry reason after retry fixture',
+  validSummary
+    .replace('Variant beta Gradle attempts: 1', 'Variant beta Gradle attempts: 2')
+    .replace('Variant beta Gradle attempt exit codes: 0', 'Variant beta Gradle attempt exit codes: 1073807364, 0'),
+  'Gradle retry reason',
 );
 assertRejected(
   'Stale release input fingerprint fixture',
