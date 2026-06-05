@@ -8,6 +8,8 @@ const checkerPath = path.join(root, 'scripts', 'checkReleaseServicesSummaryArtif
 const checkerSource = readFileSync(checkerPath, 'utf8');
 
 const requiredSnippets = [
+  "import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';",
+  "import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';",
   "import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';",
   "import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';",
   "import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';",
@@ -18,6 +20,11 @@ const requiredSnippets = [
   "import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';",
   "import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';",
   "import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';",
+  "label: 'Android release summary'",
+  "relativePath: 'local-docs/android-release-dev-summary.txt'",
+  'getAndroidReleaseSummaryErrors(summary, root)',
+  "label: 'Android release APK manifest'",
+  'getAndroidReleaseApkManifestErrors({ root })',
   "label: 'Android release smoke'",
   "relativePath: 'local-docs/android-smoke-dev-release-summary.txt'",
   "getAndroidEmbeddedSmokeSummaryErrors(summary, { expectedArtifactBase: 'android-smoke-dev-release' })",

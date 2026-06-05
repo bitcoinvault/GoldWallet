@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
+import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationReadinessSummaryGuard.mjs';
 import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';
@@ -16,6 +18,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 
 const summaries = [
+  {
+    label: 'Android release summary',
+    relativePath: 'local-docs/android-release-dev-summary.txt',
+    getErrors: summary => getAndroidReleaseSummaryErrors(summary, root),
+  },
+  {
+    label: 'Android release APK manifest',
+    relativePath: 'local-docs/android-release-dev-summary.txt',
+    getErrors: () => getAndroidReleaseApkManifestErrors({ root }),
+  },
   {
     label: 'Android release smoke',
     relativePath: 'local-docs/android-smoke-dev-release-summary.txt',
