@@ -10,6 +10,53 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.448 - Firebase Android Gradle plugin refresh
+
+- Branch: `feature/bem-37-448-firebase-gradle-plugin-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade Android Firebase build plugins to the latest checked Google Maven metadata without changing the React Native Firebase JS package family.
+- Move Google Services Gradle plugin from `4.3.15` to `4.4.4`.
+- Move Firebase Crashlytics Gradle plugin from `2.9.0` to `3.0.7`.
+- Keep strict version matcher plugin unchanged at the current latest `1.2.4`.
+- Extend the Firebase release-services audit and summary guard so Android Firebase Gradle plugin versions are reported and guarded, not just implicitly present in `android/build.gradle`.
+
+Findings:
+
+- Google Maven metadata on 2026-06-05 reports `com.google.gms:google-services@4.4.4` and `com.google.firebase:firebase-crashlytics-gradle@3.0.7` as latest release versions.
+- `com.google.android.gms:strict-version-matcher-plugin@1.2.4` remains current on Google Maven metadata.
+- React Native Firebase packages remain aligned and current at `24.1.0`; this branch does not change JS package versions.
+- Android debug and local release APK paths both build after the plugin refresh.
+- Android dev debug smoke and signed dev release smoke both reach the expected first-run/dashboard UI without fatal/runtime logcat findings.
+- Firebase runtime delivery remains `not claimed`; FCM token delivery, Crashlytics upload, and Analytics behavior still require real release-runtime/service validation.
+
+Validation:
+
+- `Invoke-WebRequest https://dl.google.com/dl/android/maven2/com/google/gms/google-services/maven-metadata.xml`
+- `Invoke-WebRequest https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-crashlytics-gradle/maven-metadata.xml`
+- `Invoke-WebRequest https://dl.google.com/dl/android/maven2/com/google/android/gms/strict-version-matcher-plugin/maven-metadata.xml`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/crashlytics version --silent`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\auditFirebaseReleaseServices.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\firebaseReleaseServicesSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\checkFirebaseReleaseServicesSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:verify-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.447 - Camera target evidence refresh
 
 - Branch: `feature/bem-37-447-camera-target-evidence-refresh`

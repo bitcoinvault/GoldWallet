@@ -32,12 +32,23 @@ export const requiredFirebaseIosFiles = [
   'ios/GoogleService-Info-stage.plist',
   'ios/GoogleService-Info.plist',
 ];
+export const firebaseAndroidGradlePluginTargets = {
+  googleServices: '4.4.4',
+  crashlytics: '3.0.7',
+  strictVersionMatcher: '1.2.4',
+};
 export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod', 'beta'];
 const missingAndroidReleaseSummaryError = 'Android release summary artifact is missing';
 const getSummaryLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
 
   return line ? line.slice(label.length + 2).trim() : '';
+};
+const getClasspathVersion = (content, coordinate) => {
+  const escapedCoordinate = coordinate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = content.match(new RegExp(`${escapedCoordinate}:([^'")\\s]+)`));
+
+  return match?.[1] || '';
 };
 const npmViewJson = (packageName, fields) =>
   JSON.parse(
@@ -85,15 +96,32 @@ export const collectFirebaseReleaseServicesAudit = () => {
 
   const androidRootGradle = read('android/build.gradle');
   const androidAppGradle = read('android/app/build.gradle');
+  const androidGradlePluginVersions = {
+    googleServices: getClasspathVersion(androidRootGradle, 'com.google.gms:google-services'),
+    crashlytics: getClasspathVersion(androidRootGradle, 'com.google.firebase:firebase-crashlytics-gradle'),
+    strictVersionMatcher: getClasspathVersion(androidRootGradle, 'com.google.android.gms:strict-version-matcher-plugin'),
+  };
 
   [
-    ['android/build.gradle', androidRootGradle, "classpath 'com.google.gms:google-services:4.3.15'"],
-    ['android/build.gradle', androidRootGradle, "classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.0'"],
     ['android/app/build.gradle', androidAppGradle, "apply plugin: 'com.google.firebase.crashlytics'"],
     ['android/app/build.gradle', androidAppGradle, "apply plugin: 'com.google.gms.google-services'"],
   ].forEach(([label, content, snippet]) => {
     if (!content.includes(snippet)) {
       errors.push(`${label} is missing "${snippet}"`);
+    }
+  });
+
+  [
+    ['Google Services Gradle plugin', androidGradlePluginVersions.googleServices, firebaseAndroidGradlePluginTargets.googleServices],
+    ['Firebase Crashlytics Gradle plugin', androidGradlePluginVersions.crashlytics, firebaseAndroidGradlePluginTargets.crashlytics],
+    [
+      'Google strict version matcher plugin',
+      androidGradlePluginVersions.strictVersionMatcher,
+      firebaseAndroidGradlePluginTargets.strictVersionMatcher,
+    ],
+  ].forEach(([label, actualVersion, expectedVersion]) => {
+    if (actualVersion !== expectedVersion) {
+      errors.push(`${label} must be ${expectedVersion}; received ${actualVersion || '<missing>'}`);
     }
   });
 
@@ -204,6 +232,7 @@ export const collectFirebaseReleaseServicesAudit = () => {
     messagingLatestVersion,
     messagingPeerAppVersion,
     packageCurrent,
+    androidGradlePluginVersions,
     androidReleaseSummaryPresent,
     androidReleaseSummaryVariants,
     androidReleaseSummaryRequiredVariantsCovered,
@@ -225,6 +254,9 @@ export const formatFirebaseReleaseServicesSummary = (audit, generatedAt = new Da
     `React Native Firebase Messaging latest version: ${audit.messagingLatestVersion || 'missing'}`,
     `React Native Firebase Messaging peer app version: ${audit.messagingPeerAppVersion || 'missing'}`,
     `React Native Firebase package current: ${audit.packageCurrent ? 'yes' : 'no'}`,
+    `Android Google Services Gradle plugin: ${audit.androidGradlePluginVersions.googleServices || 'missing'}`,
+    `Android Firebase Crashlytics Gradle plugin: ${audit.androidGradlePluginVersions.crashlytics || 'missing'}`,
+    `Android strict version matcher plugin: ${audit.androidGradlePluginVersions.strictVersionMatcher || 'missing'}`,
     `Firebase release-services wiring valid: ${audit.ready ? 'yes' : 'no'}`,
     `Android release summary present: ${audit.androidReleaseSummaryPresent ? 'yes' : 'no'}`,
     `Android release summary variants: ${audit.androidReleaseSummaryVariants.join(', ') || 'none'}`,
@@ -261,6 +293,9 @@ const printReport = audit => {
   console.log(`React Native Firebase Messaging latest version: ${audit.messagingLatestVersion || 'missing'}`);
   console.log(`React Native Firebase Messaging peer app version: ${audit.messagingPeerAppVersion || 'missing'}`);
   console.log(`React Native Firebase package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
+  console.log(`Android Google Services Gradle plugin: ${audit.androidGradlePluginVersions.googleServices || 'missing'}`);
+  console.log(`Android Firebase Crashlytics Gradle plugin: ${audit.androidGradlePluginVersions.crashlytics || 'missing'}`);
+  console.log(`Android strict version matcher plugin: ${audit.androidGradlePluginVersions.strictVersionMatcher || 'missing'}`);
 
   if (audit.warnings.length > 0) {
     console.log('Warnings:');

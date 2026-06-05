@@ -10,6 +10,9 @@ const validSummary = [
   'React Native Firebase Messaging latest version: 24.1.0',
   'React Native Firebase Messaging peer app version: 24.1.0',
   'React Native Firebase package current: yes',
+  'Android Google Services Gradle plugin: 4.4.4',
+  'Android Firebase Crashlytics Gradle plugin: 3.0.7',
+  'Android strict version matcher plugin: 1.2.4',
   'Firebase release-services wiring valid: yes',
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod, beta',
@@ -36,6 +39,9 @@ const invalidSummary = [
   'React Native Firebase Messaging latest version: 24.1.0',
   'React Native Firebase Messaging peer app version: 24.1.0',
   'React Native Firebase package current: yes',
+  'Android Google Services Gradle plugin: 4.4.4',
+  'Android Firebase Crashlytics Gradle plugin: 3.0.7',
+  'Android strict version matcher plugin: 1.2.4',
   'Firebase release-services wiring valid: no',
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod, beta',
@@ -102,6 +108,21 @@ assertRejected(
   'Messaging peer app version',
 );
 assertRejected('Firebase package not current fixture', validSummary.replace('React Native Firebase package current: yes', 'React Native Firebase package current: no'), 'package current');
+assertRejected(
+  'Old Google Services Gradle plugin fixture',
+  validSummary.replace('Android Google Services Gradle plugin: 4.4.4', 'Android Google Services Gradle plugin: 4.3.15'),
+  'Google Services Gradle plugin',
+);
+assertRejected(
+  'Old Crashlytics Gradle plugin fixture',
+  validSummary.replace('Android Firebase Crashlytics Gradle plugin: 3.0.7', 'Android Firebase Crashlytics Gradle plugin: 2.9.0'),
+  'Crashlytics Gradle plugin',
+);
+assertRejected(
+  'Changed strict version matcher plugin fixture',
+  validSummary.replace('Android strict version matcher plugin: 1.2.4', 'Android strict version matcher plugin: 1.2.3'),
+  'strict version matcher plugin',
+);
 assertRejected(
   'Claimed Firebase runtime delivery fixture',
   validSummary.replace('Firebase runtime delivery validation: not claimed', 'Firebase runtime delivery validation: claimed'),
