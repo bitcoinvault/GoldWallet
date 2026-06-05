@@ -10,10 +10,34 @@ const getEntryBlocks = summary =>
     .map(line => line.trim());
 
 const requiredEntries = [
-  'bitcoinjs-lib',
-  'electrum-client',
-  'react-native-prompt-android',
-  'rn-nodeify',
+  {
+    name: 'bitcoinjs-lib',
+    packageSpecPrefix: 'git+https://github.com/bitcoinvault/bitcoinjs-lib.git#',
+    remote: 'https://github.com/bitcoinvault/bitcoinjs-lib.git',
+    ref: 'refs/heads/master',
+    walletCritical: 'yes',
+  },
+  {
+    name: 'electrum-client',
+    packageSpecPrefix: 'git+https://github.com/bitcoinvault/rn-electrum-client.git#',
+    remote: 'https://github.com/bitcoinvault/rn-electrum-client.git',
+    ref: 'refs/heads/master',
+    walletCritical: 'yes',
+  },
+  {
+    name: 'react-native-prompt-android',
+    packageSpecPrefix: 'git+https://github.com/marcosrdz/react-native-prompt-android.git#',
+    remote: 'https://github.com/marcosrdz/react-native-prompt-android.git',
+    ref: 'refs/heads/master',
+    walletCritical: 'yes',
+  },
+  {
+    name: 'rn-nodeify',
+    packageSpecPrefix: 'github:tradle/rn-nodeify#',
+    remote: 'https://github.com/tradle/rn-nodeify.git',
+    ref: 'refs/heads/master',
+    walletCritical: 'no',
+  },
 ];
 
 export const getGitDependencySnapshotSummaryErrors = summary => {
@@ -45,7 +69,8 @@ export const getGitDependencySnapshotSummaryErrors = summary => {
     errors.push('Git dependency snapshot summary must not print secret values');
   }
 
-  requiredEntries.forEach(name => {
+  requiredEntries.forEach(entry => {
+    const { name } = entry;
     const block = entryBlocks.find(candidate => candidate.startsWith(`- ${name}: `));
 
     if (!block) {
@@ -60,12 +85,29 @@ export const getGitDependencySnapshotSummaryErrors = summary => {
       'remote:',
       'remote ref:',
       'remote hash:',
+      'wallet critical:',
       'status:',
     ].forEach(snippet => {
       if (!block.includes(snippet)) {
         errors.push(`${name} entry is missing ${snippet}`);
       }
     });
+
+    if (!block.includes(`package spec: ${entry.packageSpecPrefix}`)) {
+      errors.push(`${name} package spec must use ${entry.packageSpecPrefix}`);
+    }
+
+    if (!block.includes(`remote: ${entry.remote};`)) {
+      errors.push(`${name} remote must be ${entry.remote}`);
+    }
+
+    if (!block.includes(`remote ref: ${entry.ref};`)) {
+      errors.push(`${name} remote ref must be ${entry.ref}`);
+    }
+
+    if (!block.includes(`wallet critical: ${entry.walletCritical};`)) {
+      errors.push(`${name} wallet critical flag must be ${entry.walletCritical}`);
+    }
 
     if (!block.includes('status: current')) {
       errors.push(`${name} entry must be current before the snapshot can pass`);
