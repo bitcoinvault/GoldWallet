@@ -36,6 +36,7 @@ const metroPort = Number(process.env.ANDROID_SMOKE_METRO_PORT || 8081);
 const metroTimeoutMs = Number(process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS || 3000);
 const metroRequired = process.env.ANDROID_SMOKE_REQUIRE_METRO !== 'false';
 const clearAppData = process.env.ANDROID_SMOKE_CLEAR_APP_DATA === 'true';
+const validateEmptyDashboardCtas = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS === 'true';
 const firstRunTransactionPassword = process.env.ANDROID_SMOKE_TRANSACTION_PASSWORD || 'testpass123';
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
@@ -69,6 +70,7 @@ let completedFirstRunPin = false;
 let completedFirstRunTransactionPassword = false;
 let skippedFirstRunEmail = false;
 let closedFirstRunSuccess = false;
+let validatedEmptyDashboardCtaFlow = false;
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -141,6 +143,7 @@ const writeSummary = exitCode => {
     `Completed first-run transaction password: ${completedFirstRunTransactionPassword ? 'yes' : 'no'}`,
     `Skipped first-run email: ${skippedFirstRunEmail ? 'yes' : 'no'}`,
     `Closed first-run success: ${closedFirstRunSuccess ? 'yes' : 'no'}`,
+    `Validated empty-dashboard CTA flow: ${validatedEmptyDashboardCtaFlow ? 'yes' : 'no'}`,
     `UI hierarchy attempts: ${uiAttempts}`,
     `UI hierarchy path: ${uiOutputPath}`,
     `Screenshot path: ${screenshotOutputPath}`,
@@ -244,6 +247,119 @@ const tapNodeCenter = node => {
   const y = Math.round((top + bottom) / 2);
 
   run(`tap UI node at ${x},${y}`, ['shell', 'input', 'tap', String(x), String(y)]);
+};
+
+const waitForResourceIds = (label, resourceIds) => {
+  const deadline = Date.now() + uiWaitMs;
+  let attempt = 0;
+  let hierarchy = '';
+  let missingResourceIds = resourceIds;
+
+  do {
+    attempt += 1;
+    hierarchy = readUiHierarchy(`${label} attempt ${attempt}`);
+    writeFileSync(uiOutputPath, hierarchy);
+    missingResourceIds = resourceIds.filter(resourceId => !hierarchy.includes(`resource-id="${resourceId}"`));
+
+    if (missingResourceIds.length === 0) {
+      append(`Found ${label} resource ID(s): ${resourceIds.join(', ')}`);
+      return hierarchy;
+    }
+
+    if (Date.now() < deadline) {
+      append(`${label} attempt ${attempt} missing resource ID(s): ${missingResourceIds.join(', ')}; retrying...`);
+      sleep(uiPollIntervalMs);
+    }
+  } while (Date.now() < deadline);
+
+  throw new Error(`${label} is missing expected resource ID(s): ${missingResourceIds.join(', ')}`);
+};
+
+const tapResourceId = (label, uiHierarchy, resourceId) => {
+  const node = getNodeByResourceId(uiHierarchy, resourceId);
+
+  if (!node) {
+    throw new Error(`${label} cannot find resource ID: ${resourceId}`);
+  }
+
+  if (!node.enabled) {
+    throw new Error(`${label} resource ID is not enabled: ${resourceId}`);
+  }
+
+  append(`${label}: tapping ${resourceId}`);
+  tapNodeCenter(node);
+};
+
+const validateEmptyDashboardCtaFlowIfEnabled = dashboardHierarchy => {
+  if (!validateEmptyDashboardCtas) {
+    return dashboardHierarchy;
+  }
+
+  append('\nValidating empty-dashboard CTA navigation flow...');
+
+  tapResourceId('Create-wallet CTA', dashboardHierarchy, 'create-wallet-button');
+  sleep(3000);
+  const createWalletScreen = waitForResourceIds('create-wallet screen', [
+    'back-button',
+    'create-wallet-name-input',
+    'creates-wallet-button',
+    'imports-wallet-button',
+    'create-2-key-vault-radio',
+    'create-3-key-vault-radio',
+  ]);
+
+  tapResourceId('Create-wallet screen back button', createWalletScreen, 'back-button');
+  sleep(3000);
+  const dashboardAfterCreate = waitForResourceIds('dashboard after create-wallet back', [
+    'dashboard-header',
+    'create-wallet-button',
+    'import-wallet-button',
+    'navigation-tab-0',
+  ]);
+
+  tapResourceId('Import-wallet CTA', dashboardAfterCreate, 'import-wallet-button');
+  sleep(3000);
+  const importTypeScreen = waitForResourceIds('import-wallet type screen', [
+    'back-button',
+    'confirm-import-button',
+    'import-2-key-vault-radio',
+    'import-3-key-vault-radio',
+    'import-standard-wallet-radio',
+  ]);
+
+  tapResourceId('Import-wallet type proceed', importTypeScreen, 'confirm-import-button');
+  sleep(3000);
+  const importFormScreen = waitForResourceIds('import-wallet form', [
+    'back-button',
+    'import-wallet-name',
+    'import-wallet-seed-phrase-input',
+    'submit-import-wallet-button',
+    'scan-import-wallet-qr-code-button',
+  ]);
+
+  tapResourceId('Import-wallet form back button', importFormScreen, 'back-button');
+  sleep(3000);
+  const importTypeScreenAfterFormBack = waitForResourceIds('import-wallet type screen after form back', [
+    'back-button',
+    'confirm-import-button',
+    'import-2-key-vault-radio',
+    'import-3-key-vault-radio',
+    'import-standard-wallet-radio',
+  ]);
+
+  tapResourceId('Import-wallet type back button', importTypeScreenAfterFormBack, 'back-button');
+  sleep(3000);
+  const finalDashboardHierarchy = waitForResourceIds('dashboard after import-wallet back', [
+    'dashboard-header',
+    'create-wallet-button',
+    'import-wallet-button',
+    'navigation-tab-0',
+  ]);
+
+  validatedEmptyDashboardCtaFlow = true;
+  append('Empty-dashboard CTA navigation flow validated.');
+
+  return finalDashboardHierarchy;
 };
 
 const isNodeFullyVisible = node => {
@@ -588,6 +704,7 @@ try {
       ? `Using expected resource ID(s): ${expectedResourceIds.join(', ')}`
       : 'Using expected resource ID(s): none',
   );
+  append(`Using empty-dashboard CTA flow validation: ${validateEmptyDashboardCtas ? 'yes' : 'no'}`);
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
   }
@@ -752,6 +869,8 @@ try {
   if (expectedResourceIds.length > 0) {
     append(`Found expected resource ID(s): ${expectedResourceIds.join(', ')}`);
   }
+
+  uiHierarchy = validateEmptyDashboardCtaFlowIfEnabled(uiHierarchy);
 
   runBinary('capture screenshot', ['exec-out', 'screencap', '-p'], screenshotOutputPath);
 
