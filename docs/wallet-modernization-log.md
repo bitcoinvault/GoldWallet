@@ -17601,6 +17601,40 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.457 - Runtime dependency audits in RN preflight
+
+- Branch: `feature/bem-37-457-runtime-audits-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the existing `crypto-js:runtime:audit`, `state:runtime:audit`, and `lodash:runtime:audit` checks to `rn:baseline:preflight`.
+- Keep the audits grouped immediately after `wallet:crypto-runtime:audit` so larger RN/dependency branches cover wallet crypto, secure-storage encryption helpers, Redux/Saga/Reselect, and Lodash/Lodash FP behavior in one readiness gate.
+- Refresh baseline/workflow docs to describe the expanded RN preflight coverage.
+
+Findings:
+
+- The three runtime audits already existed from previous modernization branches but were not part of the main RN baseline preflight command.
+- No package versions, runtime code, native code, or Metro behavior changed in this branch, so Android emulator smoke is not required for this preflight wiring branch.
+
+Validation:
+
+- `node --check scripts\auditReactNativeUpgradePath.mjs`
+- `node --check scripts\checkReactNativeUpgradePathGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn crypto-js:runtime:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn state:runtime:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lodash:runtime:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.456 - Release-services direct Android proof
 
 - Branch: `feature/bem-37-456-release-services-direct-android-proof`
