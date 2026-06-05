@@ -17248,3 +17248,35 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
+
+### BEM-37.428 - Wallet crypto latest snapshot guard
+
+- Branch: `feature/bem-37-428-wallet-crypto-latest-snapshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a wallet/crypto latest snapshot audit and generated summary checker for the wallet-critical JavaScript crypto dependency cohort.
+- Wire the snapshot into `rn:baseline:preflight:online` so future foundation or wallet/crypto branches refresh live npm latest evidence before the offline baseline gate.
+- Add an offline self-check guard to `rn:baseline:preflight` and `android:dev:check-light` so the snapshot summary contract cannot drift silently.
+
+Findings:
+
+- Live npm metadata on 2026-06-05 reports all tracked direct wallet crypto packages as current: `bip39`, `bip32`, `@bitcoinerlab/secp256k1`, `coinselect`, `ecurve`, `bigi`, `pbkdf2`, `wif`, `react-native-get-random-values`, `crypto-js`, and related type packages.
+- `bitcoinjs-lib` remains intentionally fork-pinned to the BitcoinVault Git dependency and is not treated as a direct upstream npm replacement target.
+- Direct `bech32` remains absent; BTCV Bech32 behavior stays owned by the pinned BitcoinVault `bitcoinjs-lib` fork.
+- The first full online preflight correctly detected stale Android release evidence after `package.json` changed; `android:dev:release:verify-local` refreshed dev, stage, prod, and beta release evidence before the second online preflight.
+- No package versions, runtime code, native code, or Metro behavior changed in this branch, so Android emulator smoke is not required for this audit/guard wiring branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:wallet-crypto-latest-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-dev-env-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`

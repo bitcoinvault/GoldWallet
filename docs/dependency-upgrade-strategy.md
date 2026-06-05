@@ -53,6 +53,8 @@ Start wallet/crypto runtime work with:
 
 ```powershell
 corepack yarn wallet:crypto-runtime:audit
+corepack yarn wallet:crypto-latest-snapshot:audit
+corepack yarn wallet:crypto-latest-snapshot:check-summary
 ```
 
 ### 4. Pure JS and Tooling Cohorts

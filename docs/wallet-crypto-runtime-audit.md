@@ -2,7 +2,7 @@
 
 Scope: wallet-critical JavaScript and native-adjacent crypto/runtime dependencies used for BTCV key derivation, address handling, transaction building, signing, and persistence-adjacent wallet flows.
 
-Latest npm checked on 2026-06-04.
+Latest npm checked on 2026-06-05.
 
 ## Current Package State
 
@@ -50,6 +50,9 @@ Funded transaction flow remains blocked until a funded BTCV testnet wallet is av
 
 ```powershell
 corepack yarn wallet:crypto-runtime:audit
+corepack yarn wallet:crypto-latest-snapshot:audit
+corepack yarn wallet:crypto-latest-snapshot:check-summary
+corepack yarn check:wallet-crypto-latest-snapshot-summary-guard
 corepack yarn crypto-js:runtime:audit
 corepack yarn check:wallet-crypto-validation-scripts
 corepack yarn test:wallet-crypto:signer
