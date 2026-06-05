@@ -10,7 +10,7 @@ This project should not upgrade dependencies one package at a time unless the pa
 - Do not commit a dependency change that only passes TypeScript or Android assemble; runtime dependencies also need Metro reset and emulator smoke.
 - Do not mix unrelated runtime families in the same branch.
 - Validate the strategy guard with `corepack yarn upgrade:strategy:audit` before starting a foundation or cohort upgrade branch.
-- When network access is available for a React Native foundation branch, use `corepack yarn rn:baseline:preflight:online` so the live RN target snapshot, git dependency snapshot, tooling latest snapshot, Android toolchain target, BL resolution, and node-fetch resolution summaries are refreshed before the offline baseline gate runs.
+- When network access is available for a React Native foundation branch, use `corepack yarn rn:baseline:preflight:online` so the live RN target snapshot, direct outdated snapshot, git dependency snapshot, tooling latest snapshot, Android toolchain target, BL resolution, and node-fetch resolution summaries are refreshed before the offline baseline gate runs.
 
 ## Upgrade Layers
 
@@ -53,6 +53,8 @@ Start wallet/crypto runtime work with:
 
 ```powershell
 corepack yarn wallet:crypto-runtime:audit
+corepack yarn direct-outdated:snapshot:audit
+corepack yarn direct-outdated:snapshot:check-summary
 corepack yarn wallet:crypto-latest-snapshot:audit
 corepack yarn wallet:crypto-latest-snapshot:check-summary
 ```

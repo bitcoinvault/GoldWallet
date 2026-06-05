@@ -17221,6 +17221,40 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.430 - Direct outdated dependency snapshot
+
+- Branch: `feature/bem-37-430-direct-outdated-snapshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a live `yarn outdated --json` snapshot audit for direct package dependencies so future modernization work records current upstream state before choosing upgrade targets.
+- Wire the generated summary checker into `rn:baseline:preflight:online`, `rn:baseline:preflight`, and `android:dev:check-light`.
+- Document known direct dependency blockers separately from review-required items so the latest-first strategy stays explicit without forcing unsafe wallet/runtime upgrades.
+
+Findings:
+
+- The live direct outdated snapshot records 8 entries: 4 known blocked registry entries and 4 exotic Git/fork entries.
+- `react` and `react-test-renderer` patch updates remain blocked by React Native renderer coupling; `bl` remains blocked by CommonJS transitive consumers; `node-fetch` remains blocked by the ESM-only v3 transition.
+- `bitcoinjs-lib`, `electrum-client`, `react-native-prompt-android`, and `rn-nodeify` are exotic/forked dependencies already covered by dedicated Git dependency, wallet crypto, encrypted-storage prompt, and shim guards.
+- The generated summary reports `Review-required entries: 0`, so there is no newly untriaged direct dependency update in the current package baseline.
+- `package.json` changed only to add audit/check scripts, so `android:dev:release:verify-local` was re-run to refresh release evidence before the online baseline.
+- No dependency versions, runtime code, native code, or Metro behavior changed in this branch, so Android emulator smoke is not required for this audit/guard wiring branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-dev-env-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.429 - CodePush env-enabled audit hardening
 
 - Branch: `feature/bem-37-429-codepush-env-enabled-audit`
