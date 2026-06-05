@@ -38,6 +38,8 @@ After `BEM-37.399`, `scripts/runIosMacValidationHandoff.mjs` provides an executa
 
 After `BEM-37.425`, the iOS macOS validation handoff guard is part of `rn:baseline:preflight` and the Android dev environment audit's required helper/script inventory. This keeps the macOS handoff command order guarded before iOS runtime validation is attempted on a Mac, while Windows validation remains limited to dry-run/static checks.
 
+After `BEM-37.433`, both iOS release readiness and iOS macOS validation prerequisite audits derive `ios/Podfile.lock` drift from the shared `scripts/iosPodfileLockDrift.mjs` helper. This keeps the Windows static-readiness summary and the macOS handoff prerequisite summary aligned on the same active drift count, removed-pod reference count, and required `pod install` action before any iOS archive/runtime validation is claimed.
+
 ## Current Release-Service Keys
 
 Referenced iOS env files carry the current release-service keys as follows:
