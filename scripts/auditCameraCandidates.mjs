@@ -10,13 +10,19 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
-export const cameraCandidateMetadataCheckedOn = '2026-06-04';
+export const cameraCandidateMetadataCheckedOn = '2026-06-05';
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 const expectedCameraMetadata = {
   legacyCameraLatest: 'react-native-camera@4.2.1',
   visionCameraLatest: 'react-native-vision-camera@5.0.11',
   visionCameraRequiredPeers: ['react-native-nitro-modules', 'react-native-nitro-image'],
+  visionCameraPeerRanges: {
+    react: '*',
+    'react-native': '*',
+    'react-native-nitro-image': '*',
+    'react-native-nitro-modules': '*',
+  },
   cameraKitLatest: 'react-native-camera-kit@18.0.0',
   cameraKitNodeEngine: '>=18',
   qrRendererLatest: 'react-native-qrcode-svg@6.3.21',
@@ -58,6 +64,14 @@ const collectLiveMetadataIssues = () => {
   expectedCameraMetadata.visionCameraRequiredPeers.forEach(peerName => {
     if (!Object.prototype.hasOwnProperty.call(visionCameraPeers || {}, peerName)) {
       issues.push(`VisionCamera live npm peerDependencies is missing ${peerName}`);
+    }
+  });
+
+  Object.entries(expectedCameraMetadata.visionCameraPeerRanges).forEach(([peerName, expectedRange]) => {
+    const actualRange = visionCameraPeers?.[peerName] || '<missing>';
+
+    if (actualRange !== expectedRange) {
+      issues.push(`VisionCamera live npm peerDependencies has ${peerName}@${actualRange}; expected ${peerName}@${expectedRange}`);
     }
   });
 
@@ -111,6 +125,7 @@ export const collectCameraCandidateAudit = () => {
     visionCameraLatest: expectedCameraMetadata.visionCameraLatest,
     visionCameraNitroPeers: true,
     visionCameraRequiredPeers: expectedCameraMetadata.visionCameraRequiredPeers,
+    visionCameraPeerRanges: expectedCameraMetadata.visionCameraPeerRanges,
     cameraKitLatest: expectedCameraMetadata.cameraKitLatest,
     cameraKitNodeEngine: expectedCameraMetadata.cameraKitNodeEngine,
     qrRendererLatest: expectedCameraMetadata.qrRendererLatest,
@@ -133,6 +148,9 @@ export const formatCameraCandidateSummary = (audit, generatedAt = new Date().toI
     `VisionCamera latest: ${audit.visionCameraLatest}`,
     `VisionCamera Nitro peers: ${audit.visionCameraNitroPeers ? 'yes' : 'no'}`,
     `VisionCamera required peer packages: ${audit.visionCameraRequiredPeers.join(', ')}`,
+    `VisionCamera peer dependency ranges: ${Object.entries(audit.visionCameraPeerRanges)
+      .map(([peerName, range]) => `${peerName}@${range}`)
+      .join(', ')}`,
     `CameraKit latest: ${audit.cameraKitLatest}`,
     `CameraKit node engine: ${audit.cameraKitNodeEngine}`,
     `QR renderer latest: ${audit.qrRendererLatest}`,
