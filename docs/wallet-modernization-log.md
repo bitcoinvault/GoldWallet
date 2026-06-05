@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.442 - BL latest blocker evidence hardening
+
+- Branch: `feature/bem-37-442-bl7-blocker-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the BL resolution readiness audit so it records the live `bl@latest` package type and whether the latest export map exposes a CommonJS `require` path.
+- Keep the validated `bl@6.1.6` resolution unchanged while making the `bl@7` blocker more specific and automatically re-checkable.
+- Extend the BL summary guard fixture so a future CommonJS-compatible latest line fails the stale blocker assumption and forces re-evaluation.
+- Update the direct outdated snapshot documentation with the new BL blocker evidence fields.
+
+Findings:
+
+- Live npm metadata on 2026-06-05 still reports `bl@7.0.3` as latest.
+- `bl@7.0.3` is `type: module` and the latest export map still has no CommonJS `require` export.
+- Current CommonJS consumers `levelup` and `ora` continue to require successfully under the pinned `bl@6.1.6` resolution.
+- The repo should keep `bl@6.1.6` until the `bl@7` export map or the transitive consumers become compatible with the CommonJS call sites.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/auditBlResolutionReadiness.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/blResolutionSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkBlResolutionSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn bl:resolution:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:bl-resolution-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn bl:resolution:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:bl-compatibility`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.441 - Foundation target summary aggregate
 
 - Branch: `feature/bem-37-441-foundation-target-aggregate`

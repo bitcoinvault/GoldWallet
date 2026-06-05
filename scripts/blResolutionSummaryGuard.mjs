@@ -31,6 +31,8 @@ export const getBlResolutionSummaryErrors = summary => {
   const requireType = getLineValue(summary, "require('bl') type");
   const latestVersion = getLineValue(summary, 'Latest bl version');
   const latestNodeEngine = getLineValue(summary, 'Latest bl node engine');
+  const latestPackageType = getLineValue(summary, 'Latest bl package type');
+  const latestCommonJsRequireExport = getLineValue(summary, 'Latest bl CommonJS require export');
   const latestTargetBlocked = getLineValue(summary, 'Latest bl target blocked');
   const consumerCount = getLineValue(summary, 'CommonJS/transitive consumers');
   const consumerLines = getBulletLinesAfter(summary, 'CommonJS/transitive consumers');
@@ -66,6 +68,14 @@ export const getBlResolutionSummaryErrors = summary => {
     errors.push(`Latest bl node engine must document the Node >=20 line. Received: ${latestNodeEngine || 'missing'}`);
   }
 
+  if (latestPackageType !== 'module') {
+    errors.push(`Latest bl package type must document the ESM-only line. Received: ${latestPackageType || 'missing'}`);
+  }
+
+  if (latestCommonJsRequireExport !== 'no') {
+    errors.push(`Latest bl CommonJS require export must stay no until CommonJS consumers are migrated. Received: ${latestCommonJsRequireExport || 'missing'}`);
+  }
+
   if (latestTargetBlocked !== 'yes') {
     errors.push(`Latest bl target must stay blocked until CommonJS consumers are migrated. Received: ${latestTargetBlocked || 'missing'}`);
   }
@@ -94,6 +104,10 @@ export const getBlResolutionSummaryErrors = summary => {
 
   if (!requiredAction.includes('keep bl on the CommonJS-compatible 6.1.6 resolution')) {
     errors.push('Required action must name the CommonJS-compatible 6.1.6 resolution decision');
+  }
+
+  if (!requiredAction.includes('ESM/import-only export map')) {
+    errors.push('Required action must name the latest BL ESM/import-only export-map blocker');
   }
 
   return errors;
