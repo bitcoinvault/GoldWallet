@@ -80,6 +80,14 @@ When network access is available at the start of an actual RN baseline branch, u
 corepack yarn rn:baseline:preflight:online
 ```
 
+The online preflight refreshes the live foundation target summaries and then runs:
+
+```powershell
+corepack yarn foundation:target:check-summaries
+```
+
+This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, git dependency pins, wallet/crypto latest state, tooling latest state, Android toolchain blockers, BL resolution, and node-fetch resolution.
+
 For the first milestone branch, also keep the RN 0.85 foundation plan audit green:
 
 ```powershell
