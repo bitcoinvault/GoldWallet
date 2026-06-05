@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.443 - Node fetch latest blocker evidence hardening
+
+- Branch: `feature/bem-37-443-node-fetch-blocker-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the node-fetch resolution audit so it records the live latest package entry and whether the latest package exposes a CommonJS `require` export.
+- Keep the validated `node-fetch@2.7.0` resolution unchanged while making the `node-fetch@3` blocker more specific and automatically re-checkable.
+- Extend the node-fetch summary guard fixture so a future CommonJS-compatible latest line fails the stale blocker assumption and forces re-evaluation.
+- Update the direct outdated snapshot and node-fetch compatibility documentation with the new blocker evidence fields.
+
+Findings:
+
+- Live npm metadata on 2026-06-05 still reports `node-fetch@3.3.2` as latest.
+- `node-fetch@3.3.2` is `type: module`, uses `./src/index.js` as the package entry, and exposes no CommonJS `require` export.
+- Current CommonJS/transitive consumers `gaxios` and `isomorphic-fetch` continue to require successfully under the pinned `node-fetch@2.7.0` resolution.
+- The repo should keep `node-fetch@2.7.0` until the v3 package entry or the transitive consumers become compatible with the CommonJS call sites.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/auditNodeFetchResolution.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/nodeFetchResolutionSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkNodeFetchResolutionSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node-fetch:resolution:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:node-fetch-resolution-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node-fetch:resolution:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.442 - BL latest blocker evidence hardening
 
 - Branch: `feature/bem-37-442-bl7-blocker-hardening`

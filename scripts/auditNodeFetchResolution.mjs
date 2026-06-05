@@ -46,7 +46,9 @@ export const collectNodeFetchResolutionAudit = () => {
   const errors = [];
   const packageResolution = packageJson.resolutions?.['node-fetch'] || '';
   const installedVersion = getInstalledNodeFetchVersion();
-  const latestMetadata = npmViewJson('node-fetch@latest', ['version', 'type', 'engines', 'dependencies', 'dist-tags']);
+  const latestMetadata = npmViewJson('node-fetch@latest', ['version', 'type', 'engines', 'dependencies', 'dist-tags', 'main', 'exports']);
+  const latestExportsJson = JSON.stringify(latestMetadata.exports || {});
+  const latestHasCommonJsRequireExport = latestExportsJson.includes('"require"');
   let requireType = '';
   let defaultExportPresent = false;
 
@@ -88,6 +90,8 @@ export const collectNodeFetchResolutionAudit = () => {
     defaultExportPresent,
     latestVersion: latestMetadata.version || '',
     latestType: latestMetadata.type || '',
+    latestMain: latestMetadata.main || '',
+    latestCommonJsRequireExport: latestHasCommonJsRequireExport ? 'yes' : 'no',
     latestBlocked: latestMetadata.type === 'module',
     consumers,
     errors,
@@ -104,13 +108,15 @@ export const formatNodeFetchResolutionSummary = (audit, generatedAt = new Date()
     `Default export present: ${audit.defaultExportPresent ? 'yes' : 'no'}`,
     `Latest node-fetch version: ${audit.latestVersion || '<missing>'}`,
     `Latest node-fetch package type: ${audit.latestType || '<missing>'}`,
+    `Latest node-fetch main: ${audit.latestMain || '<missing>'}`,
+    `Latest node-fetch CommonJS require export: ${audit.latestCommonJsRequireExport || '<missing>'}`,
     `Latest node-fetch target blocked: ${audit.latestBlocked ? 'yes' : 'no'}`,
     `CommonJS/transitive consumers: ${audit.consumers.length}`,
     ...audit.consumers.map(consumer => `- ${consumer.packageName}: ${consumer.status}`),
     `Compatibility errors: ${audit.errors.length}`,
     ...audit.errors.map(error => `- ${error}`),
     'Secret values printed: no',
-    'Required action: keep node-fetch on the CommonJS 2.7.0 resolution until all transitive consumers are proven compatible with ESM-only node-fetch v3.',
+    'Required action: keep node-fetch on the CommonJS 2.7.0 resolution until all transitive consumers are proven compatible with the ESM-only node-fetch v3 package entry.',
     '',
   ];
 
