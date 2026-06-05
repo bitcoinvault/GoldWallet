@@ -36,6 +36,8 @@ After `BEM-37.314`, Detox iOS build commands are routed through `scripts/runDeto
 
 After `BEM-37.399`, `scripts/runIosMacValidationHandoff.mjs` provides an executable macOS handoff for iOS validation. `corepack yarn ios:mac-validation:handoff:dry-run` is Windows-safe and prints the required command order without claiming runtime validation. On macOS, `corepack yarn ios:mac-validation:handoff --scheme "GoldWallet Dev (Debug)"` runs prerequisite audit/check, refreshes pods, runs release readiness audit/check, builds the selected shared scheme with `xcodebuild` against `ios/GoldWallet.xcworkspace`, and re-runs release readiness checks after the build. `corepack yarn check:ios-mac-validation-handoff-guard` guards the eight known shared scheme/configuration pairs and handoff command sequence.
 
+After `BEM-37.425`, the iOS macOS validation handoff guard is part of `rn:baseline:preflight` and the Android dev environment audit's required helper/script inventory. This keeps the macOS handoff command order guarded before iOS runtime validation is attempted on a Mac, while Windows validation remains limited to dry-run/static checks.
+
 ## Current Release-Service Keys
 
 Referenced iOS env files carry the current release-service keys as follows:

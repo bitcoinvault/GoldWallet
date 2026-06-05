@@ -17167,3 +17167,31 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
 - `git diff --check`
+
+### BEM-37.425 - iOS macOS validation handoff preflight guard
+
+- Branch: `feature/bem-37-425-ios-mac-validation-handoff-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire the existing iOS macOS validation handoff guard into the React Native baseline preflight.
+- Make the Android dev environment audit require the iOS macOS validation handoff helper, guard, and package scripts.
+- Document that the handoff command order is guarded locally, while real iOS runtime/archive validation remains macOS/Xcode-only.
+
+Findings:
+
+- `ios:mac-validation:handoff:dry-run` already renders the macOS sequence for prerequisite audit/check, `pod install`, iOS release readiness audit/check, selected simulator build, and post-build readiness audit/check.
+- The guard was present but not part of `rn:baseline:preflight`, so the main RN readiness gate could drift away from the macOS handoff command matrix.
+- This branch does not claim iOS runtime validation on Windows; current iOS blockers remain macOS, Xcode `16.1+`, CocoaPods, and `ios/Podfile.lock` refresh.
+- No emulator smoke is required for this branch because it only changes validation wiring and committed documentation; runtime/native code and dependency versions remain unchanged.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff` expected fail on Windows: requires macOS with Xcode `16.1+` and CocoaPods
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:env-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `git diff --check`
