@@ -17601,6 +17601,37 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.451 - Tooling snapshot JUnit merger fixture refresh
+
+- Branch: `feature/bem-37-451-tooling-junit-fixture-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the tooling latest snapshot guard fixture so `junit-report-merger` is represented as package/installed/latest `9.0.4`.
+- Keep dependency versions unchanged because `package.json` and `yarn.lock` already contain `junit-report-merger@9.0.4`.
+- Update the dependency strategy marker for the small tooling patch cohort.
+
+Findings:
+
+- Live npm metadata reports `junit-report-merger@9.0.4` as latest.
+- The generated tooling snapshot reports `junit-report-merger: package 9.0.4, installed 9.0.4, latest 9.0.4`.
+- The guard fixture still had the older `package 9.0.3, installed 9.0.3, latest 9.0.4` line even though the actual repo state was already current.
+- No runtime code, native code, dependency versions, package scripts, or Metro behavior changed in this branch, so Android emulator smoke is not required.
+
+Validation:
+
+- `node -v`
+- `corepack yarn info junit-report-merger version --silent`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.450 - BL latest compatibility probe
 
 - Branch: `feature/bem-37-450-bl-latest-compatibility-probe`
