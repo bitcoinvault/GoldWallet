@@ -17221,6 +17221,36 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.435 - Release-services aggregate documentation guard
+
+- Branch: `feature/bem-37-435-release-services-doc-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align release-services workflow documentation with the BEM-37.434 aggregate checker change.
+- Document that `release-services:check-summaries` now validates the generated iOS macOS validation prerequisite summary in addition to static iOS release readiness.
+- Extend the Android lightweight documentation checker so the aggregate release-services wording cannot silently drift back to the narrower pre-BEM-37.434 scope.
+
+Findings:
+
+- The aggregate checker already validates `local-docs/ios-mac-validation-prereqs-summary.txt`, but the release-services workflow docs still described the aggregate as covering static iOS release readiness only.
+- The baseline docs now name both iOS release readiness and iOS macOS validation prerequisites as generated-summary validation inputs.
+- No runtime code, dependency versions, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required for this documentation/guard alignment branch.
+
+Validation:
+
+- `node --check scripts\checkAndroidLightDocs.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.434 - Release-services iOS macOS aggregate coverage
 
 - Branch: `feature/bem-37-434-release-services-ios-mac-aggregate`
