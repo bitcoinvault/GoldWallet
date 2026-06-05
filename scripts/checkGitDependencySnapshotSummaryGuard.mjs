@@ -45,6 +45,21 @@ assertRejected(
   'entry must be current',
 );
 assertRejected(
+  'Wrong package spec fixture',
+  validSummary.replace('package spec: git+https://github.com/bitcoinvault/bitcoinjs-lib.git#', 'package spec: git+https://github.com/example/bitcoinjs-lib.git#'),
+  'package spec must use',
+);
+assertRejected(
+  'Wrong remote fixture',
+  validSummary.replace('remote: https://github.com/bitcoinvault/bitcoinjs-lib.git;', 'remote: https://github.com/example/bitcoinjs-lib.git;'),
+  'remote must be',
+);
+assertRejected(
+  'Wrong wallet critical fixture',
+  validSummary.replace('wallet critical: yes; status: current', 'wallet critical: no; status: current'),
+  'wallet critical flag must be yes',
+);
+assertRejected(
   'Missing package hash fixture',
   validSummary.replace('package hash: 0854f675114fada32348d51c80a6ccdb33afc360', 'package hash: <missing>'),
   'pinned package hash',

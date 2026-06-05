@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.444 - Git dependency provenance guard hardening
+
+- Branch: `feature/bem-37-444-git-dependency-provenance-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the git dependency snapshot summary guard so tracked exotic dependencies must keep their expected package-spec prefix, remote URL, remote ref, and wallet-critical classification.
+- Keep the existing package pins unchanged while making fork provenance part of the guarded snapshot, not just hash equality.
+- Extend the guard self-test to reject wrong package specs, wrong remotes, and wrong wallet-critical flags.
+- Update git dependency snapshot documentation with the provenance policy.
+
+Findings:
+
+- Live `git ls-remote` on 2026-06-05 still reports all four tracked git dependencies as current against their pinned package and lockfile hashes.
+- `bitcoinjs-lib`, `electrum-client`, and `react-native-prompt-android` remain wallet-critical and must not be silently moved to a different fork or ref during lockfile refreshes.
+- `rn-nodeify` remains non-wallet-critical but still guarded as a polyfill tool dependency because postinstall shims are required before Metro and wallet crypto validation.
+- The summary guard now fails if a future summary preserves hash shape but changes the expected fork provenance or wallet-critical classification.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/gitDependencySnapshotSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkGitDependencySnapshotSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:git-deps-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.443 - Node fetch latest blocker evidence hardening
 
 - Branch: `feature/bem-37-443-node-fetch-blocker-hardening`
