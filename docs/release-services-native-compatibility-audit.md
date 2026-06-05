@@ -8,12 +8,12 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 ## Current Package State
 
-| Package | Current package.json | Latest npm checked on 2026-06-03 | Notes |
+| Package | Current package.json | Latest npm checked on 2026-06-05 | Notes |
 | --- | --- | --- | --- |
-| `@react-native-firebase/app` | `24.0.0` | `24.0.0` | Current package pulls `firebase@12.10.0`. |
-| `@react-native-firebase/analytics` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
-| `@react-native-firebase/crashlytics` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
-| `@react-native-firebase/messaging` | `24.0.0` | `24.0.0` | Peer requires matching `@react-native-firebase/app@24.0.0`. |
+| `@react-native-firebase/app` | `24.1.0` | `24.1.0` | Current package pulls `firebase@12.14.0`. |
+| `@react-native-firebase/analytics` | `24.1.0` | `24.1.0` | Peer requires matching `@react-native-firebase/app@24.1.0`. |
+| `@react-native-firebase/crashlytics` | `24.1.0` | `24.1.0` | Peer requires matching `@react-native-firebase/app@24.1.0`. |
+| `@react-native-firebase/messaging` | `24.1.0` | `24.1.0` | Peer requires matching `@react-native-firebase/app@24.1.0`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | `9.0.1` | `9.0.1` | Latest npm package is installed, but App Center CodePush was retired on 2025-03-31 and the Microsoft repositories are archived; treat as migration/removal work, not a normal package refresh. |
 | `@sentry/react-native` | `8.13.0` | `8.13.0` | Latest checked SDK line; source-map and dSYM behavior must still be proven with local credentials. |
@@ -142,10 +142,10 @@ Results:
 - Beta CodePush update strategy is still unconfirmed because `.env.beta.testnet` and `.env.beta.mainnet` do not define CodePush deployment keys.
 - Android beta release compilation no longer depends on beta env files defining `CODEPUSH_DEPLOYMENT_KEY_ANDROID`; `android/app/build.gradle` provides an empty default `BuildConfig` value, and the runtime gate still requires `CODEPUSH_ENABLED=true` plus a non-empty key before CodePush bundle resolution is used.
 - CodePush release-path audit now records whether the latest local Android release summary artifact is present, valid, covers the current release inputs, covers `dev`, `stage`, `prod`, and `beta` release APK evidence, and has valid release APK manifest proof; it emits a dedicated `CodePush release build evidence ready` line so APK/bundle/manifest evidence is separate from still-unclaimed update validation.
-- Firebase release-services wiring is valid for the current `24.0.0` package family, Android config, iOS plist files, and Messaging runtime paths.
+- Firebase release-services wiring is valid for the current `24.1.0` package family, Android config, iOS plist files, and Messaging runtime paths.
 - Firebase release-services audit now records whether the latest local Android release summary artifact is present, valid, covers the current release inputs, covers `dev`, `stage`, `prod`, and `beta` release APK evidence, and has valid release APK manifest proof, so APK/bundle/manifest evidence is separate from unclaimed FCM/Crashlytics/Analytics runtime delivery validation.
-- Firebase `24.0.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
-- RN Firebase `24.0.0` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
+- Firebase `24.1.0` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
+- RN Firebase `24.1.0` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
 - Sentry release source-map upload validation is still not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
 - Sentry SDK and CLI package targets remain current on 2026-06-03: `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0`.
 - The Sentry prerequisite audit now records per-file readiness for the root, Android, and iOS Sentry properties files, validates that `create-sentry-properties.sh` writes all three expected paths with the expected non-secret defaults, supports optional `SENTRY_ORG` / `SENTRY_PROJECT` overrides, and verifies that the local `@sentry/cli` package binary is present and executable.
@@ -177,7 +177,7 @@ Android:
 
 - `android/build.gradle` uses Google Services Gradle plugin `4.3.15` and Crashlytics Gradle plugin `2.9.0`.
 - `android/app/build.gradle` applies `com.google.firebase.crashlytics`, CodePush Gradle script, Sentry Gradle script, and `com.google.gms.google-services`.
-- Android Firebase package versions are now supplied by React Native Firebase `24.0.0` and its default Firebase BoM `34.10.0`; the old manual `firebase-core:16.0.3` and app-level Firebase BoM `28.2.0` entries were removed to avoid duplicate measurement classes.
+- Android Firebase package versions are now supplied by React Native Firebase `24.1.0`; the old manual `firebase-core:16.0.3` and app-level Firebase BoM `28.2.0` entries were removed to avoid duplicate measurement classes.
 - Android Firebase config files exist under flavor-specific `android/app/src/*/google-services.json`.
 - `MainApplication.java` uses CodePush to resolve the JS bundle file only when `CODEPUSH_ENABLED=true` and the Android deployment key is non-empty.
 - `android/app/src/main/res/values/strings.xml` has the native `CodePushDeploymentKey` placeholder.
@@ -198,7 +198,7 @@ Shared env/config:
 
 ## Upgrade Risk
 
-- Firebase RN `24.0.0` is the current package family and must stay aligned across app, analytics, Crashlytics, and messaging.
+- Firebase RN `24.1.0` is the current package family and must stay aligned across app, analytics, Crashlytics, and messaging.
 - Firebase changes can still affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
 - `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, Messaging runtime wiring, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, and unclaimed runtime-delivery status before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
