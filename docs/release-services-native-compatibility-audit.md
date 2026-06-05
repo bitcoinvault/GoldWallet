@@ -84,6 +84,15 @@ corepack yarn release-services:validation:handoff
 
 The full handoff refreshes Android release APK evidence with Sentry auto-upload disabled, refreshes Sentry/Firebase/CodePush/push/iOS summaries, and then runs the aggregate release-services summary checker. Use `--skip-android-release` only when the latest Android release summary already matches the current release inputs.
 
+After `BEM-37.421`, Sentry has a narrower source-map prerequisite handoff for the point when `SENTRY_AUTH_TOKEN` is available:
+
+```powershell
+corepack yarn sentry:release:validation:handoff:dry-run
+corepack yarn sentry:release:validation:handoff
+```
+
+This validates the properties generator, optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, generates `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` from the local Sentry env, then refreshes and validates the Sentry release prerequisite summary plus the aggregate release-services summary artifacts. The dry run prints only required env variable names, not token values. Use `--skip-android-release` only when the latest Android release summary already matches the current release inputs.
+
 ## Current Release Readiness Snapshot
 
 Checked on 2026-06-03 after the RN `0.85.3` foundation, Android release variant validation, and release-services package refresh:
@@ -186,6 +195,9 @@ Shared env/config:
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary, including per-file readiness counts, Sentry CLI readiness, generator output coverage, and secret-safe output.
 - `corepack yarn sentry:release:create-properties` is the guarded cross-platform command for generating the three Sentry properties files after `SENTRY_AUTH_TOKEN` is available.
 - `corepack yarn check:sentry-properties-generator` validates the cross-platform Node Sentry properties generator in a temp root, including missing-token failure, root/Android/iOS output, org/project overrides, and secret-safe output.
+- `corepack yarn sentry:release:validation:handoff:dry-run` renders the Sentry release prerequisite handoff without printing token assignments.
+- `corepack yarn sentry:release:validation:handoff` runs the Sentry release prerequisite handoff after `SENTRY_AUTH_TOKEN` is available; without that variable it fails before properties generation with a clear missing-env blocker.
+- `corepack yarn check:sentry-release-validation-handoff-guard` validates the Sentry handoff command sequence, secret-safe rendering, required-env handling, and `--skip-android-release` behavior.
 - `corepack yarn sentry:android-warning:audit` confirms the current Sentry Android Gradle/source-map wiring remains tracked before a dedicated Sentry release/source-map cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
 - Push notification changes need Android 13+ permission checks, Firebase Messaging token checks, and iOS permission/token validation.
