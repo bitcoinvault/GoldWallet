@@ -17055,3 +17055,32 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:check-summary`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-migration-summary-guard`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+
+### BEM-37.421 - Sentry release validation handoff guard
+
+- Branch: `feature/bem-37-421-sentry-release-handoff-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a Sentry-specific release validation handoff for the point when `SENTRY_AUTH_TOKEN` becomes available.
+- Keep actual Sentry token values out of command rendering, logs, and committed docs.
+- Wire the handoff guard into the React Native baseline preflight so the command sequence cannot silently drift.
+
+Findings:
+
+- `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0` are already current on the RN `0.85.3` baseline; this branch does not perform another blind package bump.
+- The new dry run renders the Sentry properties generator guard, optional Android release APK evidence refresh with `SENTRY_DISABLE_AUTO_UPLOAD=true`, Sentry properties generation, Sentry prerequisite audit/check, and aggregate release-services summary check.
+- The rendered handoff reports `SENTRY_AUTH_TOKEN` only as a required env variable name and does not print token assignments.
+- Executing the handoff without `SENTRY_AUTH_TOKEN` and with `--skip-android-release` fails at the expected missing-env blocker before properties generation.
+- Actual Sentry source-map upload validation remains not claimed until the real token/properties flow is run in the release environment.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff --skip-android-release` expected fail: missing `SENTRY_AUTH_TOKEN`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
