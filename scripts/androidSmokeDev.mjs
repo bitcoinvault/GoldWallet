@@ -37,6 +37,7 @@ const metroTimeoutMs = Number(process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS || 3000
 const metroRequired = process.env.ANDROID_SMOKE_REQUIRE_METRO !== 'false';
 const clearAppData = process.env.ANDROID_SMOKE_CLEAR_APP_DATA === 'true';
 const validateEmptyDashboardCtas = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS === 'true';
+const validateEmptyTabNavigation = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION === 'true';
 const firstRunTransactionPassword = process.env.ANDROID_SMOKE_TRANSACTION_PASSWORD || 'testpass123';
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
@@ -71,6 +72,7 @@ let completedFirstRunTransactionPassword = false;
 let skippedFirstRunEmail = false;
 let closedFirstRunSuccess = false;
 let validatedEmptyDashboardCtaFlow = false;
+let validatedEmptyTabNavigation = false;
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -144,6 +146,7 @@ const writeSummary = exitCode => {
     `Skipped first-run email: ${skippedFirstRunEmail ? 'yes' : 'no'}`,
     `Closed first-run success: ${closedFirstRunSuccess ? 'yes' : 'no'}`,
     `Validated empty-dashboard CTA flow: ${validatedEmptyDashboardCtaFlow ? 'yes' : 'no'}`,
+    `Validated empty-tab navigation: ${validatedEmptyTabNavigation ? 'yes' : 'no'}`,
     `UI hierarchy attempts: ${uiAttempts}`,
     `UI hierarchy path: ${uiOutputPath}`,
     `Screenshot path: ${screenshotOutputPath}`,
@@ -358,6 +361,85 @@ const validateEmptyDashboardCtaFlowIfEnabled = dashboardHierarchy => {
 
   validatedEmptyDashboardCtaFlow = true;
   append('Empty-dashboard CTA navigation flow validated.');
+
+  return finalDashboardHierarchy;
+};
+
+const validateEmptyTabNavigationIfEnabled = dashboardHierarchy => {
+  if (!validateEmptyTabNavigation) {
+    return dashboardHierarchy;
+  }
+
+  append('\nValidating empty-state tab navigation flow...');
+
+  const tabScreens = [
+    {
+      label: 'authenticators tab',
+      tabResourceId: 'navigation-tab-1',
+      expectedResourceIds: [
+        'dashboard-header',
+        'create-authenticator-button',
+        'no-authenticators-icon',
+        'navigation-tab-0',
+        'navigation-tab-1',
+        'navigation-tab-2',
+        'navigation-tab-3',
+      ],
+    },
+    {
+      label: 'address-book tab',
+      tabResourceId: 'navigation-tab-2',
+      expectedResourceIds: [
+        'contacts-searchbar',
+        'create-contact-button',
+        'no-contacts-icon',
+        'navigation-tab-0',
+        'navigation-tab-1',
+        'navigation-tab-2',
+        'navigation-tab-3',
+      ],
+    },
+    {
+      label: 'settings tab',
+      tabResourceId: 'navigation-tab-3',
+      expectedResourceIds: [
+        'dashboard-header',
+        'goldwallet-logo',
+        'language-settings-item',
+        'advanced-options-settings-item',
+        'change-pin-settings-item',
+        'about-us-settings-item',
+        'navigation-tab-0',
+        'navigation-tab-1',
+        'navigation-tab-2',
+        'navigation-tab-3',
+      ],
+    },
+  ];
+
+  let currentHierarchy = dashboardHierarchy;
+
+  for (const screen of tabScreens) {
+    tapResourceId(screen.label, currentHierarchy, screen.tabResourceId);
+    sleep(3000);
+    currentHierarchy = waitForResourceIds(screen.label, screen.expectedResourceIds);
+  }
+
+  tapResourceId('wallets tab', currentHierarchy, 'navigation-tab-0');
+  sleep(3000);
+  const finalDashboardHierarchy = waitForResourceIds('dashboard after tab navigation', [
+    'dashboard-header',
+    'no-wallets-icon',
+    'create-wallet-button',
+    'import-wallet-button',
+    'navigation-tab-0',
+    'navigation-tab-1',
+    'navigation-tab-2',
+    'navigation-tab-3',
+  ]);
+
+  validatedEmptyTabNavigation = true;
+  append('Empty-state tab navigation flow validated.');
 
   return finalDashboardHierarchy;
 };
@@ -705,6 +787,7 @@ try {
       : 'Using expected resource ID(s): none',
   );
   append(`Using empty-dashboard CTA flow validation: ${validateEmptyDashboardCtas ? 'yes' : 'no'}`);
+  append(`Using empty-tab navigation validation: ${validateEmptyTabNavigation ? 'yes' : 'no'}`);
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
   }
@@ -871,6 +954,7 @@ try {
   }
 
   uiHierarchy = validateEmptyDashboardCtaFlowIfEnabled(uiHierarchy);
+  uiHierarchy = validateEmptyTabNavigationIfEnabled(uiHierarchy);
 
   runBinary('capture screenshot', ['exec-out', 'screencap', '-p'], screenshotOutputPath);
 

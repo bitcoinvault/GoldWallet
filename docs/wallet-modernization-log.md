@@ -17601,6 +17601,41 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.454 - Empty tab smoke navigation
+
+- Branch: `feature/bem-37-454-empty-tab-smoke-navigation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Android smoke helper with optional empty-state tab navigation validation.
+- Enable the tab navigation check for both debug and signed release embedded smoke.
+- Validate bottom navigation from the empty Wallets dashboard through Authenticator, Address book, Settings, and back to Wallets before the final screenshot.
+- Update smoke summary validation and workflow docs so tab-navigation proof is recorded and guarded.
+
+Findings:
+
+- The previous smoke proved startup, onboarding, empty Wallets dashboard, and Create/Import CTA navigation, but did not prove that the other bottom-tab screens still mounted cleanly after the React Native modernization work.
+- The new flow checks stable resource IDs on each empty-state tab: `no-authenticators-icon`, `contacts-searchbar`, `no-contacts-icon`, `goldwallet-logo`, key Settings rows, and all bottom navigation tab IDs.
+- Debug embedded smoke passed on `emulator-5554`, completed onboarding, validated CTA navigation, validated tab navigation, returned to Wallets, and recorded `Validated empty-tab navigation: yes`.
+- Signed dev release embedded smoke also passed on `emulator-5554` with the same tab navigation proof and final Wallets dashboard screenshot.
+- No UI runtime code, native code, dependency versions, package scripts, or Metro behavior changed in this branch; the app-facing proof is the broader smoke runtime check.
+
+Validation:
+
+- `node --check scripts\androidSmokeDev.mjs`
+- `corepack yarn check:android-smoke-summary-guard`
+- `corepack yarn android:dev:check-light-docs`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.453 - Dashboard CTA smoke flow
 
 - Branch: `feature/bem-37-453-dashboard-cta-smoke`

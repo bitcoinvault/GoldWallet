@@ -77,6 +77,7 @@ export const getAndroidSmokeSummaryErrors = summary => {
 
   const expectedResourceIds = getLineValue(summary, 'Expected resource IDs');
   const validatedEmptyDashboardCtaFlow = getLineValue(summary, 'Validated empty-dashboard CTA flow');
+  const validatedEmptyTabNavigation = getLineValue(summary, 'Validated empty-tab navigation');
 
   if (!expectedResourceIds) {
     errors.push('Expected resource IDs are missing');
@@ -91,6 +92,10 @@ export const getAndroidSmokeSummaryErrors = summary => {
     errors.push(
       `Validated empty-dashboard CTA flow must be yes or no. Received: ${validatedEmptyDashboardCtaFlow || 'missing'}`,
     );
+  }
+
+  if (!['yes', 'no'].includes(validatedEmptyTabNavigation)) {
+    errors.push(`Validated empty-tab navigation must be yes or no. Received: ${validatedEmptyTabNavigation || 'missing'}`);
   }
 
   if (!isExistingFile(getLineValue(summary, 'UI hierarchy path'), true)) {

@@ -16,6 +16,7 @@ const validSummary = [
   'App PID: 21294',
   'Captured logcat lines: 211',
   'Validated empty-dashboard CTA flow: no',
+  'Validated empty-tab navigation: no',
   'UI hierarchy attempts: 2',
   'UI hierarchy path: package.json',
   'Screenshot path: package.json',
@@ -39,6 +40,10 @@ const embeddedSummary = validSummary
   .replace(
     'Validated empty-dashboard CTA flow: no',
     'Validated empty-dashboard CTA flow: yes',
+  )
+  .replace(
+    'Validated empty-tab navigation: no',
+    'Validated empty-tab navigation: yes',
   );
 const invalidCleanStateSummary = validSummary.replace('Cleared app data: no', 'Cleared app data: maybe');
 const missingScreenshotSummary = validSummary.replace(
@@ -80,6 +85,10 @@ assertRejected('Missing resource IDs fixture', validSummary.replace('Expected re
 assertRejected(
   'Invalid empty-dashboard CTA fixture',
   validSummary.replace('Validated empty-dashboard CTA flow: no', 'Validated empty-dashboard CTA flow: maybe'),
+);
+assertRejected(
+  'Invalid empty-tab navigation fixture',
+  validSummary.replace('Validated empty-tab navigation: no', 'Validated empty-tab navigation: maybe'),
 );
 
 console.log('Android smoke summary guard checks are valid.');
