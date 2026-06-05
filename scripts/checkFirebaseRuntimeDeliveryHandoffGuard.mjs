@@ -19,6 +19,8 @@ const skippedRendered = skippedCommands.map(renderFirebaseRuntimeDeliveryCommand
 
 [
   'corepack yarn android:dev:release:verify-local',
+  'corepack yarn android:dev:release:smoke:embedded',
+  'corepack yarn android:dev:release:check-smoke-summary',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn firebase:release-services:audit',
   'corepack yarn firebase:release-services:check-summary',
@@ -32,6 +34,14 @@ const skippedRendered = skippedCommands.map(renderFirebaseRuntimeDeliveryCommand
 assert(
   !skippedRendered.includes('android:dev:release:verify-local'),
   'Skipped Firebase runtime handoff must omit Android release evidence refresh',
+);
+assert(
+  !skippedRendered.includes('android:dev:release:smoke:embedded'),
+  'Skipped Firebase runtime handoff must omit Android release smoke refresh',
+);
+assert(
+  !skippedRendered.includes('android:dev:release:check-smoke-summary'),
+  'Skipped Firebase runtime handoff must omit Android release smoke summary validation',
 );
 assert(
   skippedRendered.includes('corepack yarn firebase:release-services:audit'),

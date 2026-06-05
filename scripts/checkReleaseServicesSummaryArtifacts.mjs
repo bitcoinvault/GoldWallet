@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getAndroidSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationReadinessSummaryGuard.mjs';
 import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
@@ -15,6 +16,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 
 const summaries = [
+  {
+    label: 'Android release smoke',
+    relativePath: 'local-docs/android-smoke-dev-release-summary.txt',
+    getErrors: getAndroidSmokeSummaryErrors,
+  },
   {
     label: 'Sentry release prerequisite',
     relativePath: 'local-docs/sentry-release-prereq-summary.txt',

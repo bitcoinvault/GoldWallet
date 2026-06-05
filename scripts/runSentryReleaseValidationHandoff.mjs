@@ -61,6 +61,8 @@ export const getSentryReleaseValidationCommands = (options = defaultOptions) => 
           SENTRY_DISABLE_AUTO_UPLOAD: 'true',
         },
       }),
+      yarnStep('Run Android release APK embedded smoke', 'android:dev:release:smoke:embedded'),
+      yarnStep('Validate Android release smoke summary', 'android:dev:release:check-smoke-summary'),
     );
   }
 

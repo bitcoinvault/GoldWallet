@@ -68,7 +68,7 @@ corepack yarn check:release-service-env-keys
 
 This validates key presence only. It does not print or guess DSN/deployment-key values. Beta env files currently do not require CodePush deployment keys until the beta release/update strategy is confirmed.
 
-After running the Sentry Android warning, Sentry release prerequisite, Firebase, CodePush, and push bridge audits, validate all generated local release-services summaries together:
+After running the Android release smoke, Sentry Android warning, Sentry release prerequisite, Firebase, CodePush, and push bridge audits, validate all generated local release-services summaries together:
 
 ```powershell
 corepack yarn check:release-services-summary-guard
@@ -82,7 +82,7 @@ corepack yarn release-services:validation:handoff:dry-run
 corepack yarn release-services:validation:handoff
 ```
 
-The full handoff refreshes Android release APK evidence with Sentry auto-upload disabled, refreshes Sentry/Firebase/CodePush/push/iOS summaries, and then runs the aggregate release-services summary checker. Use `--skip-android-release` only when the latest Android release summary already matches the current release inputs.
+The full handoff refreshes Android release APK evidence with Sentry auto-upload disabled, runs the Android release embedded smoke, validates the release-smoke summary, refreshes Sentry/Firebase/CodePush/push/iOS summaries, and then runs the aggregate release-services summary checker. Use `--skip-android-release` only when the latest Android release summary and release-smoke summary already match the current release inputs.
 
 After `BEM-37.421`, Sentry has a narrower source-map prerequisite handoff for the point when `SENTRY_AUTH_TOKEN` is available:
 
@@ -91,7 +91,7 @@ corepack yarn sentry:release:validation:handoff:dry-run
 corepack yarn sentry:release:validation:handoff
 ```
 
-This validates the properties generator, optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, generates `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` from the local Sentry env, then refreshes and validates the Sentry release prerequisite summary plus the aggregate release-services summary artifacts. The dry run prints only required env variable names, not token values. Use `--skip-android-release` only when the latest Android release summary already matches the current release inputs.
+This validates the properties generator, optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, runs the Android release embedded smoke, validates the release-smoke summary, generates `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` from the local Sentry env, then refreshes and validates the Sentry release prerequisite summary plus the aggregate release-services summary artifacts. The dry run prints only required env variable names, not token values. Use `--skip-android-release` only when the latest Android release summary and release-smoke summary already match the current release inputs.
 
 After `BEM-37.422`, CodePush has a narrower update-validation handoff for the point when deployment keys and beta strategy are available:
 
@@ -100,7 +100,7 @@ corepack yarn codepush:update:validation:handoff:dry-run
 corepack yarn codepush:update:validation:handoff
 ```
 
-This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, refreshes CodePush release-path, migration-readiness, and removal-readiness summaries, then finishes with the aggregate release-services summary checker. The executable handoff remains blocked while the release-path summary says `Release path ready for update validation: no`, while `CodePush update validation` is still `not claimed`, or while the App Center retirement migration requirement is not visible. It does not print deployment-key values.
+This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, runs the Android release embedded smoke, validates the release-smoke summary, refreshes CodePush release-path, migration-readiness, and removal-readiness summaries, then finishes with the aggregate release-services summary checker. The executable handoff remains blocked while the release-path summary says `Release path ready for update validation: no`, while `CodePush update validation` is still `not claimed`, or while the App Center retirement migration requirement is not visible. It does not print deployment-key values.
 
 After `BEM-37.424`, Firebase has a narrower runtime-delivery prerequisite handoff for the point before real FCM, Crashlytics, and Analytics delivery testing:
 
@@ -109,7 +109,7 @@ corepack yarn firebase:runtime:delivery:handoff:dry-run
 corepack yarn firebase:runtime:delivery:handoff
 ```
 
-This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, refreshes Firebase release-services and push-notification bridge summaries, then finishes with the aggregate release-services summary checker. The executable handoff confirms local Firebase package/config/runtime wiring, Android release evidence, APK manifest proof, and static push bridge readiness, but it keeps Firebase and push runtime delivery explicitly `not claimed` until a real release-runtime/device test confirms FCM token/notification delivery, Crashlytics upload, and Analytics behavior.
+This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, runs the Android release embedded smoke, validates the release-smoke summary, refreshes Firebase release-services and push-notification bridge summaries, then finishes with the aggregate release-services summary checker. The executable handoff confirms local Firebase package/config/runtime wiring, Android release evidence, APK manifest proof, release APK startup proof, and static push bridge readiness, but it keeps Firebase and push runtime delivery explicitly `not claimed` until a real release-runtime/device test confirms FCM token/notification delivery, Crashlytics upload, and Analytics behavior.
 
 ## Current Release Readiness Snapshot
 
@@ -224,7 +224,7 @@ Shared env/config:
 - `corepack yarn push-notification:bridge-audit` verifies current iOS push notification bridge wiring and static readiness. It writes `local-docs/push-notification-bridge-summary.txt`.
 - `corepack yarn push-notification:bridge-check-summary` validates the generated local push notification bridge summary. After `BEM-37.79`, the audit reports no static readiness issues, but APNs registration, token, foreground/background delivery, badge, and tap-through behavior still require iOS simulator/device validation.
 - `corepack yarn ios:release:readiness:audit` verifies static iOS release files, schemes, Firebase plist mapping, CodePush plist placeholders, Sentry source-map/dSYM phases, remote-notification plist coverage, removed-pod lockfile references, active Podfile.lock drift, and xcodebuild availability. The 2026-06-03 refresh reports static iOS files valid, 4 remote-notification plists including Beta, 0 removed Podfile.lock pod references, 12 active Podfile.lock drift issues, missing local xcodebuild on Windows, and iOS runtime delivery validation not claimed until `pod install`, simulator/archive validation, and device/service checks run on macOS.
-- `corepack yarn release-services:check-summaries` validates the generated Sentry, Firebase, CodePush, push-notification, iOS release-readiness, and iOS macOS validation-prerequisite summary artifacts together so the aggregate release-services gate covers Android release evidence, static iOS release readiness, and the macOS-only iOS handoff prerequisites.
+- `corepack yarn release-services:check-summaries` validates the generated Android release-smoke, Sentry, Firebase, CodePush, push-notification, iOS release-readiness, and iOS macOS validation-prerequisite summary artifacts together so the aggregate release-services gate covers Android release build/manifest evidence, Android release startup proof, static iOS release readiness, and the macOS-only iOS handoff prerequisites.
 
 ## Branching Decision
 

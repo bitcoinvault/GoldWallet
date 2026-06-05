@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.440 - Release-smoke aggregate wiring
+
+- Branch: `feature/bem-37-440-release-smoke-aggregate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add Android release-smoke summary validation to the aggregate `release-services:check-summaries` gate.
+- Extend release-services, Sentry, Firebase runtime-delivery, and CodePush update-validation handoffs so the Android release block refreshes build/manifest evidence, runs embedded release APK smoke, and validates the release-smoke summary together.
+- Keep `--skip-android-release` scoped to the full Android release evidence block so it omits release build refresh and release smoke refresh together.
+- Update release-services documentation so release evidence is described as build, manifest, and release startup proof rather than build evidence only.
+
+Findings:
+
+- `BEM-37.439` proved the generated `devRelease` APK can be installed and launched through a smoke-only signed copy, but the aggregate release-services gate did not yet require `local-docs/android-smoke-dev-release-summary.txt`.
+- Existing handoffs could refresh release APK build evidence and then finish aggregate release-services checks without requiring release runtime startup proof.
+- The Sentry/Firebase/CodePush handoffs should share the same release evidence boundary because all three depend on non-dev release startup behavior that debug smoke does not cover.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkReleaseServicesSummaryArtifacts.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkReleaseServicesSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/runReleaseServicesValidationHandoff.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkReleaseServicesValidationHandoffGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/runSentryReleaseValidationHandoff.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkSentryReleaseValidationHandoffGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/runFirebaseRuntimeDeliveryHandoff.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkFirebaseRuntimeDeliveryHandoffGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/runCodePushUpdateValidationHandoff.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkCodePushUpdateValidationHandoffGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.439 - Android release APK embedded smoke
 
 - Branch: `feature/bem-37-439-android-release-smoke`

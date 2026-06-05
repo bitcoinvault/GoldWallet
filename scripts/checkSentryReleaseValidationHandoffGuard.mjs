@@ -19,6 +19,8 @@ const skippedRendered = skippedCommands.map(renderSentryReleaseValidationCommand
 [
   'corepack yarn check:sentry-properties-generator',
   'corepack yarn android:dev:release:verify-local',
+  'corepack yarn android:dev:release:smoke:embedded',
+  'corepack yarn android:dev:release:check-smoke-summary',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn sentry:release:create-properties',
   'requires-env=SENTRY_AUTH_TOKEN',
@@ -36,6 +38,14 @@ assert(
 assert(
   !skippedRendered.includes('android:dev:release:verify-local'),
   'Skipped Sentry handoff must omit Android release evidence refresh',
+);
+assert(
+  !skippedRendered.includes('android:dev:release:smoke:embedded'),
+  'Skipped Sentry handoff must omit Android release smoke refresh',
+);
+assert(
+  !skippedRendered.includes('android:dev:release:check-smoke-summary'),
+  'Skipped Sentry handoff must omit Android release smoke summary validation',
 );
 assert(
   skippedRendered.includes('corepack yarn sentry:release:create-properties'),
