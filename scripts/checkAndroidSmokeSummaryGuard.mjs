@@ -12,6 +12,7 @@ const validSummary = [
   'Metro reachable: yes',
   'Cleared app data: no',
   'Expected UI texts: Wallets, E2EWalletTypeTest, Send, Receive',
+  'Expected resource IDs: none',
   'App PID: 21294',
   'Captured logcat lines: 211',
   'UI hierarchy attempts: 2',
@@ -29,6 +30,10 @@ const embeddedSummary = validSummary
   .replace(
     'Expected UI texts: Wallets, E2EWalletTypeTest, Send, Receive',
     'Expected UI texts: Wallets, No wallets, Create new wallet, Import wallet',
+  )
+  .replace(
+    'Expected resource IDs: none',
+    'Expected resource IDs: dashboard-header, no-wallets-icon, create-wallet-button, import-wallet-button, navigation-tab-0',
   );
 const invalidCleanStateSummary = validSummary.replace('Cleared app data: no', 'Cleared app data: maybe');
 const missingScreenshotSummary = validSummary.replace(
@@ -66,5 +71,6 @@ assertRejected('Metro unreachable fixture', missingMetroSummary);
 assertRejected('Invalid clean-state fixture', invalidCleanStateSummary);
 assertRejected('Missing screenshot fixture', missingScreenshotSummary);
 assertRejected('Invalid timestamp fixture', invalidTimestampSummary);
+assertRejected('Missing resource IDs fixture', validSummary.replace('Expected resource IDs: none\n', ''));
 
 console.log('Android smoke summary guard checks are valid.');

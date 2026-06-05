@@ -41,6 +41,10 @@ const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWal
   .split(',')
   .map(text => text.trim())
   .filter(Boolean);
+const expectedResourceIds = (process.env.ANDROID_SMOKE_EXPECT_RESOURCE_IDS ?? '')
+  .split(',')
+  .map(resourceId => resourceId.trim())
+  .filter(Boolean);
 
 const sdkRoots = [
   process.env.ANDROID_HOME,
@@ -129,6 +133,7 @@ const writeSummary = exitCode => {
     `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
     `Cleared app data: ${clearAppData ? 'yes' : 'no'}`,
     `Expected UI texts: ${expectedTexts.length > 0 ? expectedTexts.join(', ') : 'none'}`,
+    `Expected resource IDs: ${expectedResourceIds.length > 0 ? expectedResourceIds.join(', ') : 'none'}`,
     `App PID: ${appPid || 'not available'}`,
     `Captured logcat lines: ${capturedLogcatLines}`,
     `Accepted first-run terms: ${acceptedFirstRunTerms ? 'yes' : 'no'}`,
@@ -578,6 +583,11 @@ try {
       ? `Using expected UI text(s): ${expectedTexts.join(', ')}`
       : 'Using expected UI text(s): none',
   );
+  append(
+    expectedResourceIds.length > 0
+      ? `Using expected resource ID(s): ${expectedResourceIds.join(', ')}`
+      : 'Using expected resource ID(s): none',
+  );
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
   }
@@ -731,6 +741,16 @@ try {
 
   if (expectedTexts.length > 0) {
     append(`Found expected UI text(s): ${expectedTexts.join(', ')}`);
+  }
+
+  const missingResourceIds = expectedResourceIds.filter(resourceId => !uiHierarchy.includes(`resource-id="${resourceId}"`));
+
+  if (missingResourceIds.length > 0) {
+    throw new Error(`UI hierarchy is missing expected resource ID(s): ${missingResourceIds.join(', ')}`);
+  }
+
+  if (expectedResourceIds.length > 0) {
+    append(`Found expected resource ID(s): ${expectedResourceIds.join(', ')}`);
   }
 
   runBinary('capture screenshot', ['exec-out', 'screencap', '-p'], screenshotOutputPath);

@@ -75,6 +75,17 @@ export const getAndroidSmokeSummaryErrors = summary => {
     errors.push('Expected UI texts are missing');
   }
 
+  const expectedResourceIds = getLineValue(summary, 'Expected resource IDs');
+
+  if (!expectedResourceIds) {
+    errors.push('Expected resource IDs are missing');
+  } else if (
+    expectedResourceIds !== 'none' &&
+    expectedResourceIds.split(',').some(resourceId => !/^[a-zA-Z0-9._:-]+$/.test(resourceId.trim()))
+  ) {
+    errors.push(`Expected resource IDs contains an invalid value: ${expectedResourceIds}`);
+  }
+
   if (!isExistingFile(getLineValue(summary, 'UI hierarchy path'), true)) {
     errors.push('UI hierarchy path must point to a non-empty file');
   }

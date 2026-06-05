@@ -17601,6 +17601,41 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.452 - Dashboard smoke resource-id assertions
+
+- Branch: `feature/bem-37-452-dashboard-smoke-resource-ids`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Android smoke helper so it can require expected UI resource IDs in addition to visible text.
+- Make both debug and signed release embedded smoke require the empty-dashboard IDs `dashboard-header`, `no-wallets-icon`, `create-wallet-button`, `import-wallet-button`, and `navigation-tab-0`.
+- Update the smoke summary guard and workflow docs so resource-id expectations are recorded and validated in local smoke evidence.
+
+Findings:
+
+- The previous embedded smoke already proved app startup, first-run flow, expected empty-dashboard text, screenshot capture, and clean app-process logcat.
+- Text-only assertions were too weak for header/navigation regressions because the screen could still contain `Wallets` while the actual dashboard header, empty state, action buttons, or tab IDs drifted.
+- Debug embedded smoke passed on `emulator-5554` after a fresh `devDebug` APK build, completed onboarding, found all expected empty-dashboard texts and resource IDs, and captured a non-empty screenshot.
+- Signed dev release embedded smoke also passed on `emulator-5554` with the same text and resource-id assertions.
+- No UI code, native code, dependency versions, package scripts, or Metro behavior changed in this branch; the app-facing proof is the stricter smoke runtime check.
+
+Validation:
+
+- `C:\Users\User\AppData\Local\Android\Sdk\platform-tools\adb.exe devices`
+- `corepack yarn check:android-smoke-summary-guard`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.451 - Tooling snapshot JUnit merger fixture refresh
 
 - Branch: `feature/bem-37-451-tooling-junit-fixture-refresh`

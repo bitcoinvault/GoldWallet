@@ -176,6 +176,7 @@ corepack yarn android:dev:smoke:embedded
 ```
 
 `android:dev:smoke:embedded` disables the Metro preflight, installs the current `app-dev-debug.apk`, launches `io.goldwallet.wallet.dev`, and checks the empty-wallet dashboard fixture: `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
+It also checks the dashboard resource IDs `dashboard-header`, `no-wallets-icon`, `create-wallet-button`, `import-wallet-button`, and `navigation-tab-0`, so header/navigation regressions are caught even when visible text still renders.
 It also sets `ANDROID_SMOKE_CLEAR_APP_DATA=true` so the embedded smoke validates the bundled APK from a clean onboarding state instead of reusing a stale emulator PIN/wallet state.
 
 For a local release APK startup proof, first refresh release APK evidence and then run the release embedded smoke:
@@ -187,7 +188,7 @@ corepack yarn android:dev:release:smoke:embedded
 corepack yarn android:dev:release:check-smoke-summary
 ```
 
-The release smoke uses the same helper as debug smoke, but signs a local smoke-only copy of the unsigned release APK and sets `ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release` so it does not overwrite the regular debug smoke log, UI hierarchy, summary, or screenshot.
+The release smoke uses the same helper as debug smoke, but signs a local smoke-only copy of the unsigned release APK and sets `ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release` so it does not overwrite the regular debug smoke log, UI hierarchy, summary, or screenshot. It uses the same empty-dashboard text and resource-id assertions as `android:dev:smoke:embedded`.
 
 For Android warning work:
 
@@ -254,9 +255,9 @@ Then install and launch the dev APK:
 corepack yarn android:dev:smoke
 ```
 
-Use `android:dev:verify` when the APK freshness matters; it already runs `android:dev:check-smoke-summary` after smoke. `android:dev:smoke` only installs and tests the current dev APK artifact. Use `corepack yarn android:dev:check-smoke-summary` after a standalone smoke run to validate that the local smoke evidence still records a passing startup, reachable Metro, expected dashboard text, process logcat capture, UI hierarchy, and non-empty screenshot.
+Use `android:dev:verify` when the APK freshness matters; it already runs `android:dev:check-smoke-summary` after smoke. `android:dev:smoke` only installs and tests the current dev APK artifact. Use `corepack yarn android:dev:check-smoke-summary` after a standalone smoke run to validate that the local smoke evidence still records a passing startup, reachable Metro, expected dashboard text/resource IDs, process logcat capture, UI hierarchy, and non-empty screenshot.
 
-The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, a compact result summary to `local-docs/android-smoke-dev-summary.txt`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. The summary includes a generated timestamp. It checks that Metro is reachable before installing and launching the dev APK, and records the Metro preflight status in the summary. On failures after an Android serial is selected, it also tries to refresh the same screenshot artifact before exiting. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
+The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, a compact result summary to `local-docs/android-smoke-dev-summary.txt`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. The summary includes a generated timestamp and the expected resource IDs. It checks that Metro is reachable before installing and launching the dev APK, and records the Metro preflight status in the summary. On failures after an Android serial is selected, it also tries to refresh the same screenshot artifact before exiting. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
 
 By default it also checks that the app is focused and that the UI hierarchy contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. This default matches a seeded wallet dashboard.
 
@@ -264,6 +265,7 @@ For a fresh emulator that has completed onboarding but does not have a wallet ye
 
 ```powershell
 $env:ANDROID_SMOKE_EXPECT_TEXTS = 'Wallets,Create new wallet,Import wallet'
+$env:ANDROID_SMOKE_EXPECT_RESOURCE_IDS = 'dashboard-header,create-wallet-button,import-wallet-button,navigation-tab-0'
 corepack yarn android:dev:smoke
 ```
 
