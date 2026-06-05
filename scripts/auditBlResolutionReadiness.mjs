@@ -56,7 +56,10 @@ export const collectBlResolutionReadiness = () => {
   const errors = [];
   const packageResolution = packageJson.resolutions?.bl || '';
   const installedVersion = getInstalledPackageVersion('bl');
-  const latestMetadata = npmViewJson(['bl@latest', 'version', 'engines']);
+  const latestMetadata = npmViewJson(['bl@latest', 'version', 'engines', 'type', 'exports']);
+  const latestExports = latestMetadata.exports || {};
+  const latestExportsJson = JSON.stringify(latestExports);
+  const latestHasCommonJsRequireExport = latestExportsJson.includes('"require"');
   let requireType = '';
 
   try {
@@ -93,6 +96,8 @@ export const collectBlResolutionReadiness = () => {
     requireType,
     latestVersion: latestMetadata.version || '',
     latestNodeEngine: latestMetadata.engines?.node || '',
+    latestPackageType: latestMetadata.type || '',
+    latestCommonJsRequireExport: latestHasCommonJsRequireExport ? 'yes' : 'no',
     latestTargetBlocked: 'yes',
     consumers,
     errors,
@@ -108,12 +113,14 @@ export const formatBlResolutionReadinessSummary = (audit, generatedAt = new Date
     `require('bl') type: ${audit.requireType || '<missing>'}`,
     `Latest bl version: ${audit.latestVersion || '<missing>'}`,
     `Latest bl node engine: ${audit.latestNodeEngine || '<missing>'}`,
+    `Latest bl package type: ${audit.latestPackageType || '<missing>'}`,
+    `Latest bl CommonJS require export: ${audit.latestCommonJsRequireExport || '<missing>'}`,
     `Latest bl target blocked: ${audit.latestTargetBlocked}`,
     `CommonJS/transitive consumers: ${audit.consumers.length}`,
     ...audit.consumers.map(consumer => `- ${consumer.packageName}: ${consumer.status}`),
     `Compatibility errors: ${audit.errors.length}`,
     ...audit.errors.map(error => `- ${error}`),
-    'Required action: keep bl on the CommonJS-compatible 6.1.6 resolution until levelup/ora and other transitive consumers are proven compatible with the bl 7 export map.',
+    'Required action: keep bl on the CommonJS-compatible 6.1.6 resolution until levelup/ora and other transitive consumers are proven compatible with the bl 7 ESM/import-only export map.',
     '',
   ].join('\n');
 
