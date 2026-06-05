@@ -136,7 +136,7 @@ Results:
 - CodePush upstream retirement readiness now records App Center CodePush retirement on 2025-03-31, archived Microsoft upstream state confirmed on 2026-06-03, lack of upstream New Architecture support, Android `newArchEnabled=true`, and `CodePush migration required: yes`.
 - CodePush release-path env readiness is now recorded per env file without printing deployment-key values.
 - CodePush release-path package readiness now verifies that `package.json` and the installed `node_modules/react-native-code-push` package agree before release-path validation is considered usable.
-- CodePush runtime startup and native bundle resolution are gated off by default; `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key is required before the retired OTA client is mounted or used for bundle resolution in non-dev builds.
+- CodePush runtime startup and native bundle resolution are gated off by default; the release-path audit derives that default from referenced `CODEPUSH_ENABLED` env values, and `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key is required before the retired OTA client is mounted or used for bundle resolution in non-dev builds.
 - CodePush update validation is ready from env-key perspective for `.env.stage.mainnet` and `.env.prod.mainnet`.
 - Full CodePush release update validation is not ready locally because `.env.dev.testnet` has blank `CODEPUSH_DEPLOYMENT_KEY_ANDROID` and `CODEPUSH_DEPLOYMENT_KEY_IOS`.
 - Beta CodePush update strategy is still unconfirmed because `.env.beta.testnet` and `.env.beta.mainnet` do not define CodePush deployment keys.

@@ -48,7 +48,7 @@ Expected summary claims:
 - npm latest version, latest published timestamp, npm repository, and upstream repository are recorded in the migration-readiness summary so the remove-or-replace decision carries package/upstream evidence directly;
 - CodePush runtime gate is recorded as present;
 - CodePush native bundle gate is recorded as present;
-- CodePush runtime enabled by default is recorded as `no`;
+- CodePush runtime enabled by default is derived from the referenced `CODEPUSH_ENABLED` env values and is currently recorded as `no`;
 - Android release build evidence is recorded separately from CodePush update validation;
 - local Android release evidence currently covers `dev`, `stage`, `prod`, and `beta` release variants;
 - release build evidence readiness is recorded separately from OTA update validation;
