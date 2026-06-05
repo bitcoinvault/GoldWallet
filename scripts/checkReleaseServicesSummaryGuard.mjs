@@ -15,6 +15,7 @@ const requiredSnippets = [
   "import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';",
   "import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';",
   "import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';",
+  "import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';",
   "import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';",
   "label: 'Sentry release prerequisite'",
   "relativePath: 'local-docs/sentry-release-prereq-summary.txt'",
@@ -32,6 +33,8 @@ const requiredSnippets = [
   "relativePath: 'local-docs/push-notification-bridge-summary.txt'",
   "label: 'iOS release readiness'",
   "relativePath: 'local-docs/ios-release-static-readiness-summary.txt'",
+  "label: 'iOS macOS validation prerequisites'",
+  "relativePath: 'local-docs/ios-mac-validation-prereqs-summary.txt'",
   'Release-services summary artifacts are invalid:',
   'Release-services summary artifacts are valid.',
 ];
