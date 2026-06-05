@@ -17601,6 +17601,43 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.455 - Release embedded smoke summary guard
+
+- Branch: `feature/bem-37-455-release-embedded-smoke-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add an embedded-smoke summary guard that keeps generic smoke validation separate from clean embedded smoke validation.
+- Require Android release embedded smoke summaries to prove clean first-run onboarding, embedded Create/Import CTA navigation, embedded bottom-tab navigation, and the expected release-smoke artifact base.
+- Switch the release smoke checker and aggregate release-services checker to the stricter embedded-smoke guard.
+- Update release-services documentation so the aggregate gate is explicit about embedded startup, CTA, and tab-navigation proof.
+
+Findings:
+
+- The generic Android smoke summary guard correctly allowed `Validated empty-dashboard CTA flow: no` and `Validated empty-tab navigation: no` for seeded or Metro-backed smoke scenarios.
+- The release embedded smoke path should not allow those fields to stay `no`, because `android:dev:release:smoke:embedded` always runs from clean app data and enables the empty-dashboard CTA and tab navigation checks.
+- `android:dev:release:check-smoke-summary` now rejects release summaries that omit clean onboarding, CTA navigation, tab navigation, or the `android-smoke-dev-release` artifact base.
+- `release-services:check-summaries` now applies the same stricter release embedded smoke proof through the aggregate release-services gate.
+- No runtime code, native code, package versions, Metro behavior, or APK inputs changed in this branch; the current debug and release smoke artifacts from `emulator-5554` remain valid and are rechecked through the stricter guard.
+
+Validation:
+
+- `node --check scripts\androidSmokeSummaryGuard.mjs`
+- `node --check scripts\checkAndroidReleaseSmokeSummary.mjs`
+- `node --check scripts\checkReleaseServicesSummaryArtifacts.mjs`
+- `corepack yarn check:android-smoke-summary-guard`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.454 - Empty tab smoke navigation
 
 - Branch: `feature/bem-37-454-empty-tab-smoke-navigation`

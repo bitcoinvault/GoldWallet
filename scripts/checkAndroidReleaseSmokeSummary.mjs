@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getAndroidSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -12,7 +12,9 @@ if (!existsSync(summaryPath)) {
   process.exit(1);
 }
 
-const errors = getAndroidSmokeSummaryErrors(readFileSync(summaryPath, 'utf8'));
+const errors = getAndroidEmbeddedSmokeSummaryErrors(readFileSync(summaryPath, 'utf8'), {
+  expectedArtifactBase: 'android-smoke-dev-release',
+});
 
 if (errors.length > 0) {
   console.error('Android release smoke summary artifact is invalid:');

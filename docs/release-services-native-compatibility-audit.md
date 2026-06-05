@@ -82,7 +82,7 @@ corepack yarn release-services:validation:handoff:dry-run
 corepack yarn release-services:validation:handoff
 ```
 
-The full handoff refreshes Android release APK evidence with Sentry auto-upload disabled, runs the Android release embedded smoke, validates the release-smoke summary, refreshes Sentry/Firebase/CodePush/push/iOS summaries, and then runs the aggregate release-services summary checker. Use `--skip-android-release` only when the latest Android release summary and release-smoke summary already match the current release inputs.
+The full handoff refreshes Android release APK evidence with Sentry auto-upload disabled, runs the Android release embedded smoke, validates the release-smoke summary, refreshes Sentry/Firebase/CodePush/push/iOS summaries, and then runs the aggregate release-services summary checker. The release-smoke summary must prove clean first-run onboarding, embedded Create/Import CTA navigation, and embedded bottom-tab navigation. Use `--skip-android-release` only when the latest Android release summary and release-smoke summary already match the current release inputs.
 
 After `BEM-37.421`, Sentry has a narrower source-map prerequisite handoff for the point when `SENTRY_AUTH_TOKEN` is available:
 
@@ -225,7 +225,7 @@ Shared env/config:
 - `corepack yarn push-notification:bridge-audit` verifies current iOS push notification bridge wiring and static readiness. It writes `local-docs/push-notification-bridge-summary.txt`.
 - `corepack yarn push-notification:bridge-check-summary` validates the generated local push notification bridge summary. After `BEM-37.79`, the audit reports no static readiness issues, but APNs registration, token, foreground/background delivery, badge, and tap-through behavior still require iOS simulator/device validation.
 - `corepack yarn ios:release:readiness:audit` verifies static iOS release files, schemes, Firebase plist mapping, CodePush plist placeholders, Sentry source-map/dSYM phases, remote-notification plist coverage, removed-pod lockfile references, active Podfile.lock drift, and xcodebuild availability. The 2026-06-03 refresh reports static iOS files valid, 4 remote-notification plists including Beta, 0 removed Podfile.lock pod references, 12 active Podfile.lock drift issues, missing local xcodebuild on Windows, and iOS runtime delivery validation not claimed until `pod install`, simulator/archive validation, and device/service checks run on macOS.
-- `corepack yarn release-services:check-summaries` validates the generated Android release-smoke, Sentry, Firebase, CodePush, push-notification, iOS release-readiness, and iOS macOS validation-prerequisite summary artifacts together so the aggregate release-services gate covers Android release build/manifest evidence, Android release startup proof, static iOS release readiness, and the macOS-only iOS handoff prerequisites.
+- `corepack yarn release-services:check-summaries` validates the generated Android release-smoke, Sentry, Firebase, CodePush, push-notification, iOS release-readiness, and iOS macOS validation-prerequisite summary artifacts together so the aggregate release-services gate covers Android release build/manifest evidence, Android release embedded startup/CTA/tab proof, static iOS release readiness, and the macOS-only iOS handoff prerequisites.
 
 ## Branching Decision
 
