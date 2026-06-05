@@ -10,6 +10,7 @@ Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.
 React 19 impact audit is tracked in `docs/react19-impact-audit.md`.
 
 React package coupling audit is tracked in `docs/react-package-coupling-audit.md`.
+React Native renderer exact-version audit is tracked in `docs/react-package-coupling-audit.md`.
 
 Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 
@@ -67,7 +68,7 @@ corepack yarn rn:upgrade-path:audit
 
 The audit verifies that the current package baseline, Metro runtime baseline, Android build/target SDK baseline, Gradle baseline, SDK 36 readiness, and staged upgrade documentation still agree.
 
-Before changing a React Native baseline, run the broader preflight so the current Android lightweight gate, Metro runtime audit, Node runtime transition audit, RN path audit, target snapshot audit and offline comparison guard, React 19 impact audit, React package coupling audit, test/type coupling audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit are all checked from one command:
+Before changing a React Native baseline, run the broader preflight so the current Android lightweight gate, Metro runtime audit, Node runtime transition audit, RN path audit, target snapshot audit and offline comparison guard, React 19 impact audit, React package coupling audit, React Native renderer exact-version audit, test/type coupling audit, QR camera migration audit, Sentry warning/source-map readiness audits, Firebase release-service audit, CodePush release-path audit, and push-notification bridge audit are all checked from one command:
 
 ```powershell
 corepack yarn rn:baseline:preflight
