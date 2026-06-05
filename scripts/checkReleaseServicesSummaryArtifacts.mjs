@@ -5,6 +5,7 @@ import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationR
 import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
+import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
 import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';
 import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
@@ -53,6 +54,11 @@ const summaries = [
     label: 'iOS release readiness',
     relativePath: 'local-docs/ios-release-static-readiness-summary.txt',
     getErrors: getIosReleaseReadinessSummaryErrors,
+  },
+  {
+    label: 'iOS macOS validation prerequisites',
+    relativePath: 'local-docs/ios-mac-validation-prereqs-summary.txt',
+    getErrors: getIosMacValidationPrereqSummaryErrors,
   },
 ];
 

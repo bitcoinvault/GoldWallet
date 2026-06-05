@@ -17221,6 +17221,40 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.434 - Release-services iOS macOS aggregate coverage
+
+- Branch: `feature/bem-37-434-release-services-ios-mac-aggregate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the existing iOS macOS validation prerequisite summary to the aggregate `release-services:check-summaries` gate.
+- Extend the aggregate release-services checker self-guard so the iOS macOS prerequisite summary import, label, and local summary path cannot silently drop out.
+- Keep the release-services handoff and aggregate checker aligned: every local summary refreshed by `release-services:validation:handoff` is now covered by the final aggregate summary check.
+
+Findings:
+
+- `release-services:validation:handoff` already ran `ios:mac-validation-prereq:audit` and `ios:mac-validation-prereq:check-summary`, but the final aggregate `release-services:check-summaries` previously skipped `local-docs/ios-mac-validation-prereqs-summary.txt`.
+- The iOS macOS prerequisite summary remains not ready on Windows: current platform is `win32`, `xcodebuild` is unavailable, CocoaPods is unavailable here, `ios/Podfile.lock` still has 12 drift issues, and iOS runtime delivery validation remains not claimed.
+- No runtime code, dependency versions, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required for this aggregate release-evidence checker branch.
+
+Validation:
+
+- `node --check scripts\checkReleaseServicesSummaryArtifacts.mjs`
+- `node --check scripts\checkReleaseServicesSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.433 - iOS Podfile.lock drift helper
 
 - Branch: `feature/bem-37-433-ios-podfile-drift-helper`
