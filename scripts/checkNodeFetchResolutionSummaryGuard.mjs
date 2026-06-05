@@ -9,13 +9,15 @@ const validSummary = [
   'Default export present: yes',
   'Latest node-fetch version: 3.3.2',
   'Latest node-fetch package type: module',
+  'Latest node-fetch main: ./src/index.js',
+  'Latest node-fetch CommonJS require export: no',
   'Latest node-fetch target blocked: yes',
   'CommonJS/transitive consumers: 2',
   '- gaxios: require ok',
   '- isomorphic-fetch: require ok',
   'Compatibility errors: 0',
   'Secret values printed: no',
-  'Required action: keep node-fetch on the CommonJS 2.7.0 resolution until all transitive consumers are proven compatible with ESM-only node-fetch v3.',
+  'Required action: keep node-fetch on the CommonJS 2.7.0 resolution until all transitive consumers are proven compatible with the ESM-only node-fetch v3 package entry.',
   '',
 ].join('\n');
 
@@ -43,6 +45,8 @@ assertAccepted('Valid node-fetch resolution fixture', validSummary);
 assertRejected('Missing header fixture', validSummary.replace('Node fetch resolution audit', 'Bad header'), 'summary header');
 assertRejected('Wrong resolution fixture', validSummary.replace('package.json resolution: 2.7.0', 'package.json resolution: 3.3.2'), '2.7.0');
 assertRejected('Wrong require type fixture', validSummary.replace("require('node-fetch') type: function", "require('node-fetch') type: object"), 'must return a function');
+assertRejected('Wrong latest main fixture', validSummary.replace('Latest node-fetch main: ./src/index.js', 'Latest node-fetch main: ./index.cjs'), 'ESM package entry');
+assertRejected('Require export fixture', validSummary.replace('Latest node-fetch CommonJS require export: no', 'Latest node-fetch CommonJS require export: yes'), 'CommonJS require export');
 assertRejected('Missing consumer fixture', validSummary.replace('- gaxios: require ok\n', ''), 'gaxios');
 assertRejected('Unblocked latest fixture', validSummary.replace('Latest node-fetch target blocked: yes', 'Latest node-fetch target blocked: no'), 'must stay blocked');
 assertRejected('Secret fixture', validSummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');

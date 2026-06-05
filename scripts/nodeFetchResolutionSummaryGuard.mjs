@@ -32,6 +32,8 @@ export const getNodeFetchResolutionSummaryErrors = summary => {
   const defaultExportPresent = getLineValue(summary, 'Default export present');
   const latestVersion = getLineValue(summary, 'Latest node-fetch version');
   const latestType = getLineValue(summary, 'Latest node-fetch package type');
+  const latestMain = getLineValue(summary, 'Latest node-fetch main');
+  const latestCommonJsRequireExport = getLineValue(summary, 'Latest node-fetch CommonJS require export');
   const latestBlocked = getLineValue(summary, 'Latest node-fetch target blocked');
   const consumerCount = getLineValue(summary, 'CommonJS/transitive consumers');
   const consumerLines = getBulletLinesAfter(summary, 'CommonJS/transitive consumers');
@@ -72,6 +74,14 @@ export const getNodeFetchResolutionSummaryErrors = summary => {
     errors.push(`Latest node-fetch package type must be module while v3 is ESM-only. Received: ${latestType || 'missing'}`);
   }
 
+  if (!latestMain.endsWith('/src/index.js') && latestMain !== './src/index.js') {
+    errors.push(`Latest node-fetch main must document the ESM package entry. Received: ${latestMain || 'missing'}`);
+  }
+
+  if (latestCommonJsRequireExport !== 'no') {
+    errors.push(`Latest node-fetch CommonJS require export must stay no until CommonJS consumers are migrated. Received: ${latestCommonJsRequireExport || 'missing'}`);
+  }
+
   if (latestBlocked !== 'yes') {
     errors.push(`Latest node-fetch target must stay blocked for this CJS resolution guard. Received: ${latestBlocked || 'missing'}`);
   }
@@ -104,6 +114,10 @@ export const getNodeFetchResolutionSummaryErrors = summary => {
 
   if (!requiredAction.includes('keep node-fetch on the CommonJS 2.7.0 resolution')) {
     errors.push('Required action must name the CommonJS 2.7.0 resolution decision');
+  }
+
+  if (!requiredAction.includes('ESM-only node-fetch v3 package entry')) {
+    errors.push('Required action must name the ESM-only node-fetch v3 package-entry blocker');
   }
 
   return errors;
