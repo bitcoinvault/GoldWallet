@@ -53,7 +53,25 @@ class CodePushClass extends Component<null, null> {
   }
 }
 
-const WithCodePush = codePush(codePushOptions)(CodePushClass);
+let CodePushGateComponent: React.ComponentType | null = null;
+
+const getCodePushGateComponent = (): React.ComponentType => {
+  if (CodePushGateComponent) {
+    return CodePushGateComponent;
+  }
+
+  const component = codePush(codePushOptions)(CodePushClass);
+
+  CodePushGateComponent = component;
+
+  return component;
+};
+
+const CodePushGate = () => {
+  const EnabledCodePush = getCodePushGateComponent();
+
+  return <EnabledCodePush />;
+};
 
 class App extends React.PureComponent {
   state = {
@@ -79,7 +97,7 @@ class App extends React.PureComponent {
   render() {
     return (
       <>
-        {!__DEV__ && isCodePushEnabled && <WithCodePush />}
+        {!__DEV__ && isCodePushEnabled && <CodePushGate />}
         <TypedI18nextProvider i18n={i18n}>
           <Provider store={store}>
             <AppStateManager

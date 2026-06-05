@@ -73,6 +73,12 @@ export const collectCodePushReleasePathAudit = () => {
   const upstreamArchived = true;
   const upstreamNewArchitectureSupported = false;
   const migrationRequired = upstreamRetired || upstreamArchived || (androidNewArchitectureEnabled && !upstreamNewArchitectureSupported);
+  const runtimeHocLazyGated =
+    appSource.includes('const getCodePushGateComponent = (): React.ComponentType => {') &&
+    appSource.includes('const component = codePush(codePushOptions)(CodePushClass)') &&
+    appSource.includes('CodePushGateComponent = component') &&
+    appSource.includes('!__DEV__ && isCodePushEnabled && <CodePushGate />') &&
+    !/const\s+WithCodePush\s*=\s*codePush/.test(appSource);
   let androidReleaseSummaryPresent = false;
   let androidReleaseSummaryVariants = [];
   let androidReleaseSummaryErrors = [];
@@ -102,7 +108,14 @@ export const collectCodePushReleasePathAudit = () => {
   requireSnippet(errors, 'App.tsx', appSource, 'checkFrequency: codePush.CheckFrequency.ON_APP_RESUME');
   requireSnippet(errors, 'App.tsx', appSource, 'installMode: codePush.InstallMode.IMMEDIATE');
   requireSnippet(errors, 'App.tsx', appSource, 'deploymentKey: codePushDeploymentKey');
-  requireSnippet(errors, 'App.tsx', appSource, '!__DEV__ && isCodePushEnabled && <WithCodePush />');
+  requireSnippet(errors, 'App.tsx', appSource, 'const getCodePushGateComponent = (): React.ComponentType => {');
+  requireSnippet(errors, 'App.tsx', appSource, 'const component = codePush(codePushOptions)(CodePushClass)');
+  requireSnippet(errors, 'App.tsx', appSource, 'CodePushGateComponent = component');
+  requireSnippet(errors, 'App.tsx', appSource, 'return <EnabledCodePush />');
+  requireSnippet(errors, 'App.tsx', appSource, '!__DEV__ && isCodePushEnabled && <CodePushGate />');
+  if (/const\s+WithCodePush\s*=\s*codePush/.test(appSource)) {
+    errors.push('App.tsx creates the CodePush HOC at module load instead of inside the runtime gate');
+  }
   requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_ENABLED');
   requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_IOS');
   requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_ANDROID');
@@ -247,6 +260,7 @@ export const collectCodePushReleasePathAudit = () => {
       iosAppDelegate.includes('[ReactNativeConfig envFor:@"CODEPUSH_ENABLED"]'),
     runtimeDefaultEnabled,
     packageCurrent: packageDependencyVersion === packageLatestVersion && installedPackageVersion === packageLatestVersion,
+    runtimeHocLazyGated,
     appCenterRetirementDate,
     codePushUpstreamRepository,
     upstreamRetired,
@@ -300,6 +314,7 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
     `CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`,
     `CodePush package versions aligned: ${audit.packageVersionsAligned ? 'yes' : 'no'}`,
     `CodePush runtime gate present: ${audit.runtimeGatePresent ? 'yes' : 'no'}`,
+    `CodePush runtime HOC lazy gated: ${audit.runtimeHocLazyGated ? 'yes' : 'no'}`,
     `CodePush native bundle gate present: ${audit.nativeBundleGatePresent ? 'yes' : 'no'}`,
     `CodePush runtime enabled by default: ${audit.runtimeDefaultEnabled ? 'yes' : 'no'}`,
     `CodePush upstream repository: ${audit.codePushUpstreamRepository}`,
@@ -373,6 +388,7 @@ const printReport = audit => {
   console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
   console.log(`CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
   console.log(`CodePush runtime gate present: ${audit.runtimeGatePresent ? 'yes' : 'no'}`);
+  console.log(`CodePush runtime HOC lazy gated: ${audit.runtimeHocLazyGated ? 'yes' : 'no'}`);
   console.log(`CodePush native bundle gate present: ${audit.nativeBundleGatePresent ? 'yes' : 'no'}`);
   console.log(`CodePush runtime enabled by default: ${audit.runtimeDefaultEnabled ? 'yes' : 'no'}`);
   console.log(`App Center CodePush retirement date: ${audit.appCenterRetirementDate}`);

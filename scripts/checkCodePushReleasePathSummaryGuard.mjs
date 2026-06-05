@@ -19,6 +19,7 @@ const notReadySummary = [
   'CodePush package current: yes',
   'CodePush package versions aligned: yes',
   'CodePush runtime gate present: yes',
+  'CodePush runtime HOC lazy gated: yes',
   'CodePush native bundle gate present: yes',
   'CodePush runtime enabled by default: no',
   'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
@@ -72,6 +73,7 @@ const readySummary = [
   'CodePush package current: yes',
   'CodePush package versions aligned: yes',
   'CodePush runtime gate present: yes',
+  'CodePush runtime HOC lazy gated: yes',
   'CodePush native bundle gate present: yes',
   'CodePush runtime enabled by default: no',
   'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
@@ -192,6 +194,11 @@ assertRejected(
   'Missing CodePush runtime gate fixture',
   notReadySummary.replace('CodePush runtime gate present: yes', 'CodePush runtime gate present: no'),
   'CodePush runtime gate must be present',
+);
+assertRejected(
+  'Eager CodePush HOC fixture',
+  notReadySummary.replace('CodePush runtime HOC lazy gated: yes', 'CodePush runtime HOC lazy gated: no'),
+  'runtime HOC',
 );
 assertRejected(
   'Missing CodePush native bundle gate fixture',
