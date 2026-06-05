@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.441 - Foundation target summary aggregate
+
+- Branch: `feature/bem-37-441-foundation-target-aggregate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `foundation:target:check-summaries` as the aggregate gate for live foundation-target evidence before larger RN/Android baseline branches.
+- Validate the generated RN target, direct outdated, git dependency, wallet/crypto latest, tooling latest, Android toolchain target, BL resolution, and node-fetch resolution summaries together.
+- Add a self-guard for the aggregate checker and wire it into offline `rn:baseline:preflight`.
+- Wire the aggregate artifact checker into `rn:baseline:preflight:online` after the live summary refresh/check steps and before the offline baseline gate.
+- Update foundation/upgrade documentation so the next RN or Android foundation branch starts from the full evidence set instead of a single package-current check.
+
+Findings:
+
+- Live online preflight on 2026-06-05 still reports `react-native@0.85.3` as npm `latest`; `0.86.0-rc.3` remains a prerelease `next` channel and is not the default wallet target.
+- Direct outdated blockers remain intentional: React and `react-test-renderer` are held by RN renderer exact-version coupling, `bl@7` is blocked by CommonJS consumers, and `node-fetch@3` is blocked by ESM-only compatibility.
+- AGP 9 / Gradle 9 remains blocked by the RN Gradle plugin Kotlin metadata path on the current RN `0.85.3` baseline.
+- The next foundation branch needs all of these blockers checked together because a narrow RN latest check alone does not prove that the Android/tooling/polyfill foundation can move.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkFoundationTargetSummaryArtifacts.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkFoundationTargetSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/auditReactNativeUpgradePath.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkReactNativeUpgradePathGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:foundation-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.440 - Release-smoke aggregate wiring
 
 - Branch: `feature/bem-37-440-release-smoke-aggregate`

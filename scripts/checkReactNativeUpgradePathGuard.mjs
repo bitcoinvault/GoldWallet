@@ -42,6 +42,8 @@ const validEnvironment = {
     'direct-outdated:snapshot:audit': 'node scripts/auditDirectOutdatedSnapshot.mjs',
     'direct-outdated:snapshot:check-summary': 'node scripts/checkDirectOutdatedSnapshotSummary.mjs',
     'check:direct-outdated-snapshot-summary-guard': 'node scripts/checkDirectOutdatedSnapshotSummaryGuard.mjs',
+    'foundation:target:check-summaries': 'node scripts/checkFoundationTargetSummaryArtifacts.mjs',
+    'check:foundation-target-summary-guard': 'node scripts/checkFoundationTargetSummaryGuard.mjs',
     'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
     'rn:baseline:preflight:online': expectedReactNativeOnlinePreflight,
   },
