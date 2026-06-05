@@ -30,6 +30,7 @@ export const getCameraCandidateSummaryErrors = summary => {
   const visionCamera = getLineValue(summary, 'VisionCamera latest');
   const visionCameraNitroPeers = getLineValue(summary, 'VisionCamera Nitro peers');
   const visionCameraRequiredPeers = getLineValue(summary, 'VisionCamera required peer packages');
+  const visionCameraPeerRanges = getLineValue(summary, 'VisionCamera peer dependency ranges');
   const cameraKit = getLineValue(summary, 'CameraKit latest');
   const cameraKitNodeEngine = getLineValue(summary, 'CameraKit node engine');
   const qrRenderer = getLineValue(summary, 'QR renderer latest');
@@ -48,8 +49,8 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push('Camera candidate summary header is missing');
   }
 
-  if (metadataCheckedOn !== '2026-06-04') {
-    errors.push(`Metadata checked on must be 2026-06-04. Received: ${metadataCheckedOn || 'missing'}`);
+  if (metadataCheckedOn !== '2026-06-05') {
+    errors.push(`Metadata checked on must be 2026-06-05. Received: ${metadataCheckedOn || 'missing'}`);
   }
 
   if (legacyCamera !== 'react-native-camera@4.2.1') {
@@ -66,6 +67,10 @@ export const getCameraCandidateSummaryErrors = summary => {
 
   if (visionCameraRequiredPeers !== 'react-native-nitro-modules, react-native-nitro-image') {
     errors.push(`VisionCamera required peer packages are unexpected. Received: ${visionCameraRequiredPeers || 'missing'}`);
+  }
+
+  if (visionCameraPeerRanges !== 'react@*, react-native@*, react-native-nitro-image@*, react-native-nitro-modules@*') {
+    errors.push(`VisionCamera peer dependency ranges are unexpected. Received: ${visionCameraPeerRanges || 'missing'}`);
   }
 
   if (cameraKit !== 'react-native-camera-kit@18.0.0') {

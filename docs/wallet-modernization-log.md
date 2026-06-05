@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.447 - Camera target evidence refresh
+
+- Branch: `feature/bem-37-447-camera-target-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded Camera/QR live metadata date to 2026-06-05 after checking current npm targets.
+- Keep the package baseline unchanged because `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4` still match live latest metadata.
+- Strengthen the VisionCamera candidate evidence by recording exact live peer dependency ranges, not only required peer package names.
+- Update camera replacement and native-module planning docs so the VisionCamera blocker is framed as the extra Nitro native stack rather than a narrow semver mismatch.
+
+Findings:
+
+- Live npm metadata on 2026-06-05 still reports `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4`.
+- `react-native-vision-camera@5.0.11` still requires `react-native-nitro-modules` and `react-native-nitro-image`; current live peer ranges are wildcarded, so the blocker is the additional native architecture stack and validation cost.
+- CameraKit remains the installed scanner baseline and the QR migration summary still reports no stale removed camera pods in `ios/Podfile.lock`.
+- No runtime code, native project file, package version, or Metro behavior changed in this branch, so Android emulator smoke is not required for this evidence-refresh milestone.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-vision-camera peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\auditCameraCandidates.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\cameraCandidateSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\checkCameraCandidateSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-candidate-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.446 - Sentry CLI release provenance hardening
 
 - Branch: `feature/bem-37-446-sentry-cli-provenance`
