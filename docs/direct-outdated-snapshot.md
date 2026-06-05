@@ -14,7 +14,7 @@ Current snapshot policy:
 
 - Known git/GitHub entries are handled by the git dependency snapshot and must not be replaced by generic npm package output.
 - React and `react-test-renderer` patch drift remains blocked by React Native renderer exact-version coupling on the current RN `0.85.3` baseline.
-- `bl@7` remains blocked by CommonJS transitive consumers until the ESM/export-map line is proven separately. The BL readiness summary now records the live latest package type and whether a CommonJS `require` export exists, so the blocker will be re-evaluated automatically if the latest line becomes CommonJS-compatible.
+- `bl@7` remains blocked by CommonJS transitive consumers until the ESM/export-map line is proven separately. The BL readiness summary now records the live latest package type, whether a CommonJS `require` export exists, whether `bl/package.json` is exported, and an isolated latest-package probe for bare CJS `require('bl')` versus bare ESM import, so the blocker will be re-evaluated automatically if the latest line becomes CommonJS-compatible.
 - `node-fetch@3` remains blocked by ESM-only v3 behavior until guarded CommonJS transitive consumers are proven separately. The node-fetch resolution summary records the live latest package type, package entry, and whether a CommonJS `require` export exists, so the blocker will be re-evaluated automatically if the latest line becomes CommonJS-compatible.
 - Any new `review-required` direct outdated entry must fail the online baseline until a dedicated compatibility branch records the decision.
 

@@ -29,7 +29,7 @@
     "@types/jsdom": "28.0.3",
     "@types/lodash": "4.17.24",
     "@types/pbkdf2": "3.1.2",
-    "@types/react": "19.2.16",
+    "@types/react": "19.2.17",
     "@types/react-native-background-timer": "2.0.2",
     "@types/react-native-snap-carousel": "3.8.12",
     "@typescript-eslint/eslint-plugin": "8.60.1",
@@ -426,7 +426,7 @@
   "resolutions": {
     "@babel/core": "7.29.7",
     "@babel/traverse": "7.29.7",
-    "@types/react": "19.2.16",
+    "@types/react": "19.2.17",
     "node-fetch": "2.7.0",
     "bl": "6.1.6",
     "@react-native/jest-preset/jest-environment-node": "30.4.1",

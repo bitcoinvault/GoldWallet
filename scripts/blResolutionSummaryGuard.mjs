@@ -33,6 +33,17 @@ export const getBlResolutionSummaryErrors = summary => {
   const latestNodeEngine = getLineValue(summary, 'Latest bl node engine');
   const latestPackageType = getLineValue(summary, 'Latest bl package type');
   const latestCommonJsRequireExport = getLineValue(summary, 'Latest bl CommonJS require export');
+  const latestPackageJsonSubpathExport = getLineValue(summary, 'Latest bl package.json subpath export');
+  const latestPackageJsonSubpathError = getLineValue(summary, 'Latest bl package.json subpath error');
+  const latestBareCjsRequire = getLineValue(summary, 'Latest bl bare CJS require');
+  const latestBareCjsRequireType = getLineValue(summary, 'Latest bl bare CJS require type');
+  const latestBareCjsRequireKeys = getLineValue(summary, 'Latest bl bare CJS require keys');
+  const latestBareCjsRequireDefaultType = getLineValue(summary, 'Latest bl bare CJS require default type');
+  const latestBareCjsRequireError = getLineValue(summary, 'Latest bl bare CJS require error');
+  const latestBareEsmImport = getLineValue(summary, 'Latest bl bare ESM import');
+  const latestBareEsmImportDefaultType = getLineValue(summary, 'Latest bl bare ESM import default type');
+  const latestBareEsmImportKeys = getLineValue(summary, 'Latest bl bare ESM import keys');
+  const latestBareEsmImportError = getLineValue(summary, 'Latest bl bare ESM import error');
   const latestTargetBlocked = getLineValue(summary, 'Latest bl target blocked');
   const consumerCount = getLineValue(summary, 'CommonJS/transitive consumers');
   const consumerLines = getBulletLinesAfter(summary, 'CommonJS/transitive consumers');
@@ -76,6 +87,52 @@ export const getBlResolutionSummaryErrors = summary => {
     errors.push(`Latest bl CommonJS require export must stay no until CommonJS consumers are migrated. Received: ${latestCommonJsRequireExport || 'missing'}`);
   }
 
+  if (latestPackageJsonSubpathExport !== 'no') {
+    errors.push(`Latest bl package.json subpath export must stay no until export-map compatibility changes. Received: ${latestPackageJsonSubpathExport || 'missing'}`);
+  }
+
+  if (!latestPackageJsonSubpathError.includes('ERR_PACKAGE_PATH_NOT_EXPORTED')) {
+    errors.push(`Latest bl package.json subpath error must document ERR_PACKAGE_PATH_NOT_EXPORTED. Received: ${latestPackageJsonSubpathError || 'missing'}`);
+  }
+
+  if (latestBareCjsRequire !== 'failed') {
+    errors.push(`Latest bl bare CJS require must fail until CommonJS consumers are migrated. Received: ${latestBareCjsRequire || 'missing'}`);
+  }
+
+  if (latestBareCjsRequireType !== 'none') {
+    errors.push(`Latest bl bare CJS require type must be none while require fails. Received: ${latestBareCjsRequireType || 'missing'}`);
+  }
+
+  if (latestBareCjsRequireKeys !== 'none') {
+    errors.push(`Latest bl bare CJS require keys must be none while require fails. Received: ${latestBareCjsRequireKeys || 'missing'}`);
+  }
+
+  if (latestBareCjsRequireDefaultType !== 'none') {
+    errors.push(`Latest bl bare CJS require default type must be none while require fails. Received: ${latestBareCjsRequireDefaultType || 'missing'}`);
+  }
+
+  if (!latestBareCjsRequireError.includes('ERR_PACKAGE_PATH_NOT_EXPORTED')) {
+    errors.push(`Latest bl bare CJS require error must document ERR_PACKAGE_PATH_NOT_EXPORTED. Received: ${latestBareCjsRequireError || 'missing'}`);
+  }
+
+  if (latestBareEsmImport !== 'ok') {
+    errors.push(`Latest bl bare ESM import must work so the blocker stays scoped to CommonJS/export-map consumers. Received: ${latestBareEsmImport || 'missing'}`);
+  }
+
+  if (latestBareEsmImportDefaultType !== 'function') {
+    errors.push(`Latest bl bare ESM import default type must be function. Received: ${latestBareEsmImportDefaultType || 'missing'}`);
+  }
+
+  ['BufferList', 'BufferListStream', 'default', 'isBufferList'].forEach(expectedKey => {
+    if (!latestBareEsmImportKeys.split(',').includes(expectedKey)) {
+      errors.push(`Latest bl bare ESM import keys must include ${expectedKey}. Received: ${latestBareEsmImportKeys || 'missing'}`);
+    }
+  });
+
+  if (latestBareEsmImportError !== 'none') {
+    errors.push(`Latest bl bare ESM import error must be none. Received: ${latestBareEsmImportError || 'missing'}`);
+  }
+
   if (latestTargetBlocked !== 'yes') {
     errors.push(`Latest bl target must stay blocked until CommonJS consumers are migrated. Received: ${latestTargetBlocked || 'missing'}`);
   }
@@ -108,6 +165,10 @@ export const getBlResolutionSummaryErrors = summary => {
 
   if (!requiredAction.includes('ESM/import-only export map')) {
     errors.push('Required action must name the latest BL ESM/import-only export-map blocker');
+  }
+
+  if (!requiredAction.includes('missing bare CJS/package.json exports')) {
+    errors.push('Required action must name the missing bare CJS/package.json export-map blocker');
   }
 
   return errors;

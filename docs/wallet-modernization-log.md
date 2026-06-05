@@ -17601,6 +17601,57 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.450 - BL latest compatibility probe
+
+- Branch: `feature/bem-37-450-bl-latest-compatibility-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add an isolated `bl@latest` compatibility probe to the BL readiness audit and generated summary guard.
+- Upgrade `@types/react` from `19.2.16` to `19.2.17` and align the React type impact, package coupling, foundation, and strategy guard baselines.
+- Refresh the direct-outdated and foundation docs so blocked latest dependencies remain backed by concrete compatibility evidence.
+
+Findings:
+
+- The first online direct-outdated snapshot reported new review-required drift for `@types/react@19.2.17`; the branch applies that patch update and returns `Review-required entries` to `0`.
+- The isolated probe confirms `bl@7.0.3` works through ESM import, but bare CommonJS `require("bl")` and `bl/package.json` subpath access both fail with `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+- Because legacy transitive code still needs CommonJS/package metadata access, `bl` remains pinned through the `6.1.6` resolution instead of moving to latest.
+- The full online preflight passes after refreshing Android release evidence for the package and lockfile change.
+- Android debug smoke and signed dev release smoke both pass on `emulator-5554`.
+- The first signed release smoke attempt hit a transient `uiautomator dump` exit `137`; the app stayed alive, a manual UI dump succeeded immediately afterwards, and the rerun completed without fatal Android or React Native runtime errors.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:bl-resolution-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn bl:resolution:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn bl:resolution:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:react19-impact-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react19:impact:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:react-package-coupling-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:package-coupling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:076-foundation:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn upgrade:strategy:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded` passed on rerun after a transient `uiautomator dump` failure
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.449 - CodePush runtime gate hardening
 
 - Branch: `feature/bem-37-449-codepush-runtime-gate-hardening`
