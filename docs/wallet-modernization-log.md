@@ -17221,6 +17221,41 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.436 - Secure-storage read contract coverage
+
+- Branch: `feature/bem-37-436-secure-storage-read-contract`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused `SecureStorageService` unit coverage for Keychain-primary reads so migrated secure values return without touching the legacy secure-store backend.
+- Add negative transaction-password verification coverage so non-matching candidate passwords return `false` against the stored hash.
+- Extend the secure-storage removal-readiness audit so these focused read/verification contracts are part of the guarded fallback-migration test surface.
+
+Findings:
+
+- Existing secure-storage coverage already guarded legacy fallback reads, failed Keychain migration writes, Keychain-only new writes, hashed transaction-password storage, positive password verification, and cleanup.
+- The newly added tests cover the migrated-data path needed before any later legacy backend removal branch can claim readiness: successful Keychain read skips legacy lookup, and wrong transaction password does not pass verification.
+- Legacy secure-storage removal remains blocked because fallback reads are still active and release/device validation without the fallback backend is not claimed.
+- No runtime code, dependency versions, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required for this test/audit coverage branch.
+
+Validation:
+
+- `node --check scripts\auditSecureStorageRemovalReadiness.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:secure-storage:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-removal-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.435 - Release-services aggregate documentation guard
 
 - Branch: `feature/bem-37-435-release-services-doc-guard`

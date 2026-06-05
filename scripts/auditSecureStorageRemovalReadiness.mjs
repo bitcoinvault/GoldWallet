@@ -32,8 +32,10 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     !secureStorageService.includes('RNSecureKeyStore.set') &&
     !appStorage.includes('RNSecureKeyStore.set');
   const fallbackMigrationTestsPresent =
+    unitTest.includes('returns keychain credentials without touching the legacy secure store') &&
     unitTest.includes('falls back to the legacy secure store and migrates the value into keychain') &&
     unitTest.includes('keeps returning the legacy value when keychain migration write fails') &&
+    unitTest.includes('rejects transaction passwords that do not match the stored hash') &&
     storageTest.includes('migrates legacy value into keychain when keychain is empty') &&
     storageTest.includes('falls back to legacy value when keychain read fails');
   const androidWarningSourceStillExpected =

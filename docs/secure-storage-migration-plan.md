@@ -14,6 +14,8 @@ Checked on: 2026-05-29
 - The current Android accessibility mode is `ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`.
 - Keychain is the only write target for new PIN, transaction-password, and encrypted wallet storage values.
 - Legacy fallback reads now return the legacy value even if a one-off migration write into Keychain fails.
+- Keychain-primary reads are covered by focused unit tests so existing migrated secure values do not unnecessarily touch the legacy backend.
+- Transaction-password verification is covered for both matching and non-matching candidate passwords.
 - Legacy removal readiness: not ready while legacy fallback reads are still active.
 
 ## Decision
