@@ -61,6 +61,18 @@ describe('unit - SecureStorageService', function () {
     await expect(service.getSecuredValue('pin')).resolves.toBe('');
   });
 
+  it('returns keychain credentials without touching the legacy secure store', async function () {
+    mockSecureStore.getGenericPassword.mockResolvedValueOnce({ password: '1234' });
+
+    await expect(service.getSecuredValue('pin')).resolves.toBe('1234');
+    expect(mockSecureStore.getGenericPassword).toHaveBeenCalledWith({
+      service: 'pin',
+      accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+    });
+    expect(mockLegacySecureStore.get).not.toHaveBeenCalled();
+    expect(mockSecureStore.setGenericPassword).not.toHaveBeenCalled();
+  });
+
   it('falls back to the legacy secure store and migrates the value into keychain', async function () {
     mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
     mockLegacySecureStore.get.mockResolvedValueOnce('1234');
@@ -146,6 +158,14 @@ describe('unit - SecureStorageService', function () {
     });
 
     await expect(service.checkSecuredPassword('transactionPassword', 'secret')).resolves.toBe(true);
+  });
+
+  it('rejects transaction passwords that do not match the stored hash', async function () {
+    mockSecureStore.getGenericPassword.mockResolvedValueOnce({
+      password: sha256('secret').toString(),
+    });
+
+    await expect(service.checkSecuredPassword('transactionPassword', 'wrong-secret')).resolves.toBe(false);
   });
 
   it('removes secured values through the native store', async function () {
