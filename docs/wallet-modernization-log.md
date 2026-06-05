@@ -17221,6 +17221,49 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.431 - React renderer exact-version guard
+
+- Branch: `feature/bem-37-431-react-patch-compat-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the latest React patch path for the current RN `0.85.3` baseline.
+- Keep the committed React package baseline unchanged after confirming the bundled RN renderer still requires exact React `19.2.3`.
+- Add a React Native renderer exact-version audit so package-only React patch attempts fail in preflight before Android emulator redboxes.
+- Wire the new guard into `android:dev:check-light` and `rn:baseline:preflight`, and document the guard in the React package coupling docs.
+
+Findings:
+
+- npm reports `react@19.2.7` and `react-test-renderer@19.2.7` as the latest patch releases.
+- A package probe to `react@19.2.7` and `react-test-renderer@19.2.7` still conflicts with bundled RN renderer files: `ReactNativeRenderer-*` in RN `0.85.3` exact-check `react-native-renderer: 19.2.3`.
+- The attempted package changes were reverted with `corepack yarn add react@19.2.3` and `corepack yarn add --dev react-test-renderer@19.2.3`; no dependency version changes are kept in this branch.
+- The new audit reads the bundled renderer implementation files and verifies that `react`, `react-test-renderer`, and the RN renderer exact-check version all match `19.2.3`.
+- The first Android release evidence refresh was interrupted during `:react-native-gesture-handler:buildCMakeRelWithDebInfo[arm64-v8a]` link with exit `1073807364` / `0x40010004`; the logged Ninja command retried successfully and the full release validation passed on the second run.
+- No runtime code, native code, dependency versions, or Metro behavior changed in the final committed branch, so Android emulator smoke is not required for this guard/script wiring branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn info react version --silent`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn info react-test-renderer version --silent`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add react@19.2.7`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add --dev react-test-renderer@19.2.7`
+- `rg -n "react-native-renderer|Incompatible React versions|19\.2\.3|19\.2\.7" node_modules/react-native/Libraries/Renderer/implementations`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add react@19.2.3`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add --dev react-test-renderer@19.2.3`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:react-renderer-version-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:renderer-version:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:package-coupling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-dev-env-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:env-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `cmd.exe /c node_modules\react-native-gesture-handler\android\build\intermediates\cxx\RelWithDebInfo\4a5y6q6o\logs\arm64-v8a\build_command_gesturehandler.bat`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+
 ### BEM-37.430 - Direct outdated dependency snapshot
 
 - Branch: `feature/bem-37-430-direct-outdated-snapshot`

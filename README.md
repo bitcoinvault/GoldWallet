@@ -61,7 +61,7 @@ For a fast Android maintenance check that does not build or launch the app, run:
 $ yarn android:dev:check-light
 ```
 
-This runs the lightweight Android warning, validation artifact, Android dev environment audit, Metro dev runtime audit, camera usage, QR scanner caller, QR scanner validation scripts, QR render usage, QR render validation scripts, legacy Android autolink disables, Sentry usage, Sentry release integration, CodePush usage, Firebase usage, iOS push notification bridge, release-service env keys, Android env mapping, iOS scheme config mapping, storage/network usage, storage/network validation scripts, wallet crypto validation scripts, native module inventory and upgrade-plan, git dependency snapshot guard, wallet crypto latest snapshot guard, direct outdated snapshot guard, node-fetch resolution guard, secure-storage removal readiness guard, node polyfill shim, TypeScript, and diff whitespace guards used before the offline suites in `prepush`.
+This runs the lightweight Android warning, validation artifact, Android dev environment audit, Metro dev runtime audit, React Native renderer exact-version guard, camera usage, QR scanner caller, QR scanner validation scripts, QR render usage, QR render validation scripts, legacy Android autolink disables, Sentry usage, Sentry release integration, CodePush usage, Firebase usage, iOS push notification bridge, release-service env keys, Android env mapping, iOS scheme config mapping, storage/network usage, storage/network validation scripts, wallet crypto validation scripts, native module inventory and upgrade-plan, git dependency snapshot guard, wallet crypto latest snapshot guard, direct outdated snapshot guard, node-fetch resolution guard, secure-storage removal readiness guard, node polyfill shim, TypeScript, and diff whitespace guards used before the offline suites in `prepush`.
 
 The React Native upgrade path guard is included through `check:rn-upgrade-path-audit-guard` and `rn:upgrade-path:audit`.
 
@@ -107,6 +107,12 @@ To verify that React, renderer, and type packages are treated as a coupled basel
 
 ```sh
 $ yarn react:package-coupling:audit
+```
+
+To verify that React matches the exact version required by the bundled React Native renderer:
+
+```sh
+$ yarn react:renderer-version:audit
 ```
 
 To verify that TypeScript and Jest stay coupled to the React/RN baseline:

@@ -31,6 +31,8 @@ const validEnvironment = {
     'check:react19-impact-guard': 'node scripts/checkReact19ImpactGuard.mjs',
     'react:package-coupling:audit': 'node scripts/auditReactPackageCoupling.mjs',
     'check:react-package-coupling-guard': 'node scripts/checkReactPackageCouplingGuard.mjs',
+    'react:renderer-version:audit': 'node scripts/auditReactNativeRendererVersion.mjs',
+    'check:react-renderer-version-guard': 'node scripts/checkReactNativeRendererVersionGuard.mjs',
     'test:type-coupling:audit': 'node scripts/auditTestTypeCoupling.mjs',
     'check:test-type-coupling-guard': 'node scripts/checkTestTypeCouplingGuard.mjs',
     'wallet:crypto-runtime:audit': 'node scripts/auditWalletCryptoRuntime.mjs',
