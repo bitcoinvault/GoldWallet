@@ -801,6 +801,28 @@ assertRejected(
   'package.json is missing check:android-smoke-summary-guard',
 );
 assertRejected(
+  'Release smoke missing dedicated wrapper fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:release:smoke:embedded', 'node scripts/androidSmokeDev.mjs'],
+    ]),
+  },
+  'package.json script android:dev:release:smoke:embedded must include androidSmokeDevReleaseEmbedded.mjs',
+);
+assertRejected(
+  'Release smoke summary missing dedicated checker fixture',
+  {
+    ...validEnvironment,
+    packageScriptCommands: new Map([
+      ...validEnvironment.packageScriptCommands,
+      ['android:dev:release:check-smoke-summary', 'node scripts/checkAndroidSmokeSummary.mjs'],
+    ]),
+  },
+  'package.json script android:dev:release:check-smoke-summary must include checkAndroidReleaseSmokeSummary.mjs',
+);
+assertRejected(
   'Missing Sentry release prerequisite summary package script fixture',
   {
     ...validEnvironment,

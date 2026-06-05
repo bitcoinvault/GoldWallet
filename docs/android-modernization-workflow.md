@@ -74,6 +74,8 @@ Use `corepack yarn check:detox-readiness` after Detox runner changes and as part
 
 `android:dev:release:verify-local` validates the Android release package paths without local Sentry upload credentials, checks the generated summary, and checks the generated APK manifests. Its build step sets `SENTRY_DISABLE_AUTO_UPLOAD=true`, cleans generated React bundle/assets/resource/sourcemap outputs for each requested release variant before rebuilding it, builds `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease`, and writes `local-docs/android-release-dev-summary.txt` with per-variant APK size, SHA-256 evidence, Gradle attempt counts, bounded retry metadata, and a line-ending-normalized fingerprint of the release inputs that affect Android package generation. The per-variant generated-output cleanup keeps RN Gradle plugin and CodePush hash generation deterministic across repeated local release validations. The release runner retries a Gradle task only for configured known transient native-build exit codes, currently the Windows CMake/Ninja `1073807364` case; successful summary validation still requires the final variant exit code, APK existence, byte count, SHA-256 digest, and manifest output to be valid. `android:dev:release:check-summary` verifies that each recorded APK path exists, byte count matches the file, SHA-256 matches the actual file digest, retry metadata is present and internally consistent, and the recorded release-input fingerprint still matches the current repo across LF/CRLF working-tree normalization. `android:dev:release:check-apk-manifest` reads the generated APKs with `aapt2` and verifies the package IDs, version, min/target/compile SDK levels, and Android 13 notification permission in the actual release artifacts. Override the default set with `ANDROID_RELEASE_VARIANTS=dev,stage,prod,beta` when a branch intentionally narrows or extends release validation. This proves release bundling, manifest output, and APK generation only; Sentry source-map upload remains blocked until `sentry.properties` or equivalent Sentry env values are available.
 
+Use `android:dev:release:smoke:embedded` after `android:dev:release:verify-local` when a branch must prove that the generated `devRelease` APK also starts on an emulator without Metro. The helper takes `android/app/build/outputs/apk/dev/release/app-dev-release-unsigned.apk`, creates a local zipaligned and debug-keystore signed smoke copy under `local-docs/`, installs that smoke copy, clears app data, completes the first-run flow, checks the empty-wallet dashboard text, and writes separate release-smoke artifacts under `local-docs/android-smoke-dev-release.*`. Validate the generated release smoke summary with `android:dev:release:check-smoke-summary`. This extends release evidence from bundle/manifest generation into runtime startup proof without changing the default release summary flow.
+
 Latest local release evidence refresh: on 2026-06-03, `feature/bem-37-358-android-release-summary-fingerprint` rebuilt `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK 17 and validated the generated summary artifact, including actual APK SHA-256 digest matching and the current release-input fingerprint. Keep future release proof branches on the same summary/checker flow so APK evidence stays local while the tracked log records the milestone.
 
 Subset release evidence refreshes can still use `ANDROID_RELEASE_VARIANTS=beta` or another explicit comma-separated subset, then validate the generated summary with the same override. Use the same env override for both validation commands whenever a branch intentionally checks a subset of release variants.
@@ -171,6 +173,17 @@ corepack yarn android:dev:smoke:embedded
 
 `android:dev:smoke:embedded` disables the Metro preflight, installs the current `app-dev-debug.apk`, launches `io.goldwallet.wallet.dev`, and checks the empty-wallet dashboard fixture: `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
 It also sets `ANDROID_SMOKE_CLEAR_APP_DATA=true` so the embedded smoke validates the bundled APK from a clean onboarding state instead of reusing a stale emulator PIN/wallet state.
+
+For a local release APK startup proof, first refresh release APK evidence and then run the release embedded smoke:
+
+```powershell
+$env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
+corepack yarn android:dev:release:verify-local
+corepack yarn android:dev:release:smoke:embedded
+corepack yarn android:dev:release:check-smoke-summary
+```
+
+The release smoke uses the same helper as debug smoke, but signs a local smoke-only copy of the unsigned release APK and sets `ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release` so it does not overwrite the regular debug smoke log, UI hierarchy, summary, or screenshot.
 
 For Android warning work:
 

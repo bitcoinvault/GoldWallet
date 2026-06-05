@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.439 - Android release APK embedded smoke
+
+- Branch: `feature/bem-37-439-android-release-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend Android release validation with a dedicated embedded emulator smoke path for the generated `devRelease` APK.
+- Reuse the existing Android smoke helper through environment configuration instead of duplicating the startup/onboarding/logcat/UI/screenshot logic.
+- Create a local zipaligned and debug-keystore signed smoke-only copy of the unsigned release APK so emulator installation can be validated without changing release signing configuration.
+- Add separate release-smoke local artifacts so release APK startup proof does not overwrite the standard debug smoke evidence.
+- Add package scripts for release embedded smoke and release smoke summary validation.
+- Guard the new release-smoke helper and package scripts in the Android dev environment audit.
+
+Findings:
+
+- Existing `android:dev:release:verify-local` proves release APK generation, release-input fingerprints, APK SHA-256 values, and manifest output for dev/stage/prod/beta variants.
+- The previous release validation flow did not separately install and launch the generated release APK on an emulator.
+- Directly installing `app-dev-release-unsigned.apk` fails on the emulator with `INSTALL_PARSE_FAILED_NO_CERTIFICATES`, so release runtime smoke needs a local signed smoke copy before ADB installation.
+- `scripts/androidSmokeDev.mjs` already supported custom APK paths through `ANDROID_SMOKE_APK`; adding an artifact basename keeps the helper reusable for debug and release smoke evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/androidSmokeDev.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/androidSmokeDevReleaseEmbedded.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkAndroidReleaseSmokeSummary.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/auditAndroidDevEnvironment.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkAndroidDevEnvironmentGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.404 - Wallet crypto WIF cache coverage
 
 - Branch: `feature/bem-37-404-wallet-wif-cache-coverage`

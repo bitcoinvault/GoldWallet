@@ -7,10 +7,13 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
-const outputPath = path.join(outputDir, 'android-smoke-dev.log');
-const summaryOutputPath = path.join(outputDir, 'android-smoke-dev-summary.txt');
-const uiOutputPath = path.join(outputDir, 'android-smoke-dev-ui.xml');
-const screenshotOutputPath = path.join(outputDir, 'android-smoke-dev.png');
+const requestedOutputBaseName = process.env.ANDROID_SMOKE_OUTPUT_BASENAME || 'android-smoke-dev';
+const isSafeOutputBaseName = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(requestedOutputBaseName);
+const outputBaseName = isSafeOutputBaseName ? requestedOutputBaseName : 'android-smoke-dev';
+const outputPath = path.join(outputDir, `${outputBaseName}.log`);
+const summaryOutputPath = path.join(outputDir, `${outputBaseName}-summary.txt`);
+const uiOutputPath = path.join(outputDir, `${outputBaseName}-ui.xml`);
+const screenshotOutputPath = path.join(outputDir, `${outputBaseName}.png`);
 const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
 const activityName = process.env.ANDROID_SMOKE_ACTIVITY || `${packageName}/io.goldwallet.wallet.MainActivity`;
 const androidSerial = process.env.ANDROID_SERIAL?.trim();
@@ -120,6 +123,7 @@ const writeSummary = exitCode => {
     `Android serial: ${selectedAndroidSerial || 'not selected'}`,
     `Android package: ${packageName}`,
     `Android activity: ${activityName}`,
+    `Artifact base: ${outputBaseName}`,
     `Metro required: ${metroRequired ? 'yes' : 'no'}`,
     `Metro endpoint: ${metroHost}:${metroPort}`,
     `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
@@ -497,6 +501,12 @@ try {
     throw new Error('adb not found. Set ANDROID_HOME, ANDROID_SDK_ROOT, or add adb to PATH.');
   }
 
+  if (!isSafeOutputBaseName) {
+    throw new Error(
+      `ANDROID_SMOKE_OUTPUT_BASENAME must be a safe file basename. Received: ${requestedOutputBaseName}`,
+    );
+  }
+
   if (!Number.isFinite(startupWaitMs) || startupWaitMs < 0) {
     throw new Error(
       `ANDROID_SMOKE_WAIT_MS must be a non-negative number of milliseconds. Received: ${process.env.ANDROID_SMOKE_WAIT_MS}`,
@@ -548,6 +558,7 @@ try {
   append(`Using adb: ${adbCommand}`);
   append(`Using APK: ${apkPath}`);
   append(`Using package: ${packageName}`);
+  append(`Using artifact base: ${outputBaseName}`);
   append(`Using startup wait: ${startupWaitMs}ms`);
   append(`Using UI readiness wait: ${uiWaitMs}ms`);
   append(`Using UI poll interval: ${uiPollIntervalMs}ms`);
@@ -602,7 +613,7 @@ try {
   selectedAndroidSerial = androidSerial || deviceSerials[0];
   append(`Using Android serial: ${selectedAndroidSerial}`);
 
-  run('install dev APK', ['install', '-r', apkPath]);
+  run('install APK', ['install', '-r', apkPath]);
   if (compilePackage) {
     run('compile installed package', ['shell', 'cmd', 'package', 'compile', '-m', 'speed', '-f', packageName], {
       timeout: compilePackageTimeoutMs,
