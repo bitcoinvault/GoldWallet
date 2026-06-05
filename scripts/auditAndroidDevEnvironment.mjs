@@ -94,6 +94,8 @@ export const requiredAndroidDevFiles = [
   ['scripts/androidSmokeSummaryGuard.mjs', 'Android smoke summary guard helper'],
   ['scripts/checkAndroidSmokeSummary.mjs', 'Android smoke summary artifact checker'],
   ['scripts/checkAndroidSmokeSummaryGuard.mjs', 'Android smoke summary guard self-check helper'],
+  ['scripts/androidSmokeDevReleaseEmbedded.mjs', 'Android release embedded smoke helper'],
+  ['scripts/checkAndroidReleaseSmokeSummary.mjs', 'Android release smoke summary artifact checker'],
   ['scripts/sentryReleasePrereqSummaryGuard.mjs', 'Sentry release prerequisite summary guard helper'],
   ['scripts/checkSentryReleasePrereqSummary.mjs', 'Sentry release prerequisite summary artifact checker'],
   ['scripts/checkSentryReleasePrereqSummaryGuard.mjs', 'Sentry release prerequisite summary guard self-check helper'],
@@ -185,6 +187,8 @@ export const requiredAndroidDevPackageScripts = [
   'check:android-warning-audit-summary-guard',
   'android:dev:check-smoke-summary',
   'check:android-smoke-summary-guard',
+  'android:dev:release:smoke:embedded',
+  'android:dev:release:check-smoke-summary',
   'sentry:release:prereq-check-summary',
   'check:sentry-release-prereq-summary-guard',
   'sentry:release:validation:handoff',
@@ -222,6 +226,16 @@ export const requiredAndroidDevPackageScriptSnippets = [
   ['android:dev:audit-smoke', 'android:dev:audit-warnings', 'audit-smoke must refresh the Android warning audit'],
   ['android:dev:audit-smoke', 'android:dev:smoke', 'audit-smoke must run emulator smoke'],
   ['android:dev:audit-smoke', 'android:dev:check-artifacts', 'audit-smoke must validate generated Android artifacts'],
+  [
+    'android:dev:release:smoke:embedded',
+    'androidSmokeDevReleaseEmbedded.mjs',
+    'release smoke must use the dedicated release APK smoke wrapper',
+  ],
+  [
+    'android:dev:release:check-smoke-summary',
+    'checkAndroidReleaseSmokeSummary.mjs',
+    'release smoke validation must check the dedicated release smoke summary artifact',
+  ],
 ];
 
 export const getAndroidDevEnvironmentIssues = ({
