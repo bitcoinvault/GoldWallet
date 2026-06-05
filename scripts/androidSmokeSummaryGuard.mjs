@@ -20,6 +20,25 @@ const isExistingFile = (filePath, requireNonEmpty = false) => {
   return !requireNonEmpty || statSync(filePath).size > 0;
 };
 
+const parseCsvLine = value => (value || '').split(',').map(item => item.trim()).filter(Boolean);
+
+const requireLineValue = (summary, label, expectedValue, errors) => {
+  const actualValue = getLineValue(summary, label);
+
+  if (actualValue !== expectedValue) {
+    errors.push(`${label} must be ${expectedValue}. Received: ${actualValue || 'missing'}`);
+  }
+};
+
+const requireCsvItems = (summary, label, expectedItems, errors) => {
+  const actualItems = parseCsvLine(getLineValue(summary, label));
+  const missingItems = expectedItems.filter(expectedItem => !actualItems.includes(expectedItem));
+
+  if (missingItems.length > 0) {
+    errors.push(`${label} is missing embedded smoke value(s): ${missingItems.join(', ')}`);
+  }
+};
+
 export const getAndroidSmokeSummaryErrors = summary => {
   const errors = [];
 
@@ -105,6 +124,37 @@ export const getAndroidSmokeSummaryErrors = summary => {
   if (!isExistingFile(getLineValue(summary, 'Screenshot path'), true)) {
     errors.push('Screenshot path must point to a non-empty file');
   }
+
+  return errors;
+};
+
+export const getAndroidEmbeddedSmokeSummaryErrors = (summary, options = {}) => {
+  const errors = getAndroidSmokeSummaryErrors(summary);
+  const { expectedArtifactBase } = options;
+
+  if (expectedArtifactBase) {
+    requireLineValue(summary, 'Artifact base', expectedArtifactBase, errors);
+  }
+
+  [
+    ['Metro required', 'no'],
+    ['Cleared app data', 'yes'],
+    ['Accepted first-run terms', 'yes'],
+    ['Completed first-run PIN', 'yes'],
+    ['Completed first-run transaction password', 'yes'],
+    ['Skipped first-run email', 'yes'],
+    ['Closed first-run success', 'yes'],
+    ['Validated empty-dashboard CTA flow', 'yes'],
+    ['Validated empty-tab navigation', 'yes'],
+  ].forEach(([label, expectedValue]) => requireLineValue(summary, label, expectedValue, errors));
+
+  requireCsvItems(summary, 'Expected UI texts', ['Wallets', 'No wallets', 'Create new wallet', 'Import wallet'], errors);
+  requireCsvItems(
+    summary,
+    'Expected resource IDs',
+    ['dashboard-header', 'no-wallets-icon', 'create-wallet-button', 'import-wallet-button', 'navigation-tab-0'],
+    errors,
+  );
 
   return errors;
 };

@@ -8,7 +8,7 @@ const checkerPath = path.join(root, 'scripts', 'checkReleaseServicesSummaryArtif
 const checkerSource = readFileSync(checkerPath, 'utf8');
 
 const requiredSnippets = [
-  "import { getAndroidSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';",
+  "import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';",
   "import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';",
   "import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';",
   "import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';",
@@ -20,6 +20,7 @@ const requiredSnippets = [
   "import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';",
   "label: 'Android release smoke'",
   "relativePath: 'local-docs/android-smoke-dev-release-summary.txt'",
+  "getAndroidEmbeddedSmokeSummaryErrors(summary, { expectedArtifactBase: 'android-smoke-dev-release' })",
   "label: 'Sentry release prerequisite'",
   "relativePath: 'local-docs/sentry-release-prereq-summary.txt'",
   "label: 'Sentry Android warning'",
