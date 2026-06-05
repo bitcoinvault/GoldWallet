@@ -17138,3 +17138,32 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing 36088-error ESLint baseline
 - `git diff --check`
+
+### BEM-37.424 - Firebase runtime delivery handoff guard
+
+- Branch: `feature/bem-37-424-firebase-runtime-delivery-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a Firebase-specific runtime-delivery prerequisite handoff for the point before real FCM, Crashlytics, and Analytics delivery testing.
+- Refresh Firebase release-services and push notification bridge summaries through one command sequence without printing or guessing secrets.
+- Wire the handoff guard into the React Native baseline preflight so local prerequisite evidence cannot silently drift.
+
+Findings:
+
+- Firebase RN `24.0.0` and the push-notification bridge already have current package/config/runtime wiring summaries, but real delivery remains a release-runtime/device concern.
+- The new dry run renders optional Android release APK evidence refresh with `SENTRY_DISABLE_AUTO_UPLOAD=true`, Firebase release-services audit/check, push-notification bridge audit/check, and aggregate release-services summary validation.
+- The executable handoff validates local prerequisites and keeps `Firebase runtime delivery validation` plus `Push notification runtime delivery validation` explicitly `not claimed`.
+- No emulator smoke is required for this branch because it only changes validation scripts, package scripts, and committed documentation; runtime/native code and dependency versions remain unchanged.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn firebase:runtime:delivery:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:env-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `git diff --check`

@@ -102,6 +102,15 @@ corepack yarn codepush:update:validation:handoff
 
 This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, refreshes CodePush release-path, migration-readiness, and removal-readiness summaries, then finishes with the aggregate release-services summary checker. The executable handoff remains blocked while the release-path summary says `Release path ready for update validation: no`, while `CodePush update validation` is still `not claimed`, or while the App Center retirement migration requirement is not visible. It does not print deployment-key values.
 
+After `BEM-37.424`, Firebase has a narrower runtime-delivery prerequisite handoff for the point before real FCM, Crashlytics, and Analytics delivery testing:
+
+```powershell
+corepack yarn firebase:runtime:delivery:handoff:dry-run
+corepack yarn firebase:runtime:delivery:handoff
+```
+
+This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, refreshes Firebase release-services and push-notification bridge summaries, then finishes with the aggregate release-services summary checker. The executable handoff confirms local Firebase package/config/runtime wiring, Android release evidence, APK manifest proof, and static push bridge readiness, but it keeps Firebase and push runtime delivery explicitly `not claimed` until a real release-runtime/device test confirms FCM token/notification delivery, Crashlytics upload, and Analytics behavior.
+
 ## Current Release Readiness Snapshot
 
 Checked on 2026-06-03 after the RN `0.85.3` foundation, Android release variant validation, and release-services package refresh:
@@ -193,6 +202,7 @@ Shared env/config:
 - Firebase changes can still affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
 - `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, Messaging runtime wiring, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, and unclaimed runtime-delivery status before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
+- `corepack yarn firebase:runtime:delivery:handoff` validates the local Firebase runtime-delivery prerequisites and static push bridge prerequisites without claiming real FCM, Crashlytics, Analytics, or push delivery behavior.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
 - `react-native-code-push` is on latest checked `9.0.1` after the RN `0.85.3` proof, with guarded release bundle alias compatibility for RN Gradle task naming. Because App Center CodePush is retired and the Microsoft upstream is archived, this is now a migration/removal risk rather than a normal dependency update target; keeping the package current does not make OTA updates a supported long-term release capability.
 - `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, explicit JS/native runtime gates, Android bundle resolution, iOS deployment-key placeholders, referenced env keys, local package/install version alignment, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, the dedicated release-build evidence readiness line, and unclaimed update-validation status without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
