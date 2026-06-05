@@ -60,6 +60,7 @@ export const collectCodePushReleasePathAudit = () => {
   const readinessIssues = [];
   const warnings = [];
   const envReadiness = [];
+  let runtimeDefaultEnabled = false;
   const packageDependencyVersion = packageJson.dependencies?.[codePushPackageName] || packageJson.devDependencies?.[codePushPackageName] || '';
   const packageJsonPath = path.join(root, 'node_modules', codePushPackageName, 'package.json');
   let installedPackageVersion = '';
@@ -171,6 +172,8 @@ export const collectCodePushReleasePathAudit = () => {
     } else if (!['false', 'true'].includes(codePushEnabledValue)) {
       readinessIssues.push(`${relativePath} has invalid CODEPUSH_ENABLED value`);
       issues.push('invalid CODEPUSH_ENABLED');
+    } else if (codePushEnabledValue === 'true') {
+      runtimeDefaultEnabled = true;
     }
 
     const status = issues.length === 0 ? 'ready' : isBeta ? 'unconfirmed' : 'blocked';
@@ -242,7 +245,7 @@ export const collectCodePushReleasePathAudit = () => {
       androidMainApplication.includes('BuildConfig.CODEPUSH_ENABLED') &&
       iosAppDelegate.includes('[self isCodePushEnabled]') &&
       iosAppDelegate.includes('[ReactNativeConfig envFor:@"CODEPUSH_ENABLED"]'),
-    runtimeDefaultEnabled: false,
+    runtimeDefaultEnabled,
     packageCurrent: packageDependencyVersion === packageLatestVersion && installedPackageVersion === packageLatestVersion,
     appCenterRetirementDate,
     codePushUpstreamRepository,

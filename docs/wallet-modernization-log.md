@@ -17221,6 +17221,37 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.429 - CodePush env-enabled audit hardening
+
+- Branch: `feature/bem-37-429-codepush-env-enabled-audit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the CodePush release-path audit derive `CodePush runtime enabled by default` from referenced `CODEPUSH_ENABLED` env values instead of reporting a hardcoded `no`.
+- Keep deployment-key values out of generated summaries while preserving env-file readiness counts and CodePush migration/removal blockers.
+- Document that the retired CodePush runtime remains gated off by default because the current env baseline still reports no enabled CodePush env files.
+
+Findings:
+
+- The focused CodePush release-path audit still reports `CodePush runtime enabled by default: no` on the current env baseline.
+- CodePush remains build-compatible release wiring only: package `9.0.1` is current, release build evidence is ready, update validation is not claimed, dev testnet deployment keys are blank, and beta deployment-key strategy is still unconfirmed.
+- No runtime code, native code, dependency versions, package scripts, or Metro behavior changed in this branch, so Android emulator smoke is not required for this release-audit hardening branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.427 - Android toolchain blocker wording refresh
 
 - Branch: `feature/bem-37-427-android-toolchain-blocker-refresh`
