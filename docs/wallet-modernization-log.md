@@ -17221,6 +17221,60 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.437 - React Native Firebase 24.1.0 latest refresh
+
+- Branch: `feature/bem-37-437-firebase-24-1-0`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the React Native Firebase package family from `24.0.0` to the live npm latest `24.1.0`.
+- Keep `@react-native-firebase/app`, `analytics`, `crashlytics`, and `messaging` aligned as one package family.
+- Update native-module inventory guards, Firebase release-services summary fixtures, iOS Podfile.lock drift fixtures, and current baseline docs for the new package family.
+- Refresh Android dev/stage/prod/beta release evidence after `package.json` and `yarn.lock` changed.
+
+Findings:
+
+- Live npm metadata on 2026-06-05 reports `@react-native-firebase/app@24.1.0` as latest, published at `2026-06-05T16:58:22.932Z`.
+- `@react-native-firebase/messaging@24.1.0` peers `@react-native-firebase/app@24.1.0`, and the analytics and Crashlytics package peers remain aligned on the same app package version.
+- Android Gradle configuration resolves the RN Firebase package family at `24.1.0` and reports the default Firebase BoM as `34.14.0`.
+- `android:dev:release:verify-local` refreshed dev, stage, prod, and beta release APK evidence; Firebase release-services summary now reports current release inputs covered, valid Android release summaries, and valid release APK manifests.
+- iOS static readiness remains valid locally, but `ios/Podfile.lock` still requires a macOS `pod install` refresh and iOS archive/simulator validation before iOS runtime delivery can be claimed.
+- Android embedded smoke passed on `emulator-5554`: APK installed, onboarding completed, expected dashboard UI texts were found, and no fatal/runtime logcat findings were reported.
+
+Validation:
+
+- `npm view @react-native-firebase/app version peerDependencies dependencies --json`
+- `npm view @react-native-firebase/messaging version peerDependencies --json`
+- `npm view @react-native-firebase/analytics@24.1.0 version peerDependencies --json`
+- `npm view @react-native-firebase/crashlytics@24.1.0 version peerDependencies --json`
+- `corepack yarn add @react-native-firebase/app@24.1.0 @react-native-firebase/messaging@24.1.0`
+- `corepack yarn add @react-native-firebase/analytics@24.1.0 @react-native-firebase/crashlytics@24.1.0`
+- `node --check scripts\checkFirebaseReleaseServicesSummaryGuard.mjs`
+- `node --check scripts\nativeModuleInventoryGuard.mjs`
+- `node --check scripts\checkIosReleaseReadinessSummaryGuard.mjs`
+- `node --check scripts\iosReleaseReadinessSummaryGuard.mjs`
+- `corepack yarn check:firebase-release-services-summary-guard`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn android:dev:release:check-apk-manifest`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `corepack yarn lint:baseline:audit`
+
 ### BEM-37.436 - Secure-storage read contract coverage
 
 - Branch: `feature/bem-37-436-secure-storage-read-contract`
