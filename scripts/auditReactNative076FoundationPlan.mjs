@@ -14,7 +14,7 @@ const requiredPlanSnippets = [
   'react-native@0.85.3',
   'react@19.2.3',
   'react-test-renderer@19.2.3',
-  '@types/react@19.2.16',
+  '@types/react@19.2.17',
   '@react-native/babel-preset@0.85.3',
   '@react-native/metro-config@0.85.3',
   '@react-native/gradle-plugin@0.85.3',

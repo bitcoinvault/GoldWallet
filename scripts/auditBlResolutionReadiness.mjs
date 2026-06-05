@@ -1,6 +1,7 @@
 import { execFileSync } from 'child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { createRequire } from 'module';
+import { tmpdir } from 'os';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -23,6 +24,93 @@ const npmViewJson = args =>
       windowsHide: true,
     }).trim(),
   );
+
+const probeLatestBlPackage = latestVersion => {
+  const tempDir = mkdtempSync(path.join(tmpdir(), 'goldwallet-bl-latest-'));
+  const result = {
+    packageJsonSubpathExport: 'unknown',
+    packageJsonSubpathError: '',
+    bareCjsRequire: 'unknown',
+    bareCjsRequireType: '',
+    bareCjsRequireKeys: '',
+    bareCjsRequireDefaultType: '',
+    bareCjsRequireError: '',
+    bareEsmImport: 'unknown',
+    bareEsmImportDefaultType: '',
+    bareEsmImportKeys: '',
+    bareEsmImportError: '',
+  };
+
+  try {
+    execFileSync(
+      npmCommand,
+      npmArgs(['install', '--prefix', tempDir, '--ignore-scripts', '--no-audit', '--no-fund', `bl@${latestVersion || 'latest'}`]),
+      {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+      },
+    );
+
+    const probeRequire = createRequire(path.join(tempDir, 'package.json'));
+
+    try {
+      probeRequire.resolve('bl/package.json');
+      result.packageJsonSubpathExport = 'yes';
+    } catch (error) {
+      result.packageJsonSubpathExport = 'no';
+      result.packageJsonSubpathError = error.code || error.message;
+    }
+
+    try {
+      const required = probeRequire('bl');
+      result.bareCjsRequire = 'ok';
+      result.bareCjsRequireType = typeof required;
+      result.bareCjsRequireKeys = Object.keys(required).join(',') || 'none';
+      result.bareCjsRequireDefaultType = typeof required.default;
+    } catch (error) {
+      result.bareCjsRequire = 'failed';
+      result.bareCjsRequireError = error.code || error.message;
+    }
+
+    const esmProbePath = path.join(tempDir, 'probe-bl-import.mjs');
+    writeFileSync(
+      esmProbePath,
+      [
+        "import * as blModule from 'bl';",
+        'console.log(JSON.stringify({',
+        "  status: 'ok',",
+        '  keys: Object.keys(blModule),',
+        '  defaultType: typeof blModule.default,',
+        '}));',
+        '',
+      ].join('\n'),
+    );
+
+    try {
+      const importOutput = execFileSync(process.execPath, [esmProbePath], {
+        cwd: tempDir,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+      }).trim();
+      const importResult = JSON.parse(importOutput);
+
+      result.bareEsmImport = importResult.status || 'unknown';
+      result.bareEsmImportDefaultType = importResult.defaultType || '';
+      result.bareEsmImportKeys = (importResult.keys || []).join(',') || 'none';
+    } catch (error) {
+      result.bareEsmImport = 'failed';
+      result.bareEsmImportError = error.code || error.message;
+    }
+  } finally {
+    if (tempDir.startsWith(tmpdir())) {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  }
+
+  return result;
+};
 
 const getInstalledPackageVersion = packageName => {
   try {
@@ -60,6 +148,7 @@ export const collectBlResolutionReadiness = () => {
   const latestExports = latestMetadata.exports || {};
   const latestExportsJson = JSON.stringify(latestExports);
   const latestHasCommonJsRequireExport = latestExportsJson.includes('"require"');
+  const latestProbe = probeLatestBlPackage(latestMetadata.version || 'latest');
   let requireType = '';
 
   try {
@@ -98,7 +187,18 @@ export const collectBlResolutionReadiness = () => {
     latestNodeEngine: latestMetadata.engines?.node || '',
     latestPackageType: latestMetadata.type || '',
     latestCommonJsRequireExport: latestHasCommonJsRequireExport ? 'yes' : 'no',
-    latestTargetBlocked: 'yes',
+    latestPackageJsonSubpathExport: latestProbe.packageJsonSubpathExport,
+    latestPackageJsonSubpathError: latestProbe.packageJsonSubpathError,
+    latestBareCjsRequire: latestProbe.bareCjsRequire,
+    latestBareCjsRequireType: latestProbe.bareCjsRequireType,
+    latestBareCjsRequireKeys: latestProbe.bareCjsRequireKeys,
+    latestBareCjsRequireDefaultType: latestProbe.bareCjsRequireDefaultType,
+    latestBareCjsRequireError: latestProbe.bareCjsRequireError,
+    latestBareEsmImport: latestProbe.bareEsmImport,
+    latestBareEsmImportDefaultType: latestProbe.bareEsmImportDefaultType,
+    latestBareEsmImportKeys: latestProbe.bareEsmImportKeys,
+    latestBareEsmImportError: latestProbe.bareEsmImportError,
+    latestTargetBlocked: latestHasCommonJsRequireExport || latestProbe.bareCjsRequire === 'ok' ? 'no' : 'yes',
     consumers,
     errors,
   };
@@ -115,12 +215,23 @@ export const formatBlResolutionReadinessSummary = (audit, generatedAt = new Date
     `Latest bl node engine: ${audit.latestNodeEngine || '<missing>'}`,
     `Latest bl package type: ${audit.latestPackageType || '<missing>'}`,
     `Latest bl CommonJS require export: ${audit.latestCommonJsRequireExport || '<missing>'}`,
+    `Latest bl package.json subpath export: ${audit.latestPackageJsonSubpathExport || '<missing>'}`,
+    `Latest bl package.json subpath error: ${audit.latestPackageJsonSubpathError || 'none'}`,
+    `Latest bl bare CJS require: ${audit.latestBareCjsRequire || '<missing>'}`,
+    `Latest bl bare CJS require type: ${audit.latestBareCjsRequireType || 'none'}`,
+    `Latest bl bare CJS require keys: ${audit.latestBareCjsRequireKeys || 'none'}`,
+    `Latest bl bare CJS require default type: ${audit.latestBareCjsRequireDefaultType || 'none'}`,
+    `Latest bl bare CJS require error: ${audit.latestBareCjsRequireError || 'none'}`,
+    `Latest bl bare ESM import: ${audit.latestBareEsmImport || '<missing>'}`,
+    `Latest bl bare ESM import default type: ${audit.latestBareEsmImportDefaultType || 'none'}`,
+    `Latest bl bare ESM import keys: ${audit.latestBareEsmImportKeys || 'none'}`,
+    `Latest bl bare ESM import error: ${audit.latestBareEsmImportError || 'none'}`,
     `Latest bl target blocked: ${audit.latestTargetBlocked}`,
     `CommonJS/transitive consumers: ${audit.consumers.length}`,
     ...audit.consumers.map(consumer => `- ${consumer.packageName}: ${consumer.status}`),
     `Compatibility errors: ${audit.errors.length}`,
     ...audit.errors.map(error => `- ${error}`),
-    'Required action: keep bl on the CommonJS-compatible 6.1.6 resolution until levelup/ora and other transitive consumers are proven compatible with the bl 7 ESM/import-only export map.',
+    'Required action: keep bl on the CommonJS-compatible 6.1.6 resolution until levelup/ora and other transitive consumers are proven compatible with the bl 7 ESM/import-only export map and missing bare CJS/package.json exports.',
     '',
   ].join('\n');
 
