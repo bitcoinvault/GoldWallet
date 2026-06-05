@@ -12,6 +12,7 @@ Scope: `BEM-37.282 - CodePush retirement audit`.
 - The upstream Microsoft README states that React Native CodePush does not support New Architecture.
 - This repo currently has Android `newArchEnabled=true`, so CodePush must be treated as legacy release infrastructure even when local builds still pass.
 - CodePush runtime startup and native bundle resolution are gated by optional `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key. Without the flag, non-dev builds keep the wiring available but do not start the retired OTA client or resolve JS bundles through CodePush by default.
+- The JS CodePush HOC is created lazily inside the runtime gate, so the retired OTA client wrapper is not mounted or initialized when `CODEPUSH_ENABLED` is absent/false or the platform deployment key is empty.
 
 Official references:
 
@@ -47,6 +48,7 @@ Expected summary claims:
 - CodePush migration required is recorded as `yes`;
 - npm latest version, latest published timestamp, npm repository, and upstream repository are recorded in the migration-readiness summary so the remove-or-replace decision carries package/upstream evidence directly;
 - CodePush runtime gate is recorded as present;
+- CodePush runtime HOC lazy gating is recorded as present;
 - CodePush native bundle gate is recorded as present;
 - CodePush runtime enabled by default is derived from the referenced `CODEPUSH_ENABLED` env values and is currently recorded as `no`;
 - Android release build evidence is recorded separately from CodePush update validation;
