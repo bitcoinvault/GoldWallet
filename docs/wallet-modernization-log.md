@@ -17601,6 +17601,39 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.456 - Release-services direct Android proof
+
+- Branch: `feature/bem-37-456-release-services-direct-android-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `release-services:check-summaries` validate the current Android release summary directly.
+- Make the same aggregate release-services gate validate generated Android release APK manifests directly with the existing `aapt2` manifest checker.
+- Keep derived Sentry, Firebase, CodePush, iOS, push-notification, and release-smoke summary checks unchanged.
+
+Findings:
+
+- The release-services aggregate gate already validated derived release-service summaries and embedded release smoke.
+- Direct Android release summary and APK manifest checks make the aggregate gate fail even if a derived summary artifact is stale while the underlying release APK evidence has drifted.
+- No runtime code, native code, dependency versions, or Metro behavior changed in this branch, so Android emulator smoke is not required for this checker-wiring branch.
+
+Validation:
+
+- `node --check scripts\checkReleaseServicesSummaryArtifacts.mjs`
+- `node --check scripts\checkReleaseServicesSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.455 - Release embedded smoke summary guard
 
 - Branch: `feature/bem-37-455-release-embedded-smoke-guard`
