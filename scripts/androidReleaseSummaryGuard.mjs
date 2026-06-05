@@ -35,6 +35,8 @@ const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 const isNonNegativeInteger = value => /^\d+$/.test(value);
 const isSha256 = value => /^[a-f0-9]{64}$/.test(value);
 const sha256File = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
+export const normalizeAndroidReleaseFingerprintContent = content =>
+  content.toString('utf8').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
 export const getAndroidReleaseInputFingerprint = (root = process.cwd(), inputs = androidReleaseFingerprintInputs) => {
   const hash = createHash('sha256');
@@ -46,7 +48,7 @@ export const getAndroidReleaseInputFingerprint = (root = process.cwd(), inputs =
     hash.update('\0');
 
     if (existsSync(absolutePath)) {
-      hash.update(readFileSync(absolutePath));
+      hash.update(normalizeAndroidReleaseFingerprintContent(readFileSync(absolutePath)));
     } else {
       hash.update('<missing>');
     }

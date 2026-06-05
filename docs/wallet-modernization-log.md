@@ -17113,3 +17113,28 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:env-audit`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing 36088-error ESLint baseline
 - `git diff --check`
+
+### BEM-37.423 - Android release fingerprint line-ending normalization
+
+- Branch: `feature/bem-37-423-android-release-fingerprint-normalization`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make Android release-input fingerprinting stable across LF and CRLF working-tree normalization.
+- Add guard coverage that proves the same release inputs produce the same fingerprint with LF and CRLF endings.
+- Document that release summary checks compare normalized text release inputs, not raw platform-specific checkout bytes.
+
+Findings:
+
+- Post-merge validation exposed that Android release evidence can become stale after Git touches text files even when release-relevant content did not semantically change.
+- All current Android release fingerprint inputs are text files, so line-ending normalization is appropriate for this release-evidence guard.
+- APK SHA-256 evidence remains byte-exact; only the input fingerprint for text release config files is normalized.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-release-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing 36088-error ESLint baseline
+- `git diff --check`

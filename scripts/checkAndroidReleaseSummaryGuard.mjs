@@ -1,4 +1,5 @@
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -6,6 +7,7 @@ import {
   androidReleaseFingerprintInputs,
   getAndroidReleaseInputFingerprint,
   getAndroidReleaseSummaryErrors,
+  normalizeAndroidReleaseFingerprintContent,
 } from './androidReleaseSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,12 +19,48 @@ const expectedApkRelativePaths = Object.fromEntries(
 );
 const releaseInputFingerprint = getAndroidReleaseInputFingerprint(root);
 
+const assert = (condition, message) => {
+  if (!condition) {
+    console.error(message);
+    process.exit(1);
+  }
+};
+
+assert(
+  normalizeAndroidReleaseFingerprintContent('one\r\ntwo\rthree\n') === 'one\ntwo\nthree\n',
+  'Android release fingerprint content normalization must convert CRLF and CR to LF',
+);
+
 variants.forEach(variant => {
   const fixtureApkPath = path.join(root, fixtureApkRelativePath(variant));
 
   mkdirSync(path.dirname(fixtureApkPath), { recursive: true });
   writeFileSync(fixtureApkPath, `fixture-${variant}`);
 });
+
+const lineEndingFixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-release-fingerprint-'));
+
+try {
+  androidReleaseFingerprintInputs.forEach(relativePath => {
+    const fixturePath = path.join(lineEndingFixtureRoot, relativePath);
+
+    mkdirSync(path.dirname(fixturePath), { recursive: true });
+    writeFileSync(fixturePath, 'release-input\nline-two\n');
+  });
+
+  const lfFingerprint = getAndroidReleaseInputFingerprint(lineEndingFixtureRoot);
+
+  androidReleaseFingerprintInputs.forEach(relativePath => {
+    writeFileSync(path.join(lineEndingFixtureRoot, relativePath), 'release-input\r\nline-two\r\n');
+  });
+
+  assert(
+    getAndroidReleaseInputFingerprint(lineEndingFixtureRoot) === lfFingerprint,
+    'Android release input fingerprint must be stable across LF and CRLF working-tree line endings',
+  );
+} finally {
+  rmSync(lineEndingFixtureRoot, { recursive: true, force: true });
+}
 
 const validSummary = [
   'Android release validation',
