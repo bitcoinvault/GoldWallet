@@ -93,6 +93,15 @@ corepack yarn sentry:release:validation:handoff
 
 This validates the properties generator, optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, generates `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` from the local Sentry env, then refreshes and validates the Sentry release prerequisite summary plus the aggregate release-services summary artifacts. The dry run prints only required env variable names, not token values. Use `--skip-android-release` only when the latest Android release summary already matches the current release inputs.
 
+After `BEM-37.422`, CodePush has a narrower update-validation handoff for the point when deployment keys and beta strategy are available:
+
+```powershell
+corepack yarn codepush:update:validation:handoff:dry-run
+corepack yarn codepush:update:validation:handoff
+```
+
+This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, refreshes CodePush release-path, migration-readiness, and removal-readiness summaries, then finishes with the aggregate release-services summary checker. The executable handoff remains blocked while the release-path summary says `Release path ready for update validation: no`, while `CodePush update validation` is still `not claimed`, or while the App Center retirement migration requirement is not visible. It does not print deployment-key values.
+
 ## Current Release Readiness Snapshot
 
 Checked on 2026-06-03 after the RN `0.85.3` foundation, Android release variant validation, and release-services package refresh:

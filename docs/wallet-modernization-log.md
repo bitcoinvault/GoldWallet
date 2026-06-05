@@ -17084,3 +17084,32 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn sentry:release:prereq-audit`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn sentry:release:prereq-check-summary`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+
+### BEM-37.422 - CodePush update validation handoff guard
+
+- Branch: `feature/bem-37-422-codepush-update-handoff-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a CodePush-specific update validation handoff for the point when deployment keys and beta strategy are available.
+- Keep deployment-key values out of rendered commands, logs, and committed docs.
+- Wire the handoff guard into the React Native baseline preflight so the CodePush command sequence cannot silently drift.
+
+Findings:
+
+- `react-native-code-push@9.0.1` is already on the latest npm package, but Microsoft App Center CodePush is retired and the upstream repository is archived.
+- The new dry run renders optional Android release APK evidence refresh with `SENTRY_DISABLE_AUTO_UPLOAD=true`, CodePush release-path audit/check, migration-readiness audit/check, removal-readiness audit/check, and aggregate release-services summary validation.
+- The executable handoff refreshes the CodePush summaries and then fails while `Release path ready for update validation` remains `no`.
+- Actual CodePush OTA update validation remains not claimed until blocked deployment keys, beta strategy, and remove-or-replace direction are available.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn codepush:update:validation:handoff` expected fail after refreshed Android release evidence: CodePush release path not ready for update validation
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff --skip-android-release` expected fail: CodePush release path not ready for update validation
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:env-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing 36088-error ESLint baseline
+- `git diff --check`
