@@ -17195,3 +17195,28 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
 - `git diff --check`
+
+### BEM-37.426 - React Native latest snapshot refresh
+
+- Branch: `feature/bem-37-426-rn-latest-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the live npm React Native target snapshot after the previous online compatibility refresh.
+- Refresh the committed snapshot date and nightly tag when the live metadata changes while the stable target remains unchanged.
+- Keep the wallet baseline on the stable `latest` channel instead of treating RC/nightly metadata as a direct upgrade target.
+
+Findings:
+
+- Live npm metadata still reports `react-native@0.85.3` as `latest`.
+- The `next` channel remains `0.86.0-rc.3`, so it is still treated as a prerelease planning signal, not the default wallet target.
+- The nightly tag advanced from `0.87.0-nightly-20260604-63683f091` to `0.87.0-nightly-20260605-87184c8fb`.
+- No runtime, native, dependency, or Metro behavior changed in this branch, so Android emulator smoke is not required for this documentation/guard snapshot refresh.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
