@@ -48,6 +48,30 @@ assertRejected(
   { scheme: 'GoldWallet Dev (Debug)', configuration: 'Debug', sdk: 'iphoneos' },
   'Unsupported iOS SDK',
 );
+assertRejected(
+  'All schemes with explicit scheme',
+  {
+    allSchemes: true,
+    scheme: 'GoldWallet Dev (Debug)',
+    schemeProvided: true,
+    configuration: null,
+    configurationProvided: false,
+    sdk: 'iphonesimulator',
+  },
+  '--all-schemes cannot be combined with --scheme',
+);
+assertRejected(
+  'All schemes with explicit configuration',
+  {
+    allSchemes: true,
+    scheme: null,
+    schemeProvided: false,
+    configuration: 'Debug',
+    configurationProvided: true,
+    sdk: 'iphonesimulator',
+  },
+  '--all-schemes cannot be combined with --configuration',
+);
 
 const commands = getIosMacValidationCommands({
   scheme: 'GoldWallet (Release)',
@@ -78,5 +102,34 @@ const rendered = commands.map(renderIosMacValidationCommand).join('\n');
 
 const releaseReadinessRuns = commands.filter(step => step.args.join(' ').includes('ios:release:readiness:audit')).length;
 assert(releaseReadinessRuns === 2, `Expected release readiness audit before and after xcodebuild, got ${releaseReadinessRuns}`);
+
+const allSchemeCommands = getIosMacValidationCommands({
+  allSchemes: true,
+  sdk: 'iphonesimulator',
+  preferBundleExecPod: true,
+});
+const allSchemeRendered = allSchemeCommands.map(renderIosMacValidationCommand).join('\n');
+const allSchemeBuilds = allSchemeCommands.filter(step => step.command === 'xcodebuild');
+
+assert(allSchemeBuilds.length === schemes.length, `Expected ${schemes.length} all-scheme xcodebuild commands, got ${allSchemeBuilds.length}`);
+schemes.forEach(scheme => {
+  const build = allSchemeBuilds.find(step => step.args.includes(scheme));
+  const configuration = iosMacValidationSchemes[scheme];
+
+  assert(build, `All-schemes handoff must include ${scheme}`);
+  assert(build.args.includes(configuration), `All-schemes handoff must use ${configuration} for ${scheme}`);
+});
+assert(
+  allSchemeCommands.filter(step => step.args.join(' ').includes('pod install')).length === 1,
+  'All-schemes handoff must run pod install once before all scheme builds',
+);
+assert(
+  allSchemeCommands[0].args.join(' ').includes('ios:mac-validation-prereq:audit'),
+  'All-schemes handoff must start with macOS prerequisite audit',
+);
+assert(
+  allSchemeCommands[allSchemeCommands.length - 1].args.join(' ').includes('ios:release:readiness:check-summary'),
+  'All-schemes handoff must end with iOS release readiness summary validation',
+);
 
 console.log('iOS macOS validation handoff guard checks are valid.');

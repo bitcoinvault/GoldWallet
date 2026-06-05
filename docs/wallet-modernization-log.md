@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.445 - iOS all-schemes validation handoff
+
+- Branch: `feature/bem-37-445-ios-all-schemes-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `--all-schemes` to the iOS macOS validation handoff so macOS validation can build all guarded shared schemes after one pod refresh.
+- Keep the default dry-run focused on a single selected scheme for quick handoff checks.
+- Reject ambiguous `--all-schemes` combinations with explicit `--scheme` or `--configuration` arguments.
+- Strengthen the handoff guard so the all-schemes matrix proves every scheme uses its expected Debug or Release configuration.
+- Update workflow and baseline documentation with the full shared-scheme handoff path.
+
+Findings:
+
+- The all-schemes dry run expands to 15 ordered steps: prerequisite audit/check, one `pod install`, release readiness audit/check, eight Xcode simulator builds, and post-build release readiness audit/check.
+- The guarded build matrix covers `GoldWallet Dev`, `GoldWallet Stage`, `GoldWallet Beta`, and production `GoldWallet` Debug/Release schemes.
+- Windows can validate the handoff command sequence and static iOS blocker summaries, but cannot execute `pod install` or `xcodebuild`.
+- Current iOS static readiness still reports macOS/Xcode/CocoaPods blockers and 12 active `ios/Podfile.lock` drift issues; iOS runtime delivery remains not claimed until this handoff runs on macOS with Xcode 16.1+.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\runIosMacValidationHandoff.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\checkIosMacValidationHandoffGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node scripts\runIosMacValidationHandoff.mjs --dry-run --all-schemes`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node scripts\runIosMacValidationHandoff.mjs --dry-run --all-schemes --scheme "GoldWallet Dev (Debug)"` exited `1` with the expected conflict.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node scripts\runIosMacValidationHandoff.mjs --dry-run --all-schemes --configuration Debug` exited `1` with the expected conflict.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+
 ### BEM-37.444 - Git dependency provenance guard hardening
 
 - Branch: `feature/bem-37-444-git-dependency-provenance-guard`

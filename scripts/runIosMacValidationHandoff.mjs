@@ -23,13 +23,17 @@ const defaultOptions = {
   configuration: null,
   sdk: 'iphonesimulator',
   preferBundleExecPod: null,
+  allSchemes: false,
+  schemeProvided: false,
+  configurationProvided: false,
 };
 
 const usage = [
-  'Usage: node scripts/runIosMacValidationHandoff.mjs [--dry-run] [--scheme "<shared scheme>"] [--configuration Debug|Release] [--sdk iphonesimulator]',
+  'Usage: node scripts/runIosMacValidationHandoff.mjs [--dry-run] [--all-schemes | --scheme "<shared scheme>"] [--configuration Debug|Release] [--sdk iphonesimulator]',
   '',
   'Examples:',
   '  node scripts/runIosMacValidationHandoff.mjs --dry-run',
+  '  node scripts/runIosMacValidationHandoff.mjs --dry-run --all-schemes',
   '  node scripts/runIosMacValidationHandoff.mjs --scheme "GoldWallet (Release)" --configuration Release',
 ].join('\n');
 
@@ -64,6 +68,14 @@ export const getIosMacValidationHandoffErrors = options => {
   const sdk = options.sdk || defaultOptions.sdk;
   const errors = [];
 
+  if (options.allSchemes && options.schemeProvided) {
+    errors.push('--all-schemes cannot be combined with --scheme');
+  }
+
+  if (options.allSchemes && options.configurationProvided) {
+    errors.push('--all-schemes cannot be combined with --configuration');
+  }
+
   if (!expectedConfiguration) {
     errors.push(`Unknown iOS shared scheme: ${scheme}`);
   }
@@ -83,15 +95,24 @@ export const getIosMacValidationHandoffErrors = options => {
   return errors;
 };
 
-export const getIosMacValidationCommands = options => {
+const getIosBuildTargets = options => {
+  if (options.allSchemes) {
+    return Object.entries(iosMacValidationSchemes).map(([scheme, configuration]) => ({ scheme, configuration }));
+  }
+
   const scheme = options.scheme || defaultOptions.scheme;
   const configuration = options.configuration || iosMacValidationSchemes[scheme];
+  return [{ scheme, configuration }];
+};
+
+export const getIosMacValidationCommands = options => {
   const sdk = options.sdk || defaultOptions.sdk;
   const preferBundleExecPod =
     options.preferBundleExecPod ?? existsSync(path.join(root, 'ios', 'Gemfile'));
   const podInstall = preferBundleExecPod
     ? { command: 'bundle', args: ['exec', 'pod', 'install'], cwd: path.join(root, 'ios') }
     : { command: 'pod', args: ['install'], cwd: path.join(root, 'ios') };
+  const buildTargets = getIosBuildTargets(options);
 
   return [
     { label: 'Audit macOS/Xcode/CocoaPods prerequisites', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:audit'], cwd: root },
@@ -99,8 +120,8 @@ export const getIosMacValidationCommands = options => {
     { label: 'Refresh iOS pods', ...podInstall },
     { label: 'Audit iOS release readiness after pod refresh', command: 'corepack', args: ['yarn', 'ios:release:readiness:audit'], cwd: root },
     { label: 'Validate iOS release readiness summary', command: 'corepack', args: ['yarn', 'ios:release:readiness:check-summary'], cwd: root },
-    {
-      label: 'Build selected iOS scheme on simulator',
+    ...buildTargets.map(({ scheme, configuration }) => ({
+      label: `Build ${scheme} on simulator`,
       command: 'xcodebuild',
       args: [
         '-workspace',
@@ -122,7 +143,7 @@ export const getIosMacValidationCommands = options => {
         RN_SRC_EXT: 'e2e.tsx',
         CHAMBER_OF_SECRETS: 'true',
       },
-    },
+    })),
     { label: 'Re-audit iOS release readiness after simulator build', command: 'corepack', args: ['yarn', 'ios:release:readiness:audit'], cwd: root },
     { label: 'Re-validate iOS release readiness summary', command: 'corepack', args: ['yarn', 'ios:release:readiness:check-summary'], cwd: root },
   ];
@@ -136,13 +157,17 @@ const parseArgs = argv => {
 
     if (arg === '--dry-run') {
       options.dryRun = true;
+    } else if (arg === '--all-schemes') {
+      options.allSchemes = true;
     } else if (arg === '--') {
       continue;
     } else if (arg === '--scheme') {
       options.scheme = argv[index + 1];
+      options.schemeProvided = true;
       index += 1;
     } else if (arg === '--configuration') {
       options.configuration = argv[index + 1];
+      options.configurationProvided = true;
       index += 1;
     } else if (arg === '--sdk') {
       options.sdk = argv[index + 1];
@@ -156,6 +181,10 @@ const parseArgs = argv => {
     } else {
       options.unknown = arg;
     }
+  }
+
+  if (options.allSchemes && !options.schemeProvided && options.scheme === defaultOptions.scheme) {
+    options.scheme = null;
   }
 
   if (!options.configuration && options.scheme) {
@@ -213,8 +242,8 @@ const main = () => {
 
   if (options.dryRun) {
     console.log('iOS macOS validation handoff dry run');
-    console.log(`Scheme: ${options.scheme}`);
-    console.log(`Configuration: ${options.configuration}`);
+    console.log(`Scheme: ${options.allSchemes ? 'all shared schemes' : options.scheme}`);
+    console.log(`Configuration: ${options.allSchemes ? 'per shared scheme' : options.configuration}`);
     console.log(`SDK: ${options.sdk}`);
     commands.forEach((step, index) => {
       console.log(`${index + 1}. ${step.label}`);
