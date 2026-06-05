@@ -17221,6 +17221,41 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.433 - iOS Podfile.lock drift helper
+
+- Branch: `feature/bem-37-433-ios-podfile-drift-helper`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extract the duplicated `ios/Podfile.lock` drift comparison from the iOS release readiness and macOS prerequisite audits into a shared helper.
+- Keep removed-pod reference checks and active package-vs-pod drift checks in one repo-owned module so both iOS summaries report the same blocker count.
+- Preserve the current static iOS readiness posture: Windows can audit files and blockers, but iOS archive/runtime validation remains unclaimed until macOS/Xcode/CocoaPods refresh and validation are run.
+
+Findings:
+
+- The refactored `ios:release:readiness:audit` still reports `Podfile.lock drift issues: 12`, `Removed Podfile.lock pod references: 0`, and `iOS runtime delivery validation: not claimed`.
+- The refactored `ios:mac-validation-prereq:audit` still reports `Podfile.lock drift issues: 12`, `Ready for macOS pod/archive validation: no`, missing `xcodebuild`, missing CocoaPods, and the required `pod install` macOS action.
+- No runtime code, dependency versions, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required for this audit-helper refactor.
+
+Validation:
+
+- `node --check scripts\iosPodfileLockDrift.mjs`
+- `node --check scripts\auditIosReleaseReadiness.mjs`
+- `node --check scripts\auditIosMacValidationPrereqs.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-release-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.432 - Android release retry evidence hardening
 
 - Branch: `feature/bem-37-432-android-release-retry-hardening`

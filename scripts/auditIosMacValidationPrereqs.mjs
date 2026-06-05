@@ -2,13 +2,13 @@ import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { collectIosPodfileLockDrift } from './iosPodfileLockDrift.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'ios-mac-validation-prereqs-summary.txt');
 
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
-const normalizePackageVersion = version => (version || '').replace(/^[~^]/, '');
 
 const runVersionCommand = (command, args) => {
   try {
@@ -24,53 +24,15 @@ const runVersionCommand = (command, args) => {
   }
 };
 
-const getLockedPodVersion = (podfileLock, podName) => {
-  const escapedPodName = podName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = podfileLock.match(new RegExp(`^  - ${escapedPodName} \\(([^)]+)\\)`, 'm'));
-
-  return match ? match[1] : null;
-};
-
-const collectPodfileLockDriftIssues = packageJson => {
-  const podfileLock = read('ios/Podfile.lock');
-  const issues = [];
-  const reactNativeVersion = normalizePackageVersion(packageJson.dependencies['react-native']);
-  const reactCoreLockVersion = getLockedPodVersion(podfileLock, 'React-Core');
-
-  if (reactCoreLockVersion && reactCoreLockVersion !== reactNativeVersion) {
-    issues.push(`ios/Podfile.lock has React-Core ${reactCoreLockVersion}; package.json has react-native ${reactNativeVersion}`);
-  }
-
-  [
-    ['RNBootSplash', 'react-native-bootsplash'],
-    ['react-native-config', 'react-native-config'],
-    ['RNCAsyncStorage', '@react-native-async-storage/async-storage'],
-    ['RNDeviceInfo', 'react-native-device-info'],
-    ['RNFastImage', 'react-native-fast-image'],
-    ['RNFBApp', '@react-native-firebase/app'],
-    ['RNGestureHandler', 'react-native-gesture-handler'],
-    ['RNLocalize', 'react-native-localize'],
-    ['RNScreens', 'react-native-screens'],
-    ['RNSentry', '@sentry/react-native'],
-    ['RNVectorIcons', 'react-native-vector-icons'],
-  ].forEach(([podName, packageName]) => {
-    const lockedVersion = getLockedPodVersion(podfileLock, podName);
-    const packageVersion = normalizePackageVersion(packageJson.dependencies[packageName]);
-
-    if (lockedVersion && packageVersion && lockedVersion !== packageVersion) {
-      issues.push(`ios/Podfile.lock has ${podName} ${lockedVersion}; package.json has ${packageName} ${packageVersion}`);
-    }
-  });
-
-  return issues;
-};
-
 export const collectIosMacValidationPrereqs = () => {
   const packageJson = JSON.parse(read('package.json'));
   const rnHelpers = read('node_modules/react-native/scripts/cocoapods/helpers.rb');
   const rnMinXcodeMatch = rnHelpers.match(/min_xcode_version_supported\s*\n\s*return '([^']+)'/);
   const rnMinXcodeVersion = rnMinXcodeMatch ? rnMinXcodeMatch[1] : '<unknown>';
-  const podfileLockDriftIssues = collectPodfileLockDriftIssues(packageJson);
+  const { podfileLockDriftIssues } = collectIosPodfileLockDrift({
+    packageJson,
+    podfileLock: read('ios/Podfile.lock'),
+  });
   const xcodebuildVersion = runVersionCommand('xcodebuild', ['-version']);
   const podVersion = runVersionCommand('pod', ['--version']);
   const bundlePodVersion = existsSync(path.join(root, 'ios', 'Gemfile'))
