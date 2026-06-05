@@ -17045,7 +17045,7 @@ Findings:
 - The current RN baseline remains `react-native@0.85.3`, React `19.2.3`, Node `24.16.0`, Android compile/target SDK `36`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, and JDK `17`.
 - Tooling snapshot reports all 24 tracked tooling entries current, including TypeScript `6.0.3`, Jest `30.4.2`, ESLint `10.4.1`, lint-staged `17.0.7`, and Detox `20.51.3`.
 - Wallet-critical git dependencies remain pinned to their remote heads with no mismatches: `bitcoinjs-lib`, `electrum-client`, `react-native-prompt-android`, and `rn-nodeify`.
-- Latest Android toolchain target is still blocked: AGP `9.2.1` requires Gradle `9.4.1+`, but Gradle `9.4.1`/`9.5.1` load Kotlin `2.3.x` runtime metadata that the current React Native Gradle plugin `0.85.3` Kotlin compiler path cannot read.
+- Latest Android toolchain target is still blocked: AGP `9.2.1` requires Gradle `9.4.1+`, but Gradle `9.4.1`/`9.5.1` load newer embedded Kotlin runtime metadata that the current React Native Gradle plugin `0.85.3` Kotlin compiler path cannot read.
 - `bl@7.0.3` and `node-fetch@3.3.2` remain intentionally blocked by CommonJS/transitive consumer compatibility; the validated resolutions stay `bl@6.1.6` and `node-fetch@2.7.0`.
 - The first online preflight exposed an overly strict secure-storage audit string comparison after the focused storage/network gate gained Terms WebView and Electrum reconnect checks. The audit now checks required command presence instead of rejecting extra focused tests.
 
@@ -17217,6 +17217,34 @@ Findings:
 Validation:
 
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
+### BEM-37.427 - Android toolchain blocker wording refresh
+
+- Branch: `feature/bem-37-427-android-toolchain-blocker-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Android toolchain target blocker wording after the online latest snapshot reported Kotlin Gradle Plugin `2.4.0`.
+- Keep the AGP 9 path blocked for the same validated reason while avoiding stale version-specific Kotlin wording.
+- Align the generated summary fixture, workflow docs, dependency strategy, and modernization log language.
+
+Findings:
+
+- Live Android toolchain metadata still reports stable AGP `9.2.1`, Gradle current `9.5.1`, and Kotlin Gradle Plugin `2.4.0`.
+- The validated wallet baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`.
+- The blocker remains the React Native Gradle plugin `0.85.3` Kotlin compiler path failing against the newer embedded Kotlin runtime metadata loaded by Gradle `9.4.1`/`9.5.1`.
+- No runtime, native, dependency, or Metro behavior changed in this branch, so Android emulator smoke is not required for this documentation/guard wording refresh.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-toolchain-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:toolchain-target:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`

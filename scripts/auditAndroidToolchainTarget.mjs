@@ -54,7 +54,7 @@ export const collectAndroidToolchainTargetAudit = async () => {
     blocked: true,
     blockers: [
       'AGP 9.2.1 requires Gradle 9.4.1 or newer.',
-      'Gradle 9.4.1 and 9.5.1 load Kotlin 2.3.x runtime metadata that the React Native Gradle plugin 0.85.3 Kotlin compiler path cannot read during :gradle-plugin:settings-plugin:compileKotlin.',
+      'Gradle 9.4.1 and 9.5.1 load newer embedded Kotlin runtime metadata that the React Native Gradle plugin 0.85.3 Kotlin compiler path cannot read during :gradle-plugin:settings-plugin:compileKotlin.',
       'The validated Android baseline remains AGP 8.13.2, Gradle 8.13, Kotlin 2.1.20, compile/target SDK 36, and JDK 17 until a newer React Native Gradle plugin baseline clears the blocker.',
     ],
   };

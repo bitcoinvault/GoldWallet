@@ -50,7 +50,7 @@ Use `corepack yarn rn:baseline:preflight` before changing React Native package v
 
 Use `corepack yarn rn:baseline:preflight:online` at the start of an actual RN baseline branch when network access is available. It refreshes and validates the live npm RN target snapshot, the git dependency snapshot, the tooling latest snapshot, the Android toolchain latest-target summary, the BL resolution readiness summary, and the node-fetch resolution summary first, then runs the normal offline RN baseline preflight.
 
-`android:toolchain-target:audit` records the currently validated Android toolchain and the live latest stable AGP, current Gradle, and latest Kotlin targets. The current RN `0.85.3` baseline intentionally stays on AGP `8.13.2`, Gradle `8.13`, and Kotlin `2.1.20` because the checked AGP `9.2.1` path requires Gradle `9.4.1+`, while Gradle `9.4.1` and `9.5.1` fail compiling the included React Native Gradle plugin with Kotlin metadata incompatibility.
+`android:toolchain-target:audit` records the currently validated Android toolchain and the live latest stable AGP, current Gradle, and latest Kotlin targets. The current RN `0.85.3` baseline intentionally stays on AGP `8.13.2`, Gradle `8.13`, and Kotlin `2.1.20` because the checked AGP `9.2.1` path requires Gradle `9.4.1+`, while Gradle `9.4.1` and `9.5.1` fail compiling the included React Native Gradle plugin against newer embedded Kotlin runtime metadata.
 
 Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 24 Metro/dev runtime remains aligned with React Native `0.85.3` and the tooling baseline. Do not change `.nvmrc` as a standalone cleanup; keep it tied to a dedicated Node/tooling or React Native baseline branch.
 
