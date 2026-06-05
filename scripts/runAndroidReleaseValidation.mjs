@@ -18,9 +18,24 @@ const requestedVariants = (process.env.ANDROID_RELEASE_VARIANTS || defaultVarian
   .filter(Boolean);
 const allowedVariants = new Set(['dev', 'stage', 'prod', 'beta']);
 const invalidVariants = requestedVariants.filter(variant => !allowedVariants.has(variant));
+const transientGradleRetryExitCodes = (process.env.ANDROID_RELEASE_GRADLE_RETRY_EXIT_CODES || '1073807364')
+  .split(',')
+  .map(code => code.trim())
+  .filter(Boolean);
+const maxGradleAttempts = Number(process.env.ANDROID_RELEASE_GRADLE_MAX_ATTEMPTS || '2');
 
 if (invalidVariants.length > 0) {
   console.error(`Unsupported Android release variant(s): ${invalidVariants.join(', ')}`);
+  process.exit(1);
+}
+
+if (!Number.isInteger(maxGradleAttempts) || maxGradleAttempts < 1) {
+  console.error(`ANDROID_RELEASE_GRADLE_MAX_ATTEMPTS must be a positive integer. Received: ${process.env.ANDROID_RELEASE_GRADLE_MAX_ATTEMPTS}`);
+  process.exit(1);
+}
+
+if (transientGradleRetryExitCodes.some(code => !/^\d+$/.test(code))) {
+  console.error(`ANDROID_RELEASE_GRADLE_RETRY_EXIT_CODES must be comma-separated integer exit codes. Received: ${process.env.ANDROID_RELEASE_GRADLE_RETRY_EXIT_CODES}`);
   process.exit(1);
 }
 
@@ -40,6 +55,49 @@ const env = {
   SENTRY_DISABLE_AUTO_UPLOAD: 'true',
 };
 
+const shouldRetryGradleResult = (result, attempt) => {
+  const status = String(result.status ?? 1);
+
+  return attempt < maxGradleAttempts && !result.error && transientGradleRetryExitCodes.includes(status);
+};
+
+const runGradleTaskWithBoundedRetry = task => {
+  const attempts = [];
+  let retryReason = 'none';
+  let result;
+
+  for (let attempt = 1; attempt <= maxGradleAttempts; attempt += 1) {
+    result = spawnSync(process.execPath, [path.join(root, 'scripts', 'runAndroidGradle.mjs'), task, '--stacktrace'], {
+      cwd: root,
+      env,
+      stdio: 'inherit',
+    });
+
+    attempts.push({
+      status: result.status ?? 1,
+      error: result.error?.message || '',
+    });
+
+    if ((result.status ?? 1) === 0 && !result.error) {
+      break;
+    }
+
+    if (shouldRetryGradleResult(result, attempt)) {
+      retryReason = `attempt ${attempt} exited with known transient Windows native-build code ${result.status}; retrying next attempt`;
+      console.warn(`Android release Gradle task ${task} ${retryReason}.`);
+      continue;
+    }
+
+    break;
+  }
+
+  return {
+    result,
+    attempts,
+    retryReason,
+  };
+};
+
 const startedAt = new Date().toISOString();
 const variantResults = requestedVariants.map(variant => {
   const cleanedGeneratedReactPaths = getGeneratedReactPaths(variant);
@@ -48,11 +106,7 @@ const variantResults = requestedVariants.map(variant => {
   });
 
   const task = `:app:assemble${capitalize(variant)}Release`;
-  const result = spawnSync(process.execPath, [path.join(root, 'scripts', 'runAndroidGradle.mjs'), task, '--stacktrace'], {
-    cwd: root,
-    env,
-    stdio: 'inherit',
-  });
+  const { result, attempts, retryReason } = runGradleTaskWithBoundedRetry(task);
   const apkPath = getApkPath(variant);
   const apkExists = existsSync(apkPath);
   const apkSize = apkExists ? statSync(apkPath).size : 0;
@@ -63,6 +117,8 @@ const variantResults = requestedVariants.map(variant => {
     task,
     status: result.status ?? 1,
     error: result.error?.message || '',
+    attempts,
+    retryReason,
     apkPath,
     apkExists,
     apkSize,
@@ -87,9 +143,14 @@ const summary = [
   `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
   'Sentry auto upload disabled for local build: yes',
   'Sentry release upload validation: not claimed',
+  `Gradle retry max attempts: ${maxGradleAttempts}`,
+  `Gradle retry exit codes: ${transientGradleRetryExitCodes.join(', ') || 'none'}`,
   ...variantResults.flatMap(result => [
     `Variant ${result.variant} Gradle task: ${result.task}`,
     `Variant ${result.variant} exit code: ${result.status}`,
+    `Variant ${result.variant} Gradle attempts: ${result.attempts.length}`,
+    `Variant ${result.variant} Gradle attempt exit codes: ${result.attempts.map(attempt => attempt.status).join(', ')}`,
+    `Variant ${result.variant} Gradle retry reason: ${result.retryReason}`,
     `Variant ${result.variant} Release APK: ${path.relative(root, result.apkPath)}`,
     `Variant ${result.variant} Release APK exists: ${result.apkExists ? 'yes' : 'no'}`,
     `Variant ${result.variant} Release APK bytes: ${result.apkSize}`,
