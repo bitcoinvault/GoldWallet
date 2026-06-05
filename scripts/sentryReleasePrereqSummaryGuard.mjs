@@ -35,6 +35,11 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const sentryCliPackageVersion = getLineValue(summary, '@sentry/cli package version');
   const sentryCliLatest = getLineValue(summary, '@sentry/cli latest');
   const sentryCliCurrent = getLineValue(summary, '@sentry/cli current');
+  const sentryCliInstalledInstances = getLineValue(summary, '@sentry/cli installed package instances');
+  const sentryCliInstalledVersions = getLineValue(summary, '@sentry/cli installed package versions');
+  const sentryCliNestedVersions = getLineValue(summary, '@sentry/cli nested package versions');
+  const sentryCliDirectPackageInstalled = getLineValue(summary, '@sentry/cli direct package installed');
+  const sentryCliReleaseBuildPathUsesDirectPackage = getLineValue(summary, 'Sentry CLI release build path uses direct package');
   const sentryCliBinPresent = getLineValue(summary, 'Sentry CLI binary present');
   const sentryCliVersionOutput = getLineValue(summary, 'Sentry CLI version output');
   const sentryCliExecutable = getLineValue(summary, 'Sentry CLI executable');
@@ -76,6 +81,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const createNodePackageScriptPresent = getLineValue(summary, 'sentry:release:create-properties script present');
   const envHasToken = getLineValue(summary, 'SENTRY_AUTH_TOKEN available in current shell');
   const requiredAction = getLineValue(summary, 'Required action');
+  const sentryCliInstallationLines = getBulletLinesAfter(summary, '@sentry/cli installed package instances');
   const releaseIntegrationErrorLines = getBulletLinesAfter(summary, 'Sentry release integration errors');
   const missingFileLines = getBulletLinesAfter(summary, 'Missing files');
   const invalidFileLines = getBulletLinesAfter(summary, 'Invalid files');
@@ -125,6 +131,56 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push(`@sentry/cli current must be yes or no. Received: ${sentryCliCurrent || 'missing'}`);
   } else if (sentryCliCurrent === 'yes' && sentryCliPackageVersion !== sentryCliLatest) {
     errors.push('@sentry/cli current cannot be yes when installed version differs from latest');
+  }
+
+  if (!/^\d+$/.test(sentryCliInstalledInstances)) {
+    errors.push(`@sentry/cli installed package instances must be a non-negative integer. Received: ${sentryCliInstalledInstances || 'missing'}`);
+  } else if (Number(sentryCliInstalledInstances) !== sentryCliInstallationLines.length) {
+    errors.push(`@sentry/cli installed package instances count is ${sentryCliInstalledInstances}, but listed ${sentryCliInstallationLines.length}`);
+  }
+
+  if (!sentryCliInstalledVersions || sentryCliInstalledVersions === 'none') {
+    errors.push('@sentry/cli installed package versions must list at least the direct package version');
+  } else if (!sentryCliInstalledVersions.split(',').map(value => value.trim()).includes(sentryCliPackageVersion)) {
+    errors.push('@sentry/cli installed package versions must include the direct package version');
+  }
+
+  if (!sentryCliNestedVersions) {
+    errors.push('@sentry/cli nested package versions must be present, use none when no nested copy exists');
+  }
+
+  const sentryCliInstallationEntries = sentryCliInstallationLines.map(line => {
+    const match = line.match(/^(node_modules\/.+\/@sentry\/cli\/package\.json|node_modules\/@sentry\/cli\/package\.json): (\d+\.\d+\.\d+) \((direct|nested)\)$/);
+
+    if (!match) {
+      errors.push(`Invalid @sentry/cli package instance line: ${line}`);
+      return null;
+    }
+
+    return {
+      relativePath: match[1],
+      version: match[2],
+      kind: match[3],
+    };
+  }).filter(Boolean);
+  const directSentryCliInstall = sentryCliInstallationEntries.find(
+    entry => entry.relativePath === 'node_modules/@sentry/cli/package.json' && entry.kind === 'direct',
+  );
+
+  if (sentryCliDirectPackageInstalled !== 'yes') {
+    errors.push('@sentry/cli direct package installed must be yes for release source-map validation');
+  }
+
+  if (sentryCliReleaseBuildPathUsesDirectPackage !== 'yes') {
+    errors.push('Sentry CLI release build path must use the direct package');
+  }
+
+  if (sentryCliDirectPackageInstalled === 'yes' && !directSentryCliInstall) {
+    errors.push('@sentry/cli direct package installed is yes, but direct package instance is missing');
+  }
+
+  if (directSentryCliInstall && directSentryCliInstall.version !== sentryCliPackageVersion) {
+    errors.push('@sentry/cli direct package instance version must match the package version line');
   }
 
   if (!sentryCliVersionOutput) {
@@ -244,6 +300,8 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseApkManifestValid,
     sentryReactNativeCurrent,
     sentryCliCurrent,
+    sentryCliDirectPackageInstalled,
+    sentryCliReleaseBuildPathUsesDirectPackage,
     sentryCliBinPresent,
     sentryCliExecutable,
     createScriptPresent,
@@ -315,6 +373,8 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   if (
     readiness === 'ready' &&
     (releaseIntegrationWired !== 'yes' ||
+      sentryCliDirectPackageInstalled !== 'yes' ||
+      sentryCliReleaseBuildPathUsesDirectPackage !== 'yes' ||
       sentryCliBinPresent !== 'yes' ||
       sentryCliExecutable !== 'yes' ||
       filesPresent !== 'yes' ||
@@ -327,7 +387,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       androidReleaseSummaryCurrentInputsCovered !== 'yes' ||
       androidReleaseApkManifestValid !== 'yes')
   ) {
-    errors.push('Ready summary must have wired Sentry release integration, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, and current Android release evidence with valid APK manifests');
+    errors.push('Ready summary must have wired Sentry release integration, direct Sentry CLI release build path, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, and current Android release evidence with valid APK manifests');
   }
 
   if (

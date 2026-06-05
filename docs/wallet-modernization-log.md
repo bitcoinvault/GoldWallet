@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.446 - Sentry CLI release provenance hardening
+
+- Branch: `feature/bem-37-446-sentry-cli-provenance`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Strengthen the Sentry release prerequisite audit so it records every installed `@sentry/cli` package instance in the Sentry dependency graph.
+- Keep the package baseline unchanged after confirming live npm latest still matches `@sentry/react-native@8.13.0` and direct `@sentry/cli@3.5.0`.
+- Record direct and nested Sentry CLI versions separately so future source-map validation does not rely only on a shallow package-current line.
+- Guard that Android/iOS release build paths use the direct root `node_modules/@sentry/cli` package for release source-map and dSYM phases.
+- Update release-services documentation with the Sentry CLI provenance boundary.
+
+Findings:
+
+- Live npm metadata on 2026-06-05 reports `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0` as latest, so no Sentry package bump is available in this branch.
+- The current dependency graph contains three `@sentry/cli` package instances: direct `3.5.0` plus nested `3.4.3` copies under Sentry SDK tooling.
+- The release prerequisite audit now records the nested CLI copies but requires the release build path to use the direct root CLI package.
+- The current Sentry release upload path remains not claimed because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are still absent locally.
+- No runtime code, native project file, package version, or Metro behavior changed in this branch, so Android emulator smoke is not required for this audit/guard hardening milestone.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn info @sentry/react-native version --silent`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn info @sentry/cli version --silent`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why @sentry/react-native`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why @sentry/cli`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\auditSentryReleasePrerequisites.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\sentryReleasePrereqSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\checkSentryReleasePrereqSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.445 - iOS all-schemes validation handoff
 
 - Branch: `feature/bem-37-445-ios-all-schemes-handoff`
