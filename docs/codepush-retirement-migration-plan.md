@@ -33,6 +33,8 @@ corepack yarn check:codepush-migration-readiness-summary-guard
 corepack yarn codepush:removal-readiness:audit
 corepack yarn codepush:removal-readiness:check-summary
 corepack yarn check:codepush-removal-readiness-summary-guard
+corepack yarn codepush:update:validation:handoff:dry-run
+corepack yarn check:codepush-update-validation-handoff-guard
 ```
 
 Expected summary claims:
@@ -58,6 +60,7 @@ Expected summary claims:
 - the removal-readiness summary records the exact runtime, Android, iOS, plist, and env-key surfaces that must be deleted or replaced;
 - the removal-readiness summary also records the CodePush package latest version, latest published timestamp, npm repository, upstream repository, archived state, New Architecture support, Android New Architecture enabled state, migration-required state, and Android release evidence readiness before any removal is planned;
 - the removal-readiness summary keeps `Safe to remove now: no` until the team chooses remove or replace;
+- the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence;
 - no deployment key values are printed.
 
 ## Decision Needed
