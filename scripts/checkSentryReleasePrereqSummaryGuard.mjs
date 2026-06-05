@@ -1,6 +1,17 @@
 import { requiredSentryPropertiesFiles } from './auditSentryReleasePrerequisites.mjs';
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
 
+const sentryCliPackageInstanceFixture = [
+  '@sentry/cli installed package instances: 3',
+  '- node_modules/@sentry/cli/package.json: 3.5.0 (direct)',
+  '- node_modules/@sentry/expo-upload-sourcemaps/node_modules/@sentry/cli/package.json: 3.4.3 (nested)',
+  '- node_modules/@sentry/react-native/node_modules/@sentry/cli/package.json: 3.4.3 (nested)',
+  '@sentry/cli installed package versions: 3.5.0, 3.4.3',
+  '@sentry/cli nested package versions: 3.4.3',
+  '@sentry/cli direct package installed: yes',
+  'Sentry CLI release build path uses direct package: yes',
+];
+
 const notReadySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
@@ -11,6 +22,7 @@ const notReadySummary = [
   '@sentry/cli package version: 3.5.0',
   '@sentry/cli latest: 3.5.0',
   '@sentry/cli current: yes',
+  ...sentryCliPackageInstanceFixture,
   'Sentry CLI binary present: yes',
   'Sentry CLI version output: sentry-cli 3.5.0',
   'Sentry CLI executable: yes',
@@ -67,6 +79,7 @@ const readySummary = [
   '@sentry/cli package version: 3.5.0',
   '@sentry/cli latest: 3.5.0',
   '@sentry/cli current: yes',
+  ...sentryCliPackageInstanceFixture,
   'Sentry CLI binary present: yes',
   'Sentry CLI version output: sentry-cli 3.5.0',
   'Sentry CLI executable: yes',
@@ -165,6 +178,26 @@ assertRejected(
   'Stale Sentry CLI current fixture',
   notReadySummary.replace('@sentry/cli latest: 3.5.0', '@sentry/cli latest: 4.0.0'),
   '@sentry/cli current cannot be yes',
+);
+assertRejected(
+  'Bad Sentry CLI installation count fixture',
+  notReadySummary.replace('@sentry/cli installed package instances: 3', '@sentry/cli installed package instances: 2'),
+  '@sentry/cli installed package instances count',
+);
+assertRejected(
+  'Missing Sentry CLI direct install fixture',
+  notReadySummary.replace('@sentry/cli direct package installed: yes', '@sentry/cli direct package installed: no'),
+  '@sentry/cli direct package installed must be yes',
+);
+assertRejected(
+  'Sentry CLI versions missing direct package fixture',
+  notReadySummary.replace('@sentry/cli installed package versions: 3.5.0, 3.4.3', '@sentry/cli installed package versions: 3.4.3'),
+  '@sentry/cli installed package versions must include',
+);
+assertRejected(
+  'Sentry release path using nested CLI fixture',
+  readySummary.replace('Sentry CLI release build path uses direct package: yes', 'Sentry CLI release build path uses direct package: no'),
+  'direct Sentry CLI release build path',
 );
 assertRejected(
   'Mismatched Sentry CLI output fixture',

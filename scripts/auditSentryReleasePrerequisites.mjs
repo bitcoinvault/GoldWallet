@@ -1,5 +1,5 @@
 import { execFileSync } from 'child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
@@ -23,11 +23,13 @@ const createScriptPath = path.join(root, 'create-sentry-properties.sh');
 const createNodeScriptPath = path.join(root, 'scripts', 'createSentryProperties.mjs');
 const sentryCliPackagePath = path.join(root, 'node_modules', '@sentry', 'cli', 'package.json');
 const sentryCliBinPath = path.join(root, 'node_modules', '@sentry', 'cli', 'bin', 'sentry-cli');
+const sentryReactNativeGradlePath = path.join(root, 'node_modules', '@sentry', 'react-native', 'sentry.gradle');
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const readJson = relativePath => JSON.parse(read(relativePath));
+const relative = absolutePath => path.relative(root, absolutePath).replace(/\\/g, '/');
 const getSummaryLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
 
@@ -48,10 +50,64 @@ const npmViewVersion = packageName =>
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
   }).trim();
+const collectSentryCliInstallations = () => {
+  const sentryPackagesRoot = path.join(root, 'node_modules', '@sentry');
+  const installations = [];
+
+  const visit = directory => {
+    if (!existsSync(directory)) {
+      return;
+    }
+
+    readdirSync(directory, { withFileTypes: true }).forEach(entry => {
+      if (!entry.isDirectory() || entry.name === '.bin') {
+        return;
+      }
+
+      const absolutePath = path.join(directory, entry.name);
+      const packageJsonPath = path.join(absolutePath, 'package.json');
+
+      if (existsSync(packageJsonPath)) {
+        try {
+          const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+
+          if (packageJson.name === '@sentry/cli') {
+            installations.push({
+              relativePath: relative(packageJsonPath),
+              version: packageJson.version || 'missing',
+              direct: relative(packageJsonPath) === 'node_modules/@sentry/cli/package.json',
+            });
+          }
+        } catch (error) {
+          installations.push({
+            relativePath: relative(packageJsonPath),
+            version: `failed: ${error.message}`,
+            direct: relative(packageJsonPath) === 'node_modules/@sentry/cli/package.json',
+          });
+        }
+      }
+
+      visit(absolutePath);
+    });
+  };
+
+  visit(sentryPackagesRoot);
+
+  return installations.sort((left, right) => {
+    if (left.direct !== right.direct) {
+      return left.direct ? -1 : 1;
+    }
+
+    return left.relativePath.localeCompare(right.relativePath);
+  });
+};
 
 export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) => {
   const packageJson = readJson('package.json');
   const scripts = packageJson.scripts || {};
+  const androidBuildGradle = read('android/app/build.gradle');
+  const iosProject = read('ios/GoldWallet.xcodeproj/project.pbxproj');
+  const sentryReactNativeGradle = existsSync(sentryReactNativeGradlePath) ? readFileSync(sentryReactNativeGradlePath, 'utf8') : '';
   const expectedSentryPropertiesValues = {
     ...defaultSentryPropertiesValues,
     'defaults.org': env.SENTRY_ORG || defaultSentryPropertiesValues['defaults.org'],
@@ -64,6 +120,12 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const sentryCliLatest = npmViewVersion('@sentry/cli');
   const sentryReactNativeCurrent = sentryReactNativeVersion === sentryReactNativeLatest;
   const sentryCliCurrent = sentryCliPackageVersion === sentryCliLatest;
+  const sentryCliInstallations = collectSentryCliInstallations();
+  const sentryCliInstalledVersions = [...new Set(sentryCliInstallations.map(item => item.version))];
+  const sentryCliNestedVersions = [
+    ...new Set(sentryCliInstallations.filter(item => !item.direct).map(item => item.version)),
+  ];
+  const sentryCliDirectInstallPresent = sentryCliInstallations.some(item => item.direct);
   const sentryCliBinPresent = existsSync(sentryCliBinPath);
   let sentryCliVersionOutput = 'missing';
   let sentryCliExecutable = false;
@@ -82,10 +144,17 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     }
   }
 
-  const releaseIntegrationErrors = getSentryReleaseIntegrationErrors({
-    androidBuildGradle: read('android/app/build.gradle'),
-    iosProject: read('ios/GoldWallet.xcodeproj/project.pbxproj'),
-  });
+  const sentryAndroidGradleCliResolverDirect =
+    androidBuildGradle.includes('apply from: "../../node_modules/@sentry/react-native/sentry.gradle"') &&
+    sentryReactNativeGradle.includes("require.resolve('@sentry/cli/package.json')") &&
+    sentryReactNativeGradle.includes('$reactRoot/node_modules/@sentry/cli');
+  const sentryIosReleaseBuildPathDirect =
+    iosProject.includes('../node_modules/@sentry/cli/bin/sentry-cli react-native xcode') &&
+    iosProject.includes('../node_modules/@sentry/cli/bin/sentry-cli upload-dsym') &&
+    !iosProject.includes('@sentry/react-native/node_modules/@sentry/cli');
+  const sentryCliReleaseBuildPathUsesDirectPackage =
+    sentryAndroidGradleCliResolverDirect && sentryIosReleaseBuildPathDirect;
+  const releaseIntegrationErrors = getSentryReleaseIntegrationErrors({ androidBuildGradle, iosProject });
   const propertiesFileReadiness = [];
 
   requiredSentryPropertiesFiles.forEach(relativePath => {
@@ -185,6 +254,8 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     missingFiles.length === 0 &&
     invalidFiles.length === 0 &&
     releaseIntegrationErrors.length === 0 &&
+    sentryCliDirectInstallPresent &&
+    sentryCliReleaseBuildPathUsesDirectPackage &&
     sentryCliExecutable &&
     androidReleaseEvidenceReady;
 
@@ -195,6 +266,11 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     sentryCliPackageVersion,
     sentryCliLatest,
     sentryCliCurrent,
+    sentryCliInstallations,
+    sentryCliInstalledVersions,
+    sentryCliNestedVersions,
+    sentryCliDirectInstallPresent,
+    sentryCliReleaseBuildPathUsesDirectPackage,
     sentryCliBinPresent,
     sentryCliVersionOutput,
     sentryCliExecutable,
@@ -246,6 +322,18 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
     `@sentry/cli package version: ${audit.sentryCliPackageVersion}`,
     `@sentry/cli latest: ${audit.sentryCliLatest}`,
     `@sentry/cli current: ${audit.sentryCliCurrent ? 'yes' : 'no'}`,
+    `@sentry/cli installed package instances: ${audit.sentryCliInstallations.length}`,
+  ];
+
+  audit.sentryCliInstallations.forEach(item => {
+    lines.push(`- ${item.relativePath}: ${item.version} (${item.direct ? 'direct' : 'nested'})`);
+  });
+
+  lines.push(
+    `@sentry/cli installed package versions: ${audit.sentryCliInstalledVersions.join(', ') || 'none'}`,
+    `@sentry/cli nested package versions: ${audit.sentryCliNestedVersions.join(', ') || 'none'}`,
+    `@sentry/cli direct package installed: ${audit.sentryCliDirectInstallPresent ? 'yes' : 'no'}`,
+    `Sentry CLI release build path uses direct package: ${audit.sentryCliReleaseBuildPathUsesDirectPackage ? 'yes' : 'no'}`,
     `Sentry CLI binary present: ${audit.sentryCliBinPresent ? 'yes' : 'no'}`,
     `Sentry CLI version output: ${audit.sentryCliVersionOutput}`,
     `Sentry CLI executable: ${audit.sentryCliExecutable ? 'yes' : 'no'}`,
@@ -253,7 +341,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
     `Sentry release integration errors: ${audit.releaseIntegrationErrors.length}`,
     `sentry.properties files present: ${audit.missingFiles.length === 0 ? 'yes' : 'no'}`,
     `Missing files: ${audit.missingFiles.length}`,
-  ];
+  );
 
   audit.releaseIntegrationErrors.forEach(error => lines.push(`- ${error}`));
   audit.missingFiles.forEach(relativePath => lines.push(`- ${relativePath}`));
@@ -331,6 +419,14 @@ const printReport = audit => {
   console.log(`@sentry/cli package version: ${audit.sentryCliPackageVersion}`);
   console.log(`@sentry/cli latest: ${audit.sentryCliLatest}`);
   console.log(`@sentry/cli current: ${audit.sentryCliCurrent ? 'yes' : 'no'}`);
+  console.log(`@sentry/cli installed package instances: ${audit.sentryCliInstallations.length}`);
+  audit.sentryCliInstallations.forEach(item => {
+    console.log(`- ${item.relativePath}: ${item.version} (${item.direct ? 'direct' : 'nested'})`);
+  });
+  console.log(`@sentry/cli installed package versions: ${audit.sentryCliInstalledVersions.join(', ') || 'none'}`);
+  console.log(`@sentry/cli nested package versions: ${audit.sentryCliNestedVersions.join(', ') || 'none'}`);
+  console.log(`@sentry/cli direct package installed: ${audit.sentryCliDirectInstallPresent ? 'yes' : 'no'}`);
+  console.log(`Sentry CLI release build path uses direct package: ${audit.sentryCliReleaseBuildPathUsesDirectPackage ? 'yes' : 'no'}`);
   console.log(`Sentry CLI binary present: ${audit.sentryCliBinPresent ? 'yes' : 'no'}`);
   console.log(`Sentry CLI version output: ${audit.sentryCliVersionOutput}`);
   console.log(`Sentry CLI executable: ${audit.sentryCliExecutable ? 'yes' : 'no'}`);
