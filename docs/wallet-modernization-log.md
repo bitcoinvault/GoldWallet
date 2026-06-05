@@ -17221,6 +17221,44 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.438 - BigNumber 11.1.3 runtime refresh
+
+- Branch: `feature/bem-37-438-bignumber-11-1-3`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update direct money-math dependency `bignumber.js` from `11.1.2` to live npm latest `11.1.3`.
+- Keep this as a dedicated runtime dependency branch because BigNumber is used in wallet-sensitive balance, satoshi/BTC conversion, fee-rate, and amount-plus-fee calculations.
+- Refresh direct outdated snapshot evidence so `bignumber.js` is no longer a review-required outdated entry.
+- Refresh Android dev/stage/prod/beta release evidence after `package.json` and `yarn.lock` changed.
+
+Findings:
+
+- Live npm metadata on 2026-06-05 reports `bignumber.js@11.1.3` as the latest published version.
+- BigNumber usage remains scoped to existing money-math paths including `BlueElectrum.js`, wallet classes, `utils/bitcoin.ts`, network fee models, and send/recovery screens.
+- Runtime probes before and after the update returned the same values for one-satoshi display, BTC-to-satoshi conversion, fee-rate division, and amount-plus-fee addition.
+- Direct outdated snapshot now reports `Review-required entries: 0`; remaining entries are the known blocked React/renderer, `bl`, `node-fetch`, and exotic wallet/polyfill pins.
+- Android embedded smoke passed on `emulator-5554`: APK installed, onboarding completed, expected dashboard UI texts were found, and no fatal/runtime logcat findings were reported.
+
+Validation:
+
+- `npm view bignumber.js@11.1.3 version dependencies peerDependencies engines repository.url --json`
+- `npm view bignumber.js versions --json`
+- `rg -n "bignumber|BigNumber|bignumber\.js" . -g "!node_modules" -g "!android/build" -g "!android/app/build" -g "!local-docs"`
+- BigNumber runtime probe on `11.1.2` for one-satoshi display, BTC-to-satoshi conversion, fee-rate division, and amount-plus-fee addition.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add bignumber.js@11.1.3`
+- BigNumber runtime probe on `11.1.3` for the same money-math samples.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+
 ### BEM-37.437 - React Native Firebase 24.1.0 latest refresh
 
 - Branch: `feature/bem-37-437-firebase-24-1-0`
