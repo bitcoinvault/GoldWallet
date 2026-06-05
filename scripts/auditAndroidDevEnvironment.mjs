@@ -106,6 +106,8 @@ export const requiredAndroidDevFiles = [
   ['scripts/pushNotificationBridgeSummaryGuard.mjs', 'push notification bridge summary guard helper'],
   ['scripts/checkPushNotificationBridgeSummary.mjs', 'push notification bridge summary artifact checker'],
   ['scripts/checkPushNotificationBridgeSummaryGuard.mjs', 'push notification bridge summary guard self-check helper'],
+  ['scripts/runIosMacValidationHandoff.mjs', 'iOS macOS validation handoff helper'],
+  ['scripts/checkIosMacValidationHandoffGuard.mjs', 'iOS macOS validation handoff guard self-check helper'],
   ['scripts/checkReleaseServicesSummaryArtifacts.mjs', 'release-services summary artifact checker'],
   ['scripts/checkReleaseServicesSummaryGuard.mjs', 'release-services summary guard self-check helper'],
 ];
@@ -185,6 +187,9 @@ export const requiredAndroidDevPackageScripts = [
   'check:firebase-runtime-delivery-handoff-guard',
   'push-notification:bridge-check-summary',
   'check:push-notification-bridge-summary-guard',
+  'ios:mac-validation:handoff',
+  'ios:mac-validation:handoff:dry-run',
+  'check:ios-mac-validation-handoff-guard',
   'release-services:check-summaries',
   'check:release-services-summary-guard',
   'rn:baseline:preflight',
