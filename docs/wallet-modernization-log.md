@@ -17601,6 +17601,39 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.458 - Tooling audits in RN preflight
+
+- Branch: `feature/bem-37-458-tooling-audits-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the existing Husky, Prettier, and Jest tooling audits to `rn:baseline:preflight`.
+- Keep these checks next to `lint-staged:tooling:audit` so larger RN/dependency branches verify hook wiring, formatter integration, and Jest runtime/resolution readiness from the same gate.
+- Refresh RN upgrade-path guard expectations and workflow/baseline docs for the expanded tooling coverage.
+
+Findings:
+
+- `husky:tooling:audit`, `prettier:tooling:audit`, and `jest:tooling:audit` already passed independently but were not part of the main RN baseline preflight command.
+- Changing `package.json` script wiring changes Android release-input fingerprints, so local Android release evidence had to be refreshed before the full preflight could be claimed.
+- No package versions, runtime code, native code, or Metro behavior changed in this branch, so Android emulator smoke is not required for this preflight wiring branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn husky:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn prettier:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn jest:tooling:audit`
+- `node --check scripts\auditReactNativeUpgradePath.mjs`
+- `node --check scripts\checkReactNativeUpgradePathGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.457 - Runtime dependency audits in RN preflight
 
 - Branch: `feature/bem-37-457-runtime-audits-preflight`
