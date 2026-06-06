@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.460 - Latest target evidence refresh
+
+- Branch: `feature/bem-37-460-latest-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the live React Native target snapshot against current npm metadata.
+- Keep the wallet on the validated RN `0.85.3` stable baseline because npm `latest` still reports `0.85.3`.
+- Update the transitive Browserslist data resolution `caniuse-lite` from `1.0.30001793` to `1.0.30001797` after the online direct-outdated gate identified it as the only new review-required direct outdated entry.
+
+Findings:
+
+- Live npm metadata on 2026-06-06 still reports `react-native@0.85.3` as stable `latest`.
+- `react-native@next` is still `0.86.0-rc.3` and remains a prerelease planning signal, not the default wallet target.
+- `react-native@nightly` advanced to `0.87.0-nightly-20260606-510cc0c5e`; the snapshot was refreshed so the online preflight matches current metadata.
+- The direct outdated snapshot is back to 8 known entries after the `caniuse-lite` resolution refresh: 4 blocked entries and 4 exotic/fork entries, with `Review-required entries: 0`.
+- Running `yarn install --ignore-scripts` refreshed the lockfile but temporarily removed postinstall node_modules patches; `corepack yarn postinstall` restored patch-package, rn-nodeify shims, and Jetifier before Android release validation.
+- `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` all build locally after the resolution refresh, and release summary/APK manifest validation passes on the refreshed package fingerprint.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --ignore-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn postinstall`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+
 ### BEM-37.459 - Android release bundle/source-map proof
 
 - Branch: `feature/bem-37-459-release-sourcemap-proof`
