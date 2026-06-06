@@ -28,6 +28,10 @@ Existing installs may still have PIN, transaction password, and encrypted wallet
 
 `secure-storage:migration:audit` and `secure-storage:removal-readiness:audit` must keep reporting `Legacy secure-storage removal ready: no` / `Legacy package removal ready: no` until a separate release-validation branch proves migrated PIN, transaction-password, and encrypted wallet data without the legacy backend.
 
+`secure-storage:release-validation:handoff` is the guarded validation sequence for the release-candidate step before any later legacy-package removal branch. It refreshes the migration/removal summaries, runs the focused secure-storage/storage/authenticator/wallet-core checks, and runs Android dev build plus emulator smoke unless `--skip-android-smoke` is explicitly used for summary/test-only refreshes.
+
+The release-validation handoff still does not claim `react-native-secure-key-store` removal readiness; it proves the current staged migration posture and keeps the package installed until migrated values are validated without fallback reads.
+
 Branch: `feature/bem-37-secure-storage-keychain-migration`
 
 ## Required Validation
@@ -37,6 +41,9 @@ Branch: `feature/bem-37-secure-storage-keychain-migration`
 - `corepack yarn secure-storage:removal-readiness:audit`
 - `corepack yarn secure-storage:removal-readiness:check-summary`
 - `corepack yarn check:secure-storage-removal-readiness-summary-guard`
+- `corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `corepack yarn secure-storage:release-validation:handoff:dry-run`
+- `corepack yarn secure-storage:release-validation:handoff`
 - `corepack yarn test:storage-network:focused`, including `test:secure-storage:unit` before storage, authenticator, and wallet-core offline checks.
 - Focused fallback regression coverage for failed Keychain migration writes in `SecureStorageService` and `AppStorage`.
 - `corepack yarn android:dev:check-light`

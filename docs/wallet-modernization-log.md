@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.461 - Secure-storage validation handoff
+
+- Branch: `feature/bem-37-461-secure-storage-validation-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guarded secure-storage release-validation handoff before any future branch removes the final `react-native-secure-key-store` Android warning source.
+- Keep the current runtime storage behavior unchanged: Keychain remains the primary write target, legacy secure-key-store fallback reads remain active, and legacy package removal remains unclaimed.
+- Wire the new handoff guard into `android:dev:check-light` and `rn:baseline:preflight` so future RN/native baseline work keeps the secure-storage removal blocker visible.
+- Document the handoff in the secure-storage migration plan, Android warning follow-up plan, storage/network compatibility audit, and native module upgrade plan.
+
+Findings:
+
+- The focused handoff with `--skip-android-smoke` refreshed secure-storage migration/removal summaries and passed the secure-storage unit, storage integration, authenticator, and offline wallet-core checks.
+- The generated removal-readiness summary still reports `Legacy package removal ready: no`, which is intentional while fallback reads protect existing installs with migrated PIN, transaction-password, and encrypted wallet data.
+- No runtime storage code, dependency versions, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required for this tooling/docs milestone. The executable handoff keeps full `android:dev:verify` for the later release-candidate validation step.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\runSecureStorageReleaseValidationHandoff.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\checkSecureStorageReleaseValidationHandoffGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node scripts\runSecureStorageReleaseValidationHandoff.mjs --skip-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-dev-env-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.460 - Latest target evidence refresh
 
 - Branch: `feature/bem-37-460-latest-evidence-refresh`
