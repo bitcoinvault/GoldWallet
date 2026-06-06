@@ -43,12 +43,46 @@ const capitalize = value => `${value[0].toUpperCase()}${value.slice(1)}`;
 const getApkPath = variant =>
   path.join(root, 'android', 'app', 'build', 'outputs', 'apk', variant, 'release', `app-${variant}-release-unsigned.apk`);
 const getReleaseVariantName = variant => `${variant}Release`;
+const getReleaseBundlePath = variant =>
+  path.join(
+    root,
+    'android',
+    'app',
+    'build',
+    'intermediates',
+    'assets',
+    getReleaseVariantName(variant),
+    `merge${capitalize(variant)}ReleaseAssets`,
+    'index.android.bundle',
+  );
+const getReleaseSourcemapPath = variant =>
+  path.join(
+    root,
+    'android',
+    'app',
+    'build',
+    'generated',
+    'sourcemaps',
+    'react',
+    getReleaseVariantName(variant),
+    'index.android.bundle.map',
+  );
 const getGeneratedReactPaths = variant => [
   path.join(root, 'android', 'app', 'build', 'generated', 'assets', 'react', getReleaseVariantName(variant)),
   path.join(root, 'android', 'app', 'build', 'generated', 'res', 'react', getReleaseVariantName(variant)),
   path.join(root, 'android', 'app', 'build', 'generated', 'sourcemaps', 'react', getReleaseVariantName(variant)),
   path.join(root, 'android', 'app', 'build', 'intermediates', 'sourcemaps', 'react', getReleaseVariantName(variant)),
 ];
+const getFileEvidence = filePath => {
+  const exists = existsSync(filePath);
+
+  return {
+    path: filePath,
+    exists,
+    size: exists ? statSync(filePath).size : 0,
+    sha256: exists ? createHash('sha256').update(readFileSync(filePath)).digest('hex') : 'missing',
+  };
+};
 
 const env = {
   ...process.env,
@@ -108,9 +142,9 @@ const variantResults = requestedVariants.map(variant => {
   const task = `:app:assemble${capitalize(variant)}Release`;
   const { result, attempts, retryReason } = runGradleTaskWithBoundedRetry(task);
   const apkPath = getApkPath(variant);
-  const apkExists = existsSync(apkPath);
-  const apkSize = apkExists ? statSync(apkPath).size : 0;
-  const apkSha256 = apkExists ? createHash('sha256').update(readFileSync(apkPath)).digest('hex') : 'missing';
+  const apkEvidence = getFileEvidence(apkPath);
+  const bundleEvidence = getFileEvidence(getReleaseBundlePath(variant));
+  const sourcemapEvidence = getFileEvidence(getReleaseSourcemapPath(variant));
 
   return {
     variant,
@@ -119,10 +153,9 @@ const variantResults = requestedVariants.map(variant => {
     error: result.error?.message || '',
     attempts,
     retryReason,
-    apkPath,
-    apkExists,
-    apkSize,
-    apkSha256,
+    apk: apkEvidence,
+    bundle: bundleEvidence,
+    sourcemap: sourcemapEvidence,
     cleanedGeneratedReactPaths,
   };
 });
@@ -151,10 +184,18 @@ const summary = [
     `Variant ${result.variant} Gradle attempts: ${result.attempts.length}`,
     `Variant ${result.variant} Gradle attempt exit codes: ${result.attempts.map(attempt => attempt.status).join(', ')}`,
     `Variant ${result.variant} Gradle retry reason: ${result.retryReason}`,
-    `Variant ${result.variant} Release APK: ${path.relative(root, result.apkPath)}`,
-    `Variant ${result.variant} Release APK exists: ${result.apkExists ? 'yes' : 'no'}`,
-    `Variant ${result.variant} Release APK bytes: ${result.apkSize}`,
-    `Variant ${result.variant} Release APK sha256: ${result.apkSha256}`,
+    `Variant ${result.variant} Release APK: ${path.relative(root, result.apk.path)}`,
+    `Variant ${result.variant} Release APK exists: ${result.apk.exists ? 'yes' : 'no'}`,
+    `Variant ${result.variant} Release APK bytes: ${result.apk.size}`,
+    `Variant ${result.variant} Release APK sha256: ${result.apk.sha256}`,
+    `Variant ${result.variant} Release JS bundle: ${path.relative(root, result.bundle.path)}`,
+    `Variant ${result.variant} Release JS bundle exists: ${result.bundle.exists ? 'yes' : 'no'}`,
+    `Variant ${result.variant} Release JS bundle bytes: ${result.bundle.size}`,
+    `Variant ${result.variant} Release JS bundle sha256: ${result.bundle.sha256}`,
+    `Variant ${result.variant} Release source map: ${path.relative(root, result.sourcemap.path)}`,
+    `Variant ${result.variant} Release source map exists: ${result.sourcemap.exists ? 'yes' : 'no'}`,
+    `Variant ${result.variant} Release source map bytes: ${result.sourcemap.size}`,
+    `Variant ${result.variant} Release source map sha256: ${result.sourcemap.sha256}`,
     `Variant ${result.variant} cleaned generated React paths: ${result.cleanedGeneratedReactPaths.map(cleanedPath => path.relative(root, cleanedPath)).join(', ')}`,
     `Variant ${result.variant} spawn error: ${result.error || 'none'}`,
   ]),
@@ -166,7 +207,9 @@ mkdirSync(path.dirname(summaryPath), { recursive: true });
 writeFileSync(summaryPath, summary);
 console.log(`Android release validation summary written to ${path.relative(root, summaryPath)}`);
 
-const failedResult = variantResults.find(result => result.status !== 0 || !result.apkExists);
+const failedResult = variantResults.find(
+  result => result.status !== 0 || !result.apk.exists || !result.bundle.exists || !result.sourcemap.exists,
+);
 
 if (failedResult) {
   process.exit(failedResult.status || 1);

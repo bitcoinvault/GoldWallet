@@ -35,6 +35,15 @@ const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 const isNonNegativeInteger = value => /^\d+$/.test(value);
 const isSha256 = value => /^[a-f0-9]{64}$/.test(value);
 const sha256File = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
+const isLikelySourceMap = filePath => {
+  try {
+    const parsed = JSON.parse(readFileSync(filePath, 'utf8'));
+
+    return parsed && parsed.version === 3 && Array.isArray(parsed.sources) && typeof parsed.mappings === 'string';
+  } catch {
+    return false;
+  }
+};
 export const normalizeAndroidReleaseFingerprintContent = content =>
   content.toString('utf8').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
@@ -132,15 +141,25 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
     const apkRelativePath = getLineValue(summary, `Variant ${variant} Release APK`);
     const apkSize = getLineValue(summary, `Variant ${variant} Release APK bytes`);
     const apkSha256 = getLineValue(summary, `Variant ${variant} Release APK sha256`);
+    const bundleRelativePath = getLineValue(summary, `Variant ${variant} Release JS bundle`);
+    const bundleSize = getLineValue(summary, `Variant ${variant} Release JS bundle bytes`);
+    const bundleSha256 = getLineValue(summary, `Variant ${variant} Release JS bundle sha256`);
+    const sourcemapRelativePath = getLineValue(summary, `Variant ${variant} Release source map`);
+    const sourcemapSize = getLineValue(summary, `Variant ${variant} Release source map bytes`);
+    const sourcemapSha256 = getLineValue(summary, `Variant ${variant} Release source map sha256`);
     const gradleAttempts = getLineValue(summary, `Variant ${variant} Gradle attempts`);
     const gradleAttemptExitCodes = getLineValue(summary, `Variant ${variant} Gradle attempt exit codes`);
     const gradleRetryReason = getLineValue(summary, `Variant ${variant} Gradle retry reason`);
     const apkPath = apkRelativePath ? path.join(root, apkRelativePath) : '';
+    const bundlePath = bundleRelativePath ? path.join(root, bundleRelativePath) : '';
+    const sourcemapPath = sourcemapRelativePath ? path.join(root, sourcemapRelativePath) : '';
 
     [
       `Variant ${variant} Gradle task: ${expectedTask}`,
       `Variant ${variant} exit code: 0`,
       `Variant ${variant} Release APK exists: yes`,
+      `Variant ${variant} Release JS bundle exists: yes`,
+      `Variant ${variant} Release source map exists: yes`,
       `Variant ${variant} spawn error: none`,
     ].forEach(expectedLine => {
       if (!hasLine(summary, expectedLine)) {
@@ -160,9 +179,41 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
         'release',
         `app-${variant}-release-unsigned.apk`,
       );
+    const expectedBundleRelativePath =
+      options.expectedBundleRelativePaths?.[variant] ||
+      path.join(
+        'android',
+        'app',
+        'build',
+        'intermediates',
+        'assets',
+        `${variant}Release`,
+        `merge${variant[0].toUpperCase()}${variant.slice(1)}ReleaseAssets`,
+        'index.android.bundle',
+      );
+    const expectedSourcemapRelativePath =
+      options.expectedSourcemapRelativePaths?.[variant] ||
+      path.join(
+        'android',
+        'app',
+        'build',
+        'generated',
+        'sourcemaps',
+        'react',
+        `${variant}Release`,
+        'index.android.bundle.map',
+      );
 
     if (apkRelativePath !== expectedApkRelativePath) {
       errors.push(`Variant ${variant} Release APK path is unexpected: ${apkRelativePath || 'missing'}`);
+    }
+
+    if (bundleRelativePath !== expectedBundleRelativePath) {
+      errors.push(`Variant ${variant} Release JS bundle path is unexpected: ${bundleRelativePath || 'missing'}`);
+    }
+
+    if (sourcemapRelativePath !== expectedSourcemapRelativePath) {
+      errors.push(`Variant ${variant} Release source map path is unexpected: ${sourcemapRelativePath || 'missing'}`);
     }
 
     if (!isPositiveInteger(apkSize)) {
@@ -171,6 +222,22 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
 
     if (!isSha256(apkSha256)) {
       errors.push(`Variant ${variant} Release APK sha256 must be a lowercase SHA-256 digest. Received: ${apkSha256 || 'missing'}`);
+    }
+
+    if (!isPositiveInteger(bundleSize)) {
+      errors.push(`Variant ${variant} Release JS bundle bytes must be a positive integer. Received: ${bundleSize || 'missing'}`);
+    }
+
+    if (!isSha256(bundleSha256)) {
+      errors.push(`Variant ${variant} Release JS bundle sha256 must be a lowercase SHA-256 digest. Received: ${bundleSha256 || 'missing'}`);
+    }
+
+    if (!isPositiveInteger(sourcemapSize)) {
+      errors.push(`Variant ${variant} Release source map bytes must be a positive integer. Received: ${sourcemapSize || 'missing'}`);
+    }
+
+    if (!isSha256(sourcemapSha256)) {
+      errors.push(`Variant ${variant} Release source map sha256 must be a lowercase SHA-256 digest. Received: ${sourcemapSha256 || 'missing'}`);
     }
 
     if (!isPositiveInteger(gradleAttempts)) {
@@ -207,6 +274,34 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
 
       if (isSha256(apkSha256) && sha256File(apkPath) !== apkSha256) {
         errors.push(`Variant ${variant} Release APK sha256 does not match file digest for ${apkRelativePath}`);
+      }
+    }
+
+    if (!bundlePath || !existsSync(bundlePath)) {
+      errors.push(`Variant ${variant} Release JS bundle file does not exist: ${bundleRelativePath || 'missing'}`);
+    } else {
+      if (isNonNegativeInteger(bundleSize) && statSync(bundlePath).size !== Number(bundleSize)) {
+        errors.push(`Variant ${variant} Release JS bundle byte count does not match file size for ${bundleRelativePath}`);
+      }
+
+      if (isSha256(bundleSha256) && sha256File(bundlePath) !== bundleSha256) {
+        errors.push(`Variant ${variant} Release JS bundle sha256 does not match file digest for ${bundleRelativePath}`);
+      }
+    }
+
+    if (!sourcemapPath || !existsSync(sourcemapPath)) {
+      errors.push(`Variant ${variant} Release source map file does not exist: ${sourcemapRelativePath || 'missing'}`);
+    } else {
+      if (isNonNegativeInteger(sourcemapSize) && statSync(sourcemapPath).size !== Number(sourcemapSize)) {
+        errors.push(`Variant ${variant} Release source map byte count does not match file size for ${sourcemapRelativePath}`);
+      }
+
+      if (isSha256(sourcemapSha256) && sha256File(sourcemapPath) !== sourcemapSha256) {
+        errors.push(`Variant ${variant} Release source map sha256 does not match file digest for ${sourcemapRelativePath}`);
+      }
+
+      if (!isLikelySourceMap(sourcemapPath)) {
+        errors.push(`Variant ${variant} Release source map must be a valid source-map JSON file`);
       }
     }
   });

@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
@@ -14,10 +15,28 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const variants = ['dev', 'stage', 'prod', 'beta'];
 const fixtureApkRelativePath = variant => path.join('local-docs', `android-release-summary-${variant}-fixture.apk`);
+const fixtureBundleRelativePath = variant => path.join('local-docs', `android-release-summary-${variant}-fixture.bundle`);
+const fixtureSourcemapRelativePath = variant => path.join('local-docs', `android-release-summary-${variant}-fixture.map`);
 const expectedApkRelativePaths = Object.fromEntries(
   variants.map(variant => [variant, fixtureApkRelativePath(variant)]),
 );
+const expectedBundleRelativePaths = Object.fromEntries(
+  variants.map(variant => [variant, fixtureBundleRelativePath(variant)]),
+);
+const expectedSourcemapRelativePaths = Object.fromEntries(
+  variants.map(variant => [variant, fixtureSourcemapRelativePath(variant)]),
+);
 const releaseInputFingerprint = getAndroidReleaseInputFingerprint(root);
+const fixtureBundleContent = variant => `bundle-${variant}`;
+const fixtureSourcemapContent = JSON.stringify({
+  version: 3,
+  sources: ['index.js'],
+  names: [],
+  mappings: 'AAAA',
+  file: 'index.android.bundle',
+});
+const byteLength = value => Buffer.byteLength(value);
+const sha256 = value => createHash('sha256').update(value).digest('hex');
 
 const assert = (condition, message) => {
   if (!condition) {
@@ -33,9 +52,13 @@ assert(
 
 variants.forEach(variant => {
   const fixtureApkPath = path.join(root, fixtureApkRelativePath(variant));
+  const fixtureBundlePath = path.join(root, fixtureBundleRelativePath(variant));
+  const fixtureSourcemapPath = path.join(root, fixtureSourcemapRelativePath(variant));
 
   mkdirSync(path.dirname(fixtureApkPath), { recursive: true });
   writeFileSync(fixtureApkPath, `fixture-${variant}`);
+  writeFileSync(fixtureBundlePath, fixtureBundleContent(variant));
+  writeFileSync(fixtureSourcemapPath, fixtureSourcemapContent);
 });
 
 const lineEndingFixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-release-fingerprint-'));
@@ -85,6 +108,14 @@ const validSummary = [
   'Variant dev Release APK exists: yes',
   'Variant dev Release APK bytes: 11',
   'Variant dev Release APK sha256: c70965a4a0911a45a45ccad3459a235078f912273a940ac0e62873f0176efa48',
+  `Variant dev Release JS bundle: ${fixtureBundleRelativePath('dev')}`,
+  'Variant dev Release JS bundle exists: yes',
+  `Variant dev Release JS bundle bytes: ${byteLength(fixtureBundleContent('dev'))}`,
+  `Variant dev Release JS bundle sha256: ${sha256(fixtureBundleContent('dev'))}`,
+  `Variant dev Release source map: ${fixtureSourcemapRelativePath('dev')}`,
+  'Variant dev Release source map exists: yes',
+  `Variant dev Release source map bytes: ${byteLength(fixtureSourcemapContent)}`,
+  `Variant dev Release source map sha256: ${sha256(fixtureSourcemapContent)}`,
   'Variant dev spawn error: none',
   'Variant stage Gradle task: :app:assembleStageRelease',
   'Variant stage exit code: 0',
@@ -95,6 +126,14 @@ const validSummary = [
   'Variant stage Release APK exists: yes',
   'Variant stage Release APK bytes: 13',
   'Variant stage Release APK sha256: bde4070b5100b4d1ebfa93f73b2612d2502ff26154c2f5418e637720c0122ea2',
+  `Variant stage Release JS bundle: ${fixtureBundleRelativePath('stage')}`,
+  'Variant stage Release JS bundle exists: yes',
+  `Variant stage Release JS bundle bytes: ${byteLength(fixtureBundleContent('stage'))}`,
+  `Variant stage Release JS bundle sha256: ${sha256(fixtureBundleContent('stage'))}`,
+  `Variant stage Release source map: ${fixtureSourcemapRelativePath('stage')}`,
+  'Variant stage Release source map exists: yes',
+  `Variant stage Release source map bytes: ${byteLength(fixtureSourcemapContent)}`,
+  `Variant stage Release source map sha256: ${sha256(fixtureSourcemapContent)}`,
   'Variant stage spawn error: none',
   'Variant prod Gradle task: :app:assembleProdRelease',
   'Variant prod exit code: 0',
@@ -105,6 +144,14 @@ const validSummary = [
   'Variant prod Release APK exists: yes',
   'Variant prod Release APK bytes: 12',
   'Variant prod Release APK sha256: 9e2c2dd93a1e7dc43022a3ef8cd707b485c693928e7a918b92914abc957ebfe7',
+  `Variant prod Release JS bundle: ${fixtureBundleRelativePath('prod')}`,
+  'Variant prod Release JS bundle exists: yes',
+  `Variant prod Release JS bundle bytes: ${byteLength(fixtureBundleContent('prod'))}`,
+  `Variant prod Release JS bundle sha256: ${sha256(fixtureBundleContent('prod'))}`,
+  `Variant prod Release source map: ${fixtureSourcemapRelativePath('prod')}`,
+  'Variant prod Release source map exists: yes',
+  `Variant prod Release source map bytes: ${byteLength(fixtureSourcemapContent)}`,
+  `Variant prod Release source map sha256: ${sha256(fixtureSourcemapContent)}`,
   'Variant prod spawn error: none',
   'Variant beta Gradle task: :app:assembleBetaRelease',
   'Variant beta exit code: 0',
@@ -115,6 +162,14 @@ const validSummary = [
   'Variant beta Release APK exists: yes',
   'Variant beta Release APK bytes: 12',
   'Variant beta Release APK sha256: 8838022187323bcec6806279a0f9bc0b5a7c18a8f931ee45f49589455ab834b9',
+  `Variant beta Release JS bundle: ${fixtureBundleRelativePath('beta')}`,
+  'Variant beta Release JS bundle exists: yes',
+  `Variant beta Release JS bundle bytes: ${byteLength(fixtureBundleContent('beta'))}`,
+  `Variant beta Release JS bundle sha256: ${sha256(fixtureBundleContent('beta'))}`,
+  `Variant beta Release source map: ${fixtureSourcemapRelativePath('beta')}`,
+  'Variant beta Release source map exists: yes',
+  `Variant beta Release source map bytes: ${byteLength(fixtureSourcemapContent)}`,
+  `Variant beta Release source map sha256: ${sha256(fixtureSourcemapContent)}`,
   'Variant beta spawn error: none',
   'Required Sentry upload follow-up: provide sentry.properties/defaults.org/defaults.project/auth.token or SENTRY_AUTH_TOKEN before claiming source-map upload validation.',
   '',
@@ -123,6 +178,8 @@ const validSummary = [
 const assertAccepted = (label, summary, options = {}) => {
   const errors = getAndroidReleaseSummaryErrors(summary, root, {
     expectedApkRelativePaths,
+    expectedBundleRelativePaths,
+    expectedSourcemapRelativePaths,
     ...options,
   });
 
@@ -136,6 +193,8 @@ const assertAccepted = (label, summary, options = {}) => {
 const assertRejected = (label, summary, expectedError, options = {}) => {
   const errors = getAndroidReleaseSummaryErrors(summary, root, {
     expectedApkRelativePaths,
+    expectedBundleRelativePaths,
+    expectedSourcemapRelativePaths,
     ...options,
   });
 
@@ -182,6 +241,14 @@ assertAccepted(
     'Variant beta Release APK exists: yes',
     'Variant beta Release APK bytes: 12',
     'Variant beta Release APK sha256: 8838022187323bcec6806279a0f9bc0b5a7c18a8f931ee45f49589455ab834b9',
+    `Variant beta Release JS bundle: ${fixtureBundleRelativePath('beta')}`,
+    'Variant beta Release JS bundle exists: yes',
+    `Variant beta Release JS bundle bytes: ${byteLength(fixtureBundleContent('beta'))}`,
+    `Variant beta Release JS bundle sha256: ${sha256(fixtureBundleContent('beta'))}`,
+    `Variant beta Release source map: ${fixtureSourcemapRelativePath('beta')}`,
+    'Variant beta Release source map exists: yes',
+    `Variant beta Release source map bytes: ${byteLength(fixtureSourcemapContent)}`,
+    `Variant beta Release source map sha256: ${sha256(fixtureSourcemapContent)}`,
     'Variant beta spawn error: none',
     'Required Sentry upload follow-up: provide sentry.properties/defaults.org/defaults.project/auth.token or SENTRY_AUTH_TOKEN before claiming source-map upload validation.',
     '',
@@ -189,6 +256,8 @@ assertAccepted(
   {
     expectedVariants: ['beta'],
     expectedApkRelativePaths: { beta: fixtureApkRelativePath('beta') },
+    expectedBundleRelativePaths: { beta: fixtureBundleRelativePath('beta') },
+    expectedSourcemapRelativePaths: { beta: fixtureSourcemapRelativePath('beta') },
   },
 );
 assertRejected(
@@ -272,6 +341,19 @@ assertRejected(
     'Variant prod Release APK sha256: 0000000000000000000000000000000000000000000000000000000000000000',
   ),
   'sha256 does not match file digest',
+);
+assertRejected(
+  'Missing release JS bundle fixture',
+  validSummary.replace('Variant stage Release JS bundle exists: yes', 'Variant stage Release JS bundle exists: no'),
+  'Release JS bundle exists',
+);
+assertRejected(
+  'Bad release source map sha fixture',
+  validSummary.replace(
+    `Variant beta Release source map sha256: ${sha256(fixtureSourcemapContent)}`,
+    'Variant beta Release source map sha256: missing',
+  ),
+  'Release source map sha256',
 );
 assertRejected(
   'Sentry upload claimed fixture',

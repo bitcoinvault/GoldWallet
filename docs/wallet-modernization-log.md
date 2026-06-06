@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.459 - Android release bundle/source-map proof
+
+- Branch: `feature/bem-37-459-release-sourcemap-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend Android release validation evidence so every requested release variant records the generated release JS bundle and source map next to the APK artifact.
+- Make `android:dev:release:check-summary` reject missing bundle files, missing source maps, mismatched byte counts, mismatched SHA-256 digests, and invalid source-map JSON.
+- Keep Sentry upload validation explicitly unclaimed until `SENTRY_AUTH_TOKEN` and generated `sentry.properties` files are available.
+
+Findings:
+
+- `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` all build locally with Sentry auto-upload disabled.
+- Each release variant now records an APK, JS bundle, and source-map path with positive byte counts and matching SHA-256 evidence.
+- The generated source maps are valid source-map JSON files, so the local release path proves source-map generation without printing or requiring Sentry secrets.
+- No app runtime code, native project wiring, dependency versions, or Metro behavior changed in this branch, so Android emulator smoke is not required for this release-evidence hardening milestone.
+
+Validation:
+
+- `node --check scripts\runAndroidReleaseValidation.mjs`
+- `node --check scripts\androidReleaseSummaryGuard.mjs`
+- `node --check scripts\checkAndroidReleaseSummaryGuard.mjs`
+- `corepack yarn check:android-release-summary-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+
 ### BEM-37.448 - Firebase Android Gradle plugin refresh
 
 - Branch: `feature/bem-37-448-firebase-gradle-plugin-refresh`
