@@ -38,7 +38,7 @@ Current Android template/toolchain baseline compiles and targets SDK 36 on AGP 8
 - Keep target SDK changes tied to the React Native/toolchain path that owns Android template and debug receiver behavior.
 - Run emulator smoke for every runtime, dependency, native, or Metro-affecting branch.
 - Re-check the latest stable React Native release during the actual RN baseline branch instead of hardcoding it in this document.
-- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.85.x` line; future RN moves should target the next stable line only after branch-time evidence supports it. As of the 2026-06-04 live probe, npm `latest` is still `0.85.3`, while `0.86.0-rc.3` and `0.87.0-nightly-20260604-63683f091` remain planning signals rather than default wallet upgrade targets.
+- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.85.x` line; future RN moves should target the next stable line only after branch-time evidence supports it. As of the 2026-06-06 live probe, npm `latest` is still `0.85.3`, while `0.86.0-rc.3` and `0.87.0-nightly-20260606-510cc0c5e` remain planning signals rather than default wallet upgrade targets.
 
 ## Required Work Before The Next RN Step
 
