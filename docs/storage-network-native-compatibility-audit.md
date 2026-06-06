@@ -132,6 +132,8 @@ The 2026-06-04 live npm refresh confirms the tracked storage/network/config pack
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-keychain@10.0.0` remains the npm latest checked secure-storage backend on 2026-06-04, while `react-native-secure-key-store@2.0.10` remains npm latest and is retained temporarily for legacy fallback reads and cleanup.
 - `corepack yarn secure-storage:migration:audit` keeps the current PIN and transaction-password storage surface explicit before any replacement branch starts.
+- `corepack yarn secure-storage:release-validation:handoff:dry-run` renders the focused secure-storage validation sequence for a release-candidate check without executing Android build/smoke work. The executable `corepack yarn secure-storage:release-validation:handoff` refreshes migration/removal summaries, runs secure-storage/storage/authenticator/wallet-core focused checks, and runs Android dev build plus emulator smoke by default.
+- The secure-storage handoff is intentionally conservative: it validates the staged migration posture and keeps `react-native-secure-key-store` installed while fallback reads are active; it does not claim removal readiness.
 - `tests/unit/SecureStorageService.test.js` locks the current wrapper contract for missing-value fallback, Keychain-primary reads that skip the legacy backend, legacy fallback, failed Keychain migration writes, Keychain-only new writes, plain storage, hashed transaction-password storage, positive and negative password verification, and value removal across the native secure-storage package boundary.
 - `tests/integration/Storage.test.js` locks the React Native `AppStorage` fallback path so legacy wallet data remains readable even if the Keychain migration write fails during a read, while new encrypted wallet writes go to Keychain only.
 - `react-native-webview` is now on latest checked `13.16.1` after `BEM-37.162`; future changes should focus on Terms screens validation, release builds, and the next RN baseline.
@@ -164,6 +166,7 @@ Focused tests by dependency:
 
 - Group C focused validation: `corepack yarn test:storage-network:focused`.
 - Secure storage wrapper contract: `corepack yarn test:secure-storage:unit`.
+- Secure storage release-candidate handoff: `corepack yarn secure-storage:release-validation:handoff`.
 - AsyncStorage: `corepack yarn test:storage`, `corepack yarn test:wallet-core:offline`.
 - Secure storage: `corepack yarn test:authenticator`.
 - TCP socket / NetInfo: run `corepack yarn test:electrum-reconnect:unit`, Android smoke, and Electrum connectivity observation; funded transaction flow remains blocked until a funded BTCV testnet wallet is available.
