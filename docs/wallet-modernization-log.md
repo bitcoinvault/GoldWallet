@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.462 - Release-services current validation heap hardening
+
+- Branch: `feature/bem-37-462-release-services-current-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the aggregate release-services validation handoff on the current RN `0.85.3` / AGP `8.13.2` baseline.
+- Fix the local Android release packaging blocker found during the full handoff by increasing the Gradle daemon heap from `4096m` to `6144m`.
+- Keep runtime app code, dependency versions, release-service behavior, and secret handling unchanged.
+
+Findings:
+
+- The first full `release-services:validation:handoff` run failed in `:app:packageDevRelease` with `java.lang.OutOfMemoryError: Java heap space` inside AGP `ApkFlinger` while packaging release outputs.
+- The host had sufficient physical memory available, so the failure was the Gradle JVM heap ceiling rather than a system-memory shortage.
+- After raising `org.gradle.jvmargs` to `-Xmx6144m`, `android:dev:release:verify-local` rebuilt `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` successfully with Sentry auto-upload disabled.
+- `android:dev:release:smoke:embedded` installed a locally signed `devRelease` APK on `Medium_Phone_API_36.0`, completed first-run onboarding, validated the empty-dashboard create/import flows, validated bottom-tab navigation, and reported no fatal/runtime logcat findings.
+- The aggregate release-services handoff passed with fresh Sentry, Firebase, CodePush, push-notification, and iOS readiness summaries. Sentry upload remains unclaimed until `SENTRY_AUTH_TOKEN` and the three `sentry.properties` files are available; CodePush update validation remains unclaimed until deployment keys and beta strategy are confirmed; iOS runtime validation remains blocked on macOS/Xcode/CocoaPods.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff` failed before the fix with `:app:packageDevRelease` `java.lang.OutOfMemoryError: Java heap space`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release`
+
 ### BEM-37.461 - Secure-storage validation handoff
 
 - Branch: `feature/bem-37-461-secure-storage-validation-handoff`
