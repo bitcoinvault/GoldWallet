@@ -7,9 +7,11 @@ const validSummary = [
   'react-native-camera-kit manifest version: 18.0.0',
   'QR local-image manifest version: <missing>',
   'QR renderer version: 6.3.21',
+  'QR native renderer version: 15.15.5',
   'qrcode resolution: 1.5.4',
   'CameraKit latest target: react-native-camera-kit@18.0.0',
   'QR renderer latest target: react-native-qrcode-svg@6.3.21',
+  'QR native renderer latest target: react-native-svg@15.15.5',
   'QR encoder latest target: qrcode@1.5.4',
   'Live QR targets: matched',
   'Live QR target issues: 0',
@@ -32,9 +34,11 @@ const invalidSummary = [
   'react-native-camera-kit manifest version: 18.0.0',
   'QR local-image manifest version: 1.0.4',
   'QR renderer version: 6.3.21',
+  'QR native renderer version: 15.15.5',
   'qrcode resolution: 1.5.4',
   'CameraKit latest target: react-native-camera-kit@18.0.0',
   'QR renderer latest target: react-native-qrcode-svg@6.3.21',
+  'QR native renderer latest target: react-native-svg@15.15.5',
   'QR encoder latest target: qrcode@1.5.4',
   'Live QR targets: stale',
   'Live QR target issues: 1',
@@ -94,6 +98,16 @@ assertRejected(
   'Bad live QR target count fixture',
   validSummary.replace('Live QR target issues: 0', 'Live QR target issues: 1'),
   'Live QR target issues count',
+);
+assertRejected(
+  'Missing QR native renderer fixture',
+  validSummary.replace('QR native renderer version: 15.15.5', 'QR native renderer version: '),
+  'QR native renderer version is missing',
+);
+assertRejected(
+  'Bad QR native renderer latest fixture',
+  validSummary.replace('QR native renderer latest target: react-native-svg@15.15.5', 'QR native renderer latest target: react-native-svg@15.16.0'),
+  'QR native renderer latest target',
 );
 assertRejected(
   'Missing iOS stale pod list fixture',

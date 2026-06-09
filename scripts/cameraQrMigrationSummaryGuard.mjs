@@ -30,9 +30,11 @@ export const getCameraQrMigrationSummaryErrors = summary => {
   const cameraKitVersion = getLineValue(summary, 'react-native-camera-kit manifest version');
   const qrLocalImageVersion = getLineValue(summary, 'QR local-image manifest version');
   const qrRendererVersion = getLineValue(summary, 'QR renderer version');
+  const qrNativeRendererVersion = getLineValue(summary, 'QR native renderer version');
   const qrcodeResolution = getLineValue(summary, 'qrcode resolution');
   const cameraKitLatest = getLineValue(summary, 'CameraKit latest target');
   const qrRendererLatest = getLineValue(summary, 'QR renderer latest target');
+  const qrNativeRendererLatest = getLineValue(summary, 'QR native renderer latest target');
   const qrEncoderLatest = getLineValue(summary, 'QR encoder latest target');
   const liveQrTargets = getLineValue(summary, 'Live QR targets');
   const liveQrTargetIssueCount = getLineValue(summary, 'Live QR target issues');
@@ -73,6 +75,10 @@ export const getCameraQrMigrationSummaryErrors = summary => {
     errors.push('QR renderer version is missing');
   }
 
+  if (!qrNativeRendererVersion) {
+    errors.push('QR native renderer version is missing');
+  }
+
   if (!qrcodeResolution) {
     errors.push('qrcode resolution is missing');
   }
@@ -83,6 +89,10 @@ export const getCameraQrMigrationSummaryErrors = summary => {
 
   if (qrRendererLatest !== 'react-native-qrcode-svg@6.3.21') {
     errors.push(`QR renderer latest target must be react-native-qrcode-svg@6.3.21. Received: ${qrRendererLatest || 'missing'}`);
+  }
+
+  if (qrNativeRendererLatest !== 'react-native-svg@15.15.5') {
+    errors.push(`QR native renderer latest target must be react-native-svg@15.15.5. Received: ${qrNativeRendererLatest || 'missing'}`);
   }
 
   if (qrEncoderLatest !== 'qrcode@1.5.4') {
