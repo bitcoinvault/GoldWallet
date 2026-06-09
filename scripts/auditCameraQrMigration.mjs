@@ -35,6 +35,7 @@ export const collectCameraQrMigrationAudit = () => {
   const cameraKitVersion = dependencies['react-native-camera-kit'];
   const localQrImageVersion = dependencies['@remobile/react-native-qrcode-local-image'];
   const qrRendererVersion = dependencies['react-native-qrcode-svg'];
+  const qrNativeRendererVersion = dependencies['react-native-svg'];
   const rootQrcodeVersion = (packageJson.resolutions || {}).qrcode;
 
   if (cameraVersion) {
@@ -53,6 +54,10 @@ export const collectCameraQrMigrationAudit = () => {
 
   if (qrRendererVersion !== '6.3.21') {
     readinessIssues.push(`package.json has react-native-qrcode-svg@${qrRendererVersion || '<missing>'}; expected current QR renderer baseline 6.3.21`);
+  }
+
+  if (qrNativeRendererVersion !== '15.15.5') {
+    readinessIssues.push(`package.json has react-native-svg@${qrNativeRendererVersion || '<missing>'}; expected current QR native renderer baseline 15.15.5`);
   }
 
   if (rootQrcodeVersion !== '1.5.4') {
@@ -111,9 +116,11 @@ export const collectCameraQrMigrationAudit = () => {
     cameraKitVersion,
     localQrImageVersion,
     qrRendererVersion,
+    qrNativeRendererVersion,
     rootQrcodeVersion,
     cameraKitLatest: cameraCandidateAudit.cameraKitLatest,
     qrRendererLatest: cameraCandidateAudit.qrRendererLatest,
+    qrNativeRendererLatest: cameraCandidateAudit.qrNativeRendererLatest,
     qrEncoderLatest: cameraCandidateAudit.qrEncoderLatest,
     liveQrTargetIssues: cameraCandidateAudit.liveMetadataIssues,
     iosPodfileLockRefreshRequired,
@@ -133,9 +140,11 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
     `react-native-camera-kit manifest version: ${audit.cameraKitVersion || '<missing>'}`,
     `QR local-image manifest version: ${audit.localQrImageVersion || '<missing>'}`,
     `QR renderer version: ${audit.qrRendererVersion || '<missing>'}`,
+    `QR native renderer version: ${audit.qrNativeRendererVersion || '<missing>'}`,
     `qrcode resolution: ${audit.rootQrcodeVersion || '<missing>'}`,
     `CameraKit latest target: ${audit.cameraKitLatest}`,
     `QR renderer latest target: ${audit.qrRendererLatest}`,
+    `QR native renderer latest target: ${audit.qrNativeRendererLatest}`,
     `QR encoder latest target: ${audit.qrEncoderLatest}`,
     `Live QR targets: ${audit.liveQrTargetIssues.length === 0 ? 'matched' : 'stale'}`,
     `Live QR target issues: ${audit.liveQrTargetIssues.length}`,
@@ -165,7 +174,11 @@ const printReport = audit => {
   console.log('Camera QR migration audit');
   console.log(`react-native-camera manifest version: ${audit.cameraVersion || '<missing>'}`);
   console.log(`react-native-camera-kit manifest version: ${audit.cameraKitVersion || '<missing>'}`);
-  console.log(`QR render pair: react-native-qrcode-svg@${audit.qrRendererVersion || '<missing>'}, qrcode resolution ${audit.rootQrcodeVersion || '<missing>'}`);
+  console.log(
+    `QR render pair: react-native-qrcode-svg@${audit.qrRendererVersion || '<missing>'}, react-native-svg@${
+      audit.qrNativeRendererVersion || '<missing>'
+    }, qrcode resolution ${audit.rootQrcodeVersion || '<missing>'}`,
+  );
   console.log(`iOS Podfile.lock refresh required: ${audit.iosPodfileLockRefreshRequired ? 'yes' : 'no'}`);
   console.log(`iOS stale removed camera pods: ${audit.staleRemovedIosPods.join(', ') || 'none'}`);
 

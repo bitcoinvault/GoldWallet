@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.463 - Camera QR native renderer guard refresh
+
+- Branch: `feature/bem-37-463-camera-qr-svg-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Camera/QR latest-target evidence after a live npm check on 2026-06-10.
+- Extend the Camera candidate and QR migration audits so they also guard the native QR renderer package `react-native-svg@15.15.5`, not only `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4`.
+- Keep the package baseline unchanged because `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` still match live latest metadata.
+- Update the camera replacement and native-module upgrade plans so future scanner/QR branches treat the QR renderer as a three-package compatibility set.
+
+Findings:
+
+- Live npm metadata on 2026-06-10 still reports `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
+- VisionCamera remains deferred because the latest line still introduces the Nitro native peer stack (`react-native-nitro-modules` and `react-native-nitro-image`), while CameraKit remains installed and scoped to `src/screens/ScanQrCodeScreen.tsx`.
+- The refreshed Camera QR migration summary reports current scanner/render dependencies, no stale removed camera pods in `ios/Podfile.lock`, valid Android/iOS permission wiring, and zero readiness or wiring issues.
+- No dependency versions, runtime code, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required. The focused QR scanner and QR render unit tests cover the guarded surface.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\auditCameraCandidates.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\auditCameraQrMigration.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\cameraCandidateSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\cameraQrMigrationSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-candidate-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-migration-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-scanner:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-render:unit`
+
 ### BEM-37.462 - Release-services current validation heap hardening
 
 - Branch: `feature/bem-37-462-release-services-current-validation`

@@ -2,8 +2,8 @@ import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.m
 
 const validSummary = [
   'Camera candidate audit',
-  'Generated at: 2026-06-05T00:00:00.000Z',
-  'Metadata checked on: 2026-06-05',
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Metadata checked on: 2026-06-10',
   'Legacy camera latest: react-native-camera@4.2.1',
   'VisionCamera latest: react-native-vision-camera@5.0.11',
   'VisionCamera Nitro peers: yes',
@@ -12,6 +12,7 @@ const validSummary = [
   'CameraKit latest: react-native-camera-kit@18.0.0',
   'CameraKit node engine: >=18',
   'QR renderer latest: react-native-qrcode-svg@6.3.21',
+  'QR native renderer latest: react-native-svg@15.15.5',
   'QR encoder latest: qrcode@1.5.4',
   'Live npm metadata: matched',
   'Live npm metadata issues: 0',
@@ -55,7 +56,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid camera candidate summary fixture', validSummary);
 assertRejected('Invalid VisionCamera Nitro peer fixture', invalidSummary, 'VisionCamera Nitro peers');
-assertRejected('Missing metadata date fixture', validSummary.replace('Metadata checked on: 2026-06-05', 'Metadata checked on: 2026-05-29'), 'Metadata checked on');
+assertRejected('Missing metadata date fixture', validSummary.replace('Metadata checked on: 2026-06-10', 'Metadata checked on: 2026-06-05'), 'Metadata checked on');
 assertRejected(
   'Stable stale metadata fixture',
   validSummary.replace('Live npm metadata: matched', 'Live npm metadata: stale'),
@@ -78,6 +79,11 @@ assertRejected(
   'VisionCamera peer dependency ranges',
 );
 assertRejected('Bad QR renderer fixture', validSummary.replace('QR renderer latest: react-native-qrcode-svg@6.3.21', 'QR renderer latest: missing'), 'QR renderer latest');
+assertRejected(
+  'Bad QR native renderer fixture',
+  validSummary.replace('QR native renderer latest: react-native-svg@15.15.5', 'QR native renderer latest: missing'),
+  'QR native renderer latest',
+);
 assertRejected('Missing header fixture', validSummary.replace('Camera candidate audit', 'Bad header'), 'summary header');
 
 console.log('Camera candidate summary guard checks are valid.');

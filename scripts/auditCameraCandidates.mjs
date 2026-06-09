@@ -10,7 +10,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
-export const cameraCandidateMetadataCheckedOn = '2026-06-05';
+export const cameraCandidateMetadataCheckedOn = '2026-06-10';
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 const expectedCameraMetadata = {
@@ -26,6 +26,7 @@ const expectedCameraMetadata = {
   cameraKitLatest: 'react-native-camera-kit@18.0.0',
   cameraKitNodeEngine: '>=18',
   qrRendererLatest: 'react-native-qrcode-svg@6.3.21',
+  qrNativeRendererLatest: 'react-native-svg@15.15.5',
   qrEncoderLatest: 'qrcode@1.5.4',
 };
 
@@ -46,6 +47,7 @@ const collectLiveMetadataIssues = () => {
   const cameraKitVersion = npmView('react-native-camera-kit', 'version');
   const cameraKitEngines = npmView('react-native-camera-kit', 'engines');
   const qrRendererVersion = npmView('react-native-qrcode-svg', 'version');
+  const qrNativeRendererVersion = npmView('react-native-svg', 'version');
   const qrcodeVersion = npmView('qrcode', 'version');
 
   [
@@ -54,6 +56,7 @@ const collectLiveMetadataIssues = () => {
     ['CameraKit latest', `react-native-camera-kit@${cameraKitVersion}`, expectedCameraMetadata.cameraKitLatest],
     ['CameraKit node engine', cameraKitEngines?.node || '<missing>', expectedCameraMetadata.cameraKitNodeEngine],
     ['QR renderer latest', `react-native-qrcode-svg@${qrRendererVersion}`, expectedCameraMetadata.qrRendererLatest],
+    ['QR native renderer latest', `react-native-svg@${qrNativeRendererVersion}`, expectedCameraMetadata.qrNativeRendererLatest],
     ['QR encoder latest', `qrcode@${qrcodeVersion}`, expectedCameraMetadata.qrEncoderLatest],
   ].forEach(([label, actual, expected]) => {
     if (actual !== expected) {
@@ -129,6 +132,7 @@ export const collectCameraCandidateAudit = () => {
     cameraKitLatest: expectedCameraMetadata.cameraKitLatest,
     cameraKitNodeEngine: expectedCameraMetadata.cameraKitNodeEngine,
     qrRendererLatest: expectedCameraMetadata.qrRendererLatest,
+    qrNativeRendererLatest: expectedCameraMetadata.qrNativeRendererLatest,
     qrEncoderLatest: expectedCameraMetadata.qrEncoderLatest,
     selectedProofTarget: 'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers',
     proofBranch: 'feature/bem-37-camera-kit-qr-proof',
@@ -154,6 +158,7 @@ export const formatCameraCandidateSummary = (audit, generatedAt = new Date().toI
     `CameraKit latest: ${audit.cameraKitLatest}`,
     `CameraKit node engine: ${audit.cameraKitNodeEngine}`,
     `QR renderer latest: ${audit.qrRendererLatest}`,
+    `QR native renderer latest: ${audit.qrNativeRendererLatest}`,
     `QR encoder latest: ${audit.qrEncoderLatest}`,
     `Live npm metadata: ${audit.liveMetadataIssues.length === 0 ? 'matched' : 'stale'}`,
     `Live npm metadata issues: ${audit.liveMetadataIssues.length}`,

@@ -34,6 +34,7 @@ export const getCameraCandidateSummaryErrors = summary => {
   const cameraKit = getLineValue(summary, 'CameraKit latest');
   const cameraKitNodeEngine = getLineValue(summary, 'CameraKit node engine');
   const qrRenderer = getLineValue(summary, 'QR renderer latest');
+  const qrNativeRenderer = getLineValue(summary, 'QR native renderer latest');
   const qrEncoder = getLineValue(summary, 'QR encoder latest');
   const liveMetadata = getLineValue(summary, 'Live npm metadata');
   const liveMetadataIssueCount = getLineValue(summary, 'Live npm metadata issues');
@@ -49,8 +50,8 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push('Camera candidate summary header is missing');
   }
 
-  if (metadataCheckedOn !== '2026-06-05') {
-    errors.push(`Metadata checked on must be 2026-06-05. Received: ${metadataCheckedOn || 'missing'}`);
+  if (metadataCheckedOn !== '2026-06-10') {
+    errors.push(`Metadata checked on must be 2026-06-10. Received: ${metadataCheckedOn || 'missing'}`);
   }
 
   if (legacyCamera !== 'react-native-camera@4.2.1') {
@@ -83,6 +84,10 @@ export const getCameraCandidateSummaryErrors = summary => {
 
   if (qrRenderer !== 'react-native-qrcode-svg@6.3.21') {
     errors.push(`QR renderer latest must be react-native-qrcode-svg@6.3.21. Received: ${qrRenderer || 'missing'}`);
+  }
+
+  if (qrNativeRenderer !== 'react-native-svg@15.15.5') {
+    errors.push(`QR native renderer latest must be react-native-svg@15.15.5. Received: ${qrNativeRenderer || 'missing'}`);
   }
 
   if (qrEncoder !== 'qrcode@1.5.4') {
