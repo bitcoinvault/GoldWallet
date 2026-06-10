@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.534 - CodePush decision readiness refresh
+
+- Branch: `feature/bem-37-534-codepush-decision-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh guarded CodePush release-path, migration-readiness, removal-readiness, and update-validation handoff evidence after the release-services upload readiness refresh.
+- Confirm whether the current CodePush state is a package upgrade task, a removal task, or a release-decision task.
+- Keep runtime code, native project files, env values, deployment keys, package versions, and release artifacts unchanged.
+- Keep deployment-key values out of committed docs and generated handoff artifacts.
+
+Findings:
+
+- `react-native-code-push@9.0.1` remains aligned across `package.json`, `node_modules`, and live npm latest metadata.
+- CodePush release-path wiring is valid and Android release build evidence remains ready for `dev`, `stage`, `prod`, and `beta`.
+- The runtime HOC is lazily gated and native bundle resolution is gated off by default unless `CODEPUSH_ENABLED=true` and a non-empty platform deployment key are present.
+- App Center CodePush remains retired/archived, upstream New Architecture support remains unavailable, and Android New Architecture is enabled, so CodePush remains a remove-or-replace decision rather than a normal dependency-refresh item.
+- Migration readiness records the current posture as temporary legacy compatibility with long-term options `remove` or `replace`.
+- Removal readiness still records 1 runtime usage file, 8 native integration files, 5 env files carrying CodePush keys, 3 iOS plist placeholders, and `Safe to remove now: no`.
+- Update validation is intentionally not claimed because `.env.dev.testnet` has blank Android/iOS deployment keys and the beta deployment-key/no-OTA strategy is unconfirmed.
+- Running the update-validation handoff with `--skip-android-release` reaches the expected readiness boundary after valid release-path, migration, removal, and aggregate release-service checks.
+
+Validation:
+
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn check:codepush-decision-handoff-guard`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn check:codepush-migration-readiness-summary-guard`
+- `corepack yarn codepush:removal-readiness:audit`
+- `corepack yarn codepush:removal-readiness:check-summary`
+- `corepack yarn check:codepush-removal-readiness-summary-guard`
+- `corepack yarn check:codepush-update-validation-handoff-guard`
+- `corepack yarn codepush:update:validation:handoff:dry-run`
+- `corepack yarn codepush:update:validation:handoff --skip-android-release` expected fail: CodePush release path is not ready for update validation
+
 ### BEM-37.533 - Release-services upload readiness refresh
 
 - Branch: `feature/bem-37-533-release-services-upload-readiness`
