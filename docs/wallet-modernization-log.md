@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.527 - Secure-storage release validation refresh
+
+- Branch: `feature/bem-37-527-secure-storage-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the secure-storage release-validation evidence for the current RN `0.86.0` baseline.
+- Run the guarded secure-storage handoff across migration/removal readiness summaries, focused secure-storage/storage/authenticator/wallet-core tests, Android dev assemble, and embedded Android smoke.
+- Keep `react-native-secure-key-store` installed because legacy fallback reads are still active and removal readiness is not claimed.
+- Keep package versions, runtime secure-storage behavior, native project files, and dependency lockfiles unchanged.
+
+Findings:
+
+- `secure-storage:migration:audit` still reports a stable staged migration posture: Keychain is the primary write target, legacy secure-storage writes are disabled, and legacy fallback reads remain active for existing installs.
+- `secure-storage:removal-readiness:audit` still reports `Legacy package removal ready: no` because release validation without fallback reads is not claimed.
+- Focused storage validation passed for `SecureStorageService`, encrypted wallet storage, authenticator storage, and offline wallet core behavior.
+- Android `devDebug` assemble passed with JDK 17.
+- The first embedded smoke run reached the first-run Terms screen but failed while dumping the UI hierarchy with transient `exit 137`; the captured screenshot showed the app running on the Terms screen, so the smoke was rerun.
+- The second embedded smoke run passed, including first-run terms, PIN setup, transaction-password setup, dashboard, Create/Import wallet CTA navigation, QR scanner screen validation, and bottom-tab navigation with no fatal/runtime logcat findings.
+- The final `secure-storage:release-validation:handoff --skip-android-smoke` completed against the fresh valid Android smoke summary and still did not claim legacy package removal readiness.
+
+Validation:
+
+- `corepack yarn secure-storage:release-validation:handoff:dry-run`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn secure-storage:release-validation:handoff` expected transient smoke failure: `dump UI hierarchy for first-run terms failed: exit 137`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn secure-storage:release-validation:handoff --skip-android-smoke`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn secure-storage:removal-readiness:audit`
+- `corepack yarn secure-storage:removal-readiness:check-summary`
+- `corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.526 - Sentry credential handoff guard
 
 - Branch: `feature/bem-37-526-sentry-credential-handoff`
