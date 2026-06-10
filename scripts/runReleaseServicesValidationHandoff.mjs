@@ -42,10 +42,10 @@ export const renderReleaseServicesValidationCommand = step => {
   return [`cwd=${cwd}`, env, command].filter(Boolean).join(' ');
 };
 
-const yarnStep = (label, script, extra = {}) => ({
+const yarnStep = (label, script, scriptArgs = [], extra = {}) => ({
   label,
   command: 'corepack',
-  args: ['yarn', script],
+  args: ['yarn', script, ...scriptArgs],
   cwd: root,
   ...extra,
 });
@@ -55,7 +55,7 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
 
   if (!options.skipAndroidRelease) {
     steps.push(
-      yarnStep('Refresh Android release APK evidence', 'android:dev:release:verify-local', {
+      yarnStep('Refresh Android release APK evidence', 'android:dev:release:verify-local', [], {
         env: {
           SENTRY_DISABLE_AUTO_UPLOAD: 'true',
         },
@@ -85,7 +85,7 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
     yarnStep('Audit iOS macOS validation prerequisites', 'ios:mac-validation-prereq:audit'),
     yarnStep('Validate iOS macOS validation prerequisite summary', 'ios:mac-validation-prereq:check-summary'),
     yarnStep('Validate iOS macOS validation handoff guard', 'check:ios-mac-validation-handoff-guard'),
-    yarnStep('Render iOS macOS validation handoff dry run', 'ios:mac-validation:handoff:dry-run'),
+    yarnStep('Render all-scheme iOS macOS validation handoff dry run', 'ios:mac-validation:handoff:dry-run', ['--all-schemes']),
     yarnStep('Validate aggregate release-services summary artifacts', 'release-services:check-summaries'),
   );
 

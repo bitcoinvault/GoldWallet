@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.491 - All-scheme iOS macOS handoff dry run
+
+- Branch: `feature/bem-37-491-ios-all-schemes-release-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the release-services validation handoff render the iOS macOS validation dry run with `--all-schemes`.
+- Keep Android release evidence refresh, service audits, iOS summary audits, and aggregate summary validation order unchanged.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- BEM-37.490 added the iOS macOS handoff dry run to release-services validation, but the default iOS handoff renders only `GoldWallet Dev (Debug)`.
+- Release-services validation is a cross-environment handoff, so the macOS/Xcode command plan should include all 8 shared iOS schemes before iOS runtime delivery can be claimed elsewhere.
+- The handoff generator now supports per-step script arguments and the release-services sequence renders `ios:mac-validation:handoff:dry-run --all-schemes`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.490 - iOS macOS handoff in release-services validation
 
 - Branch: `feature/bem-37-490-ios-mac-handoff-in-release-services`
