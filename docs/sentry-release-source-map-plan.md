@@ -29,6 +29,38 @@
 - `@sentry/react-native@8.13.0` declares `react-native >=0.65.0`, but release artifact behavior still has to be proven instead of patching `node_modules` or disabling source-map upload.
 - Android release APK generation has now been proven locally for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled; Sentry source-map upload remains explicitly not claimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available.
 
+## Credential Handoff Gate
+
+Credential owner input required before claiming release source-map validation:
+
+- provide `SENTRY_AUTH_TOKEN` in the local shell or CI secret store;
+- confirm the Sentry org and project target, using `SENTRY_ORG` and `SENTRY_PROJECT` overrides only when the target differs from `cloudbest` / `goldwallet`;
+- generate local-only `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` with `corepack yarn sentry:release:create-properties`;
+- keep generated Sentry properties files and token values out of commits, screenshots, and handoff artifacts.
+
+Evidence that must be attached to the credential handoff:
+
+- current `check:sentry-properties-generator` output;
+- current `sentry:release:validation:handoff:dry-run --skip-android-release` output;
+- current `sentry:release:prereq-audit` and `sentry:release:prereq-check-summary` output after credentials are generated;
+- current Android release build, manifest, and release-smoke evidence;
+- current `sentry:android-warning:audit` and `sentry:android-warning:check-summary` output;
+- current release-services aggregate summary;
+- iOS macOS/Xcode/CocoaPods blocker or validation result.
+
+Do not run or claim real Sentry release upload validation until `SENTRY_AUTH_TOKEN` is present and the three generated properties files are ready.
+Do not commit `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, or token-derived output.
+Do not print `SENTRY_AUTH_TOKEN` or generated `auth.token` values in handoff artifacts.
+Do not claim iOS dSYM/source-map upload validation unless it ran on macOS/Xcode or a real CI equivalent.
+
+## Source Map Upload Acceptance Gate
+
+- run `corepack yarn sentry:release:validation:handoff` with `SENTRY_AUTH_TOKEN` available;
+- keep `SENTRY_DISABLE_AUTO_UPLOAD=true` only for Android release evidence refresh, not for the final upload validation claim;
+- prove Android release artifact generation still covers `dev`, `stage`, `prod`, and `beta` variants;
+- prove the Sentry release prerequisite summary reports `Release source-map prerequisites: ready`;
+- leave release source-map upload as `not claimed` when credentials are missing.
+
 ## Why This Needs A Dedicated Branch
 
 - Sentry touches release bundling, source maps, dSYM upload, Crashlytics-adjacent observability, and build scripts.
@@ -61,6 +93,7 @@ Scope:
 - `corepack yarn check:sentry-release-prereq-summary-guard`.
 - `corepack yarn check:sentry-properties-generator`.
 - `corepack yarn check:sentry-release-validation-handoff-guard`.
+- `corepack yarn check:sentry-credential-handoff-guard`.
 - `corepack yarn sentry:release:validation:handoff:dry-run`.
 - `corepack yarn sentry:android-warning:audit`.
 - `corepack yarn sentry:android-warning:check-summary`.
