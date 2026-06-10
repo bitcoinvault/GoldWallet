@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.532 - Android Gradle warning baseline refresh
+
+- Branch: `feature/bem-37-532-gradle-9-warning-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android Gradle warning/deprecation evidence after the Android release validation and Camera/QR cleanup branches.
+- Re-run the `--warning-mode all` Android dev build audit with JDK `17.0.19`.
+- Confirm whether the Gradle `9.0` compatibility warning comes from repo-owned build scripts or a remaining guarded dependency source.
+- Keep build scripts and package versions unchanged because the only remaining targeted warning source is the intentionally retained secure-storage fallback package.
+
+Findings:
+
+- `android:dev:audit-warnings` completed successfully with Gradle audit exit code `0`.
+- The current warning baseline still has exactly 1 targeted Android Gradle warning and 0 unexpected targeted warnings.
+- The only targeted source remains `node_modules/react-native-secure-key-store/android/build.gradle:46`, where the legacy secure-storage dependency still calls `jcenter()`.
+- `docs/android-warning-baseline-followups.md` and `scripts/androidWarningBaselineGuard.mjs` still match the current baseline.
+- The warning is not fixed in this branch because patching `node_modules` would hide the compatibility signal and the package is still retained for legacy fallback reads.
+- The follow-up remains the dedicated secure-storage removal branch after release validation proves migrated secure values work without fallback reads.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_WARNING_AUDIT_TIMEOUT_MS=900000 corepack yarn android:dev:audit-warnings`
+- `corepack yarn android:dev:check-warning-audit-summary`
+- `corepack yarn android:dev:check-warning-source-summaries`
+- `corepack yarn check:android-remaining-warning-plan`
+
 ### BEM-37.531 - Camera/QR migration validation refresh
 
 - Branch: `feature/bem-37-531-camera-qr-strategy-refresh`
