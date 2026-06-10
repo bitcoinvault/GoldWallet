@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.498 - Release-services handoff aggregate readiness
+
+- Branch: `feature/bem-37-498-release-services-handoff-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Export the aggregate release-services summary artifact checker as a reusable readiness helper.
+- Make the release-services validation handoff run a final aggregate summary readiness gate after its command sequence.
+- Add handoff guard coverage that rejects missing release-services summary artifacts.
+- Keep release-service package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The aggregate release-services checker already validates Android release evidence, Android release smoke, Sentry, Firebase, CodePush, push-notification, and static iOS/macOS prerequisite summaries.
+- The release-services handoff previously relied on the final `release-services:check-summaries` command output but did not expose its own post-sequence readiness helper.
+- iOS runtime/archive validation remains blocked on this Windows machine; static iOS and macOS prerequisite guards remain the local evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.497 - CodePush update handoff summary guard
 
 - Branch: `feature/bem-37-497-codepush-handoff-summary-guard`

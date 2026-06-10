@@ -8,6 +8,7 @@ const checkerPath = path.join(root, 'scripts', 'checkReleaseServicesSummaryArtif
 const checkerSource = readFileSync(checkerPath, 'utf8');
 
 const requiredSnippets = [
+  "import { fileURLToPath, pathToFileURL } from 'url';",
   "import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';",
   "import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';",
   "import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';",
@@ -21,14 +22,16 @@ const requiredSnippets = [
   "import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';",
   "import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';",
   "import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';",
+  'export const releaseServicesSummaryArtifacts = [',
+  'export const getReleaseServicesSummaryArtifactErrors =',
   "label: 'Android release summary'",
   "relativePath: 'local-docs/android-release-dev-summary.txt'",
-  'getAndroidReleaseSummaryErrors(summary, root)',
+  'getAndroidReleaseSummaryErrors(summary, rootPath)',
   "label: 'Android release APK manifest'",
-  'getAndroidReleaseApkManifestErrors({ root })',
+  'getAndroidReleaseApkManifestErrors({ root: rootPath })',
   "label: 'Android release smoke'",
   "relativePath: 'local-docs/android-smoke-dev-release-summary.txt'",
-  'getAndroidEmbeddedSmokeSummaryErrors(summary, getAndroidReleaseSmokeEvidenceOptions(root))',
+  'getAndroidEmbeddedSmokeSummaryErrors(summary, getAndroidReleaseSmokeEvidenceOptions(rootPath))',
   "label: 'Sentry release prerequisite'",
   "relativePath: 'local-docs/sentry-release-prereq-summary.txt'",
   "label: 'Sentry Android warning'",
@@ -49,6 +52,7 @@ const requiredSnippets = [
   "relativePath: 'local-docs/ios-mac-validation-prereqs-summary.txt'",
   'Release-services summary artifacts are invalid:',
   'Release-services summary artifacts are valid.',
+  'import.meta.url === pathToFileURL(process.argv[1]).href',
 ];
 
 const missingSnippets = requiredSnippets.filter(snippet => !checkerSource.includes(snippet));
