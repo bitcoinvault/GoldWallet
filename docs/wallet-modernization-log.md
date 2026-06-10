@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.469 - CodePush release evidence refresh after RN 0.86
+
+- Branch: `feature/bem-37-469-codepush-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release APK evidence after the RN `0.86.0` foundation and recent release-service package updates.
+- Re-run the guarded CodePush release-path, migration-readiness, and removal-readiness audits against the refreshed Android release evidence.
+- Keep CodePush as a temporary legacy compatibility path and do not claim OTA update validation without deployment keys, beta strategy, and a remove-or-replace product decision.
+- Keep runtime/native/package files unchanged; this branch updates release evidence and records the current blocker state.
+
+Findings:
+
+- Before the release refresh, CodePush release-path audit rejected the local Android release summary because the release input fingerprint no longer matched current release inputs.
+- `android:dev:release:verify-local` rebuilt and validated `dev`, `stage`, `prod`, and `beta` release APKs with Sentry upload disabled, then validated release summaries and APK manifests.
+- After the refresh, CodePush release-path evidence reports Android release summary valid, current release inputs covered, required variants covered, and APK manifests valid.
+- CodePush package remains current at `react-native-code-push@9.0.1`, but App Center CodePush is retired, the upstream repository is archived, and upstream New Architecture support is still absent while Android New Architecture is enabled.
+- CodePush update validation remains `not claimed`: `.env.dev.testnet` has blank Android/iOS CodePush deployment keys, beta env files have unconfirmed CodePush key strategy, and the long-term decision is still remove or replace.
+- No app emulator smoke was run for this branch because runtime/native/package files were not changed; the branch performed Android release APK build/manifest validation and CodePush release evidence validation only.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-release-path-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-migration-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-removal-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn codepush:update:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.468 - Foundation evidence refresh after RN 0.86
 
 - Branch: `feature/bem-37-468-foundation-evidence-refresh`
