@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -103,6 +104,10 @@ export const getCodePushUpdateValidationReadinessErrors = ({
   if (!releasePathSummaryText) {
     errors.push('CodePush release path summary is missing; run codepush:release:path-audit first');
   } else {
+    getCodePushReleasePathSummaryErrors(releasePathSummaryText).forEach(error => {
+      errors.push(`CodePush release path summary is invalid: ${error}`);
+    });
+
     if (!releasePathSummaryText.includes('Secret values printed: no')) {
       errors.push('CodePush handoff summary must prove that deployment-key values were not printed');
     }
