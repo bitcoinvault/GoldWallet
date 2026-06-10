@@ -84,6 +84,8 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
     yarnStep('Validate static iOS release readiness summary', 'ios:release:readiness:check-summary'),
     yarnStep('Audit iOS macOS validation prerequisites', 'ios:mac-validation-prereq:audit'),
     yarnStep('Validate iOS macOS validation prerequisite summary', 'ios:mac-validation-prereq:check-summary'),
+    yarnStep('Validate iOS macOS validation handoff guard', 'check:ios-mac-validation-handoff-guard'),
+    yarnStep('Render iOS macOS validation handoff dry run', 'ios:mac-validation:handoff:dry-run'),
     yarnStep('Validate aggregate release-services summary artifacts', 'release-services:check-summaries'),
   );
 
