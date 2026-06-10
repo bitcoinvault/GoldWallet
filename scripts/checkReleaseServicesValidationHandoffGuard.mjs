@@ -39,6 +39,8 @@ const skippedRendered = skippedCommands.map(renderReleaseServicesValidationComma
   'corepack yarn ios:release:readiness:check-summary',
   'corepack yarn ios:mac-validation-prereq:audit',
   'corepack yarn ios:mac-validation-prereq:check-summary',
+  'corepack yarn check:ios-mac-validation-handoff-guard',
+  'corepack yarn ios:mac-validation:handoff:dry-run',
   'corepack yarn release-services:check-summaries',
 ].forEach(expected => {
   assert(fullRendered.includes(expected), `Expected release-services handoff commands to include: ${expected}`);
@@ -59,6 +61,14 @@ assert(
 assert(
   skippedRendered.includes('corepack yarn sentry:release:prereq-audit'),
   'Skipped release-services handoff must still include Sentry prereq audit',
+);
+assert(
+  skippedRendered.includes('corepack yarn check:ios-mac-validation-handoff-guard'),
+  'Skipped release-services handoff must still validate the iOS macOS validation handoff guard',
+);
+assert(
+  skippedRendered.includes('corepack yarn ios:mac-validation:handoff:dry-run'),
+  'Skipped release-services handoff must still render the iOS macOS validation handoff dry run',
 );
 assert(
   skippedCommands[skippedCommands.length - 1].args.includes('release-services:check-summaries'),

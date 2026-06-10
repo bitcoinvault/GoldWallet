@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.490 - iOS macOS handoff in release-services validation
+
+- Branch: `feature/bem-37-490-ios-mac-handoff-in-release-services`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Require the aggregate release-services validation handoff to verify the iOS macOS validation handoff guard.
+- Render the iOS macOS validation handoff dry run as part of the release-services handoff sequence, so macOS/Xcode/CocoaPods/pod install/xcodebuild commands remain visible before runtime delivery is claimed.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- Current iOS static readiness is valid, but iOS archive/runtime delivery remains not claimed on Windows because `xcodebuild` is unavailable and `ios/Podfile.lock` still has 12 drift issues against the RN 0.86 dependency set.
+- `release-services:check-summaries` already validates the iOS readiness and macOS prerequisite summary artifacts, but the executable release-services handoff did not render the dedicated `ios:mac-validation:handoff:dry-run` sequence.
+- The release-services handoff now keeps iOS readiness evidence and the macOS execution plan tied together without pretending that iOS runtime validation ran on this machine.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.489 - QR scanner Android smoke coverage
 
 - Branch: `feature/bem-37-489-qr-scanner-smoke`
