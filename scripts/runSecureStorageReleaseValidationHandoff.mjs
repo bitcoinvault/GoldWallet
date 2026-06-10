@@ -68,7 +68,12 @@ export const getSecureStorageReleaseValidationCommands = (options = defaultOptio
   ];
 
   if (!options.skipAndroidSmoke) {
-    steps.push(yarnStep('Run Android dev build and emulator smoke', 'android:dev:verify'));
+    steps.push(
+      yarnStep('Audit Android dev environment for secure-storage smoke', 'android:dev:env-audit'),
+      yarnStep('Assemble Android dev debug APK for secure-storage smoke', 'android:dev:assemble'),
+      yarnStep('Run Android embedded smoke for secure-storage release validation', 'android:dev:smoke:embedded'),
+      yarnStep('Validate Android dev smoke summary', 'android:dev:check-smoke-summary'),
+    );
   }
 
   return steps;
