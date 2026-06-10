@@ -38,7 +38,7 @@ Current expectation:
 
 ### Group B - Navigation And Layout Native Surface
 
-- `react-native-gesture-handler` -> `3.0.0`
+- `react-native-gesture-handler` -> `3.0.1`
 - `@react-native-community/blur` -> `4.4.1`
 - `@react-native-community/masked-view` -> removed
 - `react-native-bootsplash` -> `7.3.1`
@@ -70,7 +70,7 @@ Branch shape:
 - `react-native-fast-image` is on latest checked `8.6.3` after `BEM-36.53`; future image work should focus on cached image behavior and any RN baseline-driven replacement rather than another 8.x package bump.
 - `@react-native-community/slider` is on checked `5.2.0` after `BEM-37.108`; the app has no source imports for Slider, and the package no longer contributes Android `jcenter()` warnings on the RN `0.86.0` baseline.
 - `react-native-vector-icons` is on checked latest `10.3.0` after `BEM-37.110`; the package no longer requires `@react-native-community/toolbar-android` and no longer contributes an Android `jcenter()` warning. Future icon work should focus on the package's per-icon-family migration guidance and iOS font validation rather than another warning-only cleanup.
-- `react-native-gesture-handler` is on latest checked `3.0.0` after `BEM-37.219`; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces on the current RN `0.86.0` New Architecture baseline.
+- `react-native-gesture-handler` is on latest checked `3.0.1` after `BEM-37.219`; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces on the current RN `0.86.0` New Architecture baseline.
 - `@react-native-community/masked-view` was removed after moving the navigation proof to `@react-navigation/stack@7.10.2`, which no longer requires the old community masked-view runtime path.
 - `corepack yarn masked-view:migration:audit` now guards the completed removal state and keeps the warning baseline at one remaining targeted source.
 

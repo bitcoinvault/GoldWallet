@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.520 - Foundation online preflight refresh
+
+- Branch: `feature/bem-37-520-foundation-preflight-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the full online React Native baseline preflight gate under the repo Node `24.16.0` tooling baseline.
+- Validate live RN target snapshot, direct outdated decisions, git dependency pins, wallet/crypto latest snapshot, storage/network latest snapshot, tooling latest snapshot, Android toolchain target, BL/node-fetch resolution blockers, foundation summaries, and offline RN baseline preflight.
+- Fix preflight drift where the RN upgrade-path audit still expected an older baseline preflight command and the native-module plan still listed the older gesture-handler version.
+- Keep package versions, runtime application code, native project files, release artifacts, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The first online preflight attempt used Node `v22.18.0` and correctly failed because the repo baseline requires Node `v24.16.0`.
+- Re-running with `D:\tmp\node\node-v24.16.0-win-x64` reached the offline preflight and exposed two actionable guard/doc drifts.
+- `scripts/auditReactNativeUpgradePath.mjs` now expects the current `rn:baseline:preflight` command from `package.json`, including the Camera/QR validation handoff guard, iOS release readiness audit guard, and Android release APK manifest guard.
+- `docs/native-module-upgrade-plan.md` now records `react-native-gesture-handler@3.0.1`, matching `package.json`, `yarn.lock`, and the native module inventory guard.
+- The full `rn:baseline:preflight:online` gate then passed under Node `24.16.0`.
+- Latest target evidence remains unchanged: RN `0.86.0` is npm latest, React `19.2.7` remains blocked by RN renderer exact-version coupling, AGP 9/Gradle 9 remain blocked by the RN Gradle plugin Kotlin metadata path, `bl@7` and `node-fetch@3` remain blocked by CommonJS/transitive consumers, and iOS archive validation remains blocked on this Windows machine until macOS/Xcode/CocoaPods refresh `ios/Podfile.lock`.
+
+Validation:
+
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn check:native-module-upgrade-plan-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:baseline:preflight:online`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.519 - React Native latest target refresh
 
 - Branch: `feature/bem-37-519-rn-latest-target-refresh`
