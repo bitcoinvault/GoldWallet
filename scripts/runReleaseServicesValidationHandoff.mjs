@@ -67,6 +67,7 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
   }
 
   steps.push(
+    yarnStep('Validate Sentry properties generator', 'check:sentry-properties-generator'),
     yarnStep('Audit Sentry Android warning surface', 'sentry:android-warning:audit'),
     yarnStep('Validate Sentry Android warning summary', 'sentry:android-warning:check-summary'),
     yarnStep('Audit Sentry release prerequisites', 'sentry:release:prereq-audit'),

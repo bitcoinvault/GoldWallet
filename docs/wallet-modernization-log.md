@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.503 - Release-services Sentry generator guard coverage
+
+- Branch: `feature/bem-37-503-release-services-sentry-generator-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:sentry-properties-generator` to the aggregate `release-services:validation:handoff` sequence before Sentry release prerequisite auditing.
+- Extend the release-services handoff self-guard so skipped-Android and full handoffs both keep Sentry properties generator validation in the sequence.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The Sentry-specific handoff already validated the properties generator, but the broader release-services handoff went straight to Sentry Android warning and release prerequisite audits.
+- Current upstream metadata reports `@sentry/react-native` latest/current as `8.13.0` and direct `@sentry/cli` latest/current as `3.5.0`.
+- Sentry source-map upload readiness remains intentionally not claimed locally because `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` require `SENTRY_AUTH_TOKEN`.
+- No dependency, runtime, native, or Metro behavior changed in this branch, so Android emulator smoke is not required for this handoff guard wiring change.
+
+Validation:
+
+- `corepack yarn check:release-services-validation-handoff-guard`
+- `corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `corepack yarn check:sentry-properties-generator`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn release-services:validation:handoff:dry-run`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.502 - iOS release readiness audit guard
 
 - Branch: `feature/bem-37-502-ios-release-readiness-audit-guard`
