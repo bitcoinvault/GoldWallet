@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.521 - CodePush decision readiness refresh
+
+- Branch: `feature/bem-37-521-codepush-decision-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh CodePush release-path, migration-readiness, removal-readiness, npm latest, and upstream archive evidence.
+- Keep CodePush as a guarded release-decision workstream rather than a normal package-upgrade target.
+- Keep package versions, runtime application code, native project files, env values, release artifacts, and Metro behavior unchanged.
+
+Findings:
+
+- `react-native-code-push@9.0.1` remains the latest npm release; npm reports it was published on 2024-12-19.
+- `microsoft/react-native-code-push` and `microsoft/code-push-server` remain archived/read-only according to live `gh repo view` checks on 2026-06-10.
+- The current CodePush release path is build-compatible and release evidence is present for `dev`, `stage`, `prod`, and `beta`, but update validation remains explicitly not claimed.
+- Runtime startup and native bundle resolution remain gated off by default through `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key.
+- The app has Android New Architecture enabled while upstream CodePush has no New Architecture support, so CodePush migration remains required even though the package is current.
+- Removal is not safe yet because runtime, native, plist, and env-key surfaces remain installed and the team still needs a remove-or-replace decision.
+- `.env.stage.mainnet` and `.env.prod.mainnet` are ready from the CodePush env-key perspective; `.env.dev.testnet` remains blocked by blank deployment keys, and beta strategy remains unconfirmed.
+
+Validation:
+
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn codepush:removal-readiness:audit`
+- `corepack yarn codepush:removal-readiness:check-summary`
+- `corepack yarn check:codepush-update-validation-handoff-guard`
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
+- `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
+- `npm view react-native-code-push version time repository.url --json`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.520 - Foundation online preflight refresh
 
 - Branch: `feature/bem-37-520-foundation-preflight-refresh`
