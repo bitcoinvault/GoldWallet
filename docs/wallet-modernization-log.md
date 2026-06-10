@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.475 - Secure-storage removal guard hardening
+
+- Branch: `feature/bem-37-475-secure-storage-removal-guard-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the secure-storage removal-readiness audit before any future attempt to remove the final Android warning source, `react-native-secure-key-store`.
+- Split the fallback migration coverage claim into explicit `SecureStorageService` and `AppStorage` checks so migrated PIN/transaction-password coverage and encrypted wallet storage coverage cannot drift independently.
+- Keep runtime code, native project files, package versions, and the staged legacy fallback behavior unchanged.
+
+Findings:
+
+- `SecureStorageService` already has focused tests for Keychain-primary reads, legacy fallback migration, failed Keychain migration writes, transaction-password verification, and cleanup.
+- `AppStorage` already has focused React Native storage tests for Keychain-only writes, Keychain-primary reads, legacy fallback migration, failed Keychain migration writes, and encrypted wallet storage behavior.
+- Legacy secure-storage removal remains blocked because fallback reads are still active and release/device validation without the fallback backend is not claimed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-removal-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:secure-storage:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.474 - Release-services validation refresh after RN 0.86
 
 - Branch: `feature/bem-37-474-release-services-validation-refresh`

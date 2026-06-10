@@ -31,13 +31,16 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
   const legacyWritePathDisabled =
     !secureStorageService.includes('RNSecureKeyStore.set') &&
     !appStorage.includes('RNSecureKeyStore.set');
-  const fallbackMigrationTestsPresent =
+  const serviceFallbackMigrationTestsPresent =
     unitTest.includes('returns keychain credentials without touching the legacy secure store') &&
     unitTest.includes('falls back to the legacy secure store and migrates the value into keychain') &&
     unitTest.includes('keeps returning the legacy value when keychain migration write fails') &&
-    unitTest.includes('rejects transaction passwords that do not match the stored hash') &&
+    unitTest.includes('rejects transaction passwords that do not match the stored hash');
+  const appStorageFallbackMigrationTestsPresent =
     storageTest.includes('migrates legacy value into keychain when keychain is empty') &&
-    storageTest.includes('falls back to legacy value when keychain read fails');
+    storageTest.includes('falls back to legacy value when keychain read fails') &&
+    storageTest.includes('keeps legacy value when keychain migration write fails');
+  const fallbackMigrationTestsPresent = serviceFallbackMigrationTestsPresent && appStorageFallbackMigrationTestsPresent;
   const androidWarningSourceStillExpected =
     warningFollowups.includes('react-native-secure-key-store') &&
     warningFollowups.includes('dedicated secure-storage removal after legacy fallback migration validation');
@@ -84,6 +87,8 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     keychainPrimaryWrite,
     legacyFallbackReadsActive,
     legacyWritePathDisabled,
+    serviceFallbackMigrationTestsPresent,
+    appStorageFallbackMigrationTestsPresent,
     fallbackMigrationTestsPresent,
     removalReleaseValidationClaimed: false,
     androidWarningSourceStillExpected,
@@ -105,6 +110,8 @@ export const formatSecureStorageRemovalReadinessSummary = (audit, generatedAt = 
     `Keychain primary write: ${audit.keychainPrimaryWrite ? 'yes' : 'no'}`,
     `Legacy fallback reads active: ${audit.legacyFallbackReadsActive ? 'yes' : 'no'}`,
     `Legacy write path disabled: ${audit.legacyWritePathDisabled ? 'yes' : 'no'}`,
+    `SecureStorageService fallback migration tests present: ${audit.serviceFallbackMigrationTestsPresent ? 'yes' : 'no'}`,
+    `AppStorage fallback migration tests present: ${audit.appStorageFallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `Fallback migration tests present: ${audit.fallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `Removal release validation claimed: ${audit.removalReleaseValidationClaimed ? 'yes' : 'no'}`,
     `Android warning source still expected: ${audit.androidWarningSourceStillExpected ? 'yes' : 'no'}`,

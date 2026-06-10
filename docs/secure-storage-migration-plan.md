@@ -46,6 +46,7 @@ Branch: `feature/bem-37-secure-storage-keychain-migration`
 - `corepack yarn secure-storage:release-validation:handoff`
 - `corepack yarn test:storage-network:focused`, including `test:secure-storage:unit` before storage, authenticator, and wallet-core offline checks.
 - Focused fallback regression coverage for failed Keychain migration writes in `SecureStorageService` and `AppStorage`.
+- `secure-storage:removal-readiness:audit` must report both `SecureStorageService fallback migration tests present: yes` and `AppStorage fallback migration tests present: yes`; a single aggregate fallback-test line is not enough to prove encrypted wallet storage migration coverage.
 - `corepack yarn android:dev:check-light`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
 - Metro restart with `--reset-cache`
