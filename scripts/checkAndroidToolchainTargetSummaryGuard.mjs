@@ -14,7 +14,7 @@ const validSummary = [
   'Latest Android toolchain target blocked: yes',
   'Blockers: 3',
   '- AGP 9.2.1 requires Gradle 9.4.1 or newer.',
-  '- Gradle 9.4.1 and 9.5.1 load newer embedded Kotlin runtime metadata that the React Native Gradle plugin 0.85.3 Kotlin compiler path cannot read during :gradle-plugin:settings-plugin:compileKotlin.',
+  '- Gradle 9.4.1 and 9.5.1 load newer embedded Kotlin runtime metadata that the React Native Gradle plugin 0.86.0 Kotlin compiler path cannot read during :gradle-plugin:settings-plugin:compileKotlin.',
   '- The validated Android baseline remains AGP 8.13.2, Gradle 8.13, Kotlin 2.1.20, compile/target SDK 36, and JDK 17 until a newer React Native Gradle plugin baseline clears the blocker.',
   'Required action: keep the validated AGP 8.13 Android baseline until a React Native Gradle plugin baseline can compile against AGP 9 / Gradle 9, then rerun Android assemble, release validation, and emulator smoke.',
   '',

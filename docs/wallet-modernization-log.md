@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.468 - Foundation evidence refresh after RN 0.86
+
+- Branch: `feature/bem-37-468-foundation-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh active foundation evidence, guard fixtures, and workflow docs after the React Native `0.86.0` upgrade.
+- Keep the Android toolchain target blocker tied to the current React Native Gradle plugin `0.86.0` path instead of the previous `0.85.3` checkpoint.
+- Align Jest preset evidence, React package coupling docs, Sentry Android warning guard wording, iOS macOS prerequisite guard wording, and the dependency upgrade strategy with the current foundation.
+- Keep historical milestone entries unchanged and avoid package/runtime/native project changes.
+
+Findings:
+
+- Android toolchain target evidence now reflects RN Gradle plugin `0.86.0`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, latest AGP `9.2.1`, latest Gradle `9.5.1`, and latest Kotlin `2.4.0`.
+- AGP 9 / Gradle 9 remains blocked because the RN Gradle plugin `0.86.0` Kotlin compiler path still cannot consume the newer embedded Kotlin runtime metadata loaded by Gradle 9.
+- `@react-native/jest-preset@0.86.0` still declares `jest-environment-node@^29.7.0`, so the Jest 30 resolution guard remains required.
+- React `19.2.7` remains blocked on the RN `0.86.0` line because the bundled renderer is still exact-version sensitive to React `19.2.3`.
+- iOS/macOS runtime validation remains blocked on this Windows host; the static prereq summary should name RN `0.86.0` and Xcode `16.1+`.
+- No emulator smoke was run for this branch because it changes documentation and guard/evidence expectations only, not app runtime, native project files, dependencies, or Metro behavior.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-toolchain-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn jest:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:react-renderer-version-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:renderer-version:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:react-package-coupling-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:package-coupling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-android-warning-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn upgrade:strategy:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:076-foundation:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node:runtime-transition:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.467 - Tooling patch direct-outdated refresh
 
 - Branch: `feature/bem-37-467-tooling-patch-refresh`
