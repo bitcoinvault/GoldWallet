@@ -35,12 +35,12 @@ if (packageJson.husky) {
   errors.push('package.json still has legacy Husky v4 "husky" configuration');
 }
 
-if (packageJson.scripts.precommit !== 'yarn lint-staged:tooling:audit && yarn lint-staged && yarn typescript:check') {
-  errors.push('package.json precommit script must run lint-staged tooling audit before lint-staged and typescript:check');
+if (packageJson.scripts.precommit !== 'yarn check:node-runtime-version && yarn lint-staged:tooling:audit && yarn lint-staged && yarn typescript:check') {
+  errors.push('package.json precommit script must run Node runtime, lint-staged tooling, lint-staged, and TypeScript checks in order');
 }
 
-if (!packageJson.scripts.prepush?.startsWith('yarn android:dev:check-light')) {
-  errors.push('package.json prepush script must start with android:dev:check-light');
+if (!packageJson.scripts.prepush?.startsWith('yarn check:node-runtime-version && yarn android:dev:check-light')) {
+  errors.push('package.json prepush script must start with check:node-runtime-version and android:dev:check-light');
 }
 
 for (const [relativePath, expectedCommand] of Object.entries(expectedHooks)) {
