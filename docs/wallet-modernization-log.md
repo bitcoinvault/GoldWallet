@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.483 - RN online preflight evidence refresh
+
+- Branch: `feature/bem-37-483-rn-online-preflight-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the full online React Native foundation checkpoint against live npm/GitHub metadata on 2026-06-10.
+- Refresh local Android release APK evidence after the first online preflight run found a stale release-input fingerprint.
+- Keep package versions, runtime code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- `react-native@0.86.0` remains npm `latest`; `0.86.0-rc.3` remains a prerelease `next` channel and `0.87.0-nightly-20260608-2ff3b81dc` remains nightly-only.
+- Direct outdated entries are still all accounted for: React and `react-test-renderer` stay blocked by the RN renderer exact-version coupling; `bl@7` and `node-fetch@3` stay blocked by CommonJS/ESM compatibility; BitcoinVault forks and `rn-nodeify` stay covered by git dependency provenance.
+- Wallet/crypto, storage/network, tooling, Firebase, Sentry, QR/camera, and push-notification latest snapshots stayed current or explicitly guarded.
+- Android release summary and APK manifests were refreshed with JDK 17 and Sentry auto-upload disabled, clearing the stale release-input fingerprint that initially blocked CodePush migration readiness.
+- AGP `9.2.1` / Gradle `9.5.1` remains blocked by the React Native Gradle plugin `0.86.0` Kotlin compiler path; the validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- iOS runtime delivery remains blocked on macOS/Xcode/CocoaPods and `ios/Podfile.lock` drift; Windows static guards continue to record the exact blocker.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native/gradle-plugin version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn outdated --json` expected exit `1` with known outdated entries only
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online` initially failed at CodePush migration readiness because `local-docs/android-release-dev-summary.txt` had a stale release-input fingerprint
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+
 ### BEM-37.482 - Secure-storage dev-smoke readiness guard
 
 - Branch: `feature/bem-37-482-secure-storage-smoke-readiness`
