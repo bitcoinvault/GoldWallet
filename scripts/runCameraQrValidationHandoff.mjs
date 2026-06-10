@@ -1,0 +1,208 @@
+import { existsSync, readFileSync } from 'fs';
+import { spawnSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.mjs';
+import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, '..');
+const cameraCandidateSummaryPath = path.join(root, 'local-docs', 'camera-candidate-summary.txt');
+const cameraQrMigrationSummaryPath = path.join(root, 'local-docs', 'camera-qr-migration-summary.txt');
+
+const defaultOptions = {
+  dryRun: false,
+};
+
+const usage = [
+  'Usage: node scripts/runCameraQrValidationHandoff.mjs [--dry-run]',
+  '',
+  'Examples:',
+  '  node scripts/runCameraQrValidationHandoff.mjs --dry-run',
+  '  node scripts/runCameraQrValidationHandoff.mjs',
+].join('\n');
+
+const quoteArg = arg => {
+  if (/^[A-Za-z0-9_./:=+-]+$/.test(arg)) {
+    return arg;
+  }
+
+  return `"${arg.replace(/"/g, '\\"')}"`;
+};
+
+const getSpawnInvocation = step => {
+  if (process.platform !== 'win32') {
+    return { command: step.command, args: step.args };
+  }
+
+  return { command: 'cmd.exe', args: ['/d', '/s', '/c', step.command, ...step.args] };
+};
+
+export const renderCameraQrValidationCommand = step => {
+  const command = [step.command, ...step.args].map(quoteArg).join(' ');
+  const cwd = step.cwd === root ? '.' : path.relative(root, step.cwd).replace(/\\/g, '/');
+
+  return [`cwd=${cwd}`, command].join(' ');
+};
+
+const yarnStep = (label, script) => ({
+  label,
+  command: 'corepack',
+  args: ['yarn', script],
+  cwd: root,
+});
+
+export const getCameraQrValidationCommands = () => [
+  yarnStep('Audit Camera/QR candidate metadata', 'camera:candidate:audit'),
+  yarnStep('Validate Camera/QR candidate summary', 'camera:candidate:check-summary'),
+  yarnStep('Audit CameraKit QR migration wiring', 'camera:qr-migration:audit'),
+  yarnStep('Validate CameraKit QR migration summary', 'camera:qr-migration:check-summary'),
+  yarnStep('Validate camera usage guard fixtures', 'check:camera-usage-guard'),
+  yarnStep('Validate camera runtime usage scope', 'check:camera-usage-scope'),
+  yarnStep('Validate QR scanner caller guard fixtures', 'check:qr-scan-caller-guard'),
+  yarnStep('Validate QR scanner caller inventory', 'check:qr-scan-callers'),
+  yarnStep('Validate QR scanner test guard', 'check:qr-scanner-validation-scripts'),
+  yarnStep('Run focused QR scanner unit test', 'test:qr-scanner:unit'),
+  yarnStep('Validate QR render usage guard fixtures', 'check:qr-render-usage-guard'),
+  yarnStep('Validate QR render usage inventory', 'check:qr-render-usage'),
+  yarnStep('Validate QR render test guard', 'check:qr-render-validation-scripts'),
+  yarnStep('Run focused QR render unit test', 'test:qr-render:unit'),
+];
+
+export const getCameraQrValidationHandoffErrors = options => {
+  const errors = [];
+
+  if (typeof options.dryRun !== 'boolean') {
+    errors.push('dryRun must be a boolean');
+  }
+
+  return errors;
+};
+
+export const getCameraQrValidationReadinessErrors = ({ candidateSummaryText, migrationSummaryText }) => {
+  const errors = [];
+
+  if (!candidateSummaryText) {
+    errors.push('Camera candidate summary is missing; run camera:candidate:audit first');
+  } else {
+    getCameraCandidateSummaryErrors(candidateSummaryText).forEach(error => {
+      errors.push(`Camera candidate summary is invalid: ${error}`);
+    });
+  }
+
+  if (!migrationSummaryText) {
+    errors.push('Camera QR migration summary is missing; run camera:qr-migration:audit first');
+  } else {
+    getCameraQrMigrationSummaryErrors(migrationSummaryText).forEach(error => {
+      errors.push(`Camera QR migration summary is invalid: ${error}`);
+    });
+  }
+
+  return errors;
+};
+
+const readSummary = summaryPath => {
+  if (!existsSync(summaryPath)) {
+    return null;
+  }
+
+  return readFileSync(summaryPath, 'utf8');
+};
+
+const parseArgs = argv => {
+  const options = { ...defaultOptions };
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+
+    if (arg === '--dry-run') {
+      options.dryRun = true;
+    } else if (arg === '--help' || arg === '-h') {
+      options.help = true;
+    } else {
+      options.unknown = arg;
+    }
+  }
+
+  return options;
+};
+
+const runStep = step => {
+  console.log(`\n${step.label}`);
+  console.log(renderCameraQrValidationCommand(step));
+
+  const invocation = getSpawnInvocation(step);
+  const result = spawnSync(invocation.command, invocation.args, {
+    cwd: step.cwd,
+    env: process.env,
+    stdio: 'inherit',
+    windowsHide: true,
+  });
+
+  if (result.error) {
+    console.error(result.error.message);
+    return 1;
+  }
+
+  return result.status ?? 1;
+};
+
+const main = () => {
+  const options = parseArgs(process.argv.slice(2));
+
+  if (options.help) {
+    console.log(usage);
+    return 0;
+  }
+
+  if (options.unknown) {
+    console.error(`Unknown argument: ${options.unknown}`);
+    console.error(usage);
+    return 1;
+  }
+
+  const errors = getCameraQrValidationHandoffErrors(options);
+
+  if (errors.length > 0) {
+    errors.forEach(error => console.error(error));
+    return 1;
+  }
+
+  const commands = getCameraQrValidationCommands();
+
+  if (options.dryRun) {
+    console.log('Camera/QR validation handoff dry run');
+    commands.forEach((step, index) => {
+      console.log(`${index + 1}. ${step.label}`);
+      console.log(`   ${renderCameraQrValidationCommand(step)}`);
+    });
+    console.log('Dry run complete. Run without --dry-run to execute Camera/QR validation.');
+    return 0;
+  }
+
+  for (const step of commands) {
+    const status = runStep(step);
+
+    if (status !== 0) {
+      return status;
+    }
+  }
+
+  const readinessErrors = getCameraQrValidationReadinessErrors({
+    candidateSummaryText: readSummary(cameraCandidateSummaryPath),
+    migrationSummaryText: readSummary(cameraQrMigrationSummaryPath),
+  });
+
+  if (readinessErrors.length > 0) {
+    console.error('\nCamera/QR validation handoff artifacts are blocked:');
+    readinessErrors.forEach(error => console.error(`- ${error}`));
+    return 1;
+  }
+
+  console.log('\nCamera/QR validation handoff completed.');
+  return 0;
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  process.exit(main());
+}
