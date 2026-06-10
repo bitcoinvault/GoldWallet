@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.538 - Node shell runtime guard
+
+- Branch: `feature/bem-37-538-node-shell-runtime-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a repo-owned active Node runtime guard for Git hook and validation entrypoints.
+- Require `precommit` and `prepush` to fail fast when the current shell Node version does not match `.nvmrc`.
+- Keep package versions, lockfile entries, native project files, runtime app code, and Husky hook files unchanged.
+
+Findings:
+
+- The previous precommit guard rejected the local Node `v22.18.0` through the `lint-staged@17.0.7` engine check, but it did not enforce exact `.nvmrc` alignment.
+- `node:runtime-transition:audit` guards the documented Node/RN baseline, while the new `check:node-runtime-version` validates the active shell used by hooks.
+- `precommit` now runs `check:node-runtime-version`, `lint-staged:tooling:audit`, `lint-staged`, and `typescript:check` in that order.
+- `prepush` now runs `check:node-runtime-version` before the Android light gate and focused test suites.
+- `check:node-runtime-version-guard` covers matching, mismatched, and missing expected-version fixtures without depending on the current terminal runtime.
+
+Validation:
+
+- `corepack yarn check:node-runtime-version-guard`
+- `corepack yarn check:node-runtime-version` expected fail under Node `v22.18.0`: current Node does not match `.nvmrc`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:node-runtime-version`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint-staged:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn husky:tooling:audit`
+- `corepack yarn precommit` expected fail under Node `v22.18.0`: current Node does not match `.nvmrc`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn precommit`
+
 ### BEM-37.537 - Node runtime precommit guard
 
 - Branch: `feature/bem-37-537-node-runtime-hook-guard`
