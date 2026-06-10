@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.496 - Sentry release prerequisite handoff summary guard
+
+- Branch: `feature/bem-37-496-sentry-prereq-handoff-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Sentry release validation handoff validate the full generated Sentry release prerequisite summary before accepting release-smoke readiness.
+- Add guard coverage for missing and partial Sentry release prerequisite summary artifacts.
+- Keep Sentry package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- `@sentry/react-native@8.13.0`, `@sentry/cli@3.5.0`, and `react-native@0.86.0` are the latest npm targets checked during this branch.
+- Sentry source-map upload validation remains intentionally unclaimed until `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are available.
+- The Sentry release handoff already runs `sentry:release:prereq-check-summary`, but the final readiness helper previously validated only Android release smoke evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli version peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.495 - Secure-storage release summary guard
 
 - Branch: `feature/bem-37-495-secure-storage-summary-guard`
