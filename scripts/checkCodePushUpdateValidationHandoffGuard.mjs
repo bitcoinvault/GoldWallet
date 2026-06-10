@@ -1,3 +1,6 @@
+import { createHash } from 'crypto';
+import { readFileSync, statSync } from 'fs';
+import path from 'path';
 import {
   getCodePushUpdateValidationCommands,
   getCodePushUpdateValidationHandoffErrors,
@@ -16,6 +19,16 @@ const fullCommands = getCodePushUpdateValidationCommands({ skipAndroidRelease: f
 const fullRendered = fullCommands.map(renderCodePushUpdateValidationCommand).join('\n');
 const skippedCommands = getCodePushUpdateValidationCommands({ skipAndroidRelease: true });
 const skippedRendered = skippedCommands.map(renderCodePushUpdateValidationCommand).join('\n');
+const fixtureApkPath = path.resolve('package.json');
+const fixtureApkBytes = statSync(fixtureApkPath).size;
+const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath)).digest('hex');
+const smokeEvidenceOptions = {
+  expectedArtifactBase: 'android-smoke-dev-release',
+  requireSmokeApkDigest: true,
+  expectedSmokeApkPath: fixtureApkPath,
+  requireSourceApkDigest: true,
+  expectedSourceApkPath: fixtureApkPath,
+};
 
 [
   'corepack yarn android:dev:release:verify-local',
@@ -90,6 +103,12 @@ const readyAndroidReleaseSmokeSummary = [
   'Android package: io.goldwallet.wallet.dev',
   'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
   'Artifact base: android-smoke-dev-release',
+  `Smoke APK path: ${fixtureApkPath}`,
+  `Smoke APK bytes: ${fixtureApkBytes}`,
+  `Smoke APK sha256: ${fixtureApkSha256}`,
+  `Source APK path: ${fixtureApkPath}`,
+  `Source APK bytes: ${fixtureApkBytes}`,
+  `Source APK sha256: ${fixtureApkSha256}`,
   'Metro required: no',
   'Metro endpoint: 127.0.0.1:8081',
   'Metro reachable: no',
@@ -115,6 +134,7 @@ assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: readySummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
   }).length === 0,
   'Ready CodePush handoff summary fixture must pass readiness checks',
 );
@@ -122,6 +142,7 @@ assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: blockedSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
   }).some(error => error.includes('not ready for update validation')),
   'Blocked CodePush handoff summary fixture must report update-validation readiness blocker',
 );
@@ -129,6 +150,7 @@ assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: 'Release path ready for update validation: yes',
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
   }).some(error => error.includes('deployment-key values were not printed')),
   'CodePush readiness check must require secret-safe summary evidence',
 );
@@ -136,6 +158,7 @@ assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: readySummary,
     androidReleaseSmokeSummaryText: '',
+    smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is missing')),
   'CodePush readiness check must report a missing Android release smoke summary',
 );
@@ -143,6 +166,7 @@ assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: readySummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace('Validated empty-dashboard CTA flow: yes', 'Validated empty-dashboard CTA flow: no'),
+    smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is invalid')),
   'CodePush readiness check must reject invalid Android release smoke evidence',
 );

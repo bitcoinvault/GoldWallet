@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -101,6 +102,7 @@ export const getFirebaseRuntimeDeliveryReadinessErrors = ({
   firebaseSummaryText,
   pushBridgeSummaryText,
   androidReleaseSmokeSummaryText,
+  smokeEvidenceOptions = getAndroidReleaseSmokeEvidenceOptions(root),
 }) => {
   const errors = [];
 
@@ -137,9 +139,7 @@ export const getFirebaseRuntimeDeliveryReadinessErrors = ({
   if (!androidReleaseSmokeSummaryText) {
     errors.push('Android release smoke summary is missing; run android:dev:release:smoke:embedded first');
   } else {
-    const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, {
-      expectedArtifactBase: 'android-smoke-dev-release',
-    });
+    const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, smokeEvidenceOptions);
 
     smokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
   }

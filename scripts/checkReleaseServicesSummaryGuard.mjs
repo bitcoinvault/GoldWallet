@@ -8,6 +8,7 @@ const checkerPath = path.join(root, 'scripts', 'checkReleaseServicesSummaryArtif
 const checkerSource = readFileSync(checkerPath, 'utf8');
 
 const requiredSnippets = [
+  "import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';",
   "import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';",
   "import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';",
   "import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';",
@@ -27,13 +28,7 @@ const requiredSnippets = [
   'getAndroidReleaseApkManifestErrors({ root })',
   "label: 'Android release smoke'",
   "relativePath: 'local-docs/android-smoke-dev-release-summary.txt'",
-  "const signedReleaseSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');",
-  "const unsignedDevReleaseApkPath = path.join(",
-  "expectedArtifactBase: 'android-smoke-dev-release'",
-  'requireSmokeApkDigest: true',
-  'expectedSmokeApkPath: signedReleaseSmokeApkPath',
-  'requireSourceApkDigest: true',
-  'expectedSourceApkPath: unsignedDevReleaseApkPath',
+  'getAndroidEmbeddedSmokeSummaryErrors(summary, getAndroidReleaseSmokeEvidenceOptions(root))',
   "label: 'Sentry release prerequisite'",
   "relativePath: 'local-docs/sentry-release-prereq-summary.txt'",
   "label: 'Sentry Android warning'",

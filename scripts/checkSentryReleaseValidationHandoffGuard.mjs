@@ -1,3 +1,6 @@
+import { createHash } from 'crypto';
+import { readFileSync, statSync } from 'fs';
+import path from 'path';
 import {
   getSentryReleaseValidationCommands,
   getSentryReleaseValidationHandoffErrors,
@@ -16,6 +19,16 @@ const fullCommands = getSentryReleaseValidationCommands({ skipAndroidRelease: fa
 const fullRendered = fullCommands.map(renderSentryReleaseValidationCommand).join('\n');
 const skippedCommands = getSentryReleaseValidationCommands({ skipAndroidRelease: true });
 const skippedRendered = skippedCommands.map(renderSentryReleaseValidationCommand).join('\n');
+const fixtureApkPath = path.resolve('package.json');
+const fixtureApkBytes = statSync(fixtureApkPath).size;
+const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath)).digest('hex');
+const smokeEvidenceOptions = {
+  expectedArtifactBase: 'android-smoke-dev-release',
+  requireSmokeApkDigest: true,
+  expectedSmokeApkPath: fixtureApkPath,
+  requireSourceApkDigest: true,
+  expectedSourceApkPath: fixtureApkPath,
+};
 
 [
   'corepack yarn check:sentry-properties-generator',
@@ -76,6 +89,12 @@ const readyAndroidReleaseSmokeSummary = [
   'Android package: io.goldwallet.wallet.dev',
   'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
   'Artifact base: android-smoke-dev-release',
+  `Smoke APK path: ${fixtureApkPath}`,
+  `Smoke APK bytes: ${fixtureApkBytes}`,
+  `Smoke APK sha256: ${fixtureApkSha256}`,
+  `Source APK path: ${fixtureApkPath}`,
+  `Source APK bytes: ${fixtureApkBytes}`,
+  `Source APK sha256: ${fixtureApkSha256}`,
   'Metro required: no',
   'Metro endpoint: 127.0.0.1:8081',
   'Metro reachable: no',
@@ -100,18 +119,21 @@ const readyAndroidReleaseSmokeSummary = [
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
   }).length === 0,
   'Ready Sentry release handoff smoke fixture must pass readiness checks',
 );
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseSmokeSummaryText: '',
+    smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is missing')),
   'Sentry release readiness check must report a missing Android release smoke summary',
 );
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace('Validated empty-dashboard CTA flow: yes', 'Validated empty-dashboard CTA flow: no'),
+    smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is invalid')),
   'Sentry release readiness check must reject invalid Android release smoke evidence',
 );
