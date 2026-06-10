@@ -42,8 +42,8 @@ if (!packageJson['lint-staged']?.['./**/*.{ts,tsx,js,jsx}']?.includes('eslint --
   errors.push('package.json lint-staged config must keep eslint --fix for ./**/*.{ts,tsx,js,jsx}');
 }
 
-if (packageJson.scripts.precommit !== 'yarn lint-staged && yarn typescript:check') {
-  errors.push('package.json precommit script must run lint-staged before typescript:check');
+if (packageJson.scripts.precommit !== 'yarn lint-staged:tooling:audit && yarn lint-staged && yarn typescript:check') {
+  errors.push('package.json precommit script must run lint-staged tooling audit before lint-staged and typescript:check');
 }
 
 const cliVersion = execFileSync(process.execPath, [path.join(root, 'node_modules', 'lint-staged', 'bin', 'lint-staged.js'), '--version'], {
@@ -68,4 +68,4 @@ console.log('lint-staged tooling audit');
 console.log(`lint-staged: ${expectedVersion}`);
 console.log(`lint-staged Node engine: ${expectedNodeEngine}`);
 console.log(`current Node: ${process.version}`);
-console.log('precommit lint-staged wiring: passed');
+console.log('precommit lint-staged Node/tooling wiring: passed');

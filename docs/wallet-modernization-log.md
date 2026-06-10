@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.537 - Node runtime precommit guard
+
+- Branch: `feature/bem-37-537-node-runtime-hook-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the precommit path after the online foundation snapshot confirmed the repo baseline is Node `24.16.0`.
+- Ensure the `lint-staged@17.0.7` Node engine constraint is checked before `lint-staged` and TypeScript run from the Git hook.
+- Keep Husky hook files, package versions, runtime code, native project files, and lockfile entries unchanged.
+
+Findings:
+
+- The current system shell can resolve Node `v22.18.0`, while `.nvmrc` and the online snapshot audits require Node `v24.16.0`.
+- `lint-staged:tooling:audit` already rejects Node `v22.18.0` because `lint-staged@17.0.7` requires Node `>=22.22.1`.
+- The previous `precommit` script ran `lint-staged` directly before TypeScript, so the explicit repo-owned Node/tooling audit was not part of the actual hook command.
+- `precommit` now runs `lint-staged:tooling:audit` before `lint-staged` and `typescript:check`, making the hook fail fast under an unsupported Node shell.
+- `.husky/pre-commit` still forwards to `yarn precommit`; no hook file rewrite or local hook installation change is required.
+
+Validation:
+
+- `corepack yarn lint-staged:tooling:audit` expected fail under Node `v22.18.0`: Current Node cannot run `lint-staged@17.0.7`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint-staged:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn husky:tooling:audit`
+- `corepack yarn precommit` expected fail under Node `v22.18.0`: Current Node cannot run `lint-staged@17.0.7`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn precommit`
+
 ### BEM-37.536 - Online foundation latest snapshot refresh
 
 - Branch: `feature/bem-37-536-direct-dependency-latest-followup`
