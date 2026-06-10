@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.511 - Sentry release prerequisite refresh
+
+- Branch: `feature/bem-37-511-sentry-release-prereq-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry release/source-map prerequisite evidence after the Android release evidence refresh.
+- Confirm current npm targets for `@sentry/react-native` and `@sentry/cli`.
+- Validate the Sentry Android warning summary, release prerequisite summary, and Sentry release-validation handoff guard.
+- Prove that the executable Sentry release handoff stops at the expected missing-secret boundary without printing secret values.
+- Keep package versions, runtime application code, native project files, generated `sentry.properties`, release-service secrets, and Metro behavior unchanged.
+
+Findings:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json` reports latest `8.13.0`; the repo already uses `@sentry/react-native@8.13.0`.
+- `npm view @sentry/cli version engines --json` reports latest `3.5.0`; the repo already uses direct `@sentry/cli@3.5.0`.
+- The Sentry prerequisite audit reports direct Sentry CLI release-build path readiness, executable `sentry-cli 3.5.0`, wired Android/iOS release integration, and current Android release evidence for `dev`, `stage`, `prod`, and `beta`.
+- Sentry release upload validation remains explicitly not claimed because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not present in this local shell/workspace.
+- Running the Sentry release validation handoff with `--skip-android-release` fails at the expected `Missing required environment variable(s): SENTRY_AUTH_TOKEN` boundary after validating generator and warning summaries.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff --skip-android-release` expected fail: missing `SENTRY_AUTH_TOKEN`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.510 - Android release evidence refresh after gesture-handler patch
 
 - Branch: `feature/bem-37-510-android-release-evidence-refresh`
