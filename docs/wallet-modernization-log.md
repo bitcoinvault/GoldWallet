@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.470 - iOS static release evidence refresh after RN 0.86
+
+- Branch: `feature/bem-37-470-ios-static-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the guarded iOS static release readiness and macOS validation prerequisite audits after the RN `0.86.0` foundation and Firebase `24.1.1` release-service refresh.
+- Refresh `docs/ios-release-config-compatibility-audit.md` so the active iOS release handoff documentation describes the current RN `0.86.0` baseline instead of the older `0.85.3` checkpoint.
+- Keep iOS runtime/archive validation explicitly unclaimed on Windows and keep the required macOS/Xcode/CocoaPods handoff visible.
+- Keep iOS project files, package versions, runtime code, and native code unchanged.
+
+Findings:
+
+- Static iOS release files are valid for React Native `0.86.0`, RN minimum iOS `15.1`, RN minimum Xcode `16.1`, Podfile platform `15.1`, and Xcode deployment target `15.1`.
+- The guarded iOS scheme matrix still covers 8 shared schemes, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, 3 CodePush plist placeholders, and 4 remote-notification plists.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh: the audit reports 12 active drift issues and 0 removed pod references.
+- The active drift includes React-Core `0.65.3` vs RN `0.86.0`, RNFBApp `12.7.5` vs Firebase app `24.1.1`, and RNSentry `3.1.0` vs Sentry RN `8.13.0`.
+- This Windows host cannot run iOS archive/simulator validation because `xcodebuild` and CocoaPods are unavailable here; iOS runtime delivery remains `not claimed`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-release-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.469 - CodePush release evidence refresh after RN 0.86
 
 - Branch: `feature/bem-37-469-codepush-release-evidence-refresh`
