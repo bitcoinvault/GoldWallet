@@ -36,6 +36,8 @@ const smokeEvidenceOptions = {
   'corepack yarn android:dev:release:smoke:embedded',
   'corepack yarn android:dev:release:check-smoke-summary',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
+  'corepack yarn sentry:android-warning:audit',
+  'corepack yarn sentry:android-warning:check-summary',
   'corepack yarn sentry:release:create-properties',
   'requires-env=SENTRY_AUTH_TOKEN',
   'corepack yarn sentry:release:prereq-audit',
@@ -66,8 +68,21 @@ assert(
   'Skipped Sentry handoff must still generate Sentry release properties',
 );
 assert(
+  skippedRendered.includes('corepack yarn sentry:android-warning:audit'),
+  'Skipped Sentry handoff must still audit the Sentry Android warning surface',
+);
+assert(
+  skippedRendered.includes('corepack yarn sentry:android-warning:check-summary'),
+  'Skipped Sentry handoff must still validate the Sentry Android warning summary',
+);
+assert(
   fullCommands[0].args.includes('check:sentry-properties-generator'),
   'Sentry properties generator guard must run before properties are generated',
+);
+assert(
+  fullCommands.findIndex(step => step.args.includes('sentry:android-warning:audit')) <
+    fullCommands.findIndex(step => step.args.includes('sentry:release:prereq-audit')),
+  'Sentry Android warning audit must run before the Sentry release prerequisite audit',
 );
 assert(
   fullCommands[fullCommands.length - 1].args.includes('release-services:check-summaries'),
