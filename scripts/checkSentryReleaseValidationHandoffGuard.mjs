@@ -1,6 +1,7 @@
 import {
   getSentryReleaseValidationCommands,
   getSentryReleaseValidationHandoffErrors,
+  getSentryReleaseValidationReadinessErrors,
   renderSentryReleaseValidationCommand,
 } from './runSentryReleaseValidationHandoff.mjs';
 
@@ -64,6 +65,55 @@ assert(
     error.includes('skipAndroidRelease must be a boolean'),
   ),
   'Invalid skipAndroidRelease option must be rejected',
+);
+
+const readyAndroidReleaseSmokeSummary = [
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Android smoke outcome: passed',
+  'Android smoke exit code: 0',
+  'Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
+  'Android serial: emulator-5554',
+  'Android package: io.goldwallet.wallet.dev',
+  'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+  'Artifact base: android-smoke-dev-release',
+  'Metro required: no',
+  'Metro endpoint: 127.0.0.1:8081',
+  'Metro reachable: no',
+  'Cleared app data: yes',
+  'Expected UI texts: Wallets, No wallets, Create new wallet, Import wallet',
+  'Expected resource IDs: dashboard-header, no-wallets-icon, create-wallet-button, import-wallet-button, navigation-tab-0',
+  'App PID: 1234',
+  'Captured logcat lines: 400',
+  'Accepted first-run terms: yes',
+  'Completed first-run PIN: yes',
+  'Completed first-run transaction password: yes',
+  'Skipped first-run email: yes',
+  'Closed first-run success: yes',
+  'Validated empty-dashboard CTA flow: yes',
+  'Validated empty-tab navigation: yes',
+  'UI hierarchy attempts: 1',
+  'UI hierarchy path: package.json',
+  'Screenshot path: package.json',
+  'Screenshot bytes: 1234',
+].join('\n');
+
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+  }).length === 0,
+  'Ready Sentry release handoff smoke fixture must pass readiness checks',
+);
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseSmokeSummaryText: '',
+  }).some(error => error.includes('Android release smoke summary is missing')),
+  'Sentry release readiness check must report a missing Android release smoke summary',
+);
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace('Validated empty-dashboard CTA flow: yes', 'Validated empty-dashboard CTA flow: no'),
+  }).some(error => error.includes('Android release smoke summary is invalid')),
+  'Sentry release readiness check must reject invalid Android release smoke evidence',
 );
 
 console.log('Sentry release validation handoff guard checks are valid.');

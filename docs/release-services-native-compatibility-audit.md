@@ -216,7 +216,7 @@ Shared env/config:
 - `corepack yarn check:sentry-properties-generator` validates the cross-platform Node Sentry properties generator in a temp root, including missing-token failure, root/Android/iOS output, org/project overrides, and secret-safe output.
 - `corepack yarn sentry:release:validation:handoff:dry-run` renders the Sentry release prerequisite handoff without printing token assignments.
 - `corepack yarn sentry:release:validation:handoff` runs the Sentry release prerequisite handoff after `SENTRY_AUTH_TOKEN` is available; without that variable it fails before properties generation with a clear missing-env blocker.
-- `corepack yarn check:sentry-release-validation-handoff-guard` validates the Sentry handoff command sequence, secret-safe rendering, required-env handling, and `--skip-android-release` behavior.
+- `corepack yarn check:sentry-release-validation-handoff-guard` validates the Sentry handoff command sequence, secret-safe rendering, required-env handling, `--skip-android-release` behavior, and the final release-smoke readiness check.
 - `corepack yarn sentry:android-warning:audit` confirms the current Sentry Android Gradle/source-map wiring remains tracked before a dedicated Sentry release/source-map cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
 - Push notification changes need Android 13+ permission checks, Firebase Messaging token checks, and iOS permission/token validation.
