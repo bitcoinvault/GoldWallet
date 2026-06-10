@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.531 - Camera/QR migration validation refresh
+
+- Branch: `feature/bem-37-531-camera-qr-strategy-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR migration evidence for the current React Native `0.86.0` baseline.
+- Confirm current scanner and QR render packages against live npm metadata.
+- Remove stale iOS Xcode recovered references to removed `react-native-camera` and QR local-image static libraries.
+- Extend the Camera/QR migration audit so removed iOS legacy static-library references are guarded.
+
+Findings:
+
+- `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` match live latest metadata.
+- `react-native-camera` and `@remobile/react-native-qrcode-local-image` remain removed from `package.json`.
+- VisionCamera latest remains `5.0.11`, but is still deferred because the latest line requires Nitro peer packages.
+- `ios/Podfile.lock` no longer references removed camera pods.
+- `ios/GoldWallet.xcodeproj/project.pbxproj` no longer contains stale `libRNCamera.a` or `libRCTQRCodeLocalImage.a` recovered references.
+- Camera runtime usage remains scoped to `src/screens/ScanQrCodeScreen.tsx`; QR scanner caller inventory remains stable at 8 callers.
+- QR render usage remains scoped to 5 screens.
+- Android dev smoke passed on emulator and validated the import-wallet QR scanner screen, close button, dashboard CTA flow, and tab navigation with no fatal/runtime logcat findings.
+
+Validation:
+
+- `npm view react-native-camera-kit version peerDependencies --json`
+- `npm view react-native-qrcode-svg version peerDependencies dependencies --json`
+- `npm view react-native-vision-camera version peerDependencies --json`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-validation:handoff`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn camera:qr-validation:handoff --include-android-smoke`
+
 ### BEM-37.530 - Android release validation refresh
 
 - Branch: `feature/bem-37-530-android-release-validation-refresh`

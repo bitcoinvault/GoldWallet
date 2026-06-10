@@ -70,6 +70,7 @@ export const collectCameraQrMigrationAudit = () => {
   const reactNativeConfig = requireFile(errors, 'react-native.config.js');
   const replacementPlan = requireFile(errors, 'docs/camera-replacement-plan.md');
   const nativeModulePlan = requireFile(errors, 'docs/native-module-upgrade-plan.md');
+  const iosXcodeProject = requireFile(errors, 'ios/GoldWallet.xcodeproj/project.pbxproj');
   const warningBaseline = requireFile(errors, 'local-docs/android-warning-audit-summary.txt');
   const iosPodfileLock = requireFile(errors, 'ios/Podfile.lock');
   const iosInfoPlists = ['ios/GoldWallet/Info.plist', 'ios/GoldWalletDev-Info.plist', 'ios/GoldWalletStage-Info.plist'];
@@ -92,6 +93,12 @@ export const collectCameraQrMigrationAudit = () => {
   requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'onBarCodeScan(data)');
   if (reactNativeConfig.includes("'@remobile/react-native-qrcode-local-image'")) {
     errors.push('react-native.config.js still disables Android autolinking for removed @remobile/react-native-qrcode-local-image');
+  }
+  if (iosXcodeProject.includes('libRNCamera.a')) {
+    errors.push('ios/GoldWallet.xcodeproj/project.pbxproj still references removed libRNCamera.a');
+  }
+  if (iosXcodeProject.includes('libRCTQRCodeLocalImage.a')) {
+    errors.push('ios/GoldWallet.xcodeproj/project.pbxproj still references removed libRCTQRCodeLocalImage.a');
   }
   requireSnippet(errors, 'react-native.config.js', reactNativeConfig, 'android: null');
   requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'Branch: `feature/bem-37-camera-kit-qr-proof`');
