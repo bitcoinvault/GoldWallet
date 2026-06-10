@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.471 - Sentry release evidence refresh after RN 0.86
+
+- Branch: `feature/bem-37-471-sentry-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run Sentry release prerequisite evidence after RN `0.86.0`, Sentry SDK `8.13.0`, Sentry CLI `3.5.0`, Firebase `24.1.1`, and refreshed Android release APK evidence.
+- Refresh active Sentry/release-services documentation so current release readiness is described against RN `0.86.0`, not the older RN `0.85.3` checkpoint.
+- Keep Sentry source-map/dSYM upload explicitly unclaimed without local Sentry credentials and generated properties files.
+- Keep runtime code, native project files, package versions, and release upload behavior unchanged.
+
+Findings:
+
+- `@sentry/react-native@8.13.0` and direct `@sentry/cli@3.5.0` are still current on 2026-06-10.
+- The Sentry prerequisite audit finds the direct CLI executable as `sentry-cli 3.5.0`; nested Sentry tooling still carries `@sentry/cli@3.4.3`, but Android/iOS release build paths use the direct root CLI package.
+- Android release summary evidence is present, valid, covers `dev`, `stage`, `prod`, and `beta`, matches current release inputs, and has valid APK manifest proof.
+- Sentry release upload validation remains `not claimed`: `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are missing from the current shell/config.
+- `create-sentry-properties.sh` and `scripts/createSentryProperties.mjs` still require `SENTRY_AUTH_TOKEN`, reject missing tokens, write root/Android/iOS properties, support `SENTRY_ORG` and `SENTRY_PROJECT`, and keep output secret-safe.
+- The active Sentry Android warning audit does not report an active Sentry `execResult` warning on the RN `0.86.0` baseline.
+- No emulator smoke was run for this branch because it changes documentation/evidence only, not app runtime, native project files, dependencies, or Metro behavior.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-properties-generator`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-android-warning-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.470 - iOS static release evidence refresh after RN 0.86
 
 - Branch: `feature/bem-37-470-ios-static-evidence-refresh`
