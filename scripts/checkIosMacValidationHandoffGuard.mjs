@@ -1,6 +1,7 @@
 import {
   getIosMacValidationCommands,
   getIosMacValidationHandoffErrors,
+  getIosMacValidationReadinessErrors,
   iosMacValidationSchemes,
   renderIosMacValidationCommand,
 } from './runIosMacValidationHandoff.mjs';
@@ -130,6 +131,104 @@ assert(
 assert(
   allSchemeCommands[allSchemeCommands.length - 1].args.join(' ').includes('ios:release:readiness:check-summary'),
   'All-schemes handoff must end with iOS release readiness summary validation',
+);
+
+const readyPrereqSummary = [
+  'iOS macOS validation prerequisites audit',
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Platform: darwin',
+  'Ready for macOS pod/archive validation: yes',
+  'xcodebuild available: yes',
+  'xcodebuild version: Xcode 16.1; Build version 16B40',
+  'React Native minimum Xcode: 16.1',
+  'pod available: yes',
+  'bundle exec pod available: no',
+  'Podfile.lock refresh required: no',
+  'Podfile.lock drift issues: 0',
+  'iOS runtime delivery validation: not claimed',
+  'Blockers: 0',
+  'Required action: run pod install, then iOS archive/simulator validation on macOS before claiming iOS runtime delivery.',
+  '',
+].join('\n');
+
+const blockedPrereqSummary = readyPrereqSummary
+  .replace('Platform: darwin', 'Platform: win32')
+  .replace('Ready for macOS pod/archive validation: yes', 'Ready for macOS pod/archive validation: no')
+  .replace('xcodebuild available: yes', 'xcodebuild available: no')
+  .replace('xcodebuild version: Xcode 16.1; Build version 16B40', 'xcodebuild version: <not available>')
+  .replace('pod available: yes', 'pod available: no')
+  .replace('Podfile.lock refresh required: no', 'Podfile.lock refresh required: yes')
+  .replace('Podfile.lock drift issues: 0', 'Podfile.lock drift issues: 1')
+  .replace('Blockers: 0', 'Blockers: 1\n- Current platform is win32; iOS archive/simulator validation requires macOS with Xcode.')
+  .replace(
+    'Required action: run pod install, then iOS archive/simulator validation on macOS before claiming iOS runtime delivery.',
+    'Required action: run this prerequisite audit on macOS with Xcode and CocoaPods, refresh ios/Podfile.lock with pod install, then run iOS archive/simulator validation before claiming iOS runtime delivery.',
+  );
+
+const readyReleaseSummary = [
+  'iOS release static readiness audit',
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Static iOS release files valid: yes',
+  'Ready for macOS archive validation: yes',
+  'React Native version: 0.86.0',
+  'React Native minimum iOS: 15.1',
+  'React Native minimum Xcode: 16.1',
+  'Podfile iOS platform: 15.1',
+  'Xcode deployment targets: 15.1',
+  'Guarded iOS schemes: 8',
+  'iOS Sentry bundle/source-map phases: 4',
+  'iOS Sentry dSYM upload phases: 3',
+  'iOS CodePush plist placeholders: 3',
+  'iOS remote-notification plists: 4',
+  'Podfile.lock refresh required: no',
+  'Removed Podfile.lock pod references: 0',
+  'Podfile.lock drift issues: 0',
+  'xcodebuild version: Xcode 16.1; Build version 16B40',
+  'iOS runtime delivery validation: not claimed',
+  'Errors: 0',
+  'Warnings: 0',
+  'Required action: run pod install and iOS archive/simulator validation on macOS before claiming iOS runtime delivery.',
+  '',
+].join('\n');
+
+const blockedReleaseSummary = readyReleaseSummary
+  .replace('Ready for macOS archive validation: yes', 'Ready for macOS archive validation: no')
+  .replace('Podfile.lock refresh required: no', 'Podfile.lock refresh required: yes')
+  .replace('Podfile.lock drift issues: 0', 'Podfile.lock drift issues: 1\n- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.0')
+  .replace('xcodebuild version: Xcode 16.1; Build version 16B40', 'xcodebuild version: <not available on this machine>')
+  .replace('Warnings: 0', 'Warnings: 1\n- iOS compile/archive validation is blocked on this machine: xcodebuild requires macOS with Xcode.')
+  .replace(
+    'Required action: run pod install and iOS archive/simulator validation on macOS before claiming iOS runtime delivery.',
+    'Required action: refresh ios/Podfile.lock with pod install on macOS, then run iOS archive/simulator validation before claiming iOS runtime delivery.',
+  );
+
+assert(
+  getIosMacValidationReadinessErrors({
+    releaseReadinessSummaryText: readyReleaseSummary,
+    macValidationPrereqSummaryText: readyPrereqSummary,
+  }).length === 0,
+  'Ready iOS macOS validation handoff summaries must pass readiness checks',
+);
+assert(
+  getIosMacValidationReadinessErrors({
+    releaseReadinessSummaryText: readyReleaseSummary,
+    macValidationPrereqSummaryText: blockedPrereqSummary,
+  }).some(error => error.includes('prerequisites are not ready')),
+  'iOS macOS validation handoff must reject blocked prerequisite summaries',
+);
+assert(
+  getIosMacValidationReadinessErrors({
+    releaseReadinessSummaryText: blockedReleaseSummary,
+    macValidationPrereqSummaryText: readyPrereqSummary,
+  }).some(error => error.includes('not ready for macOS archive validation')),
+  'iOS macOS validation handoff must reject blocked release readiness summaries',
+);
+assert(
+  getIosMacValidationReadinessErrors({
+    releaseReadinessSummaryText: '',
+    macValidationPrereqSummaryText: readyPrereqSummary,
+  }).some(error => error.includes('iOS release readiness summary is missing')),
+  'iOS macOS validation handoff must report missing release readiness summary',
 );
 
 console.log('iOS macOS validation handoff guard checks are valid.');

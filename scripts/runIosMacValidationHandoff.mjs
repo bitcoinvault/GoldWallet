@@ -1,10 +1,14 @@
 import { spawnSync } from 'child_process';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
+import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
+const iosReleaseReadinessSummaryPath = path.join(root, 'local-docs', 'ios-release-static-readiness-summary.txt');
+const iosMacValidationPrereqSummaryPath = path.join(root, 'local-docs', 'ios-mac-validation-prereqs-summary.txt');
 
 export const iosMacValidationSchemes = {
   'GoldWallet Dev (Debug)': 'Debug',
@@ -90,6 +94,72 @@ export const getIosMacValidationHandoffErrors = options => {
 
   if (sdk !== 'iphonesimulator') {
     errors.push(`Unsupported iOS SDK for this handoff: ${sdk}`);
+  }
+
+  return errors;
+};
+
+const readSummary = summaryPath => {
+  if (!existsSync(summaryPath)) {
+    return null;
+  }
+
+  return readFileSync(summaryPath, 'utf8');
+};
+
+const requireSummaryLine = (errors, summaryText, snippet, message) => {
+  if (!summaryText.includes(snippet)) {
+    errors.push(message);
+  }
+};
+
+export const getIosMacValidationReadinessErrors = ({
+  releaseReadinessSummaryText,
+  macValidationPrereqSummaryText,
+}) => {
+  const errors = [];
+
+  if (!macValidationPrereqSummaryText) {
+    errors.push('iOS macOS validation prerequisite summary is missing; run ios:mac-validation-prereq:audit first');
+  } else {
+    const prereqSummaryErrors = getIosMacValidationPrereqSummaryErrors(macValidationPrereqSummaryText);
+    prereqSummaryErrors.forEach(error => errors.push(`iOS macOS validation prerequisite summary is invalid: ${error}`));
+    requireSummaryLine(
+      errors,
+      macValidationPrereqSummaryText,
+      'Ready for macOS pod/archive validation: yes',
+      'iOS macOS validation prerequisites are not ready for pod/archive validation',
+    );
+    requireSummaryLine(errors, macValidationPrereqSummaryText, 'xcodebuild available: yes', 'iOS handoff requires xcodebuild availability');
+    requireSummaryLine(errors, macValidationPrereqSummaryText, 'Podfile.lock refresh required: no', 'iOS handoff requires refreshed Podfile.lock evidence');
+    requireSummaryLine(errors, macValidationPrereqSummaryText, 'Podfile.lock drift issues: 0', 'iOS handoff requires zero Podfile.lock drift issues');
+    requireSummaryLine(
+      errors,
+      macValidationPrereqSummaryText,
+      'iOS runtime delivery validation: not claimed',
+      'iOS handoff must keep runtime delivery unclaimed until explicit simulator/device validation evidence is reviewed',
+    );
+  }
+
+  if (!releaseReadinessSummaryText) {
+    errors.push('iOS release readiness summary is missing; run ios:release:readiness:audit first');
+  } else {
+    const releaseSummaryErrors = getIosReleaseReadinessSummaryErrors(releaseReadinessSummaryText);
+    releaseSummaryErrors.forEach(error => errors.push(`iOS release readiness summary is invalid: ${error}`));
+    requireSummaryLine(
+      errors,
+      releaseReadinessSummaryText,
+      'Ready for macOS archive validation: yes',
+      'iOS release readiness summary is not ready for macOS archive validation',
+    );
+    requireSummaryLine(errors, releaseReadinessSummaryText, 'Podfile.lock refresh required: no', 'iOS release readiness requires refreshed Podfile.lock evidence');
+    requireSummaryLine(errors, releaseReadinessSummaryText, 'Podfile.lock drift issues: 0', 'iOS release readiness requires zero Podfile.lock drift issues');
+    requireSummaryLine(
+      errors,
+      releaseReadinessSummaryText,
+      'iOS runtime delivery validation: not claimed',
+      'iOS release readiness must keep runtime delivery unclaimed until explicit simulator/device validation evidence is reviewed',
+    );
   }
 
   return errors;
@@ -265,6 +335,17 @@ const main = () => {
     if (status !== 0) {
       return status;
     }
+  }
+
+  const readinessErrors = getIosMacValidationReadinessErrors({
+    releaseReadinessSummaryText: readSummary(iosReleaseReadinessSummaryPath),
+    macValidationPrereqSummaryText: readSummary(iosMacValidationPrereqSummaryPath),
+  });
+
+  if (readinessErrors.length > 0) {
+    console.error('\niOS macOS validation handoff readiness is blocked:');
+    readinessErrors.forEach(error => console.error(`- ${error}`));
+    return 1;
   }
 
   console.log('\niOS macOS validation handoff completed.');
