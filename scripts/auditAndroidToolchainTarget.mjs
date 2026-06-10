@@ -41,21 +41,27 @@ export const collectAndroidToolchainTargetAudit = async () => {
   const kotlinMetadata = await fetchText('https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml');
   const latestStableAgp = last(extractXmlVersions(agpMetadata).filter(isStableVersion));
   const latestKotlin = kotlinMetadata.match(/<release>([^<]+)<\/release>/)?.[1] || last(extractXmlVersions(kotlinMetadata).filter(isStableVersion));
+  const latestGradle = gradleCurrent.version || '';
+  const minimumAgp9Gradle = '9.4.1';
+  const rnGradlePlugin =
+    packageJson.dependencies?.['@react-native/gradle-plugin'] || packageJson.devDependencies?.['@react-native/gradle-plugin'] || '';
 
   return {
     currentAgp: getClasspathVersion(androidBuildGradle, 'com.android.tools.build:gradle'),
     latestStableAgp,
     currentGradle: getGradleWrapperVersion(gradleWrapper),
-    latestGradle: gradleCurrent.version || '',
-    minimumAgp9Gradle: '9.4.1',
+    latestGradle,
+    minimumAgp9Gradle,
     currentKotlin: getQuotedGradleValue(androidBuildGradle, 'kotlinVersion'),
     latestKotlin,
-    rnGradlePlugin: packageJson.dependencies?.['@react-native/gradle-plugin'] || packageJson.devDependencies?.['@react-native/gradle-plugin'] || '',
+    rnGradlePlugin,
     blocked: true,
     blockers: [
-      'AGP 9.2.1 requires Gradle 9.4.1 or newer.',
-      'Gradle 9.4.1 and 9.5.1 load newer embedded Kotlin runtime metadata that the React Native Gradle plugin 0.86.0 Kotlin compiler path cannot read during :gradle-plugin:settings-plugin:compileKotlin.',
-      'The validated Android baseline remains AGP 8.13.2, Gradle 8.13, Kotlin 2.1.20, compile/target SDK 36, and JDK 17 until a newer React Native Gradle plugin baseline clears the blocker.',
+      `AGP ${latestStableAgp} requires Gradle ${minimumAgp9Gradle} or newer.`,
+      `Gradle ${minimumAgp9Gradle} and ${latestGradle} load newer embedded Kotlin runtime metadata that the React Native Gradle plugin ${rnGradlePlugin} Kotlin compiler path cannot read during :gradle-plugin:settings-plugin:compileKotlin.`,
+      `The validated Android baseline remains AGP ${getClasspathVersion(androidBuildGradle, 'com.android.tools.build:gradle')}, Gradle ${getGradleWrapperVersion(
+        gradleWrapper,
+      )}, Kotlin ${getQuotedGradleValue(androidBuildGradle, 'kotlinVersion')}, compile/target SDK 36, and JDK 17 until a newer React Native Gradle plugin baseline clears the blocker.`,
     ],
   };
 };

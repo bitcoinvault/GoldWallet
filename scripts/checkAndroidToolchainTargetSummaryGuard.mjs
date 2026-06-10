@@ -51,5 +51,20 @@ assertRejected(
   validSummary.replace(/React Native Gradle plugin/g, 'RN plugin'),
   'React Native Gradle plugin',
 );
+assertRejected(
+  'Stale latest AGP blocker fixture',
+  validSummary.replace('AGP 9.2.1 requires Gradle 9.4.1 or newer.', 'AGP 9.1.0 requires Gradle 9.4.1 or newer.'),
+  'latest stable AGP',
+);
+assertRejected(
+  'Stale latest Gradle blocker fixture',
+  validSummary.replace('Gradle 9.4.1 and 9.5.1 load newer embedded Kotlin', 'Gradle 9.4.1 and 9.4.1 load newer embedded Kotlin'),
+  'current latest Gradle',
+);
+assertRejected(
+  'Stale validated baseline blocker fixture',
+  validSummary.replace('AGP 8.13.2, Gradle 8.13, Kotlin 2.1.20', 'AGP 8.13.2, Gradle 8.13, Kotlin 2.0.21'),
+  'validated current AGP, Gradle, and Kotlin baseline',
+);
 
 console.log('Android toolchain target summary guard checks are valid.');

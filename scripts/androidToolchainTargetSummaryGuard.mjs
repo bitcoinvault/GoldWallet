@@ -92,6 +92,25 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     errors.push('Blockers must mention the React Native Gradle plugin Kotlin metadata incompatibility');
   }
 
+  if (!blockerLines.some(line => line.includes(`AGP ${latestStableAgp}`) && line.includes(`Gradle ${minimumAgp9Gradle}`))) {
+    errors.push('Blockers must tie the latest stable AGP value to the AGP 9 minimum Gradle wrapper');
+  }
+
+  if (
+    !blockerLines.some(
+      line =>
+        line.includes(`Gradle ${minimumAgp9Gradle}`) &&
+        line.includes(latestGradle) &&
+        line.includes(`React Native Gradle plugin ${rnGradlePlugin}`),
+    )
+  ) {
+    errors.push('Blockers must tie the current latest Gradle value to the React Native Gradle plugin blocker');
+  }
+
+  if (!blockerLines.some(line => line.includes(`AGP ${currentAgp}`) && line.includes(`Gradle ${currentGradle}`) && line.includes(`Kotlin ${currentKotlin}`))) {
+    errors.push('Blockers must state the validated current AGP, Gradle, and Kotlin baseline');
+  }
+
   if (!requiredAction.includes('React Native Gradle plugin') || !requiredAction.includes('AGP 9')) {
     errors.push('Required action must mention React Native Gradle plugin and AGP 9');
   }
