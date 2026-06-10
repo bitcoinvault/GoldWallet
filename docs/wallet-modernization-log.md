@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.518 - Sentry release readiness latest refresh
+
+- Branch: `feature/bem-37-518-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry SDK/CLI latest evidence and release source-map prerequisite status after the release-services readiness refreshes.
+- Validate Android Sentry warning posture, Sentry release prerequisite summary generation, direct CLI executable availability, and Android release evidence coverage.
+- Keep package versions, runtime Sentry code, native project files, generated Sentry properties, env files, release artifacts, and Metro behavior unchanged.
+
+Findings:
+
+- Live npm metadata reports `@sentry/react-native@8.13.0` as current/latest with React Native peer range `>=0.65.0`; the repo already uses `8.13.0`.
+- Live npm metadata reports direct `@sentry/cli@3.5.0` as current/latest with Node engine `>=18`; the repo already uses `3.5.0`.
+- The Sentry Android warning audit reports no active Sentry `execResult` warning on the RN `0.86.0` baseline and keeps source-map/dSYM behavior scoped to the dedicated release validation path.
+- The release prerequisite audit confirms direct Sentry CLI is installed, executable, and used by release build paths, while nested SDK tooling still contains `@sentry/cli@3.4.3` copies under Sentry-owned dependencies.
+- Android release summary evidence is present for `dev`, `stage`, `prod`, and `beta`, covers current release inputs, and has valid APK manifest proof.
+- Sentry release source-map upload validation remains not claimed because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not available in the current shell/repo.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version engines --json`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.517 - Explorer/env and store metadata readiness refresh
 
 - Branch: `feature/bem-37-517-explorer-store-readiness-refresh`
