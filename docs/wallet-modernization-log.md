@@ -10,6 +10,56 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.536 - Online foundation latest snapshot refresh
+
+- Branch: `feature/bem-37-536-direct-dependency-latest-followup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the online foundation/latest evidence after the Sentry and CodePush readiness refreshes.
+- Check live npm/latest state for React Native, React, TypeScript, direct outdated dependencies, git dependencies, wallet/crypto packages, storage/network packages, tooling packages, Android toolchain, `bl`, and `node-fetch`.
+- Confirm whether a compatible package upgrade remains available without mixing unrelated runtime risk.
+- Keep package versions, native project files, runtime code, lockfile entries, and local-only snapshot artifacts unchanged.
+
+Findings:
+
+- React Native remains on npm `latest` at `0.86.0`; RN `next` is still the `0.86.0-rc.3` prerelease channel and is not the default wallet target.
+- React remains intentionally pinned to `19.2.3` because RN `0.86.0` peers React `^19.2.3` and the app has prior renderer-coupling evidence against taking `19.2.7` independently.
+- TypeScript remains on npm `latest` at `6.0.3`.
+- Direct outdated evidence still reports 8 entries with 4 known blocked registry entries, 4 exotic/git entries, and 0 review-required entries.
+- Git dependency evidence reports 4 tracked git dependencies with 0 mismatches; the BitcoinVault wallet-critical forks remain aligned between `package.json`, `yarn.lock`, and live remote hashes.
+- Wallet/crypto latest evidence reports 15 tracked entries with 0 deferred entries; upstream `bitcoinjs-lib@7.0.1` remains intentionally deferred because the app uses the BitcoinVault fork.
+- Storage/network latest evidence reports 10 tracked entries, all current.
+- Tooling latest evidence reports 24 tracked entries, all current.
+- Android toolchain latest remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle 9's embedded Kotlin metadata still blocks the RN Gradle plugin `0.86.0` Kotlin compile path.
+- `bl@7.0.3` remains blocked by ESM/export-map behavior for CommonJS/transitive consumers; `node-fetch@3.3.2` remains blocked by ESM-only compatibility for guarded CommonJS consumers.
+
+Validation:
+
+- `npm view react-native version dist-tags peerDependencies engines --json`
+- `npm view react version dist-tags --json`
+- `npm view typescript version dist-tags --json`
+- `npm view @react-native/gradle-plugin version dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn bl:resolution:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn bl:resolution:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node-fetch:resolution:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node-fetch:resolution:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+
 ### BEM-37.535 - Sentry latest release-readiness refresh
 
 - Branch: `feature/bem-37-535-sentry-latest-readiness`
