@@ -4,10 +4,12 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const sentryReleasePrereqSummaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary.txt');
 
 const defaultOptions = {
   dryRun: false,
@@ -104,9 +106,18 @@ const readSummary = summaryPath => {
 
 export const getSentryReleaseValidationReadinessErrors = ({
   androidReleaseSmokeSummaryText,
+  sentryReleasePrereqSummaryText,
   smokeEvidenceOptions = getAndroidReleaseSmokeEvidenceOptions(root),
 }) => {
   const errors = [];
+
+  if (!sentryReleasePrereqSummaryText) {
+    errors.push('Sentry release prerequisite summary is missing; run sentry:release:prereq-audit first');
+  } else {
+    getSentryReleasePrereqSummaryErrors(sentryReleasePrereqSummaryText).forEach(error => {
+      errors.push(`Sentry release prerequisite summary is invalid: ${error}`);
+    });
+  }
 
   if (!androidReleaseSmokeSummaryText) {
     errors.push('Android release smoke summary is missing; run android:dev:release:smoke:embedded first');
@@ -215,6 +226,7 @@ const main = () => {
 
   const readinessErrors = getSentryReleaseValidationReadinessErrors({
     androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
+    sentryReleasePrereqSummaryText: readSummary(sentryReleasePrereqSummaryPath),
   });
 
   if (readinessErrors.length > 0) {
