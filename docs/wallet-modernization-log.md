@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.522 - Android toolchain target blocker refresh
+
+- Branch: `feature/bem-37-522-android-toolchain-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live Android toolchain target evidence for the RN `0.86.0` foundation baseline.
+- Validate current AGP/Gradle/Kotlin baseline, latest AGP/Gradle/Kotlin metadata, and the guarded AGP 9 / Gradle 9 blocker.
+- Keep Android Gradle Plugin, Gradle wrapper, Kotlin, SDK, JDK, package versions, runtime application code, native project files, env files, release artifacts, and Metro behavior unchanged.
+
+Findings:
+
+- Live metadata still reports latest stable Android Gradle Plugin `9.2.1`, latest Gradle current `9.5.1`, and latest Kotlin Gradle Plugin `2.4.0`.
+- The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- AGP `9.2.1` requires Gradle `9.4.1` or newer.
+- Gradle `9.4.1` and `9.5.1` still load newer embedded Kotlin runtime metadata that the React Native Gradle plugin `0.86.0` Kotlin compiler path cannot read during `:gradle-plugin:settings-plugin:compileKotlin`.
+- The latest Android toolchain target remains blocked until a newer React Native Gradle plugin baseline clears the AGP 9 / Gradle 9 path.
+- Because this branch changes only documentation/evidence and no Android toolchain/runtime files, Android build and emulator smoke are not required for this milestone.
+
+Validation:
+
+- `corepack yarn check:android-toolchain-target-summary-guard`
+- `corepack yarn android:toolchain-target:audit`
+- `corepack yarn android:toolchain-target:check-summary`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.521 - CodePush decision readiness refresh
 
 - Branch: `feature/bem-37-521-codepush-decision-readiness-refresh`
