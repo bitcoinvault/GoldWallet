@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.485 - Release smoke APK digest guard
+
+- Branch: `feature/bem-37-485-release-smoke-apk-digest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Bind Android smoke summaries to the actual APK file used for installation by recording path, byte count, and SHA-256 digest.
+- Require the release-smoke checker to validate both the locally signed smoke APK and the source unsigned `devRelease` APK.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The previous release-smoke summary proved onboarding/UI/logcat behavior, but did not identify the installed APK by digest.
+- `android:dev:release:check-smoke-summary` now rejects stale release-smoke summaries that lack signed/source APK digest evidence.
+- A fresh `android:dev:release:smoke:embedded` run on `emulator-5554` regenerated the release-smoke summary with signed APK and source APK digest evidence, then passed the stricter checker.
+- Aggregate release-services summary validation still passes with the stricter release-smoke evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-smoke-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary` expected fail before regenerating smoke evidence: missing `Smoke APK path` and `Source APK path`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.484 - Android release smoke evidence refresh
 
 - Branch: `feature/bem-37-484-android-release-smoke-refresh`

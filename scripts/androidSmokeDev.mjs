@@ -1,5 +1,6 @@
 import { spawnSync } from 'child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { createHash } from 'crypto';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import net from 'net';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -21,6 +22,7 @@ let selectedAndroidSerial = androidSerial;
 const apkPath =
   process.env.ANDROID_SMOKE_APK ||
   path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
+const sourceApkPath = process.env.ANDROID_SMOKE_SOURCE_APK || '';
 const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 20000);
 const uiWaitMs = Number(process.env.ANDROID_SMOKE_UI_WAIT_MS || 90000);
 const uiPollIntervalMs = Number(process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS || 1000);
@@ -85,6 +87,24 @@ const record = line => {
   log.push(line);
 };
 
+const fileSha256 = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
+
+const fileEvidence = filePath => {
+  if (!filePath || !existsSync(filePath)) {
+    return {
+      path: filePath || '<missing>',
+      bytes: 0,
+      sha256: '<missing>',
+    };
+  }
+
+  return {
+    path: filePath,
+    bytes: statSync(filePath).size,
+    sha256: fileSha256(filePath),
+  };
+};
+
 const run = (label, args, options = {}) => {
   append(`\n> ${label}`);
   const { printOutput = true, recordOutput = true, useSelectedDevice = true, ...spawnOptions } = options;
@@ -123,6 +143,8 @@ const run = (label, args, options = {}) => {
 };
 
 const writeSummary = exitCode => {
+  const smokeApkEvidence = fileEvidence(apkPath);
+  const sourceApkEvidence = fileEvidence(sourceApkPath);
   const summary = [
     `Generated at: ${new Date().toISOString()}`,
     `Android smoke outcome: ${smokeOutcome}`,
@@ -132,6 +154,12 @@ const writeSummary = exitCode => {
     `Android package: ${packageName}`,
     `Android activity: ${activityName}`,
     `Artifact base: ${outputBaseName}`,
+    `Smoke APK path: ${smokeApkEvidence.path}`,
+    `Smoke APK bytes: ${smokeApkEvidence.bytes}`,
+    `Smoke APK sha256: ${smokeApkEvidence.sha256}`,
+    `Source APK path: ${sourceApkEvidence.path}`,
+    `Source APK bytes: ${sourceApkEvidence.bytes}`,
+    `Source APK sha256: ${sourceApkEvidence.sha256}`,
     `Metro required: ${metroRequired ? 'yes' : 'no'}`,
     `Metro endpoint: ${metroHost}:${metroPort}`,
     `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
