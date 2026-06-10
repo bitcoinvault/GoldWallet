@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.505 - Release-services CodePush handoff guard coverage
+
+- Branch: `feature/bem-37-505-release-services-codepush-handoff-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:codepush-update-validation-handoff-guard` to the aggregate `release-services:validation:handoff` sequence before CodePush release-path auditing.
+- Extend the release-services handoff self-guard so skipped-Android and full handoffs keep CodePush update-validation handoff coverage before CodePush summary refreshes.
+- Keep package versions, runtime application code, native project files, env files, deployment-key values, and Metro behavior unchanged.
+
+Findings:
+
+- `react-native-code-push` is already on the current latest package version `9.0.1`.
+- The dedicated CodePush update-validation handoff guard existed, but the aggregate release-services handoff did not validate that guard before running CodePush release, migration, and removal-readiness audits.
+- CodePush runtime update validation remains intentionally not claimed until real OTA delivery keys/strategy are available and a real update test runs.
+- No dependency, runtime, native, env, or Metro behavior changed in this branch, so Android emulator smoke is not required for this handoff guard wiring change.
+
+Validation:
+
+- `corepack yarn check:release-services-validation-handoff-guard`
+- `corepack yarn check:codepush-update-validation-handoff-guard`
+- `corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn release-services:validation:handoff:dry-run`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.504 - Camera QR smoke handoff option
 
 - Branch: `feature/bem-37-504-camera-qr-smoke-handoff`
