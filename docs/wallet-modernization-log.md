@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.517 - Explorer/env and store metadata readiness refresh
+
+- Branch: `feature/bem-37-517-explorer-store-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh explorer/env config and store metadata readiness evidence for the rebranding/release-config stream.
+- Validate the guarded env-file inventory, runtime config references, iOS Fastlane metadata baseline, Android Fastlane metadata baseline, and Play Store launcher icon presence.
+- Keep env values, secrets, package versions, runtime application code, native project files, Android release artifacts, and Metro behavior unchanged.
+
+Findings:
+
+- Explorer/env readiness remains documented and guarded for 7 env files: `.env.dev.testnet`, `.env.stage.mainnet`, `.env.prod.mainnet`, `.env.beta.testnet`, `.env.beta.mainnet`, `.env.testnet`, and `.env.test`.
+- The explorer/env guard keeps `EXPLORER_URL`, `HOSTS`, `ELECTRUM_X_PROTOCOL_VERSION`, and other runtime config keys visible without printing env values.
+- Store metadata readiness remains documented and guarded for 8 iOS locales and 1 Android locale, with the Android Fastlane metadata baseline under `android/fastlane/metadata/android/en-US`.
+- The Android Play Store launcher icon is present at `android/app/src/main/ic_launcher-playstore.png`.
+- Play Console/App Store screenshots and actual store-side verification remain external release tasks and are not claimed by this static readiness refresh.
+
+Validation:
+
+- `corepack yarn check:explorer-env-config-readiness-guard`
+- `corepack yarn check:explorer-env-config-readiness`
+- `corepack yarn check:store-metadata-readiness-guard`
+- `corepack yarn check:store-metadata-readiness`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.516 - Firebase and push notification readiness refresh
 
 - Branch: `feature/bem-37-516-firebase-push-readiness-refresh`
