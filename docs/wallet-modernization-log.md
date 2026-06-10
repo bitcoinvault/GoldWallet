@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.481 - Storage/network latest snapshot gate
+
+- Branch: `feature/bem-37-481-storage-network-latest-snapshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a generated storage/network latest snapshot for the high-risk storage, secure-storage, config, network, random-value, and WebView package group.
+- Wire the snapshot into `rn:baseline:preflight:online` and the aggregate `foundation:target:check-summaries` gate.
+- Keep package versions, runtime code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-10 reports all 10 tracked storage/network packages current against the installed RN `0.86.0` baseline.
+- `react-native-secure-key-store` returns a string-only npm metadata shape when no peer/engine fields are present; the snapshot parser now handles both string and object `npm view --json` responses.
+- The new summary records manifest version, installed version, latest version, peer metadata, engine metadata, current/deferred counts, and keeps secret printing explicitly disabled.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-async-storage/async-storage version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-keychain version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-latest-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:foundation-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `git diff --check`
+
 ### BEM-37.480 - iOS macOS handoff readiness gate
 
 - Branch: `feature/bem-37-480-ios-static-handoff-readiness`
