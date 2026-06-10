@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.482 - Secure-storage dev-smoke readiness guard
+
+- Branch: `feature/bem-37-482-secure-storage-smoke-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the secure-storage release-validation handoff so it directly requires valid Android dev smoke evidence before reporting completion.
+- Keep package versions, runtime code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The handoff already refreshes migration/removal summaries and runs focused secure-storage/storage/authenticator/wallet-core checks.
+- It now validates `local-docs/android-smoke-dev-summary.txt` through the existing embedded-smoke summary guard after the command sequence succeeds.
+- `--skip-android-smoke` only skips refreshing build/smoke evidence; it does not remove the requirement for current valid `android-smoke-dev` evidence.
+- Legacy secure-storage removal remains not claimed; `react-native-secure-key-store` stays installed while fallback reads are active.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:handoff --skip-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.481 - Storage/network latest snapshot gate
 
 - Branch: `feature/bem-37-481-storage-network-latest-snapshot`

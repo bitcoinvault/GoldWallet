@@ -2,11 +2,13 @@ import { existsSync, readFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const migrationSummaryPath = path.join(root, 'local-docs', 'secure-storage-migration-summary.txt');
 const removalSummaryPath = path.join(root, 'local-docs', 'secure-storage-removal-readiness-summary.txt');
+const androidSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-summary.txt');
 
 const defaultOptions = {
   dryRun: false,
@@ -88,7 +90,11 @@ const readSummary = summaryPath => {
   return readFileSync(summaryPath, 'utf8');
 };
 
-export const getSecureStorageReleaseValidationReadinessErrors = ({ migrationSummary, removalSummary }) => {
+export const getSecureStorageReleaseValidationReadinessErrors = ({
+  migrationSummary,
+  removalSummary,
+  androidSmokeSummary,
+}) => {
   const errors = [];
 
   if (!migrationSummary) {
@@ -118,6 +124,16 @@ export const getSecureStorageReleaseValidationReadinessErrors = ({ migrationSumm
         errors.push(`Secure-storage removal readiness summary must include: ${expected}`);
       }
     });
+  }
+
+  if (!androidSmokeSummary) {
+    errors.push('Android dev smoke summary is missing; run android:dev:smoke:embedded or android:dev:verify first');
+  } else {
+    const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidSmokeSummary, {
+      expectedArtifactBase: 'android-smoke-dev',
+    });
+
+    smokeErrors.forEach(error => errors.push(`Android dev smoke summary is invalid: ${error}`));
   }
 
   return errors;
@@ -211,6 +227,7 @@ const main = () => {
   const readinessErrors = getSecureStorageReleaseValidationReadinessErrors({
     migrationSummary: readSummary(migrationSummaryPath),
     removalSummary: readSummary(removalSummaryPath),
+    androidSmokeSummary: readSummary(androidSmokeSummaryPath),
   });
 
   if (readinessErrors.length > 0) {
