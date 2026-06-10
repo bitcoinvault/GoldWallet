@@ -170,7 +170,7 @@ Branch shape:
 - Treat the remaining active pod version drift in `ios/Podfile.lock` as an iOS readiness blocker until `pod install` refreshes the lockfile on macOS. Removed camera pods are now absent from the guarded lockfile baseline.
 - Validate Android/iOS camera permissions and QR scan behavior manually before claiming scanner follow-up work complete.
 - Latest checked on 2026-06-10: `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
-- `corepack yarn camera:candidate:audit` verifies those candidate/latest values against live npm metadata before scanner dependency follow-up work.
+- `corepack yarn camera:candidate:audit` verifies those candidate/latest values, CameraKit peer ranges, QR renderer peer ranges, and QR renderer dependency ranges against live npm metadata before scanner dependency follow-up work.
 - VisionCamera remains deferred because its latest line requires `react-native-nitro-modules` and `react-native-nitro-image`; the live peer ranges are wildcarded, so the blocker is the additional Nitro native stack rather than a narrow semver incompatibility. CameraKit remains the installed scanner baseline.
 
 ## Minimum Validation By Branch Type

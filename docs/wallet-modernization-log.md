@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.479 - Camera QR latest readiness refresh
+
+- Branch: `feature/bem-37-479-camera-qr-latest-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR latest-compatible readiness after a live npm metadata check on 2026-06-10.
+- Extend the Camera candidate and QR migration summaries so they guard CameraKit peer ranges, QR renderer peer ranges, and QR renderer dependency ranges, not only package version numbers.
+- Keep package versions, runtime code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- Live npm metadata still reports `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, `qrcode@1.5.4`, and legacy `react-native-camera@4.2.1`.
+- `react-native-camera-kit@18.0.0` still has Node `>=18` and peer ranges `react@*`, `react-native@*`, so the installed scanner remains the current latest compatible CameraKit target on the RN `0.86.0` baseline.
+- `react-native-qrcode-svg@6.3.21` still peers on `react@*`, `react-native@>=0.63.4`, and `react-native-svg@>=14.0.0`, and depends on `qrcode@^1.5.4`; the installed QR render pair remains current.
+- VisionCamera remains a future Nitro-stack migration, not a small camera package bump.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit version engines peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-vision-camera version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-qrcode-svg version peerDependencies dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-svg version peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-candidate-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-migration-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-scanner:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-render:unit`
+- `git diff --check`
+
 ### BEM-37.478 - CodePush release-smoke readiness guard
 
 - Branch: `feature/bem-37-478-codepush-release-smoke-readiness`

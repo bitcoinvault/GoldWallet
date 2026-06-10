@@ -10,7 +10,10 @@ const validSummary = [
   'QR native renderer version: 15.15.5',
   'qrcode resolution: 1.5.4',
   'CameraKit latest target: react-native-camera-kit@18.0.0',
+  'CameraKit peer dependency ranges: react@*, react-native@*',
   'QR renderer latest target: react-native-qrcode-svg@6.3.21',
+  'QR renderer peer dependency ranges: react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0',
+  'QR renderer dependencies: prop-types@^15.8.0, qrcode@^1.5.4, text-encoding@^0.7.0',
   'QR native renderer latest target: react-native-svg@15.15.5',
   'QR encoder latest target: qrcode@1.5.4',
   'Live QR targets: matched',
@@ -37,7 +40,10 @@ const invalidSummary = [
   'QR native renderer version: 15.15.5',
   'qrcode resolution: 1.5.4',
   'CameraKit latest target: react-native-camera-kit@18.0.0',
+  'CameraKit peer dependency ranges: react@*, react-native@*',
   'QR renderer latest target: react-native-qrcode-svg@6.3.21',
+  'QR renderer peer dependency ranges: react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0',
+  'QR renderer dependencies: prop-types@^15.8.0, qrcode@^1.5.4, text-encoding@^0.7.0',
   'QR native renderer latest target: react-native-svg@15.15.5',
   'QR encoder latest target: qrcode@1.5.4',
   'Live QR targets: stale',
@@ -108,6 +114,24 @@ assertRejected(
   'Bad QR native renderer latest fixture',
   validSummary.replace('QR native renderer latest target: react-native-svg@15.15.5', 'QR native renderer latest target: react-native-svg@15.16.0'),
   'QR native renderer latest target',
+);
+assertRejected(
+  'Bad CameraKit peer range fixture',
+  validSummary.replace('CameraKit peer dependency ranges: react@*, react-native@*', 'CameraKit peer dependency ranges: react@*, react-native@>=0.86'),
+  'CameraKit peer dependency ranges',
+);
+assertRejected(
+  'Bad QR renderer peer range fixture',
+  validSummary.replace(
+    'QR renderer peer dependency ranges: react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0',
+    'QR renderer peer dependency ranges: react@*, react-native@>=0.86.0, react-native-svg@>=15.0.0',
+  ),
+  'QR renderer peer dependency ranges',
+);
+assertRejected(
+  'Bad QR renderer dependency fixture',
+  validSummary.replace('QR renderer dependencies: prop-types@^15.8.0, qrcode@^1.5.4, text-encoding@^0.7.0', 'QR renderer dependencies: qrcode@^2.0.0'),
+  'QR renderer dependencies',
 );
 assertRejected(
   'Missing iOS stale pod list fixture',

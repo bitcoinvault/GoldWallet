@@ -33,7 +33,10 @@ export const getCameraQrMigrationSummaryErrors = summary => {
   const qrNativeRendererVersion = getLineValue(summary, 'QR native renderer version');
   const qrcodeResolution = getLineValue(summary, 'qrcode resolution');
   const cameraKitLatest = getLineValue(summary, 'CameraKit latest target');
+  const cameraKitPeerRanges = getLineValue(summary, 'CameraKit peer dependency ranges');
   const qrRendererLatest = getLineValue(summary, 'QR renderer latest target');
+  const qrRendererPeerRanges = getLineValue(summary, 'QR renderer peer dependency ranges');
+  const qrRendererDependencies = getLineValue(summary, 'QR renderer dependencies');
   const qrNativeRendererLatest = getLineValue(summary, 'QR native renderer latest target');
   const qrEncoderLatest = getLineValue(summary, 'QR encoder latest target');
   const liveQrTargets = getLineValue(summary, 'Live QR targets');
@@ -87,8 +90,20 @@ export const getCameraQrMigrationSummaryErrors = summary => {
     errors.push(`CameraKit latest target must be react-native-camera-kit@18.0.0. Received: ${cameraKitLatest || 'missing'}`);
   }
 
+  if (cameraKitPeerRanges !== 'react@*, react-native@*') {
+    errors.push(`CameraKit peer dependency ranges are unexpected. Received: ${cameraKitPeerRanges || 'missing'}`);
+  }
+
   if (qrRendererLatest !== 'react-native-qrcode-svg@6.3.21') {
     errors.push(`QR renderer latest target must be react-native-qrcode-svg@6.3.21. Received: ${qrRendererLatest || 'missing'}`);
+  }
+
+  if (qrRendererPeerRanges !== 'react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0') {
+    errors.push(`QR renderer peer dependency ranges are unexpected. Received: ${qrRendererPeerRanges || 'missing'}`);
+  }
+
+  if (qrRendererDependencies !== 'prop-types@^15.8.0, qrcode@^1.5.4, text-encoding@^0.7.0') {
+    errors.push(`QR renderer dependencies are unexpected. Received: ${qrRendererDependencies || 'missing'}`);
   }
 
   if (qrNativeRendererLatest !== 'react-native-svg@15.15.5') {

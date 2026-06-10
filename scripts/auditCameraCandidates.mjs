@@ -25,7 +25,21 @@ const expectedCameraMetadata = {
   },
   cameraKitLatest: 'react-native-camera-kit@18.0.0',
   cameraKitNodeEngine: '>=18',
+  cameraKitPeerRanges: {
+    react: '*',
+    'react-native': '*',
+  },
   qrRendererLatest: 'react-native-qrcode-svg@6.3.21',
+  qrRendererPeerRanges: {
+    react: '*',
+    'react-native': '>=0.63.4',
+    'react-native-svg': '>=14.0.0',
+  },
+  qrRendererDependencies: {
+    'prop-types': '^15.8.0',
+    qrcode: '^1.5.4',
+    'text-encoding': '^0.7.0',
+  },
   qrNativeRendererLatest: 'react-native-svg@15.15.5',
   qrEncoderLatest: 'qrcode@1.5.4',
 };
@@ -46,7 +60,10 @@ const collectLiveMetadataIssues = () => {
   const visionCameraPeers = npmView('react-native-vision-camera', 'peerDependencies');
   const cameraKitVersion = npmView('react-native-camera-kit', 'version');
   const cameraKitEngines = npmView('react-native-camera-kit', 'engines');
+  const cameraKitPeers = npmView('react-native-camera-kit', 'peerDependencies');
   const qrRendererVersion = npmView('react-native-qrcode-svg', 'version');
+  const qrRendererPeers = npmView('react-native-qrcode-svg', 'peerDependencies');
+  const qrRendererDependencies = npmView('react-native-qrcode-svg', 'dependencies');
   const qrNativeRendererVersion = npmView('react-native-svg', 'version');
   const qrcodeVersion = npmView('qrcode', 'version');
 
@@ -75,6 +92,30 @@ const collectLiveMetadataIssues = () => {
 
     if (actualRange !== expectedRange) {
       issues.push(`VisionCamera live npm peerDependencies has ${peerName}@${actualRange}; expected ${peerName}@${expectedRange}`);
+    }
+  });
+
+  Object.entries(expectedCameraMetadata.cameraKitPeerRanges).forEach(([peerName, expectedRange]) => {
+    const actualRange = cameraKitPeers?.[peerName] || '<missing>';
+
+    if (actualRange !== expectedRange) {
+      issues.push(`CameraKit live npm peerDependencies has ${peerName}@${actualRange}; expected ${peerName}@${expectedRange}`);
+    }
+  });
+
+  Object.entries(expectedCameraMetadata.qrRendererPeerRanges).forEach(([peerName, expectedRange]) => {
+    const actualRange = qrRendererPeers?.[peerName] || '<missing>';
+
+    if (actualRange !== expectedRange) {
+      issues.push(`QR renderer live npm peerDependencies has ${peerName}@${actualRange}; expected ${peerName}@${expectedRange}`);
+    }
+  });
+
+  Object.entries(expectedCameraMetadata.qrRendererDependencies).forEach(([dependencyName, expectedRange]) => {
+    const actualRange = qrRendererDependencies?.[dependencyName] || '<missing>';
+
+    if (actualRange !== expectedRange) {
+      issues.push(`QR renderer live npm dependencies has ${dependencyName}@${actualRange}; expected ${dependencyName}@${expectedRange}`);
     }
   });
 
@@ -131,7 +172,10 @@ export const collectCameraCandidateAudit = () => {
     visionCameraPeerRanges: expectedCameraMetadata.visionCameraPeerRanges,
     cameraKitLatest: expectedCameraMetadata.cameraKitLatest,
     cameraKitNodeEngine: expectedCameraMetadata.cameraKitNodeEngine,
+    cameraKitPeerRanges: expectedCameraMetadata.cameraKitPeerRanges,
     qrRendererLatest: expectedCameraMetadata.qrRendererLatest,
+    qrRendererPeerRanges: expectedCameraMetadata.qrRendererPeerRanges,
+    qrRendererDependencies: expectedCameraMetadata.qrRendererDependencies,
     qrNativeRendererLatest: expectedCameraMetadata.qrNativeRendererLatest,
     qrEncoderLatest: expectedCameraMetadata.qrEncoderLatest,
     selectedProofTarget: 'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers',
@@ -157,7 +201,16 @@ export const formatCameraCandidateSummary = (audit, generatedAt = new Date().toI
       .join(', ')}`,
     `CameraKit latest: ${audit.cameraKitLatest}`,
     `CameraKit node engine: ${audit.cameraKitNodeEngine}`,
+    `CameraKit peer dependency ranges: ${Object.entries(audit.cameraKitPeerRanges)
+      .map(([peerName, range]) => `${peerName}@${range}`)
+      .join(', ')}`,
     `QR renderer latest: ${audit.qrRendererLatest}`,
+    `QR renderer peer dependency ranges: ${Object.entries(audit.qrRendererPeerRanges)
+      .map(([peerName, range]) => `${peerName}@${range}`)
+      .join(', ')}`,
+    `QR renderer dependencies: ${Object.entries(audit.qrRendererDependencies)
+      .map(([dependencyName, range]) => `${dependencyName}@${range}`)
+      .join(', ')}`,
     `QR native renderer latest: ${audit.qrNativeRendererLatest}`,
     `QR encoder latest: ${audit.qrEncoderLatest}`,
     `Live npm metadata: ${audit.liveMetadataIssues.length === 0 ? 'matched' : 'stale'}`,
