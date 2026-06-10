@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.502 - iOS release readiness audit guard
+
+- Branch: `feature/bem-37-502-ios-release-readiness-audit-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refactor `auditIosReleaseReadiness.mjs` so importing it no longer executes the audit or writes `local-docs/ios-release-static-readiness-summary.txt`.
+- Export the iOS release readiness collector, formatter, and summary writer for focused guard coverage.
+- Add `check:ios-release-readiness-audit-guard` to validate the exported audit surface and formatted ready-summary fixture.
+- Wire the new guard into `rn:baseline:preflight`.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The CLI behavior remains the same: `ios:release:readiness:audit` still writes the local summary, prints it, and exits non-zero only when static iOS release files are invalid.
+- iOS archive/simulator validation remains blocked on Windows; the audit continues to record `iOS runtime delivery validation: not claimed`.
+- The new guard lets future handoff checks import the audit module safely without hidden summary writes.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-release-readiness-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.501 - Android release manifest checker root isolation
 
 - Branch: `feature/bem-37-501-release-manifest-root-isolation`
