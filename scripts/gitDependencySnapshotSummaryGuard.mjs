@@ -43,6 +43,8 @@ const requiredEntries = [
 export const getGitDependencySnapshotSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
+  const nodeVersion = getLineValue(summary, 'Node version');
+  const expectedNodeVersion = getLineValue(summary, 'Expected Node version');
   const entriesCount = getLineValue(summary, 'Entries');
   const mismatches = getLineValue(summary, 'Mismatches');
   const secretValuesPrinted = getLineValue(summary, 'Secret values printed');
@@ -55,6 +57,16 @@ export const getGitDependencySnapshotSummaryErrors = summary => {
 
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(generatedAt)) {
     errors.push(`Generated at must be an ISO timestamp. Received: ${generatedAt || 'missing'}`);
+  }
+
+  if (!/^v\d+\.\d+\.\d+/.test(nodeVersion)) {
+    errors.push(`Node version must be recorded. Received: ${nodeVersion || 'missing'}`);
+  }
+
+  if (!/^v\d+\.\d+\.\d+/.test(expectedNodeVersion)) {
+    errors.push(`Expected Node version must be recorded. Received: ${expectedNodeVersion || 'missing'}`);
+  } else if (nodeVersion !== expectedNodeVersion) {
+    errors.push(`Node version must match the repo .nvmrc baseline. Received: ${nodeVersion || 'missing'}, expected: ${expectedNodeVersion}`);
   }
 
   if (entriesCount !== String(requiredEntries.length)) {

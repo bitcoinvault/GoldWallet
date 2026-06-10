@@ -4,6 +4,7 @@ const validSummary = [
   'Wallet crypto latest snapshot audit',
   'Generated at: 2026-06-05T00:00:00.000Z',
   'Node version: v24.16.0',
+  'Expected Node version: v24.16.0',
   'Entries: 15',
   '- bitcoinjs-lib: package git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360, installed 2.0.3, latest 7.0.1, decision fork-pinned - do not replace the BitcoinVault fork with upstream npm without a dedicated wallet compatibility branch',
   '- bip39: package 3.1.0, installed 3.1.0, latest 3.1.0, decision current - latest npm package is installed and pinned for the wallet crypto baseline',
@@ -57,6 +58,16 @@ assertRejected(
   'Bad timestamp fixture',
   validSummary.replace('Generated at: 2026-06-05T00:00:00.000Z', 'Generated at: now'),
   'ISO timestamp',
+);
+assertRejected(
+  'Missing expected Node fixture',
+  validSummary.replace('Expected Node version: v24.16.0', 'Expected Node version: '),
+  'Expected Node version',
+);
+assertRejected(
+  'Wrong Node fixture',
+  validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'),
+  'repo .nvmrc baseline',
 );
 assertRejected('Bad entry count fixture', validSummary.replace('Entries: 15', 'Entries: 14'), 'Entries count');
 assertRejected(

@@ -11,6 +11,7 @@ const requiredKnownEntries = [
   'electrum-client',
   'node-fetch',
   'react',
+  'react-native-gesture-handler',
   'react-native-prompt-android',
   'react-test-renderer',
   'rn-nodeify',
@@ -23,6 +24,7 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
   const nodeVersion = getLineValue(summary, 'Node version');
+  const expectedNodeVersion = getLineValue(summary, 'Expected Node version');
   const entries = getLineValue(summary, 'Entries');
   const knownBlockedEntries = getLineValue(summary, 'Known blocked entries');
   const exoticEntries = getLineValue(summary, 'Exotic entries');
@@ -41,6 +43,12 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
 
   if (!/^v\d+\.\d+\.\d+/.test(nodeVersion)) {
     errors.push(`Node version must be recorded. Received: ${nodeVersion || 'missing'}`);
+  }
+
+  if (!/^v\d+\.\d+\.\d+/.test(expectedNodeVersion)) {
+    errors.push(`Expected Node version must be recorded. Received: ${expectedNodeVersion || 'missing'}`);
+  } else if (nodeVersion !== expectedNodeVersion) {
+    errors.push(`Node version must match the repo .nvmrc baseline. Received: ${nodeVersion || 'missing'}, expected: ${expectedNodeVersion}`);
   }
 
   if (!isNonNegativeInteger(entries)) {
@@ -95,6 +103,10 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
 
   if (!entryLines.some(line => line.startsWith('- react: ') && line.includes('React Native renderer exact-version coupling'))) {
     errors.push('React patch drift must remain tied to the React Native renderer exact-version coupling decision');
+  }
+
+  if (!entryLines.some(line => line.startsWith('- react-native-gesture-handler: ') && line.includes('dedicated navigation/gesture smoke branch'))) {
+    errors.push('react-native-gesture-handler drift must remain tied to a dedicated navigation/gesture smoke branch decision');
   }
 
   if (!entryLines.some(line => line.startsWith('- bl: ') && line.includes('CommonJS transitive consumers'))) {

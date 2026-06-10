@@ -30,6 +30,7 @@ export const getWalletCryptoLatestSnapshotSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
   const nodeVersion = getLineValue(summary, 'Node version');
+  const expectedNodeVersion = getLineValue(summary, 'Expected Node version');
   const entries = getLineValue(summary, 'Entries');
   const deferredEntries = getLineValue(summary, 'Deferred entries');
   const directBech32Dependency = getLineValue(summary, 'Direct bech32 dependency');
@@ -47,6 +48,12 @@ export const getWalletCryptoLatestSnapshotSummaryErrors = summary => {
 
   if (!/^v\d+\.\d+\.\d+/.test(nodeVersion)) {
     errors.push(`Node version must be recorded. Received: ${nodeVersion || 'missing'}`);
+  }
+
+  if (!/^v\d+\.\d+\.\d+/.test(expectedNodeVersion)) {
+    errors.push(`Expected Node version must be recorded. Received: ${expectedNodeVersion || 'missing'}`);
+  } else if (nodeVersion !== expectedNodeVersion) {
+    errors.push(`Node version must match the repo .nvmrc baseline. Received: ${nodeVersion || 'missing'}, expected: ${expectedNodeVersion}`);
   }
 
   if (!isNonNegativeInteger(entries)) {

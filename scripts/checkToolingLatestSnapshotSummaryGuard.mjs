@@ -4,6 +4,7 @@ const validSummary = [
   'Tooling latest snapshot audit',
   'Generated at: 2026-05-31T00:00:00.000Z',
   'Node version: v24.16.0',
+  'Expected Node version: v24.16.0',
   'Entries: 13',
   '- @eslint/js: package 10.0.1, installed 10.0.1, latest 10.0.1, decision current - latest ESLint recommended config package required by the ESLint 10 flat-config bridge',
   '- lint-staged: package 17.0.7, installed 17.0.7, latest 17.0.7, decision current - latest lint-staged verified on the Node 24 tooling baseline',
@@ -53,6 +54,16 @@ assertRejected(
   'Bad timestamp fixture',
   validSummary.replace('Generated at: 2026-05-31T00:00:00.000Z', 'Generated at: now'),
   'ISO timestamp',
+);
+assertRejected(
+  'Missing expected Node fixture',
+  validSummary.replace('Expected Node version: v24.16.0', 'Expected Node version: '),
+  'Expected Node version',
+);
+assertRejected(
+  'Wrong Node fixture',
+  validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'),
+  'repo .nvmrc baseline',
 );
 assertRejected('Bad entry count fixture', validSummary.replace('Entries: 13', 'Entries: 2'), 'Entries count');
 assertRejected(

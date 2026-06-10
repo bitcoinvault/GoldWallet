@@ -3,6 +3,8 @@ import { getGitDependencySnapshotSummaryErrors } from './gitDependencySnapshotSu
 const validSummary = [
   'Git dependency snapshot audit',
   'Generated at: 2026-06-03T00:00:00.000Z',
+  'Node version: v24.16.0',
+  'Expected Node version: v24.16.0',
   'Entries: 4',
   'Mismatches: 0',
   '- bitcoinjs-lib: package spec: git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360; lock hash: 0854f675114fada32348d51c80a6ccdb33afc360; package hash: 0854f675114fada32348d51c80a6ccdb33afc360; remote: https://github.com/bitcoinvault/bitcoinjs-lib.git; remote ref: refs/heads/master; remote hash: 0854f675114fada32348d51c80a6ccdb33afc360; wallet critical: yes; status: current',
@@ -37,6 +39,16 @@ const assertRejected = (label, summary, expectedError) => {
 assertAccepted('Valid git dependency snapshot fixture', validSummary);
 assertRejected('Missing header fixture', validSummary.replace('Git dependency snapshot audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-03T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
+assertRejected(
+  'Missing expected Node fixture',
+  validSummary.replace('Expected Node version: v24.16.0', 'Expected Node version: '),
+  'Expected Node version',
+);
+assertRejected(
+  'Wrong Node fixture',
+  validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'),
+  'repo .nvmrc baseline',
+);
 assertRejected('Bad entry count fixture', validSummary.replace('Entries: 4', 'Entries: 3'), 'Entries must be 4');
 assertRejected('Secret fixture', validSummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');
 assertRejected(
