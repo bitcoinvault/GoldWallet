@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.509 - Gesture handler patch smoke
+
+- Branch: `feature/bem-37-509-gesture-handler-patch-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update `react-native-gesture-handler` from `3.0.0` to the current npm patch `3.0.1`.
+- Refresh `yarn.lock` for the gesture-handler patch only.
+- Update native module inventory, iOS Podfile.lock drift expectations, navigation compatibility docs, and wallet modernization baseline docs to the new checked gesture-handler version.
+- Keep React Navigation, `react-native-screens`, `react-native-safe-area-context`, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- `npm view react-native-gesture-handler version peerDependencies engines --json` reported latest `3.0.1` with broad `react` and `react-native` peer dependencies and no new engine field.
+- Running `corepack yarn add react-native-gesture-handler@3.0.1 --exact` under system Node `v22.18.0` failed because the repo now includes tooling that requires Node `>=22.22.1`; rerunning with the repo Node `v24.16.0` succeeded.
+- After the update, direct outdated snapshot no longer lists `react-native-gesture-handler`, so the direct-outdated guard now treats a future gesture-handler drift as conditionally guarded instead of always required.
+- Android embedded smoke passed on `emulator-5554`, including first-run onboarding, empty dashboard, Create/Import CTA navigation, QR scanner open/close from import flow, and empty-state bottom-tab navigation.
+- iOS runtime validation is not claimed from Windows; static iOS release readiness still requires refreshing `ios/Podfile.lock` with `pod install` on macOS and running archive/simulator validation.
+
+Validation:
+
+- `npm view react-native-gesture-handler version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add react-native-gesture-handler@3.0.1 --exact`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand` passed with existing asynchronous BlueElectrum post-test log warnings
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:assemble`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.508 - Snapshot Node baseline guard coverage
 
 - Branch: `feature/bem-37-508-snapshot-node-baseline-guards`

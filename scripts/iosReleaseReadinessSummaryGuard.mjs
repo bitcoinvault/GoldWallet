@@ -36,7 +36,7 @@ const expectedCurrentPodfileLockDriftSnippets = [
   'RNDeviceInfo 6.2.1; package.json has react-native-device-info 15.0.2',
   'RNFastImage 8.3.7; package.json has react-native-fast-image 8.6.3',
   'RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.1.1',
-  'RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.0.0',
+  'RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.0.1',
   'RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
   'RNScreens 3.6.0; package.json has react-native-screens 4.25.2',
   'RNSentry 3.1.0; package.json has @sentry/react-native 8.13.0',
