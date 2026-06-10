@@ -61,7 +61,7 @@ export const collectCameraQrMigrationAudit = () => {
   }
 
   if (rootQrcodeVersion !== '1.5.4') {
-    readinessIssues.push(`package.json resolutions has qrcode@${rootQrcodeVersion || '<missing>'}; expected current RN 0.85 QR renderer baseline 1.5.4`);
+    readinessIssues.push(`package.json resolutions has qrcode@${rootQrcodeVersion || '<missing>'}; expected current RN 0.86 QR renderer baseline 1.5.4`);
   }
 
   const androidAppGradle = requireFile(errors, 'android/app/build.gradle');
