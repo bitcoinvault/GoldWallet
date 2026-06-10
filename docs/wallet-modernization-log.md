@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.533 - Release-services upload readiness refresh
+
+- Branch: `feature/bem-37-533-release-services-upload-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh release-services upload readiness evidence after the Android release build and release smoke refresh.
+- Validate Sentry/Firebase/CodePush/push-notification/iOS release-service summaries without printing or committing secret values.
+- Confirm which release delivery paths can be claimed locally and which still require credentials or platform access.
+- Keep runtime code, native project files, package versions, and secret-bearing property files unchanged.
+
+Findings:
+
+- `@sentry/react-native@8.13.0`, direct `@sentry/cli@3.5.0`, React Native Firebase `24.1.1`, and `@react-native-community/push-notification-ios@1.12.0` are current against live npm metadata.
+- Sentry Android/iOS release integration is wired to the direct CLI package and the local Sentry properties generator is guarded.
+- `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not present locally, so Sentry source-map/dSYM upload validation remains not claimed.
+- Android release APK evidence covers `dev`, `stage`, `prod`, and `beta`; the stale release-smoke summary was refreshed against the current signed dev release-smoke APK.
+- Android release smoke passed on emulator with first-run onboarding, dashboard CTA flow, QR scanner path, tab navigation, and no fatal/runtime logcat findings.
+- Firebase release-services wiring is current and static-ready, but runtime delivery validation is not claimed.
+- CodePush remains on latest `9.0.1`, but upstream App Center CodePush is retired/archived and Android New Architecture is enabled; migration remains required.
+- CodePush update validation is not claimed because dev deployment keys are blank and beta strategy is unconfirmed.
+- iOS runtime delivery validation remains blocked on Windows by missing macOS/Xcode/CocoaPods and active `ios/Podfile.lock` drift.
+
+Validation:
+
+- `corepack yarn check:sentry-properties-generator`
+- `corepack yarn sentry:release:validation:handoff:dry-run --skip-android-release`
+- `corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:removal-readiness:audit`
+- `corepack yarn push-notification:bridge-audit`
+- `corepack yarn push-notification:bridge-check-summary`
+- `corepack yarn ios:mac-validation-prereq:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `corepack yarn release-services:check-summaries`
+
 ### BEM-37.532 - Android Gradle warning baseline refresh
 
 - Branch: `feature/bem-37-532-gradle-9-warning-refresh`
