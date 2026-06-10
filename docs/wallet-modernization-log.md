@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.529 - React 19 patch target probe
+
+- Branch: `feature/bem-37-529-react-19-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Check the current npm latest target for the React Native runtime pair after reaching the React Native `0.86.0` baseline.
+- Probe whether `react` and `react-test-renderer` can move from `19.2.3` to npm latest `19.2.7` without violating the React Native renderer guard.
+- Keep package versions unchanged after the compatibility guard rejected the patch target.
+
+Findings:
+
+- `react-native`, `@react-native/gradle-plugin`, `@react-native/babel-preset`, `@react-native/metro-config`, and `@react-native/typescript-config` are already at npm latest `0.86.0`.
+- `@react-native-community/cli` is already at npm latest `20.1.3`.
+- npm latest for `react` and `react-test-renderer` is `19.2.7`.
+- React Native `0.86.0` declares peer `react: ^19.2.3`, but its bundled renderer implementation reports exact renderer version `19.2.3`.
+- The attempted `react@19.2.7` / `react-test-renderer@19.2.7` patch was rejected by `corepack yarn react:renderer-version:audit`.
+- The branch keeps `react` and `react-test-renderer` at `19.2.3`; the next safe React patch target requires a React Native renderer baseline that reports the newer exact React renderer version.
+
+Validation:
+
+- `npm view react-native version`
+- `npm view @react-native-community/cli version`
+- `npm view @react-native/gradle-plugin version`
+- `npm view react-native@0.86.0 peerDependencies --json`
+- `npm view react@19.2.7 version dist-tags --json`
+- `npm view react-test-renderer@19.2.7 peerDependencies --json`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn add react@19.2.7 react-test-renderer@19.2.7 --exact` expected compatibility failure after audit
+- `corepack yarn react:renderer-version:audit` expected failure: renderer exact version is `19.2.3`
+- `corepack yarn react19:impact:audit` expected failure: current React baseline is `19.2.3`
+- `git restore -- package.json yarn.lock`
+
 ### BEM-37.528 - iOS release readiness refresh
 
 - Branch: `feature/bem-37-528-ios-readiness-refresh`
