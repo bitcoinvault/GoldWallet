@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.519 - React Native latest target refresh
+
+- Branch: `feature/bem-37-519-rn-latest-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live React Native target evidence and React/renderer coupling status before another foundation or package cohort branch.
+- Validate the current RN `0.86.0` foundation checkpoint, React 19 package coupling, renderer exact-version constraint, and aggregate foundation target summaries.
+- Keep package versions, runtime application code, native project files, Android release artifacts, env files, and Metro behavior unchanged.
+
+Findings:
+
+- Live npm metadata reports `react-native@0.86.0` as `latest`, `0.86.0-rc.3` as `next`, and `0.87.0-nightly-20260608-2ff3b81dc` as `nightly`.
+- The default wallet target channel remains npm `latest`; `next` and `nightly` remain planning evidence, not the default app upgrade target.
+- `react-native@0.86.0` still peers React `^19.2.3` and requires Node `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`, which is satisfied by the repo Node `24.16.0` tooling baseline.
+- Live npm metadata reports React `19.2.7` as latest, but the current RN `0.86.0` renderer implementation expects React `19.2.3`; the React patch is intentionally not taken as a package-only update.
+- React 19 impact, React package coupling, RN renderer exact-version, RN target snapshot, and RN `0.86.0` foundation checkpoint audits all match the current baseline.
+- The next RN foundation move should wait for a future stable `react-native@latest` target and be treated as a full foundation branch with package/template/native migration plus Android build and emulator smoke proof.
+
+Validation:
+
+- `npm view react-native dist-tags version peerDependencies engines --json`
+- `npm view react dist-tags version engines --json`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn react19:impact:audit`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn react:renderer-version:audit`
+- `corepack yarn rn:076-foundation:audit`
+- `corepack yarn foundation:target:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.518 - Sentry release readiness latest refresh
 
 - Branch: `feature/bem-37-518-sentry-release-readiness-refresh`
