@@ -221,6 +221,7 @@ corepack yarn camera:qr-migration:audit
 corepack yarn camera:qr-migration:check-summary
 corepack yarn check:camera-qr-validation-handoff-guard
 corepack yarn camera:qr-validation:handoff:dry-run
+corepack yarn camera:qr-validation:handoff:dry-run --include-android-smoke
 corepack yarn masked-view:migration:audit
 corepack yarn masked-view:migration:check-summary
 corepack yarn secure-storage:migration:audit

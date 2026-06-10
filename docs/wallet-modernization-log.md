@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.504 - Camera QR smoke handoff option
+
+- Branch: `feature/bem-37-504-camera-qr-smoke-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add an optional `--include-android-smoke` mode to `camera:qr-validation:handoff`.
+- Keep the default Camera/QR handoff fast, while making scanner-affecting runtime changes run Android dev assemble, embedded emulator smoke, and smoke-summary validation from the same handoff command.
+- Extend the Camera/QR handoff self-guard so the Android smoke steps are present only when explicitly requested and run after focused QR unit validation.
+- Document the smoke-enabled handoff in the Camera replacement plan and Android modernization workflow.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The CameraKit scanner implementation and QR renderer dependencies are already on current guarded versions.
+- Existing Camera/QR validation covered candidate metadata, migration wiring, usage guards, caller inventory, scanner unit tests, and QR render unit tests.
+- The missing operational piece was a single handoff option that makes emulator smoke explicit for future scanner-affecting runtime changes.
+- No scanner runtime code, native project files, package versions, or Metro behavior changed in this branch, so the smoke-enabled path is dry-run validated here; actual emulator smoke remains required on branches that change scanner runtime behavior.
+
+Validation:
+
+- `corepack yarn check:camera-qr-validation-handoff-guard`
+- `corepack yarn camera:qr-validation:handoff:dry-run`
+- `corepack yarn camera:qr-validation:handoff:dry-run --include-android-smoke`
+- `corepack yarn camera:qr-validation:handoff`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.503 - Release-services Sentry generator guard coverage
 
 - Branch: `feature/bem-37-503-release-services-sentry-generator-guard`

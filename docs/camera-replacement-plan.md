@@ -21,6 +21,7 @@
 - The candidate audit also guards CameraKit peer ranges (`react@*`, `react-native@*`), QR renderer peer ranges (`react@*`, `react-native@>=0.63.4`, `react-native-svg@>=14.0.0`), and QR renderer dependencies (`prop-types@^15.8.0`, `qrcode@^1.5.4`, `text-encoding@^0.7.0`) so latest-compatible scanner decisions do not rely only on package version numbers.
 - `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, and writes `local-docs/camera-qr-migration-summary.txt`.
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
+- `corepack yarn camera:qr-validation:handoff --include-android-smoke` extends the Camera/QR handoff with Android dev assemble, embedded emulator smoke, and smoke-summary validation for scanner-affecting runtime changes.
 - The QR migration audit verifies that removed camera pods are absent from `ios/Podfile.lock`; on Windows the expected state is that Android/runtime dependency wiring can be guarded while iOS camera migration validation remains unclaimed until `pod install` refreshes the broader lockfile drift on macOS.
 
 ## Why Replace
@@ -105,6 +106,7 @@ Scope:
 - `corepack yarn camera:candidate:check-summary`.
 - `corepack yarn camera:qr-migration:audit`.
 - `corepack yarn camera:qr-migration:check-summary`.
+- `corepack yarn camera:qr-validation:handoff --include-android-smoke` for scanner-affecting runtime changes.
 - `corepack yarn typescript:check`.
 - `git diff --check`.
 - Android debug build on JDK 17.
