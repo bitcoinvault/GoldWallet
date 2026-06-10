@@ -26,13 +26,19 @@ const skippedRendered = skippedCommands.map(renderSecureStorageReleaseValidation
   'corepack yarn test:storage',
   'corepack yarn test:authenticator',
   'corepack yarn test:wallet-core:offline',
-  'corepack yarn android:dev:verify',
+  'corepack yarn android:dev:env-audit',
+  'corepack yarn android:dev:assemble',
+  'corepack yarn android:dev:smoke:embedded',
+  'corepack yarn android:dev:check-smoke-summary',
 ].forEach(expected => {
   assert(fullRendered.includes(expected), `Expected secure-storage handoff commands to include: ${expected}`);
 });
 
 assert(
-  !skippedRendered.includes('android:dev:verify'),
+  !skippedRendered.includes('android:dev:env-audit') &&
+    !skippedRendered.includes('android:dev:assemble') &&
+    !skippedRendered.includes('android:dev:smoke:embedded') &&
+    !skippedRendered.includes('android:dev:check-smoke-summary'),
   'Skipped secure-storage handoff must omit Android dev build and emulator smoke',
 );
 assert(
@@ -44,8 +50,8 @@ assert(
   'Skipped secure-storage handoff must end with offline wallet core validation',
 );
 assert(
-  fullCommands[fullCommands.length - 1].args.includes('android:dev:verify'),
-  'Full secure-storage handoff must end with Android dev build and emulator smoke',
+  fullCommands[fullCommands.length - 1].args.includes('android:dev:check-smoke-summary'),
+  'Full secure-storage handoff must end with Android smoke summary validation',
 );
 assert(
   getSecureStorageReleaseValidationHandoffErrors({ skipAndroidSmoke: 'false' }).some(error =>

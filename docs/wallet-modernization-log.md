@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.515 - Secure-storage release validation handoff refresh
+
+- Branch: `feature/bem-37-515-secure-storage-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the secure-storage release-validation handoff so wallet-critical storage validation uses the current embedded Android smoke path instead of the older Metro-backed smoke helper.
+- Validate secure-storage migration posture, legacy-removal readiness, focused storage/authenticator/wallet-core tests, Android build, and emulator startup flow.
+- Keep package versions, runtime secure-storage code, native project files, env files, release-service secrets, and legacy secure-storage removal posture unchanged.
+
+Findings:
+
+- The first full handoff run validated secure-storage summaries and focused Jest contracts, then failed at Android smoke because `android:dev:verify` still invokes the older Metro-required smoke helper and Metro was not running at `127.0.0.1:8081`.
+- The handoff now executes the guarded sequence explicitly: `android:dev:env-audit`, `android:dev:assemble`, `android:dev:smoke:embedded`, and `android:dev:check-smoke-summary`.
+- Secure-storage migration remains stable with `react-native-keychain@10.0.0` as the primary write path, `react-native-secure-key-store@2.0.10` retained for fallback reads, legacy writes disabled, and PIN/transaction-password/encrypted-storage tests covered.
+- Legacy secure-storage removal remains explicitly not claimed because fallback reads are still active; `react-native-secure-key-store` must stay installed until a later release validates migrated secure values without that fallback.
+- The rerun handoff passed focused secure-storage, storage, authenticator, and offline wallet-core tests, assembled `devDebug`, and passed embedded Android smoke on `emulator-5554` through first-run onboarding, dashboard, Create/Import CTA navigation, QR scanner open/close, and bottom-tab navigation without fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn secure-storage:release-validation:handoff` initial run failed at Metro-required `android:dev:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn secure-storage:release-validation:handoff`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.514 - iOS release readiness refresh
 
 - Branch: `feature/bem-37-514-ios-readiness-refresh`
