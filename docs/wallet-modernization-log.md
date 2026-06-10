@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.472 - Baseline decision docs refresh after RN 0.86
+
+- Branch: `feature/bem-37-472-baseline-docs-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh active baseline decision documents after the RN `0.86.0` foundation so future native-module, warning, QR, storage/network, and direct-outdated work does not read stale RN `0.85.3` wording as the current state.
+- Update the Android warning follow-up plan, direct outdated snapshot policy, native-module upgrade plan, storage/network compatibility audit, and Camera QR migration audit wording.
+- Keep historical modernization log entries unchanged and keep runtime code, native project files, package versions, and release-service behavior unchanged.
+
+Findings:
+
+- The refreshed Android Gradle warning audit still reports exactly one targeted warning source: `react-native-secure-key-store/android/build.gradle:46`.
+- The direct outdated snapshot still reports 8 entries, 4 known blocked entries, 4 exotic entries, and 0 review-required entries; React and `react-test-renderer` remain blocked by RN renderer exact-version coupling on the RN `0.86.0` baseline.
+- Camera/QR migration remains stable with `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and root `qrcode@1.5.4`.
+- Storage/network docs now describe the current RN `0.86.0` checkpoint while keeping the same guarded package set and the same high-risk validation requirements for storage, secure storage, Electrum/network, config, and WebView changes.
+- No emulator smoke was run for this branch because it changes documentation and audit wording only, not app runtime, native project files, dependencies, or Metro behavior.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:audit-warnings`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-warning-audit-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-remaining-warning-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-candidate-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-usage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-validation-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:native-module-upgrade-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.471 - Sentry release evidence refresh after RN 0.86
 
 - Branch: `feature/bem-37-471-sentry-release-evidence-refresh`
