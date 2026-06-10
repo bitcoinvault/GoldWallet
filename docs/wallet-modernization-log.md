@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.488 - Release handoff smoke digest readiness
+
+- Branch: `feature/bem-37-488-release-handoff-smoke-digests`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Reuse one Android release-smoke evidence contract across aggregate release-services validation and the Sentry, Firebase, and CodePush release handoff readiness checks.
+- Require release handoff readiness to validate the signed smoke APK and source unsigned `devRelease` APK path, byte count, and SHA-256 digest.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- `release-services:check-summaries` was hardened in BEM-37.487, but the individual Sentry/Firebase/CodePush handoff readiness functions still accepted release-smoke summaries without APK digest evidence.
+- A shared `androidReleaseSmokeEvidence` helper now keeps the required release-smoke APK provenance consistent across all release-service handoff gates.
+- Guard fixtures now include digest evidence so future readiness changes cannot silently weaken the APK provenance requirement.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.487 - Release-services smoke digest aggregate
 
 - Branch: `feature/bem-37-487-release-services-smoke-digest-aggregate`

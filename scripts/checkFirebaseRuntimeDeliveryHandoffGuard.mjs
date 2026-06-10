@@ -1,3 +1,6 @@
+import { createHash } from 'crypto';
+import { readFileSync, statSync } from 'fs';
+import path from 'path';
 import {
   getFirebaseRuntimeDeliveryCommands,
   getFirebaseRuntimeDeliveryHandoffErrors,
@@ -16,6 +19,16 @@ const fullCommands = getFirebaseRuntimeDeliveryCommands({ skipAndroidRelease: fa
 const fullRendered = fullCommands.map(renderFirebaseRuntimeDeliveryCommand).join('\n');
 const skippedCommands = getFirebaseRuntimeDeliveryCommands({ skipAndroidRelease: true });
 const skippedRendered = skippedCommands.map(renderFirebaseRuntimeDeliveryCommand).join('\n');
+const fixtureApkPath = path.resolve('package.json');
+const fixtureApkBytes = statSync(fixtureApkPath).size;
+const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath)).digest('hex');
+const smokeEvidenceOptions = {
+  expectedArtifactBase: 'android-smoke-dev-release',
+  requireSmokeApkDigest: true,
+  expectedSmokeApkPath: fixtureApkPath,
+  requireSourceApkDigest: true,
+  expectedSourceApkPath: fixtureApkPath,
+};
 
 [
   'corepack yarn android:dev:release:verify-local',
@@ -93,6 +106,12 @@ const readyAndroidReleaseSmokeSummary = [
   'Android package: io.goldwallet.wallet.dev',
   'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
   'Artifact base: android-smoke-dev-release',
+  `Smoke APK path: ${fixtureApkPath}`,
+  `Smoke APK bytes: ${fixtureApkBytes}`,
+  `Smoke APK sha256: ${fixtureApkSha256}`,
+  `Source APK path: ${fixtureApkPath}`,
+  `Source APK bytes: ${fixtureApkBytes}`,
+  `Source APK sha256: ${fixtureApkSha256}`,
   'Metro required: no',
   'Metro endpoint: 127.0.0.1:8081',
   'Metro reachable: no',
@@ -119,6 +138,7 @@ assert(
     firebaseSummaryText: readyFirebaseSummary,
     pushBridgeSummaryText: readyPushBridgeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
   }).length === 0,
   'Ready Firebase runtime handoff summary fixtures must pass readiness checks',
 );
@@ -127,6 +147,7 @@ assert(
     firebaseSummaryText: readyFirebaseSummary.replace('Firebase runtime delivery validation: not claimed', 'Firebase runtime delivery validation: claimed'),
     pushBridgeSummaryText: readyPushBridgeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
   }).some(error => error.includes('must stay unclaimed')),
   'Firebase runtime readiness check must reject claimed delivery without a real runtime handoff',
 );
@@ -135,6 +156,7 @@ assert(
     firebaseSummaryText: readyFirebaseSummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
     pushBridgeSummaryText: readyPushBridgeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
   }).some(error => error.includes('current release inputs')),
   'Firebase runtime readiness check must require fresh Android release inputs',
 );
@@ -143,6 +165,7 @@ assert(
     firebaseSummaryText: readyFirebaseSummary,
     pushBridgeSummaryText: readyPushBridgeSummary.replace('Static readiness issues: 0', 'Static readiness issues: 1'),
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
   }).some(error => error.includes('0 static readiness issues')),
   'Firebase runtime readiness check must require push notification static readiness',
 );
@@ -151,6 +174,7 @@ assert(
     firebaseSummaryText: '',
     pushBridgeSummaryText: readyPushBridgeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
   }).some(error => error.includes('Firebase release-services summary is missing')),
   'Firebase runtime readiness check must report a missing Firebase summary',
 );
@@ -159,6 +183,7 @@ assert(
     firebaseSummaryText: readyFirebaseSummary,
     pushBridgeSummaryText: readyPushBridgeSummary,
     androidReleaseSmokeSummaryText: '',
+    smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is missing')),
   'Firebase runtime readiness check must report a missing Android release smoke summary',
 );
@@ -167,6 +192,7 @@ assert(
     firebaseSummaryText: readyFirebaseSummary,
     pushBridgeSummaryText: readyPushBridgeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace('Validated empty-tab navigation: yes', 'Validated empty-tab navigation: no'),
+    smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is invalid')),
   'Firebase runtime readiness check must reject invalid Android release smoke evidence',
 );

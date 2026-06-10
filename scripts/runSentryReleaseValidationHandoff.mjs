@@ -2,6 +2,7 @@ import { spawnSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -99,7 +100,10 @@ const readSummary = summaryPath => {
   return readFileSync(summaryPath, 'utf8');
 };
 
-export const getSentryReleaseValidationReadinessErrors = ({ androidReleaseSmokeSummaryText }) => {
+export const getSentryReleaseValidationReadinessErrors = ({
+  androidReleaseSmokeSummaryText,
+  smokeEvidenceOptions = getAndroidReleaseSmokeEvidenceOptions(root),
+}) => {
   const errors = [];
 
   if (!androidReleaseSmokeSummaryText) {
@@ -107,9 +111,7 @@ export const getSentryReleaseValidationReadinessErrors = ({ androidReleaseSmokeS
     return errors;
   }
 
-  const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, {
-    expectedArtifactBase: 'android-smoke-dev-release',
-  });
+  const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, smokeEvidenceOptions);
 
   smokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
 
