@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.535 - Sentry latest release-readiness refresh
+
+- Branch: `feature/bem-37-535-sentry-latest-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live npm metadata and guarded release-readiness evidence for Sentry after the release-services and CodePush readiness refreshes.
+- Confirm whether the current Sentry state requires a package upgrade, a release-upload validation pass, or a credential handoff.
+- Keep runtime code, native project files, package versions, Sentry properties files, and secret-bearing env values unchanged.
+- Keep Sentry token values out of command rendering, generated summaries, and committed docs.
+
+Findings:
+
+- Live npm metadata reports `@sentry/react-native@8.13.0` as `latest`; `package.json` and `node_modules` are already aligned to `8.13.0`.
+- Live npm metadata reports `@sentry/cli@3.5.0` as `latest`; the direct dev dependency and executable are already aligned to `3.5.0`.
+- The release prerequisite audit still sees nested transitive `@sentry/cli@3.4.3` instances under Sentry packages, but Android/iOS release build paths use the direct `@sentry/cli@3.5.0` package.
+- Sentry release integration is wired, Android release summary evidence covers `dev`, `stage`, `prod`, and `beta`, and Android release APK manifest validation remains valid.
+- Sentry Android warning evidence remains stable: no active Sentry `execResult` warning is reported on the RN `0.86.0` baseline, but source-map/dSYM behavior still needs credential-backed release validation.
+- Sentry release upload validation remains not claimed because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are absent locally.
+- Running the Sentry release-validation handoff with `--skip-android-release` reaches the expected credential boundary after validating the properties generator, Android warning audit, and summary guard.
+
+Validation:
+
+- `npm view @sentry/react-native version time dist-tags peerDependencies dependencies --json`
+- `npm view @sentry/cli version time dist-tags --json`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn check:sentry-android-warning-summary-guard`
+- `corepack yarn check:sentry-properties-generator`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn check:sentry-credential-handoff-guard`
+- `corepack yarn sentry:release:validation:handoff:dry-run --skip-android-release`
+- `corepack yarn sentry:release:validation:handoff --skip-android-release` expected fail: missing `SENTRY_AUTH_TOKEN`
+
 ### BEM-37.534 - CodePush decision readiness refresh
 
 - Branch: `feature/bem-37-534-codepush-decision-readiness`
