@@ -16,6 +16,18 @@ import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummar
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
+const signedReleaseSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
+const unsignedDevReleaseApkPath = path.join(
+  root,
+  'android',
+  'app',
+  'build',
+  'outputs',
+  'apk',
+  'dev',
+  'release',
+  'app-dev-release-unsigned.apk',
+);
 
 const summaries = [
   {
@@ -32,7 +44,13 @@ const summaries = [
     label: 'Android release smoke',
     relativePath: 'local-docs/android-smoke-dev-release-summary.txt',
     getErrors: summary =>
-      getAndroidEmbeddedSmokeSummaryErrors(summary, { expectedArtifactBase: 'android-smoke-dev-release' }),
+      getAndroidEmbeddedSmokeSummaryErrors(summary, {
+        expectedArtifactBase: 'android-smoke-dev-release',
+        requireSmokeApkDigest: true,
+        expectedSmokeApkPath: signedReleaseSmokeApkPath,
+        requireSourceApkDigest: true,
+        expectedSourceApkPath: unsignedDevReleaseApkPath,
+      }),
   },
   {
     label: 'Sentry release prerequisite',
