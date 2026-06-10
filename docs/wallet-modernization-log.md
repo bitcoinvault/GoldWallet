@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.478 - CodePush release-smoke readiness guard
+
+- Branch: `feature/bem-37-478-codepush-release-smoke-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the CodePush update-validation handoff so it directly requires valid Android release-smoke evidence before reporting readiness for a real OTA delivery test.
+- Keep package versions, runtime code, native project files, env files, and CodePush behavior unchanged.
+
+Findings:
+
+- `codepush:update:validation:handoff` already refreshes Android release APK evidence, runs release embedded smoke, validates the smoke summary, refreshes CodePush release-path/migration/removal summaries, and validates aggregate release-services summaries.
+- The handoff now performs a final direct validation of `local-docs/android-smoke-dev-release-summary.txt` through the existing embedded-smoke summary guard after all command steps succeed.
+- CodePush OTA delivery validation remains `not claimed` until real deployment keys, beta strategy, and an actual OTA delivery test are available; this branch only tightens local readiness evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff --skip-android-release` expected fail: CodePush release path not ready for update validation
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.477 - Sentry release-smoke readiness guard
 
 - Branch: `feature/bem-37-477-sentry-release-smoke-readiness`

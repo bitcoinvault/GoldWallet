@@ -100,7 +100,7 @@ corepack yarn codepush:update:validation:handoff:dry-run
 corepack yarn codepush:update:validation:handoff
 ```
 
-This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, runs the Android release embedded smoke, validates the release-smoke summary, refreshes CodePush release-path, migration-readiness, and removal-readiness summaries, then finishes with the aggregate release-services summary checker. The executable handoff remains blocked while the release-path summary says `Release path ready for update validation: no`, while `CodePush update validation` is still `not claimed`, or while the App Center retirement migration requirement is not visible. It does not print deployment-key values.
+This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, runs the Android release embedded smoke, validates the release-smoke summary, refreshes CodePush release-path, migration-readiness, and removal-readiness summaries, then finishes with the aggregate release-services summary checker and a direct Android release-smoke readiness check. The executable handoff remains blocked while the release-path summary says `Release path ready for update validation: no`, while `CodePush update validation` is still `not claimed`, while the App Center retirement migration requirement is not visible, or while the dedicated release-smoke summary is missing/invalid. It does not print deployment-key values.
 
 After `BEM-37.424`, Firebase has a narrower runtime-delivery prerequisite handoff for the point before real FCM, Crashlytics, and Analytics delivery testing:
 
