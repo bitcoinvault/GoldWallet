@@ -33,7 +33,10 @@ export const getCameraCandidateSummaryErrors = summary => {
   const visionCameraPeerRanges = getLineValue(summary, 'VisionCamera peer dependency ranges');
   const cameraKit = getLineValue(summary, 'CameraKit latest');
   const cameraKitNodeEngine = getLineValue(summary, 'CameraKit node engine');
+  const cameraKitPeerRanges = getLineValue(summary, 'CameraKit peer dependency ranges');
   const qrRenderer = getLineValue(summary, 'QR renderer latest');
+  const qrRendererPeerRanges = getLineValue(summary, 'QR renderer peer dependency ranges');
+  const qrRendererDependencies = getLineValue(summary, 'QR renderer dependencies');
   const qrNativeRenderer = getLineValue(summary, 'QR native renderer latest');
   const qrEncoder = getLineValue(summary, 'QR encoder latest');
   const liveMetadata = getLineValue(summary, 'Live npm metadata');
@@ -82,8 +85,20 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`CameraKit node engine must be >=18. Received: ${cameraKitNodeEngine || 'missing'}`);
   }
 
+  if (cameraKitPeerRanges !== 'react@*, react-native@*') {
+    errors.push(`CameraKit peer dependency ranges are unexpected. Received: ${cameraKitPeerRanges || 'missing'}`);
+  }
+
   if (qrRenderer !== 'react-native-qrcode-svg@6.3.21') {
     errors.push(`QR renderer latest must be react-native-qrcode-svg@6.3.21. Received: ${qrRenderer || 'missing'}`);
+  }
+
+  if (qrRendererPeerRanges !== 'react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0') {
+    errors.push(`QR renderer peer dependency ranges are unexpected. Received: ${qrRendererPeerRanges || 'missing'}`);
+  }
+
+  if (qrRendererDependencies !== 'prop-types@^15.8.0, qrcode@^1.5.4, text-encoding@^0.7.0') {
+    errors.push(`QR renderer dependencies are unexpected. Received: ${qrRendererDependencies || 'missing'}`);
   }
 
   if (qrNativeRenderer !== 'react-native-svg@15.15.5') {

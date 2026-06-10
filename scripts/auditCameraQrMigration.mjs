@@ -119,7 +119,10 @@ export const collectCameraQrMigrationAudit = () => {
     qrNativeRendererVersion,
     rootQrcodeVersion,
     cameraKitLatest: cameraCandidateAudit.cameraKitLatest,
+    cameraKitPeerRanges: cameraCandidateAudit.cameraKitPeerRanges,
     qrRendererLatest: cameraCandidateAudit.qrRendererLatest,
+    qrRendererPeerRanges: cameraCandidateAudit.qrRendererPeerRanges,
+    qrRendererDependencies: cameraCandidateAudit.qrRendererDependencies,
     qrNativeRendererLatest: cameraCandidateAudit.qrNativeRendererLatest,
     qrEncoderLatest: cameraCandidateAudit.qrEncoderLatest,
     liveQrTargetIssues: cameraCandidateAudit.liveMetadataIssues,
@@ -143,7 +146,16 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
     `QR native renderer version: ${audit.qrNativeRendererVersion || '<missing>'}`,
     `qrcode resolution: ${audit.rootQrcodeVersion || '<missing>'}`,
     `CameraKit latest target: ${audit.cameraKitLatest}`,
+    `CameraKit peer dependency ranges: ${Object.entries(audit.cameraKitPeerRanges)
+      .map(([peerName, range]) => `${peerName}@${range}`)
+      .join(', ')}`,
     `QR renderer latest target: ${audit.qrRendererLatest}`,
+    `QR renderer peer dependency ranges: ${Object.entries(audit.qrRendererPeerRanges)
+      .map(([peerName, range]) => `${peerName}@${range}`)
+      .join(', ')}`,
+    `QR renderer dependencies: ${Object.entries(audit.qrRendererDependencies)
+      .map(([dependencyName, range]) => `${dependencyName}@${range}`)
+      .join(', ')}`,
     `QR native renderer latest target: ${audit.qrNativeRendererLatest}`,
     `QR encoder latest target: ${audit.qrEncoderLatest}`,
     `Live QR targets: ${audit.liveQrTargetIssues.length === 0 ? 'matched' : 'stale'}`,

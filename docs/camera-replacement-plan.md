@@ -18,6 +18,7 @@
 - `corepack yarn test:qr-scanner:unit` validates the scanner screen contract for Android camera permission, CameraKit QR-only configuration, callback delivery, empty scans, and duplicate-scan suppression.
 - `corepack yarn check:qr-scanner-validation-scripts` keeps that focused scanner test wired into the lightweight Android gate and prepush validation.
 - `corepack yarn camera:candidate:audit` checks live npm metadata for the legacy camera, VisionCamera, CameraKit, QR renderer, QR native renderer, and QR encoder before scanner follow-up work, so stale candidate assumptions are visible before a dependency branch.
+- The candidate audit also guards CameraKit peer ranges (`react@*`, `react-native@*`), QR renderer peer ranges (`react@*`, `react-native@>=0.63.4`, `react-native-svg@>=14.0.0`), and QR renderer dependencies (`prop-types@^15.8.0`, `qrcode@^1.5.4`, `text-encoding@^0.7.0`) so latest-compatible scanner decisions do not rely only on package version numbers.
 - `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, and writes `local-docs/camera-qr-migration-summary.txt`.
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
 - The QR migration audit verifies that removed camera pods are absent from `ios/Podfile.lock`; on Windows the expected state is that Android/runtime dependency wiring can be guarded while iOS camera migration validation remains unclaimed until `pod install` refreshes the broader lockfile drift on macOS.
@@ -48,6 +49,7 @@
 - Current latest package checked on 2026-06-10 is `react-native-camera-kit@18.0.0`.
 - The camera candidate audit verifies this against live npm metadata before future scanner work.
 - Node requirement `>=18` is compatible with the current Node 24 modernization baseline.
+- Live peer ranges checked on 2026-06-10 remain `react@*` and `react-native@*`, so the installed CameraKit scanner remains the highest current compatible target without adding a new native peer stack.
 - Current proof role: selected implementation for the QR scanner migration.
 
 ### QR Rendering Pair
@@ -55,6 +57,7 @@
 - Current latest package checked on 2026-06-10 is `react-native-qrcode-svg@6.3.21`.
 - Current latest native renderer package checked on 2026-06-10 is `react-native-svg@15.15.5`.
 - Current latest encoder package checked on 2026-06-10 is `qrcode@1.5.4`.
+- Live `react-native-qrcode-svg@6.3.21` peer ranges checked on 2026-06-10 remain `react@*`, `react-native@>=0.63.4`, and `react-native-svg@>=14.0.0`; the direct dependency set remains `prop-types@^15.8.0`, `qrcode@^1.5.4`, and `text-encoding@^0.7.0`.
 - The camera candidate audit verifies all three QR rendering values against live npm metadata before future QR renderer work.
 - The installed QR rendering pair remains current, so scanner follow-up work should focus on runtime camera behavior rather than another QR renderer bump.
 
