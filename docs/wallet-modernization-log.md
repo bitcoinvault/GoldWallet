@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.499 - Camera/QR validation handoff
+
+- Branch: `feature/bem-37-499-camera-qr-validation-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a Camera/QR validation handoff that runs candidate metadata, CameraKit QR migration, scanner usage, QR caller, QR render, and focused QR unit validations as one sequence.
+- Add a Camera/QR handoff self-check that validates command coverage, command ordering, dry-run option validation, and full summary readiness checks.
+- Wire the Camera/QR handoff guard into `rn:baseline:preflight`.
+- Keep Camera/QR package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- Live npm metadata reports `react-native-camera-kit@18.0.0` and `react-native-qrcode-svg@6.3.21`, matching the installed Camera/QR baseline.
+- `react-native-vision-camera@5.0.11` remains a future architecture branch because the latest line requires Nitro peer packages.
+- The CameraKit scanner and QR render surfaces remain guarded: QR scanner focused unit test passed 4 tests, QR render focused unit test passed 5 tests.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit version peerDependencies dependencies engines repository --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-qrcode-svg version peerDependencies dependencies engines repository --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.498 - Release-services handoff aggregate readiness
 
 - Branch: `feature/bem-37-498-release-services-handoff-readiness`
