@@ -4,7 +4,7 @@ This document records the React Native upgrade direction for the wallet moderniz
 
 React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`.
 React Native foundation milestone targets are tracked in `docs/react-native-foundation-target-matrix.md`.
-The RN 0.85 foundation branch plan is tracked in `docs/react-native-076-foundation-plan.md`.
+The RN foundation branch plan is tracked in `docs/react-native-076-foundation-plan.md`.
 Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
 
 React 19 impact audit is tracked in `docs/react19-impact-audit.md`.
@@ -16,10 +16,10 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 
 ## Current Baseline
 
-- React Native: `0.85.3`
+- React Native: `0.86.0`
 - React: `19.2.3`
-- RN Babel preset: `0.85.3`
-- RN Metro config: `0.85.3`
+- RN Babel preset: `0.86.0`
+- RN Metro config: `0.86.0`
 - Metro/dev Node runtime: `24.16.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
@@ -38,7 +38,7 @@ Current Android template/toolchain baseline compiles and targets SDK 36 on AGP 8
 - Keep target SDK changes tied to the React Native/toolchain path that owns Android template and debug receiver behavior.
 - Run emulator smoke for every runtime, dependency, native, or Metro-affecting branch.
 - Re-check the latest stable React Native release during the actual RN baseline branch instead of hardcoding it in this document.
-- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.85.x` line; future RN moves should target the next stable line only after branch-time evidence supports it. As of the 2026-06-06 live probe, npm `latest` is still `0.85.3`, while `0.86.0-rc.3` and `0.87.0-nightly-20260606-510cc0c5e` remain planning signals rather than default wallet upgrade targets.
+- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.86.x` line. As of the 2026-06-10 live probe, npm `latest` is `0.86.0`; `0.86.0-rc.3` remains a prerelease planning signal and `0.87.0-nightly-20260608-2ff3b81dc` remains a nightly signal rather than the default wallet upgrade target.
 
 ## Required Work Before The Next RN Step
 
@@ -53,7 +53,7 @@ Current Android template/toolchain baseline compiles and targets SDK 36 on AGP 8
 
 1. Create a dedicated RN baseline branch from `upgrade/wallet-modernization`.
 2. Run the RN baseline preflight before changing package versions.
-3. Check the current stable React Native line, the RN 0.85 foundation plan audit, and the upgrade helper diff at branch start.
+3. Check the current stable React Native line, the RN foundation plan audit, and the upgrade helper diff at branch start.
 4. Move to the next milestone target, with matching React, Metro, Gradle, Android template, iOS Podfile, and codegen changes.
 5. Run TypeScript, Android assemble, Android warning audit, Metro reset, and emulator smoke before commit.
 6. If a milestone fails, isolate the blocker before falling back to a lower milestone; do not automatically switch to one-minor-at-a-time work.
@@ -88,7 +88,7 @@ corepack yarn foundation:target:check-summaries
 
 This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, git dependency pins, wallet/crypto latest state, tooling latest state, Android toolchain blockers, BL resolution, and node-fetch resolution.
 
-For the first milestone branch, also keep the RN 0.85 foundation plan audit green:
+For foundation milestone branches, also keep the legacy-named foundation plan audit green:
 
 ```powershell
 corepack yarn rn:076-foundation:audit

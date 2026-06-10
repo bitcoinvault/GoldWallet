@@ -74,12 +74,12 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     errors.push(`Current Kotlin Gradle Plugin must remain 2.1.20 until the AGP 9 blocker is cleared. Received: ${currentKotlin || 'missing'}`);
   }
 
-  if (rnGradlePlugin !== '0.85.3') {
-    errors.push(`React Native Gradle plugin must match the RN 0.85.3 baseline. Received: ${rnGradlePlugin || 'missing'}`);
+  if (rnGradlePlugin !== '0.86.0') {
+    errors.push(`React Native Gradle plugin must match the RN 0.86.0 baseline. Received: ${rnGradlePlugin || 'missing'}`);
   }
 
   if (targetBlocked !== 'yes') {
-    errors.push(`Latest Android toolchain target must stay blocked for this RN 0.85.3 baseline. Received: ${targetBlocked || 'missing'}`);
+    errors.push(`Latest Android toolchain target must stay blocked for this RN 0.86.0 baseline. Received: ${targetBlocked || 'missing'}`);
   }
 
   if (!/^\d+$/.test(blockerCount)) {

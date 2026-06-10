@@ -4,10 +4,10 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 ## Current Baseline
 
-- React Native: `0.85.3`
+- React Native: `0.86.0`
 - React: `19.2.3`
-- RN Babel preset: `0.85.3`
-- RN Metro config: `0.85.3`
+- RN Babel preset: `0.86.0`
+- RN Metro config: `0.86.0`
 - Metro/dev Node runtime: `24.16.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
@@ -16,11 +16,11 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 ## Latest Snapshot
 
-- npm `react-native@latest`: `0.85.3`
+- npm `react-native@latest`: `0.86.0`
 - npm `react-native@next`: `0.86.0-rc.3`
-- `react-native@0.85.3` peer React: `^19.2.3`
-- `react-native@0.85.3` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
-- Snapshot refreshed: `2026-06-04`
+- `react-native@0.86.0` peer React: `^19.2.3`
+- `react-native@0.86.0` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
+- Snapshot refreshed: `2026-06-10`
 - `react-native@next` is currently a prerelease channel and is not the default wallet target.
 
 ## Milestone Jump Strategy
@@ -48,17 +48,17 @@ Expected branch scope:
 - Android template, Gradle, Kotlin, AGP, manifest, New Architecture, and native autolinking changes required by RN 0.85.
 - iOS Podfile/template drift documented separately if it cannot be validated on this Windows machine.
 
-### Milestone B: Next stable RN line after 0.85.3
+### Milestone B: RN 0.86.0 Latest Foundation
 
-- Target React Native: next stable RN line after `0.85.3`, checked at branch time.
-- React peer: checked from the chosen stable RN package at branch time.
-- Node engine: checked from the chosen stable RN package at branch time.
+- Target React Native: `0.86.0`
+- React peer: `^19.2.3`
+- Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
 
 Why:
 
-- RN `0.85.3` is already the current stable checkpoint, so the next foundation jump should wait for a newer stable `latest` line or a deliberate prerelease spike.
-- Do not treat `0.86.0-rc.3` as the default production target just because it is visible on npm `next`.
-- If the team wants to evaluate `0.86.0-rc.x`, run it as a separate RC spike with Android assemble, release validation, emulator smoke, and explicit rollback criteria.
+- RN `0.86.0` is now npm `latest`, so it is the next latest-first foundation target rather than a prerelease spike.
+- Keep React pinned to `19.2.3` while the bundled React Native renderer reports `react-native-renderer: 19.2.3`.
+- Keep this as a package/template foundation branch with Android assemble and emulator smoke proof before treating it as the current wallet baseline.
 
 ### Milestone C: Future current line
 

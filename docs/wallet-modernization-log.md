@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.464 - React Native 0.86 latest foundation probe
+
+- Branch: `feature/bem-37-464-rn-086-latest-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the wallet's React Native foundation package set from `0.85.3` to the current npm `latest` line `0.86.0`.
+- Keep React and `react-test-renderer` pinned to `19.2.3`, because the bundled RN `0.86.0` renderer still reports `react-native-renderer` version `19.2.3`.
+- Update the RN target snapshot, Metro/runtime, Node transition, Android toolchain summary, RN foundation, and upgrade-path guards so the repo's current-baseline checks agree with the installed package set.
+- Keep Android SDK, AGP, Gradle, Kotlin, JDK, Sentry, Firebase, CodePush, camera/QR, wallet crypto, and app runtime code unchanged in this branch.
+
+Findings:
+
+- Live npm metadata checked on 2026-06-10 reports `react-native@latest` as `0.86.0`, `react-native@next` as `0.86.0-rc.3`, `react-native@nightly` as `0.87.0-nightly-20260608-2ff3b81dc`, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- `react-native@0.86.0` no longer exposes the older renderer exact-check string shape in `ReactFabric-*`, so the renderer guard now treats missing exact-check strings as acceptable while still verifying the renderer version and installed React package alignment.
+- `:app:assembleDevDebug` builds successfully on JDK 17 and bundles with Metro `0.84.4`.
+- `android:dev:smoke:embedded` installed the dev APK on `Medium_Phone_API_36.0`, completed first-run terms, PIN, transaction-password, and email-skip flow, validated empty-dashboard create/import navigation, validated bottom-tab navigation, and reported no fatal/runtime logcat findings.
+- The first smoke attempt failed before launch because no Android emulator was connected; the rerun passed after starting `Medium_Phone_API_36.0` headless.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native version dist-tags peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:react-renderer-version-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:renderer-version:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:076-foundation:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn metro:dev-runtime:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node:runtime-transition:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-current-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\emulator;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.463 - Camera QR native renderer guard refresh
 
 - Branch: `feature/bem-37-463-camera-qr-svg-guard`

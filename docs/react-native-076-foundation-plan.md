@@ -1,13 +1,13 @@
-# React Native 0.81 Foundation Checkpoint
+# React Native Foundation Checkpoint
 
-This document records the first completed React Native foundation checkpoint. The filename and package script keep the old `076` name for compatibility with existing guards, but the guarded baseline is now RN `0.85.3`.
+This document records the completed React Native foundation checkpoint. The filename and package script keep the old `076` name for compatibility with existing guards, but the guarded baseline is now RN `0.86.0`.
 
 ## Current Baseline
 
-- React Native: `0.85.3`
+- React Native: `0.86.0`
 - React: `19.2.3`
-- RN Babel preset: `0.85.3`
-- RN Metro config: `0.85.3`
+- RN Babel preset: `0.86.0`
+- RN Metro config: `0.86.0`
 - Metro/dev Node runtime: `24.16.0`
 - Android compile SDK: `36`
 - Android target SDK: `36`
@@ -18,29 +18,29 @@ This document records the first completed React Native foundation checkpoint. Th
 
 Completed first foundation checkpoint package set:
 
-- `react-native@0.85.3`
+- `react-native@0.86.0`
 - `react@19.2.3`
 - `react-test-renderer@19.2.3`
 - `@types/react@19.2.17`
-- `@react-native/babel-preset@0.85.3`
-- `@react-native/metro-config@0.85.3`
-- `@react-native/typescript-config@0.85.3`
-- `@react-native/gradle-plugin@0.85.3`
-- `@react-native/codegen@0.85.3`
+- `@react-native/babel-preset@0.86.0`
+- `@react-native/metro-config@0.86.0`
+- `@react-native/typescript-config@0.86.0`
+- `@react-native/gradle-plugin@0.86.0`
+- `@react-native/codegen@0.86.0`
 
 Important metadata:
 
-- `react-native@0.85.3` peers: React `^19.2.3`; the app pins React `19.2.3` to match `react-native-renderer` exactly.
-- `react-native@0.85.3` Node engine: `>=20.19.4`.
-- The repository keeps Metro/dev runtime on Node `24.16.0`, which satisfies the RN `0.85.3` engine range and the recorded later target snapshot.
+- `react-native@0.86.0` peers: React `^19.2.3`; the app pins React `19.2.3` to match `react-native-renderer`.
+- `react-native@0.86.0` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- The repository keeps Metro/dev runtime on Node `24.16.0`, which satisfies the RN `0.86.0` engine range and the recorded target snapshot.
 
 ## Completed Template Scope
 
-The RN `0.85.3` checkpoint included package and template/native migration together:
+The RN `0.86.0` checkpoint includes package and template/native migration together:
 
 - Node/dev runtime move from the old Node 16/22 baselines to Node 24 LTS for Metro and RN tooling.
-- Babel config migration from `metro-react-native-babel-preset` to the RN 0.85 preset stack.
-- Metro config migration to the RN 0.85 Metro config package.
+- Babel config migration from `metro-react-native-babel-preset` to the RN 0.86 preset stack.
+- Metro config migration to the RN 0.86 Metro config package.
 - Android Gradle settings and plugin wiring for `@react-native/gradle-plugin`.
 - Android app Gradle/template drift, including autolinking, codegen, packaging, manifest, and debug build behavior.
 - iOS Podfile/template drift recorded explicitly; Windows can audit files, but Mac runner/device validation remains required before calling iOS complete.
