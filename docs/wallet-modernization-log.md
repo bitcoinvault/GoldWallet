@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.516 - Firebase and push notification readiness refresh
+
+- Branch: `feature/bem-37-516-firebase-push-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Firebase release-services, push-notification bridge, and Firebase runtime-delivery handoff evidence after the release-services and secure-storage validation refreshes.
+- Confirm current package targets for React Native Firebase and iOS push-notification bridge.
+- Validate static Android/iOS Firebase files, Gradle plugin wiring, Messaging runtime paths, iOS AppDelegate notification forwarding, release evidence linkage, and aggregate release-services summaries.
+- Keep package versions, runtime application code, native project files, env files, service secrets, Android release artifacts, and Metro behavior unchanged.
+
+Findings:
+
+- React Native Firebase packages are aligned and current at `24.1.1` for `@react-native-firebase/app`, `analytics`, `crashlytics`, and `messaging`; live npm reports latest `24.1.1`.
+- Android Firebase release-services wiring is current with Google Services Gradle plugin `4.4.4`, Firebase Crashlytics Gradle plugin `3.0.7`, and strict version matcher plugin `1.2.4`.
+- Firebase Android and iOS config files are present for the guarded flavors, Messaging runtime wiring is present, and the audit references current Android release evidence for `dev`, `stage`, `prod`, and `beta`.
+- `@react-native-community/push-notification-ios@1.12.0` is current, installed, and statically wired through runtime badge handling, AppDelegate notification forwarding, foreground presentation hooks, and iOS remote-notification plist modes.
+- Firebase runtime delivery remains explicitly not claimed until real FCM token/notification, Crashlytics upload, and Analytics behavior are tested with live services.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.515 - Secure-storage release validation handoff refresh
 
 - Branch: `feature/bem-37-515-secure-storage-release-validation-refresh`
