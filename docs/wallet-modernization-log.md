@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.539 - Node runtime baseline gate
+
+- Branch: `feature/bem-37-539-node-runtime-baseline-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the active `.nvmrc` Node runtime guard to direct Android/RN validation entrypoints, not only Git hooks.
+- Make `android:dev:check-light`, `rn:baseline:preflight`, and `rn:baseline:preflight:online` fail fast before long validation work when the shell Node version does not match `.nvmrc`.
+- Update the RN upgrade-path audit, lightweight-check documentation guard, README, Android workflow, dependency strategy, Node runtime audit, and baseline docs to keep the new entrypoint contract self-checked.
+
+Findings:
+
+- The current default shell still resolves Node `v22.18.0`; the repo baseline is `.nvmrc` `24.16.0`.
+- Before this branch, direct manual validation could enter long Android/RN gates from a mismatched Node shell even though Git hooks already failed fast.
+- `corepack yarn android:dev:check-light` and `corepack yarn rn:baseline:preflight` now stop immediately at `check:node-runtime-version` under Node `v22.18.0`.
+- `android:dev:verify` built the dev debug APK successfully but the default smoke path requires Metro and failed when `127.0.0.1:8081` was not reachable; `android:dev:smoke:embedded` passed on `emulator-5554` with the embedded bundle.
+- Release-services evidence had to be refreshed after the package-script fingerprint changed; dev/stage/prod/beta release validation and dev release embedded smoke now have current local summaries.
+- iOS runtime validation remains blocked on Windows because macOS/Xcode/CocoaPods are required; static iOS release and macOS prerequisite audits still record that blocker.
+
+Validation:
+
+- `corepack yarn android:dev:check-light` expected fail under Node `v22.18.0`: current Node does not match `.nvmrc`
+- `corepack yarn rn:baseline:preflight` expected fail under Node `v22.18.0`: current Node does not match `.nvmrc`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:node-runtime-version`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:node-runtime-version-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:verify` built APK successfully but stopped at default Metro-required smoke because Metro was not reachable
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `git diff --check`
+
 ### BEM-37.538 - Node shell runtime guard
 
 - Branch: `feature/bem-37-538-node-shell-runtime-guard`

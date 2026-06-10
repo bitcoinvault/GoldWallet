@@ -8,6 +8,7 @@ const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'ut
 const checkLightScript = packageJson.scripts['android:dev:check-light'] || '';
 
 const requiredCheckLightScripts = [
+  'check:node-runtime-version',
   'android:dev:check-warning-guard',
   'android:dev:check-artifact-guard',
   'check:android-dev-env-audit-guard',
@@ -99,6 +100,7 @@ const docs = [
       'secure-storage removal readiness guard',
       'modernization log ID guard',
       'modernization log ID guard self-check',
+      'check:node-runtime-version',
     ],
   },
   {
@@ -145,6 +147,7 @@ const docs = [
       'iOS macOS validation prerequisite summaries as one aggregate gate',
       'check:modernization-log-id-guard',
       'check:modernization-log-ids',
+      'check:node-runtime-version',
     ],
   },
   {
@@ -179,6 +182,7 @@ const docs = [
       'Android lightweight check runs',
       'modernization log ID guard',
       'modernization log ID guard self-check',
+      'check:node-runtime-version',
     ],
   },
 ];
