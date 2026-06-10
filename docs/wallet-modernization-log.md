@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.487 - Release-services smoke digest aggregate
+
+- Branch: `feature/bem-37-487-release-services-smoke-digest-aggregate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Require aggregate release-services validation to enforce the same Android release-smoke APK digest evidence as the focused release-smoke checker.
+- Bind `release-services:check-summaries` to both the locally signed release-smoke APK and the source unsigned `devRelease` APK.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- `android:dev:release:check-smoke-summary` already rejected stale release-smoke artifacts without APK digest evidence.
+- `release-services:check-summaries` still invoked the release-smoke guard without `requireSmokeApkDigest` or `requireSourceApkDigest`, so an aggregate handoff could miss stale APK provenance while the focused checker was stricter.
+- The aggregate checker now validates signed/source APK path, byte count, and SHA-256 digest before release-services handoff can pass.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.486 - Debug smoke APK digest guard
 
 - Branch: `feature/bem-37-486-debug-smoke-apk-digest`
