@@ -10,6 +10,53 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.466 - React Native Firebase 24.1.1 refresh
+
+- Branch: `feature/bem-37-466-firebase-2411-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the React Native Firebase package family from `24.1.0` to the live npm latest `24.1.1`.
+- Keep `@react-native-firebase/app`, `analytics`, `crashlytics`, and `messaging` aligned as one release-services package family.
+- Refresh Firebase release-services evidence, native-module inventory expectations, iOS Podfile.lock drift guard expectations, and current baseline docs for the new package family.
+- Keep real FCM notification delivery, Crashlytics upload, and Analytics behavior explicitly unclaimed until tested with the required runtime/service environment.
+
+Findings:
+
+- Live npm metadata on 2026-06-10 reports `@react-native-firebase/app@24.1.1` as latest, published at `2026-06-10T02:35:38.524Z`.
+- `@react-native-firebase/messaging@24.1.1` peers `@react-native-firebase/app@24.1.1`, and the analytics and Crashlytics package peers remain aligned on the same app package version.
+- Android Gradle configuration resolves the RN Firebase package family at `24.1.1` and reports the default Firebase BoM as `34.14.0`.
+- The package bump made the local Android release summary stale until `android:dev:release:verify-local` refreshed `dev`, `stage`, `prod`, and `beta` release evidence.
+- Firebase runtime-delivery handoff prerequisites are ready locally, but runtime delivery remains `not claimed` without a real FCM token/notification, Crashlytics upload, and Analytics behavior test.
+- `android:dev:smoke:embedded` and `android:dev:release:smoke:embedded` both installed the APK on `Medium_Phone_API_36.0`, completed first-run onboarding, validated Create/Import CTA navigation, validated bottom-tab navigation, and reported no fatal/runtime logcat findings.
+- A post-upgrade direct outdated snapshot now reports 12 entries and 4 review-required entries; the React Native Firebase package family is no longer listed. The remaining review-required entries are `@typescript-eslint` `8.61.0`, Prettier `3.8.4`, and `semver` `7.8.4`, each requiring separate compatibility branches or decisions.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/app version time repository.url peerDependencies dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/messaging@24.1.1 version peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/analytics@24.1.1 version peerDependencies dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/crashlytics@24.1.1 version peerDependencies dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add @react-native-firebase/app@24.1.1 @react-native-firebase/analytics@24.1.1 @react-native-firebase/crashlytics@24.1.1 @react-native-firebase/messaging@24.1.1`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\emulator;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\emulator;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit` failed as expected after writing the refreshed local snapshot because unrelated review-required entries remain.
+
 ### BEM-37.465 - React Navigation latest package refresh
 
 - Branch: `feature/bem-37-465-react-navigation-latest`
