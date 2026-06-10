@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.500 - Android release validation evidence refresh
+
+- Branch: `feature/bem-37-500-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release validation evidence for `dev`, `stage`, `prod`, and `beta` release variants on the current RN/Android baseline.
+- Validate generated release APK summaries, source-map evidence, and APK manifest metadata after the latest release-service handoff guard work.
+- Run the embedded `devRelease` APK smoke path without Metro to prove release startup, first-run onboarding, empty-dashboard navigation, import/create CTA routing, QR scanner opening/closing, and empty-state tab navigation.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- `android:dev:release:verify-local` completed successfully with JDK 17 and `SENTRY_DISABLE_AUTO_UPLOAD=true`.
+- The refreshed release summary covers `dev`, `stage`, `prod`, and `beta`; each variant produced a release APK, release JS bundle, release source map, byte counts, and SHA-256 evidence.
+- `android:dev:release:check-apk-manifest` accepted the generated APK manifests, including package IDs, SDK metadata, version metadata, and `POST_NOTIFICATIONS`.
+- `android:dev:release:smoke:embedded` installed a locally signed `devRelease` APK on `emulator-5554`, completed first-run setup, validated dashboard CTAs, validated the QR scanner screen, and finished without fatal/runtime logcat findings.
+- Sentry source-map upload remains explicitly not claimed until `sentry.properties` or `SENTRY_AUTH_TOKEN` is available.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+
 ### BEM-37.499 - Camera/QR validation handoff
 
 - Branch: `feature/bem-37-499-camera-qr-validation-handoff`
