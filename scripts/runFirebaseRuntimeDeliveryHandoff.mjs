@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
+import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -109,6 +111,10 @@ export const getFirebaseRuntimeDeliveryReadinessErrors = ({
   if (!firebaseSummaryText) {
     errors.push('Firebase release-services summary is missing; run firebase:release-services:audit first');
   } else {
+    getFirebaseReleaseServicesSummaryErrors(firebaseSummaryText).forEach(error => {
+      errors.push(`Firebase release-services summary is invalid: ${error}`);
+    });
+
     [
       ['React Native Firebase package current: yes', 'Firebase packages must be current before runtime delivery handoff'],
       ['Firebase release-services wiring valid: yes', 'Firebase release-services wiring must be valid before runtime delivery handoff'],
@@ -126,6 +132,10 @@ export const getFirebaseRuntimeDeliveryReadinessErrors = ({
   if (!pushBridgeSummaryText) {
     errors.push('Push notification bridge summary is missing; run push-notification:bridge-audit first');
   } else {
+    getPushNotificationBridgeSummaryErrors(pushBridgeSummaryText).forEach(error => {
+      errors.push(`Push notification bridge summary is invalid: ${error}`);
+    });
+
     [
       ['Push notification package current: yes', 'Push notification bridge package must be current before runtime delivery handoff'],
       ['Push notification bridge wiring valid: yes', 'Push notification bridge wiring must be valid before runtime delivery handoff'],

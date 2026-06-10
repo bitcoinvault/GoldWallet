@@ -75,7 +75,7 @@ assert(
   'Invalid skipAndroidRelease option must be rejected',
 );
 
-const readyFirebaseSummary = [
+const partialReadyFirebaseSummary = [
   'React Native Firebase package current: yes',
   'Firebase release-services wiring valid: yes',
   'Android release summary present: yes',
@@ -88,7 +88,51 @@ const readyFirebaseSummary = [
   'Required action: none; Firebase release-services wiring is present locally.',
 ].join('\n');
 
+const readyFirebaseSummary = [
+  'Firebase release-services audit',
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'React Native Firebase package version set: 24.1.1',
+  'React Native Firebase latest version: 24.1.1',
+  'React Native Firebase latest published at: 2026-06-10T02:35:38.524Z',
+  'React Native Firebase npm repository: git+https://github.com/invertase/react-native-firebase.git#main',
+  'React Native Firebase Messaging latest version: 24.1.1',
+  'React Native Firebase Messaging peer app version: 24.1.1',
+  'React Native Firebase package current: yes',
+  'Android Google Services Gradle plugin: 4.4.4',
+  'Android Firebase Crashlytics Gradle plugin: 3.0.7',
+  'Android strict version matcher plugin: 1.2.4',
+  'Firebase release-services wiring valid: yes',
+  'Android release summary present: yes',
+  'Android release summary variants: dev, stage, prod, beta',
+  'Android release summary required variants covered: yes',
+  'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
+  'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
+  'Firebase runtime delivery validation: not claimed',
+  'Warnings: 0',
+  'Wiring errors: 0',
+  'Required action: none; Firebase release-services wiring is present locally.',
+].join('\n');
+
+const partialReadyPushBridgeSummary = [
+  'Push notification package current: yes',
+  'Push notification bridge wiring valid: yes',
+  'Push notification runtime delivery validation: not claimed',
+  'Static readiness issues: 0',
+  'Wiring errors: 0',
+  'Required action: none; static push notification bridge wiring is present locally.',
+].join('\n');
+
 const readyPushBridgeSummary = [
+  'Push notification bridge audit',
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Push notification package dependency version: 1.12.0',
+  'Push notification package installed version: 1.12.0',
+  'Push notification package latest version: 1.12.0',
+  'Push notification package latest published at: 2025-12-16T09:38:54.096Z',
+  'Push notification package npm repository: git+https://github.com/react-native-community/push-notification-ios.git',
   'Push notification package current: yes',
   'Push notification bridge wiring valid: yes',
   'Push notification runtime delivery validation: not claimed',
@@ -142,6 +186,24 @@ assert(
     smokeEvidenceOptions,
   }).length === 0,
   'Ready Firebase runtime handoff summary fixtures must pass readiness checks',
+);
+assert(
+  getFirebaseRuntimeDeliveryReadinessErrors({
+    firebaseSummaryText: partialReadyFirebaseSummary,
+    pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Firebase release-services summary is invalid')),
+  'Firebase runtime readiness check must reject partial Firebase release-services summaries',
+);
+assert(
+  getFirebaseRuntimeDeliveryReadinessErrors({
+    firebaseSummaryText: readyFirebaseSummary,
+    pushBridgeSummaryText: partialReadyPushBridgeSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Push notification bridge summary is invalid')),
+  'Firebase runtime readiness check must reject partial push notification bridge summaries',
 );
 assert(
   getFirebaseRuntimeDeliveryReadinessErrors({

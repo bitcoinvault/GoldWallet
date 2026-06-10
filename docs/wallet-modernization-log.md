@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.494 - Firebase readiness summary guard
+
+- Branch: `feature/bem-37-494-firebase-readiness-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Firebase runtime-delivery handoff readiness check run the full Firebase release-services and push-notification bridge summary guards before accepting readiness strings.
+- Add guard coverage that rejects partial Firebase and push bridge summaries which only contain the minimal readiness markers.
+- Keep Firebase package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- Live npm metadata reports `@react-native-firebase/app`, `messaging`, `analytics`, and `crashlytics` at `24.1.1`, matching the current dependencies.
+- Current Firebase release-services wiring and push notification bridge wiring are statically ready, Android release evidence is valid, and runtime delivery remains not claimed until real FCM token/notification, Crashlytics upload, and Analytics behavior are tested.
+- The previous readiness helper checked selected summary strings directly; it now also validates the complete generated Firebase and push bridge summary contracts before evaluating readiness.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/app version dist-tags peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/messaging version dist-tags peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/analytics version dist-tags peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/crashlytics version dist-tags peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.493 - CodePush readiness summary guard
 
 - Branch: `feature/bem-37-493-codepush-readiness-summary-guard`
