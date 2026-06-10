@@ -27,4 +27,4 @@ Node runtime transition audit for the staged React Native modernization path.
 corepack yarn node:runtime-transition:audit
 ```
 
-`corepack yarn rn:baseline:preflight` also runs `corepack yarn lint-staged:tooling:audit` so package install and hook tooling cannot pass silently under an older Node shell. Use the `.nvmrc` Node runtime before running the full baseline preflight.
+`corepack yarn android:dev:check-light`, `corepack yarn rn:baseline:preflight`, and `corepack yarn rn:baseline:preflight:online` now run `corepack yarn check:node-runtime-version` first, so direct validation entrypoints fail fast under an older Node shell before running longer Android/RN audits. The RN baseline preflight also runs `corepack yarn lint-staged:tooling:audit` so package install and hook tooling cannot pass silently under a mismatched Node runtime. Use the `.nvmrc` Node runtime before running the full baseline preflight.
