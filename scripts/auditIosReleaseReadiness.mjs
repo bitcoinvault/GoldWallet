@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { createRequire } from 'module';
 import { execFileSync } from 'child_process';
 import {
@@ -37,7 +37,7 @@ const compareVersions = (left, right) => {
   return 0;
 };
 
-const collectIosReleaseReadiness = () => {
+export const collectIosReleaseReadiness = () => {
   const errors = [];
   const warnings = [];
   const schemesDir = path.join(root, 'ios', 'GoldWallet.xcodeproj', 'xcshareddata', 'xcschemes');
@@ -222,7 +222,7 @@ const collectIosReleaseReadiness = () => {
   };
 };
 
-const formatSummary = (audit, generatedAt = new Date().toISOString()) => [
+export const formatIosReleaseReadinessSummary = (audit, generatedAt = new Date().toISOString()) => [
   'iOS release static readiness audit',
   `Generated at: ${generatedAt}`,
   `Static iOS release files valid: ${audit.staticReady ? 'yes' : 'no'}`,
@@ -256,13 +256,24 @@ const formatSummary = (audit, generatedAt = new Date().toISOString()) => [
   '',
 ].join('\n');
 
-const audit = collectIosReleaseReadiness();
-const summary = formatSummary(audit);
-mkdirSync(localDocsDir, { recursive: true });
-writeFileSync(path.join(localDocsDir, 'ios-release-static-readiness-summary.txt'), summary);
+export const writeIosReleaseReadinessSummary = (audit = collectIosReleaseReadiness()) => {
+  const summary = formatIosReleaseReadinessSummary(audit);
 
-console.log(summary.trim());
+  mkdirSync(localDocsDir, { recursive: true });
+  writeFileSync(path.join(localDocsDir, 'ios-release-static-readiness-summary.txt'), summary);
 
-if (!audit.staticReady) {
-  process.exit(1);
+  return summary;
+};
+
+const main = () => {
+  const audit = collectIosReleaseReadiness();
+  const summary = writeIosReleaseReadinessSummary(audit);
+
+  console.log(summary.trim());
+
+  return audit.staticReady ? 0 : 1;
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  process.exit(main());
 }
