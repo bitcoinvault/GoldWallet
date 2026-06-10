@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.480 - iOS macOS handoff readiness gate
+
+- Branch: `feature/bem-37-480-ios-static-handoff-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the iOS macOS validation handoff so it cannot finish successfully just because the summary artifacts are syntactically valid.
+- Add a final direct readiness gate requiring ready macOS prerequisites, ready iOS release summary, zero `ios/Podfile.lock` drift, and explicit `iOS runtime delivery validation: not claimed`.
+- Keep package versions, runtime code, native project files, env files, and iOS project files unchanged.
+
+Findings:
+
+- Current Windows iOS release readiness remains static-only: static files are valid for RN `0.86.0`, iOS platform/deployment target `15.1`, Xcode minimum `16.1`, 8 shared schemes, Sentry phases, CodePush plist placeholders, and remote-notification plists.
+- Current blockers remain external to this Windows checkout: `xcodebuild` is unavailable, CocoaPods cannot refresh pods here, and `ios/Podfile.lock` has 12 active drift issues.
+- `ios:mac-validation:handoff` now verifies that a macOS run actually produces ready prerequisite and release-readiness summaries before it can report completion.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff` expected fail on Windows: requires macOS with Xcode `16.1+` and CocoaPods
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.479 - Camera QR latest readiness refresh
 
 - Branch: `feature/bem-37-479-camera-qr-latest-readiness`
