@@ -5,9 +5,6 @@ import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const summaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
-const androidBuildGradle = readFileSync(path.join(root, 'android', 'build.gradle'), 'utf8');
-const appBuildGradle = readFileSync(path.join(root, 'android', 'app', 'build.gradle'), 'utf8');
 const defaultVariants = ['dev', 'stage', 'prod', 'beta'];
 const expectedPackageNames = {
   dev: 'io.goldwallet.wallet.dev',
@@ -39,8 +36,15 @@ const getAndroidSdkRoot = () =>
   process.env.ANDROID_SDK_ROOT ||
   (process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk') : '');
 
-const getAapt2Path = () => {
+const readProjectFile = (projectRoot, relativePath) => {
+  const filePath = path.join(projectRoot, relativePath);
+
+  return existsSync(filePath) ? readFileSync(filePath, 'utf8') : '';
+};
+
+const getAapt2Path = (projectRoot = root) => {
   const sdkRoot = getAndroidSdkRoot();
+  const androidBuildGradle = readProjectFile(projectRoot, path.join('android', 'build.gradle'));
   const buildToolsVersion = getQuotedGradleValue(androidBuildGradle, 'buildToolsVersion');
   const configuredAapt2 = sdkRoot ? path.join(sdkRoot, 'build-tools', buildToolsVersion, process.platform === 'win32' ? 'aapt2.exe' : 'aapt2') : '';
 
@@ -61,6 +65,16 @@ const getAapt2Path = () => {
   return candidates.at(-1) || '';
 };
 
+const dumpBadgingWithAapt2 = (aapt2Path, apkPath) => {
+  const result = spawnSync(aapt2Path, ['dump', 'badging', apkPath], { encoding: 'utf8' });
+
+  return {
+    status: result.status,
+    output: `${result.stdout || ''}${result.stderr || ''}`,
+    error: result.error?.message || '',
+  };
+};
+
 const parseBadging = output => {
   const packageLine = output.split(/\r?\n/).find(line => line.startsWith('package:')) || '';
   const value = name => packageLine.match(new RegExp(`${name}='([^']+)'`))?.[1] || '';
@@ -76,7 +90,12 @@ const parseBadging = output => {
   };
 };
 
-export const getAndroidReleaseApkManifestErrors = ({ root: auditRoot = root, expectedVariants = defaultVariants } = {}) => {
+export const getAndroidReleaseApkManifestErrors = ({
+  root: auditRoot = root,
+  expectedVariants = defaultVariants,
+  aapt2Path = getAapt2Path(auditRoot),
+  dumpBadging = dumpBadgingWithAapt2,
+} = {}) => {
   const auditSummaryPath = path.join(auditRoot, 'local-docs', 'android-release-dev-summary.txt');
   const errors = [];
 
@@ -84,12 +103,13 @@ export const getAndroidReleaseApkManifestErrors = ({ root: auditRoot = root, exp
     return [`Missing Android release summary artifact: ${auditSummaryPath}`];
   }
 
-  const aapt2Path = getAapt2Path();
   if (!aapt2Path) {
     return ['Could not find aapt2 in ANDROID_HOME, ANDROID_SDK_ROOT, or LOCALAPPDATA Android SDK.'];
   }
 
   const summary = readFileSync(auditSummaryPath, 'utf8');
+  const androidBuildGradle = readProjectFile(auditRoot, path.join('android', 'build.gradle'));
+  const appBuildGradle = readProjectFile(auditRoot, path.join('android', 'app', 'build.gradle'));
   const variants = getLineValue(summary, 'Variants')
     .split(',')
     .map(variant => variant.trim())
@@ -113,11 +133,11 @@ export const getAndroidReleaseApkManifestErrors = ({ root: auditRoot = root, exp
       return;
     }
 
-    const result = spawnSync(aapt2Path, ['dump', 'badging', apkPath], { encoding: 'utf8' });
-    const output = `${result.stdout || ''}${result.stderr || ''}`;
+    const result = dumpBadging(aapt2Path, apkPath);
+    const output = result.output || '';
 
     if (result.status !== 0 && !output.includes('package:')) {
-      errors.push(`Variant ${variant} aapt2 badging failed: ${output.trim() || result.error?.message || 'unknown error'}`);
+      errors.push(`Variant ${variant} aapt2 badging failed: ${output.trim() || result.error || 'unknown error'}`);
       return;
     }
 
@@ -154,5 +174,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
 
-  console.log(`Android release APK manifests are valid for ${defaultVariants.join(', ')} using ${path.relative(root, getAapt2Path())}.`);
+  console.log(`Android release APK manifests are valid for ${defaultVariants.join(', ')} using ${path.relative(root, getAapt2Path(root))}.`);
 }

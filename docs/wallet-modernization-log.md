@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.501 - Android release manifest checker root isolation
+
+- Branch: `feature/bem-37-501-release-manifest-root-isolation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Android release APK manifest checker read `android/build.gradle` and `android/app/build.gradle` from the audited root passed to `getAndroidReleaseApkManifestErrors`.
+- Add injectable `aapt2` badging support for focused manifest checker guard fixtures.
+- Add a manifest checker guard that proves valid fixture acceptance and rejects a version mismatch from an alternate audited root.
+- Wire the guard into `rn:baseline:preflight`.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The CLI path already validated current release APK manifests correctly.
+- The reusable exported helper previously accepted a `root` option for summary/APK lookup, but Gradle expectation parsing stayed tied to the repository root at module load time.
+- Release-services and release-summary aggregate checkers reuse this helper, so root isolation matters for future fixture, worktree, and aggregate validation.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-release-apk-manifest-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.500 - Android release validation evidence refresh
 
 - Branch: `feature/bem-37-500-android-release-validation-refresh`
