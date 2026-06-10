@@ -80,19 +80,61 @@ assert(
   'Invalid skipAndroidRelease option must be rejected',
 );
 
-const readySummary = [
+const partialReadySummary = [
   'Release path ready for update validation: yes',
   'CodePush update validation: not claimed',
   'CodePush migration required: yes',
   'Secret values printed: no',
 ].join('\n');
 
-const blockedSummary = [
-  'Release path ready for update validation: no',
-  'CodePush update validation: not claimed',
+const readySummary = [
+  'CodePush release path audit',
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Release path wiring valid: yes',
+  'Release path ready for update validation: yes',
+  'Ready environments: 5',
+  'Environment readiness entries: 5',
+  '- .env.dev.testnet: ready',
+  '- .env.stage.mainnet: ready',
+  '- .env.prod.mainnet: ready',
+  '- .env.beta.testnet: ready',
+  '- .env.beta.mainnet: ready',
+  'CodePush package dependency version: 9.0.1',
+  'CodePush package installed version: 9.0.1',
+  'CodePush package latest version: 9.0.1',
+  'CodePush package latest published at: 2026-05-01T00:00:00.000Z',
+  'CodePush package current: yes',
+  'CodePush package versions aligned: yes',
+  'CodePush runtime gate present: yes',
+  'CodePush runtime HOC lazy gated: yes',
+  'CodePush native bundle gate present: yes',
+  'CodePush runtime enabled by default: no',
+  'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
+  'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
+  'App Center CodePush retirement date: 2025-03-31',
+  'CodePush upstream retired: yes',
+  'CodePush upstream archived: yes',
+  'CodePush upstream New Architecture support: no',
+  'Android New Architecture enabled: yes',
   'CodePush migration required: yes',
+  'CodePush release build evidence ready: yes',
+  'Android release summary present: yes',
+  'Android release summary variants: dev, stage, prod, beta',
+  'Android release summary required variants covered: yes',
+  'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
+  'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
+  'CodePush update validation: not claimed',
+  'Warnings: 0',
+  'Readiness issues: 0',
+  'Wiring errors: 0',
   'Secret values printed: no',
+  'Required action: migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',
 ].join('\n');
+
+const blockedSummary = readySummary.replace('Release path ready for update validation: yes', 'Release path ready for update validation: no');
 
 const readyAndroidReleaseSmokeSummary = [
   'Generated at: 2026-06-10T00:00:00.000Z',
@@ -146,6 +188,14 @@ assert(
     smokeEvidenceOptions,
   }).some(error => error.includes('not ready for update validation')),
   'Blocked CodePush handoff summary fixture must report update-validation readiness blocker',
+);
+assert(
+  getCodePushUpdateValidationReadinessErrors({
+    releasePathSummaryText: partialReadySummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('CodePush release path summary is invalid')),
+  'CodePush readiness check must reject partial release path summaries before accepting readiness strings',
 );
 assert(
   getCodePushUpdateValidationReadinessErrors({

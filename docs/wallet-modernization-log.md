@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.493 - CodePush readiness summary guard
+
+- Branch: `feature/bem-37-493-codepush-readiness-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the CodePush update-validation handoff readiness check run the full CodePush release-path summary guard before accepting readiness strings.
+- Add guard coverage that rejects partial release-path summaries which only contain the minimal readiness markers.
+- Keep CodePush package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- Live npm metadata reports `react-native-code-push@9.0.1` as latest, matching the current dependency and installed package.
+- Current CodePush release path wiring is valid and Android release evidence is ready, but update validation remains not claimed because `.env.dev.testnet` has blank CodePush deployment keys, beta deployment-key strategy is unconfirmed, and App Center CodePush migration/replacement is still required.
+- The previous readiness helper checked selected summary strings directly; it now also validates the complete generated release-path summary contract before evaluating readiness.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-code-push version dist-tags peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.492 - Sentry Android warning in release handoff
 
 - Branch: `feature/bem-37-492-sentry-warning-release-handoff`
