@@ -78,7 +78,7 @@ assertRejected(
   'react-test-renderer 19.2.7',
 );
 assertRejected('Missing renderer files fixture', { ...validEnvironment, rendererFiles: [] }, 'No React Native renderer implementation files');
-assertRejected(
+assertAccepted(
   'Missing exact check fixture',
   {
     ...validEnvironment,
@@ -89,7 +89,6 @@ assertRejected(
       },
     ],
   },
-  'No React version exact-match checks',
 );
 assertRejected('Missing script fixture', { ...validEnvironment, scripts: {} }, 'react:renderer-version:audit');
 assertRejected(

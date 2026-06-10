@@ -7,13 +7,13 @@ const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
 export const expectedReactNativeTargetSnapshot = {
-  snapshotDate: '2026-06-06',
-  currentReactNative: '0.85.3',
+  snapshotDate: '2026-06-10',
+  currentReactNative: '0.86.0',
   currentReact: '19.2.3',
   currentNode: '24.16.0',
-  npmLatestReactNative: '0.85.3',
+  npmLatestReactNative: '0.86.0',
   npmNextReactNative: '0.86.0-rc.3',
-  npmNightlyReactNative: '0.87.0-nightly-20260606-510cc0c5e',
+  npmNightlyReactNative: '0.87.0-nightly-20260608-2ff3b81dc',
   npmNextChannel: 'prerelease',
   defaultUpgradeChannel: 'latest',
   targetReactPeer: '^19.2.3',
@@ -21,17 +21,17 @@ export const expectedReactNativeTargetSnapshot = {
 };
 
 export const requiredReactNativeTargetSnapshotSnippets = [
-  ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-06-06`'],
-  ['docs/react-native-target-snapshot.md', 'Current repo React Native: `0.85.3`'],
+  ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-06-10`'],
+  ['docs/react-native-target-snapshot.md', 'Current repo React Native: `0.86.0`'],
   ['docs/react-native-target-snapshot.md', 'Current repo React: `19.2.3`'],
   ['docs/react-native-target-snapshot.md', 'Current repo Metro/dev Node runtime: `24.16.0`'],
-  ['docs/react-native-target-snapshot.md', 'npm `latest`: `0.85.3`'],
+  ['docs/react-native-target-snapshot.md', 'npm `latest`: `0.86.0`'],
   ['docs/react-native-target-snapshot.md', 'npm `next`: `0.86.0-rc.3`'],
-  ['docs/react-native-target-snapshot.md', 'npm `nightly`: `0.87.0-nightly-20260606-510cc0c5e`'],
+  ['docs/react-native-target-snapshot.md', 'npm `nightly`: `0.87.0-nightly-20260608-2ff3b81dc`'],
   ['docs/react-native-target-snapshot.md', 'npm `next` channel classification: `prerelease`'],
   ['docs/react-native-target-snapshot.md', 'Default upgrade channel: `latest`'],
-  ['docs/react-native-target-snapshot.md', 'React peer for `react-native@0.85.3`: `^19.2.3`'],
-  ['docs/react-native-target-snapshot.md', 'Node engine for `react-native@0.85.3`: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`'],
+  ['docs/react-native-target-snapshot.md', 'React peer for `react-native@0.86.0`: `^19.2.3`'],
+  ['docs/react-native-target-snapshot.md', 'Node engine for `react-native@0.86.0`: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`'],
   ['docs/react-native-target-snapshot.md', 'This snapshot is not a direct-upgrade instruction'],
   ['docs/react-native-target-snapshot.md', 'RC/nightly builds are not treated as the wallet\'s default upgrade target'],
   ['docs/react-native-target-snapshot.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],

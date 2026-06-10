@@ -43,9 +43,9 @@ if (!validSummary.includes('Live check outcome: matched') || !validSummary.inclu
   console.error('Valid live npm metadata fixture should produce a matched summary with zero mismatches.');
   process.exit(1);
 }
-assertRejected('Changed latest fixture', { ...validCurrent, latest: '0.86.0' }, 'npm latest react-native is 0.86.0');
+assertRejected('Changed latest fixture', { ...validCurrent, latest: '0.85.3' }, 'npm latest react-native is 0.85.3');
 const staleSummary = formatReactNativeTargetSnapshotCurrentSummary({
-  ...getReactNativeTargetSnapshotCurrentIssues({ ...validCurrent, latest: '0.86.0' }),
+  ...getReactNativeTargetSnapshotCurrentIssues({ ...validCurrent, latest: '0.85.3' }),
   generatedAt: '2026-05-28T00:00:00.000Z',
 });
 if (!staleSummary.includes('Live check outcome: stale') || !staleSummary.includes('Mismatches: 1')) {

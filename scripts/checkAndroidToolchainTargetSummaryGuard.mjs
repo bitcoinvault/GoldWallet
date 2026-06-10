@@ -10,7 +10,7 @@ const validSummary = [
   'AGP 9 minimum Gradle wrapper: 9.4.1',
   'Current Kotlin Gradle Plugin: 2.1.20',
   'Latest Kotlin Gradle Plugin: 2.4.0',
-  'React Native Gradle plugin: 0.85.3',
+  'React Native Gradle plugin: 0.86.0',
   'Latest Android toolchain target blocked: yes',
   'Blockers: 3',
   '- AGP 9.2.1 requires Gradle 9.4.1 or newer.',

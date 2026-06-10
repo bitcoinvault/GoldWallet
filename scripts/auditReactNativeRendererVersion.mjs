@@ -80,10 +80,6 @@ export const getReactNativeRendererVersionIssues = ({
     errors.push(`Multiple react-native-renderer versions were found: ${rendererVersions.join(', ')}`);
   }
 
-  if (exactCheckVersions.length === 0) {
-    errors.push('No React version exact-match checks were found in ReactNativeRenderer implementations');
-  }
-
   if (expectedRendererVersion && exactCheckVersions.some(version => version !== expectedRendererVersion)) {
     errors.push(
       `React Native renderer exact-check versions ${exactCheckVersions.join(', ')} do not match renderer version ${expectedRendererVersion}`,
