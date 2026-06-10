@@ -1,6 +1,6 @@
 # Dependency Upgrade Strategy
 
-This project should not upgrade dependencies one package at a time unless the package is isolated and low risk. The app is now on the RN `0.85.3` / React `19.2.3` foundation checkpoint; RN `0.85.3` currently matches npm `latest`, while React `19.2.7` is intentionally blocked by the RN renderer exact-version constraint on this baseline. npm `next` for React Native is an RC line, is classified as `prerelease`, and is not the default wallet target. The upgrade path should therefore keep moving by layers, keep live snapshot checks at each foundation branch, and avoid returning to package-by-package churn.
+This project should not upgrade dependencies one package at a time unless the package is isolated and low risk. The app is now on the RN `0.86.0` / React `19.2.3` foundation checkpoint; RN `0.86.0` currently matches npm `latest`, while React `19.2.7` is intentionally blocked by the RN renderer exact-version constraint on this baseline. npm `next` for React Native is an RC line, is classified as `prerelease`, and is not the default wallet target. The upgrade path should therefore keep moving by layers, keep live snapshot checks at each foundation branch, and avoid returning to package-by-package churn.
 
 ## Current Rule
 
@@ -25,7 +25,7 @@ Upgrade this layer before chasing most library majors:
 
 Reason: the first foundation checkpoint is complete, but recent proof branches still show that the next jump has coupled blockers that need to move together:
 
-- The current RN target snapshot records `react-native@0.85.3` with React peer `^19.2.3`, matching the installed RN `0.85.3` checkpoint and React `19.2.3`; do not take React `19.2.7` separately because the app has already recorded an emulator-startup mismatch against `react-native-renderer@19.2.3`.
+- The current RN target snapshot records `react-native@0.86.0` with React peer `^19.2.3`, matching the installed RN `0.86.0` checkpoint and React `19.2.3`; do not take React `19.2.7` separately because the app has already recorded an emulator-startup mismatch against `react-native-renderer@19.2.3`.
 - RN `0.85.x` and RN `0.82.x` probes exposed native compatibility blockers around CodePush, React/runtime coupling, and mandatory New Architecture/codegen behavior in older native modules.
 - Package-only RN jumps are invalid for this repo; package versions and template/native files need to move in the same foundation branch.
 
@@ -77,11 +77,11 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - Use `corepack yarn tooling:latest-snapshot:audit` before tooling dependency branches when network access is available. It records live npm latest versions for the tracked tooling cohort into `local-docs/tooling-latest-snapshot.txt` without changing package versions.
 - Use `corepack yarn tooling:latest-snapshot:check-summary` to validate that generated local snapshot before using it as branch-start evidence.
 - The tooling snapshot also tracks isolated report/E2E/coverage tooling after `BEM-37.269`, `BEM-37.270`, `BEM-37.295`, and `BEM-37.322`: `jest-junit@17.0.0`, `junit-report-merger@9.0.4`, `babel-plugin-istanbul@8.0.0`, `mailosaur@11.1.1`, and `jsdom@29.1.1`.
-- Small tooling patch cohort is refreshed through `BEM-37.451`: `@types/react@19.2.17`, `@typescript-eslint/eslint-plugin@8.60.1`, `@typescript-eslint/parser@8.60.1`, and `junit-report-merger@9.0.4`.
+- Small tooling patch cohort is refreshed through `BEM-37.467`: `@types/react@19.2.17`, `@typescript-eslint/eslint-plugin@8.61.0`, `@typescript-eslint/parser@8.61.0`, `prettier@3.8.4`, `semver@7.8.4`, and `junit-report-merger@9.0.4`.
 - `lint-staged` is on checked latest `17.0.7` after the Node 24 tooling baseline; it requires Node `>=22.22.1`, so run hooks and validation with the `.nvmrc` Node runtime.
-- Prettier tooling is on checked latest Prettier 3 line after `BEM-37.303`: `prettier@3.8.3`, `eslint-plugin-prettier@5.5.6`, and `eslint-config-prettier@10.1.8`; no mass formatting was performed, and the existing lint baseline remains tracked separately.
+- Prettier tooling is on checked latest Prettier 3 line after `BEM-37.467`: `prettier@3.8.4`, `eslint-plugin-prettier@5.5.6`, and `eslint-config-prettier@10.1.8`; no mass formatting was performed, and the existing lint baseline remains tracked separately.
 - ESLint is on checked latest `10.4.1` after `BEM-37.304`; `eslint.config.mjs` bridges the existing `.eslintrc` baseline through `FlatCompat`, `.eslintignore` is removed, and the current baseline is `35360` errors / `0` warnings after the `BEM-37.322` TypeScript ESLint patch.
-- TypeScript ESLint parser/plugin tooling is on checked latest `8.60.1` after `BEM-37.322`; it is verified through the ESLint 10 flat-config bridge because `@typescript-eslint@8.60.1` supports `eslint ^8.57.0 || ^9.0.0 || ^10.0.0`.
+- TypeScript ESLint parser/plugin tooling is on checked latest `8.61.0` after `BEM-37.467`; it is verified through the ESLint 10 flat-config bridge because `@typescript-eslint@8.61.0` supports `eslint ^8.57.0 || ^9.0.0 || ^10.0.0`.
 - The TypeScript ESLint v8 config compatibility is guarded after `BEM-37.294`: removed rule `@typescript-eslint/ban-types` must stay out of `.eslintrc`, and newly stricter v8 recommended rules that are not part of the current baseline remain explicitly disabled until a dedicated lint cleanup branch handles them.
 - The unused legacy `@react-native-community/eslint-config` direct dev dependency is removed after `BEM-37.297`; `.eslintrc` already owns the active lint stack directly, and the community config would reintroduce an older nested lint toolchain if upgraded blindly.
 - The deprecated unused `babel-eslint` direct dev dependency is removed after `BEM-37.298`; the active parser is `@typescript-eslint/parser`, and `babel-eslint` has no supported latest path beyond its deprecated `10.1.0` line.

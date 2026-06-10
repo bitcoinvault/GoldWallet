@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.467 - Tooling patch direct-outdated refresh
+
+- Branch: `feature/bem-37-467-tooling-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the remaining direct-outdated review-required tooling/package entries: `@typescript-eslint/eslint-plugin@8.61.0`, `@typescript-eslint/parser@8.61.0`, `prettier@3.8.4`, and `semver@7.8.4`.
+- Update the `semver` direct dependency and package resolution together so Yarn no longer keeps a stale `7.8.2` resolver entry.
+- Refresh tooling guard expectations and dependency strategy docs for the new checked tooling patch versions.
+- Keep runtime wallet code, native app code, Android/iOS project files, Firebase/Sentry/CodePush behavior, and formatter output unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-10 reports `@typescript-eslint/eslint-plugin@8.61.0` and `@typescript-eslint/parser@8.61.0` as latest; both support Node `^18.18.0 || ^20.9.0 || >=21.1.0`, ESLint `^8.57.0 || ^9.0.0 || ^10.0.0`, and TypeScript `>=4.8.4 <6.1.0`.
+- Live npm metadata reports `prettier@3.8.4` as latest with Node `>=14`.
+- Live npm metadata reports `semver@7.8.4` as latest with Node `>=10`.
+- A post-upgrade direct outdated snapshot now reports 8 entries and 0 review-required entries. The remaining entries are the already documented blocked/exotic cases: BitcoinVault git forks, `bl` v7, `node-fetch` v3, React/renderer coupling, `react-native-prompt-android`, and `rn-nodeify`.
+- `semver` resolution warnings now reference `semver@7.8.4`, confirming the resolver pin moved with the direct dependency.
+- No emulator smoke was run for this branch because it changes developer tooling and package resolution only; Android `devDebug` assemble still builds successfully after the lockfile change.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @typescript-eslint/eslint-plugin version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @typescript-eslint/parser version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view prettier version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view semver version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add --dev @typescript-eslint/eslint-plugin@8.61.0 @typescript-eslint/parser@8.61.0 prettier@3.8.4`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add semver@7.8.4`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+
 ### BEM-37.466 - React Native Firebase 24.1.1 refresh
 
 - Branch: `feature/bem-37-466-firebase-2411-refresh`
