@@ -9,8 +9,10 @@ const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'storage-network-latest-snapshot.txt');
 
 const readJson = relativePath => JSON.parse(readFileSync(path.join(root, relativePath), 'utf8'));
+const readText = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 const packageJson = readJson('package.json');
 const dependencies = packageJson.dependencies || {};
+const expectedNodeVersion = readText('.nvmrc').trim();
 
 const trackedPackages = [
   '@react-native-async-storage/async-storage',
@@ -90,6 +92,7 @@ export const formatStorageNetworkLatestSnapshotSummary = (entries, generatedAt =
     'Storage/network latest snapshot audit',
     `Generated at: ${generatedAt}`,
     `Node version: ${process.version}`,
+    `Expected Node version: v${expectedNodeVersion}`,
     `Entries: ${entries.length}`,
     ...entries.map(
       entry =>

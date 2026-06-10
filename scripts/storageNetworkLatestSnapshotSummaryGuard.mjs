@@ -34,6 +34,7 @@ export const getStorageNetworkLatestSnapshotSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
   const nodeVersion = getLineValue(summary, 'Node version');
+  const expectedNodeVersion = getLineValue(summary, 'Expected Node version');
   const entries = getLineValue(summary, 'Entries');
   const currentEntries = getLineValue(summary, 'Current entries');
   const deferredEntries = getLineValue(summary, 'Deferred entries');
@@ -51,6 +52,12 @@ export const getStorageNetworkLatestSnapshotSummaryErrors = summary => {
 
   if (!/^v\d+\.\d+\.\d+/.test(nodeVersion)) {
     errors.push(`Node version must be recorded. Received: ${nodeVersion || 'missing'}`);
+  }
+
+  if (!/^v\d+\.\d+\.\d+/.test(expectedNodeVersion)) {
+    errors.push(`Expected Node version must be recorded. Received: ${expectedNodeVersion || 'missing'}`);
+  } else if (nodeVersion !== expectedNodeVersion) {
+    errors.push(`Node version must match the repo .nvmrc baseline. Received: ${nodeVersion || 'missing'}, expected: ${expectedNodeVersion}`);
   }
 
   [

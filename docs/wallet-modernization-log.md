@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.507 - Storage/network Node baseline guard
+
+- Branch: `feature/bem-37-507-storage-network-node-baseline-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Record the expected Node version from `.nvmrc` in the storage/network latest snapshot summary.
+- Extend the storage/network latest snapshot summary guard so the snapshot fails when generated under a Node runtime that differs from the repo Metro/dev baseline.
+- Keep storage/network package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The initial storage/network latest snapshot was generated under system Node `v22.18.0`, while the repo baseline in `.nvmrc` is `24.16.0`.
+- The tracked storage/network packages remain current against npm: AsyncStorage, NetInfo, device-info, config, localize, random-values, keychain, secure-key-store, TCP socket, and WebView.
+- Dependency changes still require a dedicated compatibility branch with focused tests, Android build, and emulator smoke.
+- No dependency, runtime, native, or Metro behavior changed in this branch, so Android emulator smoke is not required.
+
+Validation:
+
+- `corepack yarn check:storage-network-latest-snapshot-summary-guard`
+- `corepack yarn storage-network:latest-snapshot:audit` failed as expected under Node `v22.18.0` with `Node version must match the repo .nvmrc baseline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `corepack yarn check:storage-network-usage-guard`
+- `corepack yarn check:storage-network-usage`
+- `corepack yarn check:storage-network-validation-scripts-guard`
+- `corepack yarn check:storage-network-validation-scripts`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.506 - Android toolchain blocker consistency guard
 
 - Branch: `feature/bem-37-506-android-toolchain-blocker-consistency`

@@ -4,6 +4,7 @@ const validSummary = [
   'Storage/network latest snapshot audit',
   'Generated at: 2026-06-10T00:00:00.000Z',
   'Node version: v24.16.0',
+  'Expected Node version: v24.16.0',
   'Entries: 10',
   '- @react-native-async-storage/async-storage: package 3.1.1, installed 3.1.1, latest 3.1.1, peers react@*, react-native@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- @react-native-community/netinfo: package 12.0.1, installed 12.0.1, latest 12.0.1, peers react@*, react-native@>=0.59, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
@@ -45,6 +46,8 @@ const assertRejected = (label, summary, expectedError) => {
 assertAccepted('Valid storage/network latest snapshot summary fixture', validSummary);
 assertRejected('Bad header fixture', validSummary.replace('Storage/network latest snapshot audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-10T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
+assertRejected('Missing expected Node fixture', validSummary.replace('Expected Node version: v24.16.0', 'Expected Node version: '), 'Expected Node version');
+assertRejected('Wrong Node fixture', validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'), 'repo .nvmrc baseline');
 assertRejected('Bad entry count fixture', validSummary.replace('Entries: 10', 'Entries: 9'), 'Entries count');
 assertRejected(
   'Missing AsyncStorage fixture',
