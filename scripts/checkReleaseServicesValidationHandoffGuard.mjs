@@ -30,6 +30,7 @@ const skippedRendered = skippedCommands.map(renderReleaseServicesValidationComma
   'corepack yarn sentry:release:prereq-check-summary',
   'corepack yarn firebase:release-services:audit',
   'corepack yarn firebase:release-services:check-summary',
+  'corepack yarn check:codepush-update-validation-handoff-guard',
   'corepack yarn codepush:release:path-audit',
   'corepack yarn codepush:release:path-check-summary',
   'corepack yarn codepush:migration:readiness-audit',
@@ -78,6 +79,15 @@ assert(
 assert(
   skippedRendered.includes('corepack yarn check:ios-mac-validation-handoff-guard'),
   'Skipped release-services handoff must still validate the iOS macOS validation handoff guard',
+);
+assert(
+  skippedRendered.includes('corepack yarn check:codepush-update-validation-handoff-guard'),
+  'Skipped release-services handoff must still validate the CodePush update-validation handoff guard',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('check:codepush-update-validation-handoff-guard')) <
+    skippedCommands.findIndex(step => step.args.includes('codepush:release:path-audit')),
+  'CodePush update-validation handoff guard must run before CodePush release path audit',
 );
 assert(
   skippedRendered.includes('corepack yarn ios:mac-validation:handoff:dry-run'),
