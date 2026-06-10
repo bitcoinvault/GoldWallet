@@ -2,10 +2,12 @@ import { existsSync, readFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const releasePathSummaryPath = path.join(root, 'local-docs', 'codepush-release-path-summary.txt');
+const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
 
 const defaultOptions = {
   dryRun: false,
@@ -90,40 +92,53 @@ export const getCodePushUpdateValidationHandoffErrors = options => {
   return errors;
 };
 
-export const getCodePushUpdateValidationReadinessErrors = summaryText => {
+export const getCodePushUpdateValidationReadinessErrors = ({
+  releasePathSummaryText,
+  androidReleaseSmokeSummaryText,
+}) => {
   const errors = [];
 
-  if (!summaryText) {
-    return ['CodePush release path summary is missing; run codepush:release:path-audit first'];
+  if (!releasePathSummaryText) {
+    errors.push('CodePush release path summary is missing; run codepush:release:path-audit first');
+  } else {
+    if (!releasePathSummaryText.includes('Secret values printed: no')) {
+      errors.push('CodePush handoff summary must prove that deployment-key values were not printed');
+    }
+
+    if (!releasePathSummaryText.includes('Release path ready for update validation: yes')) {
+      errors.push(
+        'CodePush release path is not ready for update validation; provide non-empty blocked deployment keys and confirm the beta strategy before claiming update validation',
+      );
+    }
+
+    if (!releasePathSummaryText.includes('CodePush update validation: not claimed')) {
+      errors.push('CodePush handoff must keep runtime update validation unclaimed until a real OTA delivery test runs');
+    }
+
+    if (!releasePathSummaryText.includes('CodePush migration required: yes')) {
+      errors.push('CodePush handoff must keep the App Center retirement migration requirement visible');
+    }
   }
 
-  if (!summaryText.includes('Secret values printed: no')) {
-    errors.push('CodePush handoff summary must prove that deployment-key values were not printed');
-  }
+  if (!androidReleaseSmokeSummaryText) {
+    errors.push('Android release smoke summary is missing; run android:dev:release:smoke:embedded first');
+  } else {
+    const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, {
+      expectedArtifactBase: 'android-smoke-dev-release',
+    });
 
-  if (!summaryText.includes('Release path ready for update validation: yes')) {
-    errors.push(
-      'CodePush release path is not ready for update validation; provide non-empty blocked deployment keys and confirm the beta strategy before claiming update validation',
-    );
-  }
-
-  if (!summaryText.includes('CodePush update validation: not claimed')) {
-    errors.push('CodePush handoff must keep runtime update validation unclaimed until a real OTA delivery test runs');
-  }
-
-  if (!summaryText.includes('CodePush migration required: yes')) {
-    errors.push('CodePush handoff must keep the App Center retirement migration requirement visible');
+    smokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
   }
 
   return errors;
 };
 
-const readReleasePathSummary = () => {
-  if (!existsSync(releasePathSummaryPath)) {
+const readSummary = summaryPath => {
+  if (!existsSync(summaryPath)) {
     return null;
   }
 
-  return readFileSync(releasePathSummaryPath, 'utf8');
+  return readFileSync(summaryPath, 'utf8');
 };
 
 const parseArgs = argv => {
@@ -214,7 +229,10 @@ const main = () => {
     }
   }
 
-  const readinessErrors = getCodePushUpdateValidationReadinessErrors(readReleasePathSummary());
+  const readinessErrors = getCodePushUpdateValidationReadinessErrors({
+    releasePathSummaryText: readSummary(releasePathSummaryPath),
+    androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
+  });
 
   if (readinessErrors.length > 0) {
     console.error('\nCodePush update validation handoff is blocked:');
