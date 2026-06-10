@@ -1,5 +1,5 @@
 import { spawnSync } from 'child_process';
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getDirectOutdatedSnapshotSummaryErrors } from './directOutdatedSnapshotSummaryGuard.mjs';
@@ -7,6 +7,7 @@ import { getDirectOutdatedSnapshotSummaryErrors } from './directOutdatedSnapshot
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'direct-outdated-snapshot.txt');
+const expectedNodeVersion = readFileSync(path.join(root, '.nvmrc'), 'utf8').trim();
 
 const command = process.platform === 'win32' ? 'cmd.exe' : 'corepack';
 const args = process.platform === 'win32' ? ['/d', '/s', '/c', 'corepack', 'yarn', 'outdated', '--json'] : ['yarn', 'outdated', '--json'];
@@ -31,6 +32,10 @@ const knownDecisions = new Map([
   [
     'react',
     'blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
+  ],
+  [
+    'react-native-gesture-handler',
+    'blocked - gesture runtime patch drift requires a dedicated navigation/gesture smoke branch before bumping',
   ],
   [
     'react-test-renderer',
@@ -95,6 +100,7 @@ export const formatDirectOutdatedSnapshotSummary = (entries, generatedAt = new D
     'Direct dependency outdated snapshot audit',
     `Generated at: ${generatedAt}`,
     `Node version: ${process.version}`,
+    `Expected Node version: v${expectedNodeVersion}`,
     `Entries: ${entries.length}`,
     ...entries.map(
       entry =>

@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'git-dependency-snapshot.txt');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const yarnLock = readFileSync(path.join(root, 'yarn.lock'), 'utf8');
+const expectedNodeVersion = readFileSync(path.join(root, '.nvmrc'), 'utf8').trim();
 
 const trackedDependencies = [
   {
@@ -102,6 +103,8 @@ export const formatGitDependencySnapshotSummary = (entries, generatedAt = new Da
   const lines = [
     'Git dependency snapshot audit',
     `Generated at: ${generatedAt}`,
+    `Node version: ${process.version}`,
+    `Expected Node version: v${expectedNodeVersion}`,
     `Entries: ${entries.length}`,
     `Mismatches: ${mismatches.length}`,
     ...entries.map(

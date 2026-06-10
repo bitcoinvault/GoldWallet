@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.508 - Snapshot Node baseline guard coverage
+
+- Branch: `feature/bem-37-508-snapshot-node-baseline-guards`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Record the expected Node version from `.nvmrc` in wallet-crypto, direct-outdated, tooling, and git-dependency snapshot summaries.
+- Extend those snapshot summary guards so snapshots fail when generated under a Node runtime that differs from the repo Metro/dev baseline.
+- Make the tooling latest snapshot audit run its summary guard before exiting successfully.
+- Classify the newly detected `react-native-gesture-handler` patch drift as a dedicated navigation/gesture smoke branch instead of leaving it as review-required.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- System Node `v22.18.0` can still be present on developer machines, while the repo baseline in `.nvmrc` is `24.16.0`.
+- Before this branch, tooling latest snapshot generation wrote a summary under Node `v22.18.0` and exited successfully because it did not call its own summary guard.
+- Live direct outdated metadata now reports `react-native-gesture-handler` `3.0.1`; the current `3.0.0` pin remains blocked until a dedicated navigation/gesture smoke branch validates it.
+- No dependency, runtime, native, or Metro behavior changed in this branch, so Android emulator smoke is not required.
+
+Validation:
+
+- `corepack yarn check:wallet-crypto-latest-snapshot-summary-guard`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn check:git-deps-snapshot-summary-guard`
+- `corepack yarn wallet:crypto-latest-snapshot:audit` failed as expected under Node `v22.18.0` with `Node version must match the repo .nvmrc baseline`
+- `corepack yarn tooling:latest-snapshot:audit` failed as expected under Node `v22.18.0` with `Node version must match the repo .nvmrc baseline`
+- `corepack yarn direct-outdated:snapshot:audit` failed as expected under Node `v22.18.0` with `Node version must match the repo .nvmrc baseline`
+- `corepack yarn git-deps:snapshot:audit` failed as expected under Node `v22.18.0` with `Node version must match the repo .nvmrc baseline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:audit`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.507 - Storage/network Node baseline guard
 
 - Branch: `feature/bem-37-507-storage-network-node-baseline-guard`

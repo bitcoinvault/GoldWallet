@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'wallet-crypto-latest-snapshot.txt');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+const expectedNodeVersion = readFileSync(path.join(root, '.nvmrc'), 'utf8').trim();
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 
@@ -88,6 +89,7 @@ export const formatWalletCryptoLatestSnapshotSummary = (entries, generatedAt = n
     'Wallet crypto latest snapshot audit',
     `Generated at: ${generatedAt}`,
     `Node version: ${process.version}`,
+    `Expected Node version: v${expectedNodeVersion}`,
     `Entries: ${entries.length}`,
     ...entries.map(
       entry =>

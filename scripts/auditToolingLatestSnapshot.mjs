@@ -3,12 +3,14 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getToolingLatestSnapshotSummaryErrors } from './toolingLatestSnapshotSummaryGuard.mjs';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'tooling-latest-snapshot.txt');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+const expectedNodeVersion = readFileSync(path.join(root, '.nvmrc'), 'utf8').trim();
 
 const trackedTooling = [
   {
@@ -196,6 +198,7 @@ export const formatToolingLatestSnapshotSummary = (entries, generatedAt = new Da
     'Tooling latest snapshot audit',
     `Generated at: ${generatedAt}`,
     `Node version: ${process.version}`,
+    `Expected Node version: v${expectedNodeVersion}`,
     `Entries: ${entries.length}`,
     ...entries.map(
       entry =>
@@ -224,9 +227,17 @@ const printReport = entries => {
   }
 
   const summary = formatToolingLatestSnapshotSummary(entries);
+  const errors = getToolingLatestSnapshotSummaryErrors(summary);
+
   writeSummary(summary);
   console.log(summary.trim());
   console.log(`Tooling latest snapshot summary written to ${path.relative(root, summaryPath)}`);
+
+  if (errors.length > 0) {
+    console.error('Tooling latest snapshot summary is invalid:');
+    errors.forEach(error => console.error(`- ${error}`));
+    process.exit(1);
+  }
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
