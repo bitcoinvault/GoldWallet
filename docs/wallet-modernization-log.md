@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.484 - Android release smoke evidence refresh
+
+- Branch: `feature/bem-37-484-android-release-smoke-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh signed `devRelease` Android runtime smoke evidence after the online RN preflight refreshed release APK inputs.
+- Validate that aggregate release-services handoff can consume the fresh release APK, release-smoke, Sentry/Firebase/CodePush/push/iOS readiness summaries.
+- Keep package versions, runtime code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- `android:dev:release:smoke:embedded` signed the current `app-dev-release-unsigned.apk`, installed it on `emulator-5554`, cleared app data, and launched without Metro.
+- First-run terms, PIN, transaction-password, email-skip, and success flows completed.
+- Empty-dashboard Create/Import CTA navigation and empty-state bottom-tab navigation both passed.
+- `android-smoke-dev-release-summary.txt` passed the embedded release-smoke summary checker with no fatal Android or React Native runtime logcat findings.
+- `release-services:validation:handoff --skip-android-release` passed on the fresh release APK/smoke artifacts while still recording external blockers: missing Sentry properties/auth token for upload validation, missing CodePush deployment keys/beta strategy, and macOS/Xcode/CocoaPods/iOS Podfile.lock drift.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.483 - RN online preflight evidence refresh
 
 - Branch: `feature/bem-37-483-rn-online-preflight-refresh`
