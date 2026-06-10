@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.510 - Android release evidence refresh after gesture-handler patch
+
+- Branch: `feature/bem-37-510-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release APK, bundle, source-map, manifest, and signed release-smoke evidence after the `react-native-gesture-handler@3.0.1` patch.
+- Validate `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled.
+- Re-run signed `devRelease` embedded smoke to prove startup and navigation without Metro.
+- Keep package versions, runtime application code, native project files, env files, release-service secrets, and Metro behavior unchanged.
+
+Findings:
+
+- Before the refresh, `android:dev:release:check-summary` correctly failed because the release input fingerprint no longer matched current release inputs after `package.json` changed.
+- `android:dev:release:verify-local` rebuilt and revalidated release evidence for all four release variants with JDK 17 and Node `v24.16.0`.
+- The release build still reports existing deprecation warnings, including the NetInfo `onCatalystInstanceDestroy()` removal warning, but the generated APKs, release JS bundles, source maps, and manifests validate.
+- Signed `devRelease` embedded smoke passed on `emulator-5554`, including clean onboarding, empty dashboard, Create/Import CTA navigation, QR scanner open/close from import flow, and empty-state bottom-tab navigation.
+- Sentry source-map upload remains not claimed because no release upload credentials were used; `SENTRY_DISABLE_AUTO_UPLOAD=true` was set for local release evidence refresh.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary` failed as expected before refresh with `Release input fingerprint does not match current release inputs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.509 - Gesture handler patch smoke
 
 - Branch: `feature/bem-37-509-gesture-handler-patch-smoke`
