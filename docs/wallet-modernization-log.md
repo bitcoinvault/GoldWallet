@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.523 - Android release validation refresh
+
+- Branch: `feature/bem-37-523-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release build evidence after the RN `0.86.0` foundation and Android toolchain stabilization work.
+- Validate local release APK generation for `dev`, `stage`, `prod`, and `beta` variants without claiming Sentry source-map upload validation.
+- Validate release APK manifest metadata and Android 13 notification permission coverage.
+- Run embedded emulator smoke on the signed `devRelease` APK, including first-run setup, empty dashboard, create/import wallet navigation, QR scanner entry/exit, and bottom-tab navigation.
+- Keep package versions, runtime application code, native project files, env values, Gradle toolchain versions, and release upload behavior unchanged.
+
+Findings:
+
+- `android:dev:release:verify-local` generated release APK, JS bundle, and source map evidence for all four variants with JDK `17.0.19`.
+- `checkAndroidReleaseSummary` accepted the generated `local-docs/android-release-dev-summary.txt` artifact.
+- `checkAndroidReleaseApkManifest` validated `dev`, `stage`, `prod`, and `beta` package names, version metadata, SDK levels, and `android.permission.POST_NOTIFICATIONS`.
+- Local release builds keep `SENTRY_DISABLE_AUTO_UPLOAD=true`; Sentry source-map upload validation remains explicitly not claimed until real auth/token configuration is provided.
+- `android:dev:release:smoke:embedded` installed and launched the locally signed `devRelease` APK on `emulator-5554`, completed first-run terms/PIN/transaction-password/email-skip/success flow, validated empty dashboard CTA navigation, validated QR scanner screen access, validated tab navigation, captured a screenshot, and reported no fatal/runtime logcat findings.
+- Metro was not required or reachable for the release smoke, which confirms the release bundle path rather than debug Metro delivery.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.522 - Android toolchain target blocker refresh
 
 - Branch: `feature/bem-37-522-android-toolchain-target-refresh`
