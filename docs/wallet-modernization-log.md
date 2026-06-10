@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.512 - CodePush update readiness refresh
+
+- Branch: `feature/bem-37-512-codepush-update-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh CodePush release-path, migration-readiness, removal-readiness, and update-validation handoff evidence after the Android release and Sentry prerequisite refreshes.
+- Confirm current npm target for `react-native-code-push`.
+- Validate that CodePush wiring remains build-compatible for Android/iOS release paths while OTA update validation stays explicitly unclaimed.
+- Keep package versions, runtime application code, native project files, env files, deployment keys, release-service secrets, Android release artifacts, and Metro behavior unchanged.
+
+Findings:
+
+- `npm view react-native-code-push version peerDependencies dependencies engines --json` reports latest `9.0.1`; the repo already uses `react-native-code-push@9.0.1`.
+- The CodePush release-path audit reports valid wiring, current package/install versions, lazy runtime HOC gating, native bundle gating, and current Android release evidence for `dev`, `stage`, `prod`, and `beta`.
+- CodePush update validation remains explicitly not claimed because `.env.dev.testnet` has blank `CODEPUSH_DEPLOYMENT_KEY_ANDROID` and `CODEPUSH_DEPLOYMENT_KEY_IOS` values, and beta deployment-key strategy is still unconfirmed.
+- The migration and removal readiness audits keep App Center CodePush retirement visible: the package is current but upstream is archived, New Architecture support is not available, and the next product decision remains remove or replace.
+- Running the CodePush update-validation handoff with `--skip-android-release` fails at the expected readiness boundary after validating release-path, migration, removal, and aggregate release-services summaries.
+
+Validation:
+
+- `npm view react-native-code-push version peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff --skip-android-release` expected fail: CodePush release path is not ready for update validation
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.511 - Sentry release prerequisite refresh
 
 - Branch: `feature/bem-37-511-sentry-release-prereq-refresh`
