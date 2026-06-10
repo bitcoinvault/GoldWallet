@@ -23,6 +23,7 @@ const skippedRendered = skippedCommands.map(renderReleaseServicesValidationComma
   'corepack yarn android:dev:release:smoke:embedded',
   'corepack yarn android:dev:release:check-smoke-summary',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
+  'corepack yarn check:sentry-properties-generator',
   'corepack yarn sentry:android-warning:audit',
   'corepack yarn sentry:android-warning:check-summary',
   'corepack yarn sentry:release:prereq-audit',
@@ -64,6 +65,15 @@ assert(
 assert(
   skippedRendered.includes('corepack yarn sentry:release:prereq-audit'),
   'Skipped release-services handoff must still include Sentry prereq audit',
+);
+assert(
+  skippedRendered.includes('corepack yarn check:sentry-properties-generator'),
+  'Skipped release-services handoff must still validate the Sentry properties generator',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('check:sentry-properties-generator')) <
+    skippedCommands.findIndex(step => step.args.includes('sentry:release:prereq-audit')),
+  'Sentry properties generator guard must run before the Sentry release prerequisite audit',
 );
 assert(
   skippedRendered.includes('corepack yarn check:ios-mac-validation-handoff-guard'),
