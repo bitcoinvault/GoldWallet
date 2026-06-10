@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.473 - RN latest online target refresh
+
+- Branch: `feature/bem-37-473-rn-latest-online-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the online React Native baseline preflight after the RN `0.86.0` checkpoint and baseline decision-doc refresh.
+- Refresh live npm/latest evidence for the RN target, direct outdated dependencies, git dependency pins, wallet/crypto packages, tooling packages, Android toolchain target, `bl`, and `node-fetch` without changing package versions.
+- Keep runtime code, native project files, package versions, release-service behavior, and committed target snapshots unchanged because the live evidence still matches the guarded current baseline.
+
+Findings:
+
+- Live npm metadata reports `react-native@latest` as `0.86.0`; `react-native@next` remains prerelease `0.86.0-rc.3`, and the nightly channel is `0.87.0-nightly-20260608-2ff3b81dc`.
+- The current RN `0.86.0` target still peers React `^19.2.3` and supports the current Node 24 dev runtime engine range.
+- Direct outdated evidence remains unchanged: 8 entries, 4 known blocked registry entries, 4 exotic entries, and 0 review-required entries.
+- Wallet/crypto and tooling latest snapshots remain current, with no deferred review entries.
+- The latest Android toolchain target is still blocked: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle `9.4.1` and `9.5.1` still hit the React Native Gradle plugin Kotlin metadata compatibility blocker on the RN `0.86.0` baseline.
+- `bl@7.0.3` and `node-fetch@3.3.2` remain blocked by CommonJS/transitive consumer compatibility; the validated resolutions stay `bl@6.1.6` and `node-fetch@2.7.0`.
+- No emulator smoke was run for this branch because it refreshed online target evidence and documentation only, not app runtime, native project files, dependencies, or Metro behavior.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.472 - Baseline decision docs refresh after RN 0.86
 
 - Branch: `feature/bem-37-472-baseline-docs-refresh`
