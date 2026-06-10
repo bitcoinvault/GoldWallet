@@ -1,13 +1,13 @@
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
 
 const currentPodfileLockDriftLines = [
-  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.85.3',
+  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.0',
   '- ios/Podfile.lock has RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
   '- ios/Podfile.lock has react-native-config 1.4.4; package.json has react-native-config 1.6.1',
   '- ios/Podfile.lock has RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
   '- ios/Podfile.lock has RNDeviceInfo 6.2.1; package.json has react-native-device-info 15.0.2',
   '- ios/Podfile.lock has RNFastImage 8.3.7; package.json has react-native-fast-image 8.6.3',
-  '- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.1.0',
+  '- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.1.1',
   '- ios/Podfile.lock has RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.0.0',
   '- ios/Podfile.lock has RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
   '- ios/Podfile.lock has RNScreens 3.6.0; package.json has react-native-screens 4.25.2',
@@ -20,7 +20,7 @@ const validWindowsSummary = [
   'Generated at: 2026-05-30T12:34:56.789Z',
   'Static iOS release files valid: yes',
   'Ready for macOS archive validation: no',
-  'React Native version: 0.85.3',
+  'React Native version: 0.86.0',
   'React Native minimum iOS: 15.1',
   'React Native minimum Xcode: 16.1',
   'Podfile iOS platform: 15.1',
@@ -106,7 +106,7 @@ assertRejected(
 );
 assertRejected(
   'Wrong React Native fixture',
-  validWindowsSummary.replace('React Native version: 0.85.3', 'React Native version: 0.84.0'),
+  validWindowsSummary.replace('React Native version: 0.86.0', 'React Native version: 0.84.0'),
   'React Native version',
 );
 assertRejected(
@@ -147,7 +147,7 @@ assertRejected(
 );
 assertRejected(
   'Missing Firebase pod drift fixture',
-  removeDriftLine('- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.1.0'),
+  removeDriftLine('- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.1.1'),
   'RNFBApp 12.7.5',
 );
 assertRejected(

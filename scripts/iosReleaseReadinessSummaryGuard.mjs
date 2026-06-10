@@ -29,13 +29,13 @@ const isNonNegativeInteger = value => /^\d+$/.test(value) && Number(value) >= 0;
 const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 
 const expectedCurrentPodfileLockDriftSnippets = [
-  'React-Core 0.65.3; package.json has react-native 0.85.3',
+  'React-Core 0.65.3; package.json has react-native 0.86.0',
   'RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
   'react-native-config 1.4.4; package.json has react-native-config 1.6.1',
   'RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
   'RNDeviceInfo 6.2.1; package.json has react-native-device-info 15.0.2',
   'RNFastImage 8.3.7; package.json has react-native-fast-image 8.6.3',
-  'RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.1.0',
+  'RNFBApp 12.7.5; package.json has @react-native-firebase/app 24.1.1',
   'RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.0.0',
   'RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
   'RNScreens 3.6.0; package.json has react-native-screens 4.25.2',
@@ -86,7 +86,7 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   }
 
   [
-    ['React Native version', reactNativeVersion, '0.85.3'],
+    ['React Native version', reactNativeVersion, '0.86.0'],
     ['React Native minimum iOS', rnMinIos, '15.1'],
     ['React Native minimum Xcode', rnMinXcode, '16.1'],
     ['Podfile iOS platform', podfilePlatform, '15.1'],

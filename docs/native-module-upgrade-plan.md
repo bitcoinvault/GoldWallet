@@ -1,6 +1,6 @@
 # Native Module Upgrade Plan
 
-This plan scopes `BEM-36 - Native modules upgrade` after the React Native `0.85.3` step.
+This plan scopes `BEM-36 - Native modules upgrade` on the current React Native `0.86.0` baseline.
 
 The current dependency inventory is guarded by:
 
@@ -10,7 +10,7 @@ corepack yarn check:native-module-inventory
 
 If a native dependency version changes, update `scripts/nativeModuleInventoryGuard.mjs`, this plan, and the branch notes in `docs/wallet-modernization-log.md` in the same mini-branch.
 
-React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.85.3` branch. Run `corepack yarn rn:baseline:preflight` before an RN baseline branch so the current native-module, release-service, Metro, RN target snapshot, and warning-source audits are checked together.
+React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.86.0` branch. Run `corepack yarn rn:baseline:preflight` before an RN baseline branch so the current native-module, release-service, Metro, RN target snapshot, and warning-source audits are checked together.
 
 ## Current Constraints
 
@@ -125,10 +125,10 @@ Branch shape:
 
 ### Group D - Notifications And Release Services
 
-- `@react-native-firebase/app` -> `24.1.0`
-- `@react-native-firebase/analytics` -> `24.1.0`
-- `@react-native-firebase/crashlytics` -> `24.1.0`
-- `@react-native-firebase/messaging` -> `24.1.0`
+- `@react-native-firebase/app` -> `24.1.1`
+- `@react-native-firebase/analytics` -> `24.1.1`
+- `@react-native-firebase/crashlytics` -> `24.1.1`
+- `@react-native-firebase/messaging` -> `24.1.1`
 - `@react-native-community/push-notification-ios` -> `1.12.0`
 - `react-native-code-push` -> `9.0.1`
 - `@sentry/react-native` -> `8.13.0`
@@ -141,7 +141,7 @@ Branch shape:
 
 - Do not do blind release-service upgrades inside generic cleanup.
 - Keep remaining Sentry release/source-map validation in a dedicated branch when credentials and release build access are available.
-- Keep Firebase grouped by package family; after `BEM-37.437` the current family is `24.1.0`, with Android debug build, release evidence, and embedded smoke validation required before merge.
+- Keep Firebase grouped by package family; after `BEM-37.466` the current family is `24.1.1`, with Android debug build, release evidence, and embedded smoke validation required before merge.
 - `corepack yarn firebase:release-services:audit` checks current Firebase package family alignment, Android config, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade.
 - `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, CodePush, and Sentry package snapshot, native build surface, and release validation path.
 - `react-native-code-push` is on latest checked `9.0.1` after the RN `0.85.3` proof, with guarded release bundle alias compatibility for RN Gradle task naming. App Center CodePush was retired on 2025-03-31 and the Microsoft upstream is archived, so future CodePush work should decide migration/removal before treating OTA updates as a supported release capability. Non-dev release/update validation and deployment-key loading still require non-empty deployment keys if the team keeps OTA behavior. `corepack yarn codepush:migration:readiness-audit` records the current posture as temporary legacy compatibility and keeps the long-term remove-or-replace decision guarded.
