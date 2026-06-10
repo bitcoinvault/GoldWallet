@@ -169,7 +169,7 @@ $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 corepack yarn android:dev:verify
 ```
 
-`android:dev:verify` runs the Android environment audit, builds the dev APK, runs the emulator smoke helper, and validates the generated smoke summary artifact.
+`android:dev:verify` runs the Android environment audit, builds the dev APK, runs the emulator smoke helper, and validates the generated smoke summary artifact. The summary checker requires the installed `app-dev-debug.apk` path, byte count, and SHA-256 digest to match the current debug APK before the smoke evidence can be reused.
 
 For a clean emulator or a branch that should prove the bundled `devDebug` APK starts without relying on Metro transport, use:
 
@@ -260,7 +260,7 @@ corepack yarn android:dev:smoke
 
 Use `android:dev:verify` when the APK freshness matters; it already runs `android:dev:check-smoke-summary` after smoke. `android:dev:smoke` only installs and tests the current dev APK artifact. Use `corepack yarn android:dev:check-smoke-summary` after a standalone smoke run to validate that the local smoke evidence still records a passing startup, reachable Metro, expected dashboard text/resource IDs, process logcat capture, UI hierarchy, and non-empty screenshot.
 
-The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, a compact result summary to `local-docs/android-smoke-dev-summary.txt`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. The summary includes a generated timestamp, the expected resource IDs, whether empty-dashboard CTA navigation was validated, and whether empty-state tab navigation was validated. It checks that Metro is reachable before installing and launching the dev APK, and records the Metro preflight status in the summary. On failures after an Android serial is selected, it also tries to refresh the same screenshot artifact before exiting. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
+The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, a compact result summary to `local-docs/android-smoke-dev-summary.txt`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. The summary includes a generated timestamp, installed APK path/byte count/SHA-256 digest, the expected resource IDs, whether empty-dashboard CTA navigation was validated, and whether empty-state tab navigation was validated. It checks that Metro is reachable before installing and launching the dev APK when Metro is required, and records the Metro preflight status in the summary. On failures after an Android serial is selected, it also tries to refresh the same screenshot artifact before exiting. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
 
 By default it also checks that the app is focused and that the UI hierarchy contains `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. This default matches a seeded wallet dashboard.
 

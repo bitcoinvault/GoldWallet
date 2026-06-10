@@ -136,6 +136,31 @@ const assertReleaseApkDigestRejected = (label, summary) => {
   }
 };
 
+const assertDebugApkDigestAccepted = (label, summary) => {
+  const errors = getAndroidSmokeSummaryErrors(summary, {
+    requireSmokeApkDigest: true,
+    expectedSmokeApkPath: fixtureFilePath,
+  });
+
+  if (errors.length > 0) {
+    console.error(`${label} should be accepted, but produced errors:`);
+    errors.forEach(error => console.error(error));
+    process.exit(1);
+  }
+};
+
+const assertDebugApkDigestRejected = (label, summary) => {
+  const errors = getAndroidSmokeSummaryErrors(summary, {
+    requireSmokeApkDigest: true,
+    expectedSmokeApkPath: fixtureFilePath,
+  });
+
+  if (errors.length === 0) {
+    console.error(`${label} should be rejected, but produced no errors.`);
+    process.exit(1);
+  }
+};
+
 const assertReleaseApkDigestAccepted = (label, summary) => {
   const errors = getAndroidEmbeddedSmokeSummaryErrors(summary, {
     expectedArtifactBase: 'android-smoke-dev-release',
@@ -155,6 +180,7 @@ const assertReleaseApkDigestAccepted = (label, summary) => {
 assertAccepted('Valid Android smoke summary fixture', validSummary);
 assertAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertEmbeddedAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
+assertDebugApkDigestAccepted('Valid debug Android smoke APK digest fixture', validSummary);
 assertRejected('Failed smoke outcome fixture', failedSummary);
 assertRejected('Metro unreachable fixture', missingMetroSummary);
 assertRejected('Invalid clean-state fixture', invalidCleanStateSummary);
@@ -184,6 +210,14 @@ assertEmbeddedRejected(
 assertEmbeddedRejected(
   'Embedded smoke wrong artifact base fixture',
   embeddedSummary.replace('Artifact base: android-smoke-dev-release', 'Artifact base: android-smoke-dev'),
+);
+assertDebugApkDigestRejected(
+  'Debug smoke missing APK digest fixture',
+  validSummary.replace(`Smoke APK sha256: ${fixtureFileSha256}\n`, ''),
+);
+assertDebugApkDigestRejected(
+  'Debug smoke wrong APK path fixture',
+  validSummary.replace('Smoke APK path: package.json', 'Smoke APK path: local-docs/missing.apk'),
 );
 assertReleaseApkDigestAccepted('Embedded release smoke APK digest fixture', embeddedSummary);
 assertReleaseApkDigestRejected(
