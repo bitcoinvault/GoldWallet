@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.492 - Sentry Android warning in release handoff
+
+- Branch: `feature/bem-37-492-sentry-warning-release-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the Sentry Android warning audit and summary check to the dedicated Sentry release validation handoff.
+- Keep Sentry SDK and CLI versions unchanged because live npm metadata reports `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0` as current latest.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The Sentry release prerequisite audit is current and Android release evidence is valid, but Sentry release upload validation remains not claimed because `SENTRY_AUTH_TOKEN` and generated `sentry.properties` files are not present.
+- The broader release-services handoff already refreshes `sentry:android-warning:audit`, but the focused Sentry release handoff did not refresh that warning summary before generating release properties and checking source-map prerequisites.
+- The focused Sentry handoff now validates the Android warning surface before the Sentry release prerequisite audit, keeping the Sentry-specific release path self-contained.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native version dist-tags peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli version dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.491 - All-scheme iOS macOS handoff dry run
 
 - Branch: `feature/bem-37-491-ios-all-schemes-release-handoff`
