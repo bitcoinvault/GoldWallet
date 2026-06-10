@@ -136,6 +136,93 @@ const readySummary = [
 
 const blockedSummary = readySummary.replace('Release path ready for update validation: yes', 'Release path ready for update validation: no');
 
+const partialMigrationReadinessSummary = [
+  'CodePush migration readiness audit',
+  'CodePush package current: yes',
+  'CodePush migration required: yes',
+  'Secret values printed: no',
+].join('\n');
+
+const migrationReadinessSummary = [
+  'CodePush migration readiness audit',
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'CodePush package current: yes',
+  'CodePush package latest version: 9.0.1',
+  'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
+  'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
+  'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
+  'App Center CodePush retirement date: 2025-03-31',
+  'CodePush upstream archived: yes',
+  'CodePush upstream New Architecture support: no',
+  'Android New Architecture enabled: yes',
+  'CodePush runtime gated off by default: yes',
+  'CodePush update validation: not claimed',
+  'CodePush migration required: yes',
+  'Current posture: temporary legacy compatibility',
+  'Long-term options: remove or replace',
+  'Decision document present: yes',
+  'Decision document covers removal: yes',
+  'Decision document covers replacement: yes',
+  'Decision document rejects blind package upgrade: yes',
+  'Release path summary valid: yes',
+  'Release path summary errors: 0',
+  'CodePush release build evidence ready: yes',
+  'Ready CodePush environments: 2',
+  'Blocked CodePush environments: 1',
+  'Unconfirmed CodePush environments: 2',
+  'Beta CodePush strategy confirmed: no',
+  'Secret values printed: no',
+  'Required action: choose remove or replace before treating OTA updates as a supported release capability.',
+].join('\n');
+
+const partialRemovalReadinessSummary = [
+  'CodePush removal readiness audit',
+  'CodePush package installed: yes',
+  'Safe to remove now: no',
+  'Secret values printed: no',
+].join('\n');
+
+const removalReadinessSummary = [
+  'CodePush removal readiness audit',
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'CodePush package installed: yes',
+  'CodePush package latest version: 9.0.1',
+  'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
+  'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
+  'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
+  'CodePush upstream archived: yes',
+  'CodePush upstream New Architecture support: no',
+  'Android New Architecture enabled: yes',
+  'CodePush migration required: yes',
+  'CodePush release build evidence ready: yes',
+  'Runtime usage files: 1',
+  '- App.tsx',
+  'Native integration files: 8',
+  '- android/app/build.gradle',
+  '- android/app/src/main/java/io/goldwallet/wallet/MainApplication.java',
+  '- android/app/src/main/res/values/strings.xml',
+  '- android/settings.gradle',
+  '- ios/GoldWallet/AppDelegate.m',
+  '- ios/GoldWallet/Info.plist',
+  '- ios/GoldWalletDev-Info.plist',
+  '- ios/GoldWalletStage-Info.plist',
+  'Env files carrying CodePush keys: 5',
+  '- .env.dev.testnet',
+  '- .env.stage.mainnet',
+  '- .env.prod.mainnet',
+  '- .env.beta.testnet',
+  '- .env.beta.mainnet',
+  'iOS plist placeholders: 3',
+  'Android native integration present: yes',
+  'iOS native integration present: yes',
+  'CodePush runtime gated off by default: yes',
+  'Removal decision available: no',
+  'Replacement decision available: no',
+  'Safe to remove now: no',
+  'Secret values printed: no',
+  'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
+].join('\n');
+
 const readyAndroidReleaseSmokeSummary = [
   'Generated at: 2026-06-10T00:00:00.000Z',
   'Android smoke outcome: passed',
@@ -176,6 +263,8 @@ const readyAndroidReleaseSmokeSummary = [
 assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: readySummary,
+    migrationReadinessSummaryText: migrationReadinessSummary,
+    removalReadinessSummaryText: removalReadinessSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     smokeEvidenceOptions,
   }).length === 0,
@@ -184,6 +273,8 @@ assert(
 assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: blockedSummary,
+    migrationReadinessSummaryText: migrationReadinessSummary,
+    removalReadinessSummaryText: removalReadinessSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     smokeEvidenceOptions,
   }).some(error => error.includes('not ready for update validation')),
@@ -192,6 +283,8 @@ assert(
 assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: partialReadySummary,
+    migrationReadinessSummaryText: migrationReadinessSummary,
+    removalReadinessSummaryText: removalReadinessSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     smokeEvidenceOptions,
   }).some(error => error.includes('CodePush release path summary is invalid')),
@@ -200,6 +293,8 @@ assert(
 assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: 'Release path ready for update validation: yes',
+    migrationReadinessSummaryText: migrationReadinessSummary,
+    removalReadinessSummaryText: removalReadinessSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     smokeEvidenceOptions,
   }).some(error => error.includes('deployment-key values were not printed')),
@@ -208,6 +303,28 @@ assert(
 assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: readySummary,
+    migrationReadinessSummaryText: partialMigrationReadinessSummary,
+    removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('CodePush migration readiness summary is invalid')),
+  'CodePush readiness check must reject partial migration readiness summaries',
+);
+assert(
+  getCodePushUpdateValidationReadinessErrors({
+    releasePathSummaryText: readySummary,
+    migrationReadinessSummaryText: migrationReadinessSummary,
+    removalReadinessSummaryText: partialRemovalReadinessSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('CodePush removal readiness summary is invalid')),
+  'CodePush readiness check must reject partial removal readiness summaries',
+);
+assert(
+  getCodePushUpdateValidationReadinessErrors({
+    releasePathSummaryText: readySummary,
+    migrationReadinessSummaryText: migrationReadinessSummary,
+    removalReadinessSummaryText: removalReadinessSummary,
     androidReleaseSmokeSummaryText: '',
     smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is missing')),
@@ -216,6 +333,8 @@ assert(
 assert(
   getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: readySummary,
+    migrationReadinessSummaryText: migrationReadinessSummary,
+    removalReadinessSummaryText: removalReadinessSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace('Validated empty-dashboard CTA flow: yes', 'Validated empty-dashboard CTA flow: no'),
     smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is invalid')),

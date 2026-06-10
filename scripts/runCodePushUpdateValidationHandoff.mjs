@@ -5,10 +5,14 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
+import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationReadinessSummaryGuard.mjs';
+import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const releasePathSummaryPath = path.join(root, 'local-docs', 'codepush-release-path-summary.txt');
+const migrationReadinessSummaryPath = path.join(root, 'local-docs', 'codepush-migration-readiness-summary.txt');
+const removalReadinessSummaryPath = path.join(root, 'local-docs', 'codepush-removal-readiness-summary.txt');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
 
 const defaultOptions = {
@@ -96,6 +100,8 @@ export const getCodePushUpdateValidationHandoffErrors = options => {
 
 export const getCodePushUpdateValidationReadinessErrors = ({
   releasePathSummaryText,
+  migrationReadinessSummaryText,
+  removalReadinessSummaryText,
   androidReleaseSmokeSummaryText,
   smokeEvidenceOptions = getAndroidReleaseSmokeEvidenceOptions(root),
 }) => {
@@ -125,6 +131,22 @@ export const getCodePushUpdateValidationReadinessErrors = ({
     if (!releasePathSummaryText.includes('CodePush migration required: yes')) {
       errors.push('CodePush handoff must keep the App Center retirement migration requirement visible');
     }
+  }
+
+  if (!migrationReadinessSummaryText) {
+    errors.push('CodePush migration readiness summary is missing; run codepush:migration:readiness-audit first');
+  } else {
+    getCodePushMigrationReadinessSummaryErrors(migrationReadinessSummaryText).forEach(error => {
+      errors.push(`CodePush migration readiness summary is invalid: ${error}`);
+    });
+  }
+
+  if (!removalReadinessSummaryText) {
+    errors.push('CodePush removal readiness summary is missing; run codepush:removal-readiness:audit first');
+  } else {
+    getCodePushRemovalReadinessSummaryErrors(removalReadinessSummaryText).forEach(error => {
+      errors.push(`CodePush removal readiness summary is invalid: ${error}`);
+    });
   }
 
   if (!androidReleaseSmokeSummaryText) {
@@ -236,6 +258,8 @@ const main = () => {
 
   const readinessErrors = getCodePushUpdateValidationReadinessErrors({
     releasePathSummaryText: readSummary(releasePathSummaryPath),
+    migrationReadinessSummaryText: readSummary(migrationReadinessSummaryPath),
+    removalReadinessSummaryText: readSummary(removalReadinessSummaryPath),
     androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
   });
 

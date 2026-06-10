@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.497 - CodePush update handoff summary guard
+
+- Branch: `feature/bem-37-497-codepush-handoff-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the CodePush update validation handoff validate the full migration-readiness and removal-readiness summaries before accepting update-validation readiness.
+- Add guard coverage that rejects partial CodePush migration and removal readiness summaries.
+- Keep CodePush package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- `react-native-code-push@9.0.1` remains the latest checked package version, but App Center CodePush is retired and the upstream repository is archived.
+- CodePush release build evidence is ready, but real update validation is not claimed because `.env.dev.testnet` has blank deployment keys and beta deployment-key strategy is still unconfirmed.
+- The CodePush handoff already validated the release path summary; this branch also requires complete migration-readiness and removal-readiness summary contracts.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.496 - Sentry release prerequisite handoff summary guard
 
 - Branch: `feature/bem-37-496-sentry-prereq-handoff-summary-guard`
