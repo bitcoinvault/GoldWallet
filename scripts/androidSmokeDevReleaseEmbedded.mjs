@@ -101,6 +101,7 @@ try {
 }
 
 process.env.ANDROID_SMOKE_APK ??= signedReleaseApk;
+process.env.ANDROID_SMOKE_SOURCE_APK ??= unsignedReleaseApk;
 process.env.ANDROID_SMOKE_OUTPUT_BASENAME ??= 'android-smoke-dev-release';
 process.env.ANDROID_SMOKE_REQUIRE_METRO ??= 'false';
 process.env.ANDROID_SMOKE_EXPECT_TEXTS ??= 'Wallets,No wallets,Create new wallet,Import wallet';

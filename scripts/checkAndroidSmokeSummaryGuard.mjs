@@ -1,4 +1,10 @@
 import { getAndroidEmbeddedSmokeSummaryErrors, getAndroidSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { createHash } from 'crypto';
+import { readFileSync, statSync } from 'fs';
+
+const fixtureFilePath = 'package.json';
+const fixtureFileBytes = statSync(fixtureFilePath).size;
+const fixtureFileSha256 = createHash('sha256').update(readFileSync(fixtureFilePath)).digest('hex');
 
 const validSummary = [
   'Generated at: 2026-05-28T14:50:52.705Z',
@@ -8,6 +14,12 @@ const validSummary = [
   'Android serial: emulator-5554',
   'Android package: io.goldwallet.wallet.dev',
   'Artifact base: android-smoke-dev',
+  `Smoke APK path: ${fixtureFilePath}`,
+  `Smoke APK bytes: ${fixtureFileBytes}`,
+  `Smoke APK sha256: ${fixtureFileSha256}`,
+  `Source APK path: ${fixtureFilePath}`,
+  `Source APK bytes: ${fixtureFileBytes}`,
+  `Source APK sha256: ${fixtureFileSha256}`,
   'Metro required: yes',
   'Metro endpoint: 127.0.0.1:8081',
   'Metro reachable: yes',
@@ -109,6 +121,37 @@ const assertEmbeddedRejected = (label, summary) => {
   }
 };
 
+const assertReleaseApkDigestRejected = (label, summary) => {
+  const errors = getAndroidEmbeddedSmokeSummaryErrors(summary, {
+    expectedArtifactBase: 'android-smoke-dev-release',
+    requireSmokeApkDigest: true,
+    expectedSmokeApkPath: 'package.json',
+    requireSourceApkDigest: true,
+    expectedSourceApkPath: 'package.json',
+  });
+
+  if (errors.length === 0) {
+    console.error(`${label} should be rejected, but produced no errors.`);
+    process.exit(1);
+  }
+};
+
+const assertReleaseApkDigestAccepted = (label, summary) => {
+  const errors = getAndroidEmbeddedSmokeSummaryErrors(summary, {
+    expectedArtifactBase: 'android-smoke-dev-release',
+    requireSmokeApkDigest: true,
+    expectedSmokeApkPath: fixtureFilePath,
+    requireSourceApkDigest: true,
+    expectedSourceApkPath: fixtureFilePath,
+  });
+
+  if (errors.length > 0) {
+    console.error(`${label} should be accepted, but produced errors:`);
+    errors.forEach(error => console.error(error));
+    process.exit(1);
+  }
+};
+
 assertAccepted('Valid Android smoke summary fixture', validSummary);
 assertAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertEmbeddedAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
@@ -141,6 +184,15 @@ assertEmbeddedRejected(
 assertEmbeddedRejected(
   'Embedded smoke wrong artifact base fixture',
   embeddedSummary.replace('Artifact base: android-smoke-dev-release', 'Artifact base: android-smoke-dev'),
+);
+assertReleaseApkDigestAccepted('Embedded release smoke APK digest fixture', embeddedSummary);
+assertReleaseApkDigestRejected(
+  'Embedded release smoke missing APK digest fixture',
+  embeddedSummary.replace(`Smoke APK sha256: ${fixtureFileSha256}\n`, ''),
+);
+assertReleaseApkDigestRejected(
+  'Embedded release smoke wrong source APK path fixture',
+  embeddedSummary.replace('Source APK path: package.json', 'Source APK path: local-docs/missing.apk'),
 );
 
 console.log('Android smoke summary guard checks are valid.');

@@ -1,4 +1,5 @@
-import { existsSync, statSync } from 'fs';
+import { createHash } from 'crypto';
+import { existsSync, readFileSync, statSync } from 'fs';
 
 export const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}:`));
@@ -20,6 +21,8 @@ const isExistingFile = (filePath, requireNonEmpty = false) => {
   return !requireNonEmpty || statSync(filePath).size > 0;
 };
 
+const fileSha256 = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
+
 const parseCsvLine = value => (value || '').split(',').map(item => item.trim()).filter(Boolean);
 
 const requireLineValue = (summary, label, expectedValue, errors) => {
@@ -39,7 +42,43 @@ const requireCsvItems = (summary, label, expectedItems, errors) => {
   }
 };
 
-export const getAndroidSmokeSummaryErrors = summary => {
+const requireFileEvidence = (summary, { pathLabel, bytesLabel, shaLabel, expectedPath }, errors) => {
+  const filePath = getLineValue(summary, pathLabel);
+  const bytes = getLineValue(summary, bytesLabel);
+  const sha256 = getLineValue(summary, shaLabel);
+
+  if (!filePath) {
+    errors.push(`${pathLabel} is missing`);
+    return;
+  }
+
+  if (expectedPath && filePath !== expectedPath) {
+    errors.push(`${pathLabel} must be ${expectedPath}. Received: ${filePath}`);
+  }
+
+  if (!isExistingFile(filePath, true)) {
+    errors.push(`${pathLabel} must point to a non-empty file`);
+    return;
+  }
+
+  const actualBytes = statSync(filePath).size;
+  if (!isPositiveInteger(bytes)) {
+    errors.push(`${bytesLabel} must be a positive integer. Received: ${bytes || 'missing'}`);
+  } else if (Number(bytes) !== actualBytes) {
+    errors.push(`${bytesLabel} does not match the current file size for ${filePath}`);
+  }
+
+  if (!/^[a-f0-9]{64}$/.test(sha256)) {
+    errors.push(`${shaLabel} must be a lowercase SHA-256 digest. Received: ${sha256 || 'missing'}`);
+  } else {
+    const actualSha256 = fileSha256(filePath);
+    if (sha256 !== actualSha256) {
+      errors.push(`${shaLabel} does not match the current file digest for ${filePath}`);
+    }
+  }
+};
+
+export const getAndroidSmokeSummaryErrors = (summary, options = {}) => {
   const errors = [];
 
   if (!isIsoTimestamp(getLineValue(summary, 'Generated at'))) {
@@ -125,11 +164,37 @@ export const getAndroidSmokeSummaryErrors = summary => {
     errors.push('Screenshot path must point to a non-empty file');
   }
 
+  if (options.requireSmokeApkDigest) {
+    requireFileEvidence(
+      summary,
+      {
+        pathLabel: 'Smoke APK path',
+        bytesLabel: 'Smoke APK bytes',
+        shaLabel: 'Smoke APK sha256',
+        expectedPath: options.expectedSmokeApkPath,
+      },
+      errors,
+    );
+  }
+
+  if (options.requireSourceApkDigest) {
+    requireFileEvidence(
+      summary,
+      {
+        pathLabel: 'Source APK path',
+        bytesLabel: 'Source APK bytes',
+        shaLabel: 'Source APK sha256',
+        expectedPath: options.expectedSourceApkPath,
+      },
+      errors,
+    );
+  }
+
   return errors;
 };
 
 export const getAndroidEmbeddedSmokeSummaryErrors = (summary, options = {}) => {
-  const errors = getAndroidSmokeSummaryErrors(summary);
+  const errors = getAndroidSmokeSummaryErrors(summary, options);
   const { expectedArtifactBase } = options;
 
   if (expectedArtifactBase) {
