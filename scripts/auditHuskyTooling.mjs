@@ -35,8 +35,8 @@ if (packageJson.husky) {
   errors.push('package.json still has legacy Husky v4 "husky" configuration');
 }
 
-if (packageJson.scripts.precommit !== 'yarn lint-staged && yarn typescript:check') {
-  errors.push('package.json precommit script must run lint-staged before typescript:check');
+if (packageJson.scripts.precommit !== 'yarn lint-staged:tooling:audit && yarn lint-staged && yarn typescript:check') {
+  errors.push('package.json precommit script must run lint-staged tooling audit before lint-staged and typescript:check');
 }
 
 if (!packageJson.scripts.prepush?.startsWith('yarn android:dev:check-light')) {

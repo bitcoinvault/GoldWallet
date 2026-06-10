@@ -338,7 +338,7 @@
     "check:diff-whitespace": "git diff --check",
     "prepush": "yarn android:dev:check-light && yarn test:unit && yarn test:qr-scanner:unit && yarn test:qr-render:unit && yarn test:terms-webview:unit && yarn test:electrum-reconnect:unit && yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:watchonly:offline && yarn test:hdwallet:offline && yarn test:wallet-core:offline && yarn test:wallet-crypto:offline",
     "prettier:fix": "prettier --write '**/*.{js,ts,tsx}'",
-    "precommit": "yarn lint-staged && yarn typescript:check",
+    "precommit": "yarn lint-staged:tooling:audit && yarn lint-staged && yarn typescript:check",
     "shake": "adb shell input keyevent 82",
     "translate:check-missing": "node scripts/checkTranslation.mjs"
   },
