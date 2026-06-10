@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.525 - CodePush decision handoff guard
+
+- Branch: `feature/bem-37-525-codepush-decision-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guarded CodePush remove-vs-replace decision handoff before any runtime/native CodePush removal or replacement branch.
+- Extend the CodePush retirement/migration plan with explicit decision inputs, remove-branch acceptance gates, replace-branch acceptance gates, beta strategy requirements, and secret-handling constraints.
+- Wire the decision handoff guard into the React Native baseline preflight after CodePush release/migration/removal readiness checks.
+- Keep CodePush runtime, native integration, env values, package versions, release upload behavior, and OTA update validation unchanged.
+
+Findings:
+
+- CodePush remains package-current at `react-native-code-push@9.0.1`, but App Center CodePush is retired, upstream is archived, and upstream New Architecture support is absent while Android New Architecture is enabled.
+- The release build path remains compatible and current after refreshing Android release build, manifest, and release-smoke evidence for the changed release input fingerprint.
+- The new decision handoff guard keeps three allowed paths explicit: `remove`, `replace`, or `temporary legacy compatibility`.
+- Removal must not start until the decision says `remove`; replacement must not start until the decision says `replace` and names the replacement target.
+- CodePush update validation remains not claimed because `.env.dev.testnet` has blank Android/iOS deployment keys and beta deployment-key strategy is still unconfirmed.
+- The guard requires current CodePush release-path, migration-readiness, removal-readiness, Android release, release-services, iOS blocker/validation, and beta strategy evidence before implementation work starts.
+- No deployment-key values are printed or committed by the handoff artifacts.
+
+Validation:
+
+- `corepack yarn check:codepush-decision-handoff-guard`
+- `corepack yarn check:codepush-update-validation-handoff-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn codepush:removal-readiness:audit`
+- `corepack yarn codepush:removal-readiness:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.524 - Release-services aggregate readiness refresh
 
 - Branch: `feature/bem-37-524-release-services-aggregate-refresh`
