@@ -1,9 +1,12 @@
 import { spawnSync } from 'child_process';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
+const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
 
 const defaultOptions = {
   dryRun: false,
@@ -84,6 +87,31 @@ export const getSentryReleaseValidationHandoffErrors = options => {
   if (typeof options.skipAndroidRelease !== 'boolean') {
     errors.push('skipAndroidRelease must be a boolean');
   }
+
+  return errors;
+};
+
+const readSummary = summaryPath => {
+  if (!existsSync(summaryPath)) {
+    return null;
+  }
+
+  return readFileSync(summaryPath, 'utf8');
+};
+
+export const getSentryReleaseValidationReadinessErrors = ({ androidReleaseSmokeSummaryText }) => {
+  const errors = [];
+
+  if (!androidReleaseSmokeSummaryText) {
+    errors.push('Android release smoke summary is missing; run android:dev:release:smoke:embedded first');
+    return errors;
+  }
+
+  const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, {
+    expectedArtifactBase: 'android-smoke-dev-release',
+  });
+
+  smokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
 
   return errors;
 };
@@ -179,6 +207,16 @@ const main = () => {
     if (status !== 0) {
       return status;
     }
+  }
+
+  const readinessErrors = getSentryReleaseValidationReadinessErrors({
+    androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
+  });
+
+  if (readinessErrors.length > 0) {
+    console.error('\nSentry release validation handoff prerequisites are blocked:');
+    readinessErrors.forEach(error => console.error(`- ${error}`));
+    return 1;
   }
 
   console.log('\nSentry release validation handoff completed.');

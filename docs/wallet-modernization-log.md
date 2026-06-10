@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.477 - Sentry release-smoke readiness guard
+
+- Branch: `feature/bem-37-477-sentry-release-smoke-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the Sentry release-validation handoff so a successful token/properties flow must also pass the dedicated Android release-smoke readiness check.
+- Keep package versions, runtime code, native project files, env files, and Sentry behavior unchanged.
+
+Findings:
+
+- `sentry:release:validation:handoff` already validates the properties generator, optionally refreshes Android release evidence, runs release embedded smoke, validates Sentry prerequisite summaries, and finishes with aggregate release-services summaries.
+- The handoff now performs a final direct validation of `local-docs/android-smoke-dev-release-summary.txt` through the existing embedded-smoke summary guard after all command steps succeed.
+- Running the executable handoff without `SENTRY_AUTH_TOKEN` still fails at the expected missing-env blocker before properties generation; release upload validation remains `not claimed` until the real token/properties flow is available.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff --skip-android-release` expected fail: missing `SENTRY_AUTH_TOKEN`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.476 - Firebase runtime release-smoke readiness guard
 
 - Branch: `feature/bem-37-476-firebase-runtime-smoke-readiness`
