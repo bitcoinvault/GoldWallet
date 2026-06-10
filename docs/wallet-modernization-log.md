@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.486 - Debug smoke APK digest guard
+
+- Branch: `feature/bem-37-486-debug-smoke-apk-digest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Require standard Android debug smoke summaries to identify the installed `app-dev-debug.apk` by path, byte count, and SHA-256 digest.
+- Keep package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- The smoke helper already records APK digest evidence after `BEM-37.485`; this branch makes the default debug smoke summary checker enforce that evidence.
+- Old `android-smoke-dev-summary.txt` artifacts without APK digest fields are now rejected until `android:dev:smoke` or `android:dev:smoke:embedded` regenerates them.
+- Fresh embedded debug smoke on `emulator-5554` validates the current debug APK, clean onboarding, empty-dashboard CTA navigation, empty-tab navigation, and no fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-smoke-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary` expected fail before regenerating smoke evidence: missing `Smoke APK path`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.485 - Release smoke APK digest guard
 
 - Branch: `feature/bem-37-485-release-smoke-apk-digest`
