@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.474 - Release-services validation refresh after RN 0.86
+
+- Branch: `feature/bem-37-474-release-services-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the full release-services validation handoff after confirming that RN `0.86.0` remains the current stable npm target.
+- Refresh Android release APK evidence for `dev`, `stage`, `prod`, and `beta` release variants with Sentry auto upload disabled for local validation.
+- Run Android release embedded smoke against the generated dev release APK and refresh Sentry, Firebase, CodePush, push-notification, iOS static, and iOS macOS-prerequisite release-service summaries.
+- Keep runtime code, native project files, package versions, env files, and release-service behavior unchanged.
+
+Findings:
+
+- Android release validation passed for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease`; each variant produced an unsigned APK, release JS bundle, release source map, and valid manifest evidence.
+- Android release smoke passed on `emulator-5554` for package `io.goldwallet.wallet.dev`; Metro was not required, app data was cleared, first-run terms/PIN/transaction-password/email-success flow completed, empty-dashboard CTA navigation passed, empty-tab navigation passed, and no fatal/runtime logcat findings were reported.
+- Sentry release source-map upload remains `not claimed` because `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are still unavailable locally.
+- Firebase release-service wiring remains current for the `24.1.1` package family, but real FCM/Crashlytics/Analytics runtime delivery remains `not claimed`.
+- CodePush release build evidence is ready, but CodePush update validation remains `not claimed`; App Center CodePush is retired, the upstream is archived, Android New Architecture is enabled, and a remove-or-replace decision is still required before treating OTA updates as supported.
+- Static iOS release files remain valid, but iOS runtime/archive validation remains blocked on this Windows host by missing macOS/Xcode/CocoaPods and active `ios/Podfile.lock` drift.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.473 - RN latest online target refresh
 
 - Branch: `feature/bem-37-473-rn-latest-online-refresh`
