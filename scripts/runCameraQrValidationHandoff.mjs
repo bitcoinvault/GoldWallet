@@ -12,13 +12,15 @@ const cameraQrMigrationSummaryPath = path.join(root, 'local-docs', 'camera-qr-mi
 
 const defaultOptions = {
   dryRun: false,
+  includeAndroidSmoke: false,
 };
 
 const usage = [
-  'Usage: node scripts/runCameraQrValidationHandoff.mjs [--dry-run]',
+  'Usage: node scripts/runCameraQrValidationHandoff.mjs [--dry-run] [--include-android-smoke]',
   '',
   'Examples:',
   '  node scripts/runCameraQrValidationHandoff.mjs --dry-run',
+  '  node scripts/runCameraQrValidationHandoff.mjs --dry-run --include-android-smoke',
   '  node scripts/runCameraQrValidationHandoff.mjs',
 ].join('\n');
 
@@ -52,28 +54,44 @@ const yarnStep = (label, script) => ({
   cwd: root,
 });
 
-export const getCameraQrValidationCommands = () => [
-  yarnStep('Audit Camera/QR candidate metadata', 'camera:candidate:audit'),
-  yarnStep('Validate Camera/QR candidate summary', 'camera:candidate:check-summary'),
-  yarnStep('Audit CameraKit QR migration wiring', 'camera:qr-migration:audit'),
-  yarnStep('Validate CameraKit QR migration summary', 'camera:qr-migration:check-summary'),
-  yarnStep('Validate camera usage guard fixtures', 'check:camera-usage-guard'),
-  yarnStep('Validate camera runtime usage scope', 'check:camera-usage-scope'),
-  yarnStep('Validate QR scanner caller guard fixtures', 'check:qr-scan-caller-guard'),
-  yarnStep('Validate QR scanner caller inventory', 'check:qr-scan-callers'),
-  yarnStep('Validate QR scanner test guard', 'check:qr-scanner-validation-scripts'),
-  yarnStep('Run focused QR scanner unit test', 'test:qr-scanner:unit'),
-  yarnStep('Validate QR render usage guard fixtures', 'check:qr-render-usage-guard'),
-  yarnStep('Validate QR render usage inventory', 'check:qr-render-usage'),
-  yarnStep('Validate QR render test guard', 'check:qr-render-validation-scripts'),
-  yarnStep('Run focused QR render unit test', 'test:qr-render:unit'),
-];
+export const getCameraQrValidationCommands = (options = defaultOptions) => {
+  const commands = [
+    yarnStep('Audit Camera/QR candidate metadata', 'camera:candidate:audit'),
+    yarnStep('Validate Camera/QR candidate summary', 'camera:candidate:check-summary'),
+    yarnStep('Audit CameraKit QR migration wiring', 'camera:qr-migration:audit'),
+    yarnStep('Validate CameraKit QR migration summary', 'camera:qr-migration:check-summary'),
+    yarnStep('Validate camera usage guard fixtures', 'check:camera-usage-guard'),
+    yarnStep('Validate camera runtime usage scope', 'check:camera-usage-scope'),
+    yarnStep('Validate QR scanner caller guard fixtures', 'check:qr-scan-caller-guard'),
+    yarnStep('Validate QR scanner caller inventory', 'check:qr-scan-callers'),
+    yarnStep('Validate QR scanner test guard', 'check:qr-scanner-validation-scripts'),
+    yarnStep('Run focused QR scanner unit test', 'test:qr-scanner:unit'),
+    yarnStep('Validate QR render usage guard fixtures', 'check:qr-render-usage-guard'),
+    yarnStep('Validate QR render usage inventory', 'check:qr-render-usage'),
+    yarnStep('Validate QR render test guard', 'check:qr-render-validation-scripts'),
+    yarnStep('Run focused QR render unit test', 'test:qr-render:unit'),
+  ];
+
+  if (options.includeAndroidSmoke) {
+    commands.push(
+      yarnStep('Assemble Android dev debug APK for Camera/QR smoke', 'android:dev:assemble'),
+      yarnStep('Run Android embedded smoke including QR scanner screen', 'android:dev:smoke:embedded'),
+      yarnStep('Validate Android smoke summary', 'android:dev:check-smoke-summary'),
+    );
+  }
+
+  return commands;
+};
 
 export const getCameraQrValidationHandoffErrors = options => {
   const errors = [];
 
   if (typeof options.dryRun !== 'boolean') {
     errors.push('dryRun must be a boolean');
+  }
+
+  if (typeof options.includeAndroidSmoke !== 'boolean') {
+    errors.push('includeAndroidSmoke must be a boolean');
   }
 
   return errors;
@@ -117,6 +135,8 @@ const parseArgs = argv => {
 
     if (arg === '--dry-run') {
       options.dryRun = true;
+    } else if (arg === '--include-android-smoke') {
+      options.includeAndroidSmoke = true;
     } else if (arg === '--help' || arg === '-h') {
       options.help = true;
     } else {
@@ -168,10 +188,11 @@ const main = () => {
     return 1;
   }
 
-  const commands = getCameraQrValidationCommands();
+  const commands = getCameraQrValidationCommands(options);
 
   if (options.dryRun) {
     console.log('Camera/QR validation handoff dry run');
+    console.log(`Android smoke validation: ${options.includeAndroidSmoke ? 'included' : 'skipped'}`);
     commands.forEach((step, index) => {
       console.log(`${index + 1}. ${step.label}`);
       console.log(`   ${renderCameraQrValidationCommand(step)}`);

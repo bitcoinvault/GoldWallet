@@ -12,8 +12,10 @@ const assert = (condition, message) => {
   }
 };
 
-const commands = getCameraQrValidationCommands();
+const commands = getCameraQrValidationCommands({ includeAndroidSmoke: false });
 const rendered = commands.map(renderCameraQrValidationCommand).join('\n');
+const smokeCommands = getCameraQrValidationCommands({ includeAndroidSmoke: true });
+const smokeRendered = smokeCommands.map(renderCameraQrValidationCommand).join('\n');
 
 [
   'corepack yarn camera:candidate:audit',
@@ -34,6 +36,15 @@ const rendered = commands.map(renderCameraQrValidationCommand).join('\n');
   assert(rendered.includes(expected), `Expected Camera/QR handoff commands to include: ${expected}`);
 });
 
+[
+  'corepack yarn android:dev:assemble',
+  'corepack yarn android:dev:smoke:embedded',
+  'corepack yarn android:dev:check-smoke-summary',
+].forEach(expected => {
+  assert(smokeRendered.includes(expected), `Expected Camera/QR smoke handoff commands to include: ${expected}`);
+  assert(!rendered.includes(expected), `Default Camera/QR handoff must not include Android smoke command: ${expected}`);
+});
+
 assert(
   commands.findIndex(step => step.args.includes('camera:candidate:audit')) <
     commands.findIndex(step => step.args.includes('camera:qr-migration:audit')),
@@ -50,8 +61,19 @@ assert(
   'QR render test guard must run before the focused render unit test',
 );
 assert(
+  smokeCommands.findIndex(step => step.args.includes('test:qr-render:unit')) <
+    smokeCommands.findIndex(step => step.args.includes('android:dev:assemble')),
+  'Android Camera/QR smoke must run after focused QR render unit validation',
+);
+assert(
   getCameraQrValidationHandoffErrors({ dryRun: 'false' }).some(error => error.includes('dryRun must be a boolean')),
   'Invalid dryRun option must be rejected',
+);
+assert(
+  getCameraQrValidationHandoffErrors({ dryRun: false, includeAndroidSmoke: 'false' }).some(error =>
+    error.includes('includeAndroidSmoke must be a boolean'),
+  ),
+  'Invalid includeAndroidSmoke option must be rejected',
 );
 
 const candidateSummary = [
