@@ -11,7 +11,6 @@ const requiredKnownEntries = [
   'electrum-client',
   'node-fetch',
   'react',
-  'react-native-gesture-handler',
   'react-native-prompt-android',
   'react-test-renderer',
   'rn-nodeify',
@@ -105,7 +104,10 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     errors.push('React patch drift must remain tied to the React Native renderer exact-version coupling decision');
   }
 
-  if (!entryLines.some(line => line.startsWith('- react-native-gesture-handler: ') && line.includes('dedicated navigation/gesture smoke branch'))) {
+  if (
+    entryLines.some(line => line.startsWith('- react-native-gesture-handler: ')) &&
+    !entryLines.some(line => line.startsWith('- react-native-gesture-handler: ') && line.includes('dedicated navigation/gesture smoke branch'))
+  ) {
     errors.push('react-native-gesture-handler drift must remain tied to a dedicated navigation/gesture smoke branch decision');
   }
 
