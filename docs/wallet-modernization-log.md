@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.524 - Release-services aggregate readiness refresh
+
+- Branch: `feature/bem-37-524-release-services-aggregate-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the aggregate release-services validation handoff after fresh Android release build, manifest, and emulator-smoke evidence.
+- Re-audit Sentry release prerequisites, Firebase release-services wiring, CodePush release/update readiness, push notification bridge readiness, static iOS release readiness, and iOS macOS validation prerequisites.
+- Keep package versions, runtime application code, native project files, env values, release upload behavior, Android release artifacts, and Metro behavior unchanged.
+
+Findings:
+
+- `release-services:validation:handoff --skip-android-release` completed successfully using the fresh Android release evidence from `BEM-37.523`.
+- Aggregate summary validation passed across Android release summary, Android release APK manifest, Android release smoke, Sentry release prerequisite, Sentry Android warning, Firebase release-services, CodePush release path, CodePush migration readiness, CodePush removal readiness, push notification bridge, iOS release readiness, and iOS macOS validation prerequisite artifacts.
+- Sentry packages are current: `@sentry/react-native@8.13.0` and `@sentry/cli@3.5.0`; release integration is wired, Android release evidence is current, and source-map upload validation remains not claimed because `SENTRY_AUTH_TOKEN` is not available and `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing.
+- React Native Firebase packages are current at `24.1.1`; Firebase release-services wiring is valid locally with no wiring errors, but runtime delivery validation remains not claimed.
+- CodePush is package-current at `9.0.1` and release build evidence is ready, but full update validation remains blocked because `.env.dev.testnet` has blank Android/iOS deployment keys, beta deployment-key strategy is unconfirmed, App Center CodePush is retired, upstream is archived, and Android New Architecture still requires remove-or-replace migration.
+- Push notification iOS bridge static readiness is current and has no static readiness issues.
+- iOS static release files are valid, but iOS runtime/archive validation remains blocked on this Windows machine because macOS with Xcode `16.1+`, CocoaPods, and an updated `ios/Podfile.lock` are required; the current Podfile lock has `12` active drift issues.
+- The all-scheme iOS macOS validation handoff dry run renders the exact macOS command order for eight shared schemes without claiming runtime validation.
+
+Validation:
+
+- `corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `corepack yarn release-services:validation:handoff --skip-android-release`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn check:release-services-validation-handoff-guard`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.523 - Android release validation refresh
 
 - Branch: `feature/bem-37-523-android-release-validation-refresh`
