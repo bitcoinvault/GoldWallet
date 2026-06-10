@@ -35,6 +35,7 @@ const validSummary = [
   'Closed first-run success: no',
   'Validated empty-dashboard CTA flow: no',
   'Validated empty-tab navigation: no',
+  'Validated QR scanner screen: no',
   'UI hierarchy attempts: 2',
   'UI hierarchy path: package.json',
   'Screenshot path: package.json',
@@ -68,6 +69,10 @@ const embeddedSummary = validSummary
   .replace(
     'Validated empty-tab navigation: no',
     'Validated empty-tab navigation: yes',
+  )
+  .replace(
+    'Validated QR scanner screen: no',
+    'Validated QR scanner screen: yes',
   );
 const invalidCleanStateSummary = validSummary.replace('Cleared app data: no', 'Cleared app data: maybe');
 const missingScreenshotSummary = validSummary.replace(
@@ -195,6 +200,10 @@ assertRejected(
   'Invalid empty-tab navigation fixture',
   validSummary.replace('Validated empty-tab navigation: no', 'Validated empty-tab navigation: maybe'),
 );
+assertRejected(
+  'Invalid QR scanner screen fixture',
+  validSummary.replace('Validated QR scanner screen: no', 'Validated QR scanner screen: maybe'),
+);
 assertEmbeddedRejected(
   'Embedded smoke without CTA validation fixture',
   embeddedSummary.replace('Validated empty-dashboard CTA flow: yes', 'Validated empty-dashboard CTA flow: no'),
@@ -202,6 +211,10 @@ assertEmbeddedRejected(
 assertEmbeddedRejected(
   'Embedded smoke without tab validation fixture',
   embeddedSummary.replace('Validated empty-tab navigation: yes', 'Validated empty-tab navigation: no'),
+);
+assertEmbeddedRejected(
+  'Embedded smoke without QR scanner screen validation fixture',
+  embeddedSummary.replace('Validated QR scanner screen: yes', 'Validated QR scanner screen: no'),
 );
 assertEmbeddedRejected(
   'Embedded smoke without clean onboarding fixture',

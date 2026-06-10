@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.489 - QR scanner Android smoke coverage
+
+- Branch: `feature/bem-37-489-qr-scanner-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add stable QR scanner screen resource IDs and extend Android embedded smoke to open the scanner from the import-wallet flow, validate it can render, close it, and return to the import form.
+- Require embedded debug and release smoke summaries to record `Validated QR scanner screen: yes`.
+- Keep package versions, native project files, env files, QR scan callback behavior, and actual QR scan delivery unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-10 still reports `react-native-camera-kit@18.0.0` as latest and `react-native-vision-camera@5.0.11` as latest with Nitro peer packages, so this branch hardens CameraKit runtime validation instead of changing scanner packages.
+- Previous Android smoke reached the import-wallet form and saw `scan-import-wallet-qr-code-button`, but did not open `ScanQrCodeScreen`, so native CameraKit screen startup could regress without emulator coverage.
+- Fresh debug and release embedded smoke both opened the QR scanner screen on `emulator-5554`, granted camera permission, closed the scanner, returned to the import-wallet form, completed empty-dashboard/tab validation, and found no fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit version peerDependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-vision-camera version peerDependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-scanner:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-smoke-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand` passed; Jest still prints existing async BlueElectrum logs after completion
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.488 - Release handoff smoke digest readiness
 
 - Branch: `feature/bem-37-488-release-handoff-smoke-digests`
