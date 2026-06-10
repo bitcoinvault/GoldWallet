@@ -3,6 +3,8 @@ import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getSecureStorageMigrationSummaryErrors } from './secureStorageMigrationSummaryGuard.mjs';
+import { getSecureStorageRemovalReadinessSummaryErrors } from './secureStorageRemovalReadinessSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -100,6 +102,10 @@ export const getSecureStorageReleaseValidationReadinessErrors = ({
   if (!migrationSummary) {
     errors.push('Secure-storage migration summary is missing; run secure-storage:migration:audit first');
   } else {
+    getSecureStorageMigrationSummaryErrors(migrationSummary).forEach(error => {
+      errors.push(`Secure-storage migration summary is invalid: ${error}`);
+    });
+
     [
       'Keychain primary write: yes',
       'Legacy secure-storage writes disabled: yes',
@@ -115,6 +121,10 @@ export const getSecureStorageReleaseValidationReadinessErrors = ({
   if (!removalSummary) {
     errors.push('Secure-storage removal readiness summary is missing; run secure-storage:removal-readiness:audit first');
   } else {
+    getSecureStorageRemovalReadinessSummaryErrors(removalSummary).forEach(error => {
+      errors.push(`Secure-storage removal readiness summary is invalid: ${error}`);
+    });
+
     [
       'Removal release validation claimed: no',
       'Legacy package removal ready: no',

@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.495 - Secure-storage release summary guard
+
+- Branch: `feature/bem-37-495-secure-storage-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the secure-storage release validation handoff run the full migration and removal-readiness summary guards before accepting readiness strings.
+- Add guard coverage that rejects partial secure-storage migration and removal readiness summaries.
+- Keep secure-storage package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- Current secure-storage posture is still staged migration: `react-native-keychain@10.0.0` is primary, `react-native-secure-key-store@2.0.10` remains installed for legacy fallback reads, and legacy package removal is not claimed.
+- Secure-storage migration and removal readiness audit summaries are valid, but the handoff readiness helper previously accepted selected summary strings without validating the complete generated summary contracts.
+- The release validation handoff now rejects partial or malformed secure-storage summary artifacts before checking Android dev smoke evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:handoff:dry-run --skip-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.494 - Firebase readiness summary guard
 
 - Branch: `feature/bem-37-494-firebase-readiness-summary-guard`
