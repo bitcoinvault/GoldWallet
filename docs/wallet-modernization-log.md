@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.513 - Camera/QR validation refresh
+
+- Branch: `feature/bem-37-513-camera-qr-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh CameraKit QR scanner candidate, migration, unit-test, caller-inventory, render-inventory, Android build, and embedded smoke evidence.
+- Confirm current npm targets for the scanner and QR-rendering stack before future camera follow-up work.
+- Validate the scanner runtime surface without changing package versions, runtime application code, native project files, iOS pod files, env files, release-service secrets, or Metro behavior.
+
+Findings:
+
+- The live camera candidate audit reports matched npm metadata for `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
+- VisionCamera remains deferred because its latest line requires the additional `react-native-nitro-modules` and `react-native-nitro-image` native peer stack; CameraKit remains the installed scanner baseline.
+- The QR migration audit reports `react-native-camera` and `@remobile/react-native-qrcode-local-image` absent, CameraKit installed at `18.0.0`, QR renderer/native/encoder versions aligned, and no stale removed camera pods in `ios/Podfile.lock`.
+- The focused scanner and QR render unit suites passed, covering scanner permission/configuration/callback behavior and the guarded QR rendering screens.
+- Android `devDebug` assemble passed with JDK 17, then embedded smoke passed on `emulator-5554`, including first-run onboarding, dashboard, Create/Import CTA navigation, QR scanner open/close from the import-wallet flow, and empty-state bottom-tab navigation without fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run --include-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn camera:qr-validation:handoff --include-android-smoke`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.512 - CodePush update readiness refresh
 
 - Branch: `feature/bem-37-512-codepush-update-readiness-refresh`
