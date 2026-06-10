@@ -2,11 +2,13 @@ import { existsSync, readFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const firebaseSummaryPath = path.join(root, 'local-docs', 'firebase-release-services-summary.txt');
 const pushBridgeSummaryPath = path.join(root, 'local-docs', 'push-notification-bridge-summary.txt');
+const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
 
 const defaultOptions = {
   dryRun: false,
@@ -95,7 +97,11 @@ const requireSummaryLine = (errors, summaryText, snippet, message) => {
   }
 };
 
-export const getFirebaseRuntimeDeliveryReadinessErrors = ({ firebaseSummaryText, pushBridgeSummaryText }) => {
+export const getFirebaseRuntimeDeliveryReadinessErrors = ({
+  firebaseSummaryText,
+  pushBridgeSummaryText,
+  androidReleaseSmokeSummaryText,
+}) => {
   const errors = [];
 
   if (!firebaseSummaryText) {
@@ -126,6 +132,16 @@ export const getFirebaseRuntimeDeliveryReadinessErrors = ({ firebaseSummaryText,
       ['Wiring errors: 0', 'Push notification bridge summary must have 0 wiring errors'],
       ['Required action: none; static push notification bridge wiring is present locally.', 'Push notification summary must report no local wiring action'],
     ].forEach(([snippet, message]) => requireSummaryLine(errors, pushBridgeSummaryText, snippet, message));
+  }
+
+  if (!androidReleaseSmokeSummaryText) {
+    errors.push('Android release smoke summary is missing; run android:dev:release:smoke:embedded first');
+  } else {
+    const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, {
+      expectedArtifactBase: 'android-smoke-dev-release',
+    });
+
+    smokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
   }
 
   return errors;
@@ -230,6 +246,7 @@ const main = () => {
   const readinessErrors = getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: readSummary(firebaseSummaryPath),
     pushBridgeSummaryText: readSummary(pushBridgeSummaryPath),
+    androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
   });
 
   if (readinessErrors.length > 0) {

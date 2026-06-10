@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.476 - Firebase runtime release-smoke readiness guard
+
+- Branch: `feature/bem-37-476-firebase-runtime-smoke-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the Firebase runtime-delivery handoff so its final readiness check validates Android release-smoke evidence directly, not only Firebase/push summaries and aggregate release-services checks.
+- Keep package versions, runtime code, native project files, env files, and Firebase behavior unchanged.
+
+Findings:
+
+- `firebase:runtime:delivery:handoff` already refreshes Android release APK evidence, runs release embedded smoke, validates the release-smoke summary, refreshes Firebase/push summaries, and validates aggregate release-service summaries when run without `--skip-android-release`.
+- The handoff readiness check now also rejects missing or invalid `local-docs/android-smoke-dev-release-summary.txt` through the existing embedded-smoke summary guard.
+- A skipped Android release refresh remains allowed only when current Android release build, manifest, and release-smoke evidence are already present and valid.
+- Firebase runtime delivery remains `not claimed` until real FCM token/notification, Crashlytics upload, and Analytics behavior are tested.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.475 - Secure-storage removal guard hardening
 
 - Branch: `feature/bem-37-475-secure-storage-removal-guard-hardening`
