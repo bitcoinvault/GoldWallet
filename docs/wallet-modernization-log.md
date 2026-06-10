@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.528 - iOS release readiness refresh
+
+- Branch: `feature/bem-37-528-ios-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh static iOS release readiness and macOS validation prerequisite evidence for the current RN `0.86.0` baseline.
+- Validate iOS scheme/env/Firebase mapping and release-service env-key presence without printing secret values.
+- Render the macOS/Xcode/CocoaPods handoff for all eight shared iOS schemes.
+- Keep iOS project files, `ios/Podfile`, `ios/Podfile.lock`, package versions, runtime code, and native release behavior unchanged on this Windows host.
+
+Findings:
+
+- Static iOS release files are valid for React Native `0.86.0`, minimum iOS `15.1`, minimum Xcode `16.1`, and guarded deployment target `15.1`.
+- The iOS audit still sees all 8 guarded shared schemes, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, 3 CodePush plist placeholders, and 4 remote-notification plist entries.
+- iOS runtime/archive validation remains not claimed on Windows.
+- macOS archive readiness is blocked because this host is `win32`, `xcodebuild` is unavailable, CocoaPods is unavailable, and `ios/Podfile.lock` still has 12 active drift issues against the RN/native package baseline.
+- `ios/Podfile.lock` drift remains limited to active package-version drift; removed pod references remain `0`.
+- The all-scheme macOS handoff dry run renders `pod install` followed by simulator builds for Dev Debug/Release, Stage Debug/Release, Beta Debug/Release, and Prod Debug/Release with `CODE_SIGNING_ALLOWED=NO`.
+- No iOS runtime validation, APNs, Sentry dSYM upload, CodePush update behavior, or Firebase delivery behavior is claimed by this branch.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-audit-guard`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:ios-mac-validation-prereq-summary-guard`
+- `corepack yarn check:ios-mac-validation-handoff-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn ios:mac-validation-prereq:audit`
+- `corepack yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn check:ios-scheme-config`
+- `corepack yarn check:release-service-env-keys`
+- `corepack yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.527 - Secure-storage release validation refresh
 
 - Branch: `feature/bem-37-527-secure-storage-release-validation-refresh`
