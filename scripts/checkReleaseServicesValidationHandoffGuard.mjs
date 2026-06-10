@@ -1,6 +1,8 @@
+import path from 'path';
 import {
   getReleaseServicesValidationCommands,
   getReleaseServicesValidationHandoffErrors,
+  getReleaseServicesValidationReadinessErrors,
   renderReleaseServicesValidationCommand,
 } from './runReleaseServicesValidationHandoff.mjs';
 
@@ -84,6 +86,16 @@ assert(
     error.includes('skipAndroidRelease must be a boolean'),
   ),
   'Invalid skipAndroidRelease option must be rejected',
+);
+assert(
+  getReleaseServicesValidationReadinessErrors().length === 0,
+  'Release-services handoff readiness must accept the current validated summary artifacts',
+);
+assert(
+  getReleaseServicesValidationReadinessErrors({
+    rootPath: path.resolve('__missing_release_services_summary_root__'),
+  }).some(error => error.includes('summary artifact is missing')),
+  'Release-services handoff readiness must reject missing summary artifacts',
 );
 
 console.log('Release-services validation handoff guard checks are valid.');

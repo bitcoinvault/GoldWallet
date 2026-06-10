@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
@@ -18,21 +18,21 @@ import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummar
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 
-const summaries = [
+export const releaseServicesSummaryArtifacts = [
   {
     label: 'Android release summary',
     relativePath: 'local-docs/android-release-dev-summary.txt',
-    getErrors: summary => getAndroidReleaseSummaryErrors(summary, root),
+    getErrors: (summary, rootPath) => getAndroidReleaseSummaryErrors(summary, rootPath),
   },
   {
     label: 'Android release APK manifest',
     relativePath: 'local-docs/android-release-dev-summary.txt',
-    getErrors: () => getAndroidReleaseApkManifestErrors({ root }),
+    getErrors: (_summary, rootPath) => getAndroidReleaseApkManifestErrors({ root: rootPath }),
   },
   {
     label: 'Android release smoke',
     relativePath: 'local-docs/android-smoke-dev-release-summary.txt',
-    getErrors: summary => getAndroidEmbeddedSmokeSummaryErrors(summary, getAndroidReleaseSmokeEvidenceOptions(root)),
+    getErrors: (summary, rootPath) => getAndroidEmbeddedSmokeSummaryErrors(summary, getAndroidReleaseSmokeEvidenceOptions(rootPath)),
   },
   {
     label: 'Sentry release prerequisite',
@@ -81,26 +81,39 @@ const summaries = [
   },
 ];
 
-const errors = [];
+export const getReleaseServicesSummaryArtifactErrors = ({ rootPath = root } = {}) => {
+  const errors = [];
 
-summaries.forEach(summary => {
-  const summaryPath = path.join(root, summary.relativePath);
+  releaseServicesSummaryArtifacts.forEach(summary => {
+    const summaryPath = path.join(rootPath, summary.relativePath);
 
-  if (!existsSync(summaryPath)) {
-    errors.push(`${summary.label} summary artifact is missing at ${summary.relativePath}`);
-    return;
+    if (!existsSync(summaryPath)) {
+      errors.push(`${summary.label} summary artifact is missing at ${summary.relativePath}`);
+      return;
+    }
+
+    const summaryContent = readFileSync(summaryPath, 'utf8');
+    summary.getErrors(summaryContent, rootPath).forEach(error => {
+      errors.push(`${summary.label}: ${error}`);
+    });
+  });
+
+  return errors;
+};
+
+const main = () => {
+  const errors = getReleaseServicesSummaryArtifactErrors();
+
+  if (errors.length > 0) {
+    console.error('Release-services summary artifacts are invalid:');
+    errors.forEach(error => console.error(`- ${error}`));
+    return 1;
   }
 
-  const summaryContent = readFileSync(summaryPath, 'utf8');
-  summary.getErrors(summaryContent).forEach(error => {
-    errors.push(`${summary.label}: ${error}`);
-  });
-});
+  console.log('Release-services summary artifacts are valid.');
+  return 0;
+};
 
-if (errors.length > 0) {
-  console.error('Release-services summary artifacts are invalid:');
-  errors.forEach(error => console.error(`- ${error}`));
-  process.exit(1);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  process.exit(main());
 }
-
-console.log('Release-services summary artifacts are valid.');

@@ -1,6 +1,7 @@
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getReleaseServicesSummaryArtifactErrors } from './checkReleaseServicesSummaryArtifacts.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -102,6 +103,9 @@ export const getReleaseServicesValidationHandoffErrors = options => {
   return errors;
 };
 
+export const getReleaseServicesValidationReadinessErrors = ({ rootPath = root } = {}) =>
+  getReleaseServicesSummaryArtifactErrors({ rootPath }).map(error => `Release-services summary artifact is invalid: ${error}`);
+
 const parseArgs = argv => {
   const options = { ...defaultOptions };
 
@@ -187,6 +191,14 @@ const main = () => {
     if (status !== 0) {
       return status;
     }
+  }
+
+  const readinessErrors = getReleaseServicesValidationReadinessErrors();
+
+  if (readinessErrors.length > 0) {
+    console.error('\nRelease-services validation handoff artifacts are blocked:');
+    readinessErrors.forEach(error => console.error(`- ${error}`));
+    return 1;
   }
 
   console.log('\nRelease-services validation handoff completed.');
