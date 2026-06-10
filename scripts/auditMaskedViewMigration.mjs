@@ -55,7 +55,7 @@ export const collectMaskedViewMigrationAudit = () => {
   }
 
   requireMissingSnippet(errors, '@react-navigation/stack package.json', JSON.stringify(navigationStackPackage), '@react-native-community/masked-view');
-  requireSnippet(errors, 'docs/navigation-native-compatibility-audit.md', navigationPlan, '@react-navigation/stack@7.9.3');
+  requireSnippet(errors, 'docs/navigation-native-compatibility-audit.md', navigationPlan, '@react-navigation/stack@7.10.2');
   requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'react-native-secure-key-store');
 
   if (warningBaseline.includes('@react-native-community\\masked-view') || warningBaseline.includes('@react-native-community/masked-view')) {

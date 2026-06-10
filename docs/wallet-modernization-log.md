@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.465 - React Navigation latest package refresh
+
+- Branch: `feature/bem-37-465-react-navigation-latest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the React Navigation package family to the latest checked stable versions: `@react-navigation/native@7.3.0`, `@react-navigation/stack@7.10.2`, `@react-navigation/bottom-tabs@7.17.2`, and `@react-navigation/devtools@7.0.61`.
+- Keep the native navigation/runtime peers unchanged because the latest React Navigation metadata only requires `react-native-screens >= 4.0.0`, `react-native-gesture-handler >= 2.0.0`, and `react-native-safe-area-context >= 4.0.0`, which are already satisfied by the current RN `0.86.0` baseline.
+- Refresh the navigation compatibility, masked-view migration, native-module upgrade, and modernization baseline docs for the new navigation package set.
+- Keep app navigation source code, Android template files, iOS files, release services, wallet crypto, and storage/network code unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-10 reports the latest navigation package set as `@react-navigation/native@7.3.0`, `@react-navigation/stack@7.10.2`, `@react-navigation/bottom-tabs@7.17.2`, and `@react-navigation/devtools@7.0.61`.
+- `@react-navigation/stack@7.10.2` still does not require `@react-native-community/masked-view`, so the previous masked-view removal remains valid.
+- `android:dev:smoke:embedded` installed the dev APK on `Medium_Phone_API_36.0`, completed first-run onboarding, validated Create/Import CTA navigation, validated Authenticator/Address book/Settings/Wallets tab navigation, and reported no fatal/runtime logcat findings.
+- A post-upgrade direct outdated snapshot now reports 16 entries and 8 review-required entries; the React Navigation package family is no longer listed. The remaining review-required entries are Firebase `24.1.1`, `@typescript-eslint` `8.61.0`, Prettier `3.8.4`, and `semver` `7.8.4`, each requiring separate compatibility branches or decisions.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/native@7.3.0 version peerDependencies dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/stack@7.10.2 version peerDependencies dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/bottom-tabs@7.17.2 version peerDependencies dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/devtools@7.0.61 version peerDependencies dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add @react-navigation/native@7.3.0 @react-navigation/stack@7.10.2 @react-navigation/bottom-tabs@7.17.2 @react-navigation/devtools@7.0.61`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn masked-view:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn masked-view:migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:masked-view-migration-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:native-module-upgrade-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\emulator;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit` failed as expected after writing the refreshed local snapshot because unrelated review-required entries remain.
+
 ### BEM-37.464 - React Native 0.86 latest foundation probe
 
 - Branch: `feature/bem-37-464-rn-086-latest-probe`
