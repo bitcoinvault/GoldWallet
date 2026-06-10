@@ -86,7 +86,7 @@ The online preflight refreshes the live foundation target summaries and then run
 corepack yarn foundation:target:check-summaries
 ```
 
-This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, git dependency pins, wallet/crypto latest state, tooling latest state, Android toolchain blockers, BL resolution, and node-fetch resolution.
+This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, Android toolchain blockers, BL resolution, and node-fetch resolution.
 
 For foundation milestone branches, also keep the legacy-named foundation plan audit green:
 

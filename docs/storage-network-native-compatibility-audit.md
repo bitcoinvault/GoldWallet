@@ -50,6 +50,15 @@ corepack yarn check:storage-network-validation-scripts
 
 The guard verifies that `test:terms-webview:unit`, `test:electrum-reconnect:unit`, `test:secure-storage:unit`, `test:storage`, `test:authenticator`, and `test:wallet-core:offline` keep pointing at existing focused Jest files and remain part of `prepush`.
 
+The latest package snapshot is generated and validated by:
+
+```powershell
+corepack yarn storage-network:latest-snapshot:audit
+corepack yarn storage-network:latest-snapshot:check-summary
+```
+
+The snapshot writes `local-docs/storage-network-latest-snapshot.txt`, records manifest, installed, latest, peer, and engine metadata for the tracked storage/network package group, and is part of `rn:baseline:preflight:online` plus the aggregate `foundation:target:check-summaries` gate.
+
 ## Latest Npm Snapshot
 
 Latest package metadata checked during this audit:
@@ -120,7 +129,7 @@ peerDependencies:
 - react-native: *
 ```
 
-The 2026-06-10 guard refresh confirms the tracked storage/network/config package group remains on the checked current lines used by this RN `0.86.0` baseline. `react-native-get-random-values@2.0.0` remains the current random-value provider and peers `react-native >=0.81`; the deprecated `react-native-randombytes` bridge remains removed.
+The 2026-06-10 generated latest snapshot confirms the tracked storage/network/config package group remains on the checked current lines used by this RN `0.86.0` baseline. `react-native-get-random-values@2.0.0` remains the current random-value provider and peers `react-native >=0.81`; the deprecated `react-native-randombytes` bridge remains removed.
 
 ## Findings
 

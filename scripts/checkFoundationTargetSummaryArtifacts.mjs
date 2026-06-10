@@ -7,6 +7,7 @@ import { getDirectOutdatedSnapshotSummaryErrors } from './directOutdatedSnapshot
 import { getGitDependencySnapshotSummaryErrors } from './gitDependencySnapshotSummaryGuard.mjs';
 import { getNodeFetchResolutionSummaryErrors } from './nodeFetchResolutionSummaryGuard.mjs';
 import { getReactNativeTargetSnapshotSummaryErrors } from './reactNativeTargetSnapshotSummaryGuard.mjs';
+import { getStorageNetworkLatestSnapshotSummaryErrors } from './storageNetworkLatestSnapshotSummaryGuard.mjs';
 import { getToolingLatestSnapshotSummaryErrors } from './toolingLatestSnapshotSummaryGuard.mjs';
 import { getWalletCryptoLatestSnapshotSummaryErrors } from './walletCryptoLatestSnapshotSummaryGuard.mjs';
 
@@ -34,6 +35,11 @@ const summaries = [
     label: 'wallet crypto latest snapshot',
     relativePath: 'local-docs/wallet-crypto-latest-snapshot.txt',
     getErrors: getWalletCryptoLatestSnapshotSummaryErrors,
+  },
+  {
+    label: 'storage/network latest snapshot',
+    relativePath: 'local-docs/storage-network-latest-snapshot.txt',
+    getErrors: getStorageNetworkLatestSnapshotSummaryErrors,
   },
   {
     label: 'tooling latest snapshot',
