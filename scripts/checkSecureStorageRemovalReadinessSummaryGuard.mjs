@@ -9,6 +9,8 @@ const validSummary = [
   'Keychain primary write: yes',
   'Legacy fallback reads active: yes',
   'Legacy write path disabled: yes',
+  'SecureStorageService fallback migration tests present: yes',
+  'AppStorage fallback migration tests present: yes',
   'Fallback migration tests present: yes',
   'Removal release validation claimed: no',
   'Android warning source still expected: yes',
@@ -48,6 +50,16 @@ assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026
 assertRejected('Bad current package fixture', validSummary.replace('Current secure-storage package: react-native-keychain@10.0.0', 'Current secure-storage package: missing'), 'Current secure-storage package');
 assertRejected('Bad posture fixture', validSummary.replace('Current posture: staged migration with legacy fallback', 'Current posture: removed'), 'staged migration');
 assertRejected('No fallback fixture', validSummary.replace('Legacy fallback reads active: yes', 'Legacy fallback reads active: no'), 'Legacy fallback reads');
+assertRejected(
+  'Missing SecureStorageService fallback tests fixture',
+  validSummary.replace('SecureStorageService fallback migration tests present: yes', 'SecureStorageService fallback migration tests present: no'),
+  'SecureStorageService fallback migration tests',
+);
+assertRejected(
+  'Missing AppStorage fallback tests fixture',
+  validSummary.replace('AppStorage fallback migration tests present: yes', 'AppStorage fallback migration tests present: no'),
+  'AppStorage fallback migration tests',
+);
 assertRejected('Claimed validation fixture', validSummary.replace('Removal release validation claimed: no', 'Removal release validation claimed: yes'), 'must not be claimed');
 assertRejected('Removal ready fixture', validSummary.replace('Legacy package removal ready: no', 'Legacy package removal ready: yes'), 'must stay blocked');
 assertRejected(

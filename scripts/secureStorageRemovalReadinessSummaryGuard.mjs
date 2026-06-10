@@ -27,6 +27,8 @@ const yesNoLabels = [
   'Keychain primary write',
   'Legacy fallback reads active',
   'Legacy write path disabled',
+  'SecureStorageService fallback migration tests present',
+  'AppStorage fallback migration tests present',
   'Fallback migration tests present',
   'Removal release validation claimed',
   'Android warning source still expected',
@@ -85,6 +87,14 @@ export const getSecureStorageRemovalReadinessSummaryErrors = summary => {
 
   if (getLineValue(summary, 'Legacy write path disabled') !== 'yes') {
     errors.push('Legacy write path disabled must stay yes');
+  }
+
+  if (getLineValue(summary, 'SecureStorageService fallback migration tests present') !== 'yes') {
+    errors.push('SecureStorageService fallback migration tests must be present before removal readiness can be tracked');
+  }
+
+  if (getLineValue(summary, 'AppStorage fallback migration tests present') !== 'yes') {
+    errors.push('AppStorage fallback migration tests must be present before removal readiness can be tracked');
   }
 
   if (getLineValue(summary, 'Fallback migration tests present') !== 'yes') {
