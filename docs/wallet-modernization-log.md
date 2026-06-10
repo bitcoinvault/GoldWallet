@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.526 - Sentry credential handoff guard
+
+- Branch: `feature/bem-37-526-sentry-credential-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guarded Sentry credential handoff before claiming release source-map or dSYM upload validation.
+- Extend the Sentry release source-map plan with explicit credential-owner inputs, evidence requirements, secret-handling rules, and source-map upload acceptance criteria.
+- Wire the Sentry credential handoff guard into the React Native baseline preflight after the existing Sentry release validation handoff guard.
+- Keep Sentry package versions, runtime code, native project files, release upload behavior, generated properties files, and secret values unchanged.
+
+Findings:
+
+- The Sentry release integration is already wired for Android and iOS, and Android release APK generation has been proven for `dev`, `stage`, `prod`, and `beta` variants with Sentry auto-upload disabled.
+- Source-map upload validation remains not claimed until `SENTRY_AUTH_TOKEN` is available and local-only `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are generated.
+- The new guard requires current generator, handoff dry-run, prerequisite, Android release, Android Sentry warning, release-services, and iOS blocker/validation evidence before the credential handoff can be treated as complete.
+- No token value, generated properties file, runtime code, native code, dependency version, or Metro behavior changed in this branch, so Android emulator smoke is not required for this documentation/guard wiring branch.
+
+Validation:
+
+- `corepack yarn check:sentry-credential-handoff-guard`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn sentry:release:validation:handoff:dry-run --skip-android-release`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.525 - CodePush decision handoff guard
 
 - Branch: `feature/bem-37-525-codepush-decision-handoff`
