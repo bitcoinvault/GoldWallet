@@ -83,6 +83,7 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props, State> 
           <StatusBar hidden />
           {this.state.hasCameraPermission && (
             <Camera
+              testID="qr-scanner-camera"
               cameraType={CameraType.Back}
               scanBarcode
               allowedBarcodeTypes={['qr']}
@@ -93,7 +94,7 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props, State> 
           <View style={styles.crosshairContainer}>
             <Image style={styles.crosshair} source={images.scanQRcrosshair} />
           </View>
-          <TouchableOpacity style={styles.closeButton} onPress={this.goBack}>
+          <TouchableOpacity testID="qr-scanner-close-button" style={styles.closeButton} onPress={this.goBack}>
             <Image source={images.close} />
           </TouchableOpacity>
         </>

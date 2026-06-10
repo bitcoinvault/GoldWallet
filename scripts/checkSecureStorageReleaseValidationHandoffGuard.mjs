@@ -90,6 +90,7 @@ const readyAndroidSmokeSummary = [
   'Closed first-run success: yes',
   'Validated empty-dashboard CTA flow: yes',
   'Validated empty-tab navigation: yes',
+  'Validated QR scanner screen: yes',
   'UI hierarchy attempts: 1',
   'UI hierarchy path: package.json',
   'Screenshot path: package.json',

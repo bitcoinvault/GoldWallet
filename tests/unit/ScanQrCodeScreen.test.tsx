@@ -16,7 +16,7 @@ jest.mock('react-native-camera-kit', () => {
   const { View } = require('react-native');
 
   return {
-    Camera: jest.fn(props => React.createElement(View, { ...props, testID: 'camera-kit' })),
+    Camera: jest.fn(props => React.createElement(View, { ...props, testID: props.testID || 'camera-kit' })),
     CameraType: {
       Back: 'back',
     },
@@ -67,11 +67,12 @@ describe('ScanQrCodeScreen', () => {
       buttonNegative: expect.any(String),
     });
 
-    const camera = tree!.root.findByProps({ testID: 'camera-kit' });
+    const camera = tree!.root.findByProps({ testID: 'qr-scanner-camera' });
 
     expect(camera.props.scanBarcode).toBe(true);
     expect(camera.props.allowedBarcodeTypes).toEqual(['qr']);
     expect(camera.props.onReadCode).toEqual(expect.any(Function));
+    expect(tree!.root.findByProps({ testID: 'qr-scanner-close-button' })).toBeTruthy();
   });
 
   it('keeps CameraKit scanner hidden when Android camera permission is denied', async () => {

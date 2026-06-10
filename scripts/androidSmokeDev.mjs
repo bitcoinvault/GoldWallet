@@ -40,6 +40,7 @@ const metroRequired = process.env.ANDROID_SMOKE_REQUIRE_METRO !== 'false';
 const clearAppData = process.env.ANDROID_SMOKE_CLEAR_APP_DATA === 'true';
 const validateEmptyDashboardCtas = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS === 'true';
 const validateEmptyTabNavigation = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION === 'true';
+const validateQrScannerScreen = process.env.ANDROID_SMOKE_VALIDATE_QR_SCANNER === 'true';
 const firstRunTransactionPassword = process.env.ANDROID_SMOKE_TRANSACTION_PASSWORD || 'testpass123';
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
@@ -75,6 +76,7 @@ let skippedFirstRunEmail = false;
 let closedFirstRunSuccess = false;
 let validatedEmptyDashboardCtaFlow = false;
 let validatedEmptyTabNavigation = false;
+let validatedQrScannerScreen = false;
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -175,6 +177,7 @@ const writeSummary = exitCode => {
     `Closed first-run success: ${closedFirstRunSuccess ? 'yes' : 'no'}`,
     `Validated empty-dashboard CTA flow: ${validatedEmptyDashboardCtaFlow ? 'yes' : 'no'}`,
     `Validated empty-tab navigation: ${validatedEmptyTabNavigation ? 'yes' : 'no'}`,
+    `Validated QR scanner screen: ${validatedQrScannerScreen ? 'yes' : 'no'}`,
     `UI hierarchy attempts: ${uiAttempts}`,
     `UI hierarchy path: ${uiOutputPath}`,
     `Screenshot path: ${screenshotOutputPath}`,
@@ -321,6 +324,14 @@ const tapResourceId = (label, uiHierarchy, resourceId) => {
   tapNodeCenter(node);
 };
 
+const grantPermissionIfPossible = permission => {
+  try {
+    run(`grant ${permission}`, ['shell', 'pm', 'grant', packageName, permission]);
+  } catch (permissionError) {
+    append(`grant ${permission} skipped: ${permissionError.message}`);
+  }
+};
+
 const validateEmptyDashboardCtaFlowIfEnabled = dashboardHierarchy => {
   if (!validateEmptyDashboardCtas) {
     return dashboardHierarchy;
@@ -367,6 +378,30 @@ const validateEmptyDashboardCtaFlowIfEnabled = dashboardHierarchy => {
     'submit-import-wallet-button',
     'scan-import-wallet-qr-code-button',
   ]);
+
+  if (validateQrScannerScreen) {
+    append('\nValidating QR scanner screen from import-wallet flow...');
+    grantPermissionIfPossible('android.permission.CAMERA');
+    tapResourceId('Import-wallet QR scanner button', importFormScreen, 'scan-import-wallet-qr-code-button');
+    sleep(5000);
+    const scannerScreen = waitForResourceIds('QR scanner screen', ['qr-scanner-close-button']);
+
+    if (!scannerScreen.includes('resource-id="qr-scanner-camera"')) {
+      append('QR scanner camera resource ID was not visible; continuing after close-button validation.');
+    }
+
+    tapResourceId('QR scanner close button', scannerScreen, 'qr-scanner-close-button');
+    sleep(3000);
+    waitForResourceIds('import-wallet form after QR scanner close', [
+      'back-button',
+      'import-wallet-name',
+      'import-wallet-seed-phrase-input',
+      'submit-import-wallet-button',
+      'scan-import-wallet-qr-code-button',
+    ]);
+    validatedQrScannerScreen = true;
+    append('QR scanner screen validated and closed.');
+  }
 
   tapResourceId('Import-wallet form back button', importFormScreen, 'back-button');
   sleep(3000);
@@ -816,6 +851,7 @@ try {
   );
   append(`Using empty-dashboard CTA flow validation: ${validateEmptyDashboardCtas ? 'yes' : 'no'}`);
   append(`Using empty-tab navigation validation: ${validateEmptyTabNavigation ? 'yes' : 'no'}`);
+  append(`Using QR scanner screen validation: ${validateQrScannerScreen ? 'yes' : 'no'}`);
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
   }
@@ -861,15 +897,9 @@ try {
     run('clear app data', ['shell', 'pm', 'clear', packageName]);
   }
   try {
-    run('grant notification permission', [
-      'shell',
-      'pm',
-      'grant',
-      packageName,
-      'android.permission.POST_NOTIFICATIONS',
-    ]);
+    grantPermissionIfPossible('android.permission.POST_NOTIFICATIONS');
   } catch (permissionError) {
-    append(`grant notification permission skipped: ${permissionError.message}`);
+    append(`grant notification permission wrapper skipped: ${permissionError.message}`);
   }
   if (metroRequired) {
     run('reverse Metro port', ['reverse', 'tcp:8081', 'tcp:8081']);
