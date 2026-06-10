@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.530 - Android release validation refresh
+
+- Branch: `feature/bem-37-530-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release validation for the current React Native `0.86.0` and Android SDK `36` baseline.
+- Build all four unsigned release variants locally: `dev`, `stage`, `prod`, and `beta`.
+- Validate release APK artifacts, release JS bundles, source maps, package metadata, SDK metadata, and Android 13 notification permission presence.
+- Keep Sentry source-map upload disabled for local validation and do not claim upload delivery without release credentials.
+
+Findings:
+
+- `android:dev:release:validate-local` completed successfully on JDK `17.0.19`.
+- Release Gradle tasks passed for `:app:assembleDevRelease`, `:app:assembleStageRelease`, `:app:assembleProdRelease`, and `:app:assembleBetaRelease`.
+- Each variant produced an unsigned release APK, release `index.android.bundle`, and release source map.
+- Each variant completed in one Gradle attempt with no spawn error and no retry.
+- `android:dev:release:check-summary` validated the generated local release summary against the current release input fingerprint.
+- `android:dev:release:check-apk-manifest` validated release APK package names, `versionCode`, `versionName`, min/target/compile SDK metadata, and `android.permission.POST_NOTIFICATIONS` for all four variants.
+- Sentry auto-upload remained disabled for the local build; Sentry source-map upload validation still requires `sentry.properties`/defaults or `SENTRY_AUTH_TOKEN`.
+- Gradle still reports deprecated features that will be incompatible with Gradle `9.0`; this is a follow-up warning source, not a release build blocker for the current Gradle `8.13` baseline.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:check-apk-manifest`
+
 ### BEM-37.529 - React 19 patch target probe
 
 - Branch: `feature/bem-37-529-react-19-patch-refresh`
