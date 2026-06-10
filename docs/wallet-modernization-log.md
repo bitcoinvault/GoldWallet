@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.506 - Android toolchain blocker consistency guard
+
+- Branch: `feature/bem-37-506-android-toolchain-blocker-consistency`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Build Android toolchain blocker text from the live audited AGP, Gradle, Kotlin, and React Native Gradle plugin metadata instead of hardcoding the latest blocker versions separately from the summary fields.
+- Extend the Android toolchain target summary guard so blocker bullets must reference the same latest AGP, minimum Gradle, latest Gradle, RN Gradle plugin, and validated current AGP/Gradle/Kotlin baseline shown in the summary fields.
+- Keep Android toolchain versions, package versions, runtime application code, native project files, env files, and Metro behavior unchanged.
+
+Findings:
+
+- Live metadata still reports latest stable AGP `9.2.1`, Gradle current `9.5.1`, and Kotlin Gradle Plugin `2.4.0`.
+- The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK 17.
+- The blocker remains the RN Gradle plugin `0.86.0` Kotlin metadata path against Gradle 9 / AGP 9; this branch only hardens the evidence so future live metadata drift cannot leave stale blocker wording behind.
+- No dependency, runtime, native, or Metro behavior changed in this branch, so Android emulator smoke is not required.
+
+Validation:
+
+- `corepack yarn check:android-toolchain-target-summary-guard`
+- `corepack yarn android:toolchain-target:audit`
+- `corepack yarn android:toolchain-target:check-summary`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.505 - Release-services CodePush handoff guard coverage
 
 - Branch: `feature/bem-37-505-release-services-codepush-handoff-guard`
