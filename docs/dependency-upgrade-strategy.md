@@ -86,7 +86,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - The unused legacy `@react-native-community/eslint-config` direct dev dependency is removed after `BEM-37.297`; `.eslintrc` already owns the active lint stack directly, and the community config would reintroduce an older nested lint toolchain if upgraded blindly.
 - The deprecated unused `babel-eslint` direct dev dependency is removed after `BEM-37.298`; the active parser is `@typescript-eslint/parser`, and `babel-eslint` has no supported latest path beyond its deprecated `10.1.0` line.
 - The deprecated stub `@types/react-navigation` direct dev dependency is removed after `BEM-37.299`; active `@react-navigation/*` v7 packages ship their own types, and the stub pulled old `react-navigation@4` packages into the lockfile.
-- Flipper debug tooling is removed after `BEM-37.324` instead of bumped: `react-native-flipper@0.273.0` remains npm `latest` but only peers React 16/17/18, while the current RN `0.85.3` baseline uses React `19.2.3`.
+- Flipper debug tooling is removed after `BEM-37.324` instead of bumped: `react-native-flipper@0.273.0` remains npm `latest` but only peers React 16/17/18, while the current RN `0.86.0` baseline uses React `19.2.3`.
 - Jest tooling is on the checked latest Jest 30 runtime line after `BEM-37.301`: `jest@30.4.2`, `babel-jest@30.4.1`, `jest-circus@30.4.2`, and `jest-environment-node@30.4.1`. The React Native Jest preset still declares a Jest 29 environment internally, so package resolutions keep that environment/mock layer aligned with the Jest 30 runtime.
 - Husky hook tooling is on checked latest `9.1.7` after `BEM-37.302`; hooks now live in `.husky/pre-commit` and `.husky/pre-push`, while the actual commands remain owned by the existing `precommit` and `prepush` package scripts.
 
@@ -105,4 +105,4 @@ One branch can contain multiple packages when they belong to the same layer and 
 
 ## Start Here
 
-The next coding branch should continue from the foundation layer or a blocker-removal branch that directly supports that layer, not another isolated package. Use `docs/react-native-foundation-target-matrix.md` as the target matrix. The current completed milestone jump is RN `0.85.3`, not every intermediate RN minor. Future RN work should target the next stable line only after branch-time evidence supports that target.
+The next coding branch should continue from the foundation layer or a blocker-removal branch that directly supports that layer, not another isolated package. Use `docs/react-native-foundation-target-matrix.md` as the target matrix. The current completed milestone jump is RN `0.86.0`, not every intermediate RN minor. Future RN work should target the next stable line only after branch-time evidence supports that target.

@@ -8,7 +8,7 @@ const validSummary = [
   'Sentry Android warning wiring valid: yes',
   'Sentry Android warning baseline stable: yes',
   'Warnings: 2',
-  '- Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.85.3 baseline.',
+  '- Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.86.0 baseline.',
   '- Sentry is on 8.13.0; source-map and dSYM behavior still require release validation with local Sentry credentials.',
   'Readiness issues: 0',
   'Wiring errors: 0',

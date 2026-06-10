@@ -36,7 +36,7 @@ Do not walk every RN minor version. Use milestone jumps and validate each one as
 
 Status:
 
-- This is now the current foundation checkpoint.
+- This is the previous completed foundation checkpoint.
 - It moved the app beyond the old RN 0.68 baseline and onto the React 19 runtime line required by the RN `0.85.3` checkpoint.
 - It moved the app to a newer Metro/Babel/runtime family that should unlock more modern package syntax and exports than the old RN 0.68 baseline.
 
@@ -59,6 +59,11 @@ Why:
 - RN `0.86.0` is now npm `latest`, so it is the next latest-first foundation target rather than a prerelease spike.
 - Keep React pinned to `19.2.3` while the bundled React Native renderer reports `react-native-renderer: 19.2.3`.
 - Keep this as a package/template foundation branch with Android assemble and emulator smoke proof before treating it as the current wallet baseline.
+
+Status:
+
+- This is now the current foundation checkpoint.
+- It keeps React pinned to `19.2.3` and records AGP 9 / Gradle 9 as blocked until a future React Native Gradle plugin baseline clears the Kotlin metadata path.
 
 ### Milestone C: Future current line
 

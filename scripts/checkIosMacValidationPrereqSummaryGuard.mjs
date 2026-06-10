@@ -15,7 +15,7 @@ const validWindowsSummary = [
   'iOS runtime delivery validation: not claimed',
   'Blockers: 4',
   '- Current platform is win32; iOS archive/simulator validation requires macOS with Xcode.',
-  '- xcodebuild is not available; React Native 0.85.3 requires Xcode 16.1+.',
+  '- xcodebuild is not available; React Native 0.86.0 requires Xcode 16.1+.',
   '- CocoaPods is not available via pod or bundle exec pod; ios/Podfile.lock cannot be refreshed here.',
   '- ios/Podfile.lock has 12 active drift issues; run pod install on macOS before archive validation.',
   'Required action: run this prerequisite audit on macOS with Xcode and CocoaPods, refresh ios/Podfile.lock with pod install, then run iOS archive/simulator validation before claiming iOS runtime delivery.',
