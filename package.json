@@ -284,6 +284,7 @@
     "check:storage-network-validation-scripts-guard": "node scripts/checkStorageNetworkValidationScriptsGuard.mjs",
     "check:storage-network-validation-scripts": "node scripts/checkStorageNetworkValidationScripts.mjs",
     "check:wallet-crypto-validation-scripts": "node scripts/checkWalletCryptoValidationScripts.mjs",
+    "check:transaction-details-amount-labels": "node scripts/checkTransactionDetailsAmountLabels.mjs",
     "check:native-module-inventory-guard": "node scripts/checkNativeModuleInventoryGuard.mjs",
     "check:native-module-inventory": "node scripts/checkNativeModuleInventory.mjs",
     "check:native-module-upgrade-plan-guard": "node scripts/checkNativeModuleUpgradePlanGuard.mjs",
