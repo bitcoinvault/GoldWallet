@@ -2,7 +2,7 @@
 
 Scope: wallet-critical JavaScript and native-adjacent crypto/runtime dependencies used for BTCV key derivation, address handling, transaction building, signing, and persistence-adjacent wallet flows.
 
-Latest npm checked on 2026-06-05.
+Latest npm checked on 2026-06-11.
 
 ## Current Package State
 
