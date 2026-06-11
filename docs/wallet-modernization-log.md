@@ -21842,6 +21842,49 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.584 - Sentry RN bundle task compatibility shim
+
+- Branch: `feature/bem-37-584-sentry-bundle-compat`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a repo-owned compatibility shim so Sentry `8.14.0` can read RN `0.86.0` release bundle task arguments for Android source-map generation.
+- Harden the Sentry RN bundle task compatibility audit and summary guard so `ready` requires either an upstream RN args property or the exact repo-owned legacy args shim.
+- Refresh release-services documentation to distinguish source-map generation readiness from credentialed Sentry upload validation.
+
+Findings:
+
+- RN `0.86.0` exposes `jsIntermediateSourceMapsDir` as `RegularFileProperty` and does not expose a direct `args` property, while Sentry `8.14.0` still falls back to `props["args"]` when the directory-shaped property is unavailable.
+- The shim exposes only a getter for Sentry's legacy `args` lookup and keeps Gradle task configuration valid; `task.setProperty("args", ...)` was rejected by Gradle as an unknown task property and is not used.
+- Android local release validation now generates APKs, JS bundles, and source maps for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled.
+- Sentry release upload validation remains explicitly not claimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available.
+- iOS source-map/dSYM validation remains blocked on this Windows host until macOS/Xcode/CocoaPods validation refreshes `ios/Podfile.lock`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-rn-bundle-task-compat-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn node scripts/runAndroidGradle.mjs :app:assembleDevRelease --stacktrace`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand` passed with existing post-test Electrum async log noise
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.458 - Tooling audits in RN preflight
 
 - Branch: `feature/bem-37-458-tooling-audits-preflight`

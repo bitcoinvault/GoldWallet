@@ -30,7 +30,7 @@
 - The Sentry prerequisite audit now records live latest metadata for both packages and fails stale "current" claims when installed and latest versions differ.
 - `@sentry/react-native@8.14.0` declares `react-native >=0.65.0`, but release artifact behavior still has to be proven instead of patching `node_modules` or disabling source-map upload.
 - Android release APK generation has now been proven locally for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled; Sentry source-map upload remains explicitly not claimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available.
-- Android release Gradle output on Sentry `8.14.0` currently prints `Could not extract bundle task arguments` for release bundle tasks, so final source-map upload validation also requires proving or fixing the Sentry/RN `0.86.0` Gradle task compatibility path.
+- Android release Gradle output on Sentry `8.14.0` no longer prints `Could not extract bundle task arguments` after the repo-owned RN `0.86.0` bundle task args shim; final source-map upload validation still requires generated Sentry properties and a credentialed upload run.
 - Static compatibility evidence shows Sentry expects `jsIntermediateSourceMapsDir` as a `Directory`, while RN `0.86.0` exposes it on `BundleHermesCTask` as a `RegularFileProperty`; Sentry's fallback also expects an `args` property that the RN task does not expose. Do not patch `node_modules` or add unsupported dynamic task properties in `android/app/build.gradle`.
 
 ## Credential Handoff Gate
@@ -64,7 +64,7 @@ Do not claim iOS dSYM/source-map upload validation unless it ran on macOS/Xcode 
 - keep `SENTRY_DISABLE_AUTO_UPLOAD=true` only for Android release evidence refresh, not for the final upload validation claim;
 - prove Android release artifact generation still covers `dev`, `stage`, `prod`, and `beta` variants;
 - prove the Sentry release prerequisite summary reports `Release source-map prerequisites: ready`;
-- prove Android release Gradle output no longer prints `Could not extract bundle task arguments`, or document upstream-compatible evidence that the warning does not block upload in the credentialed release environment;
+- prove Android release Gradle output still generates source maps without `Could not extract bundle task arguments`, and then run the credentialed upload path;
 - leave release source-map upload as `not claimed` when credentials are missing.
 
 ## Why This Needs A Dedicated Branch

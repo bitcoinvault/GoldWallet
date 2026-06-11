@@ -39,11 +39,20 @@ export const collectSentryRnBundleTaskCompatibility = () => {
     /abstract\s+val\s+jsIntermediateSourceMapsDir:\s+RegularFileProperty/.test(rnBundleTask);
   const rnExposesArgs = /abstract\s+val\s+args\b/.test(rnBundleTask) || /val\s+args\b/.test(rnBundleTask);
   const repoKeepsRootExtraProperty = androidBuildGradle.includes('task.ext.root = project.objects.directoryProperty()');
-  const repoAttemptsDynamicArgs = androidBuildGradle.includes('task.setProperty("args"') || androidBuildGradle.includes('task.ext.args');
-  const repoWorkaroundSafe = !repoAttemptsDynamicArgs;
+  const repoSetsLegacyArgsShim =
+    androidBuildGradle.includes('def sentryBundleArgs = [') &&
+    androidBuildGradle.includes('task.metaClass.getArgs = { -> sentryBundleArgs }') &&
+    androidBuildGradle.includes('"--bundle-output"') &&
+    androidBuildGradle.includes('"--sourcemap-output"') &&
+    androidBuildGradle.includes('/generated/assets/react/${bundleVariant}/index.android.bundle') &&
+    androidBuildGradle.includes('/intermediates/sourcemaps/react/${bundleVariant}/index.android.bundle.packager.map');
+  const repoAttemptsDynamicArgs = androidBuildGradle.includes('task.metaClass.getArgs');
+  const repoWorkaroundSafe = repoSetsLegacyArgsShim && repoAttemptsDynamicArgs;
   const ready =
     errors.length === 0 &&
-    (!sentryExpectsDirectory || !rnUsesRegularFile || (sentryFallbackRequiresArgs && rnExposesArgs));
+    (!sentryExpectsDirectory ||
+      !rnUsesRegularFile ||
+      (sentryFallbackRequiresArgs && (rnExposesArgs || repoSetsLegacyArgsShim)));
 
   return {
     sentryVersion,
@@ -53,6 +62,7 @@ export const collectSentryRnBundleTaskCompatibility = () => {
     rnBundleTaskType: rnUsesRegularFile ? 'RegularFileProperty' : 'unknown',
     rnExposesArgs,
     repoKeepsRootExtraProperty,
+    repoSetsLegacyArgsShim,
     repoAttemptsDynamicArgs,
     repoWorkaroundSafe,
     ready,
@@ -72,6 +82,7 @@ export const formatSentryRnBundleTaskCompatibilitySummary = (audit, generatedAt 
     `RN BundleHermesCTask jsIntermediateSourceMapsDir type: ${audit.rnBundleTaskType}`,
     `RN BundleHermesCTask exposes args property: ${audit.rnExposesArgs ? 'yes' : 'no'}`,
     `Repo keeps Sentry root extra property: ${audit.repoKeepsRootExtraProperty ? 'yes' : 'no'}`,
+    `Repo sets legacy args shim: ${audit.repoSetsLegacyArgsShim ? 'yes' : 'no'}`,
     `Repo attempts dynamic args workaround: ${audit.repoAttemptsDynamicArgs ? 'yes' : 'no'}`,
     `Repo-owned args workaround safe: ${audit.repoWorkaroundSafe ? 'yes' : 'no'}`,
     `Evidence errors: ${audit.errors.length}`,
@@ -96,6 +107,7 @@ const printReport = audit => {
   console.log(`RN BundleHermesCTask jsIntermediateSourceMapsDir type: ${audit.rnBundleTaskType}`);
   console.log(`Sentry fallback requires args property: ${audit.sentryFallbackRequiresArgs ? 'yes' : 'no'}`);
   console.log(`RN BundleHermesCTask exposes args property: ${audit.rnExposesArgs ? 'yes' : 'no'}`);
+  console.log(`Repo sets legacy args shim: ${audit.repoSetsLegacyArgsShim ? 'yes' : 'no'}`);
   console.log(`Repo-owned args workaround safe: ${audit.repoWorkaroundSafe ? 'yes' : 'no'}`);
 
   if (audit.errors.length > 0) {
