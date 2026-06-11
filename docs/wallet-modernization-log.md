@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.607 - Android release evidence refresh
+
+- Branch: `feature/bem-37-607-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release APK evidence after the latest-compatible dependency and release-service snapshots.
+- Rebuild and validate the dev, stage, prod, and beta release variants with JDK 17.
+- Refresh the dev release embedded emulator smoke so Sentry/Firebase/CodePush/release-services prerequisite summaries use current APK hashes.
+
+Findings:
+
+- Live latest checks still report `@sentry/react-native@8.14.0`, `@sentry/cli@3.5.0`, `@react-native-firebase/*@24.1.1`, `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `react-native-svg@15.15.5` as current.
+- `corepack yarn outdated --json` reports no review-required direct package upgrades; remaining registry blockers are React renderer exact-version coupling and `bl@7` CommonJS/export-map compatibility.
+- Android release validation rebuilt `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease`, then validated summary hashes and APK manifests.
+- Dev release embedded smoke passed on `emulator-5554` without Metro, including first-run onboarding, empty dashboard, Create/Import CTA navigation, QR scanner launch/close, tab navigation, screenshot capture, and fatal/runtime logcat checks.
+- Release-services aggregate summary validation passes again after refreshing the release APK and release-smoke local artifacts.
+- No runtime code, native code, dependency versions, or package scripts changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli version engines peerDependencies dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded`
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.606 - Remove legacy snap-carousel blocker chain
 
 - Branch: `feature/bem-37-606-snap-carousel-removal`
