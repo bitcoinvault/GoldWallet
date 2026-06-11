@@ -9,9 +9,9 @@ const root = path.resolve(__dirname, '..');
 const defaultOptions = {
   dryRun: false,
   skipAndroidRelease: false,
-  codePushDecision: 'pending',
+  codePushDecision: 'remove',
   codePushReplacementTarget: 'none',
-  codePushBetaStrategy: 'unconfirmed',
+  codePushBetaStrategy: 'beta-has-no-ota',
 };
 
 const usage = [

@@ -45,7 +45,7 @@ const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesV
   'corepack yarn codepush:migration:readiness-check-summary',
   'corepack yarn codepush:removal-readiness:audit',
   'corepack yarn codepush:removal-readiness:check-summary',
-  'corepack yarn codepush:decision:handoff --decision pending --beta-strategy unconfirmed',
+  'corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota',
   'corepack yarn check:codepush-decision-handoff-summary-guard',
   'corepack yarn push-notification:bridge-audit',
   'corepack yarn push-notification:bridge-check-summary',

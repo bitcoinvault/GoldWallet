@@ -56,12 +56,12 @@ Expected summary claims after `BEM-37.583`:
 - stale CodePush env-key presence is not treated as a release blocker and no deployment-key values are printed;
 - the migration readiness summary records the current posture as removed;
 - the long-term options are recorded as removed;
-- the decision handoff generator keeps the current decision as `pending` until `remove`, `replace`, or an explicit temporary legacy exception is selected;
+- the decision handoff generator defaults to the current post-removal decision `remove` with beta strategy `beta has no OTA`, while still allowing explicit `pending`, `replace`, or temporary legacy overrides for future planning;
 - the decision handoff keeps release build evidence, release-smoke evidence, beta strategy, iOS validation status, and OTA update validation state in one local artifact without printing deployment-key values;
 - the removal-readiness summary records zero runtime, Android, iOS, and plist surfaces remaining after removal;
 - the removal-readiness summary also records the CodePush package latest version, latest published timestamp, npm repository, upstream repository, archived state, New Architecture support, Android New Architecture enabled state, migration-required state, and Android release evidence readiness before any removal is planned;
 - the removal-readiness summary records `Safe to remove now: no` after removal because there is no remaining CodePush integration to remove;
-- the release-services handoff can now be run with `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota` so the selected decision is preserved through the full release-services validation sequence instead of being reset to `pending`;
+- the release-services handoff now defaults to `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota` so the selected post-removal decision is preserved through the full release-services validation sequence instead of being reset to `pending`;
 - the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence;
 - no deployment key values are printed.
 
@@ -77,9 +77,9 @@ Choose one release strategy:
 
 ## Decision Handoff Gate
 
-Decision owner input required before implementation:
+Decision owner input required only before changing the current post-removal posture:
 
-- choose `remove` if OTA updates are no longer a supported product/release capability;
+- keep `remove` if OTA updates are no longer a supported product/release capability;
 - choose `replace` if OTA updates remain required and a maintained/self-hosted replacement is selected;
 - choose `temporary legacy compatibility` only as an explicit short-term exception, with CodePush remaining gated off by default and update validation still unclaimed.
 
