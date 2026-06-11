@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.558 - Sentry release-smoke prerequisite guard
+
+- Branch: `feature/bem-37-558-sentry-latest-release-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live Sentry latest metadata before choosing a package target.
+- Keep Sentry packages unchanged because `@sentry/react-native@8.13.0` and direct `@sentry/cli@3.5.0` still match npm latest.
+- Tighten the Sentry release prerequisite summary so it records and guards Android release-smoke evidence, not only Android release build and APK manifest evidence.
+- Keep runtime code, native project files, package versions, Sentry properties files, and secret-bearing values unchanged.
+
+Findings:
+
+- Live npm metadata reports `@sentry/react-native@8.13.0` as `latest`; the package peers remain compatible with React Native `>=0.65.0`.
+- Live npm metadata reports direct `@sentry/cli@3.5.0` as `latest` with Node engine `>= 18`; the current Node `24.16.0` is compatible.
+- `sentry:release:prereq-audit` now reports `Android release smoke summary present: yes`, `Android release smoke summary valid: yes`, `Android release smoke summary errors: 0`, and `Sentry release smoke evidence ready: yes`.
+- Direct Sentry CLI release-build wiring remains valid, and the local direct CLI remains executable as `sentry-cli 3.5.0`.
+- Sentry release upload validation remains `not claimed` because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not available locally.
+- No Sentry token value or generated property content was printed or committed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native dist-tags version peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli dist-tags version dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.557 - CodePush release-smoke readiness guard
 
 - Branch: `feature/bem-37-557-codepush-release-smoke-readiness`

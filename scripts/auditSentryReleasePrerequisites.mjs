@@ -5,11 +5,14 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
 import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
 import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
+import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary.txt');
 const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
+const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
 export const requiredSentryPropertiesFiles = ['sentry.properties', 'android/sentry.properties', 'ios/sentry.properties'];
 export const requiredSentryPropertiesKeys = ['defaults.url', 'defaults.org', 'defaults.project', 'auth.token'];
 export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod', 'beta'];
@@ -214,6 +217,11 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const androidReleaseApkManifestErrors = hasAndroidReleaseSummary
     ? getAndroidReleaseApkManifestErrors({ root, expectedVariants: androidReleaseSummaryVariants })
     : [missingAndroidReleaseSummaryError];
+  const hasAndroidReleaseSmokeSummary = existsSync(androidReleaseSmokeSummaryPath);
+  const androidReleaseSmokeSummary = hasAndroidReleaseSmokeSummary ? readFileSync(androidReleaseSmokeSummaryPath, 'utf8') : '';
+  const androidReleaseSmokeSummaryErrors = hasAndroidReleaseSmokeSummary
+    ? getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummary, getAndroidReleaseSmokeEvidenceOptions(root))
+    : ['Android release smoke summary artifact is missing'];
 
   const hasCreateScript = existsSync(createScriptPath);
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';
@@ -250,6 +258,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseSummaryErrors.length === 0 &&
     androidReleaseSummaryCurrentInputsCovered &&
     androidReleaseApkManifestErrors.length === 0;
+  const androidReleaseSmokeEvidenceReady = hasAndroidReleaseSmokeSummary && androidReleaseSmokeSummaryErrors.length === 0;
   const ready =
     missingFiles.length === 0 &&
     invalidFiles.length === 0 &&
@@ -257,7 +266,8 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     sentryCliDirectInstallPresent &&
     sentryCliReleaseBuildPathUsesDirectPackage &&
     sentryCliExecutable &&
-    androidReleaseEvidenceReady;
+    androidReleaseEvidenceReady &&
+    androidReleaseSmokeEvidenceReady;
 
   return {
     sentryReactNativeVersion,
@@ -286,6 +296,9 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseSummaryCurrentInputsCovered,
     androidReleaseApkManifestErrors,
     androidReleaseEvidenceReady,
+    hasAndroidReleaseSmokeSummary,
+    androidReleaseSmokeSummaryErrors,
+    androidReleaseSmokeEvidenceReady,
     hasCreateScript,
     createScriptUsesToken,
     createScriptRejectsMissingToken,
@@ -380,6 +393,11 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`);
   lines.push(`Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`);
   audit.androidReleaseApkManifestErrors.forEach(error => lines.push(`- ${error}`));
+  lines.push(`Android release smoke summary present: ${audit.hasAndroidReleaseSmokeSummary ? 'yes' : 'no'}`);
+  lines.push(`Android release smoke summary valid: ${audit.androidReleaseSmokeSummaryErrors.length === 0 ? 'yes' : 'no'}`);
+  lines.push(`Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`);
+  audit.androidReleaseSmokeSummaryErrors.forEach(error => lines.push(`- ${error}`));
+  lines.push(`Sentry release smoke evidence ready: ${audit.androidReleaseSmokeEvidenceReady ? 'yes' : 'no'}`);
   lines.push('Sentry release upload validation: not claimed');
   lines.push(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
@@ -476,6 +494,10 @@ const printReport = audit => {
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
   console.log(`Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`);
+  console.log(`Android release smoke summary present: ${audit.hasAndroidReleaseSmokeSummary ? 'yes' : 'no'}`);
+  console.log(`Android release smoke summary valid: ${audit.androidReleaseSmokeSummaryErrors.length === 0 ? 'yes' : 'no'}`);
+  console.log(`Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`);
+  console.log(`Sentry release smoke evidence ready: ${audit.androidReleaseSmokeEvidenceReady ? 'yes' : 'no'}`);
   console.log('Sentry release upload validation: not claimed');
   console.log(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
