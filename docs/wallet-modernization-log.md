@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.544 - Storage network target refresh
+
+- Branch: `feature/bem-37-544-storage-network-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh storage/config/network latest-target evidence after live npm metadata checks on 2026-06-11.
+- Keep the current Group C package versions unchanged because every tracked storage/network/config package is still on npm latest and installed at the manifest version.
+- Revalidate the focused storage/network test group and Android dev runtime path before treating the current RN `0.86.0` baseline as current.
+
+Findings:
+
+- `storage-network:latest-snapshot:audit` reports 10 tracked entries and 10 current entries: `@react-native-async-storage/async-storage@3.1.1`, `@react-native-community/netinfo@12.0.1`, `react-native-device-info@15.0.2`, `react-native-config@1.6.1`, `react-native-localize@3.7.0`, `react-native-get-random-values@2.0.0`, `react-native-keychain@10.0.0`, `react-native-secure-key-store@2.0.10`, `react-native-tcp-socket@6.4.1`, and `react-native-webview@13.16.1`.
+- No package bump is available inside this group without moving to a non-latest, prerelease, or unrelated replacement path.
+- `react-native-secure-key-store` remains intentionally installed as a legacy fallback-read and cleanup backend while new secure writes use Keychain.
+- Funded transaction and live Electrum send validation remain blocked until a funded BTCV testnet wallet is available; this branch validates local storage/network contracts, static usage guards, and Android startup/navigation smoke.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-latest-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-usage-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-usage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-validation-scripts-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-validation-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.543 - Camera QR target refresh
 
 - Branch: `feature/bem-37-543-camera-qr-target-refresh`
