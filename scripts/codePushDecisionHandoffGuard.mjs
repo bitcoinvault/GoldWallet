@@ -11,6 +11,7 @@ export const getCodePushDecisionHandoffErrors = summary => {
   const generatedAt = getLineValue(summary, 'Generated at');
   const decision = getLineValue(summary, 'Decision');
   const implementationReady = getLineValue(summary, 'Implementation ready');
+  const codePushRemoved = getLineValue(summary, 'CodePush removed');
   const replacementTarget = getLineValue(summary, 'Replacement target');
   const betaStrategy = getLineValue(summary, 'Beta deployment-key strategy');
   const releasePathSummaryValid = getLineValue(summary, 'Release path summary valid');
@@ -49,6 +50,7 @@ export const getCodePushDecisionHandoffErrors = summary => {
     ['Release path summary valid', releasePathSummaryValid],
     ['Migration readiness summary valid', migrationReadinessSummaryValid],
     ['Removal readiness summary valid', removalReadinessSummaryValid],
+    ['CodePush removed', codePushRemoved],
     ['CodePush migration required', codePushMigrationRequired],
     ['CodePush runtime gated off by default', runtimeGatedOff],
     ['CodePush release build evidence ready', releaseBuildEvidenceReady],
@@ -64,7 +66,11 @@ export const getCodePushDecisionHandoffErrors = summary => {
     errors.push(`CodePush update validation must remain not claimed. Received: ${codePushUpdateValidation || 'missing'}`);
   }
 
-  if (codePushMigrationRequired !== 'yes') {
+  if (codePushRemoved === 'yes') {
+    if (codePushMigrationRequired !== 'no') {
+      errors.push('CodePush migration must be no after CodePush is removed');
+    }
+  } else if (codePushMigrationRequired !== 'yes') {
     errors.push('CodePush migration must remain required while App Center CodePush is retired');
   }
 
@@ -88,7 +94,9 @@ export const getCodePushDecisionHandoffErrors = summary => {
     errors.push('Replacement target must be none unless the decision is replace');
   }
 
-  if (decision === 'pending' && implementationReady !== 'no') {
+  if (codePushRemoved === 'yes' && implementationReady !== 'yes') {
+    errors.push('Removed CodePush handoff must be implementation ready');
+  } else if (decision === 'pending' && implementationReady !== 'no') {
     errors.push('Pending decision cannot be implementation ready');
   }
 

@@ -30,6 +30,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   const generatedAt = getLineValue(summary, 'Generated at');
   const wiringValid = getLineValue(summary, 'Release path wiring valid');
   const ready = getLineValue(summary, 'Release path ready for update validation');
+  const codePushRemoved = getLineValue(summary, 'CodePush removed');
   const readyEnvironmentCount = getLineValue(summary, 'Ready environments');
   const envReadinessCount = getLineValue(summary, 'Environment readiness entries');
   const dependencyVersion = getLineValue(summary, 'CodePush package dependency version');
@@ -83,6 +84,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   [
     wiringValid,
     ready,
+    codePushRemoved,
     packageCurrent,
     packageVersionsAligned,
     runtimeGatePresent,
@@ -108,20 +110,27 @@ export const getCodePushReleasePathSummaryErrors = summary => {
   });
 
   [
-    ['CodePush package dependency version', dependencyVersion],
-    ['CodePush package installed version', installedVersion],
-    ['CodePush package latest version', latestVersion],
-  ].forEach(([label, value]) => {
-    if (!isSemver(value)) {
+    ['CodePush package dependency version', dependencyVersion, codePushRemoved === 'yes'],
+    ['CodePush package installed version', installedVersion, codePushRemoved === 'yes'],
+    ['CodePush package latest version', latestVersion, false],
+  ].forEach(([label, value, allowRemoved]) => {
+    if (!(isSemver(value) || (allowRemoved && value === 'removed'))) {
       errors.push(`${label} must be a semver package version. Received: ${value || 'missing'}`);
     }
   });
 
-  if (dependencyVersion && installedVersion && dependencyVersion !== installedVersion) {
+  if (dependencyVersion && installedVersion && dependencyVersion !== 'removed' && installedVersion !== 'removed' && dependencyVersion !== installedVersion) {
     errors.push(`CodePush package dependency version ${dependencyVersion} does not match installed version ${installedVersion}`);
   }
 
-  if (latestVersion && dependencyVersion && installedVersion && packageCurrent === 'yes' && (dependencyVersion !== latestVersion || installedVersion !== latestVersion)) {
+  if (
+    codePushRemoved !== 'yes' &&
+    latestVersion &&
+    dependencyVersion &&
+    installedVersion &&
+    packageCurrent === 'yes' &&
+    (dependencyVersion !== latestVersion || installedVersion !== latestVersion)
+  ) {
     errors.push('CodePush package current cannot be yes when dependency or installed version differs from latest');
   }
 
@@ -129,7 +138,7 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     errors.push(`CodePush package latest published at must be an ISO timestamp. Received: ${latestPublishedAt || 'missing'}`);
   }
 
-  if (packageVersionsAligned !== 'yes') {
+  if (codePushRemoved !== 'yes' && packageVersionsAligned !== 'yes') {
     errors.push('CodePush package versions must be aligned before release-path validation');
   }
 
@@ -169,7 +178,11 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     errors.push('CodePush New Architecture support must remain no while Android New Architecture is enabled');
   }
 
-  if (migrationRequired !== 'yes') {
+  if (codePushRemoved === 'yes') {
+    if (migrationRequired !== 'no') {
+      errors.push('CodePush migration required must be no after CodePush is removed');
+    }
+  } else if (migrationRequired !== 'yes') {
     errors.push('CodePush migration required must be yes while App Center CodePush is retired');
   }
 
@@ -265,11 +278,15 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     errors.push('Ready summary must have valid wiring, 0 readiness issues, and 0 wiring errors');
   }
 
-  if (!requiredAction.includes('migrate or replace retired App Center CodePush')) {
+  if (codePushRemoved === 'yes') {
+    if (!requiredAction.includes('keep CodePush removed')) {
+      errors.push('Removed summary required action must keep CodePush removed');
+    }
+  } else if (!requiredAction.includes('migrate or replace retired App Center CodePush')) {
     errors.push('Required action must name retired App Center CodePush migration or replacement');
   }
 
-  if (ready === 'no' && !requiredAction.includes('CodePush deployment keys')) {
+  if (ready === 'no' && codePushRemoved !== 'yes' && !requiredAction.includes('CodePush deployment keys')) {
     errors.push('Not-ready summary must include the CodePush deployment key required action');
   }
 

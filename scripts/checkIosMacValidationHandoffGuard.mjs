@@ -178,7 +178,7 @@ const readyReleaseSummary = [
   'Guarded iOS schemes: 8',
   'iOS Sentry bundle/source-map phases: 4',
   'iOS Sentry dSYM upload phases: 3',
-  'iOS CodePush plist placeholders: 3',
+  'iOS CodePush plist placeholders: 0',
   'iOS remote-notification plists: 4',
   'Podfile.lock refresh required: no',
   'Removed Podfile.lock pod references: 0',

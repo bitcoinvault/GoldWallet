@@ -149,9 +149,9 @@ export const collectIosReleaseReadiness = () => {
   });
 
   const infoPlists = [
-    { path: 'ios/GoldWallet/Info.plist', displayName: 'GoldWallet', requiresCodePush: true, requiresRemoteNotification: true },
-    { path: 'ios/GoldWalletDev-Info.plist', displayName: 'GoldWallet Dev', requiresCodePush: true, requiresRemoteNotification: true },
-    { path: 'ios/GoldWalletStage-Info.plist', displayName: 'GoldWallet Stage', requiresCodePush: true, requiresRemoteNotification: true },
+    { path: 'ios/GoldWallet/Info.plist', displayName: 'GoldWallet', requiresCodePush: false, requiresRemoteNotification: true },
+    { path: 'ios/GoldWalletDev-Info.plist', displayName: 'GoldWallet Dev', requiresCodePush: false, requiresRemoteNotification: true },
+    { path: 'ios/GoldWalletStage-Info.plist', displayName: 'GoldWallet Stage', requiresCodePush: false, requiresRemoteNotification: true },
     { path: 'ios/GoldWallet-beta.plist', displayName: '$(PRODUCT_NAME)', requiresCodePush: false, requiresRemoteNotification: true },
   ];
   let codePushPlistPlaceholderCount = 0;

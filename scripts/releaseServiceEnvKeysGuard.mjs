@@ -10,11 +10,10 @@ export const requiredReleaseServiceEnvKeys = [
   'EXPLORER_URL',
   'SENTRY_DSN_IOS',
   'SENTRY_DSN_ANDROID',
-  'CODEPUSH_ENABLED',
   'EMAIL_NOTIFICATIONS_API',
 ];
 
-export const codePushEnvKeys = ['CODEPUSH_DEPLOYMENT_KEY_ANDROID', 'CODEPUSH_DEPLOYMENT_KEY_IOS'];
+export const codePushEnvKeys = [];
 
 export const parseEnvKeys = content => {
   const keys = new Set();
@@ -40,8 +39,7 @@ export const getReleaseServiceEnvKeyErrors = envKeyEntries => {
   envKeyEntries.forEach(({ envFile, keys }) => {
     const keySet = keys instanceof Set ? keys : new Set(keys);
     const missingRequiredKeys = requiredReleaseServiceEnvKeys.filter(key => !keySet.has(key));
-    const shouldRequireCodePush = !envFile.includes('.beta.');
-    const missingCodePushKeys = shouldRequireCodePush ? codePushEnvKeys.filter(key => !keySet.has(key)) : [];
+    const missingCodePushKeys = [];
 
     [...missingRequiredKeys, ...missingCodePushKeys].forEach(key => {
       errors.push(`${envFile} is missing ${key}`);

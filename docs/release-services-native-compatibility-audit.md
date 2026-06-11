@@ -15,15 +15,14 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-firebase/crashlytics` | `24.1.1` | `24.1.1` | Peer requires matching `@react-native-firebase/app@24.1.1`. |
 | `@react-native-firebase/messaging` | `24.1.1` | `24.1.1` | Peer requires matching `@react-native-firebase/app@24.1.1`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
-| `react-native-code-push` | `9.0.1` | `9.0.1` | Latest npm package is installed, but App Center CodePush was retired on 2025-03-31 and the Microsoft repositories are archived; treat as migration/removal work, not a normal package refresh. |
+| `react-native-code-push` | removed | `9.0.1` | Removed in `BEM-37.583`; App Center CodePush was retired on 2025-03-31 and the Microsoft repositories are archived. |
 | `@sentry/react-native` | `8.14.0` | `8.14.0` | Latest checked SDK line; source-map and dSYM behavior must still be proven with local credentials. |
 | `@sentry/cli` | `3.5.0` | `3.5.0` | Explicit release-tooling dependency; prerequisite audit checks binary availability, live latest metadata, installed direct/nested CLI versions, and whether release build phases use the direct root CLI package. |
 
 ## Current Runtime Surface
 
 - `App.tsx` initializes Sentry in non-dev builds and wraps the app with `Sentry.withTouchEventBoundary`.
-- `App.tsx` keeps CodePush wiring for non-dev builds with `ON_APP_RESUME`, immediate install mode, deployment keys from `react-native-config`, an explicit `CODEPUSH_ENABLED=true` runtime gate, and lazy HOC creation inside that gate.
-- Android `MainApplication.java` and iOS `AppDelegate.m` resolve JS bundles through CodePush only when `CODEPUSH_ENABLED=true` and the platform deployment key is non-empty.
+- CodePush runtime wrapping, Android bundle lookup, iOS bundle URL lookup, plist placeholders, and native package integration were removed in `BEM-37.583`.
 - `Main.tsx` reports boot splash AppState errors to Sentry.
 - `logger/index.ts` is part of the guarded Sentry runtime import surface.
 - `src/services/NotificationServices.tsx` requests Android 13+ `POST_NOTIFICATIONS` before Firebase Messaging permission, requests Firebase Messaging permission, and stores the FCM token in Redux.
@@ -66,7 +65,7 @@ corepack yarn check:release-service-env-keys-guard
 corepack yarn check:release-service-env-keys
 ```
 
-This validates key presence only. It does not print or guess DSN/deployment-key values. Beta env files currently do not require CodePush deployment keys until the beta release/update strategy is confirmed.
+This validates key presence only. It does not print or guess DSN/deployment-key values. CodePush deployment keys are no longer required after `BEM-37.583`; stale `CODEPUSH_*` env values should be cleaned only through a secrets-safe follow-up.
 
 After running the Android release smoke, Sentry Android warning, Sentry release prerequisite, Firebase, CodePush, and push bridge audits, validate all generated local release-services summaries together:
 
@@ -129,17 +128,14 @@ corepack yarn release-services:check-summaries
 
 Results:
 
-- CodePush release-path wiring is valid for non-dev runtime, Android, iOS, and env key references.
+- CodePush release-path wiring is removed from non-dev runtime, Android, iOS, package, and lockfile surfaces.
 - Android local release evidence covers `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` by default with Sentry auto upload disabled; the summary records APK path, byte count, and SHA-256 for each unsigned release artifact.
-- CodePush package readiness records live npm latest metadata and confirms that the installed package is current as of 2026-06-11.
-- CodePush upstream retirement readiness records App Center CodePush retirement on 2025-03-31, archived Microsoft upstream state, lack of upstream New Architecture support, Android `newArchEnabled=true`, and `CodePush migration required: yes`.
-- CodePush release-path env readiness is now recorded per env file without printing deployment-key values.
-- CodePush release-path package readiness now verifies that `package.json` and the installed `node_modules/react-native-code-push` package agree before release-path validation is considered usable.
-- CodePush runtime startup and native bundle resolution are gated off by default; the release-path audit derives that default from referenced `CODEPUSH_ENABLED` env values, and `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key is required before the retired OTA client wrapper is created/mounted or used for bundle resolution in non-dev builds.
-- CodePush update validation is ready from env-key perspective for `.env.stage.mainnet` and `.env.prod.mainnet`.
-- Full CodePush release update validation is not ready locally because `.env.dev.testnet` has blank `CODEPUSH_DEPLOYMENT_KEY_ANDROID` and `CODEPUSH_DEPLOYMENT_KEY_IOS`.
-- Beta CodePush update strategy is still unconfirmed because `.env.beta.testnet` and `.env.beta.mainnet` do not define CodePush deployment keys.
-- Android beta release compilation no longer depends on beta env files defining `CODEPUSH_DEPLOYMENT_KEY_ANDROID`; `android/app/build.gradle` provides an empty default `BuildConfig` value, and the runtime gate still requires `CODEPUSH_ENABLED=true` plus a non-empty key before CodePush bundle resolution is used.
+- CodePush package readiness records live npm latest metadata for historical context and confirms the app package is removed.
+- CodePush upstream retirement readiness records App Center CodePush retirement on 2025-03-31, archived Microsoft upstream state, lack of upstream New Architecture support, Android `newArchEnabled=true`, and `CodePush migration required: no` after removal.
+- CodePush release-path env readiness is recorded as removed without printing deployment-key values.
+- CodePush release-path package readiness verifies that `package.json` and `node_modules` no longer carry `react-native-code-push`.
+- CodePush update validation remains `not claimed`; OTA delivery is no longer a supported release path unless a maintained replacement is selected.
+- Android release compilation no longer depends on beta or non-beta env files defining CodePush deployment keys.
 - CodePush release-path audit now records whether the latest local Android release summary artifact is present, valid, covers the current release inputs, covers `dev`, `stage`, `prod`, and `beta` release APK evidence, and has valid release APK manifest proof; it emits a dedicated `CodePush release build evidence ready` line so APK/bundle/manifest evidence is separate from still-unclaimed update validation.
 - Firebase release-services wiring is valid for the current `24.1.1` package family, Android config, iOS plist files, and Messaging runtime paths.
 - Firebase release-services audit now records whether the latest local Android release summary artifact is present, valid, covers the current release inputs, covers `dev`, `stage`, `prod`, and `beta` release APK evidence, and has valid release APK manifest proof, so APK/bundle/manifest evidence is separate from unclaimed FCM/Crashlytics/Analytics runtime delivery validation.
@@ -151,7 +147,7 @@ Results:
 - Sentry `8.14.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.86.0` baseline, but Android release Gradle output currently prints `Could not extract bundle task arguments` for release bundle tasks; release artifact upload still needs both credentials and a proven compatible Sentry/RN Gradle path before it can be claimed as fully validated.
 - Sentry/RN bundle task compatibility is now guarded by `corepack yarn sentry:rn-bundle-task-compat:audit` and `corepack yarn sentry:rn-bundle-task-compat:check-summary`; current static evidence reports the path `not ready` because Sentry expects a directory-shaped `jsIntermediateSourceMapsDir`, while RN `0.86.0` exposes `RegularFileProperty` and does not expose the fallback `args` property.
 - None of these audits print secret values.
-- Do not generate placeholder Sentry or CodePush secrets; missing values remain explicit readiness blockers until provided by environment/config.
+- Do not generate placeholder Sentry secrets or stale CodePush secrets; missing Sentry values remain explicit readiness blockers until provided by environment/config.
 
 The Android flavor-to-env mapping is guarded by:
 
@@ -176,24 +172,24 @@ This verifies the current shared Xcode scheme pre-action matrix for dev, stage, 
 Android:
 
 - `android/build.gradle` uses Google Services Gradle plugin `4.4.4`, Crashlytics Gradle plugin `3.0.7`, and strict version matcher plugin `1.2.4`.
-- `android/app/build.gradle` applies `com.google.firebase.crashlytics`, CodePush Gradle script, Sentry Gradle script, and `com.google.gms.google-services`.
+- `android/app/build.gradle` applies `com.google.firebase.crashlytics`, Sentry Gradle script, and `com.google.gms.google-services`.
 - Android Firebase package versions are now supplied by React Native Firebase `24.1.1`; the old manual `firebase-core:16.0.3` and app-level Firebase BoM `28.2.0` entries were removed to avoid duplicate measurement classes.
 - Android Firebase config files exist under flavor-specific `android/app/src/*/google-services.json`.
-- `MainApplication.java` uses CodePush to resolve the JS bundle file only when `CODEPUSH_ENABLED=true` and the Android deployment key is non-empty.
-- `android/app/src/main/res/values/strings.xml` has the native `CodePushDeploymentKey` placeholder.
+- `MainApplication.java` no longer resolves JS bundles through CodePush.
+- `android/app/src/main/res/values/strings.xml` no longer has the native `CodePushDeploymentKey` placeholder.
 
 iOS:
 
 - Firebase plist files exist for dev, stage, prod, and default variants.
 - Xcode project settings reference flavor-specific `FIREBASE_CONFIG_FILE` values.
 - Xcode project has Sentry React Native bundling and dSYM upload build phases.
-- iOS Info.plist uses `$(CODEPUSH_DEPLOYMENT_KEY_IOS)` and `AppDelegate.m` uses CodePush bundle URLs only when `CODEPUSH_ENABLED=true` and the iOS deployment key is non-empty.
+- iOS Info.plist files no longer use `$(CODEPUSH_DEPLOYMENT_KEY_IOS)`, and `AppDelegate.m` no longer uses CodePush bundle URLs.
 - The main, Dev, Stage, and Beta iOS Info.plist files declare `UIBackgroundModes` with `remote-notification`; the app delegate assigns `UNUserNotificationCenter` delegate for foreground presentation callbacks.
 - `docs/ios-release-config-compatibility-audit.md` records the current iOS scheme-to-env/Firebase plist mapping before release-service or rebranding changes.
 
 Shared env/config:
 
-- `src/config/index.ts` reads `SENTRY_DSN_IOS`, `SENTRY_DSN_ANDROID`, optional `CODEPUSH_ENABLED`, `CODEPUSH_DEPLOYMENT_KEY_IOS`, and `CODEPUSH_DEPLOYMENT_KEY_ANDROID` through `react-native-config`.
+- `src/config/index.ts` reads `SENTRY_DSN_IOS`, `SENTRY_DSN_ANDROID`, and `EMAIL_NOTIFICATIONS_API` through `react-native-config`; CodePush keys are no longer consumed by app code.
 - `.env.*` files are present for dev, beta, stage, prod, testnet, and test configurations.
 
 ## Upgrade Risk
@@ -204,9 +200,9 @@ Shared env/config:
 - `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, Messaging runtime wiring, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, and unclaimed runtime-delivery status before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
 - `corepack yarn firebase:runtime:delivery:handoff` validates the local Firebase runtime-delivery prerequisites and static push bridge prerequisites without claiming real FCM, Crashlytics, Analytics, or push delivery behavior.
-- CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
-- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.86.0` proof and a 2026-06-11 live npm/GitHub refresh, with guarded release bundle alias compatibility for RN Gradle task naming. Because App Center CodePush is retired and the Microsoft upstream is archived, this is now a migration/removal risk rather than a normal dependency update target; keeping the package current does not make OTA updates a supported long-term release capability.
-- `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, explicit JS/native runtime gates, lazy JS HOC creation, Android bundle resolution, iOS deployment-key placeholders, referenced env keys, local package/install version alignment, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, the dedicated release-build evidence readiness line, and unclaimed update-validation status without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
+- CodePush removal can affect non-dev startup and release bundling, so removal branches still require Android debug/release builds and emulator smoke.
+- `react-native-code-push` was removed after the RN `0.86.0` proof and a 2026-06-11 live npm/GitHub refresh confirmed the latest package was archived/retired infrastructure rather than a viable long-term update target.
+- `corepack yarn codepush:release:path-audit` verifies the removed state, latest historical npm/upstream metadata, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, the dedicated release-build evidence readiness line, and unclaimed OTA update-validation status without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.86.0` warning audit no longer reports Sentry `execResult`.
 - `@sentry/react-native` is on latest checked `8.14.0` after the Sentry SDK upgrade; Android build and smoke validation are required for any future runtime/package Sentry branch, while source-map/dSYM upload remains blocked locally until Sentry credentials/properties are available and the current `Could not extract bundle task arguments` Gradle warning is resolved or proven harmless on a credentialed release runner.

@@ -1,8 +1,7 @@
 import * as Sentry from '@sentry/react-native';
-import React, { Component } from 'react';
+import React from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { View, StyleSheet, LogBox } from 'react-native';
-import codePush from 'react-native-code-push';
 import Toast from 'react-native-toast-message';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -32,46 +31,10 @@ const sentryOptions = {
 const isSentryEnabled = config.environment !== 'dev';
 
 const getNewKey = () => new Date().toISOString();
-const codePushDeploymentKey = isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid;
-const isCodePushEnabled = config.codepushEnabled && Boolean(codePushDeploymentKey);
-
-const codePushOptions = {
-  checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
-  installMode: codePush.InstallMode.IMMEDIATE,
-  minimumBackgroundDuration: 30 * 60, // 30 minutes
-  updateDialog: false,
-  deploymentKey: codePushDeploymentKey,
-};
 
 if (isSentryEnabled) {
   Sentry.init(sentryOptions);
 }
-
-class CodePushClass extends Component<null, null> {
-  render() {
-    return null;
-  }
-}
-
-let CodePushGateComponent: React.ComponentType | null = null;
-
-const getCodePushGateComponent = (): React.ComponentType => {
-  if (CodePushGateComponent) {
-    return CodePushGateComponent;
-  }
-
-  const component = codePush(codePushOptions)(CodePushClass);
-
-  CodePushGateComponent = component;
-
-  return component;
-};
-
-const CodePushGate = () => {
-  const EnabledCodePush = getCodePushGateComponent();
-
-  return <EnabledCodePush />;
-};
 
 class App extends React.PureComponent {
   state = {
@@ -96,24 +59,21 @@ class App extends React.PureComponent {
 
   render() {
     return (
-      <>
-        {!__DEV__ && isCodePushEnabled && <CodePushGate />}
-        <TypedI18nextProvider i18n={i18n}>
-          <Provider store={store}>
-            <AppStateManager
-              handleAppComesToForeground={this.setUnlockScreenKey}
-              handleAppComesToBackground={this.lockScreen}
-            />
-            <PersistGate loading={null} persistor={persistor}>
-              <View style={styles.wrapper}>
-                <Navigator unlockKey={this.state.unlockKey} />
-              </View>
-              <NotificationsServices />
-            </PersistGate>
-          </Provider>
-          <Toast />
-        </TypedI18nextProvider>
-      </>
+      <TypedI18nextProvider i18n={i18n}>
+        <Provider store={store}>
+          <AppStateManager
+            handleAppComesToForeground={this.setUnlockScreenKey}
+            handleAppComesToBackground={this.lockScreen}
+          />
+          <PersistGate loading={null} persistor={persistor}>
+            <View style={styles.wrapper}>
+              <Navigator unlockKey={this.state.unlockKey} />
+            </View>
+            <NotificationsServices />
+          </PersistGate>
+        </Provider>
+        <Toast />
+      </TypedI18nextProvider>
     );
   }
 }

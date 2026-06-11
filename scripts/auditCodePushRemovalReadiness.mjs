@@ -89,6 +89,7 @@ export const collectCodePushRemovalReadinessAudit = () => {
   const removalDecisionAvailable = decisionHandoff.valid && decisionHandoff.decision === 'remove';
   const replacementDecisionAvailable = decisionHandoff.valid && decisionHandoff.decision === 'replace';
   const safeToRemoveNow =
+    !releasePathAudit.codePushRemoved &&
     removalDecisionAvailable &&
     releasePathAudit.releaseBuildEvidenceReady &&
     androidReleaseSmokeSummaryValid &&
@@ -98,6 +99,7 @@ export const collectCodePushRemovalReadinessAudit = () => {
 
   return {
     packageInstalled,
+    codePushRemoved: releasePathAudit.codePushRemoved,
     packageLatestVersion: releasePathAudit.packageLatestVersion,
     packageLatestPublishedAt: releasePathAudit.packageLatestPublishedAt,
     packageRepositoryUrl: releasePathAudit.packageRepositoryUrl,
@@ -137,6 +139,7 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
     'CodePush removal readiness audit',
     `Generated at: ${generatedAt}`,
     `CodePush package installed: ${audit.packageInstalled ? 'yes' : 'no'}`,
+    `CodePush removed: ${audit.codePushRemoved ? 'yes' : 'no'}`,
     `CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`,
     `CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`,
     `CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`,
@@ -170,7 +173,9 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
     `Replacement decision available: ${audit.replacementDecisionAvailable ? 'yes' : 'no'}`,
     `Safe to remove now: ${audit.safeToRemoveNow ? 'yes' : 'no'}`,
     'Secret values printed: no',
-    audit.safeToRemoveNow
+    audit.codePushRemoved
+      ? 'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.'
+      : audit.safeToRemoveNow
       ? 'Required action: start the CodePush removal implementation branch; do not claim OTA update validation, and leave iOS runtime/archive validation unclaimed unless it runs on macOS/Xcode.'
       : 'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
   ];
@@ -181,6 +186,7 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
 const printReport = audit => {
   console.log('CodePush removal readiness audit');
   console.log(`CodePush package installed: ${audit.packageInstalled ? 'yes' : 'no'}`);
+  console.log(`CodePush removed: ${audit.codePushRemoved ? 'yes' : 'no'}`);
   console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
   console.log(`CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`);
   console.log(`CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`);
@@ -200,7 +206,9 @@ const printReport = audit => {
   console.log(`Decision: ${audit.decision}`);
   console.log(`Safe to remove now: ${audit.safeToRemoveNow ? 'yes' : 'no'}`);
   console.log(
-    audit.safeToRemoveNow
+    audit.codePushRemoved
+      ? 'Required action: keep CodePush removed.'
+      : audit.safeToRemoveNow
       ? 'Required action: start the CodePush removal implementation branch.'
       : 'Required action: choose remove or replace before deleting CodePush integration.',
   );

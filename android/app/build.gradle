@@ -31,18 +31,6 @@ react {
     autolinkLibrariesWithApp()
 }
 
-android.applicationVariants.all { variant ->
-    def targetName = variant.name.capitalize()
-    def legacyBundleTaskName = "bundle${targetName}JsAndAssets"
-    def rnBundleTaskName = "createBundle${targetName}JsAndAssets"
-    if (tasks.findByName(legacyBundleTaskName) == null) {
-        tasks.register(legacyBundleTaskName) {
-            dependsOn(rnBundleTaskName)
-            enabled = false
-        }
-    }
-}
-
 tasks.configureEach { task ->
     if (task.name.startsWith("createBundle") && task.name.endsWith("JsAndAssets")) {
         task.ext.root = project.objects.directoryProperty().convention(rootProject.layout.projectDirectory.dir(".."))
@@ -53,7 +41,6 @@ project.ext.sentryCli = [
     logLevel: "debug"
 ]
 
-apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
 apply from: "../../node_modules/@sentry/react-native/sentry.gradle"
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
@@ -138,8 +125,6 @@ android {
         multiDexEnabled true
         testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
-        buildConfigField "String", "CODEPUSH_DEPLOYMENT_KEY_ANDROID", "\"\""
     }
 
     splits {

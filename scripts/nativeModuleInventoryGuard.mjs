@@ -15,7 +15,6 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-biometrics', '3.0.1'],
   ['react-native-bootsplash', '7.3.1'],
   ['react-native-camera-kit', '18.0.0'],
-  ['react-native-code-push', '9.0.1'],
   ['react-native-config', '1.6.1'],
   ['react-native-device-info', '15.0.2'],
   ['react-native-exit-app', '2.0.0'],

@@ -20,6 +20,11 @@ export const removedPodfileLockChecks = [
     matchNames: ['FlipperKit', 'Flipper-Folly', 'Flipper-RSocket'],
     reason: 'after the Flipper debug stack removal',
   },
+  {
+    podName: 'CodePush',
+    matchNames: ['CodePush', 'react-native-code-push'],
+    reason: 'after the CodePush removal',
+  },
 ];
 
 export const trackedPodPackagePairs = [

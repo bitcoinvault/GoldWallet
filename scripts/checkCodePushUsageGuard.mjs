@@ -32,9 +32,9 @@ const assertRejected = (label, errors) => {
 
 assertAccepted('Known CodePush runtime usage scope', getCodePushRuntimeUsageErrors(expectedRuntimeUsage));
 assertAccepted('Known CodePush native usage scope', getCodePushNativeUsageErrors(expectedNativeUsage));
-assertRejected('Missing CodePush runtime usage scope', getCodePushRuntimeUsageErrors(missingRuntimeUsageFixture));
+assertAccepted('Removed CodePush runtime usage scope', getCodePushRuntimeUsageErrors(missingRuntimeUsageFixture));
 assertRejected('Unexpected CodePush runtime usage scope', getCodePushRuntimeUsageErrors(unexpectedRuntimeUsageFixture));
-assertRejected('Missing CodePush native usage scope', getCodePushNativeUsageErrors(missingNativeUsageFixture));
+assertAccepted('Removed CodePush native usage scope', getCodePushNativeUsageErrors(missingNativeUsageFixture));
 assertRejected('Unexpected CodePush native usage scope', getCodePushNativeUsageErrors(unexpectedNativeUsageFixture));
 
 console.log('CodePush usage guard checks are valid.');

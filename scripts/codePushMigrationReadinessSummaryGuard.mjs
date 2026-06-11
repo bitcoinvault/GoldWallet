@@ -26,6 +26,7 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
   const packageCurrent = getLineValue(summary, 'CodePush package current');
+  const codePushRemoved = getLineValue(summary, 'CodePush removed');
   const packageLatestVersion = getLineValue(summary, 'CodePush package latest version');
   const packageLatestPublishedAt = getLineValue(summary, 'CodePush package latest published at');
   const packageRepositoryUrl = getLineValue(summary, 'CodePush npm repository');
@@ -71,6 +72,10 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
     }
   });
 
+  if (!['yes', 'no'].includes(codePushRemoved)) {
+    errors.push(`CodePush removed must be yes or no. Received: ${codePushRemoved || 'missing'}`);
+  }
+
   if (packageCurrent !== 'yes') {
     errors.push('CodePush package should remain current before migration/removal decisions');
   }
@@ -111,15 +116,25 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
     errors.push(`CodePush update validation must be not claimed. Received: ${updateValidation || 'missing'}`);
   }
 
-  if (migrationRequired !== 'yes') {
+  if (codePushRemoved === 'yes') {
+    if (migrationRequired !== 'no') {
+      errors.push('CodePush migration required must be no after CodePush is removed');
+    }
+  } else if (migrationRequired !== 'yes') {
     errors.push('CodePush migration required must be yes while App Center CodePush is retired');
   }
 
-  if (currentPosture !== 'temporary legacy compatibility') {
+  if (codePushRemoved === 'yes') {
+    if (currentPosture !== 'removed') {
+      errors.push(`Current posture must be removed after CodePush removal. Received: ${currentPosture || 'missing'}`);
+    }
+  } else if (currentPosture !== 'temporary legacy compatibility') {
     errors.push(`Current posture must be temporary legacy compatibility. Received: ${currentPosture || 'missing'}`);
   }
 
-  if (longTermOptions !== 'remove or replace') {
+  if (codePushRemoved === 'yes' && longTermOptions !== 'removed') {
+    errors.push(`Long-term options must be removed after CodePush removal. Received: ${longTermOptions || 'missing'}`);
+  } else if (codePushRemoved !== 'yes' && longTermOptions !== 'remove or replace') {
     errors.push(`Long-term options must be remove or replace. Received: ${longTermOptions || 'missing'}`);
   }
 
@@ -153,7 +168,7 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
     }
   });
 
-  if (betaStrategyConfirmed !== 'no') {
+  if (codePushRemoved !== 'yes' && betaStrategyConfirmed !== 'no') {
     errors.push('Beta CodePush strategy must remain unconfirmed until beta deployment keys/strategy are provided');
   }
 
@@ -161,7 +176,11 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
     errors.push('CodePush migration readiness summary must not print secret values');
   }
 
-  if (!requiredAction.includes('choose remove or replace')) {
+  if (codePushRemoved === 'yes') {
+    if (!requiredAction.includes('keep CodePush removed')) {
+      errors.push('Removed summary required action must keep CodePush removed');
+    }
+  } else if (!requiredAction.includes('choose remove or replace')) {
     errors.push('Required action must ask for a remove-or-replace CodePush decision');
   }
 

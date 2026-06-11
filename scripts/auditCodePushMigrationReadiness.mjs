@@ -64,8 +64,8 @@ export const collectCodePushMigrationReadinessAudit = () => {
     runtimeGatedOffByDefault: releasePathAudit.runtimeGatePresent && releasePathAudit.nativeBundleGatePresent && !releasePathAudit.runtimeDefaultEnabled,
     updateValidation: 'not claimed',
     migrationRequired: releasePathAudit.migrationRequired,
-    currentPosture: 'temporary legacy compatibility',
-    longTermOptions: 'remove or replace',
+    currentPosture: releasePathAudit.codePushRemoved ? 'removed' : 'temporary legacy compatibility',
+    longTermOptions: releasePathAudit.codePushRemoved ? 'removed' : 'remove or replace',
     decisionDocumentPresent,
     decisionDocumentCoversRemoval: decisionDocument.includes('If removing CodePush:'),
     decisionDocumentCoversReplacement: decisionDocument.includes('If replacing CodePush:'),
@@ -79,9 +79,10 @@ export const collectCodePushMigrationReadinessAudit = () => {
     readyEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'ready').length,
     blockedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'blocked').length,
     unconfirmedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'unconfirmed').length,
-    betaStrategyConfirmed: releasePathAudit.envReadiness
+    betaStrategyConfirmed: releasePathAudit.codePushRemoved || releasePathAudit.envReadiness
       .filter(entry => entry.envFile.startsWith('.env.beta.'))
       .every(entry => entry.status === 'ready'),
+    codePushRemoved: releasePathAudit.codePushRemoved,
   };
 };
 
@@ -90,6 +91,7 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
     'CodePush migration readiness audit',
     `Generated at: ${generatedAt}`,
     `CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`,
+    `CodePush removed: ${audit.codePushRemoved ? 'yes' : 'no'}`,
     `CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`,
     `CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`,
     `CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`,
@@ -120,7 +122,9 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
     `Unconfirmed CodePush environments: ${audit.unconfirmedEnvironmentCount}`,
     `Beta CodePush strategy confirmed: ${audit.betaStrategyConfirmed ? 'yes' : 'no'}`,
     'Secret values printed: no',
-    'Required action: choose remove or replace before treating OTA updates as a supported release capability.',
+    audit.codePushRemoved
+      ? 'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.'
+      : 'Required action: choose remove or replace before treating OTA updates as a supported release capability.',
   ];
 
   return `${lines.join('\n')}\n`;
@@ -129,6 +133,7 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
 const printReport = audit => {
   console.log('CodePush migration readiness audit');
   console.log(`CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
+  console.log(`CodePush removed: ${audit.codePushRemoved ? 'yes' : 'no'}`);
   console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
   console.log(`CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`);
   console.log(`CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`);
