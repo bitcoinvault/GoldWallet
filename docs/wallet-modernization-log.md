@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.550 - Android release validation refresh
+
+- Branch: `feature/bem-37-550-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release package evidence for the current RN `0.86.0` / AGP `8.13.2` baseline after the CodePush, Sentry, and Android toolchain target refreshes.
+- Validate release APK, release JS bundle, source-map, and APK manifest generation for all Android release variants: `dev`, `stage`, `prod`, and `beta`.
+- Extend the release evidence into an emulator-installed `devRelease` smoke path without Metro by signing a local smoke copy of the generated unsigned release APK.
+
+Findings:
+
+- `android:dev:release:verify-local` completed successfully on 2026-06-11 with JDK `17.0.19`, `SENTRY_DISABLE_AUTO_UPLOAD=true`, and `Sentry release upload validation: not claimed`.
+- All four release variants reported Gradle exit code `0`; generated release APKs, release JS bundles, and source maps were present with checked byte counts and SHA-256 hashes.
+- `android:dev:release:check-apk-manifest` validated actual APK manifests for `dev`, `stage`, `prod`, and `beta` using Android SDK build-tools `36.0.0`.
+- `android:dev:release:smoke:embedded` installed `local-docs/android-smoke-dev-release-signed.apk` on `emulator-5554`, launched `io.goldwallet.wallet.dev`, completed first-run onboarding, reached the empty wallet dashboard, validated create/import CTA navigation, validated the import QR scanner screen, validated empty tab navigation, and found no fatal/runtime logcat findings.
+- Metro was not required or reachable during release smoke, which confirms the embedded release bundle path rather than a dev-server fallback.
+- Sentry source-map upload remains intentionally unclaimed until `sentry.properties` or `SENTRY_AUTH_TOKEN` is available.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.549 - Android toolchain target refresh
 
 - Branch: `feature/bem-37-549-android-toolchain-target-refresh`
