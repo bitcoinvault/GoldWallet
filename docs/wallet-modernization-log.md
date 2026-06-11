@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.633 - Git dependency readiness summary
+
+- Branch: `feature/bem-37-633-git-dependency-readiness-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Git dependency snapshot summary distinguish a clean fork-pin baseline from an actual mismatch-review state.
+- Tighten the summary guard so `Mismatches` must match the number of non-current dependency entries.
+- Keep wallet-critical Git dependencies pinned unless a dedicated compatibility branch proves a replacement path.
+
+Findings:
+
+- The current snapshot reports 4 tracked Git dependencies and 0 mismatches: `bitcoinjs-lib`, `electrum-client`, `react-native-prompt-android`, and `rn-nodeify`.
+- `bitcoinjs-lib`, `electrum-client`, and `react-native-prompt-android` remain wallet-critical fork/native prompt dependencies and are not casual package-update targets.
+- No package versions, runtime code, native code, or Metro behavior changed in this branch, so Android emulator smoke is not required for this audit/guard wording branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:git-deps-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.632 - iOS validation handoff aggregate gate
 
 - Branch: `feature/bem-37-632-ios-handoff-aggregate`

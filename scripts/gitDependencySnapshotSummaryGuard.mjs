@@ -50,6 +50,7 @@ export const getGitDependencySnapshotSummaryErrors = summary => {
   const secretValuesPrinted = getLineValue(summary, 'Secret values printed');
   const requiredAction = getLineValue(summary, 'Required action');
   const entryBlocks = getEntryBlocks(summary);
+  const reviewEntryCount = entryBlocks.filter(block => !block.includes('status: current')).length;
 
   if (!summary.startsWith('Git dependency snapshot audit')) {
     errors.push('summary header is missing or invalid');
@@ -75,6 +76,8 @@ export const getGitDependencySnapshotSummaryErrors = summary => {
 
   if (!/^\d+$/.test(mismatches)) {
     errors.push(`Mismatches must be a non-negative integer. Received: ${mismatches || 'missing'}`);
+  } else if (Number(mismatches) !== reviewEntryCount) {
+    errors.push(`Mismatches must match the number of non-current entries. Received: ${mismatches}, calculated: ${reviewEntryCount}`);
   }
 
   if (secretValuesPrinted !== 'no') {
@@ -142,8 +145,16 @@ export const getGitDependencySnapshotSummaryErrors = summary => {
     }
   });
 
-  if (!requiredAction.includes('review the mismatched git dependency')) {
-    errors.push('Required action must describe reviewing mismatched git dependency pins');
+  if (mismatches === '0') {
+    if (!requiredAction.includes('No git dependency pin mismatches')) {
+      errors.push('Required action must confirm there are no git dependency pin mismatches when Mismatches is 0');
+    }
+
+    if (!requiredAction.includes('preserve wallet-critical fork pins')) {
+      errors.push('Required action must preserve wallet-critical fork pins when the snapshot is current');
+    }
+  } else if (!requiredAction.includes('Review mismatched git dependency pins')) {
+    errors.push('Required action must describe reviewing mismatched git dependency pins when mismatches are present');
   }
 
   return errors;

@@ -11,6 +11,7 @@ This project should not upgrade dependencies one package at a time unless the pa
 - Do not mix unrelated runtime families in the same branch.
 - Validate the strategy guard with `corepack yarn upgrade:strategy:audit` before starting a foundation or cohort upgrade branch.
 - When network access is available for a React Native foundation branch, use `corepack yarn rn:baseline:preflight:online` so `check:node-runtime-version` runs before the live RN target snapshot, direct outdated snapshot, git dependency snapshot, wallet/crypto latest snapshot, storage/network latest snapshot, tooling latest snapshot, Android toolchain target, BL resolution, and node-fetch resolution summaries are refreshed, validated through `foundation:target:check-summaries`, and then followed by the offline baseline gate.
+- Treat clean Git dependency snapshots as fork-preservation evidence, not permission to casually replace wallet-critical forks. If `bitcoinjs-lib`, `electrum-client`, or `react-native-prompt-android` changes, use a dedicated compatibility branch with wallet/storage validation.
 
 ## Upgrade Layers
 
@@ -55,6 +56,8 @@ Start wallet/crypto runtime work with:
 corepack yarn wallet:crypto-runtime:audit
 corepack yarn direct-outdated:snapshot:audit
 corepack yarn direct-outdated:snapshot:check-summary
+corepack yarn git-deps:snapshot:audit
+corepack yarn git-deps:snapshot:check-summary
 corepack yarn wallet:crypto-latest-snapshot:audit
 corepack yarn wallet:crypto-latest-snapshot:check-summary
 ```
