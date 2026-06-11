@@ -38,6 +38,8 @@ const smokeEvidenceOptions = {
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn sentry:android-warning:audit',
   'corepack yarn sentry:android-warning:check-summary',
+  'corepack yarn sentry:rn-bundle-task-compat:audit',
+  'corepack yarn sentry:rn-bundle-task-compat:check-summary',
   'corepack yarn sentry:release:create-properties',
   'requires-env=SENTRY_AUTH_TOKEN',
   'corepack yarn sentry:release:prereq-audit',
@@ -83,6 +85,16 @@ assert(
   fullCommands.findIndex(step => step.args.includes('sentry:android-warning:audit')) <
     fullCommands.findIndex(step => step.args.includes('sentry:release:prereq-audit')),
   'Sentry Android warning audit must run before the Sentry release prerequisite audit',
+);
+assert(
+  fullCommands.findIndex(step => step.args.includes('sentry:android-warning:check-summary')) <
+    fullCommands.findIndex(step => step.args.includes('sentry:rn-bundle-task-compat:audit')),
+  'Sentry RN bundle task compatibility audit must run after the Android warning summary is validated',
+);
+assert(
+  fullCommands.findIndex(step => step.args.includes('sentry:rn-bundle-task-compat:check-summary')) <
+    fullCommands.findIndex(step => step.args.includes('sentry:release:create-properties')),
+  'Sentry properties generation must run after RN bundle task compatibility is validated',
 );
 assert(
   fullCommands[fullCommands.length - 1].args.includes('release-services:check-summaries'),

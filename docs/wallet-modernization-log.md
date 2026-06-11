@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.576 - Sentry release handoff bundle compatibility gate
+
+- Branch: `feature/bem-37-576-sentry-handoff-bundle-compat`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the Sentry RN bundle task compatibility audit and summary check to the dedicated `sentry:release:validation:handoff`.
+- Update the Sentry release validation handoff guard so Android warning, RN bundle compatibility, and release properties/prereq stay in the correct order.
+- Update Sentry source-map plan docs so credential handoff evidence includes the RN bundle compatibility summary.
+- Keep runtime code, native integration, package versions, lockfile, Sentry credentials/properties, and source-map upload behavior unchanged.
+
+Findings:
+
+- The release-services aggregate already validated the Sentry RN bundle task compatibility summary, but the Sentry-specific release handoff still moved from Android warning checks directly to properties generation.
+- The handoff now checks the known Sentry/RN Gradle bundle-task compatibility blocker before any credentialed source-map validation path can proceed.
+- Sentry source-map upload remains `not claimed` because credentials/properties are unavailable locally and the compatibility summary remains not ready.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run -- --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn sentry:release:validation:handoff -- --skip-android-release` expected fail-fast: missing required `SENTRY_AUTH_TOKEN`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.575 - Release-services Sentry bundle compatibility gate
 
 - Branch: `feature/bem-37-575-release-services-sentry-bundle-compat`
