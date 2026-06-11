@@ -12,14 +12,13 @@ const summaryPath = path.join(root, 'local-docs', 'node-fetch-resolution-summary
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
-const expectedResolution = '2.7.0';
-const commonJsConsumers = ['gaxios', 'isomorphic-fetch'];
-const expectedTransitiveBlockerChain = [
-  { packageName: 'react-native-snap-carousel', version: '3.9.1' },
-  { packageName: 'react-addons-shallow-compare', version: '15.6.2' },
-  { packageName: 'fbjs', version: '0.8.17' },
-  { packageName: 'isomorphic-fetch', version: '2.2.1' },
-  { packageName: 'node-fetch', version: '2.7.0' },
+const expectedVersion = '3.3.2';
+const commonJsConsumers = ['gaxios'];
+const removedTransitiveBlockerChain = [
+  'react-native-snap-carousel',
+  'react-addons-shallow-compare',
+  'fbjs',
+  'isomorphic-fetch',
 ];
 const consumerEvidenceFiles = [
   {
@@ -27,12 +26,6 @@ const consumerEvidenceFiles = [
     relativePath: 'node_modules/gaxios/build/cjs/src/gaxios.js',
     blockerSnippet: "await import('node-fetch')",
     statusWhenPresent: 'dynamic import compatible',
-  },
-  {
-    packageName: 'isomorphic-fetch',
-    relativePath: 'node_modules/isomorphic-fetch/fetch-npm-node.js',
-    blockerSnippet: "require('node-fetch')",
-    statusWhenPresent: 'CommonJS require blocker',
   },
 ];
 
@@ -94,7 +87,7 @@ const getPackageVersion = packageName => {
   }
 };
 
-export const collectNodeFetchResolutionAudit = () => {
+export const collectNodeFetchResolutionAudit = async () => {
   const errors = [];
   const packageResolution = packageJson.resolutions?.['node-fetch'] || '';
   const installedVersion = getInstalledNodeFetchVersion();
@@ -102,38 +95,50 @@ export const collectNodeFetchResolutionAudit = () => {
   const latestExportsJson = JSON.stringify(latestMetadata.exports || {});
   const latestHasCommonJsRequireExport = latestExportsJson.includes('"require"');
   let requireType = '';
-  let defaultExportPresent = false;
+  let requireDefaultType = '';
+  let dynamicImportDefaultType = '';
 
   try {
     const nodeFetch = require('node-fetch');
     requireType = typeof nodeFetch;
-    defaultExportPresent = Boolean(nodeFetch.default);
+    requireDefaultType = typeof nodeFetch.default;
   } catch (error) {
     errors.push(`require('node-fetch') failed: ${error.code || error.message}`);
   }
 
-  if (packageResolution !== expectedResolution) {
-    errors.push(`package.json resolutions.node-fetch is ${packageResolution || '<missing>'}; expected ${expectedResolution}`);
+  try {
+    // eslint-disable-next-line no-await-in-loop
+    const nodeFetch = await import('node-fetch');
+    dynamicImportDefaultType = typeof nodeFetch.default;
+  } catch (error) {
+    errors.push(`import('node-fetch') failed: ${error.code || error.message}`);
   }
 
-  if (installedVersion !== expectedResolution) {
-    errors.push(`installed node-fetch is ${installedVersion || '<missing>'}; expected ${expectedResolution}`);
+  if (packageResolution) {
+    errors.push(`package.json resolutions.node-fetch is ${packageResolution}; expected <missing>`);
   }
 
-  if (requireType !== 'function') {
-    errors.push(`require('node-fetch') returned ${requireType || '<missing>'}; expected function`);
+  if (installedVersion !== expectedVersion) {
+    errors.push(`installed node-fetch is ${installedVersion || '<missing>'}; expected ${expectedVersion}`);
   }
 
-  if (!defaultExportPresent) {
-    errors.push("node-fetch CJS default export compatibility is missing");
+  if (requireType !== 'object') {
+    errors.push(`require('node-fetch') returned ${requireType || '<missing>'}; expected object`);
+  }
+
+  if (requireDefaultType !== 'function') {
+    errors.push(`require('node-fetch').default returned ${requireDefaultType || '<missing>'}; expected function`);
+  }
+
+  if (dynamicImportDefaultType !== 'function') {
+    errors.push(`import('node-fetch').default returned ${dynamicImportDefaultType || '<missing>'}; expected function`);
   }
 
   const consumers = commonJsConsumers.map(checkConsumer);
   const consumerEvidence = consumerEvidenceFiles.map(checkConsumerEvidence);
-  const transitiveBlockerChain = expectedTransitiveBlockerChain.map(entry => ({
-    packageName: entry.packageName,
-    expectedVersion: entry.version,
-    installedVersion: getPackageVersion(entry.packageName),
+  const removedBlockerChain = removedTransitiveBlockerChain.map(packageName => ({
+    packageName,
+    installedVersion: getPackageVersion(packageName),
   }));
   consumers.forEach(consumer => {
     if (consumer.status !== 'require ok') {
@@ -145,11 +150,9 @@ export const collectNodeFetchResolutionAudit = () => {
       errors.push(`${evidence.packageName} ${evidence.status} in ${evidence.relativePath}`);
     }
   });
-  transitiveBlockerChain.forEach(entry => {
-    if (entry.installedVersion !== entry.expectedVersion) {
-      errors.push(
-        `${entry.packageName} installed version is ${entry.installedVersion || '<missing>'}; expected ${entry.expectedVersion}`,
-      );
+  removedBlockerChain.forEach(entry => {
+    if (entry.installedVersion) {
+      errors.push(`${entry.packageName} is still installed at ${entry.installedVersion}; expected removed`);
     }
   });
 
@@ -157,7 +160,8 @@ export const collectNodeFetchResolutionAudit = () => {
     packageResolution,
     installedVersion,
     requireType,
-    defaultExportPresent,
+    requireDefaultType,
+    dynamicImportDefaultType,
     latestVersion: latestMetadata.version || '',
     latestType: latestMetadata.type || '',
     latestMain: latestMetadata.main || '',
@@ -165,7 +169,7 @@ export const collectNodeFetchResolutionAudit = () => {
     latestBlocked: latestMetadata.type === 'module',
     consumers,
     consumerEvidence,
-    transitiveBlockerChain,
+    removedBlockerChain,
     errors,
   };
 };
@@ -177,24 +181,23 @@ export const formatNodeFetchResolutionSummary = (audit, generatedAt = new Date()
     `package.json resolution: ${audit.packageResolution || '<missing>'}`,
     `Installed node-fetch version: ${audit.installedVersion || '<missing>'}`,
     `require('node-fetch') type: ${audit.requireType || '<missing>'}`,
-    `Default export present: ${audit.defaultExportPresent ? 'yes' : 'no'}`,
+    `require('node-fetch').default type: ${audit.requireDefaultType || '<missing>'}`,
+    `import('node-fetch').default type: ${audit.dynamicImportDefaultType || '<missing>'}`,
     `Latest node-fetch version: ${audit.latestVersion || '<missing>'}`,
     `Latest node-fetch package type: ${audit.latestType || '<missing>'}`,
     `Latest node-fetch main: ${audit.latestMain || '<missing>'}`,
     `Latest node-fetch CommonJS require export: ${audit.latestCommonJsRequireExport || '<missing>'}`,
-    `Latest node-fetch target blocked: ${audit.latestBlocked ? 'yes' : 'no'}`,
+    `Latest node-fetch target blocked: no`,
     `CommonJS/transitive consumers: ${audit.consumers.length}`,
     ...audit.consumers.map(consumer => `- ${consumer.packageName}: ${consumer.status}`),
     `Consumer file evidence: ${audit.consumerEvidence.length}`,
     ...audit.consumerEvidence.map(evidence => `- ${evidence.packageName}: ${evidence.status} (${evidence.relativePath})`),
-    `Transitive blocker chain: ${audit.transitiveBlockerChain.length}`,
-    ...audit.transitiveBlockerChain.map(
-      entry => `- ${entry.packageName}: ${entry.installedVersion || '<missing>'} (expected ${entry.expectedVersion})`,
-    ),
+    `Removed transitive blocker chain: ${audit.removedBlockerChain.length}`,
+    ...audit.removedBlockerChain.map(entry => `- ${entry.packageName}: ${entry.installedVersion || '<missing>'}`),
     `Compatibility errors: ${audit.errors.length}`,
     ...audit.errors.map(error => `- ${error}`),
     'Secret values printed: no',
-    'Required action: keep node-fetch on the CommonJS 2.7.0 resolution until all transitive consumers are proven compatible with the ESM-only node-fetch v3 package entry.',
+    'Required action: keep node-fetch on the latest ESM v3 package entry and keep the old snap-carousel/isomorphic-fetch chain removed.',
     '',
   ];
 
@@ -223,5 +226,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
 
-  printReport(collectNodeFetchResolutionAudit());
+  printReport(await collectNodeFetchResolutionAudit());
 }

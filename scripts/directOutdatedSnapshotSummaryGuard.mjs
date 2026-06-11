@@ -9,7 +9,6 @@ const requiredKnownEntries = [
   'bitcoinjs-lib',
   'bl',
   'electrum-client',
-  'node-fetch',
   'react',
   'react-native-prompt-android',
   'react-test-renderer',
@@ -127,10 +126,6 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
 
   if (!entryLines.some(line => line.startsWith('- bl: ') && line.includes('CommonJS transitive consumers'))) {
     errors.push('bl drift must remain tied to the CommonJS transitive consumer blocker');
-  }
-
-  if (!entryLines.some(line => line.startsWith('- node-fetch: ') && line.includes('ESM-only v3'))) {
-    errors.push('node-fetch drift must remain tied to the ESM-only v3 blocker');
   }
 
   if (secretValuesPrinted !== 'no') {

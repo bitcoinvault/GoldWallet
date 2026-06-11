@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.606 - Remove legacy snap-carousel blocker chain
+
+- Branch: `feature/bem-37-606-snap-carousel-removal`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace the dashboard wallet carousel implementation without adding another native carousel dependency.
+- Remove the legacy `react-native-snap-carousel` dependency and its stale TypeScript package.
+- Remove the `node-fetch@2.7.0` resolution after proving the old `isomorphic-fetch` chain is gone.
+
+Findings:
+
+- Dashboard wallet carousel usage was scoped to `src/screens/Dashboard/WalletsCarousel.tsx`, with the parent screen depending only on `snap(index)`, `data`, `keyExtractor`, and `getIndex(index)`.
+- The carousel now uses React Native `FlatList` with horizontal snapping, stable `wallets-carousel` testID, `scrollToIndex` based `snap(index)`, `getItemLayout`, and `onMomentumScrollEnd` index reporting.
+- Removed `react-native-snap-carousel@3.9.1` and `@types/react-native-snap-carousel@3.8.12` from package metadata and lockfile.
+- The legacy transitive chain `react-native-snap-carousel -> react-addons-shallow-compare -> fbjs -> isomorphic-fetch -> node-fetch@2.7.0` is no longer installed.
+- Removed the `resolutions.node-fetch = 2.7.0` override; `node-fetch@3.3.2` is now installed for the remaining `gaxios` consumer.
+- The node-fetch resolution audit now validates the new state: no package resolution, `node-fetch@3.3.2`, `gaxios` dynamic-import compatibility, and the removed snap-carousel/isomorphic-fetch blocker chain.
+- Direct outdated snapshot dropped `node-fetch` from known blocked entries; the remaining known blockers are React renderer coupling and `bl` major-line compatibility.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn remove react-native-snap-carousel @types/react-native-snap-carousel`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node-fetch:resolution:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node-fetch:resolution:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules/jest/bin/jest.js tests/unit/WalletsCarousel.test.tsx --forceExit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.605 - Node-fetch v3 compatibility blocker proof
 
 - Branch: `feature/bem-37-605-node-fetch-v3-compat-probe`
