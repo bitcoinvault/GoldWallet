@@ -3,12 +3,26 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { collectCodePushReleasePathAudit } from './auditCodePushReleasePath.mjs';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'codepush-migration-readiness-summary.txt');
 const releasePathSummaryPath = path.join(root, 'local-docs', 'codepush-release-path-summary.txt');
 const decisionDocPath = path.join(root, 'docs', 'codepush-retirement-migration-plan.md');
+const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const signedReleaseApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
+const unsignedReleaseApkPath = path.join(
+  root,
+  'android',
+  'app',
+  'build',
+  'outputs',
+  'apk',
+  'dev',
+  'release',
+  'app-dev-release-unsigned.apk',
+);
 
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
@@ -18,10 +32,23 @@ export const collectCodePushMigrationReadinessAudit = () => {
   const decisionDocument = decisionDocumentPresent ? read('docs/codepush-retirement-migration-plan.md') : '';
   let releasePathSummaryValid = false;
   let releasePathSummaryErrors = ['missing CodePush release path summary'];
+  let androidReleaseSmokeSummaryValid = false;
+  let androidReleaseSmokeSummaryErrors = ['missing Android release smoke summary'];
 
   if (existsSync(releasePathSummaryPath)) {
     releasePathSummaryErrors = getCodePushReleasePathSummaryErrors(readFileSync(releasePathSummaryPath, 'utf8'));
     releasePathSummaryValid = releasePathSummaryErrors.length === 0;
+  }
+
+  if (existsSync(androidReleaseSmokeSummaryPath)) {
+    androidReleaseSmokeSummaryErrors = getAndroidEmbeddedSmokeSummaryErrors(readFileSync(androidReleaseSmokeSummaryPath, 'utf8'), {
+      expectedArtifactBase: 'android-smoke-dev-release',
+      requireSmokeApkDigest: true,
+      expectedSmokeApkPath: signedReleaseApkPath,
+      requireSourceApkDigest: true,
+      expectedSourceApkPath: unsignedReleaseApkPath,
+    });
+    androidReleaseSmokeSummaryValid = androidReleaseSmokeSummaryErrors.length === 0;
   }
 
   return {
@@ -46,6 +73,9 @@ export const collectCodePushMigrationReadinessAudit = () => {
     releasePathSummaryValid,
     releasePathSummaryErrors,
     releaseBuildEvidenceReady: releasePathAudit.releaseBuildEvidenceReady,
+    androidReleaseSmokeSummaryValid,
+    androidReleaseSmokeSummaryErrors,
+    releaseSmokeEvidenceReady: androidReleaseSmokeSummaryValid,
     readyEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'ready').length,
     blockedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'blocked').length,
     unconfirmedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'unconfirmed').length,
@@ -81,6 +111,10 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
     `Release path summary errors: ${audit.releasePathSummaryErrors.length}`,
     ...audit.releasePathSummaryErrors.map(error => `- ${error}`),
     `CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`,
+    `Android release smoke summary valid: ${audit.androidReleaseSmokeSummaryValid ? 'yes' : 'no'}`,
+    `Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`,
+    ...audit.androidReleaseSmokeSummaryErrors.map(error => `- ${error}`),
+    `CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`,
     `Ready CodePush environments: ${audit.readyEnvironmentCount}`,
     `Blocked CodePush environments: ${audit.blockedEnvironmentCount}`,
     `Unconfirmed CodePush environments: ${audit.unconfirmedEnvironmentCount}`,
@@ -109,6 +143,7 @@ const printReport = audit => {
   console.log(`Long-term options: ${audit.longTermOptions}`);
   console.log(`Release path summary valid: ${audit.releasePathSummaryValid ? 'yes' : 'no'}`);
   console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`);
   console.log(`Ready CodePush environments: ${audit.readyEnvironmentCount}`);
   console.log(`Blocked CodePush environments: ${audit.blockedEnvironmentCount}`);
   console.log(`Unconfirmed CodePush environments: ${audit.unconfirmedEnvironmentCount}`);

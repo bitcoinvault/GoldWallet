@@ -30,6 +30,8 @@ const yesNoLabels = [
   'Android New Architecture enabled',
   'CodePush migration required',
   'CodePush release build evidence ready',
+  'Android release smoke summary valid',
+  'CodePush release smoke evidence ready',
   'Android native integration present',
   'iOS native integration present',
   'CodePush runtime gated off by default',
@@ -51,6 +53,9 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
   const androidNewArchitectureEnabled = getLineValue(summary, 'Android New Architecture enabled');
   const migrationRequired = getLineValue(summary, 'CodePush migration required');
   const releaseBuildEvidenceReady = getLineValue(summary, 'CodePush release build evidence ready');
+  const androidReleaseSmokeSummaryValid = getLineValue(summary, 'Android release smoke summary valid');
+  const androidReleaseSmokeSummaryErrors = getLineValue(summary, 'Android release smoke summary errors');
+  const releaseSmokeEvidenceReady = getLineValue(summary, 'CodePush release smoke evidence ready');
   const runtimeUsageCount = getLineValue(summary, 'Runtime usage files');
   const nativeIntegrationCount = getLineValue(summary, 'Native integration files');
   const envFileCount = getLineValue(summary, 'Env files carrying CodePush keys');
@@ -113,6 +118,14 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
 
   if (releaseBuildEvidenceReady !== 'yes') {
     errors.push(`CodePush release build evidence must be ready before removal planning. Received: ${releaseBuildEvidenceReady || 'missing'}`);
+  }
+
+  if (androidReleaseSmokeSummaryValid !== 'yes' || androidReleaseSmokeSummaryErrors !== '0') {
+    errors.push('CodePush removal planning requires a valid Android release smoke summary');
+  }
+
+  if (releaseSmokeEvidenceReady !== 'yes') {
+    errors.push(`CodePush release smoke evidence must be ready before removal planning. Received: ${releaseSmokeEvidenceReady || 'missing'}`);
   }
 
   [

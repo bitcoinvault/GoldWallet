@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.557 - CodePush release-smoke readiness guard
+
+- Branch: `feature/bem-37-557-codepush-release-smoke-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Tighten CodePush migration and removal readiness so they require current Android release-smoke evidence in addition to release build and manifest evidence.
+- Make CodePush readiness summaries print explicit Android release-smoke validity and release-smoke evidence readiness lines.
+- Extend the CodePush handoff and summary self-check fixtures so future guard changes cannot silently drop release-smoke coverage.
+
+Findings:
+
+- `react-native-code-push` remains current at `9.0.1`, with the latest npm publish timestamp recorded as `2024-12-19T14:31:05.513Z`.
+- App Center CodePush remains retired as of `2025-03-31`; the upstream repository is archived, upstream New Architecture support is absent, and Android New Architecture remains enabled.
+- CodePush release-path wiring remains valid and Android release build evidence remains ready, but migration/removal readiness now also requires the local Android dev release-smoke summary to be valid.
+- The refreshed migration and removal summaries report `Android release smoke summary valid: yes`, `Android release smoke summary errors: 0`, and `CodePush release smoke evidence ready: yes`.
+- CodePush update validation remains `not claimed`: `.env.dev.testnet` still has blank Android/iOS deployment keys, the beta deployment-key strategy is still unconfirmed, and no deployment-key values were printed.
+- This branch changes guard/audit coverage only; it does not change runtime app code, native configuration, package versions, deployment keys, or OTA behavior.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-migration-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-removal-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.556 - Foundation online preflight refresh
 
 - Branch: `feature/bem-37-556-foundation-online-preflight-refresh`

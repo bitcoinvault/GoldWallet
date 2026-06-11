@@ -16,6 +16,8 @@ const yesNoLabels = [
   'Decision document rejects blind package upgrade',
   'Release path summary valid',
   'CodePush release build evidence ready',
+  'Android release smoke summary valid',
+  'CodePush release smoke evidence ready',
   'Beta CodePush strategy confirmed',
   'Secret values printed',
 ];
@@ -44,6 +46,9 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
   const releasePathSummaryValid = getLineValue(summary, 'Release path summary valid');
   const releasePathSummaryErrors = getLineValue(summary, 'Release path summary errors');
   const releaseBuildEvidenceReady = getLineValue(summary, 'CodePush release build evidence ready');
+  const androidReleaseSmokeSummaryValid = getLineValue(summary, 'Android release smoke summary valid');
+  const androidReleaseSmokeSummaryErrors = getLineValue(summary, 'Android release smoke summary errors');
+  const releaseSmokeEvidenceReady = getLineValue(summary, 'CodePush release smoke evidence ready');
   const readyEnvironmentCount = getLineValue(summary, 'Ready CodePush environments');
   const blockedEnvironmentCount = getLineValue(summary, 'Blocked CodePush environments');
   const unconfirmedEnvironmentCount = getLineValue(summary, 'Unconfirmed CodePush environments');
@@ -128,6 +133,14 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
 
   if (releaseBuildEvidenceReady !== 'yes') {
     errors.push('CodePush release build evidence must be ready before migration readiness is useful');
+  }
+
+  if (androidReleaseSmokeSummaryValid !== 'yes' || androidReleaseSmokeSummaryErrors !== '0') {
+    errors.push('CodePush migration readiness requires a valid Android release smoke summary');
+  }
+
+  if (releaseSmokeEvidenceReady !== 'yes') {
+    errors.push('CodePush release smoke evidence must be ready before migration readiness is useful');
   }
 
   [
