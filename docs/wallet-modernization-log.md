@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.621 - Sentry latest readiness refresh
+
+- Branch: `feature/bem-37-621-sentry-latest-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live Sentry SDK/CLI latest evidence after the Android dev/release validation refresh.
+- Re-run Sentry Android warning, RN bundle-task compatibility, release prerequisite, and release-validation handoff checks against the current release artifacts.
+- Keep package versions unchanged unless live metadata shows a newer compatible target.
+
+Findings:
+
+- Live npm metadata reports `@sentry/react-native@8.14.0` as latest and the repo already uses `8.14.0`.
+- Live npm metadata reports `@sentry/cli@3.5.0` as latest and the repo already uses `3.5.0`.
+- Sentry Android warning baseline is stable on the RN `0.86.0` baseline; Sentry still routes Android Gradle integration through `sentry.gradle.kts`.
+- RN bundle-task compatibility is ready with the repo-owned legacy `args` shim: Sentry expects `jsIntermediateSourceMapsDir` as a `Directory`, RN exposes it as `RegularFileProperty`, Sentry fallback requires `args`, RN does not expose `args`, and the repo shim remains safe.
+- Android release evidence is ready for dev, stage, prod, and beta release variants, Android release APK manifests are valid, and signed dev-release smoke evidence is ready.
+- Sentry release upload validation remains not claimed because `SENTRY_AUTH_TOKEN` is not available in the current shell and `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing.
+- No dependency versions, runtime code, native code, package scripts, or Metro behavior changed in this branch, so Android emulator smoke is not required for this Sentry readiness refresh branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-properties-generator`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.620 - Android dev/release validation refresh
 
 - Branch: `feature/bem-37-620-android-validation-refresh`
