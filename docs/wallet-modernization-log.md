@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.619 - Wallet crypto validation refresh
+
+- Branch: `feature/bem-37-619-wallet-crypto-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh wallet/crypto latest-package evidence and runtime audit documentation after the storage/network validation refresh.
+- Re-run the offline wallet crypto contract covering HD wallet derivation/signing, watch-only wallet behavior, wallet core offline flows, and signer fixtures.
+- Keep BTCV-specific fork behavior explicit and avoid replacing wallet-critical crypto dependencies without funded transaction proof.
+
+Findings:
+
+- Wallet crypto latest snapshot reports 15 entries with `Deferred entries: 0`; all npm packages in the tracked wallet crypto cohort are current.
+- `bitcoinjs-lib` remains intentionally fork-pinned to `bitcoinvault/bitcoinjs-lib#0854f675114fada32348d51c80a6ccdb33afc360`; upstream npm `7.0.1` is not a drop-in target for this app.
+- Direct `bech32` remains absent; the BTCV fork still resolves transitive `bech32@1.1.4` and nested `wif@2.0.6`, both guarded by `wallet:crypto-runtime:audit`.
+- Runtime usage remains present for wallet-critical packages: `bitcoinjs-lib` in 28 files, `bip39` in 5 files, `bip32` in 1 file, `coinselect` in 1 file, and `crypto-js` in 5 files.
+- `test:wallet-crypto:offline` passed 29 focused tests across HD wallet offline, watch-only offline, wallet core offline, and signer suites.
+- `crypto-js:runtime:audit` passed the SHA-256 and AES encrypt/decrypt fixtures on `crypto-js@4.2.0`.
+- Funded transaction flow remains blocked until a funded BTCV testnet wallet is available; this branch claims offline construction/signing coverage only, not live send/recovery transaction delivery.
+- No dependency versions, runtime code, native code, package scripts, or Metro behavior changed in this branch, so Android emulator smoke is not required for this wallet/crypto evidence refresh branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-runtime:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:wallet-crypto-validation-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn crypto-js:runtime:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.618 - Storage/network validation refresh
 
 - Branch: `feature/bem-37-618-storage-network-validation-refresh`
