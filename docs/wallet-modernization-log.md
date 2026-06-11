@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.623 - iOS static validation refresh
+
+- Branch: `feature/bem-37-623-ios-static-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh static iOS release readiness, macOS prerequisite, and all-scheme handoff evidence after the Android release, Sentry, and secure-storage validation refreshes.
+- Confirm which iOS checks can be claimed on this Windows host and which still require macOS/Xcode/CocoaPods.
+- Keep iOS runtime/archive validation explicitly unclaimed.
+
+Findings:
+
+- Static iOS release files remain valid for the RN `0.86.0` baseline: iOS platform and Xcode deployment targets are aligned to `15.1`, 8 guarded schemes are present, Sentry source-map/dSYM phases are present, CodePush plist placeholders are absent, and remote-notification plist coverage is present.
+- React Native `0.86.0` requires Xcode `16.1+` for the iOS validation path.
+- This Windows host cannot run iOS archive/simulator validation: platform is `win32`, `xcodebuild` is unavailable, and CocoaPods is unavailable through both `pod` and `bundle exec pod`.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh and has 12 active drift issues against the JavaScript/native package baseline.
+- Removed pod references remain clean at 0; the blocker is active pod version drift, not stale removed camera/CodePush/masked-view pods.
+- The all-scheme macOS handoff dry-run expands the 8 guarded Debug/Release schemes and records the exact macOS command sequence required before iOS runtime delivery can be claimed.
+- Release-services aggregate summaries accept the refreshed iOS readiness and macOS prerequisite artifacts.
+- No runtime code, native code, dependency versions, package scripts, lockfile entries, Xcode project files, Podfile, or Podfile.lock entries changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:validation:handoff-summary:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.622 - Secure-storage readiness refresh
 
 - Branch: `feature/bem-37-622-secure-storage-readiness-refresh`
