@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.630 - Secure-storage release validation summary
+
+- Branch: `feature/bem-37-630-secure-storage-validation-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guardable secure-storage release validation summary artifact at `local-docs/secure-storage-release-validation-summary.txt`.
+- Tie secure-storage migration posture, removal-readiness posture, and Android dev smoke evidence into one summary before any future legacy secure-store removal branch.
+- Wire the summary guard and generation/check scripts into `rn:baseline:preflight`.
+- Keep `react-native-secure-key-store` installed because fallback reads remain active and fallback-free release validation is not claimed.
+
+Findings:
+
+- The executable secure-storage handoff passed the secure-storage unit contract, storage integration contract, authenticator storage contract, offline wallet core storage contract, Android dev debug assemble, and embedded emulator smoke.
+- The new summary reports valid migration evidence, valid removal-readiness evidence, valid Android dev smoke evidence, Keychain primary writes enabled, legacy writes disabled, legacy fallback reads active, and legacy package removal still not ready.
+- Android warning source from `react-native-secure-key-store` remains expected until fallback-free validation proves migrated PIN, transaction-password, and encrypted wallet data without the legacy backend.
+- No runtime storage behavior, dependency versions, native module linking, or env values changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn secure-storage:release-validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-release-validation-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.629 - CodePush env cleanup readiness guard
 
 - Branch: `feature/bem-37-629-codepush-env-cleanup`
