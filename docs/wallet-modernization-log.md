@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.578 - Camera/QR validation handoff in RN baseline
+
+- Branch: `feature/bem-37-578-camera-qr-handoff-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `camera:qr-validation:handoff:dry-run` to `rn:baseline:preflight` immediately after the Camera/QR handoff guard.
+- Synchronize `auditReactNativeUpgradePath.mjs` with the updated RN baseline preflight command.
+- Update the Android modernization workflow docs so RN baseline explicitly includes the Camera/QR handoff guard and rendered dry-run.
+- Keep scanner runtime code, native Android/iOS files, package versions, lockfile, and emulator smoke evidence unchanged.
+
+Findings:
+
+- The RN baseline preflight validated the Camera/QR handoff guard but did not render the Camera/QR handoff dry-run, so future RN upgrade branches could see the guard pass without showing the exact scanner validation sequence.
+- The baseline now keeps the current CameraKit/QR migration handoff visible before larger RN/latest or scanner-affecting branches.
+- Android smoke remains optional in the dry-run; scanner-affecting runtime/native changes still require `camera:qr-validation:handoff --include-android-smoke`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.577 - Sentry credential handoff bundle evidence guard
 
 - Branch: `feature/bem-37-577-sentry-credential-bundle-evidence`
