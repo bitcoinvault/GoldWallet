@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.556 - Foundation online preflight refresh
+
+- Branch: `feature/bem-37-556-foundation-online-preflight-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the full online foundation preflight after the React Navigation patch refresh.
+- Resolve the new direct-outdated `review-required` entry by updating the guarded `caniuse-lite` resolution.
+- Refresh Android release validation and release-smoke evidence because package and lockfile inputs changed.
+- Revalidate aggregate release-services, static iOS release blockers, wallet crypto, storage/network, tooling, Android toolchain target, and known CommonJS resolution blockers.
+
+Findings:
+
+- Initial `rn:baseline:preflight:online` stopped on `caniuse-lite@1.0.30001797` because npm latest was `1.0.30001799` and the direct-outdated snapshot treats new resolution drift as `review-required`.
+- `caniuse-lite` was updated to `1.0.30001799` in `package.json` resolutions and `yarn.lock`.
+- After the update, `direct-outdated:snapshot:audit` reported `Review-required entries: 0`; remaining direct-outdated entries are the expected blocked or exotic decisions for the BTCV forks, `bl`, `node-fetch`, React renderer coupling, prompt Android fork, and `rn-nodeify`.
+- Full `rn:baseline:preflight:online` completed successfully after refreshing Android release and release-smoke artifacts.
+- React Native remains current at `0.86.0`; npm next remains prerelease `0.86.0-rc.3`; npm nightly is `0.87.0-nightly-20260608-2ff3b81dc`.
+- Android latest toolchain remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, but Gradle `9.4.1`/`9.5.1` hit React Native Gradle plugin `0.86.0` Kotlin metadata incompatibility; the validated baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`.
+- Android release validation rebuilt and checked `dev`, `stage`, `prod`, and `beta` release APK, JS bundle, source-map, and manifest artifacts with current input fingerprints.
+- Android dev release smoke installed the freshly signed local `devRelease` APK on `emulator-5554`, completed onboarding, reached the empty dashboard, validated create/import CTA navigation, validated QR scanner open/close, validated empty-state tab navigation, and found no fatal/runtime logcat findings.
+- Release-services aggregate summaries are valid after the release artifact refresh.
+- Sentry and Firebase packages remain current, but Sentry upload and Firebase runtime delivery remain unclaimed without local credentials/device delivery validation.
+- CodePush remains current at `9.0.1`, but update validation remains blocked by blank dev deployment keys, unconfirmed beta key strategy, App Center CodePush retirement, archived upstream, and missing upstream New Architecture support.
+- iOS static release files remain valid, but iOS archive/runtime validation remains blocked on Windows by missing macOS/Xcode/CocoaPods and 12 active `ios/Podfile.lock` drift issues.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view caniuse-lite@1.0.30001799 version dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.555 - React Navigation patch refresh
 
 - Branch: `feature/bem-37-555-react-navigation-patch-refresh`
