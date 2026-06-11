@@ -2,8 +2,8 @@
 
 This audit supports `BEM-36 - Native modules upgrade` before changing storage, environment, secure storage, Electrum networking, or WebView dependencies.
 
-Checked on: 2026-06-10
-Baseline refreshed on: 2026-06-10 after the RN `0.86.0` foundation checkpoint and storage/network guard refresh.
+Checked on: 2026-06-11
+Baseline refreshed on: 2026-06-11 after the RN `0.86.0` foundation checkpoint and storage/network latest-target refresh.
 
 ## Current Repository State
 
@@ -129,7 +129,7 @@ peerDependencies:
 - react-native: *
 ```
 
-The 2026-06-10 generated latest snapshot confirms the tracked storage/network/config package group remains on the checked current lines used by this RN `0.86.0` baseline. `react-native-get-random-values@2.0.0` remains the current random-value provider and peers `react-native >=0.81`; the deprecated `react-native-randombytes` bridge remains removed.
+The 2026-06-11 generated latest snapshot confirms the tracked storage/network/config package group remains on the checked current lines used by this RN `0.86.0` baseline. `react-native-get-random-values@2.0.0` remains the current random-value provider and peers `react-native >=0.81`; the deprecated `react-native-randombytes` bridge remains removed.
 
 ## Findings
 
@@ -139,7 +139,7 @@ The 2026-06-10 generated latest snapshot confirms the tracked storage/network/co
 - `react-native-config` is now on latest checked `1.6.1` after `BEM-37.167`; the earlier Android compile failure on older React Native Android APIs (`BaseReactPackage` / `WritableMap.putLong`) is resolved on the RN `0.86.0` baseline.
 - `react-native-device-info` is now on checked `15.0.2` after `BEM-37.109`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
 - `react-native-localize` is now on checked `3.7.0` after `BEM-37.107`; it still fits the current React Native baseline according to npm peer metadata and no longer contributes an Android `jcenter()` warning.
-- `react-native-keychain@10.0.0` remains the npm latest checked secure-storage backend on 2026-06-04, while `react-native-secure-key-store@2.0.10` remains npm latest and is retained temporarily for legacy fallback reads and cleanup.
+- `react-native-keychain@10.0.0` remains the npm latest checked secure-storage backend on 2026-06-11, while `react-native-secure-key-store@2.0.10` remains npm latest and is retained temporarily for legacy fallback reads and cleanup.
 - `corepack yarn secure-storage:migration:audit` keeps the current PIN and transaction-password storage surface explicit before any replacement branch starts.
 - `corepack yarn secure-storage:release-validation:handoff:dry-run` renders the focused secure-storage validation sequence for a release-candidate check without executing Android build/smoke work. The executable `corepack yarn secure-storage:release-validation:handoff` refreshes migration/removal summaries, runs secure-storage/storage/authenticator/wallet-core focused checks, runs Android dev build plus emulator smoke by default, and directly validates `local-docs/android-smoke-dev-summary.txt` through the embedded smoke guard before reporting completion.
 - `--skip-android-smoke` skips refreshing Android build/smoke evidence only; the handoff still requires a current valid `android-smoke-dev` summary artifact that records clean first-run onboarding, empty-dashboard CTA navigation, empty-tab navigation, and no fatal/runtime logcat findings.
