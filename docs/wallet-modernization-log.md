@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.620 - Android dev/release validation refresh
+
+- Branch: `feature/bem-37-620-android-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android dev debug and release validation evidence after the current React Native, storage/network, wallet crypto, and release-service modernization checks.
+- Re-run embedded emulator smoke for the dev debug APK and signed `devRelease` APK without requiring Metro.
+- Re-run local release validation for dev, stage, prod, and beta release APKs without claiming Sentry source-map upload validation.
+
+Findings:
+
+- Dev debug smoke passed on `emulator-5554` with the APK installed, first-run terms/PIN/transaction-password/email flow completed, dashboard texts and resource IDs found, create/import wallet CTA navigation validated, QR scanner opened and closed, tab navigation validated, and no fatal/runtime logcat findings.
+- Release validation passed for dev, stage, prod, and beta release variants on JDK 17, Android Gradle Plugin `8.13.2`, Gradle `8.13`, Kotlin Gradle Plugin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- Release validation produced JS bundles and source maps for all four release variants and confirmed local Sentry auto upload is disabled; Sentry source-map upload validation remains not claimed until release credentials are provided.
+- Signed `devRelease` smoke passed on `emulator-5554` without Metro, covering the same first-run, empty dashboard, create/import CTA, QR scanner, and tab navigation checks as the dev debug smoke.
+- Release-services summary checks accepted the refreshed Android release and smoke artifacts.
+- No package versions, runtime code, native code, or Metro behavior changed in this branch; this milestone refreshes Android validation evidence for the current modernization baseline.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.619 - Wallet crypto validation refresh
 
 - Branch: `feature/bem-37-619-wallet-crypto-validation-refresh`
