@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.591 - Camera QR evidence refresh
+
+- Branch: `feature/bem-37-591-camera-qr-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live Camera/QR package evidence for the current CameraKit scanner and QR rendering baseline.
+- Revalidate CameraKit QR migration wiring, focused QR scanner tests, focused QR render tests, Android dev build, and embedded emulator smoke.
+- Keep package versions unchanged because the current Camera/QR set already matches live npm latest metadata.
+
+Findings:
+
+- Live npm metadata reports `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` as current latest targets matching the repo baseline.
+- `react-native-camera` and `@remobile/react-native-qrcode-local-image` remain removed; scanner runtime remains scoped to `ScanQrCodeScreen`.
+- `camera:qr-migration:audit` reports no stale removed camera pods in `ios/Podfile.lock` for this camera/QR surface.
+- Focused QR scanner and render tests pass: Android permission/render gating, QR-only CameraKit config, scan callback behavior, duplicate/empty scan handling, and QR render payloads for receive/contact/export/authenticator screens.
+- Android dev smoke installed the current debug APK on emulator `emulator-5554`, completed onboarding, validated dashboard CTA flow, validated tab navigation, and opened/closed the import-wallet QR scanner screen without fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-qrcode-svg version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-svg version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view qrcode version dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-scanner:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-render:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.590 - Android release evidence refresh
 
 - Branch: `feature/bem-37-590-android-release-evidence-refresh`
