@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.597 - Camera QR latest validation refresh
+
+- Branch: `feature/bem-37-597-camera-qr-latest-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR live package evidence after the release-services and RN baseline work.
+- Validate that the current scanner and QR rendering stack remains on the latest compatible published package versions.
+- Run the full Camera/QR validation handoff with Android dev build and embedded emulator smoke, including the import-wallet QR scanner path.
+
+Findings:
+
+- Live npm metadata reports the repo baseline still matches latest: `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
+- CameraKit runtime usage remains scoped to `src/screens/ScanQrCodeScreen.tsx`; QR scanner caller inventory remains stable at 8 callers and QR render usage remains stable at 5 screens.
+- Camera QR migration summary remains valid: legacy `react-native-camera` is absent, `react-native-camera-kit@18.0.0` is installed, QR rendering uses `react-native-qrcode-svg@6.3.21` with `react-native-svg@15.15.5`, and no iOS Podfile.lock refresh is required for this surface.
+- Focused QR scanner and QR render unit suites pass.
+- Android `devDebug` APK assembled successfully with JDK 17 and Node 24.
+- Embedded Android smoke installed `app-dev-debug.apk` on `emulator-5554`, completed first-run setup, reached the empty dashboard, validated create/import wallet navigation, opened and closed the import-wallet QR scanner screen, validated empty-state tab navigation, captured a screenshot, and found no fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit dist-tags version peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-qrcode-svg dist-tags version peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-svg dist-tags version peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view qrcode dist-tags version dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn camera:qr-validation:handoff --include-android-smoke`
+
 ### BEM-37.596 - Release-services aggregate validation handoff
 
 - Branch: `feature/bem-37-596-release-services-aggregate-handoff`
