@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.545 - CodePush decision evidence refresh
+
+- Branch: `feature/bem-37-545-codepush-decision-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh CodePush decision evidence after live npm and GitHub checks on 2026-06-11.
+- Keep the current `react-native-code-push@9.0.1` package unchanged because it is still npm latest, while the release capability remains classified as migration/removal work because App Center CodePush is retired and Microsoft upstream repositories are archived.
+- Revalidate the guarded CodePush release-path, migration-readiness, removal-readiness, and release-services aggregate summaries without printing deployment-key values.
+
+Findings:
+
+- `npm view react-native-code-push version time repository.url --json` still reports latest `9.0.1`; the latest package publish timestamp remains `2024-12-19T14:31:05.513Z`.
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` reports `isArchived: true`, `pushedAt: 2025-05-20T11:58:16Z`, and `updatedAt: 2026-06-03T23:29:43Z`.
+- `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` reports `isArchived: true`, `pushedAt: 2025-05-20T11:27:24Z`, and `updatedAt: 2026-05-07T05:58:26Z`.
+- CodePush release build evidence is ready, runtime/native bundle resolution remains gated off by default, and update validation remains `not claimed`.
+- Full CodePush update validation is still blocked by blank `.env.dev.testnet` Android/iOS deployment keys, unconfirmed beta deployment-key strategy, retired App Center CodePush service state, archived upstream repositories, and unavailable upstream New Architecture support while Android New Architecture is enabled.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-code-push version time repository.url --json`
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
+- `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.544 - Storage network target refresh
 
 - Branch: `feature/bem-37-544-storage-network-target-refresh`

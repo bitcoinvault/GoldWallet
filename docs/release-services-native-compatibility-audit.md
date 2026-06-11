@@ -131,7 +131,7 @@ Results:
 
 - CodePush release-path wiring is valid for non-dev runtime, Android, iOS, and env key references.
 - Android local release evidence covers `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` by default with Sentry auto upload disabled; the summary records APK path, byte count, and SHA-256 for each unsigned release artifact.
-- CodePush package readiness records live npm latest metadata and confirms that the installed package is current as of 2026-06-10.
+- CodePush package readiness records live npm latest metadata and confirms that the installed package is current as of 2026-06-11.
 - CodePush upstream retirement readiness records App Center CodePush retirement on 2025-03-31, archived Microsoft upstream state, lack of upstream New Architecture support, Android `newArchEnabled=true`, and `CodePush migration required: yes`.
 - CodePush release-path env readiness is now recorded per env file without printing deployment-key values.
 - CodePush release-path package readiness now verifies that `package.json` and the installed `node_modules/react-native-code-push` package agree before release-path validation is considered usable.
@@ -204,7 +204,7 @@ Shared env/config:
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
 - `corepack yarn firebase:runtime:delivery:handoff` validates the local Firebase runtime-delivery prerequisites and static push bridge prerequisites without claiming real FCM, Crashlytics, Analytics, or push delivery behavior.
 - CodePush changes can affect release JS bundle resolution, deployment key loading, and non-dev startup behavior that debug smoke does not execute.
-- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.86.0` proof, with guarded release bundle alias compatibility for RN Gradle task naming. Because App Center CodePush is retired and the Microsoft upstream is archived, this is now a migration/removal risk rather than a normal dependency update target; keeping the package current does not make OTA updates a supported long-term release capability.
+- `react-native-code-push` is on latest checked `9.0.1` after the RN `0.86.0` proof and a 2026-06-11 live npm/GitHub refresh, with guarded release bundle alias compatibility for RN Gradle task naming. Because App Center CodePush is retired and the Microsoft upstream is archived, this is now a migration/removal risk rather than a normal dependency update target; keeping the package current does not make OTA updates a supported long-term release capability.
 - `corepack yarn codepush:release:path-audit` verifies the current non-dev CodePush runtime wiring, explicit JS/native runtime gates, lazy JS HOC creation, Android bundle resolution, iOS deployment-key placeholders, referenced env keys, local package/install version alignment, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, the dedicated release-build evidence readiness line, and unclaimed update-validation status without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.86.0` warning audit no longer reports Sentry `execResult`.
