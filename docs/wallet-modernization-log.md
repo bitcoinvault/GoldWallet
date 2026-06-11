@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.624 - Release-services aggregate refresh
+
+- Branch: `feature/bem-37-624-release-services-aggregate-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the aggregate release-services validation handoff after the Android release, Sentry, secure-storage, and iOS readiness refreshes.
+- Execute the aggregate handoff with the current CodePush posture: `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota`.
+- Keep Android release evidence refresh skipped because the current dev/stage/prod/beta release build, APK manifest, and signed dev-release smoke evidence are already fresh and accepted by the aggregate gate.
+
+Findings:
+
+- The release-services handoff dry-run renders the expected sequence across Sentry properties, Android warning, RN bundle compatibility, Sentry release prerequisites, Firebase release-services, CodePush release/migration/removal/decision, push notification bridge, iOS static readiness, iOS macOS prerequisite readiness, all-scheme iOS macOS handoff dry-run, and final aggregate summary validation.
+- The executed handoff completed with `--skip-android-release`, revalidating all release-service summaries and local readiness artifacts without printing secret values.
+- Sentry remains current at `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.0`; release integration and Android release evidence are ready, while source-map upload validation remains not claimed until `SENTRY_AUTH_TOKEN` generates `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties`.
+- Firebase packages remain current at `24.1.1`, Android release evidence is ready, and Firebase runtime delivery remains not claimed until real FCM token/notification, Crashlytics upload, and Analytics behavior are tested.
+- CodePush remains removed from runtime/native integration; decision handoff records `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, `CodePush migration required: no`, and `Beta deployment-key strategy: beta has no OTA`.
+- Push notification iOS bridge remains current at `@react-native-community/push-notification-ios@1.12.0`, with static bridge readiness valid and runtime delivery not claimed.
+- iOS static release files remain valid, but iOS runtime/archive validation remains blocked on this Windows host until macOS with Xcode `16.1+`, CocoaPods, and a refreshed `ios/Podfile.lock` are available.
+- No runtime code, native code, dependency versions, package scripts, lockfile entries, env files, build configuration, or iOS project files changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff:dry-run --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.623 - iOS static validation refresh
 
 - Branch: `feature/bem-37-623-ios-static-validation-refresh`
