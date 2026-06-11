@@ -77,6 +77,7 @@ describe('unit - SecureStorageService', function () {
     mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
     mockLegacySecureStore.get.mockResolvedValueOnce('1234');
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
+    mockLegacySecureStore.remove.mockResolvedValueOnce('removed');
 
     await expect(service.getSecuredValue('pin')).resolves.toBe('1234');
     expect(mockLegacySecureStore.get).toHaveBeenCalledWith('pin');
@@ -84,12 +85,14 @@ describe('unit - SecureStorageService', function () {
       service: 'pin',
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
+    expect(mockLegacySecureStore.remove).toHaveBeenCalledWith('pin');
   });
 
   it('falls back to the legacy secure store when keychain read fails', async function () {
     mockSecureStore.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));
     mockLegacySecureStore.get.mockResolvedValueOnce('1234');
     mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
+    mockLegacySecureStore.remove.mockResolvedValueOnce('removed');
 
     await expect(service.getSecuredValue('pin')).resolves.toBe('1234');
     expect(mockLegacySecureStore.get).toHaveBeenCalledWith('pin');
@@ -97,6 +100,7 @@ describe('unit - SecureStorageService', function () {
       service: 'pin',
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
+    expect(mockLegacySecureStore.remove).toHaveBeenCalledWith('pin');
   });
 
   it('keeps returning the legacy value when keychain migration write fails', async function () {
@@ -110,6 +114,21 @@ describe('unit - SecureStorageService', function () {
       service: 'pin',
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
+    expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+  });
+
+  it('keeps returning the migrated legacy value when legacy cleanup fails', async function () {
+    mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
+    mockLegacySecureStore.get.mockResolvedValueOnce('1234');
+    mockSecureStore.setGenericPassword.mockResolvedValueOnce({ service: 'pin', storage: 'keychain' });
+    mockLegacySecureStore.remove.mockRejectedValueOnce(new Error('legacy cleanup unavailable'));
+
+    await expect(service.getSecuredValue('pin')).resolves.toBe('1234');
+    expect(mockSecureStore.setGenericPassword).toHaveBeenCalledWith('pin', '1234', {
+      service: 'pin',
+      accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+    });
+    expect(mockLegacySecureStore.remove).toHaveBeenCalledWith('pin');
   });
 
   it('stores plain values with the current accessibility mode', async function () {

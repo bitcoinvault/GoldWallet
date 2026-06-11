@@ -96,6 +96,9 @@ export const collectSecureStorageMigrationAudit = () => {
     !secureStorageService.includes('RNSecureKeyStore.set') && !appStorage.includes('RNSecureKeyStore.set');
   const legacyFallbackReadsActive =
     secureStorageService.includes('RNSecureKeyStore.get') && appStorage.includes('RNSecureKeyStore.get');
+  const legacyCleanupAfterSuccessfulMigration =
+    secureStorageService.includes('await RNSecureKeyStore.remove(key)') &&
+    appStorage.includes('RNSecureKeyStore.remove(key)');
   const keychainPrimaryWrite =
     secureStorageService.includes('return Keychain.setGenericPassword(key, value, secureStorageOptions(key))') &&
     appStorage.includes('return Keychain.setGenericPassword(key, value, secureStorageOptions(key))');
@@ -119,6 +122,7 @@ export const collectSecureStorageMigrationAudit = () => {
     keychainPrimaryWrite,
     legacyWritesDisabled,
     legacyFallbackReadsActive,
+    legacyCleanupAfterSuccessfulMigration,
     warningBaselineMentionsSecureStorage: warningBaseline.includes('react-native-secure-key-store'),
     legacyRemovalReady: false,
     legacyRemovalBlocker:
@@ -142,6 +146,7 @@ export const formatSecureStorageMigrationSummary = (audit, generatedAt = new Dat
     `Keychain primary write: ${audit.keychainPrimaryWrite ? 'yes' : 'no'}`,
     `Legacy secure-storage writes disabled: ${audit.legacyWritesDisabled ? 'yes' : 'no'}`,
     `Legacy secure-storage fallback reads active: ${audit.legacyFallbackReadsActive ? 'yes' : 'no'}`,
+    `Legacy secure-storage cleanup after successful migration: ${audit.legacyCleanupAfterSuccessfulMigration ? 'yes' : 'no'}`,
     `Focused validation script: ${audit.focusedValidation}`,
     `Focused validation command: ${audit.focusedValidationCommand}`,
     `Warning baseline mentions secure-key-store: ${audit.warningBaselineMentionsSecureStorage ? 'yes' : 'no'}`,

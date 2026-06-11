@@ -67,7 +67,11 @@ export class AppStorage {
           .then(value => {
             if (value) {
               return Keychain.setGenericPassword(key, value, secureStorageOptions(key))
-                .then(() => value)
+                .then(() =>
+                  RNSecureKeyStore.remove(key)
+                    .then(() => value)
+                    .catch(() => value),
+                )
                 .catch(() => value);
             }
 

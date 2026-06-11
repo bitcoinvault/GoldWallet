@@ -9,6 +9,7 @@ const validSummary = [
   'Keychain primary write: yes',
   'Legacy fallback reads active: yes',
   'Legacy write path disabled: yes',
+  'Legacy cleanup after successful migration: yes',
   'SecureStorageService fallback migration tests present: yes',
   'AppStorage fallback migration tests present: yes',
   'Fallback migration tests present: yes',
@@ -50,6 +51,11 @@ assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026
 assertRejected('Bad current package fixture', validSummary.replace('Current secure-storage package: react-native-keychain@10.0.0', 'Current secure-storage package: missing'), 'Current secure-storage package');
 assertRejected('Bad posture fixture', validSummary.replace('Current posture: staged migration with legacy fallback', 'Current posture: removed'), 'staged migration');
 assertRejected('No fallback fixture', validSummary.replace('Legacy fallback reads active: yes', 'Legacy fallback reads active: no'), 'Legacy fallback reads');
+assertRejected(
+  'Missing cleanup fixture',
+  validSummary.replace('Legacy cleanup after successful migration: yes', 'Legacy cleanup after successful migration: no'),
+  'Legacy cleanup after successful migration',
+);
 assertRejected(
   'Missing SecureStorageService fallback tests fixture',
   validSummary.replace('SecureStorageService fallback migration tests present: yes', 'SecureStorageService fallback migration tests present: no'),
