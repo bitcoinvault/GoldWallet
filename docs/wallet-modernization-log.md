@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.595 - Firebase runtime delivery readiness refresh
+
+- Branch: `feature/bem-37-595-firebase-runtime-delivery-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Firebase runtime-delivery prerequisite evidence after the latest-target and release-service readiness blocks.
+- Reconfirm live React Native Firebase and iOS push notification package targets before changing any release-service package versions.
+- Validate Android notification permission flow, Firebase release-services wiring, iOS push notification bridge readiness, and the Firebase runtime-delivery handoff without claiming real FCM, Crashlytics, Analytics, or push delivery behavior.
+
+Findings:
+
+- Live npm metadata reports `@react-native-firebase/app`, `messaging`, and `crashlytics` at `24.1.1`, matching the current aligned package family.
+- Live npm metadata reports `@react-native-community/push-notification-ios@1.12.0`, matching the current package baseline.
+- Firebase release-services wiring is valid for package family alignment, Android config, iOS plist files, Messaging runtime paths, Android release evidence, and release APK manifest proof.
+- Android release evidence still covers `dev`, `stage`, `prod`, and `beta`; Android release summary, release input fingerprint coverage, and APK manifest validation are current.
+- Android 13+ notification permission flow remains guarded before Firebase Messaging permission/token behavior.
+- iOS push notification bridge wiring is valid for package manifest, runtime badge handling, AppDelegate forwarding, and foreground presentation hooks.
+- Firebase runtime delivery validation remains not claimed until a real runtime/service test confirms FCM token/notification delivery, Crashlytics upload, and Analytics behavior.
+- Push notification runtime delivery validation remains not claimed until Android/iOS device or simulator delivery behavior is tested with the required service environment.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/app version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/messaging version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/crashlytics version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-community/push-notification-ios version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:push-notification-bridge-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-notification-permission-flow-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-notification-permission-flow`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:push-notification-ios-usage-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:push-notification-ios-usage-scope`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `git diff --check`
+
 ### BEM-37.594 - Latest target refresh and CodePush handoff guard alignment
 
 - Branch: `feature/bem-37-594-latest-target-refresh`
