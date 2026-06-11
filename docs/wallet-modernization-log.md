@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.542 - React 19.2.7 compatibility probe
+
+- Branch: `feature/bem-37-542-react-19-2-7`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Check whether the current RN `0.86.0` baseline can move React and `react-test-renderer` from `19.2.3` to the latest npm patch `19.2.7`.
+- Keep the actual package versions unchanged when the renderer compatibility guard proves the bump is not safe.
+
+Findings:
+
+- npm reports `react-native@0.86.0` as the current latest React Native package and its peer range allows `react ^19.2.3`.
+- npm reports `react@19.2.7` and `react-test-renderer@19.2.7` as current latest packages.
+- A direct package probe to `react@19.2.7` plus `react-test-renderer@19.2.7` installs and TypeScript still passes, but the RN renderer exact-version audit rejects it because RN `0.86.0` implementation files still embed renderer version `19.2.3`.
+- The bump was reverted on this branch; keep `react@19.2.3` and `react-test-renderer@19.2.3` until the RN package line itself moves or the renderer exact-version evidence changes.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native version --json` returned `0.86.0`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react version --json` returned `19.2.7`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-test-renderer version peerDependencies --json` returned `19.2.7` with peer `react ^19.2.7`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native@0.86.0 peerDependencies dependencies --json` showed peer `react ^19.2.3`
+- Probe command: `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add react@19.2.7 && corepack yarn add --dev react-test-renderer@19.2.7`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check` passed during the probe
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:renderer-version:audit` expected fail: React package version `19.2.7` does not match RN renderer exact version `19.2.3`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react19:impact:audit` expected fail: current React baseline remains `19.2.3`
+- Reverted probe changes to `package.json` and `yarn.lock`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:renderer-version:audit` passed again on `react@19.2.3`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react19:impact:audit` passed again on the current React 19 baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.541 - Android release evidence refresh
 
 - Branch: `feature/bem-37-541-android-release-evidence-refresh`
