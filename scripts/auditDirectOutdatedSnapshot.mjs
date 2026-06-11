@@ -45,10 +45,6 @@ const knownDecisions = new Map([
     'bl',
     'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   ],
-  [
-    'node-fetch',
-    'blocked - ESM-only v3 remains incompatible with guarded CommonJS transitive consumers',
-  ],
 ]);
 
 const parseYarnOutdatedJson = stdout => {

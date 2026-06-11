@@ -5,16 +5,15 @@ const validSummary = [
   'Generated at: 2026-06-05T00:00:00.000Z',
   'Node version: v24.16.0',
   'Expected Node version: v24.16.0',
-  'Entries: 8',
+  'Entries: 7',
   '- bitcoinjs-lib: current 5.1.6, wanted exotic, latest exotic, type dependencies, decision exotic - BitcoinVault fork is tracked by git dependency snapshot; do not replace with upstream npm without wallet compatibility proof',
   '- bl: current 6.1.6, wanted 6.1.6, latest 7.0.3, type resolutionDependencies, decision blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   '- electrum-client: current 2.0.0, wanted exotic, latest exotic, type dependencies, decision exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
-  '- node-fetch: current 2.7.0, wanted 2.7.0, latest 3.3.2, type resolutionDependencies, decision blocked - ESM-only v3 remains incompatible with guarded CommonJS transitive consumers',
   '- react: current 19.2.3, wanted 19.2.3, latest 19.2.7, type dependencies, decision blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
   '- react-native-prompt-android: current 0.3.6, wanted exotic, latest exotic, type dependencies, decision exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
   '- react-test-renderer: current 19.2.3, wanted 19.2.3, latest 19.2.7, type devDependencies, decision blocked - React Native renderer exact-version coupling requires test renderer to stay aligned with React and RN',
   '- rn-nodeify: current 10.3.0, wanted exotic, latest exotic, type devDependencies, decision exotic - GitHub pin is guarded by rn-nodeify shim checks and git dependency snapshot',
-  'Known blocked entries: 4',
+  'Known blocked entries: 3',
   'Exotic entries: 4',
   'Review-required entries: 0',
   'Secret values printed: no',
@@ -63,10 +62,10 @@ assertRejected(
   validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 8', 'Entries: 7'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 7', 'Entries: 6'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 8', 'Entries: 9').replace(
+  validSummary.replace('Entries: 7', 'Entries: 8').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -102,11 +101,6 @@ assertRejected(
   'Missing bl blocker fixture',
   validSummary.replace('CommonJS transitive consumers', 'generic major update'),
   'CommonJS transitive consumer',
-);
-assertRejected(
-  'Missing node-fetch blocker fixture',
-  validSummary.replace('ESM-only v3', 'generic major update'),
-  'ESM-only v3',
 );
 assertRejected(
   'Secret printed fixture',
