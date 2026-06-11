@@ -45,6 +45,8 @@ const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesV
   'corepack yarn codepush:migration:readiness-check-summary',
   'corepack yarn codepush:removal-readiness:audit',
   'corepack yarn codepush:removal-readiness:check-summary',
+  'corepack yarn codepush:env-cleanup:audit',
+  'corepack yarn codepush:env-cleanup:check-summary',
   'corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota',
   'corepack yarn check:codepush-decision-handoff-summary-guard',
   'corepack yarn push-notification:bridge-audit',
@@ -113,6 +115,16 @@ assert(
   skippedCommands.findIndex(step => step.args.includes('codepush:decision:handoff')) >
     skippedCommands.findIndex(step => step.args.includes('codepush:removal-readiness:check-summary')),
   'CodePush decision handoff must run after CodePush release, migration, and removal summaries are refreshed',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('codepush:env-cleanup:audit')) >
+    skippedCommands.findIndex(step => step.args.includes('codepush:removal-readiness:check-summary')),
+  'CodePush env cleanup audit must run after CodePush removal readiness is validated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('codepush:decision:handoff')) >
+    skippedCommands.findIndex(step => step.args.includes('codepush:env-cleanup:check-summary')),
+  'CodePush decision handoff must run after CodePush env cleanup readiness is validated',
 );
 assert(
   skippedCommands.findIndex(step => step.args.includes('check:codepush-decision-handoff-summary-guard')) >

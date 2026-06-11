@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.629 - CodePush env cleanup readiness guard
+
+- Branch: `feature/bem-37-629-codepush-env-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a secrets-safe audit for stale tracked `CODEPUSH_*` env keys after CodePush runtime/native removal.
+- Integrate the env cleanup readiness audit into `rn:baseline:preflight`, the aggregate release-services validation handoff, and the release-services summary artifact checker.
+- Keep ordinary env-line deletion out of this branch because stage/prod deployment-key lines are non-empty and a normal review diff would expose historical deployment-key values.
+
+Findings:
+
+- CodePush remains removed from runtime and native integration, but five tracked env files still carry CodePush env keys.
+- The audit reports eleven CodePush env key entries, including four non-empty deployment-key entries in two tracked env files.
+- `Cleanup safe through normal text diff` is reported as `no`, and `Secret values printed` is reported as `no`.
+- The aggregate release-services handoff now refreshes and validates `local-docs/codepush-env-cleanup-readiness-summary.txt` before regenerating the CodePush decision handoff.
+- No tracked env values were printed, removed, or committed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn release-services:validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-env-cleanup-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:env-cleanup:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:env-cleanup:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.628 - Release-services documentation alignment
 
 - Branch: `feature/bem-37-628-release-services-doc-alignment`
