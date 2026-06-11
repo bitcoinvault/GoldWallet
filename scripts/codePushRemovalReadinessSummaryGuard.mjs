@@ -35,11 +35,16 @@ const yesNoLabels = [
   'Android native integration present',
   'iOS native integration present',
   'CodePush runtime gated off by default',
+  'Decision handoff present',
+  'Decision handoff valid',
   'Removal decision available',
   'Replacement decision available',
   'Safe to remove now',
   'Secret values printed',
 ];
+
+const decisions = ['missing', 'pending', 'remove', 'replace', 'temporary legacy compatibility'];
+const betaStrategies = ['missing', 'unconfirmed', 'beta has OTA keys', 'beta has no OTA', 'beta out of scope'];
 
 export const getCodePushRemovalReadinessSummaryErrors = summary => {
   const errors = [];
@@ -60,6 +65,11 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
   const nativeIntegrationCount = getLineValue(summary, 'Native integration files');
   const envFileCount = getLineValue(summary, 'Env files carrying CodePush keys');
   const iosPlistCount = getLineValue(summary, 'iOS plist placeholders');
+  const decisionHandoffPresent = getLineValue(summary, 'Decision handoff present');
+  const decisionHandoffValid = getLineValue(summary, 'Decision handoff valid');
+  const decision = getLineValue(summary, 'Decision');
+  const betaStrategy = getLineValue(summary, 'Beta deployment-key strategy');
+  const decisionHandoffErrors = getLineValue(summary, 'Decision handoff errors');
   const removalDecision = getLineValue(summary, 'Removal decision available');
   const replacementDecision = getLineValue(summary, 'Replacement decision available');
   const safeToRemove = getLineValue(summary, 'Safe to remove now');
@@ -152,12 +162,60 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
     errors.push(`CodePush native integration inventory must remain 8 files until removal. Received: ${nativeIntegrationCount || 'missing'}`);
   }
 
-  if (removalDecision !== 'no' || replacementDecision !== 'no') {
-    errors.push('CodePush remove/replace decision must not be claimed by this audit-only branch');
+  if (!decisions.includes(decision)) {
+    errors.push(`Decision must be one of ${decisions.join(', ')}. Received: ${decision || 'missing'}`);
   }
 
-  if (safeToRemove !== 'no') {
-    errors.push('CodePush must not be marked safe to remove until a remove-or-replace decision is available');
+  if (!betaStrategies.includes(betaStrategy)) {
+    errors.push(`Beta deployment-key strategy must be one of ${betaStrategies.join(', ')}. Received: ${betaStrategy || 'missing'}`);
+  }
+
+  if (!/^\d+$/.test(decisionHandoffErrors)) {
+    errors.push(`Decision handoff errors must be a non-negative integer. Received: ${decisionHandoffErrors || 'missing'}`);
+  }
+
+  if (decisionHandoffPresent === 'no' && decision !== 'missing') {
+    errors.push('Missing decision handoff must report Decision: missing');
+  }
+
+  if (decisionHandoffValid === 'yes' && decisionHandoffErrors !== '0') {
+    errors.push('Valid CodePush decision handoff must report zero decision handoff errors');
+  }
+
+  if (decisionHandoffValid === 'no' && decision === 'remove') {
+    errors.push('Remove decision requires a valid CodePush decision handoff');
+  }
+
+  if (removalDecision === 'yes' && decision !== 'remove') {
+    errors.push('Removal decision can be available only when Decision is remove');
+  }
+
+  if (replacementDecision === 'yes' && decision !== 'replace') {
+    errors.push('Replacement decision can be available only when Decision is replace');
+  }
+
+  if (decision === 'remove' && removalDecision !== 'yes') {
+    errors.push('Decision remove must make Removal decision available yes');
+  }
+
+  if (decision !== 'remove' && removalDecision !== 'no') {
+    errors.push('Removal decision must be no unless Decision is remove');
+  }
+
+  if (decision !== 'replace' && replacementDecision !== 'no') {
+    errors.push('Replacement decision must be no unless Decision is replace');
+  }
+
+  if (safeToRemove === 'yes' && decision !== 'remove') {
+    errors.push('CodePush can be marked safe to remove only when Decision is remove');
+  }
+
+  if (decision === 'remove' && safeToRemove !== 'yes') {
+    errors.push('Decision remove must make Safe to remove now yes once release evidence and native gates are valid');
+  }
+
+  if (decision !== 'remove' && safeToRemove !== 'no') {
+    errors.push('CodePush must not be marked safe to remove until a valid remove decision is available');
   }
 
   if (secretValuesPrinted !== 'no') {
@@ -168,7 +226,11 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
     errors.push('CodePush removal readiness summary must not print deployment key assignments');
   }
 
-  if (!requiredAction.includes('choose remove or replace')) {
+  if (decision === 'remove') {
+    if (!requiredAction.includes('start the CodePush removal implementation branch')) {
+      errors.push('Remove decision required action must point to the CodePush removal implementation branch');
+    }
+  } else if (!requiredAction.includes('choose remove or replace')) {
     errors.push('Required action must ask for a remove-or-replace CodePush decision');
   }
 

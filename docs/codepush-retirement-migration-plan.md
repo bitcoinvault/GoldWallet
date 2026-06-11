@@ -65,7 +65,8 @@ Expected summary claims:
 - the decision handoff keeps release build evidence, release-smoke evidence, beta strategy, iOS validation status, and OTA update validation state in one local artifact without printing deployment-key values;
 - the removal-readiness summary records the exact runtime, Android, iOS, plist, and env-key surfaces that must be deleted or replaced;
 - the removal-readiness summary also records the CodePush package latest version, latest published timestamp, npm repository, upstream repository, archived state, New Architecture support, Android New Architecture enabled state, migration-required state, and Android release evidence readiness before any removal is planned;
-- the removal-readiness summary keeps `Safe to remove now: no` until the team chooses remove or replace;
+- the removal-readiness summary keeps `Safe to remove now: no` until a valid local decision handoff says `Decision: remove`;
+- the release-services handoff can now be run with `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota` so the selected decision is preserved through the full release-services validation sequence instead of being reset to `pending`;
 - the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence;
 - no deployment key values are printed.
 
@@ -102,6 +103,23 @@ Do not start a removal branch until the decision says `remove`.
 Do not start a replacement branch until the decision says `replace` and names the replacement target.
 Do not claim CodePush update validation until deployment keys are non-empty for the target environments and a real OTA delivery test has run.
 Never print or commit CodePush deployment-key values in handoff artifacts.
+
+Local remove-decision gate:
+
+```powershell
+corepack yarn codepush:release:path-audit
+corepack yarn codepush:release:path-check-summary
+corepack yarn codepush:migration:readiness-audit
+corepack yarn codepush:migration:readiness-check-summary
+corepack yarn codepush:removal-readiness:audit
+corepack yarn codepush:removal-readiness:check-summary
+corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota
+corepack yarn codepush:removal-readiness:audit
+corepack yarn codepush:removal-readiness:check-summary
+corepack yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota
+```
+
+The first removal-readiness audit provides the inventory required by the decision handoff. The second removal-readiness audit proves that the valid local remove decision is visible and that `Safe to remove now` is `yes` before a CodePush removal implementation branch starts.
 
 ## Remove Branch Acceptance Gate
 

@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.582 - CodePush remove-decision readiness gate
+
+- Branch: `feature/bem-37-582-codepush-removal-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `codepush:removal-readiness:audit` consume the local guarded CodePush decision handoff artifact.
+- Keep the default state blocked with `Safe to remove now: no` unless the decision handoff is valid and says `Decision: remove`.
+- Mark removal readiness as implementation-ready only when release build evidence, release-smoke evidence, runtime/native gates, and the explicit remove decision are all valid.
+- Add release-services handoff parameters for forwarding `--codepush-decision`, `--codepush-replacement-target`, and `--codepush-beta-strategy`.
+- Document the local remove-decision gate in the CodePush retirement migration plan.
+- Keep CodePush runtime code, native integration, package versions, lockfile, deployment-key values, OTA update validation state, and iOS runtime validation state unchanged.
+
+Findings:
+
+- The existing decision handoff already accepted `remove`, but full release-services validation always refreshed the decision as `pending`.
+- The removal-readiness audit now distinguishes evidence inventory from decision state: a missing or pending handoff keeps removal blocked, while a valid local `remove` handoff can make `Safe to remove now: yes`.
+- A validated local remove-decision sequence produces `Decision: remove`, `Removal decision available: yes`, and `Safe to remove now: yes` without printing deployment-key values.
+- The implementation branch still remains separate: CodePush runtime/native/env/plist removal has not been performed in this branch.
+- CodePush OTA update validation remains `not claimed`; iOS runtime/archive validation remains blocked on this Windows host until macOS/Xcode/CocoaPods validation runs.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-removal-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run -- --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.581 - RN foundation latest target refresh
 
 - Branch: `feature/bem-37-581-rn-foundation-latest-refresh`

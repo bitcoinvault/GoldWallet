@@ -37,6 +37,11 @@ const validSummary = [
   'Android native integration present: yes',
   'iOS native integration present: yes',
   'CodePush runtime gated off by default: yes',
+  'Decision handoff present: yes',
+  'Decision handoff valid: yes',
+  'Decision: pending',
+  'Beta deployment-key strategy: unconfirmed',
+  'Decision handoff errors: 0',
   'Removal decision available: no',
   'Replacement decision available: no',
   'Safe to remove now: no',
@@ -66,6 +71,18 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid CodePush removal readiness summary fixture', validSummary);
+assertAccepted(
+  'Valid CodePush remove decision readiness summary fixture',
+  validSummary
+    .replace('Decision: pending', 'Decision: remove')
+    .replace('Beta deployment-key strategy: unconfirmed', 'Beta deployment-key strategy: beta has no OTA')
+    .replace('Removal decision available: no', 'Removal decision available: yes')
+    .replace('Safe to remove now: no', 'Safe to remove now: yes')
+    .replace(
+      'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
+      'Required action: start the CodePush removal implementation branch; do not claim OTA update validation, and leave iOS runtime/archive validation unclaimed unless it runs on macOS/Xcode.',
+    ),
+);
 assertRejected('Missing header fixture', validSummary.replace('CodePush removal readiness audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-04T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Missing latest package fixture', validSummary.replace('CodePush package latest version: 9.0.1', 'CodePush package latest version: missing'), 'latest version');
@@ -106,8 +123,15 @@ assertRejected(
 assertRejected('Bad runtime count fixture', validSummary.replace('Runtime usage files: 1', 'Runtime usage files: 2'), 'Runtime usage files count');
 assertRejected('Bad native count fixture', validSummary.replace('Native integration files: 8', 'Native integration files: 7'), 'Native integration files');
 assertRejected('Missing plist fixture', validSummary.replace('iOS plist placeholders: 3', 'iOS plist placeholders: 2'), 'iOS plist placeholders');
-assertRejected('Decision claimed fixture', validSummary.replace('Removal decision available: no', 'Removal decision available: yes'), 'remove/replace decision');
-assertRejected('Safe removal fixture', validSummary.replace('Safe to remove now: no', 'Safe to remove now: yes'), 'safe to remove');
+assertRejected('Decision claimed fixture', validSummary.replace('Removal decision available: no', 'Removal decision available: yes'), 'only when Decision is remove');
+assertRejected('Safe removal fixture', validSummary.replace('Safe to remove now: no', 'Safe to remove now: yes'), 'only when Decision is remove');
+assertRejected(
+  'Invalid remove decision fixture',
+  validSummary
+    .replace('Decision: pending', 'Decision: remove')
+    .replace('Decision handoff valid: yes', 'Decision handoff valid: no'),
+  'requires a valid CodePush decision handoff',
+);
 assertRejected('Secret leak fixture', validSummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');
 assertRejected(
   'Missing required action fixture',

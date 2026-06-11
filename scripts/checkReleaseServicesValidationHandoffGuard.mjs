@@ -17,6 +17,12 @@ const fullCommands = getReleaseServicesValidationCommands({ skipAndroidRelease: 
 const fullRendered = fullCommands.map(renderReleaseServicesValidationCommand).join('\n');
 const skippedCommands = getReleaseServicesValidationCommands({ skipAndroidRelease: true });
 const skippedRendered = skippedCommands.map(renderReleaseServicesValidationCommand).join('\n');
+const removeDecisionCommands = getReleaseServicesValidationCommands({
+  skipAndroidRelease: true,
+  codePushDecision: 'remove',
+  codePushBetaStrategy: 'beta-has-no-ota',
+});
+const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesValidationCommand).join('\n');
 
 [
   'corepack yarn android:dev:release:verify-local',
@@ -39,7 +45,7 @@ const skippedRendered = skippedCommands.map(renderReleaseServicesValidationComma
   'corepack yarn codepush:migration:readiness-check-summary',
   'corepack yarn codepush:removal-readiness:audit',
   'corepack yarn codepush:removal-readiness:check-summary',
-  'corepack yarn codepush:decision:handoff',
+  'corepack yarn codepush:decision:handoff --decision pending --beta-strategy unconfirmed',
   'corepack yarn check:codepush-decision-handoff-summary-guard',
   'corepack yarn push-notification:bridge-audit',
   'corepack yarn push-notification:bridge-check-summary',
@@ -119,6 +125,10 @@ assert(
   'CodePush decision handoff must be validated before leaving the CodePush release-service block',
 );
 assert(
+  removeDecisionRendered.includes('corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota'),
+  'Release-services handoff must forward an explicit CodePush remove decision and beta strategy',
+);
+assert(
   skippedRendered.includes('corepack yarn ios:mac-validation:handoff:dry-run'),
   'Skipped release-services handoff must still render the iOS macOS validation handoff dry run',
 );
@@ -135,6 +145,25 @@ assert(
     error.includes('skipAndroidRelease must be a boolean'),
   ),
   'Invalid skipAndroidRelease option must be rejected',
+);
+assert(
+  getReleaseServicesValidationHandoffErrors({ codePushDecision: 'delete' }).some(error =>
+    error.includes('codePushDecision must be one of'),
+  ),
+  'Invalid CodePush decision option must be rejected',
+);
+assert(
+  getReleaseServicesValidationHandoffErrors({ codePushDecision: 'replace' }).some(error =>
+    error.includes('codePushReplacementTarget is required'),
+  ),
+  'Replacement decision without target must be rejected',
+);
+assert(
+  getReleaseServicesValidationHandoffErrors({
+    codePushDecision: 'remove',
+    codePushReplacementTarget: 'self-hosted-ota',
+  }).some(error => error.includes('codePushReplacementTarget must be none')),
+  'Replacement target must be rejected for remove decisions',
 );
 assert(
   getReleaseServicesValidationReadinessErrors().length === 0,

@@ -7,11 +7,13 @@ import {
 } from './codePushUsageGuard.mjs';
 import { codePushEnvFiles, codePushIosInfoPlists, collectCodePushReleasePathAudit } from './auditCodePushReleasePath.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getCodePushDecisionHandoffErrors } from './codePushDecisionHandoffGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'codepush-removal-readiness-summary.txt');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const decisionHandoffPath = path.join(root, 'local-docs', 'codepush-decision-handoff.txt');
 const signedReleaseApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 const unsignedReleaseApkPath = path.join(
   root,
@@ -26,9 +28,38 @@ const unsignedReleaseApkPath = path.join(
 );
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
+const getLineValue = (content, label) => {
+  const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
+  return line ? line.slice(label.length + 2).trim() : '';
+};
+
+const collectDecisionHandoff = () => {
+  if (!existsSync(decisionHandoffPath)) {
+    return {
+      present: false,
+      valid: false,
+      decision: 'missing',
+      betaStrategy: 'missing',
+      errors: ['missing CodePush decision handoff'],
+    };
+  }
+
+  const content = readFileSync(decisionHandoffPath, 'utf8');
+  const errors = getCodePushDecisionHandoffErrors(content);
+
+  return {
+    present: true,
+    valid: errors.length === 0,
+    decision: getLineValue(content, 'Decision') || 'missing',
+    betaStrategy: getLineValue(content, 'Beta deployment-key strategy') || 'missing',
+    errors,
+  };
+};
+
 export const collectCodePushRemovalReadinessAudit = () => {
   const packageJson = JSON.parse(read('package.json'));
   const releasePathAudit = collectCodePushReleasePathAudit();
+  const decisionHandoff = collectDecisionHandoff();
   let androidReleaseSmokeSummaryValid = false;
   let androidReleaseSmokeSummaryErrors = ['missing Android release smoke summary'];
   const packageInstalled = Boolean(packageJson.dependencies?.['react-native-code-push'] || packageJson.devDependencies?.['react-native-code-push']);
@@ -55,6 +86,16 @@ export const collectCodePushRemovalReadinessAudit = () => {
     androidReleaseSmokeSummaryValid = androidReleaseSmokeSummaryErrors.length === 0;
   }
 
+  const removalDecisionAvailable = decisionHandoff.valid && decisionHandoff.decision === 'remove';
+  const replacementDecisionAvailable = decisionHandoff.valid && decisionHandoff.decision === 'replace';
+  const safeToRemoveNow =
+    removalDecisionAvailable &&
+    releasePathAudit.releaseBuildEvidenceReady &&
+    androidReleaseSmokeSummaryValid &&
+    releasePathAudit.migrationRequired &&
+    releasePathAudit.runtimeGatePresent &&
+    releasePathAudit.nativeBundleGatePresent;
+
   return {
     packageInstalled,
     packageLatestVersion: releasePathAudit.packageLatestVersion,
@@ -80,9 +121,14 @@ export const collectCodePushRemovalReadinessAudit = () => {
       releasePathAudit.nativeBundleGatePresent &&
       releasePathAudit.errors.every(error => !error.includes('ios/GoldWallet/AppDelegate.m')),
     runtimeGatedOffByDefault: releasePathAudit.runtimeGatePresent && releasePathAudit.nativeBundleGatePresent && !releasePathAudit.runtimeDefaultEnabled,
-    removalDecisionAvailable: false,
-    replacementDecisionAvailable: false,
-    safeToRemoveNow: false,
+    decisionHandoffPresent: decisionHandoff.present,
+    decisionHandoffValid: decisionHandoff.valid,
+    decision: decisionHandoff.decision,
+    betaStrategy: decisionHandoff.betaStrategy,
+    decisionHandoffErrors: decisionHandoff.errors,
+    removalDecisionAvailable,
+    replacementDecisionAvailable,
+    safeToRemoveNow,
   };
 };
 
@@ -114,11 +160,19 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
     `Android native integration present: ${audit.androidNativeIntegrationPresent ? 'yes' : 'no'}`,
     `iOS native integration present: ${audit.iosNativeIntegrationPresent ? 'yes' : 'no'}`,
     `CodePush runtime gated off by default: ${audit.runtimeGatedOffByDefault ? 'yes' : 'no'}`,
+    `Decision handoff present: ${audit.decisionHandoffPresent ? 'yes' : 'no'}`,
+    `Decision handoff valid: ${audit.decisionHandoffValid ? 'yes' : 'no'}`,
+    `Decision: ${audit.decision}`,
+    `Beta deployment-key strategy: ${audit.betaStrategy}`,
+    `Decision handoff errors: ${audit.decisionHandoffErrors.length}`,
+    ...audit.decisionHandoffErrors.map(error => `- ${error}`),
     `Removal decision available: ${audit.removalDecisionAvailable ? 'yes' : 'no'}`,
     `Replacement decision available: ${audit.replacementDecisionAvailable ? 'yes' : 'no'}`,
     `Safe to remove now: ${audit.safeToRemoveNow ? 'yes' : 'no'}`,
     'Secret values printed: no',
-    'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
+    audit.safeToRemoveNow
+      ? 'Required action: start the CodePush removal implementation branch; do not claim OTA update validation, and leave iOS runtime/archive validation unclaimed unless it runs on macOS/Xcode.'
+      : 'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
   ];
 
   return `${lines.join('\n')}\n`;
@@ -142,8 +196,14 @@ const printReport = audit => {
   console.log(`Env files carrying CodePush keys: ${audit.envFilesCarryingCodePushKeys.length}`);
   console.log(`iOS plist placeholders: ${audit.iosPlistPlaceholders.length}`);
   console.log(`CodePush runtime gated off by default: ${audit.runtimeGatedOffByDefault ? 'yes' : 'no'}`);
+  console.log(`Decision handoff valid: ${audit.decisionHandoffValid ? 'yes' : 'no'}`);
+  console.log(`Decision: ${audit.decision}`);
   console.log(`Safe to remove now: ${audit.safeToRemoveNow ? 'yes' : 'no'}`);
-  console.log('Required action: choose remove or replace before deleting CodePush integration.');
+  console.log(
+    audit.safeToRemoveNow
+      ? 'Required action: start the CodePush removal implementation branch.'
+      : 'Required action: choose remove or replace before deleting CodePush integration.',
+  );
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
