@@ -2,12 +2,10 @@ import { requiredSentryPropertiesFiles } from './auditSentryReleasePrerequisites
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
 
 const sentryCliPackageInstanceFixture = [
-  '@sentry/cli installed package instances: 3',
+  '@sentry/cli installed package instances: 1',
   '- node_modules/@sentry/cli/package.json: 3.5.0 (direct)',
-  '- node_modules/@sentry/expo-upload-sourcemaps/node_modules/@sentry/cli/package.json: 3.4.3 (nested)',
-  '- node_modules/@sentry/react-native/node_modules/@sentry/cli/package.json: 3.4.3 (nested)',
-  '@sentry/cli installed package versions: 3.5.0, 3.4.3',
-  '@sentry/cli nested package versions: 3.4.3',
+  '@sentry/cli installed package versions: 3.5.0',
+  '@sentry/cli nested package versions: none',
   '@sentry/cli direct package installed: yes',
   'Sentry CLI release build path uses direct package: yes',
 ];
@@ -16,8 +14,8 @@ const notReadySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: not ready',
-  '@sentry/react-native version: 8.13.0',
-  '@sentry/react-native latest: 8.13.0',
+  '@sentry/react-native version: 8.14.0',
+  '@sentry/react-native latest: 8.14.0',
   '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.5.0',
   '@sentry/cli latest: 3.5.0',
@@ -77,8 +75,8 @@ const readySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: ready',
-  '@sentry/react-native version: 8.13.0',
-  '@sentry/react-native latest: 8.13.0',
+  '@sentry/react-native version: 8.14.0',
+  '@sentry/react-native latest: 8.14.0',
   '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.5.0',
   '@sentry/cli latest: 3.5.0',
@@ -159,17 +157,17 @@ assertRejected('Missing header fixture', notReadySummary.replace('Sentry release
 assertRejected('Bad timestamp fixture', notReadySummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected(
   'Missing Sentry SDK version fixture',
-  notReadySummary.replace('@sentry/react-native version: 8.13.0', '@sentry/react-native version: missing'),
+  notReadySummary.replace('@sentry/react-native version: 8.14.0', '@sentry/react-native version: missing'),
   '@sentry/react-native version must be present',
 );
 assertRejected(
   'Missing Sentry SDK latest fixture',
-  notReadySummary.replace('@sentry/react-native latest: 8.13.0', '@sentry/react-native latest: missing'),
+  notReadySummary.replace('@sentry/react-native latest: 8.14.0', '@sentry/react-native latest: missing'),
   '@sentry/react-native latest must be present',
 );
 assertRejected(
   'Stale Sentry SDK current fixture',
-  notReadySummary.replace('@sentry/react-native latest: 8.13.0', '@sentry/react-native latest: 9.0.0'),
+  notReadySummary.replace('@sentry/react-native latest: 8.14.0', '@sentry/react-native latest: 9.0.0'),
   '@sentry/react-native current cannot be yes',
 );
 assertRejected(
@@ -189,7 +187,7 @@ assertRejected(
 );
 assertRejected(
   'Bad Sentry CLI installation count fixture',
-  notReadySummary.replace('@sentry/cli installed package instances: 3', '@sentry/cli installed package instances: 2'),
+  notReadySummary.replace('@sentry/cli installed package instances: 1', '@sentry/cli installed package instances: 2'),
   '@sentry/cli installed package instances count',
 );
 assertRejected(
@@ -199,7 +197,7 @@ assertRejected(
 );
 assertRejected(
   'Sentry CLI versions missing direct package fixture',
-  notReadySummary.replace('@sentry/cli installed package versions: 3.5.0, 3.4.3', '@sentry/cli installed package versions: 3.4.3'),
+  notReadySummary.replace('@sentry/cli installed package versions: 3.5.0', '@sentry/cli installed package versions: 3.4.3'),
   '@sentry/cli installed package versions must include',
 );
 assertRejected(
