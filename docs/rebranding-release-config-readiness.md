@@ -99,6 +99,12 @@ These decisions must be made before implementation:
 Audit/docs-only changes:
 
 ```powershell
+corepack yarn check:rebranding-release-config-readiness-guard
+corepack yarn check:rebranding-release-config-readiness
+corepack yarn check:explorer-env-config-readiness-guard
+corepack yarn check:explorer-env-config-readiness
+corepack yarn check:store-metadata-readiness-guard
+corepack yarn check:store-metadata-readiness
 corepack yarn android:dev:check-light
 corepack yarn check:release-services-summary-guard
 corepack yarn release-services:check-summaries

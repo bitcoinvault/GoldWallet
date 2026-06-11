@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.589 - Rebranding release-config readiness guard
+
+- Branch: `feature/bem-37-589-rebranding-readiness-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add an executable rebranding release-config readiness guard over Android app IDs/names/deep links, iOS bundle IDs/plists/shared schemes, runtime config keys, explorer/env readiness, and store metadata readiness.
+- Wire the guard into the lightweight Android gate and RN baseline preflight so rebrand-critical release config drift is caught before larger package/runtime changes.
+- Keep this branch docs/scripts-only; no runtime code, native package versions, or app behavior changed.
+
+Findings:
+
+- Rebranding readiness now depends on the existing explorer/env and store metadata readiness guards, so app identity changes cannot be validated without also preserving explorer and store surfaces.
+- `android:dev:check-light` and `rn:baseline:preflight` now fail if the rebranding readiness scripts or their documented surfaces drift.
+- iOS runtime validation is still not claimed on Windows; this guard verifies static iOS project/scheme/plist readiness only.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rebranding-release-config-readiness-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rebranding-release-config-readiness`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:explorer-env-config-readiness-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:explorer-env-config-readiness`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:store-metadata-readiness-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:store-metadata-readiness`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-dev-env-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.588 - Secure-storage legacy cleanup after migration
 
 - Branch: `feature/bem-37-588-secure-storage-legacy-cleanup`

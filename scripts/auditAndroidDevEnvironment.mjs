@@ -129,6 +129,9 @@ export const requiredAndroidDevFiles = [
   ['scripts/checkIosMacValidationHandoffGuard.mjs', 'iOS macOS validation handoff guard self-check helper'],
   ['scripts/checkReleaseServicesSummaryArtifacts.mjs', 'release-services summary artifact checker'],
   ['scripts/checkReleaseServicesSummaryGuard.mjs', 'release-services summary guard self-check helper'],
+  ['scripts/rebrandingReleaseConfigReadinessGuard.mjs', 'rebranding release-config readiness guard helper'],
+  ['scripts/checkRebrandingReleaseConfigReadiness.mjs', 'rebranding release-config readiness checker'],
+  ['scripts/checkRebrandingReleaseConfigReadinessGuard.mjs', 'rebranding release-config readiness guard self-check helper'],
 ];
 
 export const requiredAndroidDevPackageScripts = [
@@ -227,6 +230,8 @@ export const requiredAndroidDevPackageScripts = [
   'check:ios-mac-validation-handoff-guard',
   'release-services:check-summaries',
   'check:release-services-summary-guard',
+  'check:rebranding-release-config-readiness',
+  'check:rebranding-release-config-readiness-guard',
   'rn:baseline:preflight',
 ];
 

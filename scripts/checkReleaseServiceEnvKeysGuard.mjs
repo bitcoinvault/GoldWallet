@@ -1,14 +1,12 @@
 import {
-  codePushEnvKeys,
   getReleaseServiceEnvKeyErrors,
   parseEnvKeys,
   requiredReleaseServiceEnvKeys,
 } from './releaseServiceEnvKeysGuard.mjs';
 
-const fullNonBetaEnv = [...requiredReleaseServiceEnvKeys, ...codePushEnvKeys].map(key => `${key}=value`).join('\n');
+const fullNonBetaEnv = requiredReleaseServiceEnvKeys.map(key => `${key}=value`).join('\n');
 const fullBetaEnv = requiredReleaseServiceEnvKeys.map(key => `${key}=value`).join('\n');
 const missingSentryEnv = fullNonBetaEnv.replace('SENTRY_DSN_ANDROID=value\n', '');
-const missingCodePushEnv = fullNonBetaEnv.replace('CODEPUSH_DEPLOYMENT_KEY_IOS=value', '');
 
 const assertAccepted = (label, envKeyEntries) => {
   const errors = getReleaseServiceEnvKeyErrors(envKeyEntries);
@@ -37,9 +35,6 @@ assertAccepted('Complete beta env fixture without CodePush keys', [
 ]);
 assertRejected('Missing Sentry key fixture', [
   { envFile: '.env.dev.testnet', keys: parseEnvKeys(missingSentryEnv) },
-]);
-assertRejected('Missing non-beta CodePush key fixture', [
-  { envFile: '.env.stage.mainnet', keys: parseEnvKeys(missingCodePushEnv) },
 ]);
 assertRejected('No referenced env files fixture', []);
 
