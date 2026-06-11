@@ -5,11 +5,11 @@ const validSummary = [
   'Generated at: 2026-05-31T00:00:00.000Z',
   'Node version: v24.16.0',
   'Expected Node version: v24.16.0',
-  'Entries: 13',
-  '- @eslint/js: package 10.0.1, installed 10.0.1, latest 10.0.1, decision current - latest ESLint recommended config package required by the ESLint 10 flat-config bridge',
-  '- lint-staged: package 17.0.7, installed 17.0.7, latest 17.0.7, decision current - latest lint-staged verified on the Node 24 tooling baseline',
-  '- husky: package 9.1.7, installed 9.1.7, latest 9.1.7, decision current - latest hook runner verified with repo-owned .husky hooks and precommit/prepush scripts',
+  'Entries: 24',
+  '- typescript: package 6.0.3, installed 6.0.3, latest 6.0.3, decision current - latest TypeScript compiler verified with the RN/test baseline validation gates',
   '- jest: package 30.4.2, installed 30.4.2, latest 30.4.2, decision current - latest Jest runtime verified with RN preset environment resolutions and focused suites',
+  '- babel-jest: package 30.4.1, installed 30.4.1, latest 30.4.1, decision current - latest Jest transformer verified with the Jest 30 runtime',
+  '- jest-circus: package 30.4.2, installed 30.4.2, latest 30.4.2, decision current - latest Jest runner verified with the Jest 30 runtime',
   '- jest-environment-node: package 30.4.1, installed 30.4.1, latest 30.4.1, decision current - latest Jest environment required to keep the RN preset compatible with Jest 30 runtime',
   '- jest-junit: package 17.0.0, installed 17.0.0, latest 17.0.0, decision current - latest report tooling verified separately from the Jest runtime',
   '- junit-report-merger: package 9.0.4, installed 9.0.4, latest 9.0.4, decision current - latest JUnit report merge tooling verified with the Detox report script',
@@ -17,8 +17,19 @@ const validSummary = [
   '- mailosaur: package 11.1.1, installed 11.1.1, latest 11.1.1, decision current - latest E2E mail helper verified with TypeScript',
   '- jsdom: package 29.1.1, installed 29.1.1, latest 29.1.1, decision current - latest E2E mail DOM parser verified with TypeScript and helper probe',
   '- jetifier: package 2.0.0, installed 2.0.0, latest 2.0.0, decision current - latest AndroidX migration helper verified with postinstall, Android build, and emulator smoke',
+  '- @typescript-eslint/eslint-plugin: package 8.61.0, installed 8.61.0, latest 8.61.0, decision current - parser/plugin 8.61.0 pair verified through the ESLint 10 flat-config bridge',
+  '- @typescript-eslint/parser: package 8.61.0, installed 8.61.0, latest 8.61.0, decision current - parser/plugin 8.61.0 pair verified through the ESLint 10 flat-config bridge',
+  '- eslint: package 10.4.1, installed 10.4.1, latest 10.4.1, decision current - latest ESLint 10 runtime verified through eslint.config.mjs while preserving the existing lint baseline',
+  '- @eslint/js: package 10.0.1, installed 10.0.1, latest 10.0.1, decision current - latest ESLint recommended config package required by the ESLint 10 flat-config bridge',
+  '- @eslint/eslintrc: package 3.3.5, installed 3.3.5, latest 3.3.5, decision current - latest FlatCompat package used to bridge the legacy .eslintrc baseline into ESLint 10',
+  '- @eslint/compat: package 2.1.0, installed 2.1.0, latest 2.1.0, decision current - latest compatibility helpers used to patch legacy plugin rules for ESLint 10',
+  '- jiti: package 2.7.0, installed 2.7.0, latest 2.7.0, decision current - latest ESLint 10 peer dependency installed explicitly for config loading',
+  '- prettier: package 3.8.4, installed 3.8.4, latest 3.8.4, decision current - latest Prettier 3 formatting runtime verified against the existing lint baseline without mass formatting',
+  '- eslint-plugin-prettier: package 5.5.6, installed 5.5.6, latest 5.5.6, decision current - latest Prettier ESLint plugin verified with Prettier 3 and the ESLint 10 flat-config bridge',
+  '- eslint-config-prettier: package 10.1.8, installed 10.1.8, latest 10.1.8, decision current - latest Prettier ESLint config verified with the ESLint 10 flat-config bridge',
+  '- lint-staged: package 17.0.7, installed 17.0.7, latest 17.0.7, decision current - latest lint-staged verified on the Node 24 tooling baseline',
+  '- husky: package 9.1.7, installed 9.1.7, latest 9.1.7, decision current - latest hook runner verified with repo-owned .husky hooks and precommit/prepush scripts',
   '- detox: package 20.51.3, installed 20.51.3, latest 20.51.3, decision current - latest Detox runner version is guarded by check:detox-readiness; Android Detox build passed and iOS runtime validation remains a macOS follow-up',
-  '- typescript: package 6.0.3, installed 6.0.3, latest 6.0.3, decision current - latest TypeScript compiler verified with the RN/test baseline validation gates',
   'Deferred entries: 0',
   'Required action: use this snapshot before tooling dependency branches; no package versions are changed by this audit.',
   '',
@@ -65,7 +76,30 @@ assertRejected(
   validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 13', 'Entries: 2'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 24', 'Entries: 2'), 'Entries count');
+assertRejected(
+  'Unexpected tooling package fixture',
+  validSummary.replace('Entries: 24', 'Entries: 25').replace(
+    'Deferred entries: 0',
+    '- extra-tooling: package 1.0.0, installed 1.0.0, latest 1.0.0, decision current - latest extra tooling\nDeferred entries: 0',
+  ),
+  'Unexpected tooling latest entry for extra-tooling',
+);
+assertRejected(
+  'Duplicate tooling package fixture',
+  validSummary.replace(
+    '- detox: package 20.51.3, installed 20.51.3, latest 20.51.3, decision current - latest Detox runner version is guarded by check:detox-readiness; Android Detox build passed and iOS runtime validation remains a macOS follow-up',
+    '- husky: package 9.1.7, installed 9.1.7, latest 9.1.7, decision current - latest hook runner verified with repo-owned .husky hooks and precommit/prepush scripts',
+  ),
+  'Duplicate tooling latest entry for husky',
+);
+assertRejected(
+  'Deferred tooling fixture',
+  validSummary
+    .replace('Deferred entries: 0', 'Deferred entries: 1')
+    .replace('decision current - latest lint-staged verified', 'decision deferred - latest lint-staged verified'),
+  'deferred entries',
+);
 assertRejected(
   'Missing required action fixture',
   validSummary.replace('tooling dependency branches', 'future work'),

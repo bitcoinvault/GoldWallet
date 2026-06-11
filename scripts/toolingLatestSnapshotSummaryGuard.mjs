@@ -26,6 +26,32 @@ const getBulletLinesAfter = (content, label) => {
 
 const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value);
 const isNonNegativeInteger = value => /^\d+$/.test(value);
+const requiredToolingEntries = [
+  'typescript',
+  'jest',
+  'babel-jest',
+  'jest-circus',
+  'jest-environment-node',
+  'jest-junit',
+  'junit-report-merger',
+  'babel-plugin-istanbul',
+  'mailosaur',
+  'jsdom',
+  'jetifier',
+  '@typescript-eslint/eslint-plugin',
+  '@typescript-eslint/parser',
+  'eslint',
+  '@eslint/js',
+  '@eslint/eslintrc',
+  '@eslint/compat',
+  'jiti',
+  'prettier',
+  'eslint-plugin-prettier',
+  'eslint-config-prettier',
+  'lint-staged',
+  'husky',
+  'detox',
+];
 
 export const getToolingLatestSnapshotSummaryErrors = summary => {
   const errors = [];
@@ -61,6 +87,28 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
     errors.push(`Entries count is ${entries}, but listed ${entryLines.length}`);
   }
 
+  if (isNonNegativeInteger(entries) && Number(entries) !== requiredToolingEntries.length) {
+    errors.push(`Entries must cover exactly ${requiredToolingEntries.length} tooling packages. Received: ${entries}`);
+  }
+
+  const entryNames = entryLines.map(line => line.slice(0, line.indexOf(': ')));
+  const duplicateEntryNames = entryNames.filter((name, index) => entryNames.indexOf(name) !== index);
+  duplicateEntryNames.forEach(name => {
+    errors.push(`Duplicate tooling latest entry for ${name}`);
+  });
+
+  entryNames.forEach(name => {
+    if (!requiredToolingEntries.includes(name)) {
+      errors.push(`Unexpected tooling latest entry for ${name}`);
+    }
+  });
+
+  requiredToolingEntries.forEach(name => {
+    if (!entryNames.includes(name)) {
+      errors.push(`Missing tooling latest entry for ${name}`);
+    }
+  });
+
   if (!isNonNegativeInteger(deferredEntries)) {
     errors.push(`Deferred entries must be a non-negative integer. Received: ${deferredEntries || 'missing'}`);
   } else {
@@ -69,6 +117,10 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
     if (Number(deferredEntries) !== listedDeferredEntries) {
       errors.push(`Deferred entries count is ${deferredEntries}, but listed ${listedDeferredEntries}`);
     }
+  }
+
+  if (deferredEntries !== '0') {
+    errors.push('Tooling latest snapshot has deferred entries; update the tooling upgrade decision before passing baseline');
   }
 
   if (
