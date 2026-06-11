@@ -20,6 +20,7 @@ const requiredSnippets = [
   '- current `sentry:release:prereq-audit` and `sentry:release:prereq-check-summary` output after credentials are generated;',
   '- current Android release build, manifest, and release-smoke evidence;',
   '- current `sentry:android-warning:audit` and `sentry:android-warning:check-summary` output;',
+  '- current `sentry:rn-bundle-task-compat:audit` and `sentry:rn-bundle-task-compat:check-summary` output;',
   '- current release-services aggregate summary;',
   '- iOS macOS/Xcode/CocoaPods blocker or validation result.',
   'Do not run or claim real Sentry release upload validation until `SENTRY_AUTH_TOKEN` is present and the three generated properties files are ready.',
