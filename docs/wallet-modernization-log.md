@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.614 - CodePush decision validation refresh
+
+- Branch: `feature/bem-37-614-codepush-decision-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh CodePush release-path, migration-readiness, removal-readiness, decision-handoff, and update-validation evidence after the current release-service validation refresh.
+- Confirm that CodePush stays removed rather than treated as an active OTA update path.
+- Keep deployment-key values out of artifacts and keep OTA update validation explicitly unclaimed.
+
+Findings:
+
+- `react-native-code-push` remains removed from the installed package set, JavaScript runtime usage, Android/iOS native integration, and iOS plist placeholders.
+- CodePush package latest remains `9.0.1`, but App Center CodePush is retired, the upstream repository is archived, upstream does not support React Native New Architecture, and Android New Architecture is enabled in this app.
+- Android release build evidence and Android release smoke evidence are current and ready for the CodePush decision summaries.
+- CodePush decision handoff with `--decision remove --beta-strategy beta-has-no-ota` reports `Implementation ready: yes`, `CodePush removed: yes`, and `CodePush migration required: no`.
+- CodePush update validation remains `not claimed`; no OTA delivery test or deployment-key based validation was run.
+- Five env files still carry stale CodePush key names; clean them only through a separate secrets-safe cleanup that does not print or commit historical deployment-key values.
+- iOS runtime delivery remains `not claimed` on this Windows host until macOS/Xcode/CocoaPods validation runs.
+- No runtime code, native code, dependency versions, package scripts, lockfile entries, env files, or build configuration changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:decision:handoff:dry-run --decision remove --beta-strategy beta-has-no-ota`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.613 - iOS static validation refresh
 
 - Branch: `feature/bem-37-613-ios-static-validation-refresh`
