@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.615 - Firebase release-services validation refresh
+
+- Branch: `feature/bem-37-615-firebase-release-services-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Firebase release-services, push notification bridge, and aggregate release-services evidence after the current RN `0.86.0` baseline and recent release-service documentation updates.
+- Re-check current npm latest versions for the React Native Firebase package family before choosing any package target.
+- Keep real FCM, Crashlytics, and Analytics runtime delivery explicitly unclaimed until an environment-backed delivery test is run.
+
+Findings:
+
+- npm reports `@react-native-firebase/app`, `analytics`, `crashlytics`, and `messaging` latest/current as `24.1.1`, and the Messaging peer requires `@react-native-firebase/app@24.1.1`.
+- `firebase:release-services:audit` reports React Native Firebase package current `yes`, Android Google Services Gradle plugin `4.4.4`, Firebase Crashlytics Gradle plugin `3.0.7`, strict version matcher plugin `1.2.4`, and Firebase release-services wiring valid.
+- Android release evidence remains present, current, and variant-complete for `dev`, `stage`, `prod`, and `beta`; Android release APK manifest proof is valid.
+- `push-notification:bridge-audit` reports `@react-native-community/push-notification-ios` latest/current as `1.12.0` with no static readiness or wiring errors.
+- Firebase runtime delivery validation remains `not claimed`; no secret values were rendered and no real FCM, Crashlytics, or Analytics delivery claim is made in this branch.
+- No runtime code, native code, dependency versions, or Metro behavior changed in this branch, so Android emulator smoke is not required for this evidence refresh branch.
+
+Validation:
+
+- `npm view @react-native-firebase/app version peerDependencies engines --json`
+- `npm view @react-native-firebase/messaging version peerDependencies engines --json`
+- `npm view @react-native-firebase/analytics version peerDependencies engines --json`
+- `npm view @react-native-firebase/crashlytics version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.614 - CodePush decision validation refresh
 
 - Branch: `feature/bem-37-614-codepush-decision-refresh`
