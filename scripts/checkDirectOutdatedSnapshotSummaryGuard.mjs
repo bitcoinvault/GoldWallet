@@ -65,6 +65,22 @@ assertRejected(
 );
 assertRejected('Bad entry count fixture', validSummary.replace('Entries: 8', 'Entries: 7'), 'Entries count');
 assertRejected(
+  'Unexpected direct outdated entry fixture',
+  validSummary.replace('Entries: 8', 'Entries: 9').replace(
+    'Secret values printed: no',
+    '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
+  ),
+  'Unexpected direct outdated entry for extra-package',
+);
+assertRejected(
+  'Duplicate direct outdated entry fixture',
+  validSummary.replace(
+    '- rn-nodeify: current 10.3.0, wanted exotic, latest exotic, type devDependencies, decision exotic - GitHub pin is guarded by rn-nodeify shim checks and git dependency snapshot',
+    '- react: current 19.2.3, wanted 19.2.3, latest 19.2.7, type dependencies, decision blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
+  ),
+  'Duplicate direct outdated entry for react',
+);
+assertRejected(
   'Review required fixture',
   validSummary.replace('Review-required entries: 0', 'Review-required entries: 1'),
   'review-required entries',

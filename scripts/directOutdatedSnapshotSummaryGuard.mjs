@@ -54,6 +54,8 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     errors.push(`Entries must be a non-negative integer. Received: ${entries || 'missing'}`);
   } else if (Number(entries) !== entryLines.length) {
     errors.push(`Entries count is ${entries}, but listed ${entryLines.length}`);
+  } else if (Number(entries) !== requiredKnownEntries.length) {
+    errors.push(`Entries must cover exactly ${requiredKnownEntries.length} direct outdated packages. Received: ${entries}`);
   }
 
   [
@@ -63,6 +65,18 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
   ].forEach(([label, value]) => {
     if (!isNonNegativeInteger(value)) {
       errors.push(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
+    }
+  });
+
+  const entryNames = entryLines.map(line => line.slice(2, line.indexOf(': ')));
+  const duplicateEntryNames = entryNames.filter((name, index) => entryNames.indexOf(name) !== index);
+  duplicateEntryNames.forEach(name => {
+    errors.push(`Duplicate direct outdated entry for ${name}`);
+  });
+
+  entryNames.forEach(name => {
+    if (!requiredKnownEntries.includes(name)) {
+      errors.push(`Unexpected direct outdated entry for ${name}`);
     }
   });
 

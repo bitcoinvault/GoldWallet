@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.567 - Direct outdated exact snapshot guard
+
+- Branch: `feature/bem-37-567-direct-outdated-exact-snapshot-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Tighten the direct outdated snapshot guard so it validates the exact expected outdated package set.
+- Reject unexpected, duplicate, missing, review-required, or count-drifted direct outdated entries before future dependency branches.
+- Keep package versions, lockfile, runtime wallet code, native files, and local ignored evidence artifacts unchanged.
+
+Findings:
+
+- The current direct outdated snapshot remains valid with 8 tracked entries: 4 blocked compatibility items and 4 exotic fork/pin items.
+- React and react-test-renderer remain blocked by the React Native renderer exact-version baseline; live React `19.2.7` is not a safe standalone patch bump while the RN renderer is `19.2.3`.
+- `bl` and `node-fetch` remain blocked by CommonJS/ESM compatibility constraints.
+- BitcoinVault wallet/network forks, prompt Android fork, and rn-nodeify stay tracked as exotic dependencies requiring dedicated compatibility proof before replacement.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:renderer-version:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:package-coupling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.566 - Tooling exact snapshot guard
 
 - Branch: `feature/bem-37-566-tooling-exact-snapshot-guard`
