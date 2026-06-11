@@ -166,11 +166,10 @@ Run before commit on a future dependency branch:
 ```powershell
 corepack yarn android:dev:check-light
 $env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'
-corepack yarn android:dev:assemble
-corepack yarn start --reset-cache
-adb reverse tcp:8081 tcp:8081
-corepack yarn android:dev:smoke
+corepack yarn android:dev:verify
 ```
+
+Run the standalone Metro-required `corepack yarn android:dev:smoke` only when the branch explicitly changes Metro/dev-server transport behavior.
 
 Focused tests by dependency:
 

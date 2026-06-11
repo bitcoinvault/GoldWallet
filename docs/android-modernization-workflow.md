@@ -169,9 +169,9 @@ $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 corepack yarn android:dev:verify
 ```
 
-`android:dev:verify` runs the Android environment audit, builds the dev APK, runs the emulator smoke helper, and validates the generated smoke summary artifact. The summary checker requires the installed `app-dev-debug.apk` path, byte count, and SHA-256 digest to match the current debug APK before the smoke evidence can be reused.
+`android:dev:verify` runs the Android environment audit, builds the dev APK, runs the embedded emulator smoke helper, and validates the generated smoke summary artifact. It does not require Metro because it validates the bundled `app-dev-debug.apk` from a clean onboarding state. The summary checker requires the installed `app-dev-debug.apk` path, byte count, and SHA-256 digest to match the current debug APK before the smoke evidence can be reused.
 
-For a clean emulator or a branch that should prove the bundled `devDebug` APK starts without relying on Metro transport, use:
+For a standalone clean emulator check that should prove the bundled `devDebug` APK starts without relying on Metro transport, use:
 
 ```powershell
 corepack yarn android:dev:smoke:embedded
@@ -245,7 +245,7 @@ $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 corepack yarn android:dev:audit-smoke
 ```
 
-`android:dev:audit-smoke` runs the Android environment audit before the Gradle warning audit so missing JDK/SDK/adb setup fails before the heavier build work starts.
+`android:dev:audit-smoke` runs the Android environment audit before the Gradle warning audit so missing JDK/SDK/adb setup fails before the heavier build work starts. It uses the embedded dev smoke path so warning/smoke artifact refreshes do not fail just because Metro is not running.
 
 ## Metro And Emulator Smoke
 
@@ -261,7 +261,7 @@ Then install and launch the dev APK:
 corepack yarn android:dev:smoke
 ```
 
-Use `android:dev:verify` when the APK freshness matters; it already runs `android:dev:check-smoke-summary` after smoke. `android:dev:smoke` only installs and tests the current dev APK artifact. Use `corepack yarn android:dev:check-smoke-summary` after a standalone smoke run to validate that the local smoke evidence still records a passing startup, reachable Metro, expected dashboard text/resource IDs, process logcat capture, UI hierarchy, and non-empty screenshot.
+Use `android:dev:verify` when the APK freshness matters; it now builds the APK, runs `android:dev:smoke:embedded`, and validates the summary with `android:dev:check-smoke-summary`. `android:dev:smoke` remains the standalone Metro-required transport check and only installs/tests the current dev APK artifact. Use `corepack yarn android:dev:check-smoke-summary` after a standalone smoke run to validate that the local smoke evidence still records a passing startup, expected dashboard text/resource IDs, process logcat capture, UI hierarchy, and non-empty screenshot; Metro reachability is required only when the summary was produced by the Metro smoke path.
 
 The smoke helper writes the command transcript and app-process logcat to `local-docs/android-smoke-dev.log`, a compact result summary to `local-docs/android-smoke-dev-summary.txt`, the UI hierarchy to `local-docs/android-smoke-dev-ui.xml`, and a non-empty startup screenshot to `local-docs/android-smoke-dev.png`. The summary includes a generated timestamp, installed APK path/byte count/SHA-256 digest, the expected resource IDs, whether empty-dashboard CTA navigation was validated, and whether empty-state tab navigation was validated. It checks that Metro is reachable before installing and launching the dev APK when Metro is required, and records the Metro preflight status in the summary. On failures after an Android serial is selected, it also tries to refresh the same screenshot artifact before exiting. It uses `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `%LOCALAPPDATA%\Android\Sdk`, or `adb` from `PATH` to find `adb`, then scans startup logcat for the launched app process.
 

@@ -115,8 +115,7 @@ Implementation branch, Android:
 ```powershell
 corepack yarn android:dev:check-light
 $env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'
-corepack yarn android:dev:assemble
-corepack yarn android:dev:smoke:embedded
+corepack yarn android:dev:verify
 ```
 
 Implementation branch, release services:

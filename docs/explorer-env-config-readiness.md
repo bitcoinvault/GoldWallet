@@ -78,8 +78,7 @@ Runtime implementation branch:
 corepack yarn check:explorer-env-config-readiness
 corepack yarn test:storage-network:focused
 $env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'
-corepack yarn android:dev:assemble
-corepack yarn android:dev:smoke:embedded
+corepack yarn android:dev:verify
 ```
 
 Funded send/recovery validation remains blocked until a funded BTCV testnet wallet is available. Explorer link behavior can still be smoke-tested with existing empty-wallet and transaction-history fixtures once a wallet fixture is available.

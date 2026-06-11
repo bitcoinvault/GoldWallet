@@ -24,6 +24,7 @@ export const requiredAndroidDevFiles = [
   ['android/gradlew', 'Unix Gradle wrapper'],
   ['scripts/runAndroidGradle.mjs', 'guarded Gradle runner'],
   ['scripts/androidSmokeDev.mjs', 'Android emulator smoke helper'],
+  ['scripts/androidSmokeDevEmbedded.mjs', 'Android embedded emulator smoke helper'],
   ['scripts/auditAndroidGradleWarnings.mjs', 'Android warning audit helper'],
   ['scripts/auditNodeRuntimeTransition.mjs', 'Node runtime transition audit helper'],
   ['scripts/checkNodeRuntimeTransitionGuard.mjs', 'Node runtime transition guard helper'],
@@ -232,11 +233,11 @@ export const requiredAndroidDevPackageScripts = [
 export const requiredAndroidDevPackageScriptSnippets = [
   ['android:dev:verify', 'android:dev:assemble', 'dev verification must rebuild the dev APK'],
   ['android:dev:verify', 'android:dev:env-audit', 'dev verification must verify the local Android toolchain before Gradle runs'],
-  ['android:dev:verify', 'android:dev:smoke', 'dev verification must run emulator smoke'],
+  ['android:dev:verify', 'android:dev:smoke:embedded', 'dev verification must run embedded emulator smoke'],
   ['android:dev:verify', 'android:dev:check-smoke-summary', 'dev verification must validate the smoke summary artifact'],
   ['android:dev:audit-smoke', 'android:dev:env-audit', 'audit-smoke must verify the local Android toolchain before Gradle runs'],
   ['android:dev:audit-smoke', 'android:dev:audit-warnings', 'audit-smoke must refresh the Android warning audit'],
-  ['android:dev:audit-smoke', 'android:dev:smoke', 'audit-smoke must run emulator smoke'],
+  ['android:dev:audit-smoke', 'android:dev:smoke:embedded', 'audit-smoke must run embedded emulator smoke'],
   ['android:dev:audit-smoke', 'android:dev:check-artifacts', 'audit-smoke must validate generated Android artifacts'],
   [
     'android:dev:release:smoke:embedded',

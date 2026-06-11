@@ -78,10 +78,7 @@ Run before commit on the future dependency branch:
 ```powershell
 corepack yarn android:dev:check-light
 $env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'
-corepack yarn android:dev:assemble
-corepack yarn start --reset-cache
-adb reverse tcp:8081 tcp:8081
-corepack yarn android:dev:smoke
+corepack yarn android:dev:verify
 ```
 
 Manual app checks after the dependency change:

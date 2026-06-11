@@ -47,10 +47,7 @@ corepack yarn masked-view:migration:audit
 corepack yarn masked-view:migration:check-summary
 corepack yarn android:dev:check-light
 $env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'
-corepack yarn android:dev:assemble
-corepack yarn start --reset-cache
-adb reverse tcp:8081 tcp:8081
-corepack yarn android:dev:smoke
+corepack yarn android:dev:verify
 ```
 
 Manual Android checks after the dependency change:
