@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.612 - Camera/QR validation refresh
+
+- Branch: `feature/bem-37-612-camera-qr-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Camera/QR scanner and QR render validation evidence after the current RN `0.86.0` baseline.
+- Re-check current npm latest versions before deciding whether a camera dependency bump is useful.
+- Validate the installed CameraKit scanner path with focused unit tests, Android dev build, and emulator smoke including QR scanner open/close.
+
+Findings:
+
+- `react-native-camera-kit` is already current at `18.0.0`.
+- `react-native-qrcode-svg` is already current at `6.3.21`, paired with `react-native-svg` `15.15.5` and the root `qrcode` `1.5.4` resolution.
+- `react-native-vision-camera` latest is `5.0.11`, but adopting it still adds the `react-native-nitro-image` and `react-native-nitro-modules` native stack, so it remains a separate migration rather than a drop-in patch.
+- Legacy `react-native-camera` and `@remobile/react-native-qrcode-local-image` remain absent from `package.json`.
+- Camera/QR migration audit reports stable Android/iOS permission wiring, current scanner runtime, no stale removed camera pods, and stable migration documentation.
+- Android emulator smoke passed on `emulator-5554` with QR scanner validation from the import-wallet flow, including camera permission grant, scanner screen open, close button detection, return to import form, dashboard/tab navigation, screenshot capture, and fatal/runtime logcat checks.
+- No runtime code, native code, dependency versions, package scripts, lockfile entries, or build configuration changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-vision-camera version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-qrcode-svg version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-svg version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-scanner:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-render:unit`
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run --include-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.611 - Sentry release evidence refresh
 
 - Branch: `feature/bem-37-611-sentry-release-evidence-refresh`
