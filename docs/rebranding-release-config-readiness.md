@@ -28,14 +28,14 @@ iOS:
 | Display names | `GoldWallet`, `GoldWallet Dev`, `GoldWallet Stage`; beta uses `$(PRODUCT_NAME)` |
 | Deep link schemes | `goldwallet`, `lapp` |
 | Firebase plist files | `GoogleService-Info.plist`, `GoogleService-Info-dev.plist`, `GoogleService-Info-prod.plist`, `GoogleService-Info-stage.plist` |
-| CodePush placeholder | `$(CODEPUSH_DEPLOYMENT_KEY_IOS)` in production, dev, and stage plists |
+| CodePush placeholder | removed from iOS Info.plist files after CodePush native/runtime removal |
 
 JavaScript/runtime:
 
 | Surface | Current state |
 | --- | --- |
 | Package name | `goldwallet` |
-| Runtime config | `src/config/index.ts` reads `APP_ID`, `APPLICATION_NAME`, `EXPLORER_URL`, `SENTRY_DSN_*`, and CodePush keys through `react-native-config` |
+| Runtime config | `src/config/index.ts` reads `APP_ID`, `APPLICATION_NAME`, `EXPLORER_URL`, and `SENTRY_DSN_*` through `react-native-config`; stale CodePush env values remain outside runtime config |
 | Coin/unit copy | BTCV strings are used in wallet model, dashboard, send/filter screens, and terms content |
 | Brand assets | `src/assets/images/bv017LogoGoldWalletRgbV3HorizontalBlack.png`, `bv017LogoGoldWalletRgbV3VerticalBlack.png` |
 | About/rating links | GitHub and rating copy still reference GoldWallet/BitcoinVault surfaces |
@@ -81,7 +81,7 @@ These decisions must be made before implementation:
 3. Whether the deep-link scheme stays `goldwallet` for backward compatibility or gains a new scheme while keeping legacy handling.
 4. Whether BTCV remains the only visible asset/unit or the app introduces ELCASH/BTCV split wording.
 5. Which explorers should be used per network and environment.
-6. Whether CodePush remains disabled/gated or is removed/migrated before the rebrand ships.
+6. Whether stale CodePush env keys are cleaned up or kept temporarily while an OTA/update replacement posture is confirmed.
 7. Whether Firebase apps, Sentry projects, and store metadata are reused or recreated under the new brand.
 
 ## Implementation Guardrails

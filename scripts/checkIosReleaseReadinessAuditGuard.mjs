@@ -50,7 +50,7 @@ const readyAudit = {
   schemeCount: 8,
   sentryBundlePhaseCount: 4,
   sentryDsymPhaseCount: 3,
-  codePushPlistPlaceholderCount: 3,
+  codePushPlistPlaceholderCount: 0,
   remoteNotificationPlistCount: 4,
   xcodebuildVersion: 'Xcode 16.1; Build version 16B40',
 };

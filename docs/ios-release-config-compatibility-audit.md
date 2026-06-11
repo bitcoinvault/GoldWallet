@@ -28,7 +28,7 @@ Project build settings also define `FIREBASE_CONFIG_FILE` for the main non-beta 
 | Dev | `GoogleService-Info-dev` | `GoldWalletDev-Info.plist` | `com.minebest.goldwalletbtcv.dev` |
 | Beta | not visible in the captured `FIREBASE_CONFIG_FILE` rows | `GoldWallet-beta.plist` | `com.minebest.goldwalletbtcv.beta` |
 
-After `BEM-37.470`, `ios/Podfile` and all Xcode `IPHONEOS_DEPLOYMENT_TARGET` entries are still aligned to React Native `0.86.0`'s minimum iOS `15.1`. `corepack yarn ios:release:readiness:audit` verifies that static alignment, required release files, expected shared schemes, Sentry phases, and CodePush plist placeholders, then writes `local-docs/ios-release-static-readiness-summary.txt`; `corepack yarn ios:release:readiness:check-summary` validates the generated summary. Runtime archive/simulator validation still requires macOS with Xcode `16.1+`.
+After `BEM-37.592`, `ios/Podfile` and all Xcode `IPHONEOS_DEPLOYMENT_TARGET` entries are still aligned to React Native `0.86.0`'s minimum iOS `15.1`. `corepack yarn ios:release:readiness:audit` verifies that static alignment, required release files, expected shared schemes, Sentry phases, absence of CodePush plist placeholders, and remote-notification plist coverage, then writes `local-docs/ios-release-static-readiness-summary.txt`; `corepack yarn ios:release:readiness:check-summary` validates the generated summary. Runtime archive/simulator validation still requires macOS with Xcode `16.1+`.
 
 After `BEM-37.547`, the same audit still reports `ios/Podfile.lock` drift against the current native package baseline on 2026-06-11. On this Windows machine the lockfile still references React Native `0.65.3` and older BootSplash, Config, AsyncStorage, DeviceInfo, FastImage, Firebase, Gesture Handler, Localize, Screens, Sentry, and VectorIcons pods. The static iOS project files are valid for React Native `0.86.0` with iOS deployment target `15.1`, but iOS archive readiness is not claimable until `pod install` refreshes `ios/Podfile.lock` on macOS and an affected scheme builds with Xcode `16.1+`.
 
@@ -60,7 +60,7 @@ Referenced iOS env files carry the current release-service keys as follows:
 
 ## Current Native App Metadata Surface
 
-- `ios/GoldWallet/Info.plist`, `ios/GoldWalletDev-Info.plist`, and `ios/GoldWalletStage-Info.plist` contain `CodePushDeploymentKey`.
+- iOS Info.plist files no longer contain native `CodePushDeploymentKey` placeholders after the CodePush removal branch.
 - Production, Dev, and Stage Info.plist files include `UIBackgroundModes` with `remote-notification`.
 - `ios/GoldWallet/AppDelegate.m` assigns `UNUserNotificationCenter` delegate for foreground notification presentation callbacks.
 - `GoldWallet-beta.plist` exists and is used by beta configurations, but beta scheme pre-actions do not currently copy a `GoogleService-Info-*.plist` file.
@@ -71,8 +71,8 @@ Referenced iOS env files carry the current release-service keys as follows:
 - Stage Debug currently pairs `.env.dev.testnet` with `GoogleService-Info-stage.plist`; that may be intentional for testnet stage debugging, but it must be confirmed before changing scheme pre-actions.
 - Beta schemes currently copy beta env files but no Firebase plist in scheme pre-actions; confirm whether beta relies on build settings, bundled resources, or a missing Firebase copy step.
 - `ios/Podfile.lock` is stale after the Android/RN/native modernization stream; refresh it on macOS before claiming any iOS archive/runtime readiness. The current 2026-06-11 audit records 0 removed Podfile.lock pod references, 12 active drift issues, and confirms `xcodebuild` is unavailable on this Windows machine.
-- Rebranding may require coordinated changes across display names, bundle identifiers, Info.plist files, env `APP_ID`, Firebase plist files, Sentry DSNs, CodePush deployment keys, and store metadata.
-- CodePush is disabled in `__DEV__`, so debug scheme startup alone does not validate release update behavior.
+- Rebranding may require coordinated changes across display names, bundle identifiers, Info.plist files, env `APP_ID`, Firebase plist files, Sentry DSNs, release-service env cleanup, and store metadata.
+- CodePush native/runtime integration is removed; debug scheme startup does not validate any future OTA/update replacement posture.
 - Sentry and Firebase config changes need release-build validation, not only Android/iOS debug startup.
 
 ## Recommended Follow-Up Branches
@@ -96,7 +96,7 @@ Release-config implementation:
 - Run `corepack yarn ios:release:readiness:audit` and `corepack yarn ios:release:readiness:check-summary`; if `Podfile.lock refresh required` is `yes`, refresh CocoaPods on macOS before archive validation.
 - Run Android build/smoke if shared env or runtime config changes affect Android.
 - Validate iOS schemes on a Mac runner/device or simulator.
-- Validate at least one non-dev build path for CodePush and Sentry source-map behavior.
+- Validate at least one non-dev build path for Sentry source-map behavior and confirm the intended OTA/update replacement posture.
 - Start CodePush release-path validation with `corepack yarn codepush:release:path-audit`; it checks wiring and key presence only, writes `local-docs/codepush-release-path-summary.txt`, and does not print deployment-key values. Validate that artifact with `corepack yarn codepush:release:path-check-summary`.
 - Start Firebase release-service validation with `corepack yarn firebase:release-services:audit`; it checks package alignment, Android config, iOS plist files, Messaging runtime wiring, and writes `local-docs/firebase-release-services-summary.txt`. Validate that artifact with `corepack yarn firebase:release-services:check-summary`.
 - Start iOS push notification bridge validation with `corepack yarn push-notification:bridge-audit`; after `BEM-37.79` it should report no static readiness issues and write `local-docs/push-notification-bridge-summary.txt`. Validate that artifact with `corepack yarn push-notification:bridge-check-summary`, then run device validation for APNs/token/delivery behavior.
