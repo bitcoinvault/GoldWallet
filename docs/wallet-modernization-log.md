@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.593 - Sentry release readiness refresh
+
+- Branch: `feature/bem-37-593-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live Sentry release/source-map readiness evidence after the Android release evidence and CodePush removal milestones.
+- Reconfirm current `@sentry/react-native` and direct `@sentry/cli` latest versions before choosing any package target.
+- Re-run Sentry Android warning, RN bundle task compatibility, release prerequisite, credential handoff, and release validation dry-run checks without printing or guessing secrets.
+
+Findings:
+
+- Live npm metadata reports `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.0` as current latest, matching the repo baseline.
+- Sentry Android warning summary is stable on the RN `0.86.0` baseline; source-map and dSYM behavior still require credentialed release validation.
+- RN bundle task compatibility is ready: Sentry expects `jsIntermediateSourceMapsDir`, RN exposes the current `RegularFileProperty` shape, the Sentry fallback still depends on an args property, and the repo-owned legacy args shim is in place.
+- Sentry release integration is wired for Android and iOS, the direct Sentry CLI package is executable, Android release APK evidence covers `dev`, `stage`, `prod`, and `beta`, and release smoke evidence is valid.
+- Sentry release upload validation remains not claimed because `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing until `SENTRY_AUTH_TOKEN` is provided and `sentry:release:create-properties` runs.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-properties-generator`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-credential-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `git diff --check`
+
 ### BEM-37.592 - iOS static release readiness refresh
 
 - Branch: `feature/bem-37-592-ios-static-release-readiness`
