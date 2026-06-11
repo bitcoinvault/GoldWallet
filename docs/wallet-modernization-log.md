@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.565 - Storage/network exact snapshot guard
+
+- Branch: `feature/bem-37-565-storage-network-exact-snapshot-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Tighten the storage/network latest snapshot guard so it validates the exact expected package set.
+- Reject unexpected or duplicate storage/network snapshot entries before future storage/network dependency branches.
+- Keep package versions, lockfile, runtime wallet code, native files, and local ignored evidence artifacts unchanged.
+
+Findings:
+
+- The current storage/network latest snapshot remains valid with 10 tracked packages and zero deferred entries.
+- Current latest-pinned storage/network packages include AsyncStorage `3.1.1`, NetInfo `12.0.1`, DeviceInfo `15.0.2`, Config `1.6.1`, Localize `3.7.0`, random-values `2.0.0`, Keychain `10.0.0`, SecureKeyStore `2.0.10`, TCP socket `6.4.1`, and WebView `13.16.1`.
+- The previous guard required all known entries but did not reject an additional unplanned entry; the new exact-set check prevents snapshot drift from silently expanding dependency scope.
+- Future storage/network package changes still require focused tests, Android build, and emulator smoke.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-latest-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-usage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-validation-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.564 - Wallet crypto fork pin guard
 
 - Branch: `feature/bem-37-564-wallet-crypto-fork-pin-guard`

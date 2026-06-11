@@ -74,6 +74,22 @@ export const getStorageNetworkLatestSnapshotSummaryErrors = summary => {
     errors.push(`Entries count is ${entries}, but listed ${entryLines.length}`);
   }
 
+  if (isNonNegativeInteger(entries) && Number(entries) !== requiredStorageNetworkEntries.size) {
+    errors.push(`Entries must cover exactly ${requiredStorageNetworkEntries.size} storage/network packages. Received: ${entries}`);
+  }
+
+  const entryNames = entryLines.map(line => line.slice(2, line.indexOf(': ')));
+  const duplicateEntryNames = entryNames.filter((name, index) => entryNames.indexOf(name) !== index);
+  duplicateEntryNames.forEach(name => {
+    errors.push(`Duplicate storage/network latest entry for ${name}`);
+  });
+
+  entryNames.forEach(name => {
+    if (!requiredStorageNetworkEntries.has(name)) {
+      errors.push(`Unexpected storage/network latest entry for ${name}`);
+    }
+  });
+
   requiredStorageNetworkEntries.forEach((requiredSnippet, packageName) => {
     const entry = entryLines.find(line => line.startsWith(`- ${packageName}: `));
 

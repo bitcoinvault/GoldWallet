@@ -50,6 +50,22 @@ assertRejected('Missing expected Node fixture', validSummary.replace('Expected N
 assertRejected('Wrong Node fixture', validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'), 'repo .nvmrc baseline');
 assertRejected('Bad entry count fixture', validSummary.replace('Entries: 10', 'Entries: 9'), 'Entries count');
 assertRejected(
+  'Unexpected package fixture',
+  validSummary.replace('Entries: 10', 'Entries: 11').replace(
+    'Current entries: 10',
+    '- react-native-extra-storage: package 1.0.0, installed 1.0.0, latest 1.0.0, peers none, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline\nCurrent entries: 11',
+  ),
+  'Unexpected storage/network latest entry for react-native-extra-storage',
+);
+assertRejected(
+  'Duplicate package fixture',
+  validSummary.replace(
+    '- react-native-webview: package 13.16.1, installed 13.16.1, latest 13.16.1, peers react@*, react-native@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
+    '- react-native-tcp-socket: package 6.4.1, installed 6.4.1, latest 6.4.1, peers react-native@>=0.60.0, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
+  ),
+  'Duplicate storage/network latest entry for react-native-tcp-socket',
+);
+assertRejected(
   'Missing AsyncStorage fixture',
   validSummary.replace('- @react-native-async-storage/async-storage:', '- missing-async-storage:'),
   'Missing storage/network latest entry for @react-native-async-storage/async-storage',
