@@ -72,7 +72,7 @@ export const collectCodePushReleasePathAudit = () => {
   const upstreamRetired = true;
   const upstreamArchived = true;
   const upstreamNewArchitectureSupported = false;
-  const migrationRequired = upstreamRetired || upstreamArchived || (androidNewArchitectureEnabled && !upstreamNewArchitectureSupported);
+  const upstreamMigrationRequired = upstreamRetired || upstreamArchived || (androidNewArchitectureEnabled && !upstreamNewArchitectureSupported);
   const runtimeHocLazyGated =
     appSource.includes('const getCodePushGateComponent = (): React.ComponentType => {') &&
     appSource.includes('const component = codePush(codePushOptions)(CodePushClass)') &&
@@ -90,58 +90,72 @@ export const collectCodePushReleasePathAudit = () => {
     installedPackageVersion = JSON.parse(readFileSync(packageJsonPath, 'utf8')).version || '';
   }
 
-  if (!packageDependencyVersion) {
-    errors.push(`package.json is missing ${codePushPackageName}`);
-  }
+  const codePushRemoved =
+    !packageDependencyVersion &&
+    !installedPackageVersion &&
+    !appSource.includes('react-native-code-push') &&
+    !androidBuildGradle.includes('react-native-code-push') &&
+    !androidMainApplication.includes('CodePush') &&
+    !androidStrings.includes('CodePushDeploymentKey') &&
+    !iosAppDelegate.includes('CodePush') &&
+    codePushIosInfoPlists.every(relativePath => !read(relativePath).includes('CodePushDeploymentKey'));
 
-  if (!installedPackageVersion) {
-    errors.push(`node_modules/${codePushPackageName}/package.json is missing or has no version`);
+  if (!codePushRemoved) {
+    if (!packageDependencyVersion) {
+      errors.push(`package.json is missing ${codePushPackageName}`);
+    }
+
+    if (!installedPackageVersion) {
+      errors.push(`node_modules/${codePushPackageName}/package.json is missing or has no version`);
+    }
   }
 
   if (packageDependencyVersion && installedPackageVersion && packageDependencyVersion !== installedPackageVersion) {
     errors.push(`${codePushPackageName} package.json version ${packageDependencyVersion} does not match installed version ${installedPackageVersion}`);
   }
 
-  requireSnippet(errors, 'App.tsx', appSource, 'react-native-code-push');
-  requireSnippet(errors, 'App.tsx', appSource, 'const codePushDeploymentKey = isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid');
-  requireSnippet(errors, 'App.tsx', appSource, 'const isCodePushEnabled = config.codepushEnabled && Boolean(codePushDeploymentKey)');
-  requireSnippet(errors, 'App.tsx', appSource, 'checkFrequency: codePush.CheckFrequency.ON_APP_RESUME');
-  requireSnippet(errors, 'App.tsx', appSource, 'installMode: codePush.InstallMode.IMMEDIATE');
-  requireSnippet(errors, 'App.tsx', appSource, 'deploymentKey: codePushDeploymentKey');
-  requireSnippet(errors, 'App.tsx', appSource, 'const getCodePushGateComponent = (): React.ComponentType => {');
-  requireSnippet(errors, 'App.tsx', appSource, 'const component = codePush(codePushOptions)(CodePushClass)');
-  requireSnippet(errors, 'App.tsx', appSource, 'CodePushGateComponent = component');
-  requireSnippet(errors, 'App.tsx', appSource, 'return <EnabledCodePush />');
-  requireSnippet(errors, 'App.tsx', appSource, '!__DEV__ && isCodePushEnabled && <CodePushGate />');
-  if (/const\s+WithCodePush\s*=\s*codePush/.test(appSource)) {
-    errors.push('App.tsx creates the CodePush HOC at module load instead of inside the runtime gate');
-  }
-  requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_ENABLED');
-  requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_IOS');
-  requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_ANDROID');
-  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'react-native-code-push/android/codepush.gradle');
-  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'legacyBundleTaskName = "bundle${targetName}JsAndAssets"');
-  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'rnBundleTaskName = "createBundle${targetName}JsAndAssets"');
-  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'dependsOn(rnBundleTaskName)');
-  requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'enabled = false');
-  if (androidBuildGradle.includes('variant.buildType.name != "debug"')) {
-    errors.push('android/app/build.gradle limits the legacy CodePush bundle alias to debug variants');
-  }
-  requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'getCodePushBundleFile()');
-  requireSnippet(errors, 'MainApplication.java', androidMainApplication, '"true".equals(BuildConfig.CODEPUSH_ENABLED)');
-  requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'BuildConfig.CODEPUSH_DEPLOYMENT_KEY_ANDROID.length() > 0');
-  requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'return CodePush.getJSBundleFile();');
-  requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'return null;');
-  requireSnippet(errors, 'android strings.xml', androidStrings, 'CodePushDeploymentKey');
-  requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, '[self isCodePushEnabled]');
-  requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, '[ReactNativeConfig envFor:@"CODEPUSH_ENABLED"]');
-  requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, '[ReactNativeConfig envFor:@"CODEPUSH_DEPLOYMENT_KEY_IOS"]');
-  requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, 'return [CodePush bundleURL];');
-  requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, 'URLForResource:@"main" withExtension:@"jsbundle"');
+  if (!codePushRemoved) {
+    requireSnippet(errors, 'App.tsx', appSource, 'react-native-code-push');
+    requireSnippet(errors, 'App.tsx', appSource, 'const codePushDeploymentKey = isIos() ? config.codepushDeploymentKeyIOS : config.codepushDeploymentKeyAndroid');
+    requireSnippet(errors, 'App.tsx', appSource, 'const isCodePushEnabled = config.codepushEnabled && Boolean(codePushDeploymentKey)');
+    requireSnippet(errors, 'App.tsx', appSource, 'checkFrequency: codePush.CheckFrequency.ON_APP_RESUME');
+    requireSnippet(errors, 'App.tsx', appSource, 'installMode: codePush.InstallMode.IMMEDIATE');
+    requireSnippet(errors, 'App.tsx', appSource, 'deploymentKey: codePushDeploymentKey');
+    requireSnippet(errors, 'App.tsx', appSource, 'const getCodePushGateComponent = (): React.ComponentType => {');
+    requireSnippet(errors, 'App.tsx', appSource, 'const component = codePush(codePushOptions)(CodePushClass)');
+    requireSnippet(errors, 'App.tsx', appSource, 'CodePushGateComponent = component');
+    requireSnippet(errors, 'App.tsx', appSource, 'return <EnabledCodePush />');
+    requireSnippet(errors, 'App.tsx', appSource, '!__DEV__ && isCodePushEnabled && <CodePushGate />');
+    if (/const\s+WithCodePush\s*=\s*codePush/.test(appSource)) {
+      errors.push('App.tsx creates the CodePush HOC at module load instead of inside the runtime gate');
+    }
+    requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_ENABLED');
+    requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_IOS');
+    requireSnippet(errors, 'src/config/index.ts', configSource, 'CODEPUSH_DEPLOYMENT_KEY_ANDROID');
+    requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'react-native-code-push/android/codepush.gradle');
+    requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'legacyBundleTaskName = "bundle${targetName}JsAndAssets"');
+    requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'rnBundleTaskName = "createBundle${targetName}JsAndAssets"');
+    requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'dependsOn(rnBundleTaskName)');
+    requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'enabled = false');
+    if (androidBuildGradle.includes('variant.buildType.name != "debug"')) {
+      errors.push('android/app/build.gradle limits the legacy CodePush bundle alias to debug variants');
+    }
+    requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'getCodePushBundleFile()');
+    requireSnippet(errors, 'MainApplication.java', androidMainApplication, '"true".equals(BuildConfig.CODEPUSH_ENABLED)');
+    requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'BuildConfig.CODEPUSH_DEPLOYMENT_KEY_ANDROID.length() > 0');
+    requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'return CodePush.getJSBundleFile();');
+    requireSnippet(errors, 'MainApplication.java', androidMainApplication, 'return null;');
+    requireSnippet(errors, 'android strings.xml', androidStrings, 'CodePushDeploymentKey');
+    requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, '[self isCodePushEnabled]');
+    requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, '[ReactNativeConfig envFor:@"CODEPUSH_ENABLED"]');
+    requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, '[ReactNativeConfig envFor:@"CODEPUSH_DEPLOYMENT_KEY_IOS"]');
+    requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, 'return [CodePush bundleURL];');
+    requireSnippet(errors, 'ios/GoldWallet/AppDelegate.m', iosAppDelegate, 'URLForResource:@"main" withExtension:@"jsbundle"');
 
-  codePushIosInfoPlists.forEach(relativePath => {
-    requireSnippet(errors, relativePath, read(relativePath), '$(CODEPUSH_DEPLOYMENT_KEY_IOS)');
-  });
+    codePushIosInfoPlists.forEach(relativePath => {
+      requireSnippet(errors, relativePath, read(relativePath), '$(CODEPUSH_DEPLOYMENT_KEY_IOS)');
+    });
+  }
 
   codePushEnvFiles.forEach(relativePath => {
     const content = read(relativePath);
@@ -150,6 +164,10 @@ export const collectCodePushReleasePathAudit = () => {
     const blankKeys = [];
 
     requiredCodePushEnvKeys.forEach(key => {
+      if (codePushRemoved) {
+        return;
+      }
+
       if (!keys.has(key)) {
         if (relativePath.startsWith('.env.beta.')) {
           warnings.push(`${relativePath} does not define ${key}; beta release update strategy is still unconfirmed`);
@@ -179,7 +197,9 @@ export const collectCodePushReleasePathAudit = () => {
       .find(entry => entry.trim().startsWith('CODEPUSH_ENABLED='));
     const codePushEnabledValue = codePushEnabledLine ? codePushEnabledLine.split('=').slice(1).join('=').trim() : '';
 
-    if (!codePushEnabledLine) {
+    if (codePushRemoved) {
+      // Stale CODEPUSH_* env keys may remain until env files are cleaned without exposing historical key values.
+    } else if (!codePushEnabledLine) {
       readinessIssues.push(`${relativePath} is missing CODEPUSH_ENABLED`);
       issues.push('missing CODEPUSH_ENABLED');
     } else if (!['false', 'true'].includes(codePushEnabledValue)) {
@@ -189,7 +209,7 @@ export const collectCodePushReleasePathAudit = () => {
       runtimeDefaultEnabled = true;
     }
 
-    const status = issues.length === 0 ? 'ready' : isBeta ? 'unconfirmed' : 'blocked';
+    const status = codePushRemoved ? 'removed' : issues.length === 0 ? 'ready' : isBeta ? 'unconfirmed' : 'blocked';
 
     envReadiness.push({
       envFile: relativePath,
@@ -247,27 +267,29 @@ export const collectCodePushReleasePathAudit = () => {
     readinessIssues,
     warnings,
     envReadiness,
+    codePushRemoved,
     packageDependencyVersion,
     installedPackageVersion,
     packageLatestVersion,
     packageLatestPublishedAt,
     packageRepositoryUrl,
-    runtimeGatePresent: appSource.includes('isCodePushEnabled') && configSource.includes('CODEPUSH_ENABLED'),
+    runtimeGatePresent: codePushRemoved || (appSource.includes('isCodePushEnabled') && configSource.includes('CODEPUSH_ENABLED')),
     nativeBundleGatePresent:
-      androidMainApplication.includes('getCodePushBundleFile()') &&
-      androidMainApplication.includes('BuildConfig.CODEPUSH_ENABLED') &&
-      iosAppDelegate.includes('[self isCodePushEnabled]') &&
-      iosAppDelegate.includes('[ReactNativeConfig envFor:@"CODEPUSH_ENABLED"]'),
+      codePushRemoved ||
+      (androidMainApplication.includes('getCodePushBundleFile()') &&
+        androidMainApplication.includes('BuildConfig.CODEPUSH_ENABLED') &&
+        iosAppDelegate.includes('[self isCodePushEnabled]') &&
+        iosAppDelegate.includes('[ReactNativeConfig envFor:@"CODEPUSH_ENABLED"]')),
     runtimeDefaultEnabled,
-    packageCurrent: packageDependencyVersion === packageLatestVersion && installedPackageVersion === packageLatestVersion,
-    runtimeHocLazyGated,
+    packageCurrent: codePushRemoved || (packageDependencyVersion === packageLatestVersion && installedPackageVersion === packageLatestVersion),
+    runtimeHocLazyGated: codePushRemoved || runtimeHocLazyGated,
     appCenterRetirementDate,
     codePushUpstreamRepository,
     upstreamRetired,
     upstreamArchived,
     upstreamNewArchitectureSupported,
     androidNewArchitectureEnabled,
-    migrationRequired,
+    migrationRequired: codePushRemoved ? false : upstreamMigrationRequired,
     packageVersionsAligned:
       packageDependencyVersion.length > 0 && installedPackageVersion.length > 0 && packageDependencyVersion === installedPackageVersion,
     androidReleaseSummaryPresent,
@@ -300,6 +322,7 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
     `Generated at: ${generatedAt}`,
     `Release path wiring valid: ${audit.errors.length === 0 ? 'yes' : 'no'}`,
     `Release path ready for update validation: ${audit.ready ? 'yes' : 'no'}`,
+    `CodePush removed: ${audit.codePushRemoved ? 'yes' : 'no'}`,
     `Ready environments: ${audit.envReadiness.filter(entry => entry.status === 'ready').length}`,
     `Environment readiness entries: ${audit.envReadiness.length}`,
     ...audit.envReadiness.map(entry => {
@@ -307,8 +330,8 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
 
       return `- ${entry.envFile}: ${entry.status}${detail}`;
     }),
-    `CodePush package dependency version: ${audit.packageDependencyVersion || 'missing'}`,
-    `CodePush package installed version: ${audit.installedPackageVersion || 'missing'}`,
+    `CodePush package dependency version: ${audit.packageDependencyVersion || 'removed'}`,
+    `CodePush package installed version: ${audit.installedPackageVersion || 'removed'}`,
     `CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`,
     `CodePush package latest published at: ${audit.packageLatestPublishedAt || 'missing'}`,
     `CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`,
@@ -347,9 +370,11 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
   audit.errors.forEach(error => lines.push(`- ${error}`));
   lines.push('Secret values printed: no');
   lines.push(
-    audit.ready
-      ? 'Required action: migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.'
-      : 'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation; migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',
+    audit.codePushRemoved
+      ? 'Required action: keep CodePush removed; do not claim OTA update validation, and remove stale CODEPUSH_* env values only in a secrets-safe cleanup.'
+      : audit.ready
+        ? 'Required action: migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.'
+        : 'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation; migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -370,7 +395,9 @@ const printReport = audit => {
     return;
   }
 
-  if (audit.readinessIssues.length > 0) {
+  if (audit.codePushRemoved) {
+    console.log('CodePush release path has been removed from runtime and native integration.');
+  } else if (audit.readinessIssues.length > 0) {
     console.log('Release path is not ready for update validation:');
     audit.readinessIssues.forEach(issue => console.log(`- ${issue}`));
   } else {
@@ -386,6 +413,7 @@ const printReport = audit => {
   console.log(`Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`);
   console.log(`CodePush package latest version: ${audit.packageLatestVersion || 'missing'}`);
+  console.log(`CodePush removed: ${audit.codePushRemoved ? 'yes' : 'no'}`);
   console.log(`CodePush package current: ${audit.packageCurrent ? 'yes' : 'no'}`);
   console.log(`CodePush runtime gate present: ${audit.runtimeGatePresent ? 'yes' : 'no'}`);
   console.log(`CodePush runtime HOC lazy gated: ${audit.runtimeHocLazyGated ? 'yes' : 'no'}`);
@@ -399,7 +427,11 @@ const printReport = audit => {
   console.log(`CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`);
   console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
   console.log('CodePush update validation: not claimed');
-  console.log('CodePush release path wiring is present for non-dev runtime, Android, iOS, and env key references.');
+  console.log(
+    audit.codePushRemoved
+      ? 'CodePush release path wiring is removed from runtime and native integration.'
+      : 'CodePush release path wiring is present for non-dev runtime, Android, iOS, and env key references.',
+  );
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

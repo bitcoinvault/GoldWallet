@@ -112,8 +112,8 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
     errors.push(`iOS Sentry dSYM upload phases must be 3. Received: ${sentryDsymPhaseCount || 'missing'}`);
   }
 
-  if (codePushPlistPlaceholderCount !== '3') {
-    errors.push(`iOS CodePush plist placeholders must be 3. Received: ${codePushPlistPlaceholderCount || 'missing'}`);
+  if (codePushPlistPlaceholderCount !== '0') {
+    errors.push(`iOS CodePush plist placeholders must be 0 after CodePush removal. Received: ${codePushPlistPlaceholderCount || 'missing'}`);
   }
 
   if (remoteNotificationPlistCount !== '4') {

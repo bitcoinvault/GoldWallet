@@ -118,7 +118,9 @@ export const getCodePushUpdateValidationReadinessErrors = ({
       errors.push('CodePush handoff summary must prove that deployment-key values were not printed');
     }
 
-    if (!releasePathSummaryText.includes('Release path ready for update validation: yes')) {
+    const codePushRemoved = releasePathSummaryText.includes('CodePush removed: yes');
+
+    if (!codePushRemoved && !releasePathSummaryText.includes('Release path ready for update validation: yes')) {
       errors.push(
         'CodePush release path is not ready for update validation; provide non-empty blocked deployment keys and confirm the beta strategy before claiming update validation',
       );
@@ -128,7 +130,11 @@ export const getCodePushUpdateValidationReadinessErrors = ({
       errors.push('CodePush handoff must keep runtime update validation unclaimed until a real OTA delivery test runs');
     }
 
-    if (!releasePathSummaryText.includes('CodePush migration required: yes')) {
+    if (codePushRemoved) {
+      if (!releasePathSummaryText.includes('CodePush migration required: no')) {
+        errors.push('Removed CodePush handoff must report CodePush migration required: no');
+      }
+    } else if (!releasePathSummaryText.includes('CodePush migration required: yes')) {
       errors.push('CodePush handoff must keep the App Center retirement migration requirement visible');
     }
   }

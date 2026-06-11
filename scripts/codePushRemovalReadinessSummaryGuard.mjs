@@ -25,6 +25,7 @@ const getBulletLinesAfter = (content, label) => {
 
 const yesNoLabels = [
   'CodePush package installed',
+  'CodePush removed',
   'CodePush upstream archived',
   'CodePush upstream New Architecture support',
   'Android New Architecture enabled',
@@ -50,6 +51,7 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
   const packageLatestVersion = getLineValue(summary, 'CodePush package latest version');
+  const codePushRemoved = getLineValue(summary, 'CodePush removed');
   const packageLatestPublishedAt = getLineValue(summary, 'CodePush package latest published at');
   const packageRepositoryUrl = getLineValue(summary, 'CodePush npm repository');
   const upstreamRepository = getLineValue(summary, 'CodePush upstream repository');
@@ -81,6 +83,10 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
 
   if (!summary.startsWith('CodePush removal readiness audit')) {
     errors.push('summary header is missing or invalid');
+  }
+
+  if (codePushRemoved === 'yes' && getLineValue(summary, 'CodePush package installed') !== 'no') {
+    errors.push('CodePush package installed must be no after CodePush removal');
   }
 
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(generatedAt)) {
@@ -122,7 +128,11 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
     errors.push(`Android New Architecture enabled must remain yes. Received: ${androidNewArchitectureEnabled || 'missing'}`);
   }
 
-  if (migrationRequired !== 'yes') {
+  if (codePushRemoved === 'yes') {
+    if (migrationRequired !== 'no') {
+      errors.push(`CodePush migration required must be no after CodePush removal. Received: ${migrationRequired || 'missing'}`);
+    }
+  } else if (migrationRequired !== 'yes') {
     errors.push(`CodePush migration required must remain yes. Received: ${migrationRequired || 'missing'}`);
   }
 
@@ -150,15 +160,27 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
     }
   });
 
-  if (iosPlistCount !== '3') {
+  if (codePushRemoved === 'yes') {
+    if (iosPlistCount !== '0') {
+      errors.push(`iOS plist placeholders must be 0 after CodePush removal. Received: ${iosPlistCount || 'missing'}`);
+    }
+  } else if (iosPlistCount !== '3') {
     errors.push(`iOS plist placeholders must remain 3 until CodePush is removed or replaced. Received: ${iosPlistCount || 'missing'}`);
   }
 
-  if (runtimeUsageCount !== '1') {
+  if (codePushRemoved === 'yes') {
+    if (runtimeUsageCount !== '0') {
+      errors.push(`CodePush runtime usage must be 0 after removal. Received: ${runtimeUsageCount || 'missing'}`);
+    }
+  } else if (runtimeUsageCount !== '1') {
     errors.push(`CodePush runtime usage must remain isolated to one runtime file until removal. Received: ${runtimeUsageCount || 'missing'}`);
   }
 
-  if (nativeIntegrationCount !== '8') {
+  if (codePushRemoved === 'yes') {
+    if (nativeIntegrationCount !== '0') {
+      errors.push(`CodePush native integration inventory must be 0 after removal. Received: ${nativeIntegrationCount || 'missing'}`);
+    }
+  } else if (nativeIntegrationCount !== '8') {
     errors.push(`CodePush native integration inventory must remain 8 files until removal. Received: ${nativeIntegrationCount || 'missing'}`);
   }
 
@@ -182,35 +204,37 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
     errors.push('Valid CodePush decision handoff must report zero decision handoff errors');
   }
 
-  if (decisionHandoffValid === 'no' && decision === 'remove') {
+  if (codePushRemoved !== 'yes' && decisionHandoffValid === 'no' && decision === 'remove') {
     errors.push('Remove decision requires a valid CodePush decision handoff');
   }
 
-  if (removalDecision === 'yes' && decision !== 'remove') {
+  if (codePushRemoved !== 'yes' && removalDecision === 'yes' && decision !== 'remove') {
     errors.push('Removal decision can be available only when Decision is remove');
   }
 
-  if (replacementDecision === 'yes' && decision !== 'replace') {
+  if (codePushRemoved !== 'yes' && replacementDecision === 'yes' && decision !== 'replace') {
     errors.push('Replacement decision can be available only when Decision is replace');
   }
 
-  if (decision === 'remove' && removalDecision !== 'yes') {
+  if (codePushRemoved !== 'yes' && decision === 'remove' && removalDecision !== 'yes') {
     errors.push('Decision remove must make Removal decision available yes');
   }
 
-  if (decision !== 'remove' && removalDecision !== 'no') {
+  if (codePushRemoved !== 'yes' && decision !== 'remove' && removalDecision !== 'no') {
     errors.push('Removal decision must be no unless Decision is remove');
   }
 
-  if (decision !== 'replace' && replacementDecision !== 'no') {
+  if (codePushRemoved !== 'yes' && decision !== 'replace' && replacementDecision !== 'no') {
     errors.push('Replacement decision must be no unless Decision is replace');
   }
 
-  if (safeToRemove === 'yes' && decision !== 'remove') {
+  if (codePushRemoved !== 'yes' && safeToRemove === 'yes' && decision !== 'remove') {
     errors.push('CodePush can be marked safe to remove only when Decision is remove');
   }
 
-  if (decision === 'remove' && safeToRemove !== 'yes') {
+  if (codePushRemoved === 'yes' && safeToRemove !== 'no') {
+    errors.push('Safe to remove now must be no after CodePush has already been removed');
+  } else if (codePushRemoved !== 'yes' && decision === 'remove' && safeToRemove !== 'yes') {
     errors.push('Decision remove must make Safe to remove now yes once release evidence and native gates are valid');
   }
 
@@ -226,7 +250,11 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
     errors.push('CodePush removal readiness summary must not print deployment key assignments');
   }
 
-  if (decision === 'remove') {
+  if (codePushRemoved === 'yes') {
+    if (!requiredAction.includes('keep CodePush removed')) {
+      errors.push('Removed summary required action must keep CodePush removed');
+    }
+  } else if (decision === 'remove') {
     if (!requiredAction.includes('start the CodePush removal implementation branch')) {
       errors.push('Remove decision required action must point to the CodePush removal implementation branch');
     }

@@ -10,7 +10,6 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.defaults.DefaultReactHost;
 import com.facebook.react.defaults.DefaultReactNativeHost;
-import com.microsoft.codepush.react.CodePush;
 import io.goldwallet.PreventScreenshotPackage;
 import java.util.Collections;
 import java.util.List;
@@ -43,10 +42,6 @@ public class MainApplication extends Application implements ReactApplication {
     protected String getJSMainModuleName() {
       return "index";
     }
-    @Override
-    protected String getJSBundleFile() {
-        return getCodePushBundleFile();
-    }
 
     @Override
     protected boolean isNewArchEnabled() {
@@ -73,7 +68,7 @@ public class MainApplication extends Application implements ReactApplication {
           buildPackages(),
           "index",
           "index.android.bundle",
-          getCodePushBundleFile(),
+          null,
           null,
           BuildConfig.DEBUG,
           Collections.emptyList(),
@@ -85,19 +80,6 @@ public class MainApplication extends Application implements ReactApplication {
     }
 
     return mReactHost;
-  }
-
-  private String getCodePushBundleFile() {
-    if (
-      !BuildConfig.DEBUG &&
-      "true".equals(BuildConfig.CODEPUSH_ENABLED) &&
-      BuildConfig.CODEPUSH_DEPLOYMENT_KEY_ANDROID != null &&
-      BuildConfig.CODEPUSH_DEPLOYMENT_KEY_ANDROID.length() > 0
-    ) {
-      return CodePush.getJSBundleFile();
-    }
-
-    return null;
   }
   
     @Override

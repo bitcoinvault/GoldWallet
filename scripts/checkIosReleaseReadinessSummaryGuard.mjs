@@ -28,7 +28,7 @@ const validWindowsSummary = [
   'Guarded iOS schemes: 8',
   'iOS Sentry bundle/source-map phases: 4',
   'iOS Sentry dSYM upload phases: 3',
-  'iOS CodePush plist placeholders: 3',
+  'iOS CodePush plist placeholders: 0',
   'iOS remote-notification plists: 4',
   'Podfile.lock refresh required: yes',
   'Removed Podfile.lock pod references: 0',
@@ -120,8 +120,8 @@ assertRejected(
   'Sentry dSYM upload phases',
 );
 assertRejected(
-  'Missing CodePush plist placeholder fixture',
-  validWindowsSummary.replace('iOS CodePush plist placeholders: 3', 'iOS CodePush plist placeholders: 2'),
+  'Unexpected CodePush plist placeholder fixture',
+  validWindowsSummary.replace('iOS CodePush plist placeholders: 0', 'iOS CodePush plist placeholders: 1'),
   'CodePush plist placeholders',
 );
 assertRejected(

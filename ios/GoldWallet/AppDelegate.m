@@ -1,6 +1,5 @@
 
 #import "AppDelegate.h"
-#import <CodePush/CodePush.h>
 
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
@@ -102,20 +101,8 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   #if DEBUG
     return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
   #else
-    if ([self isCodePushEnabled]) {
-      return [CodePush bundleURL];
-    }
-
     return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
   #endif
-}
-
-- (BOOL)isCodePushEnabled
-{
-  NSString *enabled = [ReactNativeConfig envFor:@"CODEPUSH_ENABLED"];
-  NSString *deploymentKey = [ReactNativeConfig envFor:@"CODEPUSH_DEPLOYMENT_KEY_IOS"];
-
-  return [enabled isEqualToString:@"true"] && deploymentKey.length > 0;
 }
 
 @end

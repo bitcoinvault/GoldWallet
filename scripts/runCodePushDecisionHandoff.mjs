@@ -139,10 +139,13 @@ const formatSummary = ({ evidence, options, generatedAt = new Date().toISOString
   const releaseBuildEvidenceReady = getLineValue(evidence.migrationReadinessSummary, 'CodePush release build evidence ready') || 'no';
   const releaseSmokeEvidenceReady = getLineValue(evidence.migrationReadinessSummary, 'CodePush release smoke evidence ready') || 'no';
   const migrationRequired = getLineValue(evidence.migrationReadinessSummary, 'CodePush migration required') || 'no';
+  const codePushRemoved = getLineValue(evidence.migrationReadinessSummary, 'CodePush removed') || 'no';
   const updateValidation = getLineValue(evidence.migrationReadinessSummary, 'CodePush update validation') || 'not claimed';
   const runtimeGatedOff = getLineValue(evidence.migrationReadinessSummary, 'CodePush runtime gated off by default') || 'no';
   const implementationReady =
-    options.decision === 'remove' &&
+    codePushRemoved === 'yes'
+      ? 'yes'
+      : options.decision === 'remove' &&
     releasePathSummaryValid &&
     migrationReadinessSummaryValid &&
     removalReadinessSummaryValid &&
@@ -162,6 +165,7 @@ const formatSummary = ({ evidence, options, generatedAt = new Date().toISOString
     `Generated at: ${generatedAt}`,
     `Decision: ${options.decision}`,
     `Implementation ready: ${implementationReady}`,
+    `CodePush removed: ${codePushRemoved}`,
     `Replacement target: ${options.decision === 'replace' ? options.replacementTarget : 'none'}`,
     `Beta deployment-key strategy: ${options.betaStrategy}`,
     `Release path summary valid: ${releasePathSummaryValid ? 'yes' : 'no'}`,

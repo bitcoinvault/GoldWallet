@@ -29,7 +29,4 @@ export default {
   sentryDsnIOS: Config.SENTRY_DSN_IOS,
   sentryDsnAndroid: Config.SENTRY_DSN_ANDROID,
   emailNotificationsApi: Config.EMAIL_NOTIFICATIONS_API ?? '',
-  codepushEnabled: Config.CODEPUSH_ENABLED === 'true',
-  codepushDeploymentKeyIOS: Config.CODEPUSH_DEPLOYMENT_KEY_IOS,
-  codepushDeploymentKeyAndroid: Config.CODEPUSH_DEPLOYMENT_KEY_ANDROID,
 };

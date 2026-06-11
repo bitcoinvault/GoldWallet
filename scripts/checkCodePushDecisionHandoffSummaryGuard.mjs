@@ -5,6 +5,7 @@ const validSummary = [
   'Generated at: 2026-06-11T00:00:00.000Z',
   'Decision: pending',
   'Implementation ready: no',
+  'CodePush removed: no',
   'Replacement target: none',
   'Beta deployment-key strategy: unconfirmed',
   'Release path summary valid: yes',
@@ -45,6 +46,14 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid pending CodePush decision handoff fixture', validSummary);
+assertAccepted(
+  'Valid removed CodePush decision handoff fixture',
+  validSummary
+    .replace('Decision: pending', 'Decision: remove')
+    .replace('Implementation ready: no', 'Implementation ready: yes')
+    .replace('CodePush removed: no', 'CodePush removed: yes')
+    .replace('CodePush migration required: yes', 'CodePush migration required: no'),
+);
 assertAccepted(
   'Valid remove CodePush decision handoff fixture',
   validSummary

@@ -4,6 +4,7 @@ const validSummary = [
   'CodePush migration readiness audit',
   'Generated at: 2026-06-04T00:00:00.000Z',
   'CodePush package current: yes',
+  'CodePush removed: no',
   'CodePush package latest version: 9.0.1',
   'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
   'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',

@@ -4,6 +4,7 @@ const validSummary = [
   'CodePush removal readiness audit',
   'Generated at: 2026-06-04T00:00:00.000Z',
   'CodePush package installed: yes',
+  'CodePush removed: no',
   'CodePush package latest version: 9.0.1',
   'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
   'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
@@ -81,6 +82,33 @@ assertAccepted(
     .replace(
       'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
       'Required action: start the CodePush removal implementation branch; do not claim OTA update validation, and leave iOS runtime/archive validation unclaimed unless it runs on macOS/Xcode.',
+    ),
+);
+assertAccepted(
+  'Valid removed CodePush readiness summary fixture',
+  validSummary
+    .replace('CodePush package installed: yes', 'CodePush package installed: no')
+    .replace('CodePush removed: no', 'CodePush removed: yes')
+    .replace('CodePush migration required: yes', 'CodePush migration required: no')
+    .replace('Runtime usage files: 1\n- App.tsx', 'Runtime usage files: 0')
+    .replace(
+      [
+        'Native integration files: 8',
+        '- android/app/build.gradle',
+        '- android/app/src/main/java/io/goldwallet/wallet/MainApplication.java',
+        '- android/app/src/main/res/values/strings.xml',
+        '- android/settings.gradle',
+        '- ios/GoldWallet/AppDelegate.m',
+        '- ios/GoldWallet/Info.plist',
+        '- ios/GoldWalletDev-Info.plist',
+        '- ios/GoldWalletStage-Info.plist',
+      ].join('\n'),
+      'Native integration files: 0',
+    )
+    .replace('iOS plist placeholders: 3', 'iOS plist placeholders: 0')
+    .replace(
+      'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
+      'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.',
     ),
 );
 assertRejected('Missing header fixture', validSummary.replace('CodePush removal readiness audit', 'Bad header'), 'summary header');

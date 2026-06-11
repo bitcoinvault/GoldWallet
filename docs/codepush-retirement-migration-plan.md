@@ -4,15 +4,15 @@ Scope: `BEM-37.282 - CodePush retirement audit`.
 
 ## Current State
 
-- The app still has `react-native-code-push` wired in JavaScript, Android, iOS, and env files.
+- `BEM-37.583` removes `react-native-code-push` from JavaScript, Android, iOS plist/native integration, `package.json`, `yarn.lock`, and `ios/Podfile.lock`.
+- Historical `.env.*` files may still carry stale `CODEPUSH_*` keys until a secrets-safe cleanup is done; those keys are no longer required by the app runtime or release-service env guard.
 - `react-native-code-push@9.0.1` is the latest npm release checked on 2026-06-11.
 - The latest npm release was published on 2024-12-19.
 - Microsoft App Center CodePush was retired on 2025-03-31.
 - The Microsoft `react-native-code-push` and standalone `code-push-server` repositories are archived/read-only. `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` and `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` confirmed `isArchived: true` on 2026-06-11.
 - The upstream Microsoft README states that React Native CodePush does not support New Architecture.
 - This repo currently has Android `newArchEnabled=true`, so CodePush must be treated as legacy release infrastructure even when local builds still pass.
-- CodePush runtime startup and native bundle resolution are gated by optional `CODEPUSH_ENABLED=true` plus a non-empty platform deployment key. Without the flag, non-dev builds keep the wiring available but do not start the retired OTA client or resolve JS bundles through CodePush by default.
-- The JS CodePush HOC is created lazily inside the runtime gate, so the retired OTA client wrapper is not mounted or initialized when `CODEPUSH_ENABLED` is absent/false or the platform deployment key is empty.
+- CodePush runtime startup and native bundle resolution are no longer present after `BEM-37.583`; non-dev builds use bundled JS assets instead of the retired OTA client.
 
 Official references:
 
@@ -40,32 +40,27 @@ corepack yarn codepush:update:validation:handoff:dry-run
 corepack yarn check:codepush-update-validation-handoff-guard
 ```
 
-Expected summary claims:
+Expected summary claims after `BEM-37.583`:
 
-- package dependency, installed, and latest npm versions are aligned;
+- package dependency and installed package are reported as `removed`, while latest npm metadata remains recorded for historical context;
 - App Center CodePush retirement date is recorded as `2025-03-31`;
 - upstream retired/archived state is recorded;
 - upstream New Architecture support is recorded as `no`;
 - Android New Architecture enabled state is recorded;
-- CodePush migration required is recorded as `yes`;
+- CodePush migration required is recorded as `no` after removal;
 - npm latest version, latest published timestamp, npm repository, and upstream repository are recorded in the migration-readiness summary so the remove-or-replace decision carries package/upstream evidence directly;
-- CodePush runtime gate is recorded as present;
-- CodePush runtime HOC lazy gating is recorded as present;
-- CodePush native bundle gate is recorded as present;
-- CodePush runtime enabled by default is derived from the referenced `CODEPUSH_ENABLED` env values and is currently recorded as `no`;
+- CodePush runtime gate, runtime HOC, native bundle gate, plist placeholders, package dependency, and installed package are recorded as removed;
 - Android release build evidence is recorded separately from CodePush update validation;
 - local Android release evidence currently covers `dev`, `stage`, `prod`, and `beta` release variants;
 - release build evidence readiness is recorded separately from OTA update validation;
-- ready, blocked, and unconfirmed CodePush env counts are recorded without printing deployment-key values;
-- beta CodePush strategy remains explicitly unconfirmed until beta deployment keys or a no-OTA beta decision are provided;
-- the migration readiness summary records the current posture as temporary legacy compatibility;
-- the long-term options are recorded as remove or replace;
-- the readiness guard keeps the migration/removal decision visible even while the package remains on npm latest;
+- stale CodePush env-key presence is not treated as a release blocker and no deployment-key values are printed;
+- the migration readiness summary records the current posture as removed;
+- the long-term options are recorded as removed;
 - the decision handoff generator keeps the current decision as `pending` until `remove`, `replace`, or an explicit temporary legacy exception is selected;
 - the decision handoff keeps release build evidence, release-smoke evidence, beta strategy, iOS validation status, and OTA update validation state in one local artifact without printing deployment-key values;
-- the removal-readiness summary records the exact runtime, Android, iOS, plist, and env-key surfaces that must be deleted or replaced;
+- the removal-readiness summary records zero runtime, Android, iOS, and plist surfaces remaining after removal;
 - the removal-readiness summary also records the CodePush package latest version, latest published timestamp, npm repository, upstream repository, archived state, New Architecture support, Android New Architecture enabled state, migration-required state, and Android release evidence readiness before any removal is planned;
-- the removal-readiness summary keeps `Safe to remove now: no` until a valid local decision handoff says `Decision: remove`;
+- the removal-readiness summary records `Safe to remove now: no` after removal because there is no remaining CodePush integration to remove;
 - the release-services handoff can now be run with `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota` so the selected decision is preserved through the full release-services validation sequence instead of being reset to `pending`;
 - the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence;
 - no deployment key values are printed.
@@ -99,7 +94,7 @@ Evidence that must be attached to the decision:
 - iOS macOS/Xcode/CocoaPods blocker or validation result;
 - explicit beta deployment-key strategy: beta has OTA keys, beta has no OTA, or beta is out of scope.
 
-Do not start a removal branch until the decision says `remove`.
+Do not reintroduce a removal branch unless CodePush runtime/native integration is reintroduced.
 Do not start a replacement branch until the decision says `replace` and names the replacement target.
 Do not claim CodePush update validation until deployment keys are non-empty for the target environments and a real OTA delivery test has run.
 Never print or commit CodePush deployment-key values in handoff artifacts.
@@ -119,7 +114,7 @@ corepack yarn codepush:removal-readiness:check-summary
 corepack yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota
 ```
 
-The first removal-readiness audit provides the inventory required by the decision handoff. The second removal-readiness audit proves that the valid local remove decision is visible and that `Safe to remove now` is `yes` before a CodePush removal implementation branch starts.
+The first removal-readiness audit provides the inventory required by the decision handoff. The second removal-readiness audit proves that the valid local remove decision is visible before a CodePush removal implementation branch starts. After `BEM-37.583`, the same audit proves the removed state and requires keeping CodePush removed.
 
 ## Remove Branch Acceptance Gate
 
@@ -131,6 +126,7 @@ The first removal-readiness audit provides the inventory required by the decisio
 - run Android debug assemble and emulator smoke;
 - run Android release build, manifest check, and release smoke;
 - leave iOS runtime/archive validation unclaimed unless it ran on macOS/Xcode.
+- keep stale `.env.*` CodePush key cleanup separate and secrets-safe.
 
 ## Replace Branch Acceptance Gate
 
@@ -144,14 +140,13 @@ The first removal-readiness audit provides the inventory required by the decisio
 
 ## Implementation Follow-Ups
 
+After `BEM-37.583`, CodePush runtime/native removal is implemented. Remaining follow-ups:
+
 If removing CodePush:
 
-- remove `react-native-code-push` from `package.json`;
-- remove `codePush` wrapping from `App.tsx`;
-- remove Android `codepush.gradle`, `MainApplication.java` bundle lookup, and `CodePushDeploymentKey` string placeholders;
-- remove iOS `CodePushDeploymentKey` plist placeholders and native integration;
-- clean env key guards and release-service docs;
-- run Android assemble and emulator smoke.
+- run iOS `pod install` plus simulator/archive validation on macOS/Xcode before claiming iOS runtime delivery;
+- remove stale `CODEPUSH_*` values from `.env.*` only through a secrets-safe cleanup that does not expose historical deployment-key values in review;
+- do not claim OTA update validation unless a maintained replacement is selected and tested.
 
 If replacing CodePush:
 
@@ -163,4 +158,4 @@ If replacing CodePush:
 
 ## Current Conclusion
 
-The current CodePush code path is build-compatible enough to keep modernization moving and is gated off by default, but it is no longer a supported long-term release capability. Treat it as a migration/removal workstream, not as a normal dependency-refresh item.
+The CodePush runtime/native path has been removed from the app. Keep CodePush removed unless a maintained OTA replacement is selected and validated as a separate release capability.

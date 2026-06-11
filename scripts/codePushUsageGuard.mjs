@@ -1,15 +1,6 @@
-export const expectedCodePushRuntimeUsageFiles = new Set(['App.tsx']);
+export const expectedCodePushRuntimeUsageFiles = new Set([]);
 
-export const expectedCodePushNativeUsageFiles = new Set([
-  'android/app/build.gradle',
-  'android/app/src/main/java/io/goldwallet/wallet/MainApplication.java',
-  'android/app/src/main/res/values/strings.xml',
-  'android/settings.gradle',
-  'ios/GoldWallet/AppDelegate.m',
-  'ios/GoldWallet/Info.plist',
-  'ios/GoldWalletDev-Info.plist',
-  'ios/GoldWalletStage-Info.plist',
-]);
+export const expectedCodePushNativeUsageFiles = new Set([]);
 
 const getScopeErrors = (usageFiles, expectedFiles, unexpectedLabel, missingLabel) => {
   const usageSet = usageFiles instanceof Set ? usageFiles : new Set(usageFiles);
