@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.628 - Release-services documentation alignment
+
+- Branch: `feature/bem-37-628-release-services-doc-alignment`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align release-services documentation with the `BEM-37.627` default CodePush decision change.
+- Clarify that the standard release-services handoff now keeps the current post-removal posture: `remove` with `beta-has-no-ota`.
+- Keep future replacement or temporary legacy CodePush decisions as explicit override paths rather than the default validation posture.
+
+Findings:
+
+- `docs/release-services-native-compatibility-audit.md` now records that the release-services handoff defaults to `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota`.
+- `docs/android-modernization-workflow.md` now gives the same default behavior in the operational workflow section used before release-service dependency, env, or runtime changes.
+- OTA update validation remains explicitly unclaimed unless a maintained replacement is selected and delivery-tested.
+- No runtime app code, native code, dependency versions, package scripts, lockfile entries, build configuration, or Metro behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.627 - Release-services CodePush default alignment
 
 - Branch: `feature/bem-37-627-release-services-codepush-default`
