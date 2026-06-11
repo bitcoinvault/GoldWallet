@@ -34,6 +34,8 @@ corepack yarn check:codepush-migration-readiness-summary-guard
 corepack yarn codepush:removal-readiness:audit
 corepack yarn codepush:removal-readiness:check-summary
 corepack yarn check:codepush-removal-readiness-summary-guard
+corepack yarn codepush:decision:handoff:dry-run
+corepack yarn check:codepush-decision-handoff-summary-guard
 corepack yarn codepush:update:validation:handoff:dry-run
 corepack yarn check:codepush-update-validation-handoff-guard
 ```
@@ -59,6 +61,8 @@ Expected summary claims:
 - the migration readiness summary records the current posture as temporary legacy compatibility;
 - the long-term options are recorded as remove or replace;
 - the readiness guard keeps the migration/removal decision visible even while the package remains on npm latest;
+- the decision handoff generator keeps the current decision as `pending` until `remove`, `replace`, or an explicit temporary legacy exception is selected;
+- the decision handoff keeps release build evidence, release-smoke evidence, beta strategy, iOS validation status, and OTA update validation state in one local artifact without printing deployment-key values;
 - the removal-readiness summary records the exact runtime, Android, iOS, plist, and env-key surfaces that must be deleted or replaced;
 - the removal-readiness summary also records the CodePush package latest version, latest published timestamp, npm repository, upstream repository, archived state, New Architecture support, Android New Architecture enabled state, migration-required state, and Android release evidence readiness before any removal is planned;
 - the removal-readiness summary keeps `Safe to remove now: no` until the team chooses remove or replace;
@@ -85,6 +89,7 @@ Decision owner input required before implementation:
 
 Evidence that must be attached to the decision:
 
+- current `codepush:decision:handoff` output generated with the selected decision and beta strategy;
 - current `codepush:release:path-audit` and `codepush:release:path-check-summary` output;
 - current `codepush:migration:readiness-audit` and `codepush:migration:readiness-check-summary` output;
 - current `codepush:removal-readiness:audit` and `codepush:removal-readiness:check-summary` output;

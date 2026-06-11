@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.568 - CodePush decision handoff
+
+- Branch: `feature/bem-37-568-codepush-decision-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a local CodePush decision handoff generator that combines guarded release-path, migration-readiness, and removal-readiness evidence without printing deployment-key values.
+- Add a decision handoff summary guard with fixtures for pending, remove, and replace outcomes.
+- Keep the default decision as `pending` so the repo does not claim a remove/replace decision before product/release owner input.
+- Update the CodePush retirement plan with the new handoff command and evidence requirement.
+- Keep runtime app code, native files, package versions, lockfile, env values, and CodePush behavior unchanged.
+
+Findings:
+
+- `react-native-code-push@9.0.1` remains current, but App Center CodePush remains retired and upstream New Architecture support remains unavailable while Android New Architecture is enabled.
+- The new handoff reports release-path, migration, and removal summaries as valid, records CodePush migration required as `yes`, and keeps update validation as `not claimed`.
+- Android release build evidence had to be refreshed because release input fingerprints changed after tooling script/package changes.
+- Android dev release smoke passed on the emulator after refreshing the signed smoke APK, including first-run setup, dashboard, create/import wallet flow, QR scanner, bottom-tab navigation, and fatal/runtime logcat checks.
+- Full OTA update validation remains blocked by blank dev deployment keys and unconfirmed beta deployment-key strategy; no deployment-key values were printed.
+- iOS runtime validation remains not claimed on this Windows host and still requires macOS/Xcode/CocoaPods validation.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:decision:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.567 - Direct outdated exact snapshot guard
 
 - Branch: `feature/bem-37-567-direct-outdated-exact-snapshot-guard`
