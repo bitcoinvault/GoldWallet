@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.547 - iOS release evidence refresh
+
+- Branch: `feature/bem-37-547-ios-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh iOS static release readiness evidence after the current RN `0.86.0` release-service baseline.
+- Keep iOS runtime/archive validation unclaimed on Windows while preserving the exact macOS/Xcode/CocoaPods handoff requirements.
+- Revalidate iOS release readiness, macOS validation prerequisites, all-scheme handoff rendering, release-services aggregate summaries, and baseline gates without changing runtime code.
+
+Findings:
+
+- `ios:release:readiness:audit` reports static iOS release files valid, React Native `0.86.0`, minimum iOS `15.1`, minimum Xcode `16.1`, Podfile platform `15.1`, deployment targets `15.1`, 8 guarded iOS schemes, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, 3 CodePush plist placeholders, and 4 remote-notification plists.
+- `ios/Podfile.lock` still needs a macOS `pod install` refresh before archive/runtime readiness can be claimed: 0 removed-pod references remain, but 12 active drift issues still point at older React Native, BootSplash, Config, AsyncStorage, DeviceInfo, FastImage, Firebase, Gesture Handler, Localize, Screens, Sentry, and VectorIcons pods.
+- `ios:mac-validation-prereq:audit` reports platform `win32`, no `xcodebuild`, no `pod` or `bundle exec pod`, and readiness `no`.
+- `ios:mac-validation:handoff:dry-run --all-schemes` renders the macOS command sequence for all eight shared Debug/Release schemes and keeps runtime delivery validation unclaimed until it actually runs on macOS with Xcode `16.1+` and CocoaPods.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-release-readiness-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-release-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run -- --all-schemes`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.546 - Sentry release evidence refresh
 
 - Branch: `feature/bem-37-546-sentry-release-evidence-refresh`
