@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.613 - iOS static validation refresh
+
+- Branch: `feature/bem-37-613-ios-static-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh static iOS release readiness and macOS validation prerequisite evidence after the current RN `0.86.0` baseline.
+- Confirm which parts of iOS validation can be claimed on this Windows host and which require macOS/Xcode/CocoaPods.
+- Keep iOS runtime/archive validation explicitly unclaimed until a real macOS build path runs.
+
+Findings:
+
+- Static iOS release files are valid: Podfile platform and Xcode deployment targets are aligned to iOS `15.1`, guarded shared schemes are present, Sentry bundle/source-map phases are present, dSYM upload phases are present, CodePush plist placeholders are absent, and remote-notification plist coverage is present.
+- React Native `0.86.0` requires Xcode `16.1+` for the iOS validation path.
+- This Windows host cannot run iOS archive/simulator validation because `xcodebuild` is unavailable and the platform is `win32`.
+- CocoaPods is unavailable on this host, so `ios/Podfile.lock` cannot be refreshed here.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh and currently has 12 active drift issues against the JavaScript/native package baseline.
+- The macOS handoff dry-run expands the guarded all-scheme matrix for 8 shared Debug/Release schemes and keeps runtime delivery as `not claimed`.
+- No runtime code, native code, dependency versions, package scripts, lockfile entries, Xcode project files, Podfile, or Podfile.lock entries changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:validation:handoff-summary:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.612 - Camera/QR validation refresh
 
 - Branch: `feature/bem-37-612-camera-qr-validation-refresh`
