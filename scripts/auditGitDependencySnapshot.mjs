@@ -100,6 +100,10 @@ export const collectGitDependencySnapshot = () =>
 
 export const formatGitDependencySnapshotSummary = (entries, generatedAt = new Date().toISOString()) => {
   const mismatches = entries.filter(entry => entry.status !== 'current');
+  const requiredAction =
+    mismatches.length === 0
+      ? 'No git dependency pin mismatches; preserve wallet-critical fork pins unless a dedicated compatibility branch proves a replacement.'
+      : 'Review mismatched git dependency pins before changing wallet-critical fork or polyfill packages.';
   const lines = [
     'Git dependency snapshot audit',
     `Generated at: ${generatedAt}`,
@@ -116,7 +120,7 @@ export const formatGitDependencySnapshotSummary = (entries, generatedAt = new Da
         }; status: ${entry.status}`,
     ),
     'Secret values printed: no',
-    'Required action: review the mismatched git dependency pins before changing wallet-critical fork or polyfill packages.',
+    `Required action: ${requiredAction}`,
     '',
   ];
 

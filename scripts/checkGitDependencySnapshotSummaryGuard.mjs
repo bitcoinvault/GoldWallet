@@ -12,7 +12,7 @@ const validSummary = [
   '- react-native-prompt-android: package spec: git+https://github.com/marcosrdz/react-native-prompt-android.git#87bf3adb5f22b4d1ecaa517e93347101372398f5; lock hash: 87bf3adb5f22b4d1ecaa517e93347101372398f5; package hash: 87bf3adb5f22b4d1ecaa517e93347101372398f5; remote: https://github.com/marcosrdz/react-native-prompt-android.git; remote ref: refs/heads/master; remote hash: 87bf3adb5f22b4d1ecaa517e93347101372398f5; wallet critical: yes; status: current',
   '- rn-nodeify: package spec: github:tradle/rn-nodeify#338d8d6ba8438403093e9409e9a9d88ad884926f; lock hash: 338d8d6ba8438403093e9409e9a9d88ad884926f; package hash: 338d8d6ba8438403093e9409e9a9d88ad884926f; remote: https://github.com/tradle/rn-nodeify.git; remote ref: refs/heads/master; remote hash: 338d8d6ba8438403093e9409e9a9d88ad884926f; wallet critical: no; status: current',
   'Secret values printed: no',
-  'Required action: review the mismatched git dependency pins before changing wallet-critical fork or polyfill packages.',
+  'Required action: No git dependency pin mismatches; preserve wallet-critical fork pins unless a dedicated compatibility branch proves a replacement.',
   '',
 ].join('\n');
 
@@ -53,7 +53,36 @@ assertRejected('Bad entry count fixture', validSummary.replace('Entries: 4', 'En
 assertRejected('Secret fixture', validSummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');
 assertRejected(
   'Mismatched dependency fixture',
-  validSummary.replace('status: current', 'status: review'),
+  validSummary.replace('Mismatches: 0', 'Mismatches: 1').replace('status: current', 'status: review'),
+  'entry must be current',
+);
+assertRejected(
+  'Wrong mismatch count fixture',
+  validSummary.replace('Mismatches: 0', 'Mismatches: 1'),
+  'Mismatches must match the number of non-current entries',
+);
+assertRejected(
+  'Missing clean required action fixture',
+  validSummary.replace(
+    'Required action: No git dependency pin mismatches; preserve wallet-critical fork pins unless a dedicated compatibility branch proves a replacement.',
+    'Required action: Review mismatched git dependency pins before changing wallet-critical fork or polyfill packages.',
+  ),
+  'must confirm there are no git dependency pin mismatches',
+);
+assertRejected(
+  'Missing fork preservation required action fixture',
+  validSummary.replace('preserve wallet-critical fork pins', 'change fork pins freely'),
+  'must preserve wallet-critical fork pins',
+);
+assertRejected(
+  'Review required action fixture',
+  validSummary
+    .replace('Mismatches: 0', 'Mismatches: 1')
+    .replace('status: current', 'status: review')
+    .replace(
+      'Required action: No git dependency pin mismatches; preserve wallet-critical fork pins unless a dedicated compatibility branch proves a replacement.',
+      'Required action: Review mismatched git dependency pins before changing wallet-critical fork or polyfill packages.',
+    ),
   'entry must be current',
 );
 assertRejected(
