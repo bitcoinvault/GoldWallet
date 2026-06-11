@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.599 - Direct dependency latest snapshot refresh
+
+- Branch: `feature/bem-37-599-direct-deps-latest-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the live direct dependency, storage/network, wallet crypto, and tooling latest snapshots after the RN/latest and release-service validation blocks.
+- Use the repo-owned latest snapshot scripts instead of blindly bumping packages.
+- Keep package versions unchanged unless the snapshot identifies a safe, compatible direct upgrade.
+
+Findings:
+
+- Direct outdated snapshot has 8 tracked entries: 4 blocked and 4 exotic/fork-pinned entries; it reports no review-required package that can be safely bumped in this branch.
+- Blocked direct entries remain `bl@7.0.3`, `node-fetch@3.3.2`, `react@19.2.7`, and `react-test-renderer@19.2.7`.
+- `bl@7` stays blocked because current CommonJS transitive consumers still require the validated `bl@6.1.6` resolution before moving to the ESM/export-map v7 line.
+- `node-fetch@3` stays blocked because the v3 line is ESM-only and remains incompatible with guarded CommonJS transitive consumers.
+- React and `react-test-renderer` stay pinned to `19.2.3` because RN `0.86.0` embeds the exact `19.2.3` renderer baseline.
+- Exotic/fork-pinned direct entries remain `bitcoinjs-lib`, `electrum-client`, `react-native-prompt-android`, and `rn-nodeify`; each requires a dedicated compatibility branch rather than replacement by upstream npm metadata.
+- Storage/network latest snapshot reports all 10 tracked packages current.
+- Wallet crypto latest snapshot reports 14 current npm entries and keeps the BitcoinVault `bitcoinjs-lib` fork pinned.
+- Tooling latest snapshot reports all 24 tracked tooling packages current.
+- No package, lockfile, native, runtime, or Metro files were changed by this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+
 ### BEM-37.598 - React patch latest compatibility probe
 
 - Branch: `feature/bem-37-598-react-patch-latest`
