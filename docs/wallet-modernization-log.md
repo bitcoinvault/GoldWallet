@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.625 - React Native latest target probe
+
+- Branch: `feature/bem-37-625-rn-latest-target-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live React Native target evidence after the release-services aggregate refresh.
+- Re-run the latest-first foundation snapshot checks before choosing any higher React Native, Android toolchain, storage/network, wallet crypto, or tooling target.
+- Confirm whether a higher stable React Native target exists and record the blocker if the latest Android toolchain cannot be adopted yet.
+
+Findings:
+
+- Live npm metadata on 2026-06-11 still reports `react-native@0.86.0` as the stable `latest` release.
+- The `next` React Native channel is still prerelease at `0.86.0-rc.3`, and the visible `0.87.0` line is only `0.87.0-nightly-20260608-2ff3b81dc`, so there is no stable higher React Native target to move to in this branch.
+- The current React Native target advertises React peer `^19.2.3` and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`; the repo is validating on Node `24.16.0`.
+- Direct outdated snapshot remains triaged: `react` and `react-test-renderer` patch releases are blocked by React Native renderer coupling, `bl` remains blocked by CommonJS transitive consumers, and the BitcoinVault/Electrum/prompt/rn-nodeify Git dependencies remain intentionally fork-pinned or exotic.
+- Git dependency snapshot reports no mismatches for the wallet-critical BitcoinVault forks and prompt/shim pins.
+- Wallet crypto, storage/network, and tooling latest snapshots report no deferred entries: the tracked npm packages in those cohorts are already on their latest accepted versions.
+- Android latest toolchain remains blocked: stable AGP is `9.2.1`, Gradle current is `9.5.1`, Kotlin Gradle plugin latest is `2.4.0`, but Gradle `9.4.1+` loads newer embedded Kotlin runtime metadata that the React Native Gradle plugin `0.86.0` Kotlin compiler path cannot read during `:gradle-plugin:settings-plugin:compileKotlin`.
+- The validated Android baseline therefore remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17` until a newer React Native Gradle plugin baseline clears the AGP 9 / Gradle 9 blocker.
+- iOS static readiness remains valid, but iOS runtime/archive validation remains blocked on this Windows host by missing macOS/Xcode/CocoaPods and `ios/Podfile.lock` drift.
+- No runtime code, native code, dependency versions, package scripts, lockfile entries, build configuration, or Metro behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn git-deps:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:toolchain-target:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+
 ### BEM-37.624 - Release-services aggregate refresh
 
 - Branch: `feature/bem-37-624-release-services-aggregate-refresh`
