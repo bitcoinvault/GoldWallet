@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.632 - iOS validation handoff aggregate gate
+
+- Branch: `feature/bem-37-632-ios-handoff-aggregate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `local-docs/ios-validation-handoff-summary.txt` to the aggregate release-services summary checker.
+- Refresh and validate the combined iOS validation handoff summary during the release-services validation handoff.
+- Make `rn:baseline:preflight` regenerate the iOS validation handoff summary instead of only rendering the dry-run output.
+- Keep iOS runtime/archive validation explicitly unclaimed on Windows.
+
+Findings:
+
+- The iOS static readiness summary and macOS prerequisite summary are valid, but both still report that `ios/Podfile.lock` needs a macOS `pod install` refresh.
+- The combined iOS validation handoff summary records platform `win32`, missing local `xcodebuild`, missing local CocoaPods, 12 active `ios/Podfile.lock` drift issues, and `iOS runtime delivery validation: not claimed`.
+- The aggregate release-services checker now rejects missing or invalid combined iOS handoff evidence before release-service dependency, env, or runtime changes are considered validated.
+- Full release-services validation refreshed Android release APK evidence, Android release embedded smoke evidence, Sentry/Firebase/CodePush/push summaries, iOS summaries, and the aggregate release-services gate.
+- No iOS project files, Podfile, Podfile.lock, runtime code, dependency versions, native build configuration, or env values changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn release-services:validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:validation:handoff-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-validation-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.631 - Android warning secure-storage evidence gate
 
 - Branch: `feature/bem-37-631-warning-secure-storage-evidence`

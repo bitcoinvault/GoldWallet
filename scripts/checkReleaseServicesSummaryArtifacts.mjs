@@ -13,6 +13,7 @@ import { getCodePushDecisionHandoffErrors } from './codePushDecisionHandoffGuard
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
 import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
+import { getIosValidationHandoffSummaryErrors } from './iosValidationHandoffSummaryGuard.mjs';
 import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';
 import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
@@ -96,6 +97,11 @@ export const releaseServicesSummaryArtifacts = [
     label: 'iOS macOS validation prerequisites',
     relativePath: 'local-docs/ios-mac-validation-prereqs-summary.txt',
     getErrors: getIosMacValidationPrereqSummaryErrors,
+  },
+  {
+    label: 'iOS validation handoff',
+    relativePath: 'local-docs/ios-validation-handoff-summary.txt',
+    getErrors: getIosValidationHandoffSummaryErrors,
   },
 ];
 
