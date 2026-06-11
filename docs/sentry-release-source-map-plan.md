@@ -18,7 +18,7 @@
 - `corepack yarn sentry:release:create-properties` is the cross-platform release setup command for generating the root, Android, and iOS Sentry properties files after `SENTRY_AUTH_TOKEN` is provided.
 - `corepack yarn check:sentry-properties-generator` validates the cross-platform `scripts/createSentryProperties.mjs` generator without touching repo-level Sentry files: it checks missing-token failure, `--root` temp output, root/Android/iOS file generation, org/project overrides, and secret-safe command output.
 - `corepack yarn sentry:release:validation:handoff:dry-run` renders the Sentry source-map prerequisite sequence without printing token assignments.
-- `corepack yarn sentry:release:validation:handoff` validates the generator, optionally refreshes Android release APK evidence with Sentry auto-upload disabled, generates the three Sentry properties files from `SENTRY_AUTH_TOKEN`, refreshes the Sentry prerequisite summary, and validates aggregate release-services summaries.
+- `corepack yarn sentry:release:validation:handoff` validates the generator, optionally refreshes Android release APK evidence with Sentry auto-upload disabled, refreshes the Sentry RN bundle task compatibility summary, generates the three Sentry properties files from `SENTRY_AUTH_TOKEN`, refreshes the Sentry prerequisite summary, and validates aggregate release-services summaries.
 - `corepack yarn check:sentry-release-validation-handoff-guard` validates the handoff command order, `--skip-android-release` behavior, required-env handling, and secret-safe command rendering.
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary, including per-file readiness counts and generator coverage.
 - `corepack yarn sentry:android-warning:audit` verifies that Sentry Gradle/source-map wiring remains tracked before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
@@ -49,6 +49,7 @@ Evidence that must be attached to the credential handoff:
 - current `sentry:release:prereq-audit` and `sentry:release:prereq-check-summary` output after credentials are generated;
 - current Android release build, manifest, and release-smoke evidence;
 - current `sentry:android-warning:audit` and `sentry:android-warning:check-summary` output;
+- current `sentry:rn-bundle-task-compat:audit` and `sentry:rn-bundle-task-compat:check-summary` output;
 - current release-services aggregate summary;
 - iOS macOS/Xcode/CocoaPods blocker or validation result.
 

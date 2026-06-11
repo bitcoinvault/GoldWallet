@@ -75,6 +75,8 @@ export const getSentryReleaseValidationCommands = (options = defaultOptions) => 
   steps.push(
     yarnStep('Audit Sentry Android warning surface', 'sentry:android-warning:audit'),
     yarnStep('Validate Sentry Android warning summary', 'sentry:android-warning:check-summary'),
+    yarnStep('Audit Sentry RN bundle task compatibility', 'sentry:rn-bundle-task-compat:audit'),
+    yarnStep('Validate Sentry RN bundle task compatibility summary', 'sentry:rn-bundle-task-compat:check-summary'),
     yarnStep('Generate Sentry release properties from local env', 'sentry:release:create-properties', {
       requiredEnv: ['SENTRY_AUTH_TOKEN'],
     }),
