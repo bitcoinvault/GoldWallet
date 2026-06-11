@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.602 - Secure-storage release validation refresh
+
+- Branch: `feature/bem-37-602-secure-storage-release-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh secure-storage migration and release validation evidence after the RN/latest, Android release, and iOS static validation blocks.
+- Revalidate the current `react-native-keychain` posture while keeping the legacy `react-native-secure-key-store` fallback guarded.
+- Run focused storage contracts plus Android dev build and embedded emulator smoke for startup/runtime confidence.
+
+Findings:
+
+- Secure-storage migration audit reports the current package as `react-native-keychain@10.0.0` and the legacy fallback package as `react-native-secure-key-store@2.0.10`.
+- Secure-storage migration summary remains valid and stable for the current staged migration posture.
+- Secure-storage removal readiness remains `no`; the legacy package must stay installed because fallback reads remain active and legacy removal readiness is not claimed.
+- Focused secure-storage unit contract passed: 14 tests.
+- Focused storage/network validation passed, including terms webview, Electrum reconnect unit coverage, secure-storage unit coverage, wallet storage integration, authenticator storage, and offline wallet core storage.
+- The full secure-storage release validation handoff completed and explicitly did not claim legacy secure-storage removal readiness.
+- Android dev environment audit passed with Node `24.16.0`, JDK 17, Android SDK platform/build tools 36, and adb access; `ANDROID_SDK_ROOT`/`ANDROID_HOME` remains unset but lookup falls back successfully.
+- Android `devDebug` APK assembled successfully with the current secure-storage/native module baseline.
+- Embedded Android smoke installed the debug APK on `emulator-5554`, cleared app data, launched without Metro, completed first-run setup, reached the empty wallet dashboard, validated create/import wallet navigation, opened and closed the import-wallet QR scanner, validated empty-state tab navigation, captured a screenshot, and found no fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:secure-storage:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn secure-storage:release-validation:handoff`
+
 ### BEM-37.601 - iOS static release validation refresh
 
 - Branch: `feature/bem-37-601-ios-static-release-refresh`
