@@ -41,6 +41,7 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
   const keychainPrimaryWrite = getLineValue(summary, 'Keychain primary write');
   const legacyWritesDisabled = getLineValue(summary, 'Legacy secure-storage writes disabled');
   const legacyFallbackReadsActive = getLineValue(summary, 'Legacy secure-storage fallback reads active');
+  const legacyCleanupAfterSuccessfulMigration = getLineValue(summary, 'Legacy secure-storage cleanup after successful migration');
   const focusedValidation = getLineValue(summary, 'Focused validation script');
   const focusedValidationCommand = getLineValue(summary, 'Focused validation command');
   const warningBaselineMentionsSecureStorage = getLineValue(summary, 'Warning baseline mentions secure-key-store');
@@ -77,6 +78,7 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
     ['Keychain primary write', keychainPrimaryWrite],
     ['Legacy secure-storage writes disabled', legacyWritesDisabled],
     ['Legacy secure-storage fallback reads active', legacyFallbackReadsActive],
+    ['Legacy secure-storage cleanup after successful migration', legacyCleanupAfterSuccessfulMigration],
     ['Warning baseline mentions secure-key-store', warningBaselineMentionsSecureStorage],
     ['Legacy secure-storage removal ready', legacyRemovalReady],
     ['Secure-storage migration baseline stable', baselineStable],
@@ -118,6 +120,10 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
 
   if (legacyFallbackReadsActive !== 'yes') {
     errors.push(`Legacy secure-storage fallback reads active must be yes until removal validation is complete. Received: ${legacyFallbackReadsActive || 'missing'}`);
+  }
+
+  if (legacyCleanupAfterSuccessfulMigration !== 'yes') {
+    errors.push(`Legacy secure-storage cleanup after successful migration must be yes. Received: ${legacyCleanupAfterSuccessfulMigration || 'missing'}`);
   }
 
   if (!legacyRemovalBlocker.includes('legacy fallback reads are still active')) {

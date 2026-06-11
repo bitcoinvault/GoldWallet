@@ -13,7 +13,8 @@ Checked on: 2026-05-29
 - The transaction password is stored as `sha256(value).toString()`.
 - The current Android accessibility mode is `ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`.
 - Keychain is the only write target for new PIN, transaction-password, and encrypted wallet storage values.
-- Legacy fallback reads now return the legacy value even if a one-off migration write into Keychain fails.
+- Legacy fallback reads now return the legacy value even if a one-off migration write into Keychain or a post-migration legacy cleanup fails.
+- After a legacy value is successfully written into Keychain, the app attempts to remove the migrated legacy value from `react-native-secure-key-store`.
 - Keychain-primary reads are covered by focused unit tests so existing migrated secure values do not unnecessarily touch the legacy backend.
 - Transaction-password verification is covered for both matching and non-matching candidate passwords.
 - Legacy removal readiness: not ready while legacy fallback reads are still active.
@@ -25,6 +26,7 @@ Do not remove `react-native-secure-key-store` as warning-only cleanup.
 This dependency protects app unlock, transaction-password behavior, and legacy wallet storage for existing installs. The migration path must preserve the wrapper API, read legacy values, migrate them into Keychain, and avoid writing new values back into the legacy backend. A later release can remove the legacy backend after migrated data has been validated without fallback reads.
 
 Existing installs may still have PIN, transaction password, and encrypted wallet buckets in the legacy backend, so removal stays blocked until those migrated secure values are validated without fallback reads.
+Successful read-time migrations now also attempt to clean the migrated legacy key, but this does not make package removal safe by itself because some users may not have opened every encrypted bucket or secure value yet.
 
 `secure-storage:migration:audit` and `secure-storage:removal-readiness:audit` must keep reporting `Legacy secure-storage removal ready: no` / `Legacy package removal ready: no` until a separate release-validation branch proves migrated PIN, transaction-password, and encrypted wallet data without the legacy backend.
 

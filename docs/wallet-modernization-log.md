@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.588 - Secure-storage legacy cleanup after migration
+
+- Branch: `feature/bem-37-588-secure-storage-legacy-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- After a legacy `react-native-secure-key-store` value is successfully migrated into `react-native-keychain`, attempt to remove the migrated legacy key.
+- Keep legacy fallback reads active and non-fatal so existing installs can still unlock if Keychain migration or cleanup fails.
+- Extend secure-storage migration/removal summaries and guard fixtures so the staged posture records cleanup-after-migration separately from package-removal readiness.
+
+Findings:
+
+- `SecureStorageService` and `AppStorage` now clean migrated legacy values only after the Keychain write succeeds.
+- Failed legacy cleanup still returns the migrated value, preserving the current app unlock/encrypted-wallet behavior during the migration window.
+- New secure-storage writes remain Keychain-only and `react-native-secure-key-store` remains installed because release validation without fallback reads is not claimed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-migration-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-removal-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:secure-storage:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.586 - RN target live refresh
 
 - Branch: `feature/bem-37-586-rn-target-live-refresh`

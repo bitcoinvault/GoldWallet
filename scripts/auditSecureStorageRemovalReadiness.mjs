@@ -31,6 +31,9 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
   const legacyWritePathDisabled =
     !secureStorageService.includes('RNSecureKeyStore.set') &&
     !appStorage.includes('RNSecureKeyStore.set');
+  const legacyCleanupAfterSuccessfulMigration =
+    secureStorageService.includes('await RNSecureKeyStore.remove(key)') &&
+    appStorage.includes('RNSecureKeyStore.remove(key)');
   const serviceFallbackMigrationTestsPresent =
     unitTest.includes('returns keychain credentials without touching the legacy secure store') &&
     unitTest.includes('falls back to the legacy secure store and migrates the value into keychain') &&
@@ -87,6 +90,7 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     keychainPrimaryWrite,
     legacyFallbackReadsActive,
     legacyWritePathDisabled,
+    legacyCleanupAfterSuccessfulMigration,
     serviceFallbackMigrationTestsPresent,
     appStorageFallbackMigrationTestsPresent,
     fallbackMigrationTestsPresent,
@@ -110,6 +114,7 @@ export const formatSecureStorageRemovalReadinessSummary = (audit, generatedAt = 
     `Keychain primary write: ${audit.keychainPrimaryWrite ? 'yes' : 'no'}`,
     `Legacy fallback reads active: ${audit.legacyFallbackReadsActive ? 'yes' : 'no'}`,
     `Legacy write path disabled: ${audit.legacyWritePathDisabled ? 'yes' : 'no'}`,
+    `Legacy cleanup after successful migration: ${audit.legacyCleanupAfterSuccessfulMigration ? 'yes' : 'no'}`,
     `SecureStorageService fallback migration tests present: ${audit.serviceFallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `AppStorage fallback migration tests present: ${audit.appStorageFallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `Fallback migration tests present: ${audit.fallbackMigrationTestsPresent ? 'yes' : 'no'}`,
