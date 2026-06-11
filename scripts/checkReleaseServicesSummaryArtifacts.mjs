@@ -8,6 +8,7 @@ import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard
 import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationReadinessSummaryGuard.mjs';
 import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
+import { getCodePushEnvCleanupReadinessSummaryErrors } from './codePushEnvCleanupReadinessSummaryGuard.mjs';
 import { getCodePushDecisionHandoffErrors } from './codePushDecisionHandoffGuard.mjs';
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
 import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';
@@ -70,6 +71,11 @@ export const releaseServicesSummaryArtifacts = [
     label: 'CodePush removal readiness',
     relativePath: 'local-docs/codepush-removal-readiness-summary.txt',
     getErrors: getCodePushRemovalReadinessSummaryErrors,
+  },
+  {
+    label: 'CodePush env cleanup readiness',
+    relativePath: 'local-docs/codepush-env-cleanup-readiness-summary.txt',
+    getErrors: getCodePushEnvCleanupReadinessSummaryErrors,
   },
   {
     label: 'CodePush decision handoff',
