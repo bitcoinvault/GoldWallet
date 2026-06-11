@@ -6,7 +6,7 @@ const validSummary = [
   'Node version: v24.16.0',
   'Expected Node version: v24.16.0',
   'Entries: 15',
-  '- bitcoinjs-lib: package git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360, installed 2.0.3, latest 7.0.1, decision fork-pinned - do not replace the BitcoinVault fork with upstream npm without a dedicated wallet compatibility branch',
+  '- bitcoinjs-lib: package git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360, installed 5.1.6, latest 7.0.1, decision fork-pinned - do not replace the BitcoinVault fork with upstream npm without a dedicated wallet compatibility branch',
   '- bip39: package 3.1.0, installed 3.1.0, latest 3.1.0, decision current - latest npm package is installed and pinned for the wallet crypto baseline',
   '- bip32: package 5.0.1, installed 5.0.1, latest 5.0.1, decision current - latest npm package is installed and pinned for the wallet crypto baseline',
   '- @bitcoinerlab/secp256k1: package 1.2.0, installed 1.2.0, latest 1.2.0, decision current - latest npm package is installed and pinned for the wallet crypto baseline',
@@ -74,6 +74,21 @@ assertRejected(
   'Missing BTCV fork fixture',
   validSummary.replace('bitcoinvault/bitcoinjs-lib', 'bitcoinjs/bitcoinjs-lib'),
   'BitcoinVault fork',
+);
+assertRejected(
+  'Wrong BTCV fork ref fixture',
+  validSummary.replace('0854f675114fada32348d51c80a6ccdb33afc360', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+  'expected BitcoinVault fork ref',
+);
+assertRejected(
+  'Wrong BTCV fork installed version fixture',
+  validSummary.replace('installed 5.1.6', 'installed 5.1.5'),
+  'installed version must stay 5.1.6',
+);
+assertRejected(
+  'Wrong upstream latest comparison fixture',
+  validSummary.replace('latest 7.0.1', 'latest 6.1.7'),
+  'upstream npm latest 7.0.1',
 );
 assertRejected(
   'Direct bech32 fixture',
