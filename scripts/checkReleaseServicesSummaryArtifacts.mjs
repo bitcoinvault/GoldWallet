@@ -15,6 +15,7 @@ import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummar
 import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';
 import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
+import { getSentryRnBundleTaskCompatibilitySummaryErrors } from './sentryRnBundleTaskCompatibilitySummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -44,6 +45,11 @@ export const releaseServicesSummaryArtifacts = [
     label: 'Sentry Android warning',
     relativePath: 'local-docs/sentry-android-warning-summary.txt',
     getErrors: getSentryAndroidWarningSummaryErrors,
+  },
+  {
+    label: 'Sentry RN bundle task compatibility',
+    relativePath: 'local-docs/sentry-rn-bundle-task-compatibility-summary.txt',
+    getErrors: getSentryRnBundleTaskCompatibilitySummaryErrors,
   },
   {
     label: 'Firebase release-services',

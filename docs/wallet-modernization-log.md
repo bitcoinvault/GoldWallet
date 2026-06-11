@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.575 - Release-services Sentry bundle compatibility gate
+
+- Branch: `feature/bem-37-575-release-services-sentry-bundle-compat`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the Sentry RN bundle task compatibility audit and summary check to `release-services:validation:handoff`.
+- Add the generated Sentry RN bundle task compatibility summary to the aggregate `release-services:check-summaries` artifact set.
+- Update the release-services validation handoff and aggregate summary self-guards so Sentry Android warning, RN bundle task compatibility, and release prerequisites stay grouped in the same release-service block.
+- Document that release-services validation now keeps Sentry source-map upload compatibility evidence visible before release-service readiness is claimed.
+- Keep runtime code, native integration, package versions, lockfile, Sentry credentials/properties, and source-map upload behavior unchanged.
+
+Findings:
+
+- The RN baseline preflight already covered `sentry:rn-bundle-task-compat`, but the dedicated release-services handoff and aggregate summary checker still validated only Sentry Android warning and release prerequisite summaries.
+- The release-services handoff now refreshes Sentry RN bundle task compatibility before Sentry release prerequisites, so the known Sentry/RN Gradle task incompatibility stays visible in release-service readiness evidence.
+- Sentry source-map upload remains `not claimed` because credentials/properties are unavailable locally and the Sentry/RN bundle task compatibility summary still records the upstream compatibility blocker.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff`
+
 ### BEM-37.574 - Release-services CodePush decision handoff gate
 
 - Branch: `feature/bem-37-574-release-services-codepush-decision`
