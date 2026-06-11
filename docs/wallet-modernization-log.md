@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.560 - iOS macOS readiness guard
+
+- Branch: `feature/bem-37-560-ios-release-handoff-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh guarded iOS static release readiness and macOS validation prerequisite evidence.
+- Tighten the iOS macOS prerequisite summary guard so a `ready` summary must be produced on `darwin`, must have `xcodebuild`, must have CocoaPods through `pod` or `bundle exec pod`, and must not require a `Podfile.lock` refresh.
+- Keep iOS runtime/archive validation explicitly unclaimed on this Windows host.
+- Keep package versions, native project files, Podfile, Podfile.lock, and iOS schemes unchanged.
+
+Findings:
+
+- Static iOS release files remain valid for React Native `0.86.0`, minimum iOS `15.1`, minimum Xcode `16.1`, Podfile platform `15.1`, Xcode deployment target `15.1`, and 8 guarded shared schemes.
+- iOS release integration still includes 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, 3 CodePush plist placeholders, and 4 remote-notification plists.
+- macOS archive/simulator validation remains blocked locally because the current platform is `win32`, `xcodebuild` is unavailable, CocoaPods is unavailable, and `ios/Podfile.lock` still has 12 active drift issues.
+- The current `ios/Podfile.lock` drift includes React Native, BootSplash, Config, AsyncStorage, DeviceInfo, FastImage, Firebase, Gesture Handler, Localize, Screens, Sentry, and VectorIcons pod versions.
+- The iOS macOS validation dry-run covers all 8 shared schemes and keeps `CODE_SIGNING_ALLOWED=NO`, `RN_SRC_EXT=e2e.tsx`, and `CHAMBER_OF_SECRETS=true` visible for the macOS handoff.
+- iOS runtime delivery validation remains `not claimed` until this is run on macOS with Xcode `16.1+`, CocoaPods, refreshed pods, and simulator/archive evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.559 - Camera QR smoke handoff guard
 
 - Branch: `feature/bem-37-559-camera-qr-latest-readiness`

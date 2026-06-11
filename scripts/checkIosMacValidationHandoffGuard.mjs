@@ -218,6 +218,20 @@ assert(
 );
 assert(
   getIosMacValidationReadinessErrors({
+    releaseReadinessSummaryText: readyReleaseSummary,
+    macValidationPrereqSummaryText: readyPrereqSummary.replace('Platform: darwin', 'Platform: win32'),
+  }).some(error => error.includes('Ready summary must be produced on darwin')),
+  'iOS macOS validation handoff must reject ready prerequisite summaries from non-macOS platforms',
+);
+assert(
+  getIosMacValidationReadinessErrors({
+    releaseReadinessSummaryText: readyReleaseSummary,
+    macValidationPrereqSummaryText: readyPrereqSummary.replace('pod available: yes', 'pod available: no'),
+  }).some(error => error.includes('CocoaPods available')),
+  'iOS macOS validation handoff must reject ready prerequisite summaries without CocoaPods',
+);
+assert(
+  getIosMacValidationReadinessErrors({
     releaseReadinessSummaryText: blockedReleaseSummary,
     macValidationPrereqSummaryText: readyPrereqSummary,
   }).some(error => error.includes('not ready for macOS archive validation')),
