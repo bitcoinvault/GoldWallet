@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.573 - CodePush decision handoff baseline gate
+
+- Branch: `feature/bem-37-573-codepush-retirement-decision`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire the existing CodePush decision handoff dry-run and summary guard into `rn:baseline:preflight`.
+- Synchronize `auditReactNativeUpgradePath.mjs` with the current RN baseline preflight command so the RN upgrade-path guard validates the same release-service gates that `package.json` runs.
+- Document that the baseline preflight now covers CodePush release-path, migration-readiness, removal-readiness, and decision-handoff evidence.
+- Keep CodePush runtime code, native integration, env files, deployment-key values, package versions, lockfile, and OTA validation state unchanged.
+
+Findings:
+
+- `rn:upgrade-path:audit` was failing before this branch because its expected preflight command lagged behind the current `package.json` command.
+- CodePush remains a migration/removal workstream: release build and release-smoke evidence are valid, but the handoff decision is still `pending`, beta deployment-key strategy is still `unconfirmed`, and OTA update validation remains `not claimed`.
+- The new baseline step prints a secret-safe decision handoff dry-run and validates the summary shape without committing or printing deployment-key values.
+- This branch does not choose `remove` or `replace`; that decision still needs explicit release/product input before implementation starts.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:decision:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+
 ### BEM-37.572 - React Native latest target refresh
 
 - Branch: `feature/bem-37-572-rn-latest-target-refresh`
