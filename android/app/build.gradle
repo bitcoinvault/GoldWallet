@@ -34,6 +34,17 @@ react {
 tasks.configureEach { task ->
     if (task.name.startsWith("createBundle") && task.name.endsWith("JsAndAssets")) {
         task.ext.root = project.objects.directoryProperty().convention(rootProject.layout.projectDirectory.dir(".."))
+        def bundleVariant = task.name
+            .replaceFirst("^createBundle", "")
+            .replaceFirst("JsAndAssets\$", "")
+            .uncapitalize()
+        def sentryBundleArgs = [
+            "--bundle-output",
+            file("${buildDir}/generated/assets/react/${bundleVariant}/index.android.bundle").absolutePath,
+            "--sourcemap-output",
+            file("${buildDir}/intermediates/sourcemaps/react/${bundleVariant}/index.android.bundle.packager.map").absolutePath,
+        ]
+        task.metaClass.getArgs = { -> sentryBundleArgs }
     }
 }
 

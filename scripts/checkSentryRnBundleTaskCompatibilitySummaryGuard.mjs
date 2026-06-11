@@ -11,8 +11,9 @@ const validBlockedSummary = [
   'RN BundleHermesCTask jsIntermediateSourceMapsDir type: RegularFileProperty',
   'RN BundleHermesCTask exposes args property: no',
   'Repo keeps Sentry root extra property: yes',
+  'Repo sets legacy args shim: no',
   'Repo attempts dynamic args workaround: no',
-  'Repo-owned args workaround safe: yes',
+  'Repo-owned args workaround safe: no',
   'Evidence errors: 0',
   'Required action: keep Sentry source-map upload not claimed until an upstream Sentry/RN Gradle compatibility fix or credentialed release-runner proof confirms upload works.',
   '',
@@ -20,6 +21,9 @@ const validBlockedSummary = [
 
 const validReadySummary = validBlockedSummary
   .replace('Sentry RN bundle task compatibility ready: no', 'Sentry RN bundle task compatibility ready: yes')
+  .replace('Repo sets legacy args shim: no', 'Repo sets legacy args shim: yes')
+  .replace('Repo attempts dynamic args workaround: no', 'Repo attempts dynamic args workaround: yes')
+  .replace('Repo-owned args workaround safe: no', 'Repo-owned args workaround safe: yes')
   .replace(
     'Required action: keep Sentry source-map upload not claimed until an upstream Sentry/RN Gradle compatibility fix or credentialed release-runner proof confirms upload works.',
     'Required action: none',

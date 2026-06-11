@@ -13,6 +13,7 @@ export const getSentryRnBundleTaskCompatibilitySummaryErrors = summary => {
   const rnUsesRegularFile = getLineValue(summary, 'RN BundleHermesCTask jsIntermediateSourceMapsDir type');
   const sentryFallbackRequiresArgs = getLineValue(summary, 'Sentry fallback requires args property');
   const rnExposesArgs = getLineValue(summary, 'RN BundleHermesCTask exposes args property');
+  const repoSetsLegacyArgsShim = getLineValue(summary, 'Repo sets legacy args shim');
   const repoWorkaroundSafe = getLineValue(summary, 'Repo-owned args workaround safe');
   const requiredAction = getLineValue(summary, 'Required action');
 
@@ -37,6 +38,7 @@ export const getSentryRnBundleTaskCompatibilitySummaryErrors = summary => {
     ['Sentry expects jsIntermediateSourceMapsDir Directory', sentryExpectsDirectory],
     ['Sentry fallback requires args property', sentryFallbackRequiresArgs],
     ['RN BundleHermesCTask exposes args property', rnExposesArgs],
+    ['Repo sets legacy args shim', repoSetsLegacyArgsShim],
     ['Repo-owned args workaround safe', repoWorkaroundSafe],
   ].forEach(([label, value]) => {
     if (!['yes', 'no'].includes(value)) {
@@ -50,6 +52,10 @@ export const getSentryRnBundleTaskCompatibilitySummaryErrors = summary => {
 
   if (compatibilityReady === 'yes' && requiredAction !== 'none') {
     errors.push('Ready compatibility summary must have Required action: none');
+  }
+
+  if (compatibilityReady === 'yes' && rnExposesArgs !== 'yes' && repoSetsLegacyArgsShim !== 'yes') {
+    errors.push('Ready compatibility summary must prove RN exposes args or the repo sets the legacy args shim');
   }
 
   if (compatibilityReady === 'no' && !requiredAction.includes('upstream Sentry/RN Gradle compatibility fix')) {
