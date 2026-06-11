@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.563 - Release-services artifact set guard
+
+- Branch: `feature/bem-37-563-release-services-artifact-set-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Strengthen the aggregate release-services summary guard so it validates the exported artifact set, not only source-code snippets.
+- Require the aggregate checker to expose the exact expected labels and summary paths for Android release, Android release smoke, Sentry, Firebase, CodePush, push notifications, iOS release readiness, and iOS macOS prerequisite summaries.
+- Reject duplicate, missing, unexpected, or non-callable release-services artifact exports.
+- Keep package versions, release service wiring, native project files, runtime wallet code, and local ignored evidence artifacts unchanged.
+
+Findings:
+
+- Current aggregate release-services summaries are valid with Android release evidence, Android release smoke, Sentry prerequisite evidence, Firebase release-services evidence, CodePush release/migration/removal evidence, push-notification bridge evidence, and iOS static/prerequisite evidence.
+- The release-services validation handoff dry run with `--skip-android-release` still keeps the aggregate summary validation as the final step.
+- The previous aggregate guard was mostly text-snippet based; the new functional artifact-set check makes accidental artifact removal or duplicate exports fail even if the source still contains stale snippets.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.562 - RN target stale summary guard
 
 - Branch: `feature/bem-37-562-rn-target-stale-summary-guard`
