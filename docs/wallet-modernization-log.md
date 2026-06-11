@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.631 - Android warning secure-storage evidence gate
+
+- Branch: `feature/bem-37-631-warning-secure-storage-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Connect the remaining Android warning plan to the secure-storage release validation summary.
+- Require `local-docs/secure-storage-release-validation-summary.txt` to be present and valid while `react-native-secure-key-store` remains the only expected Android Gradle warning source.
+- Update the warning follow-up documentation so future legacy secure-store removal work starts from release-validation evidence, not only the warning table.
+
+Findings:
+
+- The remaining targeted Android Gradle warning is still `react-native-secure-key-store` from `node_modules/react-native-secure-key-store/android/build.gradle:46`.
+- The warning-plan checker now validates the secure-storage release-validation summary before accepting the remaining warning baseline.
+- The valid summary confirms Keychain primary writes, disabled legacy writes, active legacy fallback reads, valid Android dev smoke evidence, and unclaimed legacy package removal readiness.
+- No runtime storage behavior, dependency versions, native build configuration, or env values changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-remaining-warning-plan-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-remaining-warning-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-warning-audit-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.630 - Secure-storage release validation summary
 
 - Branch: `feature/bem-37-630-secure-storage-validation-summary`
