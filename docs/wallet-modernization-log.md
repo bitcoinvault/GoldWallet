@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.574 - Release-services CodePush decision handoff gate
+
+- Branch: `feature/bem-37-574-release-services-codepush-decision`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the CodePush decision handoff refresh and decision summary guard to `release-services:validation:handoff`.
+- Add the generated CodePush decision handoff to the aggregate `release-services:check-summaries` artifact set.
+- Update the release-services validation handoff self-guard so CodePush release-path, migration-readiness, removal-readiness, and decision evidence stay grouped in the same release-service block.
+- Document that full release-services validation now refreshes and validates the CodePush decision handoff before leaving the CodePush release-service section.
+- Keep runtime code, native integration, env files, deployment-key values, package versions, lockfile, and OTA validation state unchanged.
+
+Findings:
+
+- After BEM-37.573 the RN baseline preflight covered CodePush decision evidence, but the dedicated release-services validation handoff still refreshed only release-path, migration-readiness, and removal-readiness before moving to push notification and iOS checks.
+- The release-services handoff and aggregate summary checker now keep the CodePush decision state visible whenever release-service dependency/env/runtime readiness is claimed.
+- OTA update validation remains `not claimed`; this branch does not select `remove` or `replace` and does not print deployment-key values.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run -- --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff`
+
 ### BEM-37.573 - CodePush decision handoff baseline gate
 
 - Branch: `feature/bem-37-573-codepush-retirement-decision`

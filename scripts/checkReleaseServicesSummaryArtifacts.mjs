@@ -8,6 +8,7 @@ import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard
 import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationReadinessSummaryGuard.mjs';
 import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
+import { getCodePushDecisionHandoffErrors } from './codePushDecisionHandoffGuard.mjs';
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
 import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
@@ -63,6 +64,11 @@ export const releaseServicesSummaryArtifacts = [
     label: 'CodePush removal readiness',
     relativePath: 'local-docs/codepush-removal-readiness-summary.txt',
     getErrors: getCodePushRemovalReadinessSummaryErrors,
+  },
+  {
+    label: 'CodePush decision handoff',
+    relativePath: 'local-docs/codepush-decision-handoff.txt',
+    getErrors: getCodePushDecisionHandoffErrors,
   },
   {
     label: 'push notification bridge',
