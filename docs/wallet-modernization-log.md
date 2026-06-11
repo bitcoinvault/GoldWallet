@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.622 - Secure-storage readiness refresh
+
+- Branch: `feature/bem-37-622-secure-storage-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh secure-storage migration, removal-readiness, and release-validation evidence after the Android release and Sentry readiness refreshes.
+- Re-check current npm latest versions for the active Keychain backend and legacy secure-storage fallback package.
+- Execute the guarded secure-storage release-validation handoff with Android dev build and embedded emulator smoke.
+
+Findings:
+
+- Live npm metadata reports `react-native-keychain@10.0.0` as latest and the repo already uses `10.0.0`.
+- Live npm metadata reports `react-native-secure-key-store@2.0.10` as latest and the repo already uses `2.0.10`.
+- Secure-storage migration posture remains stable: Keychain is the primary write path, legacy secure-storage writes are disabled, legacy fallback reads remain active, and cleanup after successful migration remains present.
+- Focused storage contracts passed for `SecureStorageService`, wallet storage integration, authenticator storage, and offline wallet core storage.
+- Android dev environment audit passed with Node `24.16.0`, JDK `17`, Android SDK platform/build-tools `36`, and ADB access.
+- Android dev debug APK assembled successfully and embedded emulator smoke passed on `emulator-5554`, including first-run terms, PIN, transaction password, dashboard, create/import CTA navigation, QR scanner open/close, tab navigation, screenshot capture, and fatal/runtime logcat checks.
+- Legacy secure-storage removal remains not claimed: fallback reads are still active, so `react-native-secure-key-store` must stay installed until migrated secure values are validated without the fallback backend.
+- No dependency versions, runtime code, native code, package scripts, lockfile entries, or build configuration changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-secure-key-store version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-keychain version peerDependencies engines --json`
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn secure-storage:release-validation:handoff`
+
 ### BEM-37.621 - Sentry latest readiness refresh
 
 - Branch: `feature/bem-37-621-sentry-latest-readiness`
