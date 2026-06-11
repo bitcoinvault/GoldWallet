@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.566 - Tooling exact snapshot guard
+
+- Branch: `feature/bem-37-566-tooling-exact-snapshot-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Tighten the tooling latest snapshot guard so it validates the exact expected package set.
+- Update the guard fixture from the older 13-entry subset to the current 24-entry tooling baseline.
+- Reject unexpected, duplicate, missing, or deferred tooling snapshot entries before future tooling dependency branches.
+- Keep package versions, lockfile, runtime wallet code, native files, and local ignored evidence artifacts unchanged.
+
+Findings:
+
+- The current tooling latest snapshot remains valid with 24 tracked packages and zero deferred entries.
+- The guarded set now includes TypeScript, Jest runtime/transformer/runner/environment/reporting, coverage tooling, mail helper tooling, Jetifier, ESLint 10 flat-config bridge packages, Prettier bridge packages, lint-staged, Husky, and Detox.
+- The previous self-check fixture covered only 13 entries, so a tooling summary could lose current tracked packages without the self-guard proving the full baseline.
+- Future tooling package changes still require a dedicated tooling dependency branch and no package versions are changed by this audit.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint-staged:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn husky:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn prettier:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn jest:tooling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.565 - Storage/network exact snapshot guard
 
 - Branch: `feature/bem-37-565-storage-network-exact-snapshot-guard`
