@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.611 - Sentry release evidence refresh
+
+- Branch: `feature/bem-37-611-sentry-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release APK, bundle, source-map, manifest, and release-smoke evidence used by the Sentry release prerequisite audit.
+- Re-check the latest Sentry package posture before claiming any upgrade work.
+- Keep Sentry credentialed upload validation explicitly blocked until local Sentry credentials are available.
+
+Findings:
+
+- `@sentry/react-native` is already current at `8.14.0` and `@sentry/cli` is already current at `3.5.0` according to npm.
+- Android release evidence is current again for `dev`, `stage`, `prod`, and `beta`, with APK manifest validation passing for all four variants.
+- Android release smoke passed on `emulator-5554` with first-run terms, PIN, transaction password, empty dashboard, create/import CTA navigation, QR scanner launch/close, tab navigation, screenshot capture, and fatal/runtime logcat checks.
+- Sentry RN bundle task compatibility is ready for the RN `0.86.0` baseline with the repo-owned legacy args shim still in place.
+- Sentry credentialed source-map upload validation is still not claimed because `SENTRY_AUTH_TOKEN` is not available and `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not generated locally.
+- No runtime code, native code, dependency versions, package scripts, lockfile entries, or build configuration changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli version engines --json`
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.610 - Transaction label guard gate wiring
 
 - Branch: `feature/bem-37-610-transaction-label-guard-gate`
