@@ -83,6 +83,17 @@ const getFileEvidence = filePath => {
     sha256: exists ? createHash('sha256').update(readFileSync(filePath)).digest('hex') : 'missing',
   };
 };
+const readTextFile = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
+const getFirstMatch = (content, pattern) => content.match(pattern)?.[1] || 'missing';
+const androidBuildGradle = readTextFile(path.join('android', 'build.gradle'));
+const gradleWrapperProperties = readTextFile(path.join('android', 'gradle', 'wrapper', 'gradle-wrapper.properties'));
+const androidToolchainEvidence = {
+  agp: getFirstMatch(androidBuildGradle, /com\.android\.tools\.build:gradle:([^"')]+)/),
+  gradle: getFirstMatch(gradleWrapperProperties, /gradle-(\d+\.\d+(?:\.\d+)?)-/),
+  kotlin: getFirstMatch(androidBuildGradle, /kotlinVersion\s*=\s*['"]([^'"]+)['"]/),
+  compileSdk: getFirstMatch(androidBuildGradle, /compileSdkVersion\s*=\s*(\d+)/),
+  targetSdk: getFirstMatch(androidBuildGradle, /targetSdkVersion\s*=\s*(\d+)/),
+};
 
 const env = {
   ...process.env,
@@ -172,6 +183,11 @@ const summary = [
   `Variant count: ${variantResults.length}`,
   `Java executable: ${javaCommand}`,
   `Java version: ${javaVersionLine}`,
+  `Android Gradle Plugin: ${androidToolchainEvidence.agp}`,
+  `Gradle wrapper: ${androidToolchainEvidence.gradle}`,
+  `Kotlin Gradle Plugin: ${androidToolchainEvidence.kotlin}`,
+  `Compile SDK: ${androidToolchainEvidence.compileSdk}`,
+  `Target SDK: ${androidToolchainEvidence.targetSdk}`,
   `Release input fingerprint: ${getAndroidReleaseInputFingerprint(root)}`,
   `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
   'Sentry auto upload disabled for local build: yes',

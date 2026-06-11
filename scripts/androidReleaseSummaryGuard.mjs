@@ -79,6 +79,11 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
   const requiredAction = getLineValue(summary, 'Required Sentry upload follow-up');
   const javaExecutable = getLineValue(summary, 'Java executable');
   const javaVersion = getLineValue(summary, 'Java version');
+  const androidGradlePlugin = getLineValue(summary, 'Android Gradle Plugin');
+  const gradleWrapper = getLineValue(summary, 'Gradle wrapper');
+  const kotlinGradlePlugin = getLineValue(summary, 'Kotlin Gradle Plugin');
+  const compileSdk = getLineValue(summary, 'Compile SDK');
+  const targetSdk = getLineValue(summary, 'Target SDK');
   const releaseInputFingerprint = getLineValue(summary, 'Release input fingerprint');
   const releaseInputFingerprintFiles = getLineValue(summary, 'Release input fingerprint files');
   const gradleRetryMaxAttempts = getLineValue(summary, 'Gradle retry max attempts');
@@ -316,6 +321,26 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
 
   if (!javaVersion.includes('17.')) {
     errors.push(`Java version must report JDK 17. Received: ${javaVersion || 'missing'}`);
+  }
+
+  if (androidGradlePlugin !== '8.13.2') {
+    errors.push(`Android Gradle Plugin must be 8.13.2 for the validated release baseline. Received: ${androidGradlePlugin || 'missing'}`);
+  }
+
+  if (gradleWrapper !== '8.13') {
+    errors.push(`Gradle wrapper must be 8.13 for the validated release baseline. Received: ${gradleWrapper || 'missing'}`);
+  }
+
+  if (kotlinGradlePlugin !== '2.1.20') {
+    errors.push(`Kotlin Gradle Plugin must be 2.1.20 for the validated release baseline. Received: ${kotlinGradlePlugin || 'missing'}`);
+  }
+
+  if (compileSdk !== '36') {
+    errors.push(`Compile SDK must be 36 for the validated release baseline. Received: ${compileSdk || 'missing'}`);
+  }
+
+  if (targetSdk !== '36') {
+    errors.push(`Target SDK must be 36 for the validated release baseline. Received: ${targetSdk || 'missing'}`);
   }
 
   if (!requiredAction.includes('sentry.properties') || !requiredAction.includes('SENTRY_AUTH_TOKEN')) {
