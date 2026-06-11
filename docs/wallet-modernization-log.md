@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.581 - RN foundation latest target refresh
+
+- Branch: `feature/bem-37-581-rn-foundation-latest-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live React Native and foundation dependency target evidence through `rn:baseline:preflight:online`.
+- Refresh local Android release evidence after recent baseline command changes changed the release-input fingerprint.
+- Refresh Android release embedded smoke evidence so Sentry, Firebase, and CodePush release-service summaries validate against current release inputs.
+- Keep runtime code, native integration, package versions, lockfile, secrets, deployment keys, Sentry properties, Firebase delivery state, and CodePush OTA validation state unchanged.
+
+Findings:
+
+- Live npm metadata reports `react-native@0.86.0` as `latest`, `0.86.0-rc.3` as `next`, and `0.87.0-nightly-20260608-2ff3b81dc` as `nightly`; the default upgrade channel remains `latest`.
+- `react-native@0.86.0` still requires React peer `^19.2.3` and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- React and `react-test-renderer` `19.2.7` remain blocked by React Native renderer exact-version coupling; the validated renderer baseline stays on React `19.2.3`.
+- The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`; AGP `9.2.1` remains blocked because it requires Gradle `9.4.1+`, while Gradle `9.4.1` and `9.5.1` hit React Native Gradle plugin Kotlin metadata compatibility issues.
+- `bl@7.0.3` and `node-fetch@3.3.2` remain blocked by CommonJS/transitive consumers; current resolutions stay `bl@6.1.6` and `node-fetch@2.7.0`.
+- Wallet crypto, storage/network, git dependency, and tooling latest snapshots are current or explicitly blocked by recorded compatibility decisions.
+- Android release validation and embedded release smoke pass against current release inputs on `emulator-5554`; the release smoke covers first-run, empty dashboard, tab navigation, and QR scanner screen.
+- Sentry upload remains not claimed without `SENTRY_AUTH_TOKEN` and generated `sentry.properties` files.
+- Firebase runtime delivery and CodePush OTA update validation remain not claimed; CodePush still needs a remove-or-replace decision plus deployment-key and beta strategy confirmation.
+- iOS static release files are guarded, but runtime/archive validation remains blocked on this Windows host until macOS with Xcode `16.1+`, CocoaPods, and a refreshed `ios/Podfile.lock` are available.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.580 - Platform handoff dry-runs in RN baseline
 
 - Branch: `feature/bem-37-580-platform-handoff-baseline`
