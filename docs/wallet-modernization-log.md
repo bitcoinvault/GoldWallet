@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.617 - React Native online target refresh
+
+- Branch: `feature/bem-37-617-rn-online-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the online React Native/latest target evidence after the release-services handoff refresh.
+- Run the live npm target snapshot, direct outdated snapshot, git dependency snapshot, wallet/crypto latest snapshot, storage/network latest snapshot, tooling latest snapshot, Android toolchain target audit, and full RN baseline preflight.
+- Keep package versions unchanged unless the live target evidence shows a stable, compatible upgrade target.
+
+Findings:
+
+- The live RN target snapshot still matches the recorded `2026-06-11` snapshot: `react-native@0.86.0` is npm `latest`, `0.86.0-rc.3` is `next`, and `0.87.0-nightly-20260608-2ff3b81dc` is nightly-only.
+- `react-native@0.86.0` still peers React `^19.2.3` and supports the repo Node `24.16.0` baseline through engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- The direct outdated snapshot now reports 7 known entries: 3 blocked registry entries (`bl`, `react`, `react-test-renderer`) and 4 exotic/fork entries (`bitcoinjs-lib`, `electrum-client`, `react-native-prompt-android`, `rn-nodeify`), with `Review-required entries: 0`.
+- Git dependency, wallet/crypto, storage/network, and tooling latest snapshots all validate with no newly untriaged package target.
+- Android latest toolchain remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle `9.4.1`/`9.5.1` load newer embedded Kotlin runtime metadata that the React Native Gradle plugin `0.86.0` Kotlin compiler path cannot read.
+- The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17` until a newer React Native Gradle plugin baseline clears the AGP 9 / Gradle 9 blocker.
+- No runtime code, native code, dependency versions, package scripts, or Metro behavior changed in this branch, so Android emulator smoke is not required for this online target evidence refresh branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:toolchain-target:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.616 - Release-services aggregate handoff refresh
 
 - Branch: `feature/bem-37-616-release-services-handoff-refresh`
