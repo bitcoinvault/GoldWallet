@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.618 - Storage/network validation refresh
+
+- Branch: `feature/bem-37-618-storage-network-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh storage/network latest-package evidence and focused validation after the RN online target refresh.
+- Validate the secure-storage migration posture and removal-readiness handoff without claiming legacy package removal.
+- Re-run the focused storage/network test contract covering Terms WebView, Electrum reconnect, secure storage, storage integration, authenticator storage, and offline wallet core.
+
+Findings:
+
+- Storage/network latest snapshot reports 10 current packages and 0 deferred entries: `@react-native-async-storage/async-storage@3.1.1`, `@react-native-community/netinfo@12.0.1`, `react-native-device-info@15.0.2`, `react-native-config@1.6.1`, `react-native-localize@3.7.0`, `react-native-get-random-values@2.0.0`, `react-native-keychain@10.0.0`, `react-native-secure-key-store@2.0.10`, `react-native-tcp-socket@6.4.1`, and `react-native-webview@13.16.1`.
+- Secure-storage migration remains stable: Keychain is the primary write path, legacy secure-storage writes are disabled, fallback reads stay active, and cleanup after successful migration is present.
+- Secure-storage removal readiness remains intentionally blocked: `react-native-secure-key-store` must stay installed until release validation is claimed for migrated PIN, transaction-password, and encrypted wallet data without the fallback backend.
+- `test:storage-network:focused` passed all 36 focused tests. The BlueElectrum reconnect test still emits expected simulated connection-failure logs while the suite passes.
+- No runtime code, native code, dependency versions, package scripts, or Metro behavior changed in this branch, so Android emulator smoke is not required for this evidence refresh branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:handoff:dry-run --skip-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:handoff --skip-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-usage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-validation-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.617 - React Native online target refresh
 
 - Branch: `feature/bem-37-617-rn-online-target-refresh`
