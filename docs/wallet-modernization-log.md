@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.610 - Transaction label guard gate wiring
+
+- Branch: `feature/bem-37-610-transaction-label-guard-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire the transaction details amount label guard into the standard lightweight Android validation gate.
+- Extend the Android lightweight documentation self-check so the guard cannot be removed from `android:dev:check-light` without updating the shared docs.
+- Keep the change limited to validation wiring and documentation coverage for the existing BEM-37.609 guard.
+
+Findings:
+
+- BEM-37.609 added `check:transaction-details-amount-labels`, but the script was still only a standalone guard.
+- `android:dev:check-light` is used by the RN baseline preflight and `prepush`, so adding the guard there makes the transaction details blocked/unblocked label check part of the normal local validation path.
+- No runtime code, native code, dependency versions, lockfile entries, Android build files, or wallet calculation behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:transaction-details-amount-labels`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.609 - Transaction details unblocked label fix
 
 - Branch: `feature/bem-37-609-transaction-details-label-fix`
