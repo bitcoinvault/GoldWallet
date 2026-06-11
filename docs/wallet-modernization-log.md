@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.555 - React Navigation patch refresh
+
+- Branch: `feature/bem-37-555-react-navigation-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the React Navigation runtime stack after the online direct-dependency outdated audit reported four `review-required` entries.
+- Upgrade the coupled navigation packages together: `@react-navigation/bottom-tabs`, `@react-navigation/devtools`, `@react-navigation/native`, and `@react-navigation/stack`.
+- Revalidate TypeScript, unit/focused storage-network tests, Android dev build, and emulator navigation smoke because this dependency set owns dashboard tab and stack navigation behavior.
+
+Findings:
+
+- `direct-outdated:snapshot:audit` initially reported `@react-navigation/bottom-tabs@7.18.0`, `@react-navigation/devtools@7.0.62`, `@react-navigation/native@7.3.1`, and `@react-navigation/stack@7.10.3` as current latest targets needing review.
+- The package set was upgraded from `@react-navigation/bottom-tabs@7.17.2`, `@react-navigation/devtools@7.0.61`, `@react-navigation/native@7.3.0`, and `@react-navigation/stack@7.10.2`.
+- Live npm peer checks showed compatibility with the current React `19.2.3`, React Native `0.86.0`, `react-native-safe-area-context@5.8.0`, `react-native-screens@4.25.2`, and `react-native-gesture-handler@3.0.1` baseline.
+- After the upgrade, `direct-outdated:snapshot:audit` reported `Review-required entries: 0`; only known blocked and exotic dependency decisions remain.
+- Android dev assemble completed successfully on JDK `17.0.19`.
+- Android dev smoke installed `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk` on `emulator-5554`, completed first-run onboarding, reached the empty wallet dashboard, validated create/import CTA navigation, validated QR scanner open/close from the import flow, validated empty-state tab navigation, and found no fatal/runtime logcat findings.
+- Metro was not required or reachable during smoke, so the smoke validated the built APK artifact path.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/bottom-tabs@7.18.0 peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/native@7.3.1 peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/stack@7.10.3 peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add --exact @react-navigation/bottom-tabs@7.18.0 @react-navigation/devtools@7.0.62 @react-navigation/native@7.3.1 @react-navigation/stack@7.10.3`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.554 - Secure-storage release validation refresh
 
 - Branch: `feature/bem-37-554-secure-storage-release-validation-refresh`
