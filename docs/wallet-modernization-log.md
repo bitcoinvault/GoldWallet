@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.600 - Android dev release validation refresh
+
+- Branch: `feature/bem-37-600-android-dev-release-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android dev release validation evidence after the RN/latest, Camera/QR, release-services, and dependency snapshot blocks.
+- Build and validate local Android release APK outputs and release manifest metadata for the current baseline.
+- Run an embedded release smoke against the locally signed `devRelease` APK without Metro.
+
+Findings:
+
+- `android:dev:release:verify-local` completed successfully with JDK 17 and Node 24.
+- Android release validation generated a fresh `local-docs/android-release-dev-summary.txt` and `android:dev:release:check-summary` accepted it.
+- Release APK manifest validation accepted dev, stage, prod, and beta release APK manifests using Android build-tools `36.0.0` `aapt2`.
+- The Gradle release build completed successfully; the remaining output includes known third-party deprecation/unchecked warnings and Gradle 9 future deprecation notices, but no build failure.
+- The local release smoke helper zipaligned, signed, and verified `app-dev-release-unsigned.apk` into `local-docs/android-smoke-dev-release-signed.apk`.
+- The embedded release smoke installed the signed APK on `emulator-5554`, cleared app data, granted notification permission, launched without Metro, and completed first-run setup.
+- Release smoke reached the empty wallet dashboard and found expected UI text and resource IDs.
+- Release smoke validated create-wallet CTA navigation, import-wallet CTA navigation, import-wallet QR scanner open/close, and empty-state tab navigation.
+- Release smoke captured `local-docs/android-smoke-dev-release.png` and completed without fatal/runtime logcat findings.
+- `android:dev:release:check-smoke-summary` accepted the refreshed release smoke summary.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+
 ### BEM-37.599 - Direct dependency latest snapshot refresh
 
 - Branch: `feature/bem-37-599-direct-deps-latest-refresh`
