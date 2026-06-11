@@ -70,6 +70,7 @@ The Russian `name.txt` content appears mojibake when read from PowerShell in the
 
 ## Rebrand Coordination Rules
 
+- Store metadata must move with rebrand, explorer/network wording, support/privacy URLs, screenshots, and legal/copyright decisions.
 - Do not update native app names without updating store metadata names, subtitles, descriptions, keywords, support URL, privacy URL, screenshots, and release notes.
 - Do not update store metadata before final app name, legal/copyright owner, privacy URL, and support channel are confirmed.
 - Do not publish explorer or network wording changes unless the wallet runtime, env files, transaction links, terms copy, and screenshots agree.
