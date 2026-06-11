@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.543 - Camera QR target refresh
+
+- Branch: `feature/bem-37-543-camera-qr-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR latest-target evidence after live npm checks on 2026-06-11.
+- Keep CameraKit as the installed scanner baseline because the current package set still matches npm latest metadata and avoids the VisionCamera Nitro native peer stack.
+- Refresh Camera candidate summary guard fixtures, Camera/QR validation handoff fixtures, and Camera/QR planning docs to the current metadata date.
+
+Findings:
+
+- Live npm metadata on 2026-06-11 still reports `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
+- `react-native-vision-camera@5.0.11` still peers `react-native-nitro-modules` and `react-native-nitro-image`, so it remains a larger native architecture branch rather than a same-scope drop-in scanner update.
+- CameraKit runtime usage remains scoped to `src/screens/ScanQrCodeScreen.tsx`, QR scanner caller inventory remains 8 callers, and QR render inventory remains 5 screens.
+- The focused QR scanner unit test still covers Android camera permission gating, QR-only CameraKit configuration, callback delivery, empty scans, and duplicate-scan suppression.
+- Android embedded smoke installed the rebuilt `devDebug` APK on `emulator-5554`, completed first-run onboarding, reached the empty dashboard, opened and closed the QR scanner from Import Wallet, navigated Create/Import flows and bottom tabs, and reported no fatal/runtime logcat findings.
+- iOS camera runtime validation remains unclaimed on Windows; static permission and Podfile.lock guards stay valid.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit version engines peerDependencies dependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-vision-camera version peerDependencies dependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-qrcode-svg version peerDependencies dependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-svg version peerDependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view qrcode version dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-candidate-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-scanner:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-usage-scope`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:qr-scan-callers`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:qr-scanner-validation-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.542 - React 19.2.7 compatibility probe
 
 - Branch: `feature/bem-37-542-react-19-2-7`
