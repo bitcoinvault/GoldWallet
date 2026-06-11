@@ -146,7 +146,7 @@ Results:
 - Firebase `24.1.1` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
 - RN Firebase `24.1.1` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
 - Sentry release source-map upload validation is still not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
-- Sentry SDK and CLI package targets remain current on 2026-06-10: `@sentry/react-native@8.13.0` and direct `@sentry/cli@3.5.0`.
+- Sentry SDK and CLI package targets remain current on 2026-06-11: `@sentry/react-native@8.13.0` and direct `@sentry/cli@3.5.0`.
 - The Sentry prerequisite audit now records per-file readiness for the root, Android, and iOS Sentry properties files, validates that `create-sentry-properties.sh` writes all three expected paths with the expected non-secret defaults, supports optional `SENTRY_ORG` / `SENTRY_PROJECT` overrides, verifies that the local direct `@sentry/cli` package binary is present and executable, records nested `@sentry/cli@3.4.3` copies under Sentry SDK tooling, and guards that release build phases use the direct root CLI package.
 - Sentry `8.13.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.86.0` baseline; release artifact upload still needs credentials before it can be claimed as fully validated.
 - None of these audits print secret values.

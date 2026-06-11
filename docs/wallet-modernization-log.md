@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.546 - Sentry release evidence refresh
+
+- Branch: `feature/bem-37-546-sentry-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry release/source-map evidence after live npm checks on 2026-06-11.
+- Keep `@sentry/react-native@8.13.0` and direct `@sentry/cli@3.5.0` unchanged because both still match npm latest metadata.
+- Revalidate Sentry release prerequisites, Android warning tracking, source-map credential handoff guardrails, release-services aggregate summaries, and the Android lightweight gate without generating or committing Sentry credentials.
+
+Findings:
+
+- `npm view @sentry/react-native version time peerDependencies dependencies engines dist-tags --json` still reports latest `8.13.0`; the package peer range remains `react-native >=0.65.0`.
+- `npm view @sentry/cli version time engines dist-tags --json` still reports latest `3.5.0` with Node engine `>= 18`.
+- `sentry:release:prereq-audit` reports direct `@sentry/cli@3.5.0` installed and executable, with nested transitive `@sentry/cli@3.4.3` instances still present under Sentry packages while release build paths use the direct root CLI package.
+- Sentry Android/iOS release integration remains wired and Android release evidence remains valid for `dev`, `stage`, `prod`, and `beta` variants.
+- Sentry source-map upload validation remains `not claimed` because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are intentionally unavailable in this local shell.
+- `sentry:android-warning:audit` still reports no active Sentry `execResult` warning on the RN `0.86.0` baseline; release/source-map behavior still needs credential-backed validation before it can be claimed complete.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native version time peerDependencies dependencies engines dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli version time engines dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-usage-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-usage-scope`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-integration-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-integration`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-properties-generator`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-credential-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.545 - CodePush decision evidence refresh
 
 - Branch: `feature/bem-37-545-codepush-decision-evidence-refresh`
