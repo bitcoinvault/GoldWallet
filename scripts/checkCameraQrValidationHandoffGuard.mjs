@@ -78,8 +78,8 @@ assert(
 
 const candidateSummary = [
   'Camera candidate audit',
-  'Generated at: 2026-06-10T00:00:00.000Z',
-  'Metadata checked on: 2026-06-10',
+  'Generated at: 2026-06-11T00:00:00.000Z',
+  'Metadata checked on: 2026-06-11',
   'Legacy camera latest: react-native-camera@4.2.1',
   'VisionCamera latest: react-native-vision-camera@5.0.11',
   'VisionCamera Nitro peers: yes',
@@ -105,7 +105,7 @@ const candidateSummary = [
 
 const migrationSummary = [
   'Camera QR migration audit',
-  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Generated at: 2026-06-11T00:00:00.000Z',
   'react-native-camera manifest version: <missing>',
   'react-native-camera-kit manifest version: 18.0.0',
   'QR local-image manifest version: <missing>',
