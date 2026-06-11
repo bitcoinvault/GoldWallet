@@ -22,6 +22,9 @@ const requiredEntries = [
   '@types/ecurve',
   '@types/pbkdf2',
 ];
+const expectedBitcoinjsForkPackage =
+  'git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360';
+const expectedBitcoinjsForkInstalledVersion = '5.1.6';
 
 const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value);
 const isNonNegativeInteger = value => /^\d+$/.test(value);
@@ -94,6 +97,18 @@ export const getWalletCryptoLatestSnapshotSummaryErrors = summary => {
   const forkEntry = entryLines.find(line => line.startsWith('- bitcoinjs-lib: ')) || '';
   if (!forkEntry.includes('bitcoinvault/bitcoinjs-lib') || !forkEntry.includes('decision fork-pinned')) {
     errors.push('bitcoinjs-lib entry must keep the BitcoinVault fork pinned instead of treating upstream npm as the direct target');
+  }
+
+  if (!forkEntry.includes(`package ${expectedBitcoinjsForkPackage}`)) {
+    errors.push(`bitcoinjs-lib entry must keep the expected BitcoinVault fork ref ${expectedBitcoinjsForkPackage}`);
+  }
+
+  if (!forkEntry.includes(`installed ${expectedBitcoinjsForkInstalledVersion}`)) {
+    errors.push(`bitcoinjs-lib installed version must stay ${expectedBitcoinjsForkInstalledVersion} for the current BTCV fork baseline`);
+  }
+
+  if (!forkEntry.includes('latest 7.0.1')) {
+    errors.push('bitcoinjs-lib entry must record the current upstream npm latest 7.0.1 as comparison-only evidence');
   }
 
   if (directBech32Dependency !== 'absent') {

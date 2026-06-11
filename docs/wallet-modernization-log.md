@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.564 - Wallet crypto fork pin guard
+
+- Branch: `feature/bem-37-564-wallet-crypto-fork-pin-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Tighten the wallet crypto latest snapshot guard around the BitcoinVault `bitcoinjs-lib` fork.
+- Require the wallet crypto snapshot to keep `bitcoinjs-lib` pinned to `git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360`, installed fork manifest version `5.1.6`, and upstream npm latest comparison `7.0.1`.
+- Keep wallet crypto package versions, lockfile, runtime wallet code, native files, and local ignored evidence artifacts unchanged.
+
+Findings:
+
+- The current wallet crypto latest snapshot remains valid: 15 tracked wallet crypto entries, Node `v24.16.0`, direct `bech32` dependency absent, and no secret values printed.
+- `bitcoinjs-lib` is intentionally fork-pinned to the BitcoinVault repository and must not be replaced by upstream npm without a dedicated wallet compatibility branch.
+- The current installed fork manifest version is `5.1.6`, while upstream npm latest is `7.0.1`; the upstream value is comparison-only evidence, not a direct wallet upgrade target.
+- Future wallet crypto dependency changes still require offline wallet tests, Android assemble, and emulator smoke.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:wallet-crypto-latest-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-runtime:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.563 - Release-services artifact set guard
 
 - Branch: `feature/bem-37-563-release-services-artifact-set-guard`
