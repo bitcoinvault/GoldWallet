@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.572 - React Native latest target refresh
+
+- Branch: `feature/bem-37-572-rn-latest-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the live React Native, Android toolchain, direct dependency, and tooling latest-target snapshots after the Sentry release compatibility work.
+- Verify whether the wallet modernization branch can move beyond the current React Native `0.86.0` / AGP `8.13.2` / Gradle `8.13` / Kotlin `2.1.20` baseline.
+- Keep runtime code, native files, package versions, lockfile, release configuration, and local MCP/Codex files unchanged.
+
+Findings:
+
+- npm still reports `react-native@0.86.0` as the latest stable release, with `0.86.0-rc.3` on `next` and `0.87.0-nightly-20260608-2ff3b81dc` on `nightly`; the default upgrade channel remains `latest`, so no newer stable RN target is available.
+- Android latest toolchain remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle `9.4.1`/`9.5.1` still hit the RN Gradle plugin `0.86.0` Kotlin metadata compilation blocker.
+- Direct outdated dependencies remain the guarded eight-entry set with four known blockers and four exotic/forked dependencies; no new review-required direct dependency target was found.
+- Tooling snapshot remains current on the Node `24.16.0` baseline; no tooling package bump is required by the live latest check.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:toolchain-target:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+
 ### BEM-37.571 - Sentry RN bundle task compatibility proof
 
 - Branch: `feature/bem-37-571-sentry-source-map-compat`
