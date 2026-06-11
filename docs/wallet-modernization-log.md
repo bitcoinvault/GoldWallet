@@ -10,6 +10,59 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.570 - Sentry React Native 8.14.0 upgrade
+
+- Branch: `feature/bem-37-570-sentry-react-native-814`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@sentry/react-native` from `8.13.0` to `8.14.0`, including the Sentry JS package family and `@sentry/expo-upload-sourcemaps` lockfile updates.
+- Keep direct `@sentry/cli@3.5.0` pinned and verify that release paths still resolve the direct root CLI package.
+- Update Sentry Android warning, release prerequisite, release handoff, native module inventory, and iOS Podfile.lock drift guards for the new Sentry baseline.
+- Update release-service/native-module Sentry documentation with the current `8.14.0` target and the new `sentry.gradle.kts` Android integration shape.
+- Keep Sentry runtime usage scoped to the existing files and do not print or add any Sentry credential values.
+
+Findings:
+
+- Live npm metadata now reports `@sentry/react-native@8.14.0` as latest/current; the direct outdated snapshot returns to the guarded 8-entry set after the upgrade.
+- Sentry `8.14.0` routes Android Gradle integration through `sentry.gradle.kts`; the Android warning audit still reports no active Sentry `execResult` warning on the RN `0.86.0` baseline.
+- Android debug/release builds and emulator smoke pass, but the Sentry `8.14.0` Gradle integration prints `Could not extract bundle task arguments` for release bundle tasks, so source-map upload remains blocked beyond missing credentials until the Sentry/RN `0.86.0` Gradle task compatibility path is fixed or proven on a credentialed release runner.
+- The Sentry prerequisite audit now sees one direct `@sentry/cli@3.5.0` installation and no nested Sentry CLI copies; Android/iOS release build paths still use the direct root CLI package.
+- Release source-map upload validation remains not claimed because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not available.
+- `ios/Podfile.lock` remains stale until a macOS `pod install` refresh; the active Sentry drift is now `RNSentry 3.1.0` versus `@sentry/react-native 8.14.0`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add @sentry/react-native@8.14.0 --exact`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-android-warning-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-usage-scope`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-integration`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:native-module-inventory-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-release-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.569 - iOS validation handoff summary
 
 - Branch: `feature/bem-37-569-ios-validation-handoff-summary`

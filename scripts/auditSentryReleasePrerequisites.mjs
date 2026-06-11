@@ -27,6 +27,7 @@ const createNodeScriptPath = path.join(root, 'scripts', 'createSentryProperties.
 const sentryCliPackagePath = path.join(root, 'node_modules', '@sentry', 'cli', 'package.json');
 const sentryCliBinPath = path.join(root, 'node_modules', '@sentry', 'cli', 'bin', 'sentry-cli');
 const sentryReactNativeGradlePath = path.join(root, 'node_modules', '@sentry', 'react-native', 'sentry.gradle');
+const sentryReactNativeGradleKtsPath = path.join(root, 'node_modules', '@sentry', 'react-native', 'sentry.gradle.kts');
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 
@@ -110,7 +111,10 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const scripts = packageJson.scripts || {};
   const androidBuildGradle = read('android/app/build.gradle');
   const iosProject = read('ios/GoldWallet.xcodeproj/project.pbxproj');
-  const sentryReactNativeGradle = existsSync(sentryReactNativeGradlePath) ? readFileSync(sentryReactNativeGradlePath, 'utf8') : '';
+  const sentryReactNativeGradle = [sentryReactNativeGradlePath, sentryReactNativeGradleKtsPath]
+    .filter(existsSync)
+    .map(filePath => readFileSync(filePath, 'utf8'))
+    .join('\n');
   const expectedSentryPropertiesValues = {
     ...defaultSentryPropertiesValues,
     'defaults.org': env.SENTRY_ORG || defaultSentryPropertiesValues['defaults.org'],
@@ -149,7 +153,8 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
 
   const sentryAndroidGradleCliResolverDirect =
     androidBuildGradle.includes('apply from: "../../node_modules/@sentry/react-native/sentry.gradle"') &&
-    sentryReactNativeGradle.includes("require.resolve('@sentry/cli/package.json')") &&
+    sentryReactNativeGradle.includes('@sentry/cli/package.json') &&
+    sentryReactNativeGradle.includes('@sentry/react-native/package.json') &&
     sentryReactNativeGradle.includes('$reactRoot/node_modules/@sentry/cli');
   const sentryIosReleaseBuildPathDirect =
     iosProject.includes('../node_modules/@sentry/cli/bin/sentry-cli react-native xcode') &&
