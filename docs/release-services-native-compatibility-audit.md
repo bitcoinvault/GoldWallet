@@ -149,6 +149,7 @@ Results:
 - Sentry SDK and CLI package targets remain current on 2026-06-11: `@sentry/react-native@8.14.0` and direct `@sentry/cli@3.5.0`.
 - The Sentry prerequisite audit now records per-file readiness for the root, Android, and iOS Sentry properties files, validates that `create-sentry-properties.sh` writes all three expected paths with the expected non-secret defaults, supports optional `SENTRY_ORG` / `SENTRY_PROJECT` overrides, verifies that the local direct `@sentry/cli` package binary is present and executable, records no nested Sentry CLI copies under Sentry SDK tooling, and guards that release build phases use the direct root CLI package.
 - Sentry `8.14.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.86.0` baseline, but Android release Gradle output currently prints `Could not extract bundle task arguments` for release bundle tasks; release artifact upload still needs both credentials and a proven compatible Sentry/RN Gradle path before it can be claimed as fully validated.
+- Sentry/RN bundle task compatibility is now guarded by `corepack yarn sentry:rn-bundle-task-compat:audit` and `corepack yarn sentry:rn-bundle-task-compat:check-summary`; current static evidence reports the path `not ready` because Sentry expects a directory-shaped `jsIntermediateSourceMapsDir`, while RN `0.86.0` exposes `RegularFileProperty` and does not expose the fallback `args` property.
 - None of these audits print secret values.
 - Do not generate placeholder Sentry or CodePush secrets; missing values remain explicit readiness blockers until provided by environment/config.
 
@@ -219,6 +220,8 @@ Shared env/config:
 - `corepack yarn check:sentry-release-validation-handoff-guard` validates the Sentry handoff command sequence, secret-safe rendering, required-env handling, `--skip-android-release` behavior, and the final release-smoke readiness check.
 - `corepack yarn sentry:android-warning:audit` confirms the current Sentry Android Gradle/source-map wiring remains tracked before a dedicated Sentry release/source-map cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
+- `corepack yarn sentry:rn-bundle-task-compat:audit` records the Sentry/RN bundle task compatibility status and writes `local-docs/sentry-rn-bundle-task-compatibility-summary.txt`.
+- `corepack yarn sentry:rn-bundle-task-compat:check-summary` validates the generated local compatibility summary.
 - Push notification changes need Android 13+ permission checks, Firebase Messaging token checks, and iOS permission/token validation.
 - `@react-native-community/push-notification-ios` is on latest checked `1.12.0` after `BEM-36.75`; this Android-side branch does not replace dedicated iOS push validation.
 - `corepack yarn push-notification:bridge-audit` verifies current iOS push notification bridge wiring and static readiness. It writes `local-docs/push-notification-bridge-summary.txt`.

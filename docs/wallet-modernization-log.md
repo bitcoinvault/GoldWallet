@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.571 - Sentry RN bundle task compatibility proof
+
+- Branch: `feature/bem-37-571-sentry-source-map-compat`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Investigate whether the Sentry `8.14.0` `Could not extract bundle task arguments` release warning can be fixed through repo-owned Android Gradle configuration.
+- Add a static Sentry/RN bundle task compatibility audit and summary guard.
+- Wire the compatibility audit into `rn:baseline:preflight` so Sentry source-map readiness cannot be claimed from release build success alone.
+- Keep runtime code, Sentry package versions, release credentials, source-map upload behavior, and `node_modules` unchanged.
+
+Findings:
+
+- Sentry `8.14.0` reads `jsIntermediateSourceMapsDir` as a Gradle `Directory`, but RN `0.86.0` `BundleHermesCTask` exposes `jsIntermediateSourceMapsDir` as `RegularFileProperty`.
+- Sentry's legacy fallback requires an `args` property, but RN `BundleHermesCTask` does not expose one.
+- A repo-owned `task.ext.args` experiment still left the Sentry warning in release Gradle output, while `task.setProperty("args", ...)` and `task.setProperty("workingDir", ...)` are rejected by Gradle as unknown properties on `BundleHermesCTask`; those unsafe changes were not kept.
+- Android release APK/source-map generation remains valid, but Sentry source-map upload remains `not claimed` until an upstream Sentry/RN Gradle compatibility fix or credentialed release-runner proof confirms upload works.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_RELEASE_VARIANTS=dev SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local` confirmed `task.ext.args` did not remove the Sentry warning.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_RELEASE_VARIANTS=dev SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local` rejected `task.setProperty("workingDir", ...)` / `task.setProperty("args", ...)`; the unsafe changes were reverted.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-rn-bundle-task-compat-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-integration`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_RELEASE_VARIANTS=dev SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.570 - Sentry React Native 8.14.0 upgrade
 
 - Branch: `feature/bem-37-570-sentry-react-native-814`

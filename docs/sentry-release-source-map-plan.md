@@ -23,12 +23,15 @@
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary, including per-file readiness counts and generator coverage.
 - `corepack yarn sentry:android-warning:audit` verifies that Sentry Gradle/source-map wiring remains tracked before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
+- `corepack yarn sentry:rn-bundle-task-compat:audit` records the static compatibility mismatch between Sentry `8.14.0` bundle-task extraction and the RN `0.86.0` `BundleHermesCTask` property model.
+- `corepack yarn sentry:rn-bundle-task-compat:check-summary` validates the generated local compatibility summary.
 - The active RN `0.86.0` Android warning audit no longer reports Sentry `execResult`; Sentry still needs release/source-map validation with local credentials before claiming the SDK/tooling change complete for release artifacts.
 - The latest npm releases checked for the Sentry release path on 2026-06-11 are `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.0`. The SDK is already current on the RN `0.86.0` baseline, and the release CLI is pinned explicitly as dev tooling.
 - The Sentry prerequisite audit now records live latest metadata for both packages and fails stale "current" claims when installed and latest versions differ.
 - `@sentry/react-native@8.14.0` declares `react-native >=0.65.0`, but release artifact behavior still has to be proven instead of patching `node_modules` or disabling source-map upload.
 - Android release APK generation has now been proven locally for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled; Sentry source-map upload remains explicitly not claimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available.
 - Android release Gradle output on Sentry `8.14.0` currently prints `Could not extract bundle task arguments` for release bundle tasks, so final source-map upload validation also requires proving or fixing the Sentry/RN `0.86.0` Gradle task compatibility path.
+- Static compatibility evidence shows Sentry expects `jsIntermediateSourceMapsDir` as a `Directory`, while RN `0.86.0` exposes it on `BundleHermesCTask` as a `RegularFileProperty`; Sentry's fallback also expects an `args` property that the RN task does not expose. Do not patch `node_modules` or add unsupported dynamic task properties in `android/app/build.gradle`.
 
 ## Credential Handoff Gate
 
@@ -99,6 +102,8 @@ Scope:
 - `corepack yarn sentry:release:validation:handoff:dry-run`.
 - `corepack yarn sentry:android-warning:audit`.
 - `corepack yarn sentry:android-warning:check-summary`.
+- `corepack yarn sentry:rn-bundle-task-compat:audit`.
+- `corepack yarn sentry:rn-bundle-task-compat:check-summary`.
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`.
 - `corepack yarn android:dev:release:check-summary`.
 - `corepack yarn release-services:check-summaries`.
