@@ -93,6 +93,11 @@ const validSummary = [
   'Variant count: 4',
   'Java executable: D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10\\bin\\java.exe',
   'Java version: openjdk version "17.0.19" 2026-04-15',
+  'Android Gradle Plugin: 8.13.2',
+  'Gradle wrapper: 8.13',
+  'Kotlin Gradle Plugin: 2.1.20',
+  'Compile SDK: 36',
+  'Target SDK: 36',
   `Release input fingerprint: ${releaseInputFingerprint}`,
   `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
   'Sentry auto upload disabled for local build: yes',
@@ -226,6 +231,11 @@ assertAccepted(
     'Variant count: 1',
     'Java executable: D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10\\bin\\java.exe',
     'Java version: openjdk version "17.0.19" 2026-04-15',
+    'Android Gradle Plugin: 8.13.2',
+    'Gradle wrapper: 8.13',
+    'Kotlin Gradle Plugin: 2.1.20',
+    'Compile SDK: 36',
+    'Target SDK: 36',
     `Release input fingerprint: ${releaseInputFingerprint}`,
     `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
     'Sentry auto upload disabled for local build: yes',
@@ -283,6 +293,23 @@ assertRejected(
   ),
   'JDK 17',
 );
+assertRejected(
+  'Bad Android Gradle Plugin fixture',
+  validSummary.replace('Android Gradle Plugin: 8.13.2', 'Android Gradle Plugin: 9.2.1'),
+  'Android Gradle Plugin must be 8.13.2',
+);
+assertRejected(
+  'Bad Gradle wrapper fixture',
+  validSummary.replace('Gradle wrapper: 8.13', 'Gradle wrapper: 9.5.1'),
+  'Gradle wrapper must be 8.13',
+);
+assertRejected(
+  'Bad Kotlin Gradle Plugin fixture',
+  validSummary.replace('Kotlin Gradle Plugin: 2.1.20', 'Kotlin Gradle Plugin: 2.4.0'),
+  'Kotlin Gradle Plugin must be 2.1.20',
+);
+assertRejected('Bad Compile SDK fixture', validSummary.replace('Compile SDK: 36', 'Compile SDK: 35'), 'Compile SDK must be 36');
+assertRejected('Bad Target SDK fixture', validSummary.replace('Target SDK: 36', 'Target SDK: 35'), 'Target SDK must be 36');
 assertRejected(
   'Missing release input fingerprint fixture',
   validSummary.replace(`Release input fingerprint: ${releaseInputFingerprint}\n`, ''),

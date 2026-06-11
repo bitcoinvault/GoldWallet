@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.561 - Android release toolchain readiness guard
+
+- Branch: `feature/bem-37-561-android-release-toolchain-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Tighten Android release validation evidence so the release summary records and guards the exact Android toolchain baseline used for release APKs.
+- Require release evidence to include Android Gradle Plugin `8.13.2`, Gradle wrapper `8.13`, Kotlin Gradle Plugin `2.1.20`, compile SDK `36`, target SDK `36`, and JDK `17`.
+- Refresh live Android toolchain target evidence before release validation.
+- Keep package versions, Android native project files, runtime wallet code, and generated ignored release artifacts unchanged.
+
+Findings:
+
+- Live toolchain target audit still reports latest Android toolchain blocked: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle `9.4.1` and `9.5.1` hit the React Native Gradle plugin `0.86.0` Kotlin metadata compile blocker.
+- The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17` until a newer React Native Gradle plugin baseline clears the AGP 9 / Gradle 9 blocker.
+- Local release validation rebuilt `dev`, `stage`, `prod`, and `beta` release APKs with Sentry auto upload disabled and source-map upload validation explicitly unclaimed until credentials are provided.
+- Android release APK manifest checks passed for all 4 release variants using Android build-tools `36.0.0`.
+- Android dev release emulator smoke passed after refreshing the signed smoke APK: first-run setup, dashboard, create/import wallet flow, QR scanner, bottom-tab navigation, and fatal/runtime logcat checks all passed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-release-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-toolchain-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%JAVA_HOME%\bin;%PATH% corepack yarn android:dev:release:validate-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node scripts/androidSmokeDevReleaseEmbedded.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.560 - iOS macOS readiness guard
 
 - Branch: `feature/bem-37-560-ios-release-handoff-readiness`
