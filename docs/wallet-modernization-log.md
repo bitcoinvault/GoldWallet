@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.598 - React patch latest compatibility probe
+
+- Branch: `feature/bem-37-598-react-patch-latest`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Check whether the current RN baseline can move React from the bundled `19.2.3` baseline to the live npm latest patch line.
+- Keep React Native and Metro unchanged because live npm metadata reports `react-native@0.86.0` and `@react-native/metro-config@0.86.0` as current `latest`.
+- Try the highest sensible compatible React patch target first, then keep the repo baseline unchanged if RN renderer coupling blocks it.
+
+Findings:
+
+- Live npm metadata reports `react-native@0.86.0` as `latest`, with peer `react@^19.2.3` and Node engines compatible with the repo Node 24 baseline.
+- Live npm metadata reports `@react-native/metro-config@0.86.0` and `typescript@6.0.3` as current `latest`, matching the repo baseline.
+- Live npm metadata reports `react@19.2.7` and `react-test-renderer@19.2.7` as current `latest`; `@types/react@19.2.17` is already current.
+- A local probe of `react@19.2.7` plus `react-test-renderer@19.2.7` was rejected by the existing React/RN coupling guards.
+- `react:renderer-version:audit` reports the RN `0.86.0` renderer implementation is still `19.2.3`, so `react@19.2.7` does not match the exact renderer version.
+- `react:package-coupling:audit` also rejects the patch bump because the current RN target snapshot expects React and `react-test-renderer` at `19.2.3`.
+- Package and lockfile changes from the failed probe were reverted; the repo keeps `react@19.2.3` and `react-test-renderer@19.2.3` until React Native publishes a compatible renderer baseline.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native dist-tags version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react dist-tags version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-test-renderer dist-tags version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native/metro-config dist-tags version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view typescript dist-tags version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @types/react dist-tags version dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add react@19.2.7`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add --dev react-test-renderer@19.2.7`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:renderer-version:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:package-coupling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add react@19.2.3`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add --dev react-test-renderer@19.2.3`
+
 ### BEM-37.597 - Camera QR latest validation refresh
 
 - Branch: `feature/bem-37-597-camera-qr-latest-probe`
