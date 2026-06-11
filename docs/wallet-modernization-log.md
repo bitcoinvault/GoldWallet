@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.548 - React Native target snapshot refresh
+
+- Branch: `feature/bem-37-548-rn-target-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded React Native target snapshot after live npm metadata checks on 2026-06-11.
+- Keep `react-native@0.86.0`, `react@19.2.3`, and `react-test-renderer@19.2.3` unchanged because npm `latest` still matches the current RN baseline.
+- Keep npm `latest` as the default upgrade channel while treating npm `next` and `nightly` as planning evidence only.
+
+Findings:
+
+- Live npm metadata still reports `react-native@latest` as `0.86.0`, matching the current package baseline.
+- Live npm metadata still reports `react-native@next` as `0.86.0-rc.3`; because it is a prerelease channel, it remains planning evidence rather than the default wallet upgrade target.
+- Live npm metadata still reports `react-native@nightly` as `0.87.0-nightly-20260608-2ff3b81dc`; the nightly Node engine is `^22.13.0 || ^24.3.0 || >= 26.0.0`, so it is a separate future probe rather than a same-scope foundation move.
+- `react-native@0.86.0` still peers React `^19.2.3` and uses Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`; the repo Node `24.16.0` remains valid for this baseline.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native@latest version peerDependencies engines dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native@next version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native@nightly version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-current-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.547 - iOS release evidence refresh
 
 - Branch: `feature/bem-37-547-ios-release-evidence-refresh`
