@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.626 - CodePush decision default alignment
+
+- Branch: `feature/bem-37-626-codepush-decision-default`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align the default CodePush decision handoff with the current repository posture after CodePush removal.
+- Make the standard `codepush:decision:handoff:dry-run` used by baseline checks report `Decision: remove` and `Beta deployment-key strategy: beta has no OTA` unless explicitly overridden.
+- Update the remove decision required-action wording so it says to keep CodePush removed instead of implying that a new implementation branch still needs to start.
+
+Findings:
+
+- CodePush remains removed from runtime and native integration, with zero runtime usage files and zero native integration files.
+- The default dry-run now reports `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, `CodePush migration required: no`, and `Beta deployment-key strategy: beta has no OTA`.
+- OTA update validation remains explicitly not claimed because deployment keys and a real delivery test are still required before any OTA behavior can be claimed.
+- The CLI still supports explicit `--decision`, `--replacement-target`, and `--beta-strategy` flags for future replace or temporary-legacy scenarios.
+- No runtime app code, native code, dependency versions, package scripts, lockfile entries, build configuration, or Metro behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:decision:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.625 - React Native latest target probe
 
 - Branch: `feature/bem-37-625-rn-latest-target-probe`

@@ -14,9 +14,9 @@ const migrationReadinessSummaryPath = path.join(root, 'local-docs', 'codepush-mi
 const removalReadinessSummaryPath = path.join(root, 'local-docs', 'codepush-removal-readiness-summary.txt');
 
 const defaultOptions = {
-  decision: 'pending',
+  decision: 'remove',
   replacementTarget: 'none',
-  betaStrategy: 'unconfirmed',
+  betaStrategy: 'beta-has-no-ota',
   dryRun: false,
 };
 
@@ -158,7 +158,9 @@ const formatSummary = ({ evidence, options, generatedAt = new Date().toISOString
       ? 'choose remove or replace before implementation; do not claim OTA update validation until deployment keys and a real delivery test are available.'
       : options.decision === 'temporary legacy compatibility'
         ? 'keep CodePush gated off by default as a temporary exception; choose remove or replace before long-term release support; do not claim OTA update validation.'
-        : 'start the selected implementation branch only after reviewing this handoff; do not claim OTA update validation until deployment keys and a real delivery test are available.';
+        : options.decision === 'remove'
+          ? 'keep CodePush removed from runtime and native integration; do not claim OTA update validation until deployment keys and a real delivery test are available.'
+          : 'start the selected implementation branch only after reviewing this handoff; do not claim OTA update validation until deployment keys and a real delivery test are available.';
 
   const lines = [
     'CodePush decision handoff',
