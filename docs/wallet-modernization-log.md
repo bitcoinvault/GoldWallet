@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.554 - Secure-storage release validation refresh
+
+- Branch: `feature/bem-37-554-secure-storage-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh secure-storage migration and removal-readiness evidence after the current RN `0.86.0` / Android SDK `36` baseline.
+- Revalidate Keychain-primary storage posture, legacy secure-storage fallback reads, focused storage/authenticator/wallet tests, Android dev assemble, and embedded emulator smoke.
+- Keep `react-native-secure-key-store` installed because legacy fallback reads are still active and removal is not yet release-validated.
+
+Findings:
+
+- `secure-storage:release-validation:handoff` completed successfully and regenerated the secure-storage migration, removal-readiness, and Android dev smoke summaries.
+- Current primary package is `react-native-keychain@10.0.0`; legacy package remains `react-native-secure-key-store@2.0.10`.
+- Keychain is the primary write target and legacy secure-storage writes are disabled.
+- Legacy secure-storage fallback reads remain active, so legacy package removal is still `not ready`.
+- Removal remains blocked until migrated PIN, transaction-password, and encrypted wallet data are release-validated without the fallback backend.
+- Focused validation passed for secure-storage unit, storage integration, authenticator storage, and offline wallet-core contracts.
+- Android dev assemble completed successfully on JDK `17.0.19`.
+- Android dev smoke installed `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk` on `emulator-5554`, completed first-run terms, PIN, transaction-password, and email skip flow, reached the empty wallet dashboard, validated create/import CTA navigation, validated QR scanner open/close, validated empty-state tab navigation, and found no fatal/runtime logcat findings.
+- Metro was not required or reachable during smoke, so the smoke validated the built APK artifact path.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn secure-storage:release-validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.553 - Release-services aggregate refresh
 
 - Branch: `feature/bem-37-553-release-services-aggregate-refresh`
