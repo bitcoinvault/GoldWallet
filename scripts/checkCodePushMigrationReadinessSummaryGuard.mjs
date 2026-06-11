@@ -24,6 +24,9 @@ const validSummary = [
   'Release path summary valid: yes',
   'Release path summary errors: 0',
   'CodePush release build evidence ready: yes',
+  'Android release smoke summary valid: yes',
+  'Android release smoke summary errors: 0',
+  'CodePush release smoke evidence ready: yes',
   'Ready CodePush environments: 2',
   'Blocked CodePush environments: 1',
   'Unconfirmed CodePush environments: 2',
@@ -83,6 +86,16 @@ assertRejected(
   'Missing release build evidence fixture',
   validSummary.replace('CodePush release build evidence ready: yes', 'CodePush release build evidence ready: no'),
   'release build evidence',
+);
+assertRejected(
+  'Invalid Android release smoke summary fixture',
+  validSummary.replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no'),
+  'Android release smoke summary',
+);
+assertRejected(
+  'Missing release smoke evidence fixture',
+  validSummary.replace('CodePush release smoke evidence ready: yes', 'CodePush release smoke evidence ready: no'),
+  'release smoke evidence',
 );
 assertRejected(
   'Bad environment count fixture',

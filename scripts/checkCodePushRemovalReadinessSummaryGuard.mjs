@@ -13,6 +13,9 @@ const validSummary = [
   'Android New Architecture enabled: yes',
   'CodePush migration required: yes',
   'CodePush release build evidence ready: yes',
+  'Android release smoke summary valid: yes',
+  'Android release smoke summary errors: 0',
+  'CodePush release smoke evidence ready: yes',
   'Runtime usage files: 1',
   '- App.tsx',
   'Native integration files: 8',
@@ -90,6 +93,16 @@ assertRejected(
 assertRejected('Android New Architecture disabled fixture', validSummary.replace('Android New Architecture enabled: yes', 'Android New Architecture enabled: no'), 'Android New Architecture');
 assertRejected('Migration not required fixture', validSummary.replace('CodePush migration required: yes', 'CodePush migration required: no'), 'migration required');
 assertRejected('Release evidence missing fixture', validSummary.replace('CodePush release build evidence ready: yes', 'CodePush release build evidence ready: no'), 'release build evidence');
+assertRejected(
+  'Invalid Android release smoke summary fixture',
+  validSummary.replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no'),
+  'Android release smoke summary',
+);
+assertRejected(
+  'Release smoke evidence missing fixture',
+  validSummary.replace('CodePush release smoke evidence ready: yes', 'CodePush release smoke evidence ready: no'),
+  'release smoke evidence',
+);
 assertRejected('Bad runtime count fixture', validSummary.replace('Runtime usage files: 1', 'Runtime usage files: 2'), 'Runtime usage files count');
 assertRejected('Bad native count fixture', validSummary.replace('Native integration files: 8', 'Native integration files: 7'), 'Native integration files');
 assertRejected('Missing plist fixture', validSummary.replace('iOS plist placeholders: 3', 'iOS plist placeholders: 2'), 'iOS plist placeholders');

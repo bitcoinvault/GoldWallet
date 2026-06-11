@@ -6,15 +6,31 @@ import {
   expectedCodePushRuntimeUsageFiles,
 } from './codePushUsageGuard.mjs';
 import { codePushEnvFiles, codePushIosInfoPlists, collectCodePushReleasePathAudit } from './auditCodePushReleasePath.mjs';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'codepush-removal-readiness-summary.txt');
+const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const signedReleaseApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
+const unsignedReleaseApkPath = path.join(
+  root,
+  'android',
+  'app',
+  'build',
+  'outputs',
+  'apk',
+  'dev',
+  'release',
+  'app-dev-release-unsigned.apk',
+);
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
 export const collectCodePushRemovalReadinessAudit = () => {
   const packageJson = JSON.parse(read('package.json'));
   const releasePathAudit = collectCodePushReleasePathAudit();
+  let androidReleaseSmokeSummaryValid = false;
+  let androidReleaseSmokeSummaryErrors = ['missing Android release smoke summary'];
   const packageInstalled = Boolean(packageJson.dependencies?.['react-native-code-push'] || packageJson.devDependencies?.['react-native-code-push']);
   const envFilesCarryingCodePushKeys = codePushEnvFiles.filter(relativePath => {
     if (!existsSync(path.join(root, relativePath))) {
@@ -28,6 +44,17 @@ export const collectCodePushRemovalReadinessAudit = () => {
     existsSync(path.join(root, relativePath)) && read(relativePath).includes('CodePushDeploymentKey'),
   );
 
+  if (existsSync(androidReleaseSmokeSummaryPath)) {
+    androidReleaseSmokeSummaryErrors = getAndroidEmbeddedSmokeSummaryErrors(readFileSync(androidReleaseSmokeSummaryPath, 'utf8'), {
+      expectedArtifactBase: 'android-smoke-dev-release',
+      requireSmokeApkDigest: true,
+      expectedSmokeApkPath: signedReleaseApkPath,
+      requireSourceApkDigest: true,
+      expectedSourceApkPath: unsignedReleaseApkPath,
+    });
+    androidReleaseSmokeSummaryValid = androidReleaseSmokeSummaryErrors.length === 0;
+  }
+
   return {
     packageInstalled,
     packageLatestVersion: releasePathAudit.packageLatestVersion,
@@ -39,6 +66,9 @@ export const collectCodePushRemovalReadinessAudit = () => {
     androidNewArchitectureEnabled: releasePathAudit.androidNewArchitectureEnabled,
     migrationRequired: releasePathAudit.migrationRequired,
     releaseBuildEvidenceReady: releasePathAudit.releaseBuildEvidenceReady,
+    androidReleaseSmokeSummaryValid,
+    androidReleaseSmokeSummaryErrors,
+    releaseSmokeEvidenceReady: androidReleaseSmokeSummaryValid,
     runtimeUsageFiles: [...expectedCodePushRuntimeUsageFiles],
     nativeIntegrationFiles: [...expectedCodePushNativeUsageFiles],
     envFilesCarryingCodePushKeys,
@@ -70,6 +100,10 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
     `Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`,
     `CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`,
     `CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`,
+    `Android release smoke summary valid: ${audit.androidReleaseSmokeSummaryValid ? 'yes' : 'no'}`,
+    `Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`,
+    ...audit.androidReleaseSmokeSummaryErrors.map(error => `- ${error}`),
+    `CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`,
     `Runtime usage files: ${audit.runtimeUsageFiles.length}`,
     ...audit.runtimeUsageFiles.map(filePath => `- ${filePath}`),
     `Native integration files: ${audit.nativeIntegrationFiles.length}`,
@@ -102,6 +136,7 @@ const printReport = audit => {
   console.log(`Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`);
   console.log(`CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`);
   console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`);
   console.log(`Runtime usage files: ${audit.runtimeUsageFiles.length}`);
   console.log(`Native integration files: ${audit.nativeIntegrationFiles.length}`);
   console.log(`Env files carrying CodePush keys: ${audit.envFilesCarryingCodePushKeys.length}`);
