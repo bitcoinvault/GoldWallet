@@ -123,7 +123,7 @@ class TransactionDetailsScreen extends Component<Props> {
             <Text style={[styles.value, transaction.toExternalAddress ? styles.lightGrayText : styles.textBlack]}>
               {formatToBtcv(transaction.unblockedAmount)}
             </Text>
-            <Label>{i18n.transactions.details.blocked}</Label>
+            <Label>{i18n.transactions.details.unblocked}</Label>
           </View>
         )}
         {transaction.tx_type !== TxType.ALERT_RECOVERED && (

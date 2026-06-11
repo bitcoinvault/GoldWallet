@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.609 - Transaction details unblocked label fix
+
+- Branch: `feature/bem-37-609-transaction-details-label-fix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Fix the transaction details amount label for `unblockedAmount`.
+- Add a focused repo guard so the blocked/unblocked labels on the transaction details screen cannot be swapped silently again.
+- Keep the change isolated to transaction details UI text and validation wiring.
+
+Findings:
+
+- `src/components/TransactionItem.tsx` already used `i18n.transactions.details.unblocked` for `unblockedAmount`.
+- `src/screens/TransactionDetailsScreen.tsx` rendered `transaction.unblockedAmount` with the `blocked` label, so recovered/confirmed secure transaction details could show the wrong amount description.
+- The new `check:transaction-details-amount-labels` script validates that the `blockedAmount` render block uses the blocked label and the `unblockedAmount` render block uses only the unblocked label.
+- No wallet calculation, transaction selector, native code, dependency version, or storage behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:transaction-details-amount-labels`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `git diff --check`
+
 ### BEM-37.608 - Secure-storage release validation refresh
 
 - Branch: `feature/bem-37-608-secure-storage-validation-refresh`
