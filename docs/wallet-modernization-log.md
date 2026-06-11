@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.569 - iOS validation handoff summary
+
+- Branch: `feature/bem-37-569-ios-validation-handoff-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a local iOS validation handoff summary generator that combines the guarded static iOS release readiness summary and the guarded macOS/Xcode/CocoaPods prerequisite summary.
+- Add a handoff summary guard with fixtures for the current blocked Windows state and the future ready macOS state.
+- Wire the new guard and dry-run summary into `rn:baseline:preflight` so iOS handoff evidence stays checked before runtime validation is claimed.
+- Document the handoff in the iOS release config compatibility audit.
+- Keep runtime app code, native files, package versions, lockfile, env values, and iOS runtime behavior unchanged.
+
+Findings:
+
+- Static iOS release files remain valid for the current React Native baseline, but this Windows host cannot claim iOS archive/simulator validation.
+- The handoff keeps iOS runtime delivery validation as `not claimed` and records macOS/Xcode/CocoaPods plus `ios/Podfile.lock` drift blockers explicitly.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh before any iOS archive/runtime readiness can be claimed.
+- No secret values are printed by the generated handoff summary.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-validation-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:validation:handoff-summary:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:validation:handoff-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `node -e "JSON.parse(require('fs').readFileSync('package.json','utf8')); console.log('package.json valid')"`
+
 ### BEM-37.568 - CodePush decision handoff
 
 - Branch: `feature/bem-37-568-codepush-decision-handoff`
