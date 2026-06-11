@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.577 - Sentry credential handoff bundle evidence guard
+
+- Branch: `feature/bem-37-577-sentry-credential-bundle-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Require the Sentry credential handoff guard to keep the RN bundle task compatibility audit/check evidence in `docs/sentry-release-source-map-plan.md`.
+- Keep the credential handoff aligned with the Sentry release handoff and release-services aggregate evidence added in the previous Sentry milestones.
+- Keep runtime code, native integration, package versions, lockfile, Sentry credentials/properties, and source-map upload behavior unchanged.
+
+Findings:
+
+- The Sentry source-map plan already listed RN bundle task compatibility evidence for credential handoff, but `check:sentry-credential-handoff-guard` did not require that line yet.
+- The guard now prevents the credential handoff from losing the known Sentry/RN bundle-task compatibility blocker while source-map upload remains unclaimed.
+- Sentry source-map upload remains blocked locally by missing `SENTRY_AUTH_TOKEN` and missing generated Sentry properties.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-credential-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.576 - Sentry release handoff bundle compatibility gate
 
 - Branch: `feature/bem-37-576-sentry-handoff-bundle-compat`
