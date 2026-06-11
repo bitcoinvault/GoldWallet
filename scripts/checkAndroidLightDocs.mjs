@@ -157,7 +157,7 @@ const docs = [
       'secure-storage removal readiness guard self-check',
       'devRelease`, `stageRelease`, `prodRelease`, and `betaRelease',
       'ANDROID_RELEASE_VARIANTS=dev,stage,prod,beta',
-      'feature/bem-37-358-android-release-summary-fingerprint',
+      'feature/bem-37-590-android-release-evidence-refresh',
       'release-input fingerprint',
       'iOS macOS validation prerequisite summaries as one aggregate gate',
       'check:modernization-log-id-guard',

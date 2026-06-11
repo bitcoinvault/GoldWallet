@@ -10,6 +10,55 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.590 - Android release evidence refresh
+
+- Branch: `feature/bem-37-590-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release build evidence for the current RN `0.86.0`, AGP `8.13.2`, SDK `36`, JDK `17`, Sentry `8.14.0`, Firebase `24.1.1`, and CodePush-removed baseline.
+- Rebuild and validate `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` without Sentry auto-upload credentials.
+- Run embedded release smoke against the signed local `devRelease` smoke APK and refresh release-service summaries that depend on Android release evidence.
+
+Findings:
+
+- `android:dev:release:verify-local` rebuilt all four release variants and validated APK, release JS bundle, source-map, SHA-256, manifest, retry metadata, and release-input fingerprint evidence.
+- `android:dev:release:smoke:embedded` installed the locally signed `devRelease` smoke APK on emulator `emulator-5554`, completed first-run onboarding, validated the empty dashboard CTA flow, validated tab navigation, and validated the import-wallet QR scanner screen without Metro.
+- Sentry remains package-current at `@sentry/react-native@8.14.0` and direct `@sentry/cli@3.5.0`; release smoke evidence is ready, but source-map upload remains `not claimed` until `SENTRY_AUTH_TOKEN` generates `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties`.
+- Firebase release-service packages remain current at `24.1.1`; Firebase runtime delivery remains `not claimed`.
+- CodePush remains removed from runtime/native integration. Release build and release-smoke evidence are ready, but OTA update validation remains `not claimed` because App Center CodePush is retired and removed.
+- iOS static release readiness remains valid, while iOS runtime/archive validation is still blocked on Windows by missing macOS/Xcode/CocoaPods and stale `ios/Podfile.lock` drift.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+
 ### BEM-37.589 - Rebranding release-config readiness guard
 
 - Branch: `feature/bem-37-589-rebranding-readiness-guard`
