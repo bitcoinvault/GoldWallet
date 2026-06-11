@@ -110,6 +110,22 @@ export const getIosMacValidationPrereqSummaryErrors = summary => {
     errors.push('Ready summary must have 0 blockers');
   }
 
+  if (ready === 'yes' && platform !== 'darwin') {
+    errors.push(`Ready summary must be produced on darwin. Received: ${platform || 'missing'}`);
+  }
+
+  if (ready === 'yes' && xcodebuildAvailable !== 'yes') {
+    errors.push('Ready summary must have xcodebuild available');
+  }
+
+  if (ready === 'yes' && podAvailable !== 'yes' && bundlePodAvailable !== 'yes') {
+    errors.push('Ready summary must have CocoaPods available through pod or bundle exec pod');
+  }
+
+  if (ready === 'yes' && podfileLockRefreshRequired !== 'no') {
+    errors.push('Ready summary must not require a Podfile.lock refresh');
+  }
+
   if (ready === 'no' && Number(blockerCount) === 0) {
     errors.push('Not-ready summary must list at least one blocker');
   }
