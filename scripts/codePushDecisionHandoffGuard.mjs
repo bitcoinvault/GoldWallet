@@ -94,7 +94,7 @@ export const getCodePushDecisionHandoffErrors = summary => {
     errors.push('Replacement target must be none unless the decision is replace');
   }
 
-  if (codePushRemoved === 'yes' && implementationReady !== 'yes') {
+  if (codePushRemoved === 'yes' && decision === 'remove' && implementationReady !== 'yes') {
     errors.push('Removed CodePush handoff must be implementation ready');
   } else if (decision === 'pending' && implementationReady !== 'no') {
     errors.push('Pending decision cannot be implementation ready');

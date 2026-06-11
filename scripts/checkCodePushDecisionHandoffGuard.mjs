@@ -21,7 +21,7 @@ const requiredSnippets = [
   '- current release-services aggregate summary;',
   '- iOS macOS/Xcode/CocoaPods blocker or validation result;',
   '- explicit beta deployment-key strategy: beta has OTA keys, beta has no OTA, or beta is out of scope.',
-  'Do not start a removal branch until the decision says `remove`.',
+  'Do not reintroduce a removal branch unless CodePush runtime/native integration is reintroduced.',
   'Do not start a replacement branch until the decision says `replace` and names the replacement target.',
   'Do not claim CodePush update validation until deployment keys are non-empty for the target environments and a real OTA delivery test has run.',
   'Never print or commit CodePush deployment-key values in handoff artifacts.',
