@@ -81,6 +81,8 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
     yarnStep('Validate CodePush migration readiness summary', 'codepush:migration:readiness-check-summary'),
     yarnStep('Audit CodePush removal readiness', 'codepush:removal-readiness:audit'),
     yarnStep('Validate CodePush removal readiness summary', 'codepush:removal-readiness:check-summary'),
+    yarnStep('Refresh CodePush decision handoff', 'codepush:decision:handoff'),
+    yarnStep('Validate CodePush decision handoff summary guard', 'check:codepush-decision-handoff-summary-guard'),
     yarnStep('Audit push notification bridge readiness', 'push-notification:bridge-audit'),
     yarnStep('Validate push notification bridge summary', 'push-notification:bridge-check-summary'),
     yarnStep('Audit static iOS release readiness', 'ios:release:readiness:audit'),

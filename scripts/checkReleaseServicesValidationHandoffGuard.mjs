@@ -37,6 +37,8 @@ const skippedRendered = skippedCommands.map(renderReleaseServicesValidationComma
   'corepack yarn codepush:migration:readiness-check-summary',
   'corepack yarn codepush:removal-readiness:audit',
   'corepack yarn codepush:removal-readiness:check-summary',
+  'corepack yarn codepush:decision:handoff',
+  'corepack yarn check:codepush-decision-handoff-summary-guard',
   'corepack yarn push-notification:bridge-audit',
   'corepack yarn push-notification:bridge-check-summary',
   'corepack yarn ios:release:readiness:audit',
@@ -88,6 +90,21 @@ assert(
   skippedCommands.findIndex(step => step.args.includes('check:codepush-update-validation-handoff-guard')) <
     skippedCommands.findIndex(step => step.args.includes('codepush:release:path-audit')),
   'CodePush update-validation handoff guard must run before CodePush release path audit',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('codepush:decision:handoff')) >
+    skippedCommands.findIndex(step => step.args.includes('codepush:removal-readiness:check-summary')),
+  'CodePush decision handoff must run after CodePush release, migration, and removal summaries are refreshed',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('check:codepush-decision-handoff-summary-guard')) >
+    skippedCommands.findIndex(step => step.args.includes('codepush:decision:handoff')),
+  'CodePush decision handoff summary guard must run after the decision handoff dry run',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('check:codepush-decision-handoff-summary-guard')) <
+    skippedCommands.findIndex(step => step.args.includes('push-notification:bridge-audit')),
+  'CodePush decision handoff must be validated before leaving the CodePush release-service block',
 );
 assert(
   skippedRendered.includes('corepack yarn ios:mac-validation:handoff:dry-run'),
