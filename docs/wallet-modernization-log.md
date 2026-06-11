@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.579 - Release-runtime handoff dry-runs in RN baseline
+
+- Branch: `feature/bem-37-579-release-runtime-handoff-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `firebase:runtime:delivery:handoff:dry-run --skip-android-release` to `rn:baseline:preflight` immediately after the Firebase runtime-delivery handoff guard.
+- Add `codepush:update:validation:handoff:dry-run --skip-android-release` to `rn:baseline:preflight` immediately after the CodePush update-validation handoff guard.
+- Synchronize `auditReactNativeUpgradePath.mjs` with the updated RN baseline preflight command.
+- Update the Android modernization workflow docs so RN baseline explicitly includes the Firebase and CodePush release-runtime handoff dry-runs.
+- Keep runtime code, native integration, release build artifacts, package versions, lockfile, deployment keys, Firebase delivery state, and CodePush OTA validation state unchanged.
+
+Findings:
+
+- The RN baseline preflight already validated the Firebase and CodePush handoff guards, but did not render their handoff dry-runs before the per-service audits.
+- The baseline now makes the release-runtime validation sequences visible before larger RN/native/release-service branches without running Android release builds in the baseline path.
+- Firebase runtime delivery and CodePush OTA update validation remain `not claimed`; real delivery still needs release evidence, environment secrets/config, and a device/runtime test.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff:dry-run -- --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff:dry-run -- --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.578 - Camera/QR validation handoff in RN baseline
 
 - Branch: `feature/bem-37-578-camera-qr-handoff-baseline`
