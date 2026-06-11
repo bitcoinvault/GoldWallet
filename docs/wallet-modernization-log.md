@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.552 - Wallet crypto validation refresh
+
+- Branch: `feature/bem-37-552-wallet-crypto-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh wallet/crypto latest-target evidence for the current RN `0.86.0` baseline without changing crypto dependencies.
+- Revalidate BTCV fork pinning, direct wallet crypto package versions, nested BitcoinVault fork dependencies, offline wallet derivation/signing tests, Android dev assemble, and emulator startup/navigation smoke.
+- Keep funded transaction delivery unclaimed because it still requires a funded BTCV testnet wallet.
+
+Findings:
+
+- `wallet:crypto-latest-snapshot:audit` checked 15 wallet/crypto entries on Node `v24.16.0`; every direct npm package is installed at latest, with zero deferred entries.
+- `bitcoinjs-lib` remains pinned to `git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360`; upstream npm latest is `7.0.1`, but replacing the BTCV fork requires a dedicated wallet compatibility branch and is not a safe incidental bump.
+- `wallet:crypto-runtime:audit` confirms the BTCV fork still resolves nested `wif@2.0.6`, no direct `bech32` dependency is present, and the BTCV fork's transitive `bech32@1.1.4` remains guarded.
+- `test:wallet-crypto:offline` passed: HD wallet offline `8` tests, watch-only offline `3` tests, app wallet-core offline `3` tests, and signer `15` tests.
+- Android dev assemble completed successfully on JDK `17.0.19`.
+- Android dev smoke installed `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk` on `emulator-5554`, completed first-run onboarding, reached the empty dashboard, validated create/import CTA navigation, validated the QR scanner screen, validated empty tab navigation, and found no fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.551 - Camera QR validation refresh
 
 - Branch: `feature/bem-37-551-camera-qr-validation-refresh`
