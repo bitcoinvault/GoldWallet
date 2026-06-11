@@ -43,6 +43,10 @@ const notReadySummary = [
   'Android release summary errors: 0',
   'Android release APK manifest valid: yes',
   'Android release APK manifest errors: 0',
+  'Android release smoke summary present: yes',
+  'Android release smoke summary valid: yes',
+  'Android release smoke summary errors: 0',
+  'Sentry release smoke evidence ready: yes',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
@@ -99,6 +103,10 @@ const readySummary = [
   'Android release summary errors: 0',
   'Android release APK manifest valid: yes',
   'Android release APK manifest errors: 0',
+  'Android release smoke summary present: yes',
+  'Android release smoke summary valid: yes',
+  'Android release smoke summary errors: 0',
+  'Sentry release smoke evidence ready: yes',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
@@ -291,6 +299,21 @@ assertRejected(
     'Android release APK manifest valid: yes\nAndroid release APK manifest errors: 1\n- Variant stage targetSdkVersion mismatch: expected 36, received 35',
   ),
   '0 manifest errors',
+);
+assertRejected(
+  'Missing Android release smoke fixture',
+  notReadySummary.replace('Android release smoke summary present: yes', 'Android release smoke summary present: no'),
+  'Android release smoke summary must be present',
+);
+assertRejected(
+  'Invalid Android release smoke fixture',
+  notReadySummary.replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no'),
+  'valid Android release smoke summary',
+);
+assertRejected(
+  'Missing Sentry release smoke evidence fixture',
+  readySummary.replace('Sentry release smoke evidence ready: yes', 'Sentry release smoke evidence ready: no'),
+  'release smoke evidence',
 );
 assertRejected(
   'Missing required action fixture',

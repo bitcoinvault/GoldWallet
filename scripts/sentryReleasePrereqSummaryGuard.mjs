@@ -58,6 +58,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseSummaryErrors = getLineValue(summary, 'Android release summary errors');
   const androidReleaseApkManifestValid = getLineValue(summary, 'Android release APK manifest valid');
   const androidReleaseApkManifestErrors = getLineValue(summary, 'Android release APK manifest errors');
+  const androidReleaseSmokeSummaryPresent = getLineValue(summary, 'Android release smoke summary present');
+  const androidReleaseSmokeSummaryValid = getLineValue(summary, 'Android release smoke summary valid');
+  const androidReleaseSmokeSummaryErrors = getLineValue(summary, 'Android release smoke summary errors');
+  const sentryReleaseSmokeEvidenceReady = getLineValue(summary, 'Sentry release smoke evidence ready');
   const sentryReleaseUploadValidation = getLineValue(summary, 'Sentry release upload validation');
   const createScriptPresent = getLineValue(summary, 'create-sentry-properties.sh present');
   const createScriptUsesToken = getLineValue(summary, 'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN');
@@ -88,6 +92,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const readinessLines = getBulletLinesAfter(summary, 'Properties file readiness entries');
   const androidReleaseSummaryErrorLines = getBulletLinesAfter(summary, 'Android release summary errors');
   const androidReleaseApkManifestErrorLines = getBulletLinesAfter(summary, 'Android release APK manifest errors');
+  const androidReleaseSmokeSummaryErrorLines = getBulletLinesAfter(summary, 'Android release smoke summary errors');
 
   if (/(auth\.token|SENTRY_AUTH_TOKEN)\s*=/.test(summary)) {
     errors.push('summary must not print Sentry token assignments');
@@ -288,6 +293,26 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Valid Android release APK manifest proof must have 0 manifest errors');
   }
 
+  if (!/^\d+$/.test(androidReleaseSmokeSummaryErrors)) {
+    errors.push(`Android release smoke summary errors must be a non-negative integer. Received: ${androidReleaseSmokeSummaryErrors || 'missing'}`);
+  } else if (Number(androidReleaseSmokeSummaryErrors) !== androidReleaseSmokeSummaryErrorLines.length) {
+    errors.push(
+      `Android release smoke summary errors count is ${androidReleaseSmokeSummaryErrors}, but listed ${androidReleaseSmokeSummaryErrorLines.length}`,
+    );
+  }
+
+  if (androidReleaseSmokeSummaryPresent !== 'yes') {
+    errors.push('Android release smoke summary must be present for Sentry release validation');
+  }
+
+  if (androidReleaseSmokeSummaryValid !== 'yes' || androidReleaseSmokeSummaryErrors !== '0') {
+    errors.push('Sentry release prerequisites require a valid Android release smoke summary');
+  }
+
+  if (sentryReleaseSmokeEvidenceReady !== 'yes') {
+    errors.push('Sentry release smoke evidence must be ready before source-map release validation is useful');
+  }
+
   if (sentryReleaseUploadValidation !== 'not claimed') {
     errors.push(`Sentry release upload validation must be not claimed. Received: ${sentryReleaseUploadValidation || 'missing'}`);
   }
@@ -298,6 +323,9 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseSummaryValid,
     androidReleaseSummaryCurrentInputsCovered,
     androidReleaseApkManifestValid,
+    androidReleaseSmokeSummaryPresent,
+    androidReleaseSmokeSummaryValid,
+    sentryReleaseSmokeEvidenceReady,
     sentryReactNativeCurrent,
     sentryCliCurrent,
     sentryCliDirectPackageInstalled,
@@ -385,9 +413,12 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       androidReleaseSummaryRequiredVariantsCovered !== 'yes' ||
       androidReleaseSummaryValid !== 'yes' ||
       androidReleaseSummaryCurrentInputsCovered !== 'yes' ||
-      androidReleaseApkManifestValid !== 'yes')
+      androidReleaseApkManifestValid !== 'yes' ||
+      androidReleaseSmokeSummaryPresent !== 'yes' ||
+      androidReleaseSmokeSummaryValid !== 'yes' ||
+      sentryReleaseSmokeEvidenceReady !== 'yes')
   ) {
-    errors.push('Ready summary must have wired Sentry release integration, direct Sentry CLI release build path, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, and current Android release evidence with valid APK manifests');
+    errors.push('Ready summary must have wired Sentry release integration, direct Sentry CLI release build path, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, current Android release evidence with valid APK manifests, and ready Android release smoke evidence');
   }
 
   if (
