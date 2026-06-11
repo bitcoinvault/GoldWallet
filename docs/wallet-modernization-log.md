@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.549 - Android toolchain target refresh
+
+- Branch: `feature/bem-37-549-android-toolchain-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android toolchain latest-target evidence after live AGP, Gradle, and Kotlin metadata checks on 2026-06-11.
+- Keep the validated Android baseline unchanged at AGP `8.13.2`, Gradle wrapper `8.13`, Kotlin Gradle Plugin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- Keep AGP 9 / Gradle 9 classified as blocked for the current RN `0.86.0` baseline instead of forcing an incompatible toolchain jump.
+
+Findings:
+
+- `android:toolchain-target:audit` reports latest stable Android Gradle Plugin `9.2.1`, current Gradle `9.5.1`, and Kotlin Gradle Plugin `2.4.0`.
+- AGP `9.2.1` requires Gradle `9.4.1+`.
+- Gradle `9.4.1` and `9.5.1` load newer embedded Kotlin runtime metadata that the React Native Gradle plugin `0.86.0` Kotlin compiler path cannot read during `:gradle-plugin:settings-plugin:compileKotlin`.
+- The next Android toolchain bump should wait for a newer React Native Gradle plugin baseline that clears the AGP 9 / Gradle 9 blocker, then rerun Android assemble, release validation, and emulator smoke.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:toolchain-target:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-toolchain-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.548 - React Native target snapshot refresh
 
 - Branch: `feature/bem-37-548-rn-target-snapshot-refresh`
