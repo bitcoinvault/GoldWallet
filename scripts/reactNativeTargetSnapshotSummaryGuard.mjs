@@ -24,8 +24,8 @@ export const getReactNativeTargetSnapshotSummaryErrors = summary => {
     errors.push(`Snapshot date is ${snapshotDate || '<missing>'}; expected ${expectedReactNativeTargetSnapshot.snapshotDate}`);
   }
 
-  if (!['matched', 'stale'].includes(outcome)) {
-    errors.push(`Live check outcome must be matched or stale. Received: ${outcome || 'missing'}`);
+  if (outcome !== 'matched') {
+    errors.push(`Live check outcome must be matched for a current RN target snapshot summary. Received: ${outcome || 'missing'}`);
   }
 
   if (!/^\d+$/.test(mismatches)) {
