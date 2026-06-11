@@ -143,7 +143,7 @@ const formatSummary = ({ evidence, options, generatedAt = new Date().toISOString
   const updateValidation = getLineValue(evidence.migrationReadinessSummary, 'CodePush update validation') || 'not claimed';
   const runtimeGatedOff = getLineValue(evidence.migrationReadinessSummary, 'CodePush runtime gated off by default') || 'no';
   const implementationReady =
-    codePushRemoved === 'yes'
+    codePushRemoved === 'yes' && options.decision === 'remove'
       ? 'yes'
       : options.decision === 'remove' &&
     releasePathSummaryValid &&

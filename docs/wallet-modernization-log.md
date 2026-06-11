@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.594 - Latest target refresh and CodePush handoff guard alignment
+
+- Branch: `feature/bem-37-594-latest-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the online React Native, direct dependency, Git dependency, wallet crypto, storage/network, tooling, Android toolchain, `bl`, and `node-fetch` target evidence.
+- Keep package versions unchanged because the current latest-compatible baseline remains valid or explicitly blocked.
+- Align the CodePush decision handoff guard with the post-`BEM-37.583` state where CodePush runtime/native integration is already removed.
+
+Findings:
+
+- Live npm metadata still reports `react-native@latest` as `0.86.0`, `next` as `0.86.0-rc.3`, and `nightly` as `0.87.0-nightly-20260608-2ff3b81dc`; the current RN snapshot still matches.
+- Direct outdated snapshot still has 4 known blocked entries and 4 exotic Git/fork entries, with `Review-required entries: 0`.
+- Wallet crypto, storage/network, and tooling latest snapshots remain current for the tracked npm package cohorts.
+- Android toolchain latest remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, and Gradle `9.4.1`/`9.5.1` load newer embedded Kotlin runtime metadata that the React Native Gradle plugin `0.86.0` Kotlin compiler path cannot read.
+- The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- `bl@7.0.3` remains blocked by ESM/export-map behavior for CommonJS/transitive consumers; `node-fetch@3.3.2` remains blocked by ESM-only package entry for CommonJS/transitive consumers.
+- The first online preflight exposed stale CodePush decision handoff assumptions: the plan guard still expected a pre-removal "do not start removal branch" sentence, and the default pending dry-run incorrectly became implementation-ready when the evidence already said `CodePush removed: yes`.
+- CodePush decision handoff now accepts the post-removal pending state as `Implementation ready: no`, while an explicit `--decision remove --beta-strategy beta-has-no-ota` handoff remains `Implementation ready: yes`; OTA update validation remains `not claimed` and no deployment-key values are printed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online` initially failed at stale CodePush decision handoff assumptions.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:decision:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:decision:handoff:dry-run --decision remove --beta-strategy beta-has-no-ota`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight:online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `git diff --check`
+
 ### BEM-37.593 - Sentry release readiness refresh
 
 - Branch: `feature/bem-37-593-sentry-release-readiness-refresh`

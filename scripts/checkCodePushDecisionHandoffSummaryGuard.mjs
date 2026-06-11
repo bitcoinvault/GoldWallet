@@ -55,6 +55,12 @@ assertAccepted(
     .replace('CodePush migration required: yes', 'CodePush migration required: no'),
 );
 assertAccepted(
+  'Valid pending post-removal CodePush decision handoff fixture',
+  validSummary
+    .replace('CodePush removed: no', 'CodePush removed: yes')
+    .replace('CodePush migration required: yes', 'CodePush migration required: no'),
+);
+assertAccepted(
   'Valid remove CodePush decision handoff fixture',
   validSummary
     .replace('Decision: pending', 'Decision: remove')
