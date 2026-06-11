@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.604 - Direct dependency latest-target refresh
+
+- Branch: `feature/bem-37-604-direct-deps-latest-target`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the direct dependency, tooling, storage/network, camera, and core RN/release-service latest-target evidence after the RN `0.86.0` baseline.
+- Confirm whether any direct dependency can be safely bumped in a single compatibility-safe branch.
+- Keep forked wallet/network dependencies and RN renderer-coupled packages pinned unless a dedicated compatibility branch proves a replacement.
+
+Findings:
+
+- Live npm metadata reports `react-native@0.86.0`, `@sentry/react-native@8.14.0`, and `@react-native-firebase/app@24.1.1` as current latest targets.
+- Tooling latest snapshot reports all 24 tracked tooling entries current, including TypeScript `6.0.3`, Jest `30.4.2`, ESLint `10.4.1`, Prettier `3.8.4`, lint-staged `17.0.7`, Husky `9.1.7`, and Detox `20.51.3`.
+- Storage/network latest snapshot reports all 10 tracked storage/network entries current, including AsyncStorage `3.1.1`, NetInfo `12.0.1`, `react-native-keychain@10.0.0`, `react-native-tcp-socket@6.4.1`, and WebView `13.16.1`.
+- Camera candidate audit reports `react-native-camera-kit@18.0.0` current, `react-native-vision-camera@5.0.11` latest, and the existing candidate baseline stable after the dedicated scanner proof branch.
+- Direct outdated snapshot reports 8 entries: 4 exotic/forked dependencies and 4 known blockers.
+- The exotic/forked entries remain intentional: `bitcoinjs-lib` BitcoinVault fork, `electrum-client` BitcoinVault fork, `react-native-prompt-android` encrypted-storage prompt fork, and the guarded `rn-nodeify` pin.
+- The blocked entries remain intentionally pinned: `bl@6.1.6` before ESM/export-map v7 compatibility proof, `node-fetch@2.7.0` before ESM-only v3 consumer proof, and `react@19.2.3`/`react-test-renderer@19.2.3` because RN renderer exact-version coupling requires alignment with the RN target snapshot.
+- No package version was changed in this branch because the live latest-target evidence did not expose a safe direct bump outside a dedicated compatibility branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/react-native version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/app version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+
 ### BEM-37.603 - Wallet crypto validation refresh
 
 - Branch: `feature/bem-37-603-wallet-crypto-validation-refresh`
