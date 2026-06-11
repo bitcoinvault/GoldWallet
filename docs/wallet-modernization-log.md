@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.541 - Android release evidence refresh
+
+- Branch: `feature/bem-37-541-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release APK, release JS bundle, source-map, APK manifest, and release embedded-smoke evidence after the `android:dev:verify` and `android:dev:audit-smoke` package-script fingerprint changed.
+- Keep Sentry upload explicitly disabled for local release builds and unclaimed without real `SENTRY_AUTH_TOKEN` / `sentry.properties`.
+- Revalidate the aggregate release-services summaries against the refreshed Android release evidence.
+
+Findings:
+
+- `android:dev:release:check-summary` correctly rejected the previous release summary because the release input fingerprint no longer matched the current `package.json`.
+- `android:dev:release:verify-local` rebuilt and validated `dev`, `stage`, `prod`, and `beta` release APKs, release bundles, source maps, and APK manifests with JDK 17 and Android build tools `36.0.0`.
+- `android:dev:release:smoke:embedded` installed a locally signed `devRelease` APK on `emulator-5554` and passed first-run onboarding, empty dashboard rendering, Create/Import wallet CTA navigation, QR scanner open/close, bottom-tab navigation, screenshot capture, and app-process logcat checks without Metro.
+- Release-services summaries are valid after the refresh; Sentry source-map upload remains not claimed locally because the required credentials/properties are intentionally absent.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native version --json` returned `0.86.0`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react version --json` returned `19.2.7`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary` expected fail before refresh: release input fingerprint mismatch
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries` expected fail before refresh: Android release summary fingerprint mismatch
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.540 - Android verify embedded smoke
 
 - Branch: `feature/bem-37-540-android-verify-embedded-smoke`
