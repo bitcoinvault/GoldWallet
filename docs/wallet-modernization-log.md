@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.596 - Release-services aggregate validation handoff
+
+- Branch: `feature/bem-37-596-release-services-aggregate-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Validate the aggregate release-services handoff after the separate Sentry, CodePush, Firebase, iOS static, and Android release readiness refreshes.
+- Run the handoff with the current CodePush posture, `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota`, so the aggregate path does not regress to a pending CodePush decision.
+- Keep Android release rebuild/smoke refresh skipped in this branch because the current release evidence was already refreshed and validated by the preceding release-readiness blocks.
+
+Findings:
+
+- The aggregate handoff dry-run renders the expected sequence across Sentry properties/Android warning/RN bundle compatibility/release prerequisites, Firebase release-services, CodePush release/migration/removal/decision, push notification bridge, iOS static release readiness, iOS macOS prerequisite readiness, all-scheme iOS macOS handoff dry-run, and final aggregate summary validation.
+- The executed aggregate handoff completed with `--skip-android-release`, revalidating all release-service summaries and local readiness artifacts without printing secret values.
+- Sentry release upload validation remains not claimed because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing.
+- Firebase runtime delivery remains not claimed until real FCM token/notification delivery, Crashlytics upload, and Analytics behavior are validated with the required service/runtime environment.
+- CodePush decision handoff now records `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, `Beta deployment-key strategy: beta has no OTA`, and `CodePush update validation: not claimed`.
+- iOS release/runtime delivery remains not claimed on this Windows host; macOS/Xcode/CocoaPods validation and `ios/Podfile.lock` refresh are still required before archive/runtime readiness can be claimed.
+- The aggregate `release-services:check-summaries` finished as the final handoff step and accepted the current validated local summary artifacts.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+
 ### BEM-37.595 - Firebase runtime delivery readiness refresh
 
 - Branch: `feature/bem-37-595-firebase-runtime-delivery-readiness`
