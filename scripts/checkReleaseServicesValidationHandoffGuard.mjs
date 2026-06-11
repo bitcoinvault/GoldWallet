@@ -26,6 +26,8 @@ const skippedRendered = skippedCommands.map(renderReleaseServicesValidationComma
   'corepack yarn check:sentry-properties-generator',
   'corepack yarn sentry:android-warning:audit',
   'corepack yarn sentry:android-warning:check-summary',
+  'corepack yarn sentry:rn-bundle-task-compat:audit',
+  'corepack yarn sentry:rn-bundle-task-compat:check-summary',
   'corepack yarn sentry:release:prereq-audit',
   'corepack yarn sentry:release:prereq-check-summary',
   'corepack yarn firebase:release-services:audit',
@@ -77,6 +79,16 @@ assert(
   skippedCommands.findIndex(step => step.args.includes('check:sentry-properties-generator')) <
     skippedCommands.findIndex(step => step.args.includes('sentry:release:prereq-audit')),
   'Sentry properties generator guard must run before the Sentry release prerequisite audit',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('sentry:android-warning:check-summary')) <
+    skippedCommands.findIndex(step => step.args.includes('sentry:rn-bundle-task-compat:audit')),
+  'Sentry RN bundle task compatibility audit must run after the Android warning summary is validated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('sentry:rn-bundle-task-compat:check-summary')) <
+    skippedCommands.findIndex(step => step.args.includes('sentry:release:prereq-audit')),
+  'Sentry release prerequisite audit must run after RN bundle task compatibility is validated',
 );
 assert(
   skippedRendered.includes('corepack yarn check:ios-mac-validation-handoff-guard'),
