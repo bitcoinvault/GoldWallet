@@ -9,15 +9,22 @@ const root = path.resolve(__dirname, '..');
 const defaultOptions = {
   dryRun: false,
   skipAndroidRelease: false,
+  codePushDecision: 'pending',
+  codePushReplacementTarget: 'none',
+  codePushBetaStrategy: 'unconfirmed',
 };
 
 const usage = [
-  'Usage: node scripts/runReleaseServicesValidationHandoff.mjs [--dry-run] [--skip-android-release]',
+  'Usage: node scripts/runReleaseServicesValidationHandoff.mjs [--dry-run] [--skip-android-release] [--codepush-decision pending|remove|replace|temporary-legacy] [--codepush-replacement-target <name>] [--codepush-beta-strategy unconfirmed|beta-has-ota-keys|beta-has-no-ota|beta-out-of-scope]',
   '',
   'Examples:',
   '  node scripts/runReleaseServicesValidationHandoff.mjs --dry-run',
+  '  node scripts/runReleaseServicesValidationHandoff.mjs --codepush-decision remove --codepush-beta-strategy beta-has-no-ota',
   '  node scripts/runReleaseServicesValidationHandoff.mjs',
 ].join('\n');
+
+const codePushDecisions = new Set(['pending', 'remove', 'replace', 'temporary-legacy']);
+const codePushBetaStrategies = new Set(['unconfirmed', 'beta-has-ota-keys', 'beta-has-no-ota', 'beta-out-of-scope']);
 
 const getSpawnInvocation = step => {
   if (process.platform !== 'win32') {
@@ -52,7 +59,15 @@ const yarnStep = (label, script, scriptArgs = [], extra = {}) => ({
 });
 
 export const getReleaseServicesValidationCommands = (options = defaultOptions) => {
+  options = { ...defaultOptions, ...options };
   const steps = [];
+  const codePushDecisionArgs = ['--decision', options.codePushDecision || defaultOptions.codePushDecision];
+
+  if (options.codePushReplacementTarget && options.codePushReplacementTarget !== 'none') {
+    codePushDecisionArgs.push('--replacement-target', options.codePushReplacementTarget);
+  }
+
+  codePushDecisionArgs.push('--beta-strategy', options.codePushBetaStrategy || defaultOptions.codePushBetaStrategy);
 
   if (!options.skipAndroidRelease) {
     steps.push(
@@ -83,7 +98,7 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
     yarnStep('Validate CodePush migration readiness summary', 'codepush:migration:readiness-check-summary'),
     yarnStep('Audit CodePush removal readiness', 'codepush:removal-readiness:audit'),
     yarnStep('Validate CodePush removal readiness summary', 'codepush:removal-readiness:check-summary'),
-    yarnStep('Refresh CodePush decision handoff', 'codepush:decision:handoff'),
+    yarnStep('Refresh CodePush decision handoff', 'codepush:decision:handoff', codePushDecisionArgs),
     yarnStep('Validate CodePush decision handoff summary guard', 'check:codepush-decision-handoff-summary-guard'),
     yarnStep('Audit push notification bridge readiness', 'push-notification:bridge-audit'),
     yarnStep('Validate push notification bridge summary', 'push-notification:bridge-check-summary'),
@@ -100,10 +115,31 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
 };
 
 export const getReleaseServicesValidationHandoffErrors = options => {
+  options = { ...defaultOptions, ...options };
   const errors = [];
 
   if (typeof options.skipAndroidRelease !== 'boolean') {
     errors.push('skipAndroidRelease must be a boolean');
+  }
+
+  if (!codePushDecisions.has(options.codePushDecision)) {
+    errors.push(`codePushDecision must be one of ${[...codePushDecisions].join(', ')}`);
+  }
+
+  if (!codePushBetaStrategies.has(options.codePushBetaStrategy)) {
+    errors.push(`codePushBetaStrategy must be one of ${[...codePushBetaStrategies].join(', ')}`);
+  }
+
+  if (options.codePushDecision === 'replace' && (!options.codePushReplacementTarget || options.codePushReplacementTarget === 'none')) {
+    errors.push('codePushReplacementTarget is required when codePushDecision is replace');
+  }
+
+  if (options.codePushDecision !== 'replace' && options.codePushReplacementTarget !== 'none') {
+    errors.push('codePushReplacementTarget must be none unless codePushDecision is replace');
+  }
+
+  if (options.codePushReplacementTarget !== 'none' && /CODEPUSH_DEPLOYMENT_KEY|auth\.token|=/.test(options.codePushReplacementTarget)) {
+    errors.push('codePushReplacementTarget must not contain secret-looking assignments');
   }
 
   return errors;
@@ -122,6 +158,12 @@ const parseArgs = argv => {
       options.dryRun = true;
     } else if (arg === '--skip-android-release') {
       options.skipAndroidRelease = true;
+    } else if (arg === '--codepush-decision') {
+      options.codePushDecision = argv[++index] || '';
+    } else if (arg === '--codepush-replacement-target') {
+      options.codePushReplacementTarget = argv[++index] || '';
+    } else if (arg === '--codepush-beta-strategy') {
+      options.codePushBetaStrategy = argv[++index] || '';
     } else if (arg === '--') {
       continue;
     } else if (arg === '--help' || arg === '-h') {
@@ -183,6 +225,9 @@ const main = () => {
   if (options.dryRun) {
     console.log('Release-services validation handoff dry run');
     console.log(`Android release evidence refresh: ${options.skipAndroidRelease ? 'skipped' : 'included'}`);
+    console.log(`CodePush decision: ${options.codePushDecision}`);
+    console.log(`CodePush replacement target: ${options.codePushReplacementTarget}`);
+    console.log(`CodePush beta strategy: ${options.codePushBetaStrategy}`);
     commands.forEach((step, index) => {
       console.log(`${index + 1}. ${step.label}`);
       console.log(`   ${renderReleaseServicesValidationCommand(step)}`);
