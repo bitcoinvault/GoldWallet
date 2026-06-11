@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.553 - Release-services aggregate refresh
+
+- Branch: `feature/bem-37-553-release-services-aggregate-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the aggregate release-services evidence after the Android release validation and wallet runtime refreshes.
+- Revalidate Sentry, Firebase, CodePush, push-notification, static iOS release readiness, iOS macOS prerequisite summaries, and the final aggregate release-services summary gate.
+- Reuse the fresh Android release build, APK manifest, and release-smoke evidence from `BEM-37.550` with `--skip-android-release`; do not claim Sentry upload, Firebase delivery, CodePush update validation, or iOS runtime validation without the required credentials/platform.
+
+Findings:
+
+- `release-services:validation:handoff --skip-android-release` completed successfully and `release-services:check-summaries` reports all aggregate release-services summary artifacts valid.
+- Sentry remains on checked latest `@sentry/react-native@8.13.0` and direct `@sentry/cli@3.5.0`; the direct CLI is present, executable, and used by the release build path.
+- Sentry source-map upload validation remains `not claimed` because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are unavailable locally.
+- Firebase release-services wiring is valid and current for the React Native Firebase `24.1.1` family, Android Google Services plugin `4.4.4`, Crashlytics Gradle plugin `3.0.7`, strict version matcher `1.2.4`, Android release evidence, and actual APK manifest proof; FCM/Crashlytics/Analytics runtime delivery remains `not claimed`.
+- CodePush release-path wiring is valid and the package is current at `react-native-code-push@9.0.1`, but update validation remains blocked by blank `.env.dev.testnet` deployment keys, unconfirmed beta deployment-key strategy, retired App Center CodePush state, archived upstream repositories, and missing upstream New Architecture support while Android New Architecture is enabled.
+- Push-notification bridge package `@react-native-community/push-notification-ios@1.12.0` is current and statically wired, but APNs/device delivery remains an iOS runtime validation task.
+- Static iOS release files remain valid, but macOS archive/runtime validation remains blocked on Windows by missing `xcodebuild`, missing CocoaPods, and 12 active `ios/Podfile.lock` drift issues.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release`
+
 ### BEM-37.552 - Wallet crypto validation refresh
 
 - Branch: `feature/bem-37-552-wallet-crypto-validation-refresh`
