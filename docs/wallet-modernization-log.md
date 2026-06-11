@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.562 - RN target stale summary guard
+
+- Branch: `feature/bem-37-562-rn-target-stale-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Tighten the React Native target snapshot summary guard so a checked summary artifact must report `Live check outcome: matched`.
+- Prevent stale live npm target summaries from passing `rn:target-snapshot:check-summary` when the recorded RN target snapshot no longer matches npm metadata.
+- Keep React Native, React, Node, Android, native modules, runtime wallet code, and package lockfiles unchanged.
+
+Findings:
+
+- The live npm RN target snapshot currently matches the recorded `2026-06-11` snapshot: `react-native@0.86.0` latest, `0.86.0-rc.3` next, `0.87.0-nightly-20260608-2ff3b81dc` nightly, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- The previous summary validator allowed `Live check outcome: stale`, which made `rn:target-snapshot:check-summary` too weak as proof that the next RN baseline branch is using current npm target evidence.
+- The updated guard still validates the recorded version lines and mismatch count, but now rejects stale summary artifacts so the online preflight cannot silently proceed on outdated target evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.561 - Android release toolchain readiness guard
 
 - Branch: `feature/bem-37-561-android-release-toolchain-readiness`
