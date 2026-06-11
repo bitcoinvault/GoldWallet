@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.603 - Wallet crypto validation refresh
+
+- Branch: `feature/bem-37-603-wallet-crypto-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh wallet crypto dependency and runtime evidence after the storage, release, and RN/latest validation blocks.
+- Keep the BitcoinVault `bitcoinjs-lib` fork pinned unless a dedicated compatibility branch proves an upstream replacement.
+- Re-run offline wallet, watch-only, wallet-core, and signer contracts plus Android build and embedded smoke.
+
+Findings:
+
+- Wallet crypto latest snapshot reports 15 tracked entries and all npm crypto/support packages remain current.
+- `bitcoinjs-lib` remains pinned to the BitcoinVault fork at `0854f675114fada32348d51c80a6ccdb33afc360`; upstream npm `bitcoinjs-lib@7.0.1` is not a safe automatic replacement.
+- `bip39@3.1.0`, `bip32@5.0.1`, `@bitcoinerlab/secp256k1@1.2.0`, `coinselect@3.1.13`, `ecurve@1.0.6`, `bigi@1.4.2`, `pbkdf2@3.1.6`, `wif@5.0.0`, `react-native-get-random-values@2.0.0`, and `crypto-js@4.2.0` remain current.
+- Runtime audit reports `bitcoinjs-lib` usage in 28 files, `bip39` usage in 5 files, `bip32` usage in 1 file, `coinselect` usage in 1 file, and `crypto-js` usage in 5 files.
+- Direct `bech32` dependency remains absent; `bitcoinjs-lib` still carries transitive `bech32@1.1.4`.
+- Offline wallet crypto validation passed: HD wallet offline tests, watch-only offline tests, wallet-core offline tests, and signer tests.
+- Android `devDebug` APK assembled successfully with the current crypto/polyfill/runtime baseline.
+- Embedded Android smoke installed the debug APK on `emulator-5554`, completed first-run setup, reached the empty dashboard, validated create/import wallet navigation, opened and closed the import-wallet QR scanner, validated tab navigation, captured a screenshot, and found no fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-runtime:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
 ### BEM-37.602 - Secure-storage release validation refresh
 
 - Branch: `feature/bem-37-602-secure-storage-release-refresh`
