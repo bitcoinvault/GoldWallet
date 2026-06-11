@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.627 - Release-services CodePush default alignment
+
+- Branch: `feature/bem-37-627-release-services-codepush-default`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align the aggregate release-services validation handoff with the current post-removal CodePush posture.
+- Make the default release-services handoff preserve `CodePush decision: remove` and `CodePush beta strategy: beta-has-no-ota` instead of resetting the aggregate path to `pending`.
+- Refresh the CodePush retirement plan so it describes the current removed posture and treats `replace` or temporary legacy compatibility as future explicit changes.
+
+Findings:
+
+- `release-services:validation:handoff:dry-run --skip-android-release` now renders `CodePush decision: remove`, `CodePush replacement target: none`, and `CodePush beta strategy: beta-has-no-ota` by default.
+- The aggregate sequence forwards `corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota` after refreshing release-path, migration-readiness, and removal-readiness summaries.
+- The executed aggregate handoff with `--skip-android-release` completed successfully and regenerated the local CodePush decision handoff as `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, and `CodePush migration required: no`.
+- OTA update validation remains explicitly not claimed; stale CodePush env-key cleanup remains a secrets-safe follow-up and must not expose historical deployment-key values.
+- Sentry, Firebase, push-notification, iOS static readiness, iOS macOS prerequisite, and release-services aggregate summaries remained valid after the default change.
+- No runtime app code, native code, dependency versions, package scripts, lockfile entries, build configuration, or Metro behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release`
+
 ### BEM-37.626 - CodePush decision default alignment
 
 - Branch: `feature/bem-37-626-codepush-decision-default`
