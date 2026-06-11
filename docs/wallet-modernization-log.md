@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.551 - Camera QR validation refresh
+
+- Branch: `feature/bem-37-551-camera-qr-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR live candidate metadata after the current RN `0.86.0` Android baseline and release validation pass.
+- Revalidate CameraKit QR migration wiring, current QR renderer pair, scanner caller inventory, focused scanner/render unit tests, Android dev assemble, and emulator smoke with QR scanner screen validation.
+- Keep the selected scanner implementation unchanged at `react-native-camera-kit@18.0.0` because it remains the latest compatible CameraKit target and avoids the VisionCamera Nitro peer stack on this foundation.
+
+Findings:
+
+- `camera:candidate:audit` reports live npm metadata matched: `react-native-camera@4.2.1`, `react-native-vision-camera@5.0.11`, `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
+- VisionCamera remains deferred because the latest line requires `react-native-nitro-modules` and `react-native-nitro-image`; CameraKit remains the selected proof target for this RN baseline.
+- `camera:qr-migration:audit` reports `react-native-camera` missing, legacy QR local-image missing, CameraKit `18.0.0`, QR renderer `6.3.21`, native renderer `15.15.5`, qrcode resolution `1.5.4`, no stale removed camera pods in `ios/Podfile.lock`, no warnings, no readiness issues, and no wiring errors.
+- QR scanner caller inventory remains stable at 8 callers and QR render usage remains stable at 5 screens.
+- Android dev smoke installed `android/app/build/outputs/apk/dev/debug/app-dev-debug.apk` on `emulator-5554`, completed first-run onboarding, reached the empty dashboard, validated create/import CTA navigation, opened and closed the QR scanner screen from the import-wallet flow, validated empty tab navigation, and found no fatal/runtime logcat findings.
+- Metro was not required or reachable during smoke, so the app startup path used the built artifact rather than a dev-server fallback.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn camera:qr-validation:handoff --include-android-smoke`
+
 ### BEM-37.550 - Android release validation refresh
 
 - Branch: `feature/bem-37-550-android-release-validation-refresh`
