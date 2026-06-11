@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.608 - Secure-storage release validation refresh
+
+- Branch: `feature/bem-37-608-secure-storage-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the guarded secure-storage release-validation handoff after the latest Android/RN/release evidence refresh.
+- Validate the staged Keychain migration posture, legacy fallback-read contract, and Android debug runtime path without removing the legacy package.
+- Keep the remaining `react-native-secure-key-store` Android warning tied to the active fallback-read blocker rather than treating it as generic cleanup.
+
+Findings:
+
+- `react-native-keychain@10.0.0` remains the current primary secure-storage backend.
+- `react-native-secure-key-store@2.0.10` remains installed intentionally because legacy fallback reads are still active for existing installs.
+- New secure-storage writes remain Keychain-only, legacy secure-storage writes stay disabled, successful fallback reads still migrate values into Keychain, and legacy cleanup is attempted after migration.
+- Removal readiness remains `no`: release validation of migrated secure values without fallback reads is still not claimed, so the legacy package must stay installed.
+- Android dev build and embedded emulator smoke passed on `emulator-5554`, including first-run PIN and transaction-password setup, empty dashboard, Create/Import CTA navigation, QR scanner launch/close, tab navigation, screenshot capture, and fatal/runtime logcat checks.
+- No runtime code, native code, dependency versions, package scripts, or lockfile entries changed in this branch.
+
+Validation:
+
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn secure-storage:release-validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.607 - Android release evidence refresh
 
 - Branch: `feature/bem-37-607-release-evidence-refresh`
