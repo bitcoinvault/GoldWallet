@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.559 - Camera QR smoke handoff guard
+
+- Branch: `feature/bem-37-559-camera-qr-latest-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live Camera/QR package evidence before choosing a scanner or QR renderer target.
+- Keep `react-native-camera-kit@18.0.0` and `react-native-qrcode-svg@6.3.21` unchanged because both still match npm latest.
+- Tighten the Camera/QR validation handoff so `--include-android-smoke` validates the generated Android embedded smoke summary before reporting the handoff complete.
+- Keep runtime scanner code, native project files, package versions, lockfile, and QR render code unchanged.
+
+Findings:
+
+- Live npm metadata reports `react-native-camera-kit@18.0.0` as `latest`, with Node engine `>=18` and wildcard React/React Native peers.
+- Live npm metadata reports `react-native-qrcode-svg@6.3.21` as `latest`, with `react-native-svg >=14.0.0`; the current `react-native-svg@15.15.5` and `qrcode@1.5.4` baseline remains compatible.
+- Camera candidate and Camera QR migration summaries report stable current state: CameraKit scanner installed, legacy `react-native-camera` absent, QR local-image package absent, iOS removed camera pods absent, and live QR targets matched.
+- The Camera/QR handoff still lets non-runtime evidence refreshes skip emulator smoke, but when `--include-android-smoke` is requested it now requires a valid embedded Android smoke summary, including QR scanner screen validation.
+- Focused scanner and QR render unit suites still pass against the guarded CameraKit scanner and QR rendering surfaces.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit dist-tags version peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-qrcode-svg dist-tags version peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run --include-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-scanner:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-render:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-usage-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-usage-scope`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:qr-scan-callers`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:qr-render-usage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.558 - Sentry release-smoke prerequisite guard
 
 - Branch: `feature/bem-37-558-sentry-latest-release-probe`

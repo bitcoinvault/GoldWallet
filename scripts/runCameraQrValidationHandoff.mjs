@@ -4,11 +4,13 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.mjs';
 import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const cameraCandidateSummaryPath = path.join(root, 'local-docs', 'camera-candidate-summary.txt');
 const cameraQrMigrationSummaryPath = path.join(root, 'local-docs', 'camera-qr-migration-summary.txt');
+const androidSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-summary.txt');
 
 const defaultOptions = {
   dryRun: false,
@@ -97,7 +99,12 @@ export const getCameraQrValidationHandoffErrors = options => {
   return errors;
 };
 
-export const getCameraQrValidationReadinessErrors = ({ candidateSummaryText, migrationSummaryText }) => {
+export const getCameraQrValidationReadinessErrors = ({
+  candidateSummaryText,
+  migrationSummaryText,
+  includeAndroidSmoke = false,
+  androidSmokeSummaryText,
+}) => {
   const errors = [];
 
   if (!candidateSummaryText) {
@@ -114,6 +121,16 @@ export const getCameraQrValidationReadinessErrors = ({ candidateSummaryText, mig
     getCameraQrMigrationSummaryErrors(migrationSummaryText).forEach(error => {
       errors.push(`Camera QR migration summary is invalid: ${error}`);
     });
+  }
+
+  if (includeAndroidSmoke) {
+    if (!androidSmokeSummaryText) {
+      errors.push('Android smoke summary is missing; run android:dev:smoke:embedded first');
+    } else {
+      getAndroidEmbeddedSmokeSummaryErrors(androidSmokeSummaryText).forEach(error => {
+        errors.push(`Android smoke summary is invalid: ${error}`);
+      });
+    }
   }
 
   return errors;
@@ -212,6 +229,8 @@ const main = () => {
   const readinessErrors = getCameraQrValidationReadinessErrors({
     candidateSummaryText: readSummary(cameraCandidateSummaryPath),
     migrationSummaryText: readSummary(cameraQrMigrationSummaryPath),
+    includeAndroidSmoke: options.includeAndroidSmoke,
+    androidSmokeSummaryText: readSummary(androidSmokeSummaryPath),
   });
 
   if (readinessErrors.length > 0) {

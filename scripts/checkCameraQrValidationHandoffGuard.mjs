@@ -1,3 +1,6 @@
+import { createHash } from 'crypto';
+import { readFileSync, statSync } from 'fs';
+import path from 'path';
 import {
   getCameraQrValidationCommands,
   getCameraQrValidationHandoffErrors,
@@ -16,6 +19,9 @@ const commands = getCameraQrValidationCommands({ includeAndroidSmoke: false });
 const rendered = commands.map(renderCameraQrValidationCommand).join('\n');
 const smokeCommands = getCameraQrValidationCommands({ includeAndroidSmoke: true });
 const smokeRendered = smokeCommands.map(renderCameraQrValidationCommand).join('\n');
+const fixtureApkPath = path.resolve('package.json');
+const fixtureApkBytes = statSync(fixtureApkPath).size;
+const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath)).digest('hex');
 
 [
   'corepack yarn camera:candidate:audit',
@@ -131,12 +137,73 @@ const migrationSummary = [
   'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.',
 ].join('\n');
 
+const androidSmokeSummary = [
+  'Generated at: 2026-06-11T00:00:00.000Z',
+  'Android smoke outcome: passed',
+  'Android smoke exit code: 0',
+  'Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
+  'Android serial: emulator-5554',
+  'Android package: io.goldwallet.wallet.dev',
+  'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+  'Artifact base: android-smoke-dev',
+  `Smoke APK path: ${fixtureApkPath}`,
+  `Smoke APK bytes: ${fixtureApkBytes}`,
+  `Smoke APK sha256: ${fixtureApkSha256}`,
+  'Metro required: no',
+  'Metro endpoint: 127.0.0.1:8081',
+  'Metro reachable: no',
+  'Cleared app data: yes',
+  'Expected UI texts: Wallets, No wallets, Create new wallet, Import wallet',
+  'Expected resource IDs: dashboard-header, no-wallets-icon, create-wallet-button, import-wallet-button, navigation-tab-0',
+  'App PID: 1234',
+  'Captured logcat lines: 400',
+  'Accepted first-run terms: yes',
+  'Completed first-run PIN: yes',
+  'Completed first-run transaction password: yes',
+  'Skipped first-run email: yes',
+  'Closed first-run success: yes',
+  'Validated empty-dashboard CTA flow: yes',
+  'Validated empty-tab navigation: yes',
+  'Validated QR scanner screen: yes',
+  'UI hierarchy attempts: 1',
+  'UI hierarchy path: package.json',
+  'Screenshot path: package.json',
+  'Screenshot bytes: 1234',
+].join('\n');
+
 assert(
   getCameraQrValidationReadinessErrors({
     candidateSummaryText: candidateSummary,
     migrationSummaryText: migrationSummary,
   }).length === 0,
   'Camera/QR readiness fixtures must pass',
+);
+assert(
+  getCameraQrValidationReadinessErrors({
+    candidateSummaryText: candidateSummary,
+    migrationSummaryText: migrationSummary,
+    includeAndroidSmoke: true,
+    androidSmokeSummaryText: androidSmokeSummary,
+  }).length === 0,
+  'Camera/QR readiness fixtures with Android smoke must pass',
+);
+assert(
+  getCameraQrValidationReadinessErrors({
+    candidateSummaryText: candidateSummary,
+    migrationSummaryText: migrationSummary,
+    includeAndroidSmoke: true,
+    androidSmokeSummaryText: '',
+  }).some(error => error.includes('Android smoke summary is missing')),
+  'Camera/QR readiness must require Android smoke summary when requested',
+);
+assert(
+  getCameraQrValidationReadinessErrors({
+    candidateSummaryText: candidateSummary,
+    migrationSummaryText: migrationSummary,
+    includeAndroidSmoke: true,
+    androidSmokeSummaryText: androidSmokeSummary.replace('Validated QR scanner screen: yes', 'Validated QR scanner screen: no'),
+  }).some(error => error.includes('Android smoke summary is invalid')),
+  'Camera/QR readiness must reject invalid Android smoke evidence when requested',
 );
 assert(
   getCameraQrValidationReadinessErrors({
