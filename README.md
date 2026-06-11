@@ -135,21 +135,27 @@ $ yarn metro:dev-runtime:audit
 
 The lightweight check includes a Metro dev runtime audit self-check so fixture coverage stays stable even when the active shell is not using Node 24.
 
-For Android development verification, start Metro first:
-
-```sh
-$ yarn start --reset-cache
-```
-
-Then use the dev build plus emulator smoke check from another shell:
+For Android development verification, use the dev build plus embedded emulator smoke check:
 
 ```sh
 $ yarn android:dev:verify
 ```
 
-This builds the dev debug APK, checks that Metro is reachable on `127.0.0.1:8081`, installs the APK on a connected emulator/device, checks app startup logcat, verifies the dashboard UI, writes local artifacts under `local-docs/`, and validates the generated smoke summary.
+This builds the dev debug APK, installs the bundled APK on a connected emulator/device without requiring Metro, checks app startup logcat, verifies the clean empty-wallet dashboard, Create/Import wallet navigation, QR scanner open/close, and bottom-tab navigation, writes local artifacts under `local-docs/`, and validates the generated smoke summary.
 
-The default smoke expectation is the seeded wallet dashboard: `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. On a fresh emulator that has completed onboarding but has no wallet yet, use the empty-wallet dashboard expectation:
+For an explicit Metro/dev-server transport check, start Metro first:
+
+```sh
+$ yarn start --reset-cache
+```
+
+Then run the standalone Metro-required smoke check from another shell:
+
+```sh
+$ yarn android:dev:smoke
+```
+
+The standalone Metro smoke default expectation is the seeded wallet dashboard: `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`. On a fresh emulator that has completed onboarding but has no wallet yet, use the empty-wallet dashboard expectation:
 
 ```sh
 $env:ANDROID_SMOKE_EXPECT_TEXTS = 'Wallets,Create new wallet,Import wallet'

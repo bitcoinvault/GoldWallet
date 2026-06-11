@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.540 - Android verify embedded smoke
+
+- Branch: `feature/bem-37-540-android-verify-embedded-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `android:dev:verify` use the embedded debug APK smoke path after rebuilding `devDebug`, so the default high-confidence Android verification no longer fails only because Metro is not running.
+- Make `android:dev:audit-smoke` refresh warning and smoke artifacts through the same embedded smoke path.
+- Guard the embedded smoke helper as a required Android validation file and update Android/RN validation checklists to use `android:dev:verify` for dependency, native, release-service, navigation, QR/SVG, explorer/env, and rebranding work.
+- Keep standalone `android:dev:smoke` available as the explicit Metro/dev-server transport check.
+
+Findings:
+
+- The previous `android:dev:verify` built the APK successfully but then required Metro through `android:dev:smoke`, which caused false failures when validating the bundled APK from a clean emulator.
+- The embedded smoke already proves clean onboarding, empty dashboard rendering, Create/Import wallet CTA navigation, QR scanner open/close, bottom-tab navigation, screenshot capture, and app-process logcat without requiring Metro.
+- `android:dev:verify` now runs `android:dev:env-audit`, `android:dev:assemble`, `android:dev:smoke:embedded`, and `android:dev:check-smoke-summary`.
+- Metro transport validation remains available through standalone `android:dev:smoke` after starting Metro with Node 24.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-dev-env-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:env-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:audit-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-artifacts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.539 - Node runtime baseline gate
 
 - Branch: `feature/bem-37-539-node-runtime-baseline-gate`

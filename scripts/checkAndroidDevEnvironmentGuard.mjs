@@ -91,6 +91,14 @@ assertRejected(
   'guarded Gradle runner is missing',
 );
 assertRejected(
+  'Missing Android embedded smoke helper fixture',
+  {
+    ...validEnvironment,
+    existingFiles: new Set([...validEnvironment.existingFiles].filter(filePath => filePath !== 'scripts/androidSmokeDevEmbedded.mjs')),
+  },
+  'Android embedded emulator smoke helper is missing',
+);
+assertRejected(
   'Missing RN upgrade path guard file fixture',
   {
     ...validEnvironment,
@@ -505,7 +513,7 @@ assertRejected(
     ...validEnvironment,
     packageScriptCommands: new Map([
       ...validEnvironment.packageScriptCommands,
-      ['android:dev:verify', 'yarn android:dev:assemble && yarn android:dev:smoke && yarn android:dev:check-smoke-summary'],
+      ['android:dev:verify', 'yarn android:dev:assemble && yarn android:dev:smoke:embedded && yarn android:dev:check-smoke-summary'],
     ]),
   },
   'package.json script android:dev:verify must include android:dev:env-audit',
@@ -516,7 +524,7 @@ assertRejected(
     ...validEnvironment,
     packageScriptCommands: new Map([
       ...validEnvironment.packageScriptCommands,
-      ['android:dev:verify', 'yarn android:dev:smoke && yarn android:dev:check-smoke-summary'],
+      ['android:dev:verify', 'yarn android:dev:smoke:embedded && yarn android:dev:check-smoke-summary'],
     ]),
   },
   'package.json script android:dev:verify must include android:dev:assemble',
@@ -530,7 +538,7 @@ assertRejected(
       ['android:dev:verify', 'yarn android:dev:assemble && yarn android:dev:check-smoke-summary'],
     ]),
   },
-  'package.json script android:dev:verify must include android:dev:smoke',
+  'package.json script android:dev:verify must include android:dev:smoke:embedded',
 );
 assertRejected(
   'Dev verification missing smoke summary fixture',
@@ -538,7 +546,7 @@ assertRejected(
     ...validEnvironment,
     packageScriptCommands: new Map([
       ...validEnvironment.packageScriptCommands,
-      ['android:dev:verify', 'yarn android:dev:assemble && yarn android:dev:smoke'],
+      ['android:dev:verify', 'yarn android:dev:assemble && yarn android:dev:smoke:embedded'],
     ]),
   },
   'package.json script android:dev:verify must include android:dev:check-smoke-summary',
@@ -549,7 +557,7 @@ assertRejected(
     ...validEnvironment,
     packageScriptCommands: new Map([
       ...validEnvironment.packageScriptCommands,
-      ['android:dev:audit-smoke', 'yarn android:dev:audit-warnings && yarn android:dev:smoke && yarn android:dev:check-artifacts'],
+      ['android:dev:audit-smoke', 'yarn android:dev:audit-warnings && yarn android:dev:smoke:embedded && yarn android:dev:check-artifacts'],
     ]),
   },
   'package.json script android:dev:audit-smoke must include android:dev:env-audit',
@@ -560,7 +568,7 @@ assertRejected(
     ...validEnvironment,
     packageScriptCommands: new Map([
       ...validEnvironment.packageScriptCommands,
-      ['android:dev:audit-smoke', 'yarn android:dev:smoke && yarn android:dev:check-artifacts'],
+      ['android:dev:audit-smoke', 'yarn android:dev:smoke:embedded && yarn android:dev:check-artifacts'],
     ]),
   },
   'package.json script android:dev:audit-smoke must include android:dev:audit-warnings',
@@ -574,7 +582,7 @@ assertRejected(
       ['android:dev:audit-smoke', 'yarn android:dev:audit-warnings && yarn android:dev:check-artifacts'],
     ]),
   },
-  'package.json script android:dev:audit-smoke must include android:dev:smoke',
+  'package.json script android:dev:audit-smoke must include android:dev:smoke:embedded',
 );
 assertRejected(
   'Audit-smoke missing artifact checker fixture',
@@ -582,7 +590,7 @@ assertRejected(
     ...validEnvironment,
     packageScriptCommands: new Map([
       ...validEnvironment.packageScriptCommands,
-      ['android:dev:audit-smoke', 'yarn android:dev:audit-warnings && yarn android:dev:smoke'],
+      ['android:dev:audit-smoke', 'yarn android:dev:audit-warnings && yarn android:dev:smoke:embedded'],
     ]),
   },
   'package.json script android:dev:audit-smoke must include android:dev:check-artifacts',

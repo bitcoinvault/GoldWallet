@@ -186,18 +186,18 @@ Dependency/native change:
 ```powershell
 corepack yarn android:dev:check-light
 $env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'
-corepack yarn android:dev:assemble
-corepack yarn start --reset-cache
-adb reverse tcp:8081 tcp:8081
-corepack yarn android:dev:smoke
+corepack yarn android:dev:verify
 ```
 
 Expected Android smoke result:
 
-- Dashboard renders `Wallets`, `E2EWalletTypeTest`, `Send`, and `Receive`.
+- Clean onboarding completes and the empty dashboard renders `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
+- Create/Import wallet CTA navigation, QR scanner open/close, and empty-state bottom-tab navigation pass.
 - No `AndroidRuntime` crash.
 - No React Native runtime error.
 - `local-docs/android-smoke-dev-summary.txt` reports `Android smoke outcome: passed`.
+
+Run standalone Metro smoke with `corepack yarn android:dev:smoke` only when the branch changes Metro/dev-server transport behavior.
 
 Release-service change:
 
