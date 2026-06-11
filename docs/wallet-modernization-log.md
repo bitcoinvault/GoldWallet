@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.586 - RN target live refresh
+
+- Branch: `feature/bem-37-586-rn-target-live-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live React Native target evidence before choosing the next RN/toolchain milestone.
+- Reconfirm that the repo is already on the current stable RN `0.86.0` line and should not churn through version-by-version package work.
+- Reconfirm current direct dependency, tooling, and Android toolchain target blockers without changing package versions, runtime code, native code, or Metro behavior.
+
+Findings:
+
+- Live npm metadata on 2026-06-11 reports `react-native@latest` as `0.86.0`, `next` as `0.86.0-rc.3`, and `nightly` as `0.87.0-nightly-20260608-2ff3b81dc`; the recorded snapshot still matches with `Mismatches: 0`.
+- `react-native@0.86.0` still requires React peer `^19.2.3` and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- React and `react-test-renderer` `19.2.7` remain blocked by React Native renderer exact-version coupling; the validated React baseline stays `19.2.3`.
+- All tracked tooling packages are current in the latest snapshot, including TypeScript, Jest, ESLint, Prettier, lint-staged, and Detox.
+- Android toolchain latest metadata still reports AGP `9.2.1`, Gradle `9.5.1`, and Kotlin Gradle Plugin `2.4.0`, while the validated wallet baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17` because the AGP 9 path remains blocked by the React Native Gradle plugin Kotlin metadata compatibility issue.
+- No package versions, runtime code, native code, or Metro behavior changed in this branch, so Android emulator smoke is not required for this documentation/live-audit refresh.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.583 - Remove retired CodePush integration
 
 - Branch: `feature/bem-37-583-remove-codepush`
