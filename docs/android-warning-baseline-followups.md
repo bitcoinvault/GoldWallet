@@ -24,6 +24,7 @@ Remaining targeted sources:
 - `@react-native-community/masked-view` was removed by the React Navigation 7 migration proof; keep future navigation changes guarded by dashboard, tab, stack, modal, and back-navigation smoke checks.
 - Do not remove `react-native-secure-key-store` until a release validates migrated secure values without the fallback backend; new writes no longer dual-write to the legacy store, but fallback reads still protect existing installs. The 2026-06-10 warning audit keeps this as the only targeted Android warning source.
 - Before a future branch removes this final warning source, run `corepack yarn secure-storage:release-validation:handoff` and keep the removal-readiness summary explicit. The handoff validates the current staged migration posture but still does not mark the legacy package as removable while fallback reads are active.
+- Keep the secure-storage release validation summary current with `corepack yarn secure-storage:release-validation:summary` and `corepack yarn secure-storage:release-validation:check-summary`; the remaining-warning gate requires that summary while `react-native-secure-key-store` remains the only expected warning source.
 
 ## Validation
 

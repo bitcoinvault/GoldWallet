@@ -2,11 +2,13 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { expectedRemainingWarningFollowups, getRemainingWarningPlanErrors } from './androidRemainingWarningPlanGuard.mjs';
+import { getSecureStorageReleaseValidationSummaryErrors } from './secureStorageReleaseValidationSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const planPath = path.join(root, 'docs', 'android-warning-baseline-followups.md');
 const summaryPath = path.join(root, 'local-docs', 'android-warning-audit-summary.txt');
+const secureStorageReleaseValidationSummaryPath = path.join(root, 'local-docs', 'secure-storage-release-validation-summary.txt');
 
 const errors = [];
 
@@ -31,6 +33,19 @@ if (existsSync(summaryPath)) {
       errors.push(`Android warning summary is missing ${packageName}`);
     }
   });
+}
+
+if (expectedRemainingWarningFollowups.some(({ packageName }) => packageName === 'react-native-secure-key-store')) {
+  if (!existsSync(secureStorageReleaseValidationSummaryPath)) {
+    errors.push('secure-storage release validation summary is missing; run secure-storage:release-validation:summary');
+  } else {
+    const secureStorageReleaseValidationSummary = readFileSync(secureStorageReleaseValidationSummaryPath, 'utf8');
+    const summaryErrors = getSecureStorageReleaseValidationSummaryErrors(secureStorageReleaseValidationSummary);
+
+    summaryErrors.forEach(error => {
+      errors.push(`secure-storage release validation summary is invalid: ${error}`);
+    });
+  }
 }
 
 if (errors.length > 0) {

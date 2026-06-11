@@ -3,13 +3,14 @@ export const expectedRemainingWarningFollowups = [
     packageName: 'react-native-secure-key-store',
     warningSource: 'node_modules/react-native-secure-key-store/android/build.gradle:46',
     followUp: 'dedicated secure-storage removal after legacy fallback migration validation',
+    evidence: 'secure-storage release validation summary',
   },
 ];
 
 export const getRemainingWarningPlanErrors = documentText => {
   const errors = [];
 
-  expectedRemainingWarningFollowups.forEach(({ packageName, warningSource, followUp }) => {
+  expectedRemainingWarningFollowups.forEach(({ packageName, warningSource, followUp, evidence }) => {
     if (!documentText.includes(packageName)) {
       errors.push(`Remaining warning plan is missing package ${packageName}`);
     }
@@ -20,6 +21,10 @@ export const getRemainingWarningPlanErrors = documentText => {
 
     if (!documentText.includes(followUp)) {
       errors.push(`Remaining warning plan is missing follow-up "${followUp}"`);
+    }
+
+    if (!documentText.includes(evidence)) {
+      errors.push(`Remaining warning plan is missing evidence "${evidence}"`);
     }
   });
 
