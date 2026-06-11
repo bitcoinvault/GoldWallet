@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.580 - Platform handoff dry-runs in RN baseline
+
+- Branch: `feature/bem-37-580-platform-handoff-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `secure-storage:release-validation:handoff:dry-run --skip-android-smoke` to `rn:baseline:preflight` immediately after the secure-storage release-validation handoff guard.
+- Add `ios:mac-validation:handoff:dry-run` to `rn:baseline:preflight` immediately after the iOS macOS validation handoff guard.
+- Synchronize `auditReactNativeUpgradePath.mjs` with the updated RN baseline preflight command.
+- Update the Android modernization workflow docs so RN baseline explicitly includes Secure Storage and iOS macOS handoff dry-runs.
+- Keep runtime code, native integration, Android/iOS build artifacts, package versions, lockfile, secure-storage removal state, and iOS runtime validation state unchanged.
+
+Findings:
+
+- The RN baseline preflight already validated the Secure Storage and iOS macOS handoff guards, but did not render their handoff dry-runs before moving into their lower-level audits and summary checks.
+- The baseline now makes the storage migration validation sequence and the macOS/Xcode iOS validation sequence visible before larger RN/native/platform branches.
+- Secure Storage legacy package removal remains unclaimed, and iOS runtime validation remains blocked on this Windows machine until the handoff runs on macOS with Xcode and CocoaPods.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:handoff:dry-run --skip-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.579 - Release-runtime handoff dry-runs in RN baseline
 
 - Branch: `feature/bem-37-579-release-runtime-handoff-baseline`
