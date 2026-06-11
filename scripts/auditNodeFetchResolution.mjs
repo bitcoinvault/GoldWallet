@@ -14,6 +14,27 @@ const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 const expectedResolution = '2.7.0';
 const commonJsConsumers = ['gaxios', 'isomorphic-fetch'];
+const expectedTransitiveBlockerChain = [
+  { packageName: 'react-native-snap-carousel', version: '3.9.1' },
+  { packageName: 'react-addons-shallow-compare', version: '15.6.2' },
+  { packageName: 'fbjs', version: '0.8.17' },
+  { packageName: 'isomorphic-fetch', version: '2.2.1' },
+  { packageName: 'node-fetch', version: '2.7.0' },
+];
+const consumerEvidenceFiles = [
+  {
+    packageName: 'gaxios',
+    relativePath: 'node_modules/gaxios/build/cjs/src/gaxios.js',
+    blockerSnippet: "await import('node-fetch')",
+    statusWhenPresent: 'dynamic import compatible',
+  },
+  {
+    packageName: 'isomorphic-fetch',
+    relativePath: 'node_modules/isomorphic-fetch/fetch-npm-node.js',
+    blockerSnippet: "require('node-fetch')",
+    statusWhenPresent: 'CommonJS require blocker',
+  },
+];
 
 const npmViewJson = (packageName, fields) =>
   JSON.parse(
@@ -39,6 +60,37 @@ const checkConsumer = packageName => {
     return { packageName, status: 'require ok' };
   } catch (error) {
     return { packageName, status: `require failed: ${error.code || error.message}` };
+  }
+};
+
+const checkConsumerEvidence = ({ packageName, relativePath, blockerSnippet, statusWhenPresent }) => {
+  const absolutePath = path.join(root, relativePath);
+
+  if (!existsSync(absolutePath)) {
+    return { packageName, relativePath, status: 'missing evidence file' };
+  }
+
+  const content = readFileSync(absolutePath, 'utf8');
+  const snippetPresent = content.includes(blockerSnippet);
+
+  return {
+    packageName,
+    relativePath,
+    status: snippetPresent ? statusWhenPresent : 'expected snippet missing',
+  };
+};
+
+const getPackageVersion = packageName => {
+  try {
+    return require(`${packageName}/package.json`).version || '';
+  } catch {
+    const packageJsonPath = path.join(root, 'node_modules', ...packageName.split('/'), 'package.json');
+
+    if (!existsSync(packageJsonPath)) {
+      return '';
+    }
+
+    return JSON.parse(readFileSync(packageJsonPath, 'utf8')).version || '';
   }
 };
 
@@ -77,9 +129,27 @@ export const collectNodeFetchResolutionAudit = () => {
   }
 
   const consumers = commonJsConsumers.map(checkConsumer);
+  const consumerEvidence = consumerEvidenceFiles.map(checkConsumerEvidence);
+  const transitiveBlockerChain = expectedTransitiveBlockerChain.map(entry => ({
+    packageName: entry.packageName,
+    expectedVersion: entry.version,
+    installedVersion: getPackageVersion(entry.packageName),
+  }));
   consumers.forEach(consumer => {
     if (consumer.status !== 'require ok') {
       errors.push(`${consumer.packageName} ${consumer.status}`);
+    }
+  });
+  consumerEvidence.forEach(evidence => {
+    if (evidence.status === 'missing evidence file' || evidence.status === 'expected snippet missing') {
+      errors.push(`${evidence.packageName} ${evidence.status} in ${evidence.relativePath}`);
+    }
+  });
+  transitiveBlockerChain.forEach(entry => {
+    if (entry.installedVersion !== entry.expectedVersion) {
+      errors.push(
+        `${entry.packageName} installed version is ${entry.installedVersion || '<missing>'}; expected ${entry.expectedVersion}`,
+      );
     }
   });
 
@@ -94,6 +164,8 @@ export const collectNodeFetchResolutionAudit = () => {
     latestCommonJsRequireExport: latestHasCommonJsRequireExport ? 'yes' : 'no',
     latestBlocked: latestMetadata.type === 'module',
     consumers,
+    consumerEvidence,
+    transitiveBlockerChain,
     errors,
   };
 };
@@ -113,6 +185,12 @@ export const formatNodeFetchResolutionSummary = (audit, generatedAt = new Date()
     `Latest node-fetch target blocked: ${audit.latestBlocked ? 'yes' : 'no'}`,
     `CommonJS/transitive consumers: ${audit.consumers.length}`,
     ...audit.consumers.map(consumer => `- ${consumer.packageName}: ${consumer.status}`),
+    `Consumer file evidence: ${audit.consumerEvidence.length}`,
+    ...audit.consumerEvidence.map(evidence => `- ${evidence.packageName}: ${evidence.status} (${evidence.relativePath})`),
+    `Transitive blocker chain: ${audit.transitiveBlockerChain.length}`,
+    ...audit.transitiveBlockerChain.map(
+      entry => `- ${entry.packageName}: ${entry.installedVersion || '<missing>'} (expected ${entry.expectedVersion})`,
+    ),
     `Compatibility errors: ${audit.errors.length}`,
     ...audit.errors.map(error => `- ${error}`),
     'Secret values printed: no',

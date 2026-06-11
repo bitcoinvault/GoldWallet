@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.605 - Node-fetch v3 compatibility blocker proof
+
+- Branch: `feature/bem-37-605-node-fetch-v3-compat-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Turn the `node-fetch@3` direct-outdated blocker into a concrete compatibility proof instead of a generic ESM-only note.
+- Identify which transitive consumer still requires the CommonJS `node-fetch@2.7.0` resolution and which consumer is already v3-compatible.
+- Keep the package resolution unchanged until the legacy transitive chain is removed or replaced in a dedicated dependency branch.
+
+Findings:
+
+- `node-fetch@3.3.2` remains the latest npm target, but the package is ESM-only and has no CommonJS `require` export.
+- `gaxios@7.1.4` is not the blocker: its CJS build uses dynamic `import('node-fetch')`, so it is compatible with the v3 package-entry shape.
+- `isomorphic-fetch@2.2.1` is the blocker: `node_modules/isomorphic-fetch/fetch-npm-node.js` still calls `require('node-fetch')`.
+- The blocker is transitive through `react-native-snap-carousel@3.9.1 -> react-addons-shallow-compare@15.6.2 -> fbjs@0.8.17 -> isomorphic-fetch@2.2.1 -> node-fetch@2.7.0`.
+- The node-fetch resolution audit now records consumer file evidence and the full transitive blocker chain, so future preflight runs can identify the real package that must be replaced before trying `node-fetch@3`.
+- No dependency version was changed in this branch because the compatibility proof shows the safe next target is the old carousel chain, not a direct `node-fetch` bump.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm why isomorphic-fetch --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node-fetch:resolution:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn node-fetch:resolution:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:node-fetch-resolution-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+
 ### BEM-37.604 - Direct dependency latest-target refresh
 
 - Branch: `feature/bem-37-604-direct-deps-latest-target`

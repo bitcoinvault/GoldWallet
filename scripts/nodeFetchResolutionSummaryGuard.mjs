@@ -37,6 +37,10 @@ export const getNodeFetchResolutionSummaryErrors = summary => {
   const latestBlocked = getLineValue(summary, 'Latest node-fetch target blocked');
   const consumerCount = getLineValue(summary, 'CommonJS/transitive consumers');
   const consumerLines = getBulletLinesAfter(summary, 'CommonJS/transitive consumers');
+  const consumerEvidenceCount = getLineValue(summary, 'Consumer file evidence');
+  const consumerEvidenceLines = getBulletLinesAfter(summary, 'Consumer file evidence');
+  const transitiveBlockerCount = getLineValue(summary, 'Transitive blocker chain');
+  const transitiveBlockerLines = getBulletLinesAfter(summary, 'Transitive blocker chain');
   const errorsCount = getLineValue(summary, 'Compatibility errors');
   const errorLines = getBulletLinesAfter(summary, 'Compatibility errors');
   const secretValuesPrinted = getLineValue(summary, 'Secret values printed');
@@ -95,6 +99,42 @@ export const getNodeFetchResolutionSummaryErrors = summary => {
   ['gaxios', 'isomorphic-fetch'].forEach(packageName => {
     if (!consumerLines.some(line => line.startsWith(`${packageName}: require ok`))) {
       errors.push(`${packageName} must remain a require-ok consumer`);
+    }
+  });
+
+  if (!/^\d+$/.test(consumerEvidenceCount)) {
+    errors.push(`Consumer file evidence must be a count. Received: ${consumerEvidenceCount || 'missing'}`);
+  } else if (Number(consumerEvidenceCount) !== consumerEvidenceLines.length) {
+    errors.push(`Consumer file evidence count is ${consumerEvidenceCount}, but listed ${consumerEvidenceLines.length}`);
+  }
+
+  if (!consumerEvidenceLines.some(line => line === 'gaxios: dynamic import compatible (node_modules/gaxios/build/cjs/src/gaxios.js)')) {
+    errors.push('gaxios must remain documented as dynamic-import compatible with node-fetch v3');
+  }
+
+  if (
+    !consumerEvidenceLines.some(
+      line => line === 'isomorphic-fetch: CommonJS require blocker (node_modules/isomorphic-fetch/fetch-npm-node.js)',
+    )
+  ) {
+    errors.push('isomorphic-fetch must remain documented as the CommonJS require blocker for node-fetch v3');
+  }
+
+  if (!/^\d+$/.test(transitiveBlockerCount)) {
+    errors.push(`Transitive blocker chain must be a count. Received: ${transitiveBlockerCount || 'missing'}`);
+  } else if (Number(transitiveBlockerCount) !== transitiveBlockerLines.length) {
+    errors.push(`Transitive blocker chain count is ${transitiveBlockerCount}, but listed ${transitiveBlockerLines.length}`);
+  }
+
+  [
+    'react-native-snap-carousel: 3.9.1 (expected 3.9.1)',
+    'react-addons-shallow-compare: 15.6.2 (expected 15.6.2)',
+    'fbjs: 0.8.17 (expected 0.8.17)',
+    'isomorphic-fetch: 2.2.1 (expected 2.2.1)',
+    'node-fetch: 2.7.0 (expected 2.7.0)',
+  ].forEach(requiredLine => {
+    if (!transitiveBlockerLines.includes(requiredLine)) {
+      errors.push(`Transitive blocker chain must include ${requiredLine}`);
     }
   });
 
