@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.651 - Sentry release readiness refresh
+
+- Branch: `feature/bem-37-651-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry release/source-map readiness evidence after the RN `0.86.0` Android release and release-smoke proofs.
+- Re-check live npm metadata for `@sentry/react-native` and the direct root `@sentry/cli` release tooling package.
+- Re-run Sentry prerequisite, Android warning, RN bundle-task compatibility, and credential-safe handoff guards without generating or printing secrets.
+- Keep Sentry package versions, runtime code, native project files, release build files, and Metro behavior unchanged.
+
+Findings:
+
+- Live metadata still reports `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.0` as latest/current targets on 2026-06-12.
+- Sentry release integration is wired and the release build paths use the direct root `@sentry/cli@3.5.0`; no nested Sentry CLI copy is present under the Sentry SDK tooling.
+- Current Android release evidence covers `dev`, `stage`, `prod`, and `beta`, APK manifest proof is valid, and Android `devRelease` embedded smoke evidence is valid for Sentry release-readiness purposes.
+- Sentry RN bundle-task compatibility remains guarded by the repo-owned legacy args shim for RN `0.86.0`.
+- Source-map upload validation remains explicitly `not claimed` because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not present in the current shell/worktree.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:android-warning:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-properties-generator`
+
 ### BEM-37.650 - Camera metadata date refresh
 
 - Branch: `feature/bem-37-650-camera-metadata-date-refresh`
