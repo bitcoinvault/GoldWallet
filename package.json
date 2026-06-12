@@ -298,6 +298,8 @@
     "check:storage-network-usage": "node scripts/checkStorageNetworkUsage.mjs",
     "check:storage-network-validation-scripts-guard": "node scripts/checkStorageNetworkValidationScriptsGuard.mjs",
     "check:storage-network-validation-scripts": "node scripts/checkStorageNetworkValidationScripts.mjs",
+    "electrum:runtime:observe": "node scripts/captureElectrumRuntimeObservation.mjs",
+    "electrum:runtime:check-summary": "node scripts/checkElectrumRuntimeObservationSummary.mjs",
     "check:wallet-crypto-validation-scripts": "node scripts/checkWalletCryptoValidationScripts.mjs",
     "check:transaction-details-amount-labels": "node scripts/checkTransactionDetailsAmountLabels.mjs",
     "check:native-module-inventory-guard": "node scripts/checkNativeModuleInventoryGuard.mjs",
