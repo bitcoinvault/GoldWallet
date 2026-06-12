@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.657 - Storage/network latest refresh
+
+- Branch: `feature/bem-37-657-storage-network-latest-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live npm latest metadata for the high-risk storage/network package group after the current release smoke and Terms WebView runtime validation.
+- Re-run the focused storage/network validation contract covering Terms WebView, Electrum reconnect behavior, secure storage, storage integration, authenticator storage, and offline wallet core storage.
+- Keep package versions, runtime code, native files, build files, and Metro behavior unchanged because the tracked package group is already current.
+
+Findings:
+
+- `storage-network:latest-snapshot:audit` generated fresh evidence at `2026-06-12T18:00:28.191Z`.
+- All 10 tracked packages are current against npm latest: `@react-native-async-storage/async-storage@3.1.1`, `@react-native-community/netinfo@12.0.1`, `react-native-device-info@15.0.2`, `react-native-config@1.6.1`, `react-native-localize@3.7.0`, `react-native-get-random-values@2.0.0`, `react-native-keychain@10.0.0`, `react-native-secure-key-store@2.0.10`, `react-native-tcp-socket@6.4.1`, and `react-native-webview@13.16.1`.
+- Deferred entries remain `0`, and the audit reports that no secret values were printed.
+- The focused storage/network validation set passed, including Terms WebView unit coverage and Electrum reconnect unit coverage.
+- No storage/network dependency bump is useful in this group right now; future work should target Electrum runtime observation, secure-storage fallback removal readiness, or rebrand/env configuration rather than blind package churn.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-usage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-validation-scripts`
+
 ### BEM-37.656 - Terms WebView runtime validation
 
 - Branch: `feature/bem-37-656-terms-webview-runtime-validation`
