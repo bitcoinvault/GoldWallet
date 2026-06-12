@@ -41,6 +41,7 @@ const clearAppData = process.env.ANDROID_SMOKE_CLEAR_APP_DATA === 'true';
 const validateEmptyDashboardCtas = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS === 'true';
 const validateEmptyTabNavigation = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION === 'true';
 const validateQrScannerScreen = process.env.ANDROID_SMOKE_VALIDATE_QR_SCANNER === 'true';
+const validateSettingsTermsWebView = process.env.ANDROID_SMOKE_VALIDATE_SETTINGS_TERMS_WEBVIEW === 'true';
 const firstRunTransactionPassword = process.env.ANDROID_SMOKE_TRANSACTION_PASSWORD || 'testpass123';
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
@@ -77,6 +78,7 @@ let closedFirstRunSuccess = false;
 let validatedEmptyDashboardCtaFlow = false;
 let validatedEmptyTabNavigation = false;
 let validatedQrScannerScreen = false;
+let validatedSettingsTermsWebView = false;
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -178,6 +180,7 @@ const writeSummary = exitCode => {
     `Validated empty-dashboard CTA flow: ${validatedEmptyDashboardCtaFlow ? 'yes' : 'no'}`,
     `Validated empty-tab navigation: ${validatedEmptyTabNavigation ? 'yes' : 'no'}`,
     `Validated QR scanner screen: ${validatedQrScannerScreen ? 'yes' : 'no'}`,
+    `Validated settings Terms WebView: ${validatedSettingsTermsWebView ? 'yes' : 'no'}`,
     `UI hierarchy attempts: ${uiAttempts}`,
     `UI hierarchy path: ${uiOutputPath}`,
     `Screenshot path: ${screenshotOutputPath}`,
@@ -503,6 +506,63 @@ const validateEmptyTabNavigationIfEnabled = dashboardHierarchy => {
 
   validatedEmptyTabNavigation = true;
   append('Empty-state tab navigation flow validated.');
+
+  return finalDashboardHierarchy;
+};
+
+const validateSettingsTermsWebViewIfEnabled = dashboardHierarchy => {
+  if (!validateSettingsTermsWebView) {
+    return dashboardHierarchy;
+  }
+
+  append('\nValidating settings Terms WebView flow...');
+
+  tapResourceId('settings tab for Terms WebView', dashboardHierarchy, 'navigation-tab-3');
+  sleep(3000);
+  const settingsScreen = waitForResourceIds('settings screen for Terms WebView', [
+    'dashboard-header',
+    'goldwallet-logo',
+    'terms-settings-item',
+    'navigation-tab-0',
+    'navigation-tab-3',
+  ]);
+
+  tapResourceId('settings Terms item', settingsScreen, 'terms-settings-item');
+  sleep(5000);
+  const termsSettingsScreen = waitForResourceIds('settings Terms WebView screen', [
+    'terms-conditions-settings-screen',
+    'back-button',
+  ]);
+
+  if (!/class="android\.webkit\.WebView"/.test(termsSettingsScreen)) {
+    append('Settings Terms screen WebView class was not visible in UI hierarchy; continuing after screen validation.');
+  }
+
+  tapResourceId('settings Terms WebView back button', termsSettingsScreen, 'back-button');
+  sleep(3000);
+  const settingsAfterBack = waitForResourceIds('settings screen after Terms WebView back', [
+    'dashboard-header',
+    'goldwallet-logo',
+    'terms-settings-item',
+    'navigation-tab-0',
+    'navigation-tab-3',
+  ]);
+
+  tapResourceId('wallets tab after Terms WebView', settingsAfterBack, 'navigation-tab-0');
+  sleep(3000);
+  const finalDashboardHierarchy = waitForResourceIds('dashboard after settings Terms WebView', [
+    'dashboard-header',
+    'no-wallets-icon',
+    'create-wallet-button',
+    'import-wallet-button',
+    'navigation-tab-0',
+    'navigation-tab-1',
+    'navigation-tab-2',
+    'navigation-tab-3',
+  ]);
+
+  validatedSettingsTermsWebView = true;
+  append('Settings Terms WebView flow validated.');
 
   return finalDashboardHierarchy;
 };
@@ -852,6 +912,7 @@ try {
   append(`Using empty-dashboard CTA flow validation: ${validateEmptyDashboardCtas ? 'yes' : 'no'}`);
   append(`Using empty-tab navigation validation: ${validateEmptyTabNavigation ? 'yes' : 'no'}`);
   append(`Using QR scanner screen validation: ${validateQrScannerScreen ? 'yes' : 'no'}`);
+  append(`Using settings Terms WebView validation: ${validateSettingsTermsWebView ? 'yes' : 'no'}`);
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
   }
@@ -1013,6 +1074,7 @@ try {
 
   uiHierarchy = validateEmptyDashboardCtaFlowIfEnabled(uiHierarchy);
   uiHierarchy = validateEmptyTabNavigationIfEnabled(uiHierarchy);
+  uiHierarchy = validateSettingsTermsWebViewIfEnabled(uiHierarchy);
 
   runBinary('capture screenshot', ['exec-out', 'screencap', '-p'], screenshotOutputPath);
 

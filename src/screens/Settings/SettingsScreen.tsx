@@ -164,7 +164,12 @@ export const SettingsScreen = (props: Props) => {
         title={i18n.settings.aboutUs}
         source={icons.infoIcon}
       />
-      <ListItem onPress={navigateToTermsConditions} title={i18n.settings.terms} source={icons.termsIcon} />
+      <ListItem
+        testID="terms-settings-item"
+        onPress={navigateToTermsConditions}
+        title={i18n.settings.terms}
+        source={icons.termsIcon}
+      />
       <ListItem onPress={handleResetFactory} title={i18n.settings.factoryReset} source={icons.resetFactory} />
     </>
   );

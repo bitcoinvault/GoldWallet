@@ -137,6 +137,7 @@ export const getAndroidSmokeSummaryErrors = (summary, options = {}) => {
   const validatedEmptyDashboardCtaFlow = getLineValue(summary, 'Validated empty-dashboard CTA flow');
   const validatedEmptyTabNavigation = getLineValue(summary, 'Validated empty-tab navigation');
   const validatedQrScannerScreen = getLineValue(summary, 'Validated QR scanner screen');
+  const validatedSettingsTermsWebView = getLineValue(summary, 'Validated settings Terms WebView');
 
   if (!expectedResourceIds) {
     errors.push('Expected resource IDs are missing');
@@ -159,6 +160,12 @@ export const getAndroidSmokeSummaryErrors = (summary, options = {}) => {
 
   if (!['yes', 'no'].includes(validatedQrScannerScreen)) {
     errors.push(`Validated QR scanner screen must be yes or no. Received: ${validatedQrScannerScreen || 'missing'}`);
+  }
+
+  if (!['yes', 'no'].includes(validatedSettingsTermsWebView)) {
+    errors.push(
+      `Validated settings Terms WebView must be yes or no. Received: ${validatedSettingsTermsWebView || 'missing'}`,
+    );
   }
 
   if (!isExistingFile(getLineValue(summary, 'UI hierarchy path'), true)) {
@@ -217,6 +224,7 @@ export const getAndroidEmbeddedSmokeSummaryErrors = (summary, options = {}) => {
     ['Validated empty-dashboard CTA flow', 'yes'],
     ['Validated empty-tab navigation', 'yes'],
     ['Validated QR scanner screen', 'yes'],
+    ['Validated settings Terms WebView', 'yes'],
   ].forEach(([label, expectedValue]) => requireLineValue(summary, label, expectedValue, errors));
 
   requireCsvItems(summary, 'Expected UI texts', ['Wallets', 'No wallets', 'Create new wallet', 'Import wallet'], errors);

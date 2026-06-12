@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.656 - Terms WebView runtime validation
+
+- Branch: `feature/bem-37-656-terms-webview-runtime-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a stable Settings row test ID for the Terms and Conditions entry.
+- Extend the Android smoke helper with optional Settings Terms WebView runtime validation.
+- Require the Settings Terms WebView flow in embedded Android devRelease smoke.
+- Keep package versions, native files, Gradle files, and Metro behavior unchanged.
+
+Findings:
+
+- The Settings Terms row now exposes `terms-settings-item`, giving smoke validation a stable selector instead of relying on localized text.
+- Embedded Android devRelease smoke now enables `ANDROID_SMOKE_VALIDATE_SETTINGS_TERMS_WEBVIEW=true`.
+- `android:dev:release:verify-local` rebuilt and validated `dev`, `stage`, `prod`, and `beta` release variants after the Settings source change.
+- Embedded Android devRelease smoke passed on `emulator-5554`: first-run terms/PIN/transaction-password setup completed, empty-dashboard CTA navigation passed, tab navigation passed, QR scanner screen validation passed, Settings -> Terms WebView -> back -> dashboard validation passed, and no fatal/runtime logcat findings were reported.
+- The release input fingerprint remained `9a88df1be0cfb8b6f162f6350e56d282efe78368db96cb286a8060623e27014c`; it tracks release build inputs, while this branch's source-level proof comes from the rebuilt APK hashes and runtime smoke summary.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:terms-webview:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+
 ### BEM-37.655 - Android release validation refresh
 
 - Branch: `feature/bem-37-655-android-release-validation-refresh`
