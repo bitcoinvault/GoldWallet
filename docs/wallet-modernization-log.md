@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.638 - CodePush env cleanup plan
+
+- Branch: `feature/bem-37-638-codepush-env-cleanup-plan`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a local CodePush env cleanup plan generator and guard for the post-removal release-service cleanup path.
+- Keep stale `CODEPUSH_*` env cleanup secrets-safe by listing only file paths, key names, blank/non-empty state, and required action.
+- Wire the cleanup plan into the React Native baseline preflight after the existing CodePush env cleanup readiness audit.
+
+Findings:
+
+- CodePush runtime/native/package integration remains removed.
+- The current tracked env files still contain stale `CODEPUSH_*` keys; two files carry non-empty deployment-key entries, so normal review diffs are not safe for cleanup.
+- The plan artifact is local-only under `local-docs/codepush-env-cleanup-plan.txt` and does not print or commit deployment-key values.
+- No runtime app code, dependency versions, native build configuration, or Metro behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-env-cleanup-plan-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:env-cleanup:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:env-cleanup:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:env-cleanup:plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:env-cleanup:check-plan`
+- `Select-String -Path local-docs\codepush-env-cleanup-plan.txt -Pattern '^CODEPUSH_[A-Z_]+='`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:validate-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+
 ### BEM-37.637 - CodePush native plan removed-state alignment
 
 - Branch: `feature/bem-37-637-codepush-native-plan-removed-state`
