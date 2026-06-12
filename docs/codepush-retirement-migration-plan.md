@@ -77,9 +77,9 @@ Choose one release strategy:
 
 ## Decision Handoff Gate
 
-Decision owner input required only before changing the current post-removal posture:
+Decision owner input required before implementation:
 
-- keep `remove` if OTA updates are no longer a supported product/release capability;
+- choose `remove` if OTA updates are no longer a supported product/release capability;
 - choose `replace` if OTA updates remain required and a maintained/self-hosted replacement is selected;
 - choose `temporary legacy compatibility` only as an explicit short-term exception, with CodePush remaining gated off by default and update validation still unclaimed.
 
