@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.646 - Android devRelease embedded smoke refresh
+
+- Branch: `feature/bem-37-646-android-release-smoke-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh emulator runtime proof for the current locally generated `devRelease` APK without Metro.
+- Install a locally zipaligned and debug-keystore-signed smoke copy of `android/app/build/outputs/apk/dev/release/app-dev-release-unsigned.apk`.
+- Validate first-run setup, empty-wallet dashboard, CTA navigation, tab navigation, and QR scanner screen behavior on the release APK.
+
+Findings:
+
+- `android:dev:release:smoke:embedded` passed on `emulator-5554` with package `io.goldwallet.wallet.dev` and Metro not required/reachable.
+- The smoke completed first-run terms acceptance, PIN setup, transaction-password setup, skipped email, closed success, and reached the empty-wallet dashboard.
+- Empty-dashboard CTA navigation passed for create-wallet and import-wallet flows, including import-wallet QR scanner open/close validation.
+- Empty-state tab navigation passed for authenticators, address book, settings, and return to wallets.
+- `android:dev:release:check-smoke-summary` validated the generated summary, signed smoke APK hash, source unsigned `devRelease` APK hash, UI hierarchy artifact, screenshot artifact, and no fatal/runtime logcat findings.
+
+Validation:
+
+- `PATH=C:\Users\User\AppData\Local\Android\Sdk\platform-tools;C:\Users\User\AppData\Local\Android\Sdk\build-tools\36.0.0;D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.645 - Android release build evidence refresh
 
 - Branch: `feature/bem-37-645-android-release-evidence-refresh`
