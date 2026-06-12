@@ -20,6 +20,8 @@
 - `corepack yarn sentry:release:validation:handoff:dry-run` renders the Sentry source-map prerequisite sequence without printing token assignments.
 - `corepack yarn sentry:release:validation:handoff` validates the generator, optionally refreshes Android release APK evidence with Sentry auto-upload disabled, refreshes the Sentry RN bundle task compatibility summary, generates the three Sentry properties files from `SENTRY_AUTH_TOKEN`, refreshes the Sentry prerequisite summary, and validates aggregate release-services summaries.
 - `corepack yarn check:sentry-release-validation-handoff-guard` validates the handoff command order, `--skip-android-release` behavior, required-env handling, and secret-safe command rendering.
+- `corepack yarn sentry:release:credential-plan` writes `local-docs/sentry-release-credential-plan.txt`, listing only file paths, env variable names, command names, and missing readiness states for Sentry release credential handoff.
+- `corepack yarn sentry:release:credential-plan:check` validates that the local credential plan keeps source-map upload unclaimed and does not print token, DSN, or `auth.token` values.
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary, including per-file readiness counts and generator coverage.
 - `corepack yarn sentry:android-warning:audit` verifies that Sentry Gradle/source-map wiring remains tracked before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
@@ -45,6 +47,7 @@ Credential owner input required before claiming release source-map validation:
 Evidence that must be attached to the credential handoff:
 
 - current `check:sentry-properties-generator` output;
+- current `sentry:release:credential-plan` and `sentry:release:credential-plan:check` output;
 - current `sentry:release:validation:handoff:dry-run --skip-android-release` output;
 - current `sentry:release:prereq-audit` and `sentry:release:prereq-check-summary` output after credentials are generated;
 - current Android release build, manifest, and release-smoke evidence;
@@ -100,6 +103,9 @@ Scope:
 - `corepack yarn check:sentry-properties-generator`.
 - `corepack yarn check:sentry-release-validation-handoff-guard`.
 - `corepack yarn check:sentry-credential-handoff-guard`.
+- `corepack yarn check:sentry-release-credential-plan-guard`.
+- `corepack yarn sentry:release:credential-plan`.
+- `corepack yarn sentry:release:credential-plan:check`.
 - `corepack yarn sentry:release:validation:handoff:dry-run`.
 - `corepack yarn sentry:android-warning:audit`.
 - `corepack yarn sentry:android-warning:check-summary`.

@@ -49,6 +49,47 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.640 - Sentry release credential handoff plan
+
+- Branch: `feature/bem-37-640-sentry-credential-plan`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a local Sentry release credential handoff plan artifact for the remaining source-map/dSYM upload blocker.
+- Guard the plan so it records only paths, env variable names, command names, readiness state, and missing-file counts.
+- Wire the plan generator/checker into `rn:baseline:preflight` beside the existing Sentry prerequisite and credential-handoff guards.
+- Refresh Android release evidence after the `package.json` script change so Sentry prerequisite checks use current release-input fingerprints.
+
+Findings:
+
+- `@sentry/react-native` is current at `8.14.0`, and direct root `@sentry/cli` is current at `3.5.0`.
+- Android release evidence is current for `dev`, `stage`, `prod`, and `beta`, APK manifests validate, and the existing Android release smoke summary remains valid.
+- Sentry release/source-map prerequisites are still not ready because `SENTRY_AUTH_TOKEN` is not available in the current shell and `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing.
+- The generated credential plan keeps `Sentry release upload validation: not claimed` and prints no token, DSN, or `auth.token` values.
+- No runtime code, native code, dependency versions, or Metro behavior changed in this branch, so Android emulator smoke is not required for this tooling/guard branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-credential-plan-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:credential-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:credential-plan:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-credential-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.638 - CodePush env cleanup plan
 
 - Branch: `feature/bem-37-638-codepush-env-cleanup-plan`
