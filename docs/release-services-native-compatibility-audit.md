@@ -8,7 +8,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 ## Current Package State
 
-| Package | Current package.json | Latest npm checked on 2026-06-10 | Notes |
+| Package | Current package.json | Latest npm checked on 2026-06-12 | Notes |
 | --- | --- | --- | --- |
 | `@react-native-firebase/app` | `24.1.1` | `24.1.1` | Current package pulls `firebase@12.14.0`. |
 | `@react-native-firebase/analytics` | `24.1.1` | `24.1.1` | Peer requires matching `@react-native-firebase/app@24.1.1`. |
@@ -114,29 +114,30 @@ This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO
 
 ## Current Release Readiness Snapshot
 
-Checked on 2026-06-10 after the RN `0.86.0` foundation, Android release variant validation, and release-services package refresh:
+Checked on 2026-06-12 after the RN `0.86.0` foundation, Android release build evidence refresh, Android `devRelease` embedded smoke, and release-services aggregate refresh:
 
 ```powershell
-JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:validate-local
+JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local
 corepack yarn android:dev:release:check-summary
-corepack yarn codepush:release:path-audit
-corepack yarn codepush:release:path-check-summary
-corepack yarn firebase:release-services:audit
-corepack yarn firebase:release-services:check-summary
-corepack yarn sentry:release:prereq-audit
-corepack yarn sentry:release:prereq-check-summary
+corepack yarn android:dev:release:check-apk-manifest
+corepack yarn android:dev:release:smoke:embedded
+corepack yarn android:dev:release:check-smoke-summary
+corepack yarn release-services:validation:handoff --skip-android-release
 corepack yarn release-services:check-summaries
 ```
 
 Results:
 
 - CodePush release-path wiring is removed from non-dev runtime, Android, iOS, package, and lockfile surfaces.
-- Android local release evidence covers `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` by default with Sentry auto upload disabled; the summary records APK path, byte count, and SHA-256 for each unsigned release artifact.
+- Android local release evidence was refreshed on 2026-06-12 and covers `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, target SDK `36`, and Sentry auto upload disabled; the summary records APK path, byte count, SHA-256, JS bundle, and source-map evidence for each unsigned release artifact.
+- Android release APK manifest proof is valid for the current `dev`, `stage`, `prod`, and `beta` release artifacts.
+- Android `devRelease` embedded smoke passed on `emulator-5554` with Metro not required, first-run terms/PIN/transaction-password setup completed, empty-wallet dashboard reached, Create/Import CTA navigation validated, tab navigation validated, QR scanner screen validated, and no fatal/runtime logcat findings.
 - CodePush package readiness records live npm latest metadata for historical context and confirms the app package is removed.
 - CodePush upstream retirement readiness records App Center CodePush retirement on 2025-03-31, archived Microsoft upstream state, lack of upstream New Architecture support, Android `newArchEnabled=true`, and `CodePush migration required: no` after removal.
 - CodePush release-path env readiness is recorded as removed without printing deployment-key values.
 - CodePush release-path package readiness verifies that `package.json` and `node_modules` no longer carry `react-native-code-push`.
 - CodePush update validation remains `not claimed`; OTA delivery is no longer a supported release path unless a maintained replacement is selected.
+- CodePush decision handoff confirms the current posture as `remove` and the beta strategy as `beta has no OTA`; stale `CODEPUSH_*` env values remain cleanup-only and must not be printed.
 - Android release compilation no longer depends on beta or non-beta env files defining CodePush deployment keys.
 - CodePush release-path audit now records whether the latest local Android release summary artifact is present, valid, covers the current release inputs, covers `dev`, `stage`, `prod`, and `beta` release APK evidence, and has valid release APK manifest proof; it emits a dedicated `CodePush release build evidence ready` line so APK/bundle/manifest evidence is separate from still-unclaimed update validation.
 - `corepack yarn codepush:env-cleanup:plan` writes a local review-safe cleanup plan that lists only env file paths, CodePush key names, blank/non-empty state, and whether secure env regeneration is required; it does not print deployment-key values.
@@ -145,10 +146,12 @@ Results:
 - Firebase `24.1.1` Android `devDebug` builds after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
 - RN Firebase `24.1.1` emits a legacy-architecture deprecation warning during Gradle configuration; future RN baseline work should track New Architecture readiness separately from this Firebase package upgrade.
 - Sentry release source-map upload validation is still not ready locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable in the current shell.
-- Sentry SDK and CLI package targets remain current on 2026-06-11: `@sentry/react-native@8.14.0` and direct `@sentry/cli@3.5.0`.
+- Sentry SDK and CLI package targets remain current on 2026-06-12: `@sentry/react-native@8.14.0` and direct `@sentry/cli@3.5.0`.
 - The Sentry prerequisite audit now records per-file readiness for the root, Android, and iOS Sentry properties files, validates that `create-sentry-properties.sh` writes all three expected paths with the expected non-secret defaults, supports optional `SENTRY_ORG` / `SENTRY_PROJECT` overrides, verifies that the local direct `@sentry/cli` package binary is present and executable, records no nested Sentry CLI copies under Sentry SDK tooling, and guards that release build phases use the direct root CLI package.
 - Sentry `8.14.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.86.0` baseline. The repo-owned legacy args shim lets Sentry read release bundle output and source-map output from RN `0.86.0` bundle tasks, so local Android release validation now produces source maps for `dev`, `stage`, `prod`, and `beta` without the previous `Could not extract bundle task arguments` warning. Release artifact upload still needs credentials before it can be claimed as fully validated.
 - Sentry/RN bundle task compatibility is now guarded by `corepack yarn sentry:rn-bundle-task-compat:audit` and `corepack yarn sentry:rn-bundle-task-compat:check-summary`; current static evidence reports the path `ready` because Sentry can use the repo-owned legacy args shim when RN `0.86.0` exposes `jsIntermediateSourceMapsDir` as `RegularFileProperty` and does not expose the fallback `args` property directly.
+- Push notification bridge wiring is valid for `@react-native-community/push-notification-ios@1.12.0`, but APNs registration, token handling, foreground/background delivery, badge behavior, and tap-through behavior remain `not claimed` until iOS device/simulator validation runs on macOS.
+- iOS static release files remain valid for RN `0.86.0`, minimum iOS `15.1`, and 8 guarded schemes, but macOS archive readiness remains blocked because this Windows machine has no `xcodebuild`, no CocoaPods, and `ios/Podfile.lock` still has 12 active drift entries after the RN/package upgrades.
 - None of these audits print secret values.
 - Do not generate placeholder Sentry secrets or stale CodePush secrets; missing Sentry values remain explicit readiness blockers until provided by environment/config.
 

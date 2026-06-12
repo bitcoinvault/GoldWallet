@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.647 - Release-services aggregate refresh
+
+- Branch: `feature/bem-37-647-release-services-aggregate-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the release-services aggregate evidence after the 2026-06-12 Android release build and `devRelease` embedded smoke refreshes.
+- Re-run the Sentry, Firebase, CodePush, push-notification, and iOS static/prerequisite summary handoff without rebuilding Android release artifacts again.
+- Update the release-services audit snapshot so it reflects the current RN `0.86.0`, Android release, Sentry/Firebase/CodePush, push, and iOS validation posture.
+
+Findings:
+
+- `release-services:validation:handoff --skip-android-release` refreshed the local Sentry, Firebase, CodePush, push-notification, and iOS summary artifacts against the current Android release and release-smoke summaries.
+- `release-services:check-summaries` validates the aggregate evidence, including Android release build/manifest proof, Android `devRelease` embedded startup/CTA/tab/QR smoke proof, Sentry release prerequisite evidence, Firebase release-services wiring, CodePush removed-state and decision evidence, push bridge wiring, and iOS static/macOS-prerequisite blockers.
+- Sentry release source-map upload validation remains `not claimed` because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not available in the current shell.
+- Firebase runtime delivery remains `not claimed`; local wiring is present, but real FCM, Crashlytics, Analytics, and notification delivery still require release-runtime/device validation.
+- CodePush remains removed after the App Center retirement decision; OTA update validation remains `not claimed`, and stale `CODEPUSH_*` env cleanup must stay secrets-safe.
+- iOS runtime delivery and archive validation remain `not claimed` on this Windows machine because `xcodebuild` and CocoaPods are unavailable and `ios/Podfile.lock` still has 12 active drift entries requiring a macOS `pod install` refresh.
+- No package versions, runtime code, native code, build files, or Metro behavior changed in this branch, so a new Android build or emulator smoke is not required beyond the freshly validated BEM-37.645/BEM-37.646 artifacts.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn release-services:validation:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.646 - Android devRelease embedded smoke refresh
 
 - Branch: `feature/bem-37-646-android-release-smoke-refresh`
