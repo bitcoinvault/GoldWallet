@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.650 - Camera metadata date refresh
+
+- Branch: `feature/bem-37-650-camera-metadata-date-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Camera/QR candidate metadata date after the 2026-06-12 live npm checks for CameraKit, VisionCamera, QR renderer, SVG renderer, and QR encoder.
+- Keep the CameraKit scanner package, QR renderer packages, and runtime code unchanged.
+- Align Camera candidate and Camera/QR validation handoff guard fixtures with the refreshed metadata date.
+- Align `docs/camera-replacement-plan.md` and `docs/native-module-upgrade-plan.md` so future scanner work starts from the same 2026-06-12 latest-target evidence.
+
+Findings:
+
+- `camera:candidate:audit` still reports `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` as the expected current metadata set.
+- VisionCamera remains deferred because the latest line still requires the additional Nitro peer stack.
+- CameraKit remains the installed scanner baseline and no package versions, runtime code, native code, build files, or Metro behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.649 - Navigation native audit refresh
 
 - Branch: `feature/bem-37-649-navigation-audit-refresh`

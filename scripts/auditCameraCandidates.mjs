@@ -10,7 +10,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
-export const cameraCandidateMetadataCheckedOn = '2026-06-11';
+export const cameraCandidateMetadataCheckedOn = '2026-06-12';
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 const expectedCameraMetadata = {
