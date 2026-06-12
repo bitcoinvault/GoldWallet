@@ -45,6 +45,7 @@ export const collectMaskedViewMigrationAudit = () => {
   const errors = [];
   const warnings = [];
   const currentVersion = dependencies['@react-native-community/masked-view'];
+  const expectedNavigationStackVersion = dependencies['@react-navigation/stack'];
   const navigationStackPackage = JSON.parse(requireFile(errors, 'node_modules/@react-navigation/stack/package.json') || '{}');
   const warningBaseline = requireFile(errors, 'local-docs/android-warning-audit-summary.txt');
   const navigationPlan = requireFile(errors, 'docs/navigation-native-compatibility-audit.md');
@@ -55,7 +56,12 @@ export const collectMaskedViewMigrationAudit = () => {
   }
 
   requireMissingSnippet(errors, '@react-navigation/stack package.json', JSON.stringify(navigationStackPackage), '@react-native-community/masked-view');
-  requireSnippet(errors, 'docs/navigation-native-compatibility-audit.md', navigationPlan, '@react-navigation/stack@7.10.2');
+  requireSnippet(
+    errors,
+    'docs/navigation-native-compatibility-audit.md',
+    navigationPlan,
+    `@react-navigation/stack@${expectedNavigationStackVersion}`,
+  );
   requireSnippet(errors, 'docs/android-warning-baseline-followups.md', followupPlan, 'react-native-secure-key-store');
 
   if (warningBaseline.includes('@react-native-community\\masked-view') || warningBaseline.includes('@react-native-community/masked-view')) {

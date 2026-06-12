@@ -5,7 +5,7 @@ const validSummary = [
   'Generated at: 2026-05-29T00:00:00.000Z',
   'Current masked-view package: <removed>',
   'Replacement masked-view package: <not required>',
-  '@react-navigation/stack version: 7.10.2',
+  '@react-navigation/stack version: 7.10.3',
   'Navigation requires community masked-view path: no',
   'Warning baseline mentions masked-view: no',
   'Masked-view migration baseline stable: yes',
