@@ -19,10 +19,11 @@
 - `corepack yarn check:qr-scanner-validation-scripts` keeps that focused scanner test wired into the lightweight Android gate and prepush validation.
 - `corepack yarn camera:candidate:audit` checks live npm metadata for the legacy camera, VisionCamera, CameraKit, QR renderer, QR native renderer, and QR encoder before scanner follow-up work, so stale candidate assumptions are visible before a dependency branch.
 - The candidate audit also guards CameraKit peer ranges (`react@*`, `react-native@*`), QR renderer peer ranges (`react@*`, `react-native@>=0.63.4`, `react-native-svg@>=14.0.0`), and QR renderer dependencies (`prop-types@^15.8.0`, `qrcode@^1.5.4`, `text-encoding@^0.7.0`) so latest-compatible scanner decisions do not rely only on package version numbers.
-- `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, and writes `local-docs/camera-qr-migration-summary.txt`.
+- `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, separates removed camera-pod cleanup from broader iOS `Podfile.lock` drift, and writes `local-docs/camera-qr-migration-summary.txt`.
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
 - `corepack yarn camera:qr-validation:handoff --include-android-smoke` extends the Camera/QR handoff with Android dev assemble, embedded emulator smoke, and smoke-summary validation for scanner-affecting runtime changes.
-- The QR migration audit verifies that removed camera pods are absent from `ios/Podfile.lock`; on Windows the expected state is that Android/runtime dependency wiring can be guarded while iOS camera migration validation remains unclaimed until `pod install` refreshes the broader lockfile drift on macOS.
+- The QR migration audit verifies that removed camera pods are absent from `ios/Podfile.lock`; the same summary also reports broader iOS `Podfile.lock` drift from the RN/native-module baseline, so a stable Android/CameraKit scanner baseline is not mistaken for complete iOS runtime validation.
+- On Windows the expected state is that Android/runtime dependency wiring can be guarded while iOS camera migration validation remains unclaimed until `pod install` refreshes the broader lockfile drift on macOS.
 
 ## Why Replace
 

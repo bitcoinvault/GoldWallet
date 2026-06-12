@@ -49,6 +49,43 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.641 - Camera/QR iOS Podfile drift visibility
+
+- Branch: `feature/bem-37-641-camera-ios-drift-visibility`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Camera/QR migration audit separate removed camera-pod cleanup from broader iOS `Podfile.lock` drift.
+- Keep `Camera QR migration baseline stable` tied to Android/CameraKit scanner wiring and removed camera pods, not to unrelated iOS lockfile drift.
+- Update the Camera/QR summary guard fixtures so future audits cannot hide broader iOS drift while claiming iOS runtime readiness.
+- Document the distinction in the camera replacement plan.
+
+Findings:
+
+- Live npm metadata still reports `react-native-camera-kit@18.0.0` as latest/current.
+- Live npm metadata still reports `react-native-vision-camera@5.0.11` with `react-native-nitro-modules` and `react-native-nitro-image` peer requirements, so VisionCamera remains deferred to a future native-module/Nitro milestone.
+- The Camera/QR audit reports removed camera pods are absent from `ios/Podfile.lock`, so Android/CameraKit scanner wiring remains stable.
+- The same audit now reports the broader iOS `Podfile.lock` drift list, so iOS camera QR runtime validation remains unclaimed until `pod install` refreshes pods on macOS.
+- No runtime code, native project files, dependency versions, or Metro behavior changed in this branch, so Android emulator smoke is not required.
+
+Validation:
+
+- `corepack yarn check:camera-qr-migration-summary-guard`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:camera-qr-validation-handoff-guard`
+- `corepack yarn camera:qr-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `corepack yarn camera:qr-validation:handoff`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.640 - Sentry release credential handoff plan
 
 - Branch: `feature/bem-37-640-sentry-credential-plan`

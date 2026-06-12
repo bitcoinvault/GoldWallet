@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { collectCameraCandidateAudit } from './auditCameraCandidates.mjs';
+import { collectIosPodfileLockDrift } from './iosPodfileLockDrift.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -73,6 +74,9 @@ export const collectCameraQrMigrationAudit = () => {
   const iosXcodeProject = requireFile(errors, 'ios/GoldWallet.xcodeproj/project.pbxproj');
   const warningBaseline = requireFile(errors, 'local-docs/android-warning-audit-summary.txt');
   const iosPodfileLock = requireFile(errors, 'ios/Podfile.lock');
+  const iosPodfileLockDrift = iosPodfileLock
+    ? collectIosPodfileLockDrift({ packageJson, podfileLock: iosPodfileLock })
+    : { podfileLockDriftIssues: [], removedPodfileLockDriftIssues: [] };
   const iosInfoPlists = ['ios/GoldWallet/Info.plist', 'ios/GoldWalletDev-Info.plist', 'ios/GoldWalletStage-Info.plist'];
   const staleRemovedIosPods = [
     'react-native-camera',
@@ -135,6 +139,10 @@ export const collectCameraQrMigrationAudit = () => {
     liveQrTargetIssues: cameraCandidateAudit.liveMetadataIssues,
     iosPodfileLockRefreshRequired,
     staleRemovedIosPods,
+    iosCameraPodfileLockCleanupComplete: staleRemovedIosPods.length === 0,
+    iosBroaderPodfileLockRefreshRequired: iosPodfileLockDrift.podfileLockDriftIssues.length > 0,
+    iosBroaderPodfileLockDriftIssues: iosPodfileLockDrift.podfileLockDriftIssues,
+    iosRemovedPodfileLockDriftIssues: iosPodfileLockDrift.removedPodfileLockDriftIssues,
     errors,
     readinessIssues,
     warnings,
@@ -170,6 +178,12 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
     ...audit.liveQrTargetIssues.map(issue => `- ${issue}`),
     `iOS Podfile.lock refresh required: ${audit.iosPodfileLockRefreshRequired ? 'yes' : 'no'}`,
     `iOS stale removed camera pods: ${audit.staleRemovedIosPods.join(', ') || 'none'}`,
+    `iOS camera Podfile.lock cleanup complete: ${audit.iosCameraPodfileLockCleanupComplete ? 'yes' : 'no'}`,
+    `iOS broader Podfile.lock refresh required: ${audit.iosBroaderPodfileLockRefreshRequired ? 'yes' : 'no'}`,
+    `iOS broader Podfile.lock drift issues: ${audit.iosBroaderPodfileLockDriftIssues.length}`,
+    ...audit.iosBroaderPodfileLockDriftIssues.map(issue => `- ${issue}`),
+    `iOS removed Podfile.lock drift issues: ${audit.iosRemovedPodfileLockDriftIssues.length}`,
+    ...audit.iosRemovedPodfileLockDriftIssues.map(issue => `- ${issue}`),
     `Camera QR migration wiring valid: ${audit.errors.length === 0 ? 'yes' : 'no'}`,
     `Camera QR migration baseline stable: ${audit.baselineStable ? 'yes' : 'no'}`,
     `Warnings: ${audit.warnings.length}`,
@@ -181,7 +195,9 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
   lines.push(`Wiring errors: ${audit.errors.length}`);
   audit.errors.forEach(error => lines.push(`- ${error}`));
   lines.push(
-    audit.baselineStable
+    audit.baselineStable && audit.iosBroaderPodfileLockRefreshRequired
+      ? 'Required action: none for Android/CameraKit scanner wiring; refresh broader ios/Podfile.lock with pod install on macOS before claiming iOS camera QR runtime validation.'
+      : audit.baselineStable
       ? 'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.'
       : 'Required action: restore camera QR migration baseline and refresh ios/Podfile.lock with pod install on macOS before claiming iOS camera QR migration validation.',
   );
@@ -200,6 +216,9 @@ const printReport = audit => {
   );
   console.log(`iOS Podfile.lock refresh required: ${audit.iosPodfileLockRefreshRequired ? 'yes' : 'no'}`);
   console.log(`iOS stale removed camera pods: ${audit.staleRemovedIosPods.join(', ') || 'none'}`);
+  console.log(`iOS camera Podfile.lock cleanup complete: ${audit.iosCameraPodfileLockCleanupComplete ? 'yes' : 'no'}`);
+  console.log(`iOS broader Podfile.lock refresh required: ${audit.iosBroaderPodfileLockRefreshRequired ? 'yes' : 'no'}`);
+  console.log(`iOS broader Podfile.lock drift issues: ${audit.iosBroaderPodfileLockDriftIssues.length}`);
 
   if (audit.warnings.length > 0) {
     console.log('Warnings:');

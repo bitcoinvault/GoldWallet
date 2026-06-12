@@ -20,13 +20,18 @@ const validSummary = [
   'Live QR target issues: 0',
   'iOS Podfile.lock refresh required: no',
   'iOS stale removed camera pods: none',
+  'iOS camera Podfile.lock cleanup complete: yes',
+  'iOS broader Podfile.lock refresh required: yes',
+  'iOS broader Podfile.lock drift issues: 1',
+  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.0',
+  'iOS removed Podfile.lock drift issues: 0',
   'Camera QR migration wiring valid: yes',
   'Camera QR migration baseline stable: yes',
   'Warnings: 1',
   '- local Android warning audit summary still mentions react-native-camera; refresh the warning audit after migration.',
   'Readiness issues: 0',
   'Wiring errors: 0',
-  'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.',
+  'Required action: none for Android/CameraKit scanner wiring; refresh broader ios/Podfile.lock with pod install on macOS before claiming iOS camera QR runtime validation.',
   '',
 ].join('\n');
 
@@ -51,6 +56,14 @@ const invalidSummary = [
   '- CameraKit latest live npm metadata is react-native-camera-kit@19.0.0; expected react-native-camera-kit@18.0.0',
   'iOS Podfile.lock refresh required: yes',
   'iOS stale removed camera pods: react-native-camera, react-native-qrcode-local-image',
+  'iOS camera Podfile.lock cleanup complete: no',
+  'iOS broader Podfile.lock refresh required: yes',
+  'iOS broader Podfile.lock drift issues: 2',
+  '- ios/Podfile.lock still references removed react-native-camera',
+  '- ios/Podfile.lock still references removed react-native-qrcode-local-image',
+  'iOS removed Podfile.lock drift issues: 2',
+  '- ios/Podfile.lock still references removed react-native-camera',
+  '- ios/Podfile.lock still references removed react-native-qrcode-local-image',
   'Camera QR migration wiring valid: no',
   'Camera QR migration baseline stable: no',
   'Warnings: 0',
@@ -91,6 +104,24 @@ assertRejected(
   'Missing iOS pod refresh fixture',
   invalidSummary.replace('iOS Podfile.lock refresh required: yes', 'iOS Podfile.lock refresh required: no'),
   'stale removed camera pods must be none',
+);
+assertRejected(
+  'Bad iOS camera cleanup complete fixture',
+  validSummary.replace('iOS camera Podfile.lock cleanup complete: yes', 'iOS camera Podfile.lock cleanup complete: no'),
+  'cleanup cannot be incomplete',
+);
+assertRejected(
+  'Bad broader iOS drift count fixture',
+  validSummary.replace('iOS broader Podfile.lock drift issues: 1', 'iOS broader Podfile.lock drift issues: 2'),
+  'iOS broader Podfile.lock drift issues count',
+);
+assertRejected(
+  'Missing broader iOS pod install action fixture',
+  validSummary.replace(
+    'Required action: none for Android/CameraKit scanner wiring; refresh broader ios/Podfile.lock with pod install on macOS before claiming iOS camera QR runtime validation.',
+    'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.',
+  ),
+  'macOS pod install required action',
 );
 assertRejected(
   'Stable stale live QR target fixture',
