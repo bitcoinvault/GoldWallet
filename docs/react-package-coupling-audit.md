@@ -7,7 +7,7 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 ## Current Baseline
 
 - Current React: `19.2.3`
-- Latest React patch checked on 2026-06-03: `19.2.7`
+- Latest React patch checked on 2026-06-12: `19.2.7`
 - Current React types: `19.2.17`
 - Current React Native types: bundled with `react-native@0.86.0`
 - Current react-test-renderer: `19.2.3`

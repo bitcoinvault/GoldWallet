@@ -20,7 +20,7 @@ This matrix defines how to move the app foundation forward without upgrading eve
 - npm `react-native@next`: `0.86.0-rc.3`
 - `react-native@0.86.0` peer React: `^19.2.3`
 - `react-native@0.86.0` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
-- Snapshot refreshed: `2026-06-10`
+- Snapshot refreshed: `2026-06-12`
 - `react-native@next` is currently a prerelease channel and is not the default wallet target.
 
 ## Milestone Jump Strategy
