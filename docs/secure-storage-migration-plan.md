@@ -2,7 +2,7 @@
 
 This plan covers the staged secure-storage migration from `react-native-secure-key-store` to `react-native-keychain`.
 
-Checked on: 2026-05-29
+Checked on: 2026-06-12
 
 ## Current State
 
@@ -18,6 +18,7 @@ Checked on: 2026-05-29
 - Keychain-primary reads are covered by focused unit tests so existing migrated secure values do not unnecessarily touch the legacy backend.
 - Transaction-password verification is covered for both matching and non-matching candidate passwords.
 - Legacy removal readiness: not ready while legacy fallback reads are still active.
+- The 2026-06-12 release-validation summary reports migration and removal-readiness summaries valid, Android dev smoke evidence present/valid, focused secure-storage/storage/authenticator/wallet-core contracts passing, and `Secure-storage release validation evidence ready: yes`; legacy package removal still remains blocked because fallback-free validation for migrated secure values is not claimed.
 
 ## Decision
 
@@ -33,6 +34,14 @@ Successful read-time migrations now also attempt to clean the migrated legacy ke
 `secure-storage:release-validation:handoff` is the guarded validation sequence for the release-candidate step before any later legacy-package removal branch. It refreshes the migration/removal summaries, runs the focused secure-storage/storage/authenticator/wallet-core checks, and runs Android dev build plus emulator smoke unless `--skip-android-smoke` is explicitly used for summary/test-only refreshes.
 
 The release-validation handoff still does not claim `react-native-secure-key-store` removal readiness; it proves the current staged migration posture and keeps the package installed until migrated values are validated without fallback reads.
+
+Current release-validation posture checked on 2026-06-12:
+
+- `react-native-keychain@10.0.0` remains the primary write backend.
+- `react-native-secure-key-store@2.0.10` remains installed for fallback reads and post-migration cleanup.
+- Keychain primary writes, legacy fallback reads, legacy-write disablement, and legacy cleanup after successful migration are all guarded.
+- Removal release validation is not claimed and `Legacy package removal ready` remains `no`.
+- Required action remains: keep `react-native-secure-key-store` installed until fallback-free validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.
 
 Branch: `feature/bem-37-secure-storage-keychain-migration`
 
