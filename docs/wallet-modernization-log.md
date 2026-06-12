@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.642 - RN latest target snapshot refresh
+
+- Branch: `feature/bem-37-642-rn-latest-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded React Native latest-target snapshot after live npm metadata checks on 2026-06-12.
+- Keep the current package baseline unchanged while documenting that `react-native@0.86.0` is still the stable npm `latest` target.
+- Refresh the React package coupling date so standalone React patch updates remain explicitly blocked by the exact React Native renderer baseline.
+
+Findings:
+
+- Live npm metadata on 2026-06-12 still reports `react-native@0.86.0` as npm `latest`, `0.86.0-rc.3` as `next`, and `0.87.0-nightly-20260608-2ff3b81dc` as nightly-only.
+- Live npm metadata on 2026-06-12 reports `@react-native/metro-config@0.86.0` and `@react-native/babel-preset@0.86.0` as current stable package targets matching the installed React Native line.
+- `react@19.2.7` and `react-test-renderer@19.2.7` remain blocked as standalone patch updates because the RN `0.86.0` renderer baseline is exact-version sensitive at `19.2.3`.
+- No package versions, runtime code, native code, or Metro behavior changed in this branch, so Android emulator smoke is not required.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-current-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:renderer-version:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:package-coupling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.639 - iOS Podfile refresh handoff plan
 
 - Branch: `feature/bem-37-639-ios-podfile-refresh-plan`
