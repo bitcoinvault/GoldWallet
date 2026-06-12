@@ -38,6 +38,9 @@ corepack yarn codepush:decision:handoff:dry-run
 corepack yarn check:codepush-decision-handoff-summary-guard
 corepack yarn codepush:update:validation:handoff:dry-run
 corepack yarn check:codepush-update-validation-handoff-guard
+corepack yarn check:codepush-env-cleanup-plan-guard
+corepack yarn codepush:env-cleanup:plan
+corepack yarn codepush:env-cleanup:check-plan
 ```
 
 Expected summary claims after `BEM-37.583`:
@@ -64,6 +67,7 @@ Expected summary claims after `BEM-37.583`:
 - the release-services handoff now defaults to `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota` so the selected post-removal decision is preserved through the full release-services validation sequence instead of being reset to `pending`;
 - the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence;
 - no deployment key values are printed.
+- the env cleanup plan lists only file paths, key names, blank/non-empty state, and the required secrets-safe action; it never prints key values.
 
 ## Decision Needed
 
@@ -146,6 +150,7 @@ If removing CodePush:
 
 - run iOS `pod install` plus simulator/archive validation on macOS/Xcode before claiming iOS runtime delivery;
 - remove stale `CODEPUSH_*` values from `.env.*` only through a secrets-safe cleanup that does not expose historical deployment-key values in review;
+- use `corepack yarn codepush:env-cleanup:plan` before cleanup so the review-safe artifact records exactly which env files and key names need secure regeneration without printing secret values;
 - do not claim OTA update validation unless a maintained replacement is selected and tested.
 
 If replacing CodePush:
