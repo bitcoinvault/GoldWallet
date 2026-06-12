@@ -10,6 +10,27 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.635 - Android check-light documentation drift
+
+- Branch: `feature/bem-37-635-android-check-light-docs-drift`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh `docs/android-modernization-workflow.md` so the lightweight documentation guard includes the current iOS macOS validation prerequisite aggregate gate wording.
+- Keep `android:dev:check-light` documentation aligned with the release-services aggregate checker after the iOS validation handoff summary was added.
+
+Findings:
+
+- `android:dev:check-light` failed only at `android:dev:check-light-docs` because the workflow doc did not contain the guarded phrase for iOS macOS validation prerequisite summaries.
+- No runtime code, dependency versions, native build configuration, Metro behavior, or validation scripts changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.634 - Android dev smoke source APK evidence
 
 - Branch: `feature/bem-37-634-dev-smoke-source-apk-evidence`
