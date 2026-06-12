@@ -2,7 +2,7 @@
 
 Scope: `BEM-37.337`, store metadata and rebranding preparation.
 
-Checked on 2026-06-03 from the current `upgrade/wallet-modernization` baseline. This document records the store metadata surface that must be coordinated with any GoldWallet rebrand, explorer change, or release-config change.
+Checked on 2026-06-12 from the current `upgrade/wallet-modernization` baseline. This document records the store metadata surface that must be coordinated with any GoldWallet rebrand, explorer change, or release-config change.
 
 ## Current Store Metadata Surface
 

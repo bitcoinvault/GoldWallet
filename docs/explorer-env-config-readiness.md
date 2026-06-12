@@ -2,7 +2,7 @@
 
 Scope: `BEM-37.336`, explorer and env alignment preparation.
 
-Checked on 2026-06-03 after the rebranding release-config readiness audit. This document records the non-secret explorer and network configuration surface that must be validated before changing BTCV/ELCASH explorer routing, Electrum hosts, app IDs, or environment naming.
+Checked on 2026-06-12 after the rebranding release-config readiness audit. This document records the non-secret explorer and network configuration surface that must be validated before changing BTCV/ELCASH explorer routing, Electrum hosts, app IDs, or environment naming.
 
 Do not print env values in readiness logs or docs. Env files can carry release-service identifiers and deployment keys, so this audit records key presence and coordination rules only.
 

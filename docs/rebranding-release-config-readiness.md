@@ -2,7 +2,7 @@
 
 Scope: `BEM-37.335`, rebranding and explorer/release-config preparation.
 
-Checked on 2026-06-03 from the current `upgrade/wallet-modernization` baseline. This document does not change runtime behavior. It records the app identity, release-service, store metadata, and explorer surfaces that must move together when the GoldWallet rebrand starts.
+Checked on 2026-06-12 from the current `upgrade/wallet-modernization` baseline. This document does not change runtime behavior. It records the app identity, release-service, store metadata, and explorer surfaces that must move together when the GoldWallet rebrand starts.
 
 ## Current Identity Surface
 
