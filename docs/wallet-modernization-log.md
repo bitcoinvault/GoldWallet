@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.652 - iOS release readiness refresh
+
+- Branch: `feature/bem-37-652-ios-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh static iOS release-readiness evidence after the current RN `0.86.0` Android/release-service modernization stream.
+- Re-run the Windows-safe iOS release readiness audit, macOS prerequisite audit, iOS validation handoff summary, and macOS handoff dry-run.
+- Update iOS release-config and release-services documentation so they reflect the 2026-06-12 iOS blocker state.
+- Keep iOS project files, Podfile, Podfile.lock, runtime code, package versions, Android files, and Metro behavior unchanged.
+
+Findings:
+
+- Static iOS release files remain valid for RN `0.86.0`, React Native minimum iOS `15.1`, Xcode minimum `16.1`, 8 guarded schemes, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, 0 CodePush plist placeholders, and 4 remote-notification plists.
+- iOS archive/runtime validation remains not claimed on this Windows machine because the platform is `win32`, `xcodebuild` is unavailable, CocoaPods is unavailable, and `ios/Podfile.lock` still has 12 active drift issues.
+- The active `ios/Podfile.lock` drift list still references older React Native, BootSplash, Config, AsyncStorage, DeviceInfo, FastImage, Firebase, Gesture Handler, Localize, Screens, Sentry, and VectorIcons pods.
+- The macOS handoff dry-run renders the required sequence: prerequisite audit/check, `pod install`, release-readiness audit/check, selected scheme build, and post-build readiness checks.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:validation:handoff-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:validation:handoff-summary:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-validation-handoff-summary-guard`
+
 ### BEM-37.651 - Sentry release readiness refresh
 
 - Branch: `feature/bem-37-651-sentry-release-readiness-refresh`
