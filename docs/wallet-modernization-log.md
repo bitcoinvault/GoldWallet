@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.653 - Secure-storage readiness refresh
+
+- Branch: `feature/bem-37-653-secure-storage-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh secure-storage migration, removal-readiness, and release-validation evidence after the current RN `0.86.0` foundation.
+- Re-run focused SecureStorageService, AppStorage, authenticator, and offline wallet storage contracts.
+- Update secure-storage documentation so the current removal blocker is explicit and backed by generated summary evidence.
+- Keep package versions, runtime code, native files, Android build files, and Metro behavior unchanged.
+
+Findings:
+
+- `react-native-keychain@10.0.0` remains the primary write backend and `react-native-secure-key-store@2.0.10` remains installed as the legacy fallback-read and cleanup backend.
+- Secure-storage migration and removal-readiness summaries are valid, and the release-validation summary reports evidence ready with current Android dev smoke evidence present/valid.
+- Focused tests passed for `SecureStorageService`, encrypted `AppStorage`, authenticator storage, and offline wallet core storage.
+- Legacy secure-storage removal remains not ready: fallback reads are still active and fallback-free release validation for migrated PIN, transaction-password, and encrypted wallet data is not claimed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:handoff:dry-run --skip-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-release-validation-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:secure-storage:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:authenticator`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-core:offline`
+
 ### BEM-37.652 - iOS release readiness refresh
 
 - Branch: `feature/bem-37-652-ios-release-readiness-refresh`
