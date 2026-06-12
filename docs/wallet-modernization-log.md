@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.655 - Android release validation refresh
+
+- Branch: `feature/bem-37-655-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release build evidence after the current RN/AGP foundation and CodePush bundle-task compatibility work.
+- Validate all configured Android release variants locally without Sentry upload credentials.
+- Run an embedded devRelease APK smoke on the emulator to prove release packaging starts and reaches the expected empty-wallet flows.
+- Keep package versions, runtime code, native files, build files, and Metro behavior unchanged.
+
+Findings:
+
+- `android:dev:release:verify-local` built and validated `dev`, `stage`, `prod`, and `beta` release variants.
+- Each release variant produced an APK, release JS bundle, and release source map with valid summary evidence and APK manifest checks.
+- Release input fingerprint was `9a88df1be0cfb8b6f162f6350e56d282efe78368db96cb286a8060623e27014c` across 18 release input files.
+- Local Sentry auto-upload remained disabled; Sentry source-map upload validation is still not claimed until `SENTRY_AUTH_TOKEN` or equivalent `sentry.properties` credentials are provided.
+- Embedded Android devRelease smoke passed on `emulator-5554`: first-run terms/PIN/transaction-password setup completed, empty-dashboard CTA navigation passed, tab navigation passed, QR scanner screen validation passed, and no fatal/runtime logcat findings were reported.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+
 ### BEM-37.654 - Camera QR runtime validation refresh
 
 - Branch: `feature/bem-37-654-camera-qr-runtime-validation-refresh`
