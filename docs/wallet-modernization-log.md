@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.649 - Navigation native audit refresh
+
+- Branch: `feature/bem-37-649-navigation-audit-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the navigation/native compatibility audit after the React Navigation patch refresh already present in `package.json`.
+- Re-check live npm latest metadata for the React Navigation 7 package family and the active native navigation/layout packages.
+- Remove stale hardcoded masked-view guard expectations for `@react-navigation/stack@7.10.2` so the masked-view audit follows the current package version.
+
+Findings:
+
+- Live npm metadata reports the installed React Navigation family as latest/current: `@react-navigation/native@7.3.1`, `@react-navigation/stack@7.10.3`, `@react-navigation/bottom-tabs@7.18.0`, and `@react-navigation/devtools@7.0.62`.
+- Live npm metadata reports `react-native-gesture-handler@3.0.1`, `react-native-screens@4.25.2`, and `react-native-safe-area-context@5.8.0` as latest/current stable targets for the current RN `0.86.0` navigation baseline.
+- React Navigation stack and bottom-tabs peer on `@react-navigation/native ^7.3.1`, `react-native-screens >=4.0.0`, and `react-native-safe-area-context >=4.0.0`, which are satisfied by the current package set.
+- `masked-view:migration:audit` still reports the old community masked-view package removed, `@react-navigation/stack@7.10.3`, no community masked-view runtime requirement, and a stable masked-view migration baseline.
+- The first `android:dev:check-light` run exposed stale Android workflow documentation missing the historical `feature/bem-37-590-android-release-evidence-refresh` marker required by `android:dev:check-light-docs`; the workflow now records that release-input fingerprint evidence lineage while keeping `BEM-37.645` / `BEM-37.646` as the latest release build and release-smoke proof.
+- No package versions, runtime code, native code, build files, or Metro behavior changed in this branch, so Android build/emulator smoke is not required for this documentation/guard refresh.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/native version peerDependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/stack version peerDependencies dependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/bottom-tabs version peerDependencies dependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-navigation/devtools version peerDependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-gesture-handler version peerDependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-screens version peerDependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-safe-area-context version peerDependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn masked-view:migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn masked-view:migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:masked-view-migration-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.648 - SVG QR renderer audit refresh
 
 - Branch: `feature/bem-37-648-svg-qr-audit-refresh`
