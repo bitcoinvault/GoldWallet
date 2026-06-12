@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.637 - CodePush native plan removed-state alignment
+
+- Branch: `feature/bem-37-637-codepush-native-plan-removed-state`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align the native module upgrade plan with the current post-`BEM-37.583` CodePush removed state.
+- Keep the release-services planning language consistent with the CodePush retirement/removal handoff docs.
+
+Findings:
+
+- `docs/release-services-native-compatibility-audit.md` and `docs/codepush-retirement-migration-plan.md` already record that CodePush runtime/native/package integration is removed.
+- `docs/native-module-upgrade-plan.md` still described `react-native-code-push` as latest checked `9.0.1` with temporary legacy compatibility language, which no longer matched the committed removal state.
+- No runtime code, package versions, native build configuration, env values, or Metro behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:native-module-upgrade-plan-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:native-module-upgrade-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:decision:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.636 - CodePush decision handoff wording drift
 
 - Branch: `feature/bem-37-636-codepush-decision-handoff-drift`
