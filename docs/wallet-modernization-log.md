@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.636 - CodePush decision handoff wording drift
+
+- Branch: `feature/bem-37-636-codepush-decision-handoff-drift`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align `docs/codepush-retirement-migration-plan.md` with the guarded CodePush decision handoff wording.
+- Keep the current post-removal posture as `remove` while making the decision-owner gate explicit enough for `rn:baseline:preflight`.
+
+Findings:
+
+- `rn:baseline:preflight` failed at `check:codepush-decision-handoff-guard` because the plan said `keep remove` instead of the guarded `choose remove` decision wording.
+- The CodePush runtime/native path remains removed, OTA update validation remains unclaimed, and stale env cleanup remains secrets-safe follow-up work.
+- No runtime code, package versions, native build configuration, env values, or Metro behavior changed in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-decision-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:decision:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn rn:baseline:preflight`
+
 ### BEM-37.635 - Android check-light documentation drift
 
 - Branch: `feature/bem-37-635-android-check-light-docs-drift`
