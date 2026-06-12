@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.659 - Electrum runtime observation helper
+
+- Branch: `feature/bem-37-659-electrum-runtime-observation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a local Android logcat observation helper for Electrum runtime evidence after emulator smoke has launched the dev app.
+- Add a strict Electrum observation summary checker for the future success gate, without making inconclusive empty-wallet observations fail by default.
+- Keep package versions, runtime wallet logic, native files, Gradle files, and Metro behavior unchanged.
+
+Findings:
+
+- `android:dev:verify` passed on `emulator-5554` with the embedded dev smoke flow: first-run terms, PIN, transaction password, email skip, dashboard, empty-dashboard CTA flow, QR scanner, tab navigation, and no fatal/runtime logcat findings.
+- `electrum:runtime:observe` wrote `local-docs/electrum-runtime-observation.txt` and exited successfully in non-require mode.
+- The current Electrum runtime observation is inconclusive: the captured app process logcat contained `0` Electrum lines, `0` Electrum success lines, `0` Electrum failure lines, and `0` fatal/runtime findings.
+- A manual adb-driven attempt to create a local wallet during this branch reached an Android alert with `Failed to create wallet`; this does not validate or invalidate Electrum connectivity, but it means this branch cannot honestly claim a funded/live wallet Electrum flow.
+- `test:electrum-reconnect:unit` still passes for the reconnect logic, so the offline reconnect contract remains covered while live Electrum observation needs a reliable wallet/session trigger or funded testnet wallet.
+- `electrum:runtime:check-summary` is intentionally strict and should only pass when a future observation records real Electrum connection success evidence.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk ANDROID_SMOKE_LOGCAT_LINES=1600 corepack yarn android:dev:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk ELECTRUM_OBSERVATION_WAIT_MS=1000 ELECTRUM_OBSERVATION_LOGCAT_LINES=2000 corepack yarn electrum:runtime:observe`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:electrum-reconnect:unit`
+
 ### BEM-37.658 - Rebranding store readiness refresh
 
 - Branch: `feature/bem-37-658-rebranding-store-readiness-refresh`
