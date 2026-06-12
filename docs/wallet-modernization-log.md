@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.644 - Foundation dependency cohort latest refresh
+
+- Branch: `feature/bem-37-644-foundation-dependency-cohort-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live npm latest evidence for the wallet/crypto, storage/network, and tooling dependency cohorts after the RN and Android target refreshes.
+- Update the shared baseline and cohort audit docs so future dependency branches start from 2026-06-12 package evidence.
+- Keep package versions unchanged because all tracked npm packages in these cohorts are current, except for the intentionally pinned BitcoinVault `bitcoinjs-lib` fork.
+
+Findings:
+
+- Wallet/crypto latest snapshot reports 15 tracked entries: `bip39`, `bip32`, `@bitcoinerlab/secp256k1`, `coinselect`, `ecurve`, `bigi`, `pbkdf2`, `wif`, `react-native-get-random-values`, `crypto-js`, and related type packages remain current; `bitcoinjs-lib` remains fork-pinned and must not be replaced by upstream npm without a dedicated wallet compatibility branch.
+- Storage/network latest snapshot reports all 10 tracked packages current: AsyncStorage, NetInfo, DeviceInfo, Config, Localize, random values, Keychain, secure-key-store fallback, TCP socket, and WebView.
+- Tooling latest snapshot reports all 24 tracked tooling packages current, including TypeScript `6.0.3`, Jest `30.4.2`, ESLint `10.4.1`, Prettier `3.8.4`, lint-staged `17.0.7`, Husky `9.1.7`, and Detox `20.51.3`.
+- No package versions, runtime code, native code, build files, or Metro behavior changed in this branch, so Android assemble and emulator smoke are not required.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.643 - Android toolchain latest-target refresh
 
 - Branch: `feature/bem-37-643-android-toolchain-target-refresh`
