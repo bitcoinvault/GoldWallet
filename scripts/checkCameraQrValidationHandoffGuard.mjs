@@ -129,12 +129,17 @@ const migrationSummary = [
   'Live QR target issues: 0',
   'iOS Podfile.lock refresh required: no',
   'iOS stale removed camera pods: none',
+  'iOS camera Podfile.lock cleanup complete: yes',
+  'iOS broader Podfile.lock refresh required: yes',
+  'iOS broader Podfile.lock drift issues: 1',
+  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.0',
+  'iOS removed Podfile.lock drift issues: 0',
   'Camera QR migration wiring valid: yes',
   'Camera QR migration baseline stable: yes',
   'Warnings: 0',
   'Readiness issues: 0',
   'Wiring errors: 0',
-  'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.',
+  'Required action: none for Android/CameraKit scanner wiring; refresh broader ios/Podfile.lock with pod install on macOS before claiming iOS camera QR runtime validation.',
 ].join('\n');
 
 const androidSmokeSummary = [
