@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.658 - Rebranding store readiness refresh
+
+- Branch: `feature/bem-37-658-rebranding-store-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh rebranding release-config, store metadata, and explorer/env readiness evidence after the current Android release smoke and storage/network latest refresh.
+- Update readiness document checked dates to the current baseline.
+- Keep app names, package IDs, bundle IDs, URLs, explorer values, store copy, runtime code, native files, build files, and Metro behavior unchanged.
+
+Findings:
+
+- Rebranding release-config readiness remains guarded for Android app IDs/names/deep links, iOS bundle IDs/plists/schemes, runtime config keys, explorer/env readiness, and store metadata readiness.
+- Store metadata readiness remains guarded for 8 iOS Fastlane locales and 1 Android Fastlane locale, with current pre-rebrand `GoldWallet`, `goldwallet.io`, and GitHub support URL baselines still visible.
+- Explorer/env config readiness remains guarded for 7 env files without printing env values or secret release-service identifiers.
+- Product decisions are still required before implementation: final app name, package/bundle ID strategy, legacy deep-link strategy, BTCV/ELCASH wording, explorer selection, support/privacy URLs, screenshots, and whether release-service projects are reused or recreated.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rebranding-release-config-readiness`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:store-metadata-readiness`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:explorer-env-config-readiness`
+
 ### BEM-37.657 - Storage/network latest refresh
 
 - Branch: `feature/bem-37-657-storage-network-latest-refresh`
