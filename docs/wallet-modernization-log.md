@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.645 - Android release build evidence refresh
+
+- Branch: `feature/bem-37-645-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release build evidence for the current RN `0.86.0` / AGP `8.13.2` baseline.
+- Rebuild and validate `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` APK evidence with JDK 17, Android SDK/build tools 36, and Sentry auto-upload disabled for local validation.
+- Keep release source-map upload validation explicitly unclaimed because Sentry credentials/properties are not available in this shell.
+
+Findings:
+
+- `android:dev:release:verify-local` completed successfully on 2026-06-12 with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- All four release variants exited with code `0` on the first Gradle attempt and produced unsigned APKs, release JS bundles, and release source maps with validated byte counts and SHA-256 hashes.
+- `android:dev:release:check-apk-manifest` validated actual APK manifests for `dev`, `stage`, `prod`, and `beta` using Android build tools `36.0.0`.
+- `Sentry release upload validation` remains `not claimed`; the required follow-up is still to provide Sentry properties or `SENTRY_AUTH_TOKEN` before claiming source-map upload validation.
+- No package versions, runtime code, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required; release-smoke remains a separate validation path.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-apk-manifest`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.644 - Foundation dependency cohort latest refresh
 
 - Branch: `feature/bem-37-644-foundation-dependency-cohort-refresh`
