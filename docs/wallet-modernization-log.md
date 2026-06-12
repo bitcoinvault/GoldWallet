@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.654 - Camera QR runtime validation refresh
+
+- Branch: `feature/bem-37-654-camera-qr-runtime-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR candidate and migration evidence against live npm metadata.
+- Run the full Camera/QR validation handoff with Android dev assemble and embedded emulator smoke included.
+- Validate focused QR scanner and QR render unit contracts plus runtime smoke coverage for the QR scanner screen.
+- Keep package versions, runtime code, native project files, build files, and Metro behavior unchanged.
+
+Findings:
+
+- `camera:candidate:audit` still reports `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` as current matched targets.
+- VisionCamera remains deferred because the latest line requires the Nitro peer stack.
+- `camera:qr-migration:audit` reports legacy `react-native-camera` and legacy QR local-image packages absent, CameraKit installed, QR render versions aligned, no removed camera pods in `ios/Podfile.lock`, and broader iOS Podfile.lock drift still at 12 active issues.
+- Focused QR scanner tests passed 4 tests and focused QR render tests passed 5 tests.
+- Android embedded smoke passed on `emulator-5554`: first-run terms/PIN/transaction-password setup completed, empty-dashboard CTA navigation passed, tab navigation passed, QR scanner screen validation passed, and no fatal/runtime logcat findings were reported.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run --include-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn camera:qr-validation:handoff --include-android-smoke`
+
 ### BEM-37.653 - Secure-storage readiness refresh
 
 - Branch: `feature/bem-37-653-secure-storage-readiness-refresh`
