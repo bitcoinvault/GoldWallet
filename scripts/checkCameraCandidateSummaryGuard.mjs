@@ -2,8 +2,8 @@ import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.m
 
 const validSummary = [
   'Camera candidate audit',
-  'Generated at: 2026-06-11T00:00:00.000Z',
-  'Metadata checked on: 2026-06-11',
+  'Generated at: 2026-06-12T00:00:00.000Z',
+  'Metadata checked on: 2026-06-12',
   'Legacy camera latest: react-native-camera@4.2.1',
   'VisionCamera latest: react-native-vision-camera@5.0.11',
   'VisionCamera Nitro peers: yes',
@@ -59,7 +59,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid camera candidate summary fixture', validSummary);
 assertRejected('Invalid VisionCamera Nitro peer fixture', invalidSummary, 'VisionCamera Nitro peers');
-assertRejected('Missing metadata date fixture', validSummary.replace('Metadata checked on: 2026-06-11', 'Metadata checked on: 2026-06-05'), 'Metadata checked on');
+assertRejected('Missing metadata date fixture', validSummary.replace('Metadata checked on: 2026-06-12', 'Metadata checked on: 2026-06-05'), 'Metadata checked on');
 assertRejected(
   'Stable stale metadata fixture',
   validSummary.replace('Live npm metadata: matched', 'Live npm metadata: stale'),

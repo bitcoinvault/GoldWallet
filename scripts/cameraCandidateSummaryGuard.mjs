@@ -53,8 +53,8 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push('Camera candidate summary header is missing');
   }
 
-  if (metadataCheckedOn !== '2026-06-11') {
-    errors.push(`Metadata checked on must be 2026-06-11. Received: ${metadataCheckedOn || 'missing'}`);
+  if (metadataCheckedOn !== '2026-06-12') {
+    errors.push(`Metadata checked on must be 2026-06-12. Received: ${metadataCheckedOn || 'missing'}`);
   }
 
   if (legacyCamera !== 'react-native-camera@4.2.1') {
