@@ -16,6 +16,8 @@ if (!existsSync(summaryPath)) {
 const errors = getAndroidSmokeSummaryErrors(readFileSync(summaryPath, 'utf8'), {
   requireSmokeApkDigest: true,
   expectedSmokeApkPath: debugApkPath,
+  requireSourceApkDigest: true,
+  expectedSourceApkPath: debugApkPath,
 });
 
 if (errors.length > 0) {

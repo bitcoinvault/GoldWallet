@@ -145,6 +145,8 @@ const assertDebugApkDigestAccepted = (label, summary) => {
   const errors = getAndroidSmokeSummaryErrors(summary, {
     requireSmokeApkDigest: true,
     expectedSmokeApkPath: fixtureFilePath,
+    requireSourceApkDigest: true,
+    expectedSourceApkPath: fixtureFilePath,
   });
 
   if (errors.length > 0) {
@@ -158,6 +160,8 @@ const assertDebugApkDigestRejected = (label, summary) => {
   const errors = getAndroidSmokeSummaryErrors(summary, {
     requireSmokeApkDigest: true,
     expectedSmokeApkPath: fixtureFilePath,
+    requireSourceApkDigest: true,
+    expectedSourceApkPath: fixtureFilePath,
   });
 
   if (errors.length === 0) {
@@ -186,6 +190,13 @@ assertAccepted('Valid Android smoke summary fixture', validSummary);
 assertAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertEmbeddedAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertDebugApkDigestAccepted('Valid debug Android smoke APK digest fixture', validSummary);
+assertDebugApkDigestRejected(
+  'Missing debug source APK digest fixture',
+  validSummary
+    .replace(`Source APK path: ${fixtureFilePath}`, 'Source APK path: <missing>')
+    .replace(`Source APK bytes: ${fixtureFileBytes}`, 'Source APK bytes: 0')
+    .replace(`Source APK sha256: ${fixtureFileSha256}`, 'Source APK sha256: <missing>'),
+);
 assertRejected('Failed smoke outcome fixture', failedSummary);
 assertRejected('Metro unreachable fixture', missingMetroSummary);
 assertRejected('Invalid clean-state fixture', invalidCleanStateSummary);

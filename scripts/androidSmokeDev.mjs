@@ -22,7 +22,7 @@ let selectedAndroidSerial = androidSerial;
 const apkPath =
   process.env.ANDROID_SMOKE_APK ||
   path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
-const sourceApkPath = process.env.ANDROID_SMOKE_SOURCE_APK || '';
+const sourceApkPath = process.env.ANDROID_SMOKE_SOURCE_APK || apkPath;
 const startupWaitMs = Number(process.env.ANDROID_SMOKE_WAIT_MS || 20000);
 const uiWaitMs = Number(process.env.ANDROID_SMOKE_UI_WAIT_MS || 90000);
 const uiPollIntervalMs = Number(process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS || 1000);

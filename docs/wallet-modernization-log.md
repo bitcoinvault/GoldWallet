@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.634 - Android dev smoke source APK evidence
+
+- Branch: `feature/bem-37-634-dev-smoke-source-apk-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make Android dev smoke summaries record source APK evidence by defaulting `ANDROID_SMOKE_SOURCE_APK` to the installed debug APK when no separate source APK is provided.
+- Tighten `android:dev:check-smoke-summary` so debug smoke evidence validates both the installed APK digest and the source APK digest.
+- Extend the smoke summary guard fixture to reject missing debug source APK evidence.
+
+Findings:
+
+- The previous dev smoke summary had a passing app smoke result but recorded `Source APK path: <missing>`, while release smoke already required source APK evidence.
+- Debug dev smoke uses the same APK as the installed smoke APK unless a caller explicitly provides `ANDROID_SMOKE_SOURCE_APK`.
+- The first smoke run on this branch failed after ADB restarted and the emulator disappeared from `adb devices`; after restarting `Medium_Phone_API_36.0`, the full embedded smoke passed.
+- This branch changes validation tooling and the smoke runner only; it does not change app runtime code, dependencies, native build configuration, or Metro behavior.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-smoke-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary` failed before smoke refresh because the previous local summary had `Source APK path: <missing>`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:smoke:embedded` passed after restarting the headless `Medium_Phone_API_36.0` emulator
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.633 - Git dependency readiness summary
 
 - Branch: `feature/bem-37-633-git-dependency-readiness-summary`
