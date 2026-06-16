@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.705 - iOS Beta product-name rebrand guard
+
+- Branch: `feature/bem-37-705-ios-beta-product-name-rebrand-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the rebranding release-config readiness guard so iOS Beta display-name evidence covers the Xcode `PRODUCT_NAME = "GoldWallet Beta"` setting, not only the `$(PRODUCT_NAME)` placeholder in `GoldWallet-beta.plist`.
+- Add a negative guard fixture for iOS Beta product-name drift.
+- Document that Beta product-name changes must move with the plist, schemes, bundle identifier, and store metadata.
+- Keep runtime app code, Android/iOS native project settings, package versions, Metro, env values, and local release artifacts unchanged.
+
+Findings:
+
+- iOS Beta uses `GoldWallet-beta.plist` with `$(PRODUCT_NAME)`, so checking only the plist placeholder can miss the real display-name value in `ios/GoldWallet.xcodeproj/project.pbxproj`.
+- This branch is static release-config guard work on Windows; iOS runtime/archive validation remains blocked until macOS/Xcode/CocoaPods validation runs.
+- Android runtime smoke is not rerun because this branch changes only guard scripts and committed documentation.
+
+Validation:
+
+- `& $node --check scripts\rebrandingReleaseConfigReadinessGuard.mjs`
+- `& $node --check scripts\checkRebrandingReleaseConfigReadinessGuard.mjs`
+- `& $node $yarn check:rebranding-release-config-readiness-guard`
+- `& $node $yarn check:rebranding-release-config-readiness`
+- `& $node $yarn check:explorer-env-config-readiness`
+- `& $node $yarn check:store-metadata-readiness`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:android-env-config-files`
+- `& $node $yarn check:ios-scheme-config`
+- `& $node $yarn check:release-services-summary-guard`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn android:dev:check-light`
+
 ### BEM-37.704 - iOS Podfile refresh all-schemes handoff plan
 
 - Branch: `feature/bem-37-704-ios-podfile-refresh-all-schemes-plan`
