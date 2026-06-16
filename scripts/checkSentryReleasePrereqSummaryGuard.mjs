@@ -45,6 +45,10 @@ const notReadySummary = [
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
   'Sentry release smoke evidence ready: yes',
+  'Android release create-wallet smoke summary present: yes',
+  'Android release create-wallet smoke summary valid: yes',
+  'Android release create-wallet smoke summary errors: 0',
+  'Sentry release create-wallet evidence ready: yes',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
@@ -105,6 +109,10 @@ const readySummary = [
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
   'Sentry release smoke evidence ready: yes',
+  'Android release create-wallet smoke summary present: yes',
+  'Android release create-wallet smoke summary valid: yes',
+  'Android release create-wallet smoke summary errors: 0',
+  'Sentry release create-wallet evidence ready: yes',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
@@ -312,6 +320,21 @@ assertRejected(
   'Missing Sentry release smoke evidence fixture',
   readySummary.replace('Sentry release smoke evidence ready: yes', 'Sentry release smoke evidence ready: no'),
   'release smoke evidence',
+);
+assertRejected(
+  'Missing Android release create-wallet smoke fixture',
+  notReadySummary.replace('Android release create-wallet smoke summary present: yes', 'Android release create-wallet smoke summary present: no'),
+  'Android release create-wallet smoke summary must be present',
+);
+assertRejected(
+  'Invalid Android release create-wallet smoke fixture',
+  notReadySummary.replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no'),
+  'valid Android release create-wallet smoke summary',
+);
+assertRejected(
+  'Missing Sentry release create-wallet evidence fixture',
+  readySummary.replace('Sentry release create-wallet evidence ready: yes', 'Sentry release create-wallet evidence ready: no'),
+  'release create-wallet evidence',
 );
 assertRejected(
   'Missing required action fixture',

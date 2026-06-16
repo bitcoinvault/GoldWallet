@@ -7,12 +7,15 @@ import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs
 import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary.txt');
 const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
+const androidReleaseSignedSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 export const requiredSentryPropertiesFiles = ['sentry.properties', 'android/sentry.properties', 'ios/sentry.properties'];
 export const requiredSentryPropertiesKeys = ['defaults.url', 'defaults.org', 'defaults.project', 'auth.token'];
 export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod', 'beta'];
@@ -227,6 +230,16 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const androidReleaseSmokeSummaryErrors = hasAndroidReleaseSmokeSummary
     ? getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummary, getAndroidReleaseSmokeEvidenceOptions(root))
     : ['Android release smoke summary artifact is missing'];
+  const hasAndroidReleaseCreateWalletSmokeSummary = existsSync(androidReleaseCreateWalletSmokeSummaryPath);
+  const androidReleaseCreateWalletSmokeSummary = hasAndroidReleaseCreateWalletSmokeSummary
+    ? readFileSync(androidReleaseCreateWalletSmokeSummaryPath, 'utf8')
+    : '';
+  const androidReleaseCreateWalletSmokeSummaryErrors = hasAndroidReleaseCreateWalletSmokeSummary
+    ? getAndroidCreateWalletSmokeSummaryErrors(androidReleaseCreateWalletSmokeSummary, {
+        expectedApkPath: androidReleaseSignedSmokeApkPath,
+        expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+      })
+    : ['Android release create-wallet smoke summary artifact is missing'];
 
   const hasCreateScript = existsSync(createScriptPath);
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';
@@ -264,6 +277,8 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseSummaryCurrentInputsCovered &&
     androidReleaseApkManifestErrors.length === 0;
   const androidReleaseSmokeEvidenceReady = hasAndroidReleaseSmokeSummary && androidReleaseSmokeSummaryErrors.length === 0;
+  const androidReleaseCreateWalletSmokeEvidenceReady =
+    hasAndroidReleaseCreateWalletSmokeSummary && androidReleaseCreateWalletSmokeSummaryErrors.length === 0;
   const ready =
     missingFiles.length === 0 &&
     invalidFiles.length === 0 &&
@@ -272,7 +287,8 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     sentryCliReleaseBuildPathUsesDirectPackage &&
     sentryCliExecutable &&
     androidReleaseEvidenceReady &&
-    androidReleaseSmokeEvidenceReady;
+    androidReleaseSmokeEvidenceReady &&
+    androidReleaseCreateWalletSmokeEvidenceReady;
 
   return {
     sentryReactNativeVersion,
@@ -304,6 +320,9 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     hasAndroidReleaseSmokeSummary,
     androidReleaseSmokeSummaryErrors,
     androidReleaseSmokeEvidenceReady,
+    hasAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseCreateWalletSmokeSummaryErrors,
+    androidReleaseCreateWalletSmokeEvidenceReady,
     hasCreateScript,
     createScriptUsesToken,
     createScriptRejectsMissingToken,
@@ -403,6 +422,15 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`);
   audit.androidReleaseSmokeSummaryErrors.forEach(error => lines.push(`- ${error}`));
   lines.push(`Sentry release smoke evidence ready: ${audit.androidReleaseSmokeEvidenceReady ? 'yes' : 'no'}`);
+  lines.push(`Android release create-wallet smoke summary present: ${audit.hasAndroidReleaseCreateWalletSmokeSummary ? 'yes' : 'no'}`);
+  lines.push(
+    `Android release create-wallet smoke summary valid: ${
+      audit.androidReleaseCreateWalletSmokeSummaryErrors.length === 0 ? 'yes' : 'no'
+    }`,
+  );
+  lines.push(`Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`);
+  audit.androidReleaseCreateWalletSmokeSummaryErrors.forEach(error => lines.push(`- ${error}`));
+  lines.push(`Sentry release create-wallet evidence ready: ${audit.androidReleaseCreateWalletSmokeEvidenceReady ? 'yes' : 'no'}`);
   lines.push('Sentry release upload validation: not claimed');
   lines.push(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
@@ -503,6 +531,14 @@ const printReport = audit => {
   console.log(`Android release smoke summary valid: ${audit.androidReleaseSmokeSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`);
   console.log(`Sentry release smoke evidence ready: ${audit.androidReleaseSmokeEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`Android release create-wallet smoke summary present: ${audit.hasAndroidReleaseCreateWalletSmokeSummary ? 'yes' : 'no'}`);
+  console.log(
+    `Android release create-wallet smoke summary valid: ${
+      audit.androidReleaseCreateWalletSmokeSummaryErrors.length === 0 ? 'yes' : 'no'
+    }`,
+  );
+  console.log(`Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`);
+  console.log(`Sentry release create-wallet evidence ready: ${audit.androidReleaseCreateWalletSmokeEvidenceReady ? 'yes' : 'no'}`);
   console.log('Sentry release upload validation: not claimed');
   console.log(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);

@@ -71,13 +71,11 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
 
   if (!options.skipAndroidRelease) {
     steps.push(
-      yarnStep('Refresh Android release APK evidence', 'android:dev:release:verify-local', [], {
+      yarnStep('Refresh Android release create-wallet evidence', 'android:dev:release:create-wallet-verify', [], {
         env: {
           SENTRY_DISABLE_AUTO_UPLOAD: 'true',
         },
       }),
-      yarnStep('Run Android release APK embedded smoke', 'android:dev:release:smoke:embedded'),
-      yarnStep('Validate Android release smoke summary', 'android:dev:release:check-smoke-summary'),
     );
   }
 

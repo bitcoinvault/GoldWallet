@@ -10,6 +10,58 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.664 - Sentry release create-wallet evidence gate
+
+- Branch: `feature/bem-37-664-sentry-release-create-wallet-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Reuse the Android create-wallet smoke summary checker from other release-service audits instead of keeping it CLI-only.
+- Require `local-docs/android-create-wallet-smoke-dev-release-summary.txt` in Sentry release prerequisite and aggregate release-services readiness before source-map release validation can be considered ready.
+- Update Sentry and release-services validation handoff dry-runs to refresh release build, release startup, and release create-wallet evidence through `android:dev:release:create-wallet-verify`.
+- Keep Sentry SDK, Sentry CLI, wallet runtime code, package versions, native files, Gradle files, and Metro configuration unchanged.
+
+Findings:
+
+- Live npm metadata still reports the installed Sentry targets as current: `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.0`.
+- Release-mode startup proof alone was not enough for source-map handoff readiness because it did not prove wallet creation in the bundled release app.
+- Sentry source-map upload remains explicitly unclaimed until `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are available.
+
+Validation:
+
+- `cmd /c npm.cmd view @sentry/react-native version --json`
+- `cmd /c npm.cmd view @sentry/cli version --json`
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node --check scripts/checkAndroidCreateWalletSmokeSummary.mjs`
+- `& $node --check scripts/checkAndroidReleaseCreateWalletSmokeSummary.mjs`
+- `& $node --check scripts/checkReleaseServicesSummaryArtifacts.mjs`
+- `& $node --check scripts/checkReleaseServicesSummaryGuard.mjs`
+- `& $node --check scripts/auditSentryReleasePrerequisites.mjs`
+- `& $node --check scripts/sentryReleasePrereqSummaryGuard.mjs`
+- `& $node --check scripts/checkSentryReleasePrereqSummaryGuard.mjs`
+- `& $node --check scripts/runSentryReleaseValidationHandoff.mjs`
+- `& $node --check scripts/checkSentryReleaseValidationHandoffGuard.mjs`
+- `& $node --check scripts/runReleaseServicesValidationHandoff.mjs`
+- `& $node --check scripts/checkReleaseServicesValidationHandoffGuard.mjs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-release-prereq-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-release-validation-handoff-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:release-services-validation-handoff-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:validation:handoff:dry-run`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' release-services:validation:handoff:dry-run`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:prereq-audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:prereq-check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:release-services-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' release-services:check-summaries`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-smoke-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-create-wallet-smoke-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-light-docs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:rn-nodeify-shims`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' typescript:check`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' lint:baseline:audit` passed as the existing baseline audit while reporting the known lint debt.
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.663 - Android release create-wallet smoke
 
 - Branch: `feature/bem-37-663-release-create-wallet-smoke`

@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
 import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -68,68 +68,89 @@ const requireFileEvidence = (summary, { pathLabel, bytesLabel, shaLabel, expecte
   }
 };
 
-if (!existsSync(summaryPath)) {
-  console.error(`Missing Android create-wallet smoke summary artifact: ${summaryPath}`);
-  process.exit(1);
-}
+export const getAndroidCreateWalletSmokeSummaryErrors = (summary, options = {}) => {
+  const errors = [];
+  const {
+    expectedApkPath: expectedSourceApkPath = debugApkPath,
+    expectedArtifactBase,
+  } = options;
 
-const summary = readFileSync(summaryPath, 'utf8');
-const errors = [];
-
-if (!isSafeOutputBaseName) {
-  errors.push(`ANDROID_CREATE_WALLET_SMOKE_OUTPUT_BASENAME must be a safe file basename. Received: ${requestedOutputBaseName}`);
-}
-
-if (!isIsoTimestamp(getLineValue(summary, 'Generated at'))) {
-  errors.push('Generated at must be an ISO timestamp');
-}
-
-[
-  'Android create-wallet smoke outcome: passed',
-  'Android create-wallet smoke exit code: 0',
-  'Standard wallet created: yes',
-  'Standard mnemonic screen reached: yes',
-  'Vault next-step reached: yes',
-  'No create-wallet error UI: yes',
-  'Fatal/runtime logcat findings: no',
-].forEach(expectedLine => {
-  if (!hasLine(summary, expectedLine)) {
-    errors.push(`Expected line not found: ${expectedLine}`);
+  if (!isIsoTimestamp(getLineValue(summary, 'Generated at'))) {
+    errors.push('Generated at must be an ISO timestamp');
   }
-});
 
-['Android serial', 'Android package', 'Android activity', 'Artifact base', 'Standard wallet name', 'Vault wallet name'].forEach(
-  label => {
-    if (!getLineValue(summary, label)) {
-      errors.push(`${label} is missing`);
+  [
+    'Android create-wallet smoke outcome: passed',
+    'Android create-wallet smoke exit code: 0',
+    'Standard wallet created: yes',
+    'Standard mnemonic screen reached: yes',
+    'Vault next-step reached: yes',
+    'No create-wallet error UI: yes',
+    'Fatal/runtime logcat findings: no',
+  ].forEach(expectedLine => {
+    if (!hasLine(summary, expectedLine)) {
+      errors.push(`Expected line not found: ${expectedLine}`);
     }
-  },
-);
+  });
 
-['App PID', 'Captured logcat lines', 'Screenshot bytes'].forEach(label => {
-  if (!isPositiveInteger(getLineValue(summary, label))) {
-    errors.push(`${label} must be a positive integer`);
+  ['Android serial', 'Android package', 'Android activity', 'Artifact base', 'Standard wallet name', 'Vault wallet name'].forEach(
+    label => {
+      if (!getLineValue(summary, label)) {
+        errors.push(`${label} is missing`);
+      }
+    },
+  );
+
+  if (expectedArtifactBase && getLineValue(summary, 'Artifact base') !== expectedArtifactBase) {
+    errors.push(`Artifact base must be ${expectedArtifactBase}. Received: ${getLineValue(summary, 'Artifact base') || 'missing'}`);
   }
-});
 
-requireFileEvidence(
-  summary,
-  {
-    pathLabel: 'Source APK path',
-    bytesLabel: 'Source APK bytes',
-    shaLabel: 'Source APK sha256',
-    expectedPath: expectedApkPath,
-  },
-  errors,
-);
-requireExistingFile(summary, 'UI hierarchy path', errors);
-requireExistingFile(summary, 'Logcat path', errors);
-requireExistingFile(summary, 'Screenshot path', errors);
+  ['App PID', 'Captured logcat lines', 'Screenshot bytes'].forEach(label => {
+    if (!isPositiveInteger(getLineValue(summary, label))) {
+      errors.push(`${label} must be a positive integer`);
+    }
+  });
 
-if (errors.length > 0) {
-  console.error('Android create-wallet smoke summary artifact is invalid:');
-  errors.forEach(error => console.error(`- ${error}`));
-  process.exit(1);
+  requireFileEvidence(
+    summary,
+    {
+      pathLabel: 'Source APK path',
+      bytesLabel: 'Source APK bytes',
+      shaLabel: 'Source APK sha256',
+      expectedPath: expectedSourceApkPath,
+    },
+    errors,
+  );
+  requireExistingFile(summary, 'UI hierarchy path', errors);
+  requireExistingFile(summary, 'Logcat path', errors);
+  requireExistingFile(summary, 'Screenshot path', errors);
+
+  return errors;
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  if (!existsSync(summaryPath)) {
+    console.error(`Missing Android create-wallet smoke summary artifact: ${summaryPath}`);
+    process.exit(1);
+  }
+
+  const summary = readFileSync(summaryPath, 'utf8');
+  const errors = [];
+
+  if (!isSafeOutputBaseName) {
+    errors.push(`ANDROID_CREATE_WALLET_SMOKE_OUTPUT_BASENAME must be a safe file basename. Received: ${requestedOutputBaseName}`);
+  }
+
+  getAndroidCreateWalletSmokeSummaryErrors(summary, {
+    expectedApkPath,
+    expectedArtifactBase: outputBaseName,
+  }).forEach(error => errors.push(error));
+
+  if (errors.length > 0) {
+    console.error('Android create-wallet smoke summary artifact is invalid:');
+    errors.forEach(error => console.error(`- ${error}`));
+    process.exit(1);
+  }
+
+  console.log('Android create-wallet smoke summary artifact is valid.');
 }
-
-console.log('Android create-wallet smoke summary artifact is valid.');

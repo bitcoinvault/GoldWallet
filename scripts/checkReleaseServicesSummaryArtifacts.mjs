@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
+import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
@@ -37,6 +38,15 @@ export const releaseServicesSummaryArtifacts = [
     label: 'Android release smoke',
     relativePath: 'local-docs/android-smoke-dev-release-summary.txt',
     getErrors: (summary, rootPath) => getAndroidEmbeddedSmokeSummaryErrors(summary, getAndroidReleaseSmokeEvidenceOptions(rootPath)),
+  },
+  {
+    label: 'Android release create-wallet smoke',
+    relativePath: 'local-docs/android-create-wallet-smoke-dev-release-summary.txt',
+    getErrors: (summary, rootPath) =>
+      getAndroidCreateWalletSmokeSummaryErrors(summary, {
+        expectedApkPath: path.join(rootPath, 'local-docs', 'android-smoke-dev-release-signed.apk'),
+        expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+      }),
   },
   {
     label: 'Sentry release prerequisite',
