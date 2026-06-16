@@ -1,10 +1,13 @@
 import { createHash } from 'crypto';
-import { existsSync, readFileSync, statSync } from 'fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import path from 'path';
 
 export const androidReleaseFingerprintInputs = [
   'package.json',
   'yarn.lock',
+  'babel.config.js',
+  'metro.config.js',
+  'react-native.config.js',
   'android/build.gradle',
   'android/app/build.gradle',
   'android/gradle.properties',
@@ -22,6 +25,56 @@ export const androidReleaseFingerprintInputs = [
   '.env.prod.mainnet',
   '.env.stage.mainnet',
 ];
+
+export const androidReleaseSourceFingerprintRoots = [
+  'App.tsx',
+  'Main.tsx',
+  'index.js',
+  'BlueApp.js',
+  'BlueElectrum.js',
+  'encryption.js',
+  'events.js',
+  'prompt.js',
+  'shim.js',
+  'class',
+  'error',
+  'img',
+  'loc',
+  'logger',
+  'models',
+  'src',
+  'utils',
+];
+
+const androidReleaseSourceFingerprintExtensions = new Set([
+  '.gif',
+  '.jpeg',
+  '.jpg',
+  '.js',
+  '.json',
+  '.jsx',
+  '.otf',
+  '.png',
+  '.svg',
+  '.ts',
+  '.tsx',
+  '.ttf',
+  '.webp',
+]);
+const ignoredSourceFingerprintDirectories = new Set([
+  '__mocks__',
+  '__tests__',
+  'android',
+  'artifacts',
+  'coverage',
+  'ios',
+  'local-docs',
+  'node_modules',
+  'scripts',
+  'tests',
+]);
+const binaryFingerprintExtensions = new Set(['.gif', '.jpeg', '.jpg', '.otf', '.png', '.ttf', '.webp']);
+const releaseTestFilePattern = /\.(?:e2e|spec|test)\.[jt]sx?$/i;
 
 const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
@@ -47,17 +100,82 @@ const isLikelySourceMap = filePath => {
 export const normalizeAndroidReleaseFingerprintContent = content =>
   content.toString('utf8').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
-export const getAndroidReleaseInputFingerprint = (root = process.cwd(), inputs = androidReleaseFingerprintInputs) => {
+const toRelativePath = absolutePath => absolutePath.split(path.sep).join('/');
+
+const collectReleaseSourceFingerprintFiles = (root, relativeRoot) => {
+  const absoluteRoot = path.join(root, relativeRoot);
+
+  if (!existsSync(absoluteRoot)) {
+    return [];
+  }
+
+  const stat = statSync(absoluteRoot);
+  if (stat.isFile()) {
+    return androidReleaseSourceFingerprintExtensions.has(path.extname(relativeRoot).toLowerCase()) &&
+      !releaseTestFilePattern.test(path.basename(relativeRoot))
+      ? [toRelativePath(relativeRoot)]
+      : [];
+  }
+
+  if (!stat.isDirectory()) {
+    return [];
+  }
+
+  const entries = readdirSync(absoluteRoot, { withFileTypes: true }).sort((left, right) => left.name.localeCompare(right.name));
+
+  return entries.flatMap(entry => {
+    const childRelativePath = path.join(relativeRoot, entry.name);
+
+    if (entry.isDirectory()) {
+      return ignoredSourceFingerprintDirectories.has(entry.name)
+        ? []
+        : collectReleaseSourceFingerprintFiles(root, childRelativePath);
+    }
+
+    if (
+      !entry.isFile() ||
+      releaseTestFilePattern.test(entry.name) ||
+      !androidReleaseSourceFingerprintExtensions.has(path.extname(entry.name).toLowerCase())
+    ) {
+      return [];
+    }
+
+    return [toRelativePath(childRelativePath)];
+  });
+};
+
+export const getAndroidReleaseInputFingerprintFiles = (root = process.cwd()) => {
+  const files = new Set(androidReleaseFingerprintInputs.map(toRelativePath));
+
+  androidReleaseSourceFingerprintRoots
+    .flatMap(relativeRoot => collectReleaseSourceFingerprintFiles(root, relativeRoot))
+    .forEach(relativePath => files.add(relativePath));
+
+  return [...files].sort();
+};
+
+export const getAndroidReleaseInputFingerprintFileCount = (root = process.cwd()) =>
+  getAndroidReleaseInputFingerprintFiles(root).length;
+
+const readFingerprintContent = filePath => {
+  const content = readFileSync(filePath);
+
+  return binaryFingerprintExtensions.has(path.extname(filePath).toLowerCase())
+    ? content
+    : normalizeAndroidReleaseFingerprintContent(content);
+};
+
+export const getAndroidReleaseInputFingerprint = (root = process.cwd(), inputs = getAndroidReleaseInputFingerprintFiles(root)) => {
   const hash = createHash('sha256');
 
   inputs.forEach(relativePath => {
     const absolutePath = path.join(root, relativePath);
 
-    hash.update(relativePath.replaceAll(path.sep, '/'));
+    hash.update(toRelativePath(relativePath));
     hash.update('\0');
 
     if (existsSync(absolutePath)) {
-      hash.update(normalizeAndroidReleaseFingerprintContent(readFileSync(absolutePath)));
+      hash.update(readFingerprintContent(absolutePath));
     } else {
       hash.update('<missing>');
     }
@@ -89,6 +207,7 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
   const gradleRetryMaxAttempts = getLineValue(summary, 'Gradle retry max attempts');
   const gradleRetryExitCodes = getLineValue(summary, 'Gradle retry exit codes');
   const currentReleaseInputFingerprint = getAndroidReleaseInputFingerprint(root);
+  const currentReleaseInputFingerprintFileCount = getAndroidReleaseInputFingerprintFileCount(root);
 
   if (!summary.startsWith('Android release validation')) {
     errors.push('summary header is missing or invalid');
@@ -125,9 +244,9 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
     errors.push('Release input fingerprint does not match current release inputs; rerun android:dev:release:validate-local');
   }
 
-  if (!isPositiveInteger(releaseInputFingerprintFiles) || Number(releaseInputFingerprintFiles) !== androidReleaseFingerprintInputs.length) {
+  if (!isPositiveInteger(releaseInputFingerprintFiles) || Number(releaseInputFingerprintFiles) !== currentReleaseInputFingerprintFileCount) {
     errors.push(
-      `Release input fingerprint files must be ${androidReleaseFingerprintInputs.length}. Received: ${
+      `Release input fingerprint files must be ${currentReleaseInputFingerprintFileCount}. Received: ${
         releaseInputFingerprintFiles || 'missing'
       }`,
     );

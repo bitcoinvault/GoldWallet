@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.697 - Android release source fingerprint guard
+
+- Branch: `feature/bem-37-697-android-release-source-fingerprint`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Close the Android release evidence gap where release summary freshness was tied to native/config/env inputs but not to JavaScript/TypeScript bundle sources.
+- Extend the Android release fingerprint to include app bundle source roots and release assets from `App.tsx`, `Main.tsx`, root runtime files, `class`, `error`, `img`, `loc`, `logger`, `models`, `src`, and `utils`.
+- Keep test files out of the release fingerprint, including nested test directories under included source roots.
+- Make the release validation summary write the dynamic release-input file count instead of the static native/config input count.
+- Add guard coverage proving source changes invalidate release evidence while line-ending changes and nested test files do not.
+
+Findings:
+
+- Before this branch, `android:dev:release:check-summary` could remain valid after app-source changes because the release input fingerprint only covered `18` native/config/env files.
+- After the guard change, stale local release summaries correctly failed on fingerprint mismatch and file-count drift, including the final `Release input fingerprint files must be 507. Received: 508` check after named `*.e2e` files were excluded from release inputs.
+- Fresh Android release validation rebuilt `dev`, `stage`, `prod`, and `beta` release variants with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- The refreshed release summary now records `507` release input files, including current app JS/TS/assets that can affect the bundled APK.
+- The signed local `devRelease` APK passed embedded smoke on `emulator-5554` without Metro, including first-run terms, PIN, transaction password, empty dashboard, create/import navigation, QR scanner, tab navigation, and Settings Terms WebView.
+- The `devRelease` create-wallet smoke passed the standard wallet mnemonic path and the default 3-key vault public-key integration screen without fatal/runtime logcat findings.
+- Sentry source-map upload validation remains intentionally `not claimed` until `SENTRY_AUTH_TOKEN` and generated `sentry.properties` files are available.
+
+Validation:
+
+- `& $node $yarn check:android-release-summary-guard`
+- `& $node $yarn android:dev:release:check-summary` failed before refresh with stale release input fingerprint and old `18` file count.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true & $node $yarn android:dev:release:create-wallet-verify`
+- `& $node $yarn android:dev:release:check-summary` failed after excluding named `*.e2e` files with `Release input fingerprint files must be 507. Received: 508`.
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true & $node $yarn android:dev:release:verify-local`
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+
 ### BEM-37.696 - Secure-storage empty fallback hardening
 
 - Branch: `feature/bem-37-696-secure-storage-empty-fallback`
