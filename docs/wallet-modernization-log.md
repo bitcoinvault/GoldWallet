@@ -10,6 +10,53 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.673 - Sentry release readiness refresh
+
+- Branch: `feature/bem-37-673-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check the Sentry release/source-map path against live npm metadata after the latest Android release evidence refresh.
+- Refresh Sentry runtime usage, Android/iOS release integration, Android warning, RN bundle task compatibility, credential handoff, release prerequisite, and aggregate release-services evidence.
+- Keep package versions, runtime code, Android/iOS project files, Sentry properties files, env files, and release artifacts unchanged.
+
+Findings:
+
+- Live npm metadata reports `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.0` as current `latest`; the repo is already on both versions, so no dependency bump is available for this branch.
+- Sentry runtime usage remains scoped to `App.tsx`, `Main.tsx`, and `logger/index.ts`; Android Gradle integration and iOS source-map/dSYM phases remain wired.
+- The Sentry Android warning audit is stable: no active Sentry `execResult` warning is reported on the RN `0.86.0` baseline, while Sentry release source-map/dSYM behavior remains credential-gated.
+- The Sentry RN bundle task compatibility audit is ready for RN `0.86.0`: Sentry `8.14.0` can use the repo-owned legacy `args` shim when RN exposes `jsIntermediateSourceMapsDir` as `RegularFileProperty` and does not expose the fallback `args` property directly.
+- Android release build, manifest, release-smoke, and release create-wallet evidence are current for `dev`, `stage`, `prod`, and `beta`; source-map upload validation remains explicitly not claimed.
+- Missing credential inputs are unchanged and exact: `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties`. The credential plan and handoff dry-run print only env/file names, not token values.
+
+Validation:
+
+- `cmd /c npm.cmd view @sentry/react-native version dist-tags engines peerDependencies dependencies --json`
+- `cmd /c npm.cmd view @sentry/cli version dist-tags engines dependencies --json`
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-usage-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-usage-scope`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-release-integration-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-release-integration`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-android-warning-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:android-warning:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:android-warning:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-rn-bundle-task-compat-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:rn-bundle-task-compat:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:rn-bundle-task-compat:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-properties-generator`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-release-validation-handoff-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-credential-handoff-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-release-credential-plan-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:credential-plan`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:credential-plan:check`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:sentry-release-prereq-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:prereq-audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:prereq-check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:validation:handoff:dry-run --skip-android-release`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' release-services:check-summaries`
+
 ### BEM-37.672 - iOS static readiness refresh
 
 - Branch: `feature/bem-37-672-ios-static-readiness-refresh`
