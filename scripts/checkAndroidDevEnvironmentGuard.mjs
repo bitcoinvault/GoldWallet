@@ -435,6 +435,46 @@ assertRejected(
   },
   'CodePush release path summary guard self-check helper is missing',
 );
+assertMissingFileRejected(
+  'Missing CodePush env cleanup readiness summary guard file fixture',
+  'scripts/codePushEnvCleanupReadinessSummaryGuard.mjs',
+  'CodePush env cleanup readiness summary guard helper is missing',
+);
+assertMissingFileRejected(
+  'Missing CodePush env cleanup readiness audit file fixture',
+  'scripts/auditCodePushEnvCleanupReadiness.mjs',
+  'CodePush env cleanup readiness audit helper is missing',
+);
+assertMissingFileRejected(
+  'Missing CodePush env cleanup readiness summary checker file fixture',
+  'scripts/checkCodePushEnvCleanupReadinessSummary.mjs',
+  'CodePush env cleanup readiness summary artifact checker is missing',
+);
+assertMissingFileRejected(
+  'Missing CodePush env cleanup readiness summary guard self-check file fixture',
+  'scripts/checkCodePushEnvCleanupReadinessSummaryGuard.mjs',
+  'CodePush env cleanup readiness summary guard self-check helper is missing',
+);
+assertMissingFileRejected(
+  'Missing CodePush env cleanup plan guard file fixture',
+  'scripts/codePushEnvCleanupPlanGuard.mjs',
+  'CodePush env cleanup plan guard helper is missing',
+);
+assertMissingFileRejected(
+  'Missing CodePush env cleanup plan file fixture',
+  'scripts/planCodePushEnvCleanup.mjs',
+  'CodePush env cleanup plan helper is missing',
+);
+assertMissingFileRejected(
+  'Missing CodePush env cleanup plan checker file fixture',
+  'scripts/checkCodePushEnvCleanupPlan.mjs',
+  'CodePush env cleanup plan artifact checker is missing',
+);
+assertMissingFileRejected(
+  'Missing CodePush env cleanup plan guard self-check file fixture',
+  'scripts/checkCodePushEnvCleanupPlanGuard.mjs',
+  'CodePush env cleanup plan guard self-check helper is missing',
+);
 assertRejected(
   'Missing Firebase release-services summary guard file fixture',
   {
@@ -862,6 +902,12 @@ assertRejected(
   },
   'package.json is missing check:codepush-release-path-summary-guard',
 );
+assertMissingPackageScriptRejected('Missing CodePush env cleanup readiness audit package script fixture', 'codepush:env-cleanup:audit');
+assertMissingPackageScriptRejected('Missing CodePush env cleanup readiness summary package script fixture', 'codepush:env-cleanup:check-summary');
+assertMissingPackageScriptRejected('Missing CodePush env cleanup readiness summary guard package script fixture', 'check:codepush-env-cleanup-summary-guard');
+assertMissingPackageScriptRejected('Missing CodePush env cleanup plan package script fixture', 'codepush:env-cleanup:plan');
+assertMissingPackageScriptRejected('Missing CodePush env cleanup plan summary package script fixture', 'codepush:env-cleanup:check-plan');
+assertMissingPackageScriptRejected('Missing CodePush env cleanup plan guard package script fixture', 'check:codepush-env-cleanup-plan-guard');
 assertRejected(
   'Missing Firebase release-services summary package script fixture',
   {

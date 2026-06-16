@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.683 - CodePush env cleanup guard wiring
+
+- Branch: `feature/bem-37-683-codepush-env-cleanup-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire the existing `check:codepush-env-cleanup-summary-guard` into `rn:baseline:preflight` before the CodePush env cleanup readiness audit/check-summary steps.
+- Keep `auditReactNativeUpgradePath.mjs` aligned with the updated RN baseline preflight command.
+- Add CodePush env cleanup readiness and plan helpers to the Android dev environment inventory so missing release-service cleanup scripts fail early.
+- Add focused guard fixtures for missing CodePush env cleanup helper files and package scripts.
+- Add the same CodePush env cleanup summary guard step to the release-services validation handoff before cleanup evidence is regenerated.
+- Update CodePush/release-services docs without touching `.env.*` files or printing historical deployment-key values.
+
+Findings:
+
+- The CodePush runtime/native integration is already removed, but stale `CODEPUSH_*` env entries are intentionally handled as a secrets-safe cleanup follow-up.
+- The readiness summary guard existed but was not part of the RN baseline preflight command, and the Android dev environment inventory did not require the CodePush env cleanup helper set.
+- This branch tightens the validation workflow only; it does not change runtime code, native code, package versions, release env files, or secret values.
+
+Validation:
+
+- `& $node $yarn check:codepush-env-cleanup-summary-guard`
+- `& $node $yarn codepush:env-cleanup:audit`
+- `& $node $yarn codepush:env-cleanup:check-summary`
+- `& $node $yarn check:codepush-env-cleanup-plan-guard`
+- `& $node $yarn codepush:env-cleanup:plan`
+- `& $node $yarn codepush:env-cleanup:check-plan`
+- `& $node $yarn check:release-service-env-keys`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true; & $node $yarn android:dev:release:create-wallet-verify` (first smoke attempt hit an ADB daemon timeout after release build; retry after `adb kill-server` / `adb start-server` produced passed release smoke and create-wallet summaries)
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:release-services-validation-handoff-guard`
+- `& $node $yarn check:android-dev-env-audit-guard`
+- `& $node $yarn rn:upgrade-path:audit`
+- `& $node $yarn android:dev:check-light`
+
 ### BEM-37.682 - Babel 8 migration probe
 
 - Branch: `feature/bem-37-682-babel-8-probe`

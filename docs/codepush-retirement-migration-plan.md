@@ -39,6 +39,9 @@ corepack yarn check:codepush-decision-handoff-summary-guard
 corepack yarn codepush:update:validation:handoff:dry-run
 corepack yarn check:codepush-update-validation-handoff-guard
 corepack yarn check:codepush-env-cleanup-plan-guard
+corepack yarn check:codepush-env-cleanup-summary-guard
+corepack yarn codepush:env-cleanup:audit
+corepack yarn codepush:env-cleanup:check-summary
 corepack yarn codepush:env-cleanup:plan
 corepack yarn codepush:env-cleanup:check-plan
 ```
@@ -68,6 +71,7 @@ Expected summary claims after `BEM-37.583`:
 - the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence;
 - no deployment key values are printed.
 - the env cleanup plan lists only file paths, key names, blank/non-empty state, and the required secrets-safe action; it never prints key values.
+- the env cleanup readiness summary guard is run before release-services handoff refreshes CodePush env cleanup readiness, so stale cleanup evidence cannot silently drift.
 
 ## Decision Needed
 
