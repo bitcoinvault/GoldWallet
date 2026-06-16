@@ -2,13 +2,13 @@
 
 This audit supports staged navigation and layout-native dependency work after the RN `0.86.0` baseline proof.
 
-Checked on: 2026-06-12
+Checked on: 2026-06-16
 
 ## Current State
 
 - React Native baseline: `0.86.0`.
 - React baseline: `19.2.3`.
-- Active navigation packages: `@react-navigation/native@7.3.1`, `@react-navigation/stack@7.10.3`, `@react-navigation/bottom-tabs@7.18.0`, and `@react-navigation/devtools@7.0.62`.
+- Active navigation packages: `@react-navigation/native@7.3.3`, `@react-navigation/stack@7.10.5`, `@react-navigation/bottom-tabs@7.18.2`, and `@react-navigation/devtools@7.1.1`.
 - `@react-native-community/masked-view` is removed; React Navigation 7 no longer needs the old community masked-view runtime path.
 - `react-native-gesture-handler@3.0.1` is the latest checked stable line validated with the RN `0.86.0` New Architecture baseline. The earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces after the RN foundation.
 - `react-native-screens@4.25.2` is the latest checked stable screens baseline. Its npm metadata points at RN `>=0.82.0`, which is satisfied by the current RN `0.86.0` checkpoint.
@@ -29,7 +29,7 @@ Checked on: 2026-06-12
 ## Findings
 
 - Navigation 7 plus masked-view removal is validated on Android through the RN `0.86.0` proof branch and emulator smoke.
-- Live npm metadata on 2026-06-12 reports the installed React Navigation 7 package family as latest/current: native `7.3.1`, stack `7.10.3`, bottom-tabs `7.18.0`, and devtools `7.0.62`.
+- Live npm metadata on 2026-06-16 reports the installed React Navigation 7 package family as latest/current: native `7.3.3`, stack `7.10.5`, bottom-tabs `7.18.2`, and devtools `7.1.1`.
 - React Navigation stack and bottom-tabs peer on `@react-navigation/native ^7.3.1`, `react-native-screens >=4.0.0`, and `react-native-safe-area-context >=4.0.0`, which are satisfied by the current package set.
 - The previous `react-native-screens@4.25.x` blocker is cleared by the RN `0.86.0` checkpoint; future navigation-native dependency jumps should stay tied to Android navigation smoke validation.
 - Gesture Handler `3.x` is not a small package cleanup on the current baseline; it requires a dedicated RN/new-arch compatibility branch.

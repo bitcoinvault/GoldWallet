@@ -282,6 +282,18 @@ const tapNodeCenter = node => {
   run(`tap UI node at ${x},${y}`, ['shell', 'input', 'tap', String(x), String(y)]);
 };
 
+const tapHeaderNode = node => {
+  if (!node?.bounds) {
+    throw new Error('Unable to tap node without bounds.');
+  }
+
+  const [left, top, right, bottom] = node.bounds;
+  const x = Math.round((left + right) / 2);
+  const y = Math.round(top + (bottom - top) * 0.8);
+
+  run(`tap header UI node at ${x},${y}`, ['shell', 'input', 'tap', String(x), String(y)]);
+};
+
 const hasCreateWalletError = uiHierarchy =>
   [
     'text="Error"',
@@ -340,6 +352,11 @@ const tapResourceId = (label, uiHierarchy, resourceId) => {
   }
 
   append(`${label}: tapping ${resourceId}`);
+  if (resourceId === 'add-wallet-button') {
+    tapHeaderNode(node);
+    return;
+  }
+
   tapNodeCenter(node);
 };
 

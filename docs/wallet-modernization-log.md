@@ -10,6 +10,65 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.701 - BigNumber 11.1.4 runtime refresh
+
+- Branch: `feature/bem-37-701-bignumber-11-1-4`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the direct wallet math dependency `bignumber.js` from `11.1.3` to `11.1.4`.
+- Close the new live direct-outdated review-required entry discovered by `foundation:target:refresh-online`.
+- Refresh the React Navigation/masked-view documentation snapshot to the installed latest family: `@react-navigation/native@7.3.3`, `@react-navigation/stack@7.10.5`, `@react-navigation/bottom-tabs@7.18.2`, and `@react-navigation/devtools@7.1.1`.
+- Update the masked-view and Android smoke summary guard fixtures so the full RN baseline preflight validates the current summary schema.
+- Harden release create-wallet smoke tapping for the header `add-wallet-button`, whose Android UI bounds overlap the statusbar edge on the release emulator flow.
+
+Findings:
+
+- Live npm metadata on 2026-06-16 reports `bignumber.js@11.1.4` as latest.
+- `npm diff` from `bignumber.js@11.1.3` to `11.1.4` showed no runtime source change in the checked package files, but the package is still wallet-sensitive because it is used in balance, fee, and amount math paths.
+- After the update, `foundation:target:refresh-online` reports 16 direct outdated entries, all known blocked or exotic, with 0 review-required entries.
+- React Native latest remains `0.86.0`; AGP 9 / Gradle 9 remains blocked by the current React Native Gradle plugin Kotlin compiler path, so the Android baseline stays AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK 36, and JDK 17.
+- Android dev and release runtime evidence passed on `emulator-5554`, including first-run onboarding, empty-dashboard CTA navigation, tab navigation, QR scanner screen, Settings Terms WebView, release startup, and release create-wallet standard/vault flows.
+- iOS runtime validation is not claimed on this Windows host; iOS still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
+Validation:
+
+- `npm view bignumber.js version dist-tags time engines dependencies peerDependencies --json`
+- `npm view bignumber.js@11.1.4 version dependencies peerDependencies engines repository.url dist.integrity --json`
+- `npm diff --diff bignumber.js@11.1.3 --diff bignumber.js@11.1.4 -- README.md CHANGELOG.md bignumber.js package.json`
+- `npm view @react-navigation/native version --json`
+- `npm view @react-navigation/stack version --json`
+- `npm view @react-navigation/bottom-tabs version --json`
+- `npm view @react-navigation/devtools version --json`
+- `& $node $yarn add bignumber.js@11.1.4`
+- BigNumber money-math probe for one-satoshi formatting, BTC-to-satoshi conversion, fee-rate division, and amount-plus-fee arithmetic.
+- `& $node --check scripts\checkMaskedViewMigrationSummaryGuard.mjs`
+- `& $node --check scripts\auditMaskedViewMigration.mjs`
+- `& $node --check scripts\checkAndroidSmokeSummaryGuard.mjs`
+- `& $node --check scripts\androidCreateWalletSmoke.mjs`
+- `& $node --check scripts\androidCreateWalletSmokeDevReleaseEmbedded.mjs`
+- `& $node $yarn check:masked-view-migration-summary-guard`
+- `& $node $yarn masked-view:migration:audit`
+- `& $node $yarn masked-view:migration:check-summary`
+- `& $node $yarn check:android-smoke-summary-guard`
+- `& $node $yarn foundation:target:refresh-online`
+- `& $node $yarn test:wallet-crypto:offline`
+- `& $node $yarn test:storage-network:focused`
+- `& $node $yarn wallet:crypto-runtime:audit`
+- `& $node $yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 & $node $yarn android:dev:smoke:embedded`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 & $node $yarn android:dev:release:smoke:embedded`
+- `ANDROID_SERIAL=emulator-5554 & $node $yarn android:dev:release:create-wallet-smoke:embedded`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn sentry:release:prereq-audit`
+- `& $node $yarn sentry:release:prereq-check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn rn:baseline:preflight:online`
+
 ### BEM-37.700 - iOS static validation preflight handoff
 
 - Branch: `feature/bem-37-700-ios-static-validation-preflight`
