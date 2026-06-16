@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.682 - Babel 8 migration probe
+
+- Branch: `feature/bem-37-682-babel-8-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Run an isolated worktree probe against current Babel `8.0.0` direct tooling targets without leaving Babel 8 package versions in the committed repo state.
+- Document the concrete RN/Metro/Jest blocker in `docs/babel-8-migration-probe.md`.
+- Add `babel8:migration-probe:check` so the blocker evidence stays tied to the current RN `0.86.0` Babel preset and direct Babel `7.29.7` baseline.
+- Keep runtime code, native code, package versions, Metro config, Android config, and iOS config unchanged.
+
+Findings:
+
+- Temporarily changing direct Babel devDependencies and `@babel/core` / `@babel/traverse` resolutions to `8.0.0` allowed `yarn install` to complete, but emitted peer warnings from `@react-native/babel-preset`, React Native Jest preset, and Babel polyfill plugins that still expect Babel 7.
+- A direct `@react-native/babel-preset` transform failed with `BABEL_VERSION_UNSUPPORTED`: `@babel/plugin-transform-flow-strip-types` requires Babel `^7.0.0-0` while Babel `8.0.0` was loaded.
+- `test:storage-network:focused`, `test:unit --runInBand`, and a `react-native bundle` Android probe fail on the same RN preset/plugin incompatibility before running useful app assertions.
+- Babel 8 should remain blocked until a future RN/Metro/Babel branch can move the preset/plugin stack together and then prove transform, Jest, Android bundle/build, and emulator smoke.
+
+Validation:
+
+- `npm view @babel/core@8.0.0 version engines peerDependencies dependencies --json`
+- `npm view @babel/runtime@8.0.0 version engines dependencies --json`
+- `npm view @babel/plugin-transform-runtime@8.0.0 version engines peerDependencies dependencies --json`
+- `npm view @react-native/babel-preset@0.86.0 version dependencies peerDependencies engines --json`
+- `npm view babel-jest@30.4.1 version dependencies peerDependencies engines --json`
+- Temporary probe: `& $node $yarn install` after changing direct Babel packages and resolutions to `8.0.0`
+- Temporary probe failed as expected: `& $node -e "const babel=require('@babel/core'); babel.transformSync(..., {presets:['module:@react-native/babel-preset']});"`
+- Temporary probe failed as expected: `& $node $yarn test:storage-network:focused`
+- Temporary probe failed as expected: `& $node $yarn test:unit --runInBand`
+- Temporary probe failed as expected: `& $node .\node_modules\react-native\cli.js bundle --platform android --dev false --entry-file index.js --bundle-output local-docs\babel8-probe\index.android.bundle --assets-dest local-docs\babel8-probe\assets`
+- `& $node $yarn babel8:migration-probe:check`
+
 ### BEM-37.681 - Foundation target and Detox patch refresh
 
 - Branch: `feature/bem-37-681-foundation-target-refresh`
