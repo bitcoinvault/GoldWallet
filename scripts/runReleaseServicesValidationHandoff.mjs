@@ -96,6 +96,7 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
     yarnStep('Validate CodePush migration readiness summary', 'codepush:migration:readiness-check-summary'),
     yarnStep('Audit CodePush removal readiness', 'codepush:removal-readiness:audit'),
     yarnStep('Validate CodePush removal readiness summary', 'codepush:removal-readiness:check-summary'),
+    yarnStep('Validate CodePush env cleanup readiness summary guard', 'check:codepush-env-cleanup-summary-guard'),
     yarnStep('Audit CodePush env cleanup readiness', 'codepush:env-cleanup:audit'),
     yarnStep('Validate CodePush env cleanup readiness summary', 'codepush:env-cleanup:check-summary'),
     yarnStep('Refresh CodePush decision handoff', 'codepush:decision:handoff', codePushDecisionArgs),
