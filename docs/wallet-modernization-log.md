@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.707 - Store metadata release handoff
+
+- Branch: `feature/bem-37-707-store-metadata-release-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guarded store metadata release handoff generator for Play Console and App Store Connect verification.
+- Keep live store listing and screenshot validation explicitly external instead of treating repo Fastlane metadata checks as store-side proof.
+- Wire the handoff guard into `android:dev:check-light` and the guard plus dry-run into `rn:baseline:preflight`.
+- Keep runtime app code, Android/iOS native project settings, package versions, Metro, env values, and committed store metadata unchanged.
+
+Findings:
+
+- The repo can prove the tracked iOS Fastlane and Android metadata baseline, but it cannot prove live Play Console/App Store Connect screenshots or published listing state.
+- Store-facing rebrand/release readiness now has a local handoff artifact path under `local-docs/` while preserving `External store validation: not claimed`.
+- Android runtime smoke is not rerun because this branch changes only release handoff tooling and committed documentation.
+- iOS runtime/archive validation remains blocked on this Windows host until macOS/Xcode/CocoaPods validation is run.
+
+Validation:
+
+- `& $node --check scripts\runStoreMetadataReleaseHandoff.mjs`
+- `& $node --check scripts\checkStoreMetadataReleaseHandoffGuard.mjs`
+- `& $node $yarn check:store-metadata-release-handoff-guard`
+- `& $node $yarn store-metadata:release-handoff:dry-run`
+- `& $node $yarn store-metadata:release-handoff`
+- `& $node $yarn check:store-metadata-readiness`
+- `& $node $yarn check:rebranding-release-config-readiness`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.706 - Android store short-description guard
 
 - Branch: `feature/bem-37-706-android-store-short-description-guard`
