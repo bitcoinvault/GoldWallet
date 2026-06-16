@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url';
 import {
   androidReleaseFingerprintInputs,
   getAndroidReleaseInputFingerprint,
+  getAndroidReleaseInputFingerprintFileCount,
+  getAndroidReleaseInputFingerprintFiles,
   getAndroidReleaseSummaryErrors,
   normalizeAndroidReleaseFingerprintContent,
 } from './androidReleaseSummaryGuard.mjs';
@@ -27,6 +29,7 @@ const expectedSourcemapRelativePaths = Object.fromEntries(
   variants.map(variant => [variant, fixtureSourcemapRelativePath(variant)]),
 );
 const releaseInputFingerprint = getAndroidReleaseInputFingerprint(root);
+const releaseInputFingerprintFileCount = getAndroidReleaseInputFingerprintFileCount(root);
 const fixtureBundleContent = variant => `bundle-${variant}`;
 const fixtureSourcemapContent = JSON.stringify({
   version: 3,
@@ -85,6 +88,61 @@ try {
   rmSync(lineEndingFixtureRoot, { recursive: true, force: true });
 }
 
+const sourceFingerprintFixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-release-source-fingerprint-'));
+
+try {
+  const sourceFilePath = path.join(sourceFingerprintFixtureRoot, 'src', 'releaseInput.ts');
+  const ignoredE2eFilePath = path.join(sourceFingerprintFixtureRoot, 'src', 'releaseInput.e2e.tsx');
+  const ignoredTestFilePath = path.join(sourceFingerprintFixtureRoot, 'utils', 'tests', 'ignored.test.js');
+
+  mkdirSync(path.dirname(sourceFilePath), { recursive: true });
+  mkdirSync(path.dirname(ignoredTestFilePath), { recursive: true });
+  writeFileSync(sourceFilePath, 'export const releaseInput = "one";\n');
+
+  const sourceFingerprint = getAndroidReleaseInputFingerprint(sourceFingerprintFixtureRoot);
+  const sourceFileCount = getAndroidReleaseInputFingerprintFileCount(sourceFingerprintFixtureRoot);
+  const sourceFiles = getAndroidReleaseInputFingerprintFiles(sourceFingerprintFixtureRoot);
+
+  assert(
+    sourceFiles.includes('src/releaseInput.ts'),
+    'Android release input fingerprint must include app source files under src',
+  );
+
+  writeFileSync(sourceFilePath, 'export const releaseInput = "one";\r\n');
+  assert(
+    getAndroidReleaseInputFingerprint(sourceFingerprintFixtureRoot) === sourceFingerprint,
+    'Android release app-source fingerprint must be stable across LF and CRLF working-tree line endings',
+  );
+
+  writeFileSync(ignoredTestFilePath, 'it("does not affect release", () => {});\n');
+  assert(
+    getAndroidReleaseInputFingerprintFileCount(sourceFingerprintFixtureRoot) === sourceFileCount,
+    'Android release input fingerprint must ignore nested test directories under included source roots',
+  );
+  assert(
+    getAndroidReleaseInputFingerprint(sourceFingerprintFixtureRoot) === sourceFingerprint,
+    'Android release input fingerprint must not change when nested test files under source roots change',
+  );
+
+  writeFileSync(ignoredE2eFilePath, 'describe("release input", () => {});\n');
+  assert(
+    getAndroidReleaseInputFingerprintFileCount(sourceFingerprintFixtureRoot) === sourceFileCount,
+    'Android release input fingerprint must ignore named e2e/spec/test files under included source roots',
+  );
+  assert(
+    getAndroidReleaseInputFingerprint(sourceFingerprintFixtureRoot) === sourceFingerprint,
+    'Android release input fingerprint must not change when named e2e/spec/test files under source roots change',
+  );
+
+  writeFileSync(sourceFilePath, 'export const releaseInput = "two";\n');
+  assert(
+    getAndroidReleaseInputFingerprint(sourceFingerprintFixtureRoot) !== sourceFingerprint,
+    'Android release input fingerprint must change when app source files change',
+  );
+} finally {
+  rmSync(sourceFingerprintFixtureRoot, { recursive: true, force: true });
+}
+
 const validSummary = [
   'Android release validation',
   'Generated at: 2026-05-30T12:24:20.279Z',
@@ -99,7 +157,7 @@ const validSummary = [
   'Compile SDK: 36',
   'Target SDK: 36',
   `Release input fingerprint: ${releaseInputFingerprint}`,
-  `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
+  `Release input fingerprint files: ${releaseInputFingerprintFileCount}`,
   'Sentry auto upload disabled for local build: yes',
   'Sentry release upload validation: not claimed',
   'Gradle retry max attempts: 2',
@@ -237,7 +295,7 @@ assertAccepted(
     'Compile SDK: 36',
     'Target SDK: 36',
     `Release input fingerprint: ${releaseInputFingerprint}`,
-    `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
+    `Release input fingerprint files: ${releaseInputFingerprintFileCount}`,
     'Sentry auto upload disabled for local build: yes',
     'Sentry release upload validation: not claimed',
     'Gradle retry max attempts: 2',
@@ -348,7 +406,7 @@ assertRejected(
 assertRejected(
   'Bad release input fingerprint file count fixture',
   validSummary.replace(
-    `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
+    `Release input fingerprint files: ${releaseInputFingerprintFileCount}`,
     'Release input fingerprint files: 1',
   ),
   'Release input fingerprint files',

@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } 
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
-import { androidReleaseFingerprintInputs, getAndroidReleaseInputFingerprint } from './androidReleaseSummaryGuard.mjs';
+import { getAndroidReleaseInputFingerprint, getAndroidReleaseInputFingerprintFileCount } from './androidReleaseSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -189,7 +189,7 @@ const summary = [
   `Compile SDK: ${androidToolchainEvidence.compileSdk}`,
   `Target SDK: ${androidToolchainEvidence.targetSdk}`,
   `Release input fingerprint: ${getAndroidReleaseInputFingerprint(root)}`,
-  `Release input fingerprint files: ${androidReleaseFingerprintInputs.length}`,
+  `Release input fingerprint files: ${getAndroidReleaseInputFingerprintFileCount(root)}`,
   'Sentry auto upload disabled for local build: yes',
   'Sentry release upload validation: not claimed',
   `Gradle retry max attempts: ${maxGradleAttempts}`,
