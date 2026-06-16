@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.685 - Camera and QR latest metadata refresh
+
+- Branch: `feature/bem-37-685-camera-qr-latest-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Camera/QR latest-target metadata date after live npm checks on 2026-06-16.
+- Keep the installed scanner and QR renderer package versions unchanged because live npm still reports the current repo baseline as latest.
+- Align CameraKit, VisionCamera, QR renderer, SVG renderer, and QR encoder docs with the refreshed metadata date.
+- Keep the dedicated CameraKit scanner proof as the selected compatible runtime path while VisionCamera remains deferred because the current latest line requires Nitro peers.
+
+Findings:
+
+- `react-native-camera-kit@18.0.0` remains the latest package and keeps broad `react@*` / `react-native@*` peer ranges.
+- `react-native-vision-camera@5.0.11` remains latest, but still requires `react-native-nitro-image` and `react-native-nitro-modules`, so it stays a larger native-peer migration rather than a safe scanner swap.
+- `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` remain current and compatible with the guarded RN `0.86.0` baseline.
+- No runtime code, native code, package version, or lockfile changes were needed for this metadata refresh.
+
+Validation:
+
+- `cmd /d /s /c npm view react-native-camera-kit version peerDependencies dependencies engines --json`
+- `cmd /d /s /c npm view react-native-vision-camera version peerDependencies dependencies engines --json`
+- `cmd /d /s /c npm view react-native-qrcode-svg version peerDependencies dependencies engines --json`
+- `cmd /d /s /c npm view react-native-svg version peerDependencies dependencies engines --json`
+- `cmd /d /s /c npm view qrcode version dependencies engines --json`
+- `& $node $yarn check:camera-candidate-summary-guard`
+- `& $node $yarn camera:candidate:audit`
+- `& $node $yarn camera:candidate:check-summary`
+- `& $node $yarn camera:qr-migration:audit`
+- `& $node $yarn camera:qr-migration:check-summary`
+- `& $node $yarn test:qr-scanner:unit`
+- `& $node $yarn test:qr-render:unit`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.684 - Android smoke ADB retry hardening
 
 - Branch: `feature/bem-37-684-adb-smoke-retry`
