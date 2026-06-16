@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.679 - Camera QR validation refresh
+
+- Branch: `feature/bem-37-679-camera-qr-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR latest metadata and migration evidence for the current RN `0.86.0` baseline.
+- Run the guarded Camera/QR handoff with Android emulator smoke, including candidate metadata, CameraKit migration wiring, usage-scope guards, QR scanner/render caller inventories, focused unit tests, Android dev assemble, and embedded emulator smoke.
+- Fix the debug embedded smoke wrapper so it validates the Settings Terms WebView flow by default, matching the embedded smoke summary guard contract already used by release smoke.
+- Update the Camera/QR validation handoff guard fixture so future handoff changes keep requiring Terms WebView evidence when Android smoke is included.
+- Keep app runtime code, package versions, native configuration, Gradle configuration, and Metro configuration unchanged.
+
+Findings:
+
+- Live npm metadata reports `react-native-camera-kit@18.0.0` and `react-native-qrcode-svg@6.3.21` as current latest package targets.
+- The first Camera/QR handoff run passed the Camera/QR audits, focused QR scanner/render tests, Android dev assemble, and emulator smoke, but then failed readiness because the debug smoke summary reported `Validated settings Terms WebView: no` while the embedded summary guard requires `yes`.
+- The failure was in validation tooling scope, not in app runtime: the QR scanner screen opened and closed successfully during the emulator smoke before the readiness check rejected the summary.
+- After enabling Settings Terms WebView validation in `android:dev:smoke:embedded`, the full Camera/QR handoff passed on `emulator-5554`.
+- The final smoke installed `app-dev-debug.apk` without Metro, completed first-run setup, validated Create/Import navigation, opened and closed the QR scanner screen, navigated bottom tabs, validated Settings Terms WebView, and reported no fatal/runtime logcat findings.
+- iOS camera runtime validation remains not claimed on Windows; the Camera/QR migration audit reports no removed-camera Podfile cleanup issue, but broader `ios/Podfile.lock` drift still requires macOS `pod install`.
+
+Validation:
+
+- `npm view react-native-camera-kit version dist-tags peerDependencies --json`
+- `npm view react-native-qrcode-svg version dist-tags peerDependencies --json`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; $env:ANDROID_SERIAL='emulator-5554'; & $node scripts/runCameraQrValidationHandoff.mjs --include-android-smoke` initially failed on stale debug smoke scope after app smoke passed.
+- `node --check scripts/androidSmokeDevEmbedded.mjs`
+- `node --check scripts/checkCameraQrValidationHandoffGuard.mjs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:camera-qr-validation-handoff-guard`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; $env:ANDROID_SERIAL='emulator-5554'; & $node scripts/runCameraQrValidationHandoff.mjs --include-android-smoke`
+
 ### BEM-37.678 - Firebase release evidence refresh
 
 - Branch: `feature/bem-37-678-firebase-release-evidence-refresh`
