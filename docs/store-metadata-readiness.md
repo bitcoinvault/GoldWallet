@@ -63,6 +63,7 @@ The current iOS metadata still records the old brand surface:
 The current Android metadata baseline also records the old brand surface:
 
 - Android title includes `GoldWallet`.
+- Android short description records the current network wording: `Bitcoin & Lightning`.
 - Android full description includes `GoldWallet`.
 - Android listing metadata is tracked only for `en-US` in this repo baseline.
 
@@ -71,6 +72,7 @@ The Russian `name.txt` content appears mojibake when read from PowerShell in the
 ## Rebrand Coordination Rules
 
 - Store metadata must move with rebrand, explorer/network wording, support/privacy URLs, screenshots, and legal/copyright decisions.
+- Android `short_description.txt` is public network wording and must move with any BTCV/ELCASH/explorer messaging decision.
 - Do not update native app names without updating store metadata names, subtitles, descriptions, keywords, support URL, privacy URL, screenshots, and release notes.
 - Do not update store metadata before final app name, legal/copyright owner, privacy URL, and support channel are confirmed.
 - Do not publish explorer or network wording changes unless the wallet runtime, env files, transaction links, terms copy, and screenshots agree.
