@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.686 - Sentry release evidence refresh
+
+- Branch: `feature/bem-37-686-sentry-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release evidence used by the Sentry release prerequisite audit after the release-input fingerprint became stale.
+- Keep `SENTRY_DISABLE_AUTO_UPLOAD=true` for local release validation so no Sentry upload is attempted without credentials.
+- Improve `auditSentryReleasePrerequisites.mjs` console diagnostics by printing release-summary, APK-manifest, release-smoke, and create-wallet smoke error details when those counts are non-zero.
+- Update release-services documentation so Android release evidence reflects the 2026-06-16 refresh.
+
+Findings:
+
+- Live npm metadata still reports `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.0`; both match the installed repo versions.
+- Before refresh, the Sentry prerequisite audit reported `Android release summary valid: no` and now prints the concrete reason: `Release input fingerprint does not match current release inputs; rerun android:dev:release:validate-local`.
+- After `android:dev:release:create-wallet-verify`, Android release summary, APK manifests, release smoke, and release create-wallet smoke all validate again.
+- Sentry release source-map upload validation remains correctly unclaimed and blocked only by missing `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties`.
+
+Validation:
+
+- `cmd /d /s /c npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `cmd /d /s /c npm view @sentry/cli version dependencies engines --json`
+- `& $node $yarn sentry:release:prereq-audit`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true; & $node $yarn android:dev:release:create-wallet-verify`
+- `& $node $yarn sentry:release:prereq-audit`
+- `& $node $yarn sentry:release:prereq-check-summary`
+- `& $node $yarn sentry:rn-bundle-task-compat:audit`
+- `& $node $yarn sentry:rn-bundle-task-compat:check-summary`
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn release-services:check-summaries`
+
 ### BEM-37.685 - Camera and QR latest metadata refresh
 
 - Branch: `feature/bem-37-685-camera-qr-latest-refresh`

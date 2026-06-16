@@ -129,7 +129,7 @@ corepack yarn release-services:check-summaries
 Results:
 
 - CodePush release-path wiring is removed from non-dev runtime, Android, iOS, package, and lockfile surfaces.
-- Android local release evidence was refreshed on 2026-06-12 and covers `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, target SDK `36`, and Sentry auto upload disabled; the summary records APK path, byte count, SHA-256, JS bundle, and source-map evidence for each unsigned release artifact.
+- Android local release evidence was refreshed on 2026-06-16 and covers `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, target SDK `36`, and Sentry auto upload disabled; the summary records APK path, byte count, SHA-256, JS bundle, and source-map evidence for each unsigned release artifact.
 - Android release APK manifest proof is valid for the current `dev`, `stage`, `prod`, and `beta` release artifacts.
 - Android `devRelease` embedded smoke passed on `emulator-5554` with Metro not required, first-run terms/PIN/transaction-password setup completed, empty-wallet dashboard reached, Create/Import CTA navigation validated, tab navigation validated, QR scanner screen validated, and no fatal/runtime logcat findings.
 - CodePush package readiness records live npm latest metadata for historical context and confirms the app package is removed.
