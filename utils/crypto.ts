@@ -9,9 +9,9 @@ import { NativeModules } from 'react-native';
 
 const { RNRandomBytes } = NativeModules;
 
+import { bytesToBits, bitsToBytes } from './buffer';
 import config from '../src/config';
 import { ELECTRUM_VAULT_SEED_KEY, MasterPublicKey } from '../src/consts';
-import { bytesToBits, bitsToBytes } from './buffer';
 
 const i18n = require('../loc');
 
@@ -44,11 +44,7 @@ export const generatePrivateKey = ({
   });
 
 export const privateKeyToPublicKey = (privateKey: Buffer) =>
-  ecurve
-    .getCurveByName('secp256k1')
-    .G.multiply(bigi.fromBuffer(privateKey))
-    .getEncoded(false)
-    .toString(ENCODING);
+  ecurve.getCurveByName('secp256k1').G.multiply(bigi.fromBuffer(privateKey)).getEncoded(false).toString(ENCODING);
 
 const create132BitKeyWithSha256 = (bytes: Buffer, random128bits: string) => {
   const SALT_LENGHT = 4;
@@ -146,14 +142,39 @@ export const isElectrumVaultMnemonic = (mnemonic: string, prefix: string): boole
 
 export const getRandomBytes = (byteSize: number): Promise<Buffer> =>
   new Promise((resolve, reject) => {
-    RNRandomBytes.randomBytes(byteSize, (err: string, bytes: any) => {
-      if (err) {
-        reject(err);
-      }
-      const buffer = Buffer.from(bytes, 'base64');
+    if (RNRandomBytes?.randomBytes) {
+      RNRandomBytes.randomBytes(byteSize, (err: string, bytes: any) => {
+        if (err) {
+          reject(err);
+          return;
+        }
 
-      resolve(buffer);
-    });
+        resolve(Buffer.from(bytes, 'base64'));
+      });
+      return;
+    }
+
+    const runtimeCrypto = globalThis.crypto as
+      | {
+          getRandomValues?: (array: Uint8Array) => Uint8Array;
+          randomBytes?: (size: number) => Buffer;
+        }
+      | undefined;
+
+    if (runtimeCrypto?.getRandomValues) {
+      const bytes = new Uint8Array(byteSize);
+
+      runtimeCrypto.getRandomValues(bytes);
+      resolve(Buffer.from(bytes));
+      return;
+    }
+
+    if (runtimeCrypto?.randomBytes) {
+      resolve(runtimeCrypto.randomBytes(byteSize));
+      return;
+    }
+
+    reject(new Error('Secure random byte generator is unavailable'));
   });
 
 export const electrumVaultMnemonicToSeed = (mnemonic: string, password = '') =>
