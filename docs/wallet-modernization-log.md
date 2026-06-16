@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.692 - Android release evidence refresh
+
+- Branch: `feature/bem-37-692-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release APK, bundle, source-map, manifest, release-smoke, and release create-wallet evidence after `package.json` changed in the managed Metro observation branch.
+- Revalidate all configured Android release variants (`dev`, `stage`, `prod`, `beta`) with local Sentry auto-upload disabled.
+- Keep Sentry source-map upload validation explicitly unclaimed because local release credentials/properties are still not part of this branch.
+
+Findings:
+
+- The pre-branch `android:dev:release:check-summary` correctly failed because the release input fingerprint no longer matched current release inputs.
+- `android:dev:release:create-wallet-verify` rebuilt `dev`, `stage`, `prod`, and `beta` release APKs with JDK `17.0.19`; all four variants completed with exit code `0` and one Gradle attempt.
+- The refreshed release summary, APK manifests, devRelease smoke summary, and devRelease create-wallet smoke summary all validate.
+- devRelease runtime smoke passed first-run onboarding, empty-dashboard CTA navigation, QR scanner, Settings Terms WebView, standard wallet mnemonic backup, and default 3-key vault public-key integration without fatal/runtime logcat findings.
+- `release-services:check-summaries` remains valid against the refreshed Android release evidence.
+
+Validation:
+
+- `& $node $yarn android:dev:release:check-summary` failed before the branch with `Release input fingerprint does not match current release inputs`
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true & $node $yarn android:dev:release:create-wallet-verify`
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn android:dev:check-light`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.691 - Managed Metro Electrum observation runner
 
 - Branch: `feature/bem-37-691-managed-metro-electrum-observation`
