@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.706 - Android store short-description guard
+
+- Branch: `feature/bem-37-706-android-store-short-description-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the store metadata readiness guard so Android `short_description.txt` keeps a guarded pre-rebrand baseline, not only a file-existence check.
+- Add a negative guard fixture for Android short-description drift.
+- Document that Android `short_description.txt` is public network wording and must move with BTCV/ELCASH/explorer messaging decisions.
+- Keep runtime app code, Android/iOS native project settings, package versions, Metro, env values, and local release artifacts unchanged.
+
+Findings:
+
+- The current Android short description is `Bitcoin & Lightning`, which is store-facing network wording even though it does not include the `GoldWallet` brand.
+- Rebrand readiness should catch drift in Android title, short description, and full description before app identity or explorer wording changes are published.
+- Android runtime smoke is not rerun because this branch changes only guard scripts and committed documentation.
+
+Validation:
+
+- `& $node --check scripts\storeMetadataReadinessGuard.mjs`
+- `& $node --check scripts\checkStoreMetadataReadinessGuard.mjs`
+- `& $node $yarn check:store-metadata-readiness-guard`
+- `& $node $yarn check:store-metadata-readiness`
+- `& $node $yarn check:rebranding-release-config-readiness-guard`
+- `& $node $yarn check:rebranding-release-config-readiness`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.705 - iOS Beta product-name rebrand guard
 
 - Branch: `feature/bem-37-705-ios-beta-product-name-rebrand-guard`

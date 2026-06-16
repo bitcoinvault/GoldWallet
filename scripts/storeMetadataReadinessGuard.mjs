@@ -40,6 +40,7 @@ export const requiredStoreMetadataDocSnippets = [
   ['docs/store-metadata-readiness.md', 'Android Fastlane metadata baseline is present under `android/fastlane/metadata/android/en-US`.'],
   ['docs/store-metadata-readiness.md', 'Play Console screenshots still need external/store-side verification.'],
   ['docs/store-metadata-readiness.md', '`GoldWallet`'],
+  ['docs/store-metadata-readiness.md', '`Bitcoin & Lightning`'],
   ['docs/store-metadata-readiness.md', '`goldwallet.io`'],
   ['docs/store-metadata-readiness.md', '`https://github.com/GoldWallet/GoldWallet/issues`'],
   ['docs/rebranding-release-config-readiness.md', 'Store metadata refresh'],
@@ -99,10 +100,17 @@ export const getStoreMetadataReadinessErrors = ({ root, readFile = readFileSync,
     });
 
     const titlePath = path.join(androidMetadataRoot, locale, 'title.txt');
+    const shortDescriptionPath = path.join(androidMetadataRoot, locale, 'short_description.txt');
     const descriptionPath = path.join(androidMetadataRoot, locale, 'full_description.txt');
 
     if (fileExists(titlePath) && !readFile(titlePath, 'utf8').includes('GoldWallet')) {
       errors.push(`android/fastlane/metadata/android/${locale}/title.txt no longer records the pre-rebrand GoldWallet baseline`);
+    }
+
+    if (fileExists(shortDescriptionPath) && !readFile(shortDescriptionPath, 'utf8').includes('Bitcoin & Lightning')) {
+      errors.push(
+        `android/fastlane/metadata/android/${locale}/short_description.txt no longer records the pre-rebrand Bitcoin & Lightning baseline`,
+      );
     }
 
     if (fileExists(descriptionPath) && !readFile(descriptionPath, 'utf8').includes('GoldWallet')) {

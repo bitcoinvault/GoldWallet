@@ -19,6 +19,7 @@ expectedAndroidStoreMetadataLocales.forEach(locale => {
     put(path.join('android', 'fastlane', 'metadata', 'android', locale, fileName)),
   );
   put(path.join('android', 'fastlane', 'metadata', 'android', locale, 'title.txt'), 'GoldWallet - Bitcoin wallet');
+  put(path.join('android', 'fastlane', 'metadata', 'android', locale, 'short_description.txt'), 'Bitcoin & Lightning');
   put(path.join('android', 'fastlane', 'metadata', 'android', locale, 'full_description.txt'), 'GoldWallet description baseline');
 });
 
@@ -36,6 +37,7 @@ put(
     'Android Fastlane metadata baseline is present under `android/fastlane/metadata/android/en-US`.',
     'Play Console screenshots still need external/store-side verification.',
     '`GoldWallet`',
+    '`Bitcoin & Lightning`',
     '`goldwallet.io`',
     '`https://github.com/GoldWallet/GoldWallet/issues`',
   ].join('\n'),
@@ -103,5 +105,16 @@ assertRejected(
 const changedAndroidTitleBaseline = new Map(files);
 changedAndroidTitleBaseline.set(path.normalize(path.join('android', 'fastlane', 'metadata', 'android', 'en-US', 'title.txt')), 'New Wallet');
 assertRejected('Changed Android title baseline fixture', changedAndroidTitleBaseline, 'title.txt no longer records');
+
+const changedAndroidShortDescriptionBaseline = new Map(files);
+changedAndroidShortDescriptionBaseline.set(
+  path.normalize(path.join('android', 'fastlane', 'metadata', 'android', 'en-US', 'short_description.txt')),
+  'Generic wallet',
+);
+assertRejected(
+  'Changed Android short description baseline fixture',
+  changedAndroidShortDescriptionBaseline,
+  'short_description.txt no longer records',
+);
 
 console.log('Store metadata readiness guard checks are valid.');

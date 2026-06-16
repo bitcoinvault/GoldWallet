@@ -105,6 +105,7 @@ const files = new Map([
       'Android Fastlane metadata baseline is present under `android/fastlane/metadata/android/en-US`.',
       'Play Console screenshots still need external/store-side verification.',
       '`GoldWallet`',
+      '`Bitcoin & Lightning`',
       '`goldwallet.io`',
       '`https://github.com/GoldWallet/GoldWallet/issues`',
       'Store metadata must move with rebrand, explorer/network wording, support/privacy URLs, screenshots, and legal/copyright decisions.',
@@ -164,7 +165,7 @@ const files = new Map([
 
 files.set('android/app/src/main/ic_launcher-playstore.png', 'present');
 files.set('android/fastlane/metadata/android/en-US/title.txt', 'GoldWallet');
-files.set('android/fastlane/metadata/android/en-US/short_description.txt', 'GoldWallet');
+files.set('android/fastlane/metadata/android/en-US/short_description.txt', 'Bitcoin & Lightning');
 files.set('android/fastlane/metadata/android/en-US/full_description.txt', 'GoldWallet');
 
 [
