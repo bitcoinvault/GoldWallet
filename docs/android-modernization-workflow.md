@@ -94,6 +94,8 @@ Subset release evidence refreshes can still use `ANDROID_RELEASE_VARIANTS=beta` 
 
 `check:qr-scanner-validation-scripts` keeps the focused `test:qr-scanner:unit` script present and verifies that `tests/unit/ScanQrCodeScreen.test.tsx` still covers Android camera permission, CameraKit QR-only configuration, callback delivery, empty scans, and duplicate-scan suppression.
 
+`camera:qr-validation:handoff --include-android-release-smoke` extends the Camera/QR validation sequence with `android:dev:release:create-wallet-verify`, so scanner-affecting release branches can refresh and validate release APK, release-smoke, and release create-wallet evidence after the focused QR scanner/render tests pass.
+
 `check:qr-render-usage` keeps `react-native-qrcode-svg` rendering isolated to the known QR display screens before `react-native-svg` or QR rendering dependency upgrades.
 
 `check:qr-render-validation-scripts` keeps the focused `test:qr-render:unit` script present and verifies that `tests/unit/QrRenderScreens.test.tsx` still covers Receive, Contact QR, Export Wallet, Export Xpub, and Authenticator QR render values.

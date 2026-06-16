@@ -19,6 +19,8 @@ const commands = getCameraQrValidationCommands({ includeAndroidSmoke: false });
 const rendered = commands.map(renderCameraQrValidationCommand).join('\n');
 const smokeCommands = getCameraQrValidationCommands({ includeAndroidSmoke: true });
 const smokeRendered = smokeCommands.map(renderCameraQrValidationCommand).join('\n');
+const releaseSmokeCommands = getCameraQrValidationCommands({ includeAndroidReleaseSmoke: true });
+const releaseSmokeRendered = releaseSmokeCommands.map(renderCameraQrValidationCommand).join('\n');
 const fixtureApkPath = path.resolve('package.json');
 const fixtureApkBytes = statSync(fixtureApkPath).size;
 const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath)).digest('hex');
@@ -51,6 +53,14 @@ const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath
   assert(!rendered.includes(expected), `Default Camera/QR handoff must not include Android smoke command: ${expected}`);
 });
 
+[
+  'corepack yarn android:dev:release:create-wallet-verify',
+].forEach(expected => {
+  assert(releaseSmokeRendered.includes(expected), `Expected Camera/QR release smoke handoff commands to include: ${expected}`);
+  assert(!rendered.includes(expected), `Default Camera/QR handoff must not include Android release smoke command: ${expected}`);
+  assert(!smokeRendered.includes(expected), `Debug Camera/QR smoke handoff must not include Android release smoke command: ${expected}`);
+});
+
 assert(
   commands.findIndex(step => step.args.includes('camera:candidate:audit')) <
     commands.findIndex(step => step.args.includes('camera:qr-migration:audit')),
@@ -72,6 +82,11 @@ assert(
   'Android Camera/QR smoke must run after focused QR render unit validation',
 );
 assert(
+  releaseSmokeCommands.findIndex(step => step.args.includes('test:qr-render:unit')) <
+    releaseSmokeCommands.findIndex(step => step.args.includes('android:dev:release:create-wallet-verify')),
+  'Android Camera/QR release smoke must run after focused QR render unit validation',
+);
+assert(
   getCameraQrValidationHandoffErrors({ dryRun: 'false' }).some(error => error.includes('dryRun must be a boolean')),
   'Invalid dryRun option must be rejected',
 );
@@ -81,11 +96,17 @@ assert(
   ),
   'Invalid includeAndroidSmoke option must be rejected',
 );
+assert(
+  getCameraQrValidationHandoffErrors({ dryRun: false, includeAndroidReleaseSmoke: 'false' }).some(error =>
+    error.includes('includeAndroidReleaseSmoke must be a boolean'),
+  ),
+  'Invalid includeAndroidReleaseSmoke option must be rejected',
+);
 
 const candidateSummary = [
   'Camera candidate audit',
   'Generated at: 2026-06-12T00:00:00.000Z',
-  'Metadata checked on: 2026-06-12',
+  'Metadata checked on: 2026-06-16',
   'Legacy camera latest: react-native-camera@4.2.1',
   'VisionCamera latest: react-native-vision-camera@5.0.11',
   'VisionCamera Nitro peers: yes',
@@ -177,6 +198,71 @@ const androidSmokeSummary = [
   'Screenshot bytes: 1234',
 ].join('\n');
 
+const androidReleaseSmokeSummary = [
+  'Generated at: 2026-06-12T00:00:00.000Z',
+  'Android smoke outcome: passed',
+  'Android smoke exit code: 0',
+  'Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
+  'Android serial: emulator-5554',
+  'Android package: io.goldwallet.wallet.dev',
+  'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+  'Artifact base: android-smoke-dev-release',
+  `Smoke APK path: ${fixtureApkPath}`,
+  `Smoke APK bytes: ${fixtureApkBytes}`,
+  `Smoke APK sha256: ${fixtureApkSha256}`,
+  `Source APK path: ${fixtureApkPath}`,
+  `Source APK bytes: ${fixtureApkBytes}`,
+  `Source APK sha256: ${fixtureApkSha256}`,
+  'Metro required: no',
+  'Metro endpoint: 127.0.0.1:8081',
+  'Metro reachable: no',
+  'Cleared app data: yes',
+  'Expected UI texts: Wallets, No wallets, Create new wallet, Import wallet',
+  'Expected resource IDs: dashboard-header, no-wallets-icon, create-wallet-button, import-wallet-button, navigation-tab-0',
+  'App PID: 1234',
+  'Captured logcat lines: 400',
+  'Accepted first-run terms: yes',
+  'Completed first-run PIN: yes',
+  'Completed first-run transaction password: yes',
+  'Skipped first-run email: yes',
+  'Closed first-run success: yes',
+  'Validated empty-dashboard CTA flow: yes',
+  'Validated empty-tab navigation: yes',
+  'Validated QR scanner screen: yes',
+  'Validated settings Terms WebView: yes',
+  'UI hierarchy attempts: 1',
+  'UI hierarchy path: package.json',
+  'Screenshot path: package.json',
+  'Screenshot bytes: 1234',
+].join('\n');
+
+const androidReleaseCreateWalletSummary = [
+  'Generated at: 2026-06-12T00:00:00.000Z',
+  'Android create-wallet smoke outcome: passed',
+  'Android create-wallet smoke exit code: 0',
+  'Android create-wallet smoke reason: standard wallet and vault create flows reached expected screens without error UI or fatal/runtime logcat findings',
+  'Android serial: emulator-5554',
+  'Android package: io.goldwallet.wallet.dev',
+  'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+  'Artifact base: android-create-wallet-smoke-dev-release',
+  `Source APK path: ${fixtureApkPath}`,
+  `Source APK bytes: ${fixtureApkBytes}`,
+  `Source APK sha256: ${fixtureApkSha256}`,
+  'Standard wallet name: StdFixture',
+  'Standard wallet created: yes',
+  'Standard mnemonic screen reached: yes',
+  'Vault wallet name: VaultFixture',
+  'Vault next-step reached: yes',
+  'No create-wallet error UI: yes',
+  'Fatal/runtime logcat findings: no',
+  'App PID: 1234',
+  'Captured logcat lines: 400',
+  'UI hierarchy path: package.json',
+  'Logcat path: package.json',
+  'Screenshot path: package.json',
+  'Screenshot bytes: 1234',
+].join('\n');
+
 assert(
   getCameraQrValidationReadinessErrors({
     candidateSummaryText: candidateSummary,
@@ -197,6 +283,19 @@ assert(
   getCameraQrValidationReadinessErrors({
     candidateSummaryText: candidateSummary,
     migrationSummaryText: migrationSummary,
+    includeAndroidReleaseSmoke: true,
+    androidReleaseSmokeSummaryText: androidReleaseSmokeSummary,
+    androidReleaseCreateWalletSummaryText: androidReleaseCreateWalletSummary,
+    androidReleaseSmokeExpectedApkPath: fixtureApkPath,
+    androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
+    androidReleaseCreateWalletExpectedApkPath: fixtureApkPath,
+  }).length === 0,
+  'Camera/QR readiness fixtures with Android release smoke must pass',
+);
+assert(
+  getCameraQrValidationReadinessErrors({
+    candidateSummaryText: candidateSummary,
+    migrationSummaryText: migrationSummary,
     includeAndroidSmoke: true,
     androidSmokeSummaryText: '',
   }).some(error => error.includes('Android smoke summary is missing')),
@@ -210,6 +309,58 @@ assert(
     androidSmokeSummaryText: androidSmokeSummary.replace('Validated QR scanner screen: yes', 'Validated QR scanner screen: no'),
   }).some(error => error.includes('Android smoke summary is invalid')),
   'Camera/QR readiness must reject invalid Android smoke evidence when requested',
+);
+assert(
+  getCameraQrValidationReadinessErrors({
+    candidateSummaryText: candidateSummary,
+    migrationSummaryText: migrationSummary,
+    includeAndroidReleaseSmoke: true,
+    androidReleaseSmokeSummaryText: '',
+    androidReleaseCreateWalletSummaryText: androidReleaseCreateWalletSummary,
+    androidReleaseSmokeExpectedApkPath: fixtureApkPath,
+    androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
+    androidReleaseCreateWalletExpectedApkPath: fixtureApkPath,
+  }).some(error => error.includes('Android release smoke summary is missing')),
+  'Camera/QR readiness must require Android release smoke summary when requested',
+);
+assert(
+  getCameraQrValidationReadinessErrors({
+    candidateSummaryText: candidateSummary,
+    migrationSummaryText: migrationSummary,
+    includeAndroidReleaseSmoke: true,
+    androidReleaseSmokeSummaryText: androidReleaseSmokeSummary,
+    androidReleaseCreateWalletSummaryText: '',
+    androidReleaseSmokeExpectedApkPath: fixtureApkPath,
+    androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
+    androidReleaseCreateWalletExpectedApkPath: fixtureApkPath,
+  }).some(error => error.includes('Android release create-wallet smoke summary is missing')),
+  'Camera/QR readiness must require Android release create-wallet smoke summary when requested',
+);
+assert(
+  getCameraQrValidationReadinessErrors({
+    candidateSummaryText: candidateSummary,
+    migrationSummaryText: migrationSummary,
+    includeAndroidReleaseSmoke: true,
+    androidReleaseSmokeSummaryText: androidReleaseSmokeSummary.replace('Validated QR scanner screen: yes', 'Validated QR scanner screen: no'),
+    androidReleaseCreateWalletSummaryText: androidReleaseCreateWalletSummary,
+    androidReleaseSmokeExpectedApkPath: fixtureApkPath,
+    androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
+    androidReleaseCreateWalletExpectedApkPath: fixtureApkPath,
+  }).some(error => error.includes('Android release smoke summary is invalid')),
+  'Camera/QR readiness must reject invalid Android release smoke evidence when requested',
+);
+assert(
+  getCameraQrValidationReadinessErrors({
+    candidateSummaryText: candidateSummary,
+    migrationSummaryText: migrationSummary,
+    includeAndroidReleaseSmoke: true,
+    androidReleaseSmokeSummaryText: androidReleaseSmokeSummary,
+    androidReleaseCreateWalletSummaryText: androidReleaseCreateWalletSummary.replace('Vault next-step reached: yes', 'Vault next-step reached: no'),
+    androidReleaseSmokeExpectedApkPath: fixtureApkPath,
+    androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
+    androidReleaseCreateWalletExpectedApkPath: fixtureApkPath,
+  }).some(error => error.includes('Android release create-wallet smoke summary is invalid')),
+  'Camera/QR readiness must reject invalid Android release create-wallet smoke evidence when requested',
 );
 assert(
   getCameraQrValidationReadinessErrors({

@@ -167,6 +167,7 @@ Branch shape:
 - Preserve all guarded QR scanner callers.
 - Keep removed legacy QR local-image package out of `package.json` and `react-native.config.js`.
 - Run `corepack yarn camera:qr-migration:audit` before scanner follow-up work so the current CameraKit permission/runtime/autolink baseline stays explicit.
+- Use `corepack yarn camera:qr-validation:handoff --include-android-release-smoke` when scanner work must prove the release APK path, because that sequence now validates release smoke and release create-wallet summaries after focused QR scanner/render tests.
 - Treat the remaining active pod version drift in `ios/Podfile.lock` as an iOS readiness blocker until `pod install` refreshes the lockfile on macOS. Removed camera pods are now absent from the guarded lockfile baseline.
 - Validate Android/iOS camera permissions and QR scan behavior manually before claiming scanner follow-up work complete.
 - Latest checked on 2026-06-16: `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.0.11`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
