@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.663 - Android release create-wallet smoke
+
+- Branch: `feature/bem-37-663-release-create-wallet-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a release-mode create-wallet smoke sequence for the locally signed `devRelease` APK so wallet creation is not validated only through `devDebug`.
+- Reuse the existing Android release smoke setup to install the bundled-JS release app without Metro, then run the standard wallet and default 3-key vault create flows against that installed release app.
+- Make the create-wallet summary checker support a caller-provided artifact basename and expected APK path, then add a dedicated release checker for `local-docs/android-create-wallet-smoke-dev-release-summary.txt`.
+- Document the new release create-wallet validation command in the Android modernization workflow.
+- Keep wallet runtime code, package versions, native files, Gradle files, and Metro configuration unchanged.
+
+Findings:
+
+- Existing release validation already proved APK, JS bundle, source map, manifest, and release startup/onboarding/dashboard behavior, but did not exercise wallet creation in release mode.
+- The new `android:dev:release:create-wallet-verify` command refreshes release build evidence first, then validates release startup and create-wallet flow on emulator without requiring Metro.
+- This branch extends release evidence for wallet-critical flows while keeping Sentry source-map upload explicitly unclaimed until release credentials are available.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/androidCreateWalletSmokeDevReleaseEmbedded.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkAndroidReleaseCreateWalletSmokeSummary.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkAndroidCreateWalletSmokeSummary.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:release:create-wallet-verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:check-create-wallet-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed as the existing baseline audit while reporting the known lint debt.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.662 - Create-wallet Electrum observation evidence
 
 - Branch: `feature/bem-37-662-electrum-create-wallet-observation`
