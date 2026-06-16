@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.700 - iOS static validation preflight handoff
+
+- Branch: `feature/bem-37-700-ios-static-validation-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a Windows-safe `ios:mac-validation:handoff:preflight` path for iOS static/release readiness work.
+- Keep the full iOS macOS handoff strict: real `pod install`, `xcodebuild`, simulator/archive validation, and refreshed `ios/Podfile.lock` are still required before iOS runtime delivery can be claimed.
+- Guard that preflight mode refreshes iOS release readiness, macOS prerequisite, Podfile.lock refresh-plan, and combined handoff summaries without executing `pod install` or `xcodebuild`.
+- Document the difference between local static iOS evidence and Mac/Xcode runtime/archive evidence.
+
+Findings:
+
+- This Windows environment can validate static iOS files, schemes, Sentry/Firebase/remote-notification wiring, Podfile.lock drift, and the macOS handoff command sequence.
+- iOS runtime/archive validation remains not claimed because `xcodebuild` and CocoaPods validation require macOS, and the active `ios/Podfile.lock` still needs a `pod install` refresh against the RN `0.86.0` dependency baseline.
+- No runtime code, native dependency version, Android build config, or Metro behavior changed in this branch, so Android emulator smoke is not required for this static iOS handoff branch.
+- Adding the package script changed the release-input fingerprint tracked by the Android release summary, so Android `dev`, `stage`, `prod`, and `beta` release evidence was refreshed with Sentry auto-upload disabled before the aggregate release-services gate was accepted.
+
+Validation:
+
+- `& $node --check scripts\runIosMacValidationHandoff.mjs`
+- `& $node --check scripts\checkIosMacValidationHandoffGuard.mjs`
+- `& $node $yarn check:ios-mac-validation-handoff-guard`
+- `& $node $yarn ios:mac-validation:handoff:preflight:dry-run`
+- `& $node $yarn ios:mac-validation:handoff:preflight`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn android:dev:release:verify-local`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `& $node $yarn check:modernization-log-ids`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.699 - Sentry release preflight handoff
 
 - Branch: `feature/bem-37-699-sentry-release-target-refresh`

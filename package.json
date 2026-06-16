@@ -229,6 +229,8 @@
     "check:ios-mac-validation-prereq-summary-guard": "node scripts/checkIosMacValidationPrereqSummaryGuard.mjs",
     "ios:mac-validation:handoff": "node scripts/runIosMacValidationHandoff.mjs",
     "ios:mac-validation:handoff:dry-run": "node scripts/runIosMacValidationHandoff.mjs --dry-run",
+    "ios:mac-validation:handoff:preflight": "node scripts/runIosMacValidationHandoff.mjs --preflight-only",
+    "ios:mac-validation:handoff:preflight:dry-run": "node scripts/runIosMacValidationHandoff.mjs --preflight-only --dry-run",
     "check:ios-mac-validation-handoff-guard": "node scripts/checkIosMacValidationHandoffGuard.mjs",
     "ios:validation:handoff-summary": "node scripts/runIosValidationHandoffSummary.mjs",
     "ios:validation:handoff-summary:dry-run": "node scripts/runIosValidationHandoffSummary.mjs --dry-run",

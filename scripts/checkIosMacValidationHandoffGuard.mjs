@@ -1,6 +1,8 @@
 import {
   getIosMacValidationCommands,
   getIosMacValidationHandoffErrors,
+  getIosMacValidationPreflightCommands,
+  getIosMacValidationPreflightReadinessErrors,
   getIosMacValidationReadinessErrors,
   iosMacValidationSchemes,
   renderIosMacValidationCommand,
@@ -133,6 +135,38 @@ assert(
   'All-schemes handoff must end with iOS release readiness summary validation',
 );
 
+const preflightCommands = getIosMacValidationPreflightCommands({
+  scheme: 'GoldWallet (Release)',
+  schemeProvided: true,
+  configuration: 'Release',
+  configurationProvided: true,
+  sdk: 'iphonesimulator',
+});
+const preflightRendered = preflightCommands.map(renderIosMacValidationCommand).join('\n');
+
+[
+  'corepack yarn ios:release:readiness:audit',
+  'corepack yarn ios:release:readiness:check-summary',
+  'corepack yarn ios:mac-validation-prereq:audit',
+  'corepack yarn ios:mac-validation-prereq:check-summary',
+  'corepack yarn check:ios-podfile-refresh-plan-guard',
+  'corepack yarn ios:podfile-refresh:plan',
+  'corepack yarn ios:podfile-refresh:check-plan',
+  'corepack yarn ios:validation:handoff-summary',
+  'corepack yarn check:ios-validation-handoff-summary-guard',
+  'corepack yarn ios:mac-validation:handoff:dry-run --scheme "GoldWallet (Release)" --configuration Release',
+].forEach(expected => {
+  assert(preflightRendered.includes(expected), `Expected preflight commands to include: ${expected}`);
+});
+assert(
+  !preflightCommands.some(step => step.command === 'xcodebuild'),
+  'iOS preflight handoff must not execute xcodebuild',
+);
+assert(
+  !preflightCommands.some(step => step.command === 'pod' || step.args.join(' ') === 'exec pod install'),
+  'iOS preflight handoff must not execute pod install',
+);
+
 const readyPrereqSummary = [
   'iOS macOS validation prerequisites audit',
   'Generated at: 2026-06-10T00:00:00.000Z',
@@ -243,6 +277,27 @@ assert(
     macValidationPrereqSummaryText: readyPrereqSummary,
   }).some(error => error.includes('iOS release readiness summary is missing')),
   'iOS macOS validation handoff must report missing release readiness summary',
+);
+assert(
+  getIosMacValidationPreflightReadinessErrors({
+    releaseReadinessSummaryText: readyReleaseSummary,
+    macValidationPrereqSummaryText: blockedPrereqSummary,
+  }).length === 0,
+  'iOS preflight handoff must accept valid static summaries even when macOS archive validation remains blocked',
+);
+assert(
+  getIosMacValidationPreflightReadinessErrors({
+    releaseReadinessSummaryText: readyReleaseSummary.replace('iOS runtime delivery validation: not claimed', 'iOS runtime delivery validation: passed'),
+    macValidationPrereqSummaryText: blockedPrereqSummary,
+  }).some(error => error.includes('runtime delivery')),
+  'iOS preflight handoff must reject claimed runtime validation',
+);
+assert(
+  getIosMacValidationPreflightReadinessErrors({
+    releaseReadinessSummaryText: '',
+    macValidationPrereqSummaryText: blockedPrereqSummary,
+  }).some(error => error.includes('iOS release readiness summary is missing')),
+  'iOS preflight handoff must report missing release readiness summary',
 );
 
 console.log('iOS macOS validation handoff guard checks are valid.');

@@ -23,6 +23,7 @@ export const iosMacValidationSchemes = {
 
 const defaultOptions = {
   dryRun: false,
+  preflightOnly: false,
   scheme: 'GoldWallet Dev (Debug)',
   configuration: null,
   sdk: 'iphonesimulator',
@@ -33,20 +34,21 @@ const defaultOptions = {
 };
 
 const usage = [
-  'Usage: node scripts/runIosMacValidationHandoff.mjs [--dry-run] [--all-schemes | --scheme "<shared scheme>"] [--configuration Debug|Release] [--sdk iphonesimulator]',
+  'Usage: node scripts/runIosMacValidationHandoff.mjs [--dry-run] [--preflight-only] [--all-schemes | --scheme "<shared scheme>"] [--configuration Debug|Release] [--sdk iphonesimulator]',
   '',
   'Examples:',
   '  node scripts/runIosMacValidationHandoff.mjs --dry-run',
+  '  node scripts/runIosMacValidationHandoff.mjs --preflight-only',
   '  node scripts/runIosMacValidationHandoff.mjs --dry-run --all-schemes',
   '  node scripts/runIosMacValidationHandoff.mjs --scheme "GoldWallet (Release)" --configuration Release',
 ].join('\n');
 
-const commandName = command => {
+const getSpawnInvocation = step => {
   if (process.platform !== 'win32') {
-    return command;
+    return { command: step.command, args: step.args };
   }
 
-  return command === 'corepack' ? 'corepack.cmd' : command;
+  return { command: 'cmd.exe', args: ['/d', '/s', '/c', step.command, ...step.args] };
 };
 
 const quoteArg = arg => {
@@ -113,6 +115,13 @@ const requireSummaryLine = (errors, summaryText, snippet, message) => {
   }
 };
 
+const yarnStep = (label, script, scriptArgs = []) => ({
+  label,
+  command: 'corepack',
+  args: ['yarn', script, ...scriptArgs],
+  cwd: root,
+});
+
 export const getIosMacValidationReadinessErrors = ({
   releaseReadinessSummaryText,
   macValidationPrereqSummaryText,
@@ -175,6 +184,82 @@ const getIosBuildTargets = options => {
   return [{ scheme, configuration }];
 };
 
+const getDryRunArgsForOptions = options => {
+  if (options.allSchemes) {
+    return ['--all-schemes'];
+  }
+
+  const args = [];
+
+  if (options.schemeProvided && options.scheme) {
+    args.push('--scheme', options.scheme);
+  }
+
+  if (options.configurationProvided && options.configuration) {
+    args.push('--configuration', options.configuration);
+  }
+
+  if (options.sdk && options.sdk !== defaultOptions.sdk) {
+    args.push('--sdk', options.sdk);
+  }
+
+  return args;
+};
+
+export const getIosMacValidationPreflightCommands = options => [
+  yarnStep('Audit static iOS release readiness', 'ios:release:readiness:audit'),
+  yarnStep('Validate static iOS release readiness summary', 'ios:release:readiness:check-summary'),
+  yarnStep('Audit iOS macOS validation prerequisites', 'ios:mac-validation-prereq:audit'),
+  yarnStep('Validate iOS macOS validation prerequisite summary', 'ios:mac-validation-prereq:check-summary'),
+  yarnStep('Validate iOS Podfile refresh plan guard', 'check:ios-podfile-refresh-plan-guard'),
+  yarnStep('Refresh iOS Podfile refresh plan', 'ios:podfile-refresh:plan'),
+  yarnStep('Validate iOS Podfile refresh plan', 'ios:podfile-refresh:check-plan'),
+  yarnStep('Refresh iOS validation handoff summary', 'ios:validation:handoff-summary'),
+  yarnStep('Validate iOS validation handoff summary guard', 'check:ios-validation-handoff-summary-guard'),
+  yarnStep('Render macOS validation handoff dry run', 'ios:mac-validation:handoff:dry-run', getDryRunArgsForOptions(options)),
+];
+
+export const getIosMacValidationPreflightReadinessErrors = ({
+  releaseReadinessSummaryText,
+  macValidationPrereqSummaryText,
+}) => {
+  const errors = [];
+
+  if (!releaseReadinessSummaryText) {
+    errors.push('iOS release readiness summary is missing; run ios:release:readiness:audit first');
+  } else {
+    const releaseSummaryErrors = getIosReleaseReadinessSummaryErrors(releaseReadinessSummaryText);
+    releaseSummaryErrors.forEach(error => errors.push(`iOS release readiness summary is invalid: ${error}`));
+    requireSummaryLine(
+      errors,
+      releaseReadinessSummaryText,
+      'Static iOS release files valid: yes',
+      'iOS static release files are not ready for preflight handoff',
+    );
+    requireSummaryLine(
+      errors,
+      releaseReadinessSummaryText,
+      'iOS runtime delivery validation: not claimed',
+      'iOS preflight must keep runtime delivery unclaimed until macOS simulator/device evidence exists',
+    );
+  }
+
+  if (!macValidationPrereqSummaryText) {
+    errors.push('iOS macOS validation prerequisite summary is missing; run ios:mac-validation-prereq:audit first');
+  } else {
+    const prereqSummaryErrors = getIosMacValidationPrereqSummaryErrors(macValidationPrereqSummaryText);
+    prereqSummaryErrors.forEach(error => errors.push(`iOS macOS validation prerequisite summary is invalid: ${error}`));
+    requireSummaryLine(
+      errors,
+      macValidationPrereqSummaryText,
+      'iOS runtime delivery validation: not claimed',
+      'iOS preflight must keep runtime delivery unclaimed until macOS simulator/device evidence exists',
+    );
+  }
+
+  return errors;
+};
+
 export const getIosMacValidationCommands = options => {
   const sdk = options.sdk || defaultOptions.sdk;
   const preferBundleExecPod =
@@ -227,6 +312,8 @@ const parseArgs = argv => {
 
     if (arg === '--dry-run') {
       options.dryRun = true;
+    } else if (arg === '--preflight-only') {
+      options.preflightOnly = true;
     } else if (arg === '--all-schemes') {
       options.allSchemes = true;
     } else if (arg === '--') {
@@ -268,7 +355,8 @@ const runStep = step => {
   console.log(`\n${step.label}`);
   console.log(renderIosMacValidationCommand(step));
 
-  const result = spawnSync(commandName(step.command), step.args, {
+  const invocation = getSpawnInvocation(step);
+  const result = spawnSync(invocation.command, invocation.args, {
     cwd: step.cwd,
     env: {
       ...process.env,
@@ -308,10 +396,10 @@ const main = () => {
     return 1;
   }
 
-  const commands = getIosMacValidationCommands(options);
+  const commands = options.preflightOnly ? getIosMacValidationPreflightCommands(options) : getIosMacValidationCommands(options);
 
   if (options.dryRun) {
-    console.log('iOS macOS validation handoff dry run');
+    console.log(options.preflightOnly ? 'iOS static validation preflight handoff dry run' : 'iOS macOS validation handoff dry run');
     console.log(`Scheme: ${options.allSchemes ? 'all shared schemes' : options.scheme}`);
     console.log(`Configuration: ${options.allSchemes ? 'per shared scheme' : options.configuration}`);
     console.log(`SDK: ${options.sdk}`);
@@ -319,13 +407,42 @@ const main = () => {
       console.log(`${index + 1}. ${step.label}`);
       console.log(`   ${renderIosMacValidationCommand(step)}`);
     });
-    console.log('Dry run complete. Run without --dry-run on macOS with Xcode 16.1+ and CocoaPods to execute.');
+    console.log(
+      options.preflightOnly
+        ? 'Dry run complete. Run without --dry-run to execute static iOS preflight without claiming runtime validation.'
+        : 'Dry run complete. Run without --dry-run on macOS with Xcode 16.1+ and CocoaPods to execute.',
+    );
+    return 0;
+  }
+
+  if (options.preflightOnly) {
+    for (const step of commands) {
+      const status = runStep(step);
+
+      if (status !== 0) {
+        return status;
+      }
+    }
+
+    const readinessErrors = getIosMacValidationPreflightReadinessErrors({
+      releaseReadinessSummaryText: readSummary(iosReleaseReadinessSummaryPath),
+      macValidationPrereqSummaryText: readSummary(iosMacValidationPrereqSummaryPath),
+    });
+
+    if (readinessErrors.length > 0) {
+      console.error('\niOS static validation preflight handoff is blocked:');
+      readinessErrors.forEach(error => console.error(`- ${error}`));
+      return 1;
+    }
+
+    console.log('\niOS static validation preflight handoff completed.');
+    console.log('iOS runtime delivery validation remains not claimed until macOS simulator/device evidence exists.');
     return 0;
   }
 
   if (process.platform !== 'darwin') {
     console.error('iOS macOS validation handoff requires macOS with Xcode 16.1+ and CocoaPods.');
-    console.error('Use --dry-run on Windows to verify the handoff command sequence without claiming iOS runtime validation.');
+    console.error('Use --dry-run or --preflight-only on Windows without claiming iOS runtime validation.');
     return 1;
   }
 
