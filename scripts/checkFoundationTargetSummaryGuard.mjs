@@ -44,6 +44,8 @@ const requiredCheckerSnippets = [
 ];
 
 const requiredPackageScripts = {
+  'foundation:target:refresh-online':
+    'yarn check:node-runtime-version && yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn direct-outdated:snapshot:audit && yarn direct-outdated:snapshot:check-summary && yarn git-deps:snapshot:audit && yarn git-deps:snapshot:check-summary && yarn wallet:crypto-latest-snapshot:audit && yarn wallet:crypto-latest-snapshot:check-summary && yarn storage-network:latest-snapshot:audit && yarn storage-network:latest-snapshot:check-summary && yarn tooling:latest-snapshot:audit && yarn tooling:latest-snapshot:check-summary && yarn android:toolchain-target:audit && yarn android:toolchain-target:check-summary && yarn bl:resolution:audit && yarn bl:resolution:check-summary && yarn node-fetch:resolution:audit && yarn node-fetch:resolution:check-summary && yarn foundation:target:check-summaries',
   'foundation:target:check-summaries': 'node scripts/checkFoundationTargetSummaryArtifacts.mjs',
   'check:foundation-target-summary-guard': 'node scripts/checkFoundationTargetSummaryGuard.mjs',
 };
@@ -66,8 +68,12 @@ if (!scripts['rn:baseline:preflight']?.includes('yarn check:foundation-target-su
   errors.push('rn:baseline:preflight must include the foundation target summary guard');
 }
 
-if (!scripts['rn:baseline:preflight:online']?.includes('yarn foundation:target:check-summaries')) {
-  errors.push('rn:baseline:preflight:online must validate the aggregate foundation target summaries');
+if (!scripts['rn:baseline:preflight:online']?.includes('yarn foundation:target:refresh-online')) {
+  errors.push('rn:baseline:preflight:online must run foundation:target:refresh-online before the offline preflight');
+}
+
+if (!scripts['foundation:target:refresh-online']?.includes('yarn foundation:target:check-summaries')) {
+  errors.push('foundation:target:refresh-online must validate the aggregate foundation target summaries');
 }
 
 if (errors.length > 0) {

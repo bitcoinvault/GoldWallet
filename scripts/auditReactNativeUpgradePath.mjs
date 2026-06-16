@@ -25,8 +25,9 @@ export const expectedReactNativeUpgradePathBaseline = {
 
 export const expectedReactNativeBaselinePreflight =
   'yarn check:node-runtime-version && yarn android:dev:check-light && yarn metro:dev-runtime:audit && yarn check:node-runtime-transition-guard && yarn node:runtime-transition:audit && yarn lint-staged:tooling:audit && yarn husky:tooling:audit && yarn prettier:tooling:audit && yarn jest:tooling:audit && yarn upgrade:strategy:audit && yarn rn:upgrade-path:audit && yarn rn:076-foundation:audit && yarn check:foundation-target-summary-guard && yarn check:rn-target-snapshot-guard && yarn check:rn-target-snapshot-current-guard && yarn rn:target-snapshot:audit && yarn check:react19-impact-guard && yarn react19:impact:audit && yarn check:react-package-coupling-guard && yarn react:package-coupling:audit && yarn check:react-renderer-version-guard && yarn react:renderer-version:audit && yarn check:test-type-coupling-guard && yarn test:type-coupling:audit && yarn check:detox-readiness && yarn wallet:crypto-runtime:audit && yarn crypto-js:runtime:audit && yarn state:runtime:audit && yarn lodash:runtime:audit && yarn check:wallet-crypto-latest-snapshot-summary-guard && yarn check:direct-outdated-snapshot-summary-guard && yarn camera:candidate:audit && yarn camera:candidate:check-summary && yarn camera:qr-migration:audit && yarn camera:qr-migration:check-summary && yarn check:camera-qr-validation-handoff-guard && yarn camera:qr-validation:handoff:dry-run && yarn masked-view:migration:audit && yarn masked-view:migration:check-summary && yarn check:secure-storage-release-validation-handoff-guard && yarn secure-storage:release-validation:handoff:dry-run --skip-android-smoke && yarn check:secure-storage-release-validation-summary-guard && yarn secure-storage:release-validation:summary && yarn secure-storage:release-validation:check-summary && yarn secure-storage:migration:audit && yarn secure-storage:migration:check-summary && yarn secure-storage:removal-readiness:audit && yarn secure-storage:removal-readiness:check-summary && yarn check:explorer-env-config-readiness-guard && yarn check:explorer-env-config-readiness && yarn check:store-metadata-readiness-guard && yarn check:store-metadata-readiness && yarn check:rebranding-release-config-readiness-guard && yarn check:rebranding-release-config-readiness && yarn sentry:android-warning:audit && yarn sentry:android-warning:check-summary && yarn sentry:rn-bundle-task-compat:audit && yarn sentry:rn-bundle-task-compat:check-summary && yarn check:android-warning-source-summaries-guard && yarn android:dev:check-warning-source-summaries && yarn check:android-warning-audit-summary-guard && yarn android:dev:check-warning-audit-summary && yarn check:android-smoke-summary-guard && yarn android:dev:check-smoke-summary && yarn check:sentry-properties-generator && yarn check:sentry-release-validation-handoff-guard && yarn check:sentry-credential-handoff-guard && yarn check:sentry-release-credential-plan-guard && yarn sentry:release:credential-plan && yarn sentry:release:credential-plan:check && yarn sentry:release:prereq-audit && yarn sentry:release:prereq-check-summary && yarn firebase:release-services:audit && yarn firebase:release-services:check-summary && yarn check:firebase-runtime-delivery-handoff-guard && yarn firebase:runtime:delivery:handoff:dry-run --skip-android-release && yarn check:codepush-update-validation-handoff-guard && yarn codepush:update:validation:handoff:dry-run --skip-android-release && yarn codepush:release:path-audit && yarn codepush:release:path-check-summary && yarn codepush:migration:readiness-audit && yarn codepush:migration:readiness-check-summary && yarn codepush:removal-readiness:audit && yarn codepush:removal-readiness:check-summary && yarn check:codepush-env-cleanup-plan-guard && yarn codepush:env-cleanup:audit && yarn codepush:env-cleanup:check-summary && yarn codepush:env-cleanup:plan && yarn codepush:env-cleanup:check-plan && yarn check:codepush-decision-handoff-guard && yarn codepush:decision:handoff:dry-run && yarn check:codepush-decision-handoff-summary-guard && yarn push-notification:bridge-audit && yarn push-notification:bridge-check-summary && yarn check:ios-release-readiness-audit-guard && yarn check:ios-release-readiness-summary-guard && yarn ios:release:readiness:audit && yarn ios:release:readiness:check-summary && yarn check:ios-mac-validation-prereq-summary-guard && yarn ios:mac-validation-prereq:audit && yarn ios:mac-validation-prereq:check-summary && yarn check:ios-mac-validation-handoff-guard && yarn ios:mac-validation:handoff:dry-run && yarn check:ios-validation-handoff-summary-guard && yarn ios:validation:handoff-summary && yarn check:android-release-apk-manifest-guard && yarn check:release-services-validation-handoff-guard && yarn check:release-services-summary-guard && yarn release-services:check-summaries';
-export const expectedReactNativeOnlinePreflight =
-  'yarn check:node-runtime-version && yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn direct-outdated:snapshot:audit && yarn direct-outdated:snapshot:check-summary && yarn git-deps:snapshot:audit && yarn git-deps:snapshot:check-summary && yarn wallet:crypto-latest-snapshot:audit && yarn wallet:crypto-latest-snapshot:check-summary && yarn storage-network:latest-snapshot:audit && yarn storage-network:latest-snapshot:check-summary && yarn tooling:latest-snapshot:audit && yarn tooling:latest-snapshot:check-summary && yarn android:toolchain-target:audit && yarn android:toolchain-target:check-summary && yarn bl:resolution:audit && yarn bl:resolution:check-summary && yarn node-fetch:resolution:audit && yarn node-fetch:resolution:check-summary && yarn foundation:target:check-summaries && yarn rn:baseline:preflight';
+export const expectedFoundationTargetOnlineRefresh =
+  'yarn check:node-runtime-version && yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn direct-outdated:snapshot:audit && yarn direct-outdated:snapshot:check-summary && yarn git-deps:snapshot:audit && yarn git-deps:snapshot:check-summary && yarn wallet:crypto-latest-snapshot:audit && yarn wallet:crypto-latest-snapshot:check-summary && yarn storage-network:latest-snapshot:audit && yarn storage-network:latest-snapshot:check-summary && yarn tooling:latest-snapshot:audit && yarn tooling:latest-snapshot:check-summary && yarn android:toolchain-target:audit && yarn android:toolchain-target:check-summary && yarn bl:resolution:audit && yarn bl:resolution:check-summary && yarn node-fetch:resolution:audit && yarn node-fetch:resolution:check-summary && yarn foundation:target:check-summaries';
+export const expectedReactNativeOnlinePreflight = 'yarn foundation:target:refresh-online && yarn rn:baseline:preflight';
 
 export const requiredReactNativeUpgradePathDocs = [
   'docs/react-native-upgrade-path.md',
@@ -72,10 +73,12 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:upgrade-path:audit'],
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:076-foundation:audit'],
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:baseline:preflight'],
+  ['docs/react-native-upgrade-path.md', 'corepack yarn foundation:target:refresh-online'],
   ['docs/react-native-upgrade-path.md', 'corepack yarn rn:baseline:preflight:online'],
   ['docs/react-native-upgrade-path.md', 'corepack yarn foundation:target:check-summaries'],
   ['docs/react-native-upgrade-path.md', 'full target evidence set'],
   ['docs/dependency-upgrade-strategy.md', 'Try the latest target first when the change is feasible'],
+  ['docs/dependency-upgrade-strategy.md', 'foundation:target:refresh-online'],
   ['docs/dependency-upgrade-strategy.md', 'foundation:target:check-summaries'],
   ['docs/react-native-076-foundation-plan.md', 'react-native@0.86.0'],
   ['docs/react-native-076-foundation-plan.md', 'Do not repeat a package-only RN 0.76 branch'],
@@ -93,6 +96,7 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/wallet-modernization-baseline.md', 'React Native renderer exact-version audit is tracked in `docs/react-package-coupling-audit.md`'],
   ['docs/wallet-modernization-baseline.md', 'Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`'],
   ['docs/wallet-modernization-baseline.md', 'corepack yarn rn:baseline:preflight'],
+  ['docs/wallet-modernization-baseline.md', 'corepack yarn foundation:target:refresh-online'],
   ['docs/wallet-modernization-baseline.md', 'corepack yarn rn:baseline:preflight:online'],
   ['docs/wallet-modernization-baseline.md', 'corepack yarn foundation:target:check-summaries'],
   ['docs/wallet-modernization-baseline.md', 'direct outdated snapshot audit'],
@@ -101,6 +105,7 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/native-module-upgrade-plan.md', 'corepack yarn rn:baseline:preflight'],
   ['docs/android-modernization-workflow.md', 'corepack yarn rn:upgrade-path:audit'],
   ['docs/android-modernization-workflow.md', 'corepack yarn rn:baseline:preflight'],
+  ['docs/android-modernization-workflow.md', 'corepack yarn foundation:target:refresh-online'],
   ['docs/android-modernization-workflow.md', 'corepack yarn rn:baseline:preflight:online'],
   ['docs/android-modernization-workflow.md', 'foundation:target:check-summaries'],
   ['docs/android-modernization-workflow.md', 'direct outdated snapshot'],
@@ -271,6 +276,10 @@ export const getReactNativeUpgradePathIssues = ({
 
   if (scripts['foundation:target:check-summaries'] !== 'node scripts/checkFoundationTargetSummaryArtifacts.mjs') {
     errors.push('package.json is missing foundation:target:check-summaries script');
+  }
+
+  if (scripts['foundation:target:refresh-online'] !== expectedFoundationTargetOnlineRefresh) {
+    errors.push('package.json is missing foundation:target:refresh-online script with the expected live foundation target refresh command');
   }
 
   if (scripts['check:foundation-target-summary-guard'] !== 'node scripts/checkFoundationTargetSummaryGuard.mjs') {

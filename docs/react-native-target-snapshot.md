@@ -45,6 +45,12 @@ For actual RN baseline branches where network access is available, use the onlin
 corepack yarn rn:baseline:preflight:online
 ```
 
+For target discovery without the full offline preflight, use the foundation target refresh wrapper:
+
+```powershell
+corepack yarn foundation:target:refresh-online
+```
+
 To validate the latest local summary artifact after a live check, use:
 
 ```powershell

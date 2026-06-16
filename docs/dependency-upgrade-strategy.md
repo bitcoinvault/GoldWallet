@@ -10,7 +10,7 @@ This project should not upgrade dependencies one package at a time unless the pa
 - Do not commit a dependency change that only passes TypeScript or Android assemble; runtime dependencies also need Metro reset and emulator smoke.
 - Do not mix unrelated runtime families in the same branch.
 - Validate the strategy guard with `corepack yarn upgrade:strategy:audit` before starting a foundation or cohort upgrade branch.
-- When network access is available for a React Native foundation branch, use `corepack yarn rn:baseline:preflight:online` so `check:node-runtime-version` runs before the live RN target snapshot, direct outdated snapshot, git dependency snapshot, wallet/crypto latest snapshot, storage/network latest snapshot, tooling latest snapshot, Android toolchain target, BL resolution, and node-fetch resolution summaries are refreshed, validated through `foundation:target:check-summaries`, and then followed by the offline baseline gate.
+- When network access is available for target discovery or a React Native foundation branch, use `corepack yarn foundation:target:refresh-online` so `check:node-runtime-version` runs before the live RN target snapshot, direct outdated snapshot, git dependency snapshot, wallet/crypto latest snapshot, storage/network latest snapshot, tooling latest snapshot, Android toolchain target, BL resolution, and node-fetch resolution summaries are refreshed and validated through `foundation:target:check-summaries`. For an actual RN baseline branch, use `corepack yarn rn:baseline:preflight:online`; it runs the same online refresh first and then follows with the offline baseline gate.
 - Treat clean Git dependency snapshots as fork-preservation evidence, not permission to casually replace wallet-critical forks. If `bitcoinjs-lib`, `electrum-client`, or `react-native-prompt-android` changes, use a dedicated compatibility branch with wallet/storage validation.
 
 ## Upgrade Layers
@@ -21,7 +21,7 @@ Upgrade this layer before chasing most library majors:
 
 - React Native, React, Metro, Babel presets/runtime, TypeScript, Jest transform stack.
 - Android Gradle Plugin, Gradle wrapper, Kotlin/Java settings, compile/target SDK.
-- The current Android baseline stays on AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`; use `corepack yarn android:toolchain-target:audit` before another Android toolchain branch. Live metadata on 2026-06-12 showed AGP `9.2.1`, Gradle `9.5.1`, and Kotlin `2.4.0`, but the AGP 9 path is blocked until the React Native Gradle plugin can compile against Gradle 9's embedded Kotlin metadata.
+- The current Android baseline stays on AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`; use `corepack yarn android:toolchain-target:audit` before another Android toolchain branch. Live metadata on 2026-06-16 showed AGP `9.2.1`, Gradle `9.5.1`, and Kotlin `2.4.0`, but the AGP 9 path is blocked until the React Native Gradle plugin can compile against Gradle 9's embedded Kotlin metadata.
 - iOS CocoaPods, Xcode project settings, deployment targets, native template drift.
 
 Reason: the first foundation checkpoint is complete, but recent proof branches still show that the next jump has coupled blockers that need to move together:
