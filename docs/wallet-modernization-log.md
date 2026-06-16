@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.688 - CodePush env cleanup
+
+- Branch: `feature/bem-37-688-codepush-env-cleanup`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove stale `CODEPUSH_*` entries from the tracked `.env.*` files after the CodePush runtime/native/package removal.
+- Use a mechanical cleanup so historical deployment-key values are not printed in patch output or logs.
+- Refresh CodePush env cleanup evidence and docs so release-service readiness no longer carries stale CodePush env cleanup debt.
+
+Findings:
+
+- Before cleanup, `codepush:env-cleanup:plan` reported 5 tracked env files needing cleanup, 11 `CODEPUSH_*` entries, and 4 non-empty deployment-key entries.
+- The cleanup removed only `CODEPUSH_*` lines from `.env.dev.testnet`, `.env.stage.mainnet`, `.env.prod.mainnet`, `.env.beta.testnet`, and `.env.beta.mainnet`.
+- After cleanup, `codepush:env-cleanup:audit` reports 0 env files carrying CodePush keys, 0 CodePush env key entries, 0 non-empty deployment-key entries, and `Secret values printed: no`.
+- OTA update validation remains `not claimed`; CodePush stays removed unless a maintained replacement is selected and tested.
+
+Validation:
+
+- `& $node $yarn codepush:env-cleanup:plan`
+- `& $node $yarn codepush:env-cleanup:check-plan`
+- `& $node $yarn codepush:env-cleanup:audit`
+- `& $node $yarn codepush:env-cleanup:check-summary`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true; & $node $yarn android:dev:release:create-wallet-verify`
+- `& $node $yarn android:dev:assemble`
+- `& $node $yarn android:dev:smoke:embedded`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `& $node $yarn codepush:release:path-audit`
+- `& $node $yarn codepush:release:path-check-summary`
+- `& $node $yarn codepush:migration:readiness-audit`
+- `& $node $yarn codepush:migration:readiness-check-summary`
+- `& $node $yarn codepush:removal-readiness:audit`
+- `& $node $yarn codepush:removal-readiness:check-summary`
+- `& $node $yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota`
+- `& $node $yarn check:codepush-decision-handoff-summary-guard`
+- `& $node $yarn release-services:check-summaries`
+
 ### BEM-37.687 - iOS static readiness refresh
 
 - Branch: `feature/bem-37-687-ios-readiness-refresh`
