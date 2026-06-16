@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.695 - Foundation latest-target refresh
+
+- Branch: `feature/bem-37-695-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the online latest-target evidence before choosing another foundation package/toolchain branch.
+- Confirm whether there is a higher stable React Native target than the installed `0.86.0` baseline.
+- Recheck direct outdated dependencies, wallet/crypto, storage/network, tooling, git dependency pins, Android toolchain target, `bl`, and `node-fetch` readiness without changing package or runtime files.
+
+Findings:
+
+- npm `latest` for `react-native` is still `0.86.0`; npm `next` is `0.86.0-rc.3` and npm `nightly` is `0.87.0-nightly-20260608-2ff3b81dc`, so there is no higher stable RN line to adopt in this branch.
+- Direct outdated entries remain `16`: `12` known blocked entries and `4` exotic/git-pinned entries, with `0` review-required entries.
+- Babel `8.0.0` remains blocked by the current RN `0.86.0` Babel preset/plugin stack and is already covered by the Babel 8 migration probe.
+- React `19.2.7` and `react-test-renderer@19.2.7` remain blocked by RN renderer exact-version coupling to React `19.2.3`.
+- Wallet/crypto, storage/network, and tooling latest snapshots report their tracked npm packages current; BTCV fork dependencies and wallet-critical prompt/rn-nodeify pins remain intentionally tracked by git-dependency evidence.
+- Android latest toolchain remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle `9.4.1` and `9.5.1` load newer embedded Kotlin runtime metadata that the RN Gradle plugin `0.86.0` Kotlin compile path cannot read. The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- `bl@7.0.3` remains blocked for CommonJS/transitive consumers; `node-fetch@3.3.2` remains current and compatible through dynamic import consumers.
+- This branch changes only committed documentation evidence; runtime, package, native, Metro, Android, and iOS project files stay unchanged.
+
+Validation:
+
+- `& $node $yarn foundation:target:refresh-online`
+- `& $node $yarn android:dev:check-light`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.694 - iOS Podfile refresh handoff baseline
 
 - Branch: `feature/bem-37-694-ios-podfile-refresh-baseline`
