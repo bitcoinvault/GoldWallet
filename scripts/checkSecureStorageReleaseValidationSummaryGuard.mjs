@@ -16,6 +16,7 @@ const validSummary = [
   'Legacy fallback reads active: yes',
   'Legacy writes disabled: yes',
   'Legacy cleanup after successful migration: yes',
+  'Legacy fallback instrumentation active: yes',
   'Removal release validation claimed: no',
   'Legacy package removal ready: no',
   'Android warning source still expected: yes',
@@ -57,6 +58,11 @@ assertRejected('Invalid removal summary fixture', validSummary.replace('Removal 
 assertRejected('Missing smoke fixture', validSummary.replace('Android dev smoke summary present: yes', 'Android dev smoke summary present: no'), 'Android dev smoke summary must be present');
 assertRejected('Failed smoke fixture', validSummary.replace('Android smoke outcome: passed', 'Android smoke outcome: failed'), 'Android smoke outcome must be passed');
 assertRejected('No fallback fixture', validSummary.replace('Legacy fallback reads active: yes', 'Legacy fallback reads active: no'), 'Legacy fallback reads must remain active');
+assertRejected(
+  'No fallback instrumentation fixture',
+  validSummary.replace('Legacy fallback instrumentation active: yes', 'Legacy fallback instrumentation active: no'),
+  'Legacy fallback instrumentation',
+);
 assertRejected('Removal claimed fixture', validSummary.replace('Removal release validation claimed: no', 'Removal release validation claimed: yes'), 'Removal release validation must remain unclaimed');
 assertRejected('Removal ready fixture', validSummary.replace('Legacy package removal ready: no', 'Legacy package removal ready: yes'), 'Legacy package removal must remain blocked');
 assertRejected('Secret printed fixture', validSummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');

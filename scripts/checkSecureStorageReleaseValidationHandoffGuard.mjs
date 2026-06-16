@@ -80,6 +80,7 @@ const readyMigrationSummary = [
   'Legacy secure-storage writes disabled: yes',
   'Legacy secure-storage fallback reads active: yes',
   'Legacy secure-storage cleanup after successful migration: yes',
+  'Legacy fallback instrumentation active: yes',
   'Focused validation script: test:storage-network:focused',
   'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
   'Warning baseline mentions secure-key-store: yes',
@@ -106,6 +107,7 @@ const blockedRemovalSummary = [
   'Legacy fallback reads active: yes',
   'Legacy write path disabled: yes',
   'Legacy cleanup after successful migration: yes',
+  'Legacy fallback instrumentation active: yes',
   'SecureStorageService fallback migration tests present: yes',
   'AppStorage fallback migration tests present: yes',
   'Fallback migration tests present: yes',
@@ -145,19 +147,22 @@ const readyAndroidSmokeSummary = [
   'Validated empty-dashboard CTA flow: yes',
   'Validated empty-tab navigation: yes',
   'Validated QR scanner screen: yes',
+  'Validated settings Terms WebView: yes',
   'UI hierarchy attempts: 1',
   'UI hierarchy path: package.json',
   'Screenshot path: package.json',
   'Screenshot bytes: 1234',
 ].join('\n');
 
+const readyFixtureErrors = getSecureStorageReleaseValidationReadinessErrors({
+  migrationSummary: readyMigrationSummary,
+  removalSummary: blockedRemovalSummary,
+  androidSmokeSummary: readyAndroidSmokeSummary,
+});
+
 assert(
-  getSecureStorageReleaseValidationReadinessErrors({
-    migrationSummary: readyMigrationSummary,
-    removalSummary: blockedRemovalSummary,
-    androidSmokeSummary: readyAndroidSmokeSummary,
-  }).length === 0,
-  'Secure-storage readiness fixture must pass while removal remains unclaimed',
+  readyFixtureErrors.length === 0,
+  `Secure-storage readiness fixture must pass while removal remains unclaimed:\n${readyFixtureErrors.map(error => `- ${error}`).join('\n')}`,
 );
 assert(
   getSecureStorageReleaseValidationReadinessErrors({

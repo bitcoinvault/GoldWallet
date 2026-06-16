@@ -4,7 +4,12 @@ import crypto from 'crypto';
 import * as mockKeychain from 'react-native-keychain';
 import mockLegacySecureStore from 'react-native-secure-key-store';
 
-import { SegwitP2SHWallet, AppStorage } from '../../class';
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  captureException: jest.fn(),
+};
 
 jest.mock('react-native-keychain', () => ({
   __esModule: true,
@@ -26,11 +31,17 @@ jest.mock('react-native-secure-key-store', () => ({
     WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
   },
 }));
+jest.mock('../../logger', () => ({
+  __esModule: true,
+  default: mockLogger,
+}));
 global.crypto = crypto; // shall be used by tests under nodejs CLI, but not in RN environment
 
 jest.mock('../../BlueElectrum', () => ({
   getDustValue: jest.fn().mockResolvedValue(546),
 }));
+
+const { SegwitP2SHWallet, AppStorage } = require('../../class');
 
 jest.useFakeTimers();
 
@@ -50,6 +61,10 @@ afterEach(() => {
   mockLegacySecureStore.get.mockReset();
   mockLegacySecureStore.set.mockReset();
   mockLegacySecureStore.remove.mockReset();
+  mockLogger.info.mockReset();
+  mockLogger.warn.mockReset();
+  mockLogger.error.mockReset();
+  mockLogger.captureException.mockReset();
   Object.defineProperty(global, 'navigator', {
     configurable: true,
     value: originalNavigator,
@@ -258,6 +273,18 @@ it('Appstorage - React Native storage migrates legacy value into keychain when k
     accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
   });
   expect(mockLegacySecureStore.remove).toHaveBeenCalledWith('data');
+  expect(mockLogger.info).toHaveBeenCalledWith({
+    category: 'secure-storage-migration',
+    message: 'Legacy secure-storage wallet value found; migrating to Keychain.',
+  });
+  expect(mockLogger.info).toHaveBeenCalledWith({
+    category: 'secure-storage-migration',
+    message: 'Legacy secure-storage wallet value migrated to Keychain.',
+  });
+  expect(mockLogger.info).toHaveBeenCalledWith({
+    category: 'secure-storage-migration',
+    message: 'Migrated legacy secure-storage wallet value removed from legacy backend.',
+  });
 });
 
 it('Appstorage - React Native storage falls back to legacy value when keychain read fails', async () => {
@@ -270,6 +297,10 @@ it('Appstorage - React Native storage falls back to legacy value when keychain r
 
   await expect(Storage.getItem('data')).resolves.toBe('legacy-wallet-json');
   expect(mockLegacySecureStore.get).toHaveBeenCalledWith('data');
+  expect(mockLogger.warn).toHaveBeenCalledWith({
+    category: 'secure-storage-migration',
+    message: 'Keychain wallet read failed; trying legacy secure-storage fallback.',
+  });
   expect(mockKeychain.setGenericPassword).toHaveBeenCalledWith('data', 'legacy-wallet-json', {
     service: 'data',
     accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
@@ -291,6 +322,10 @@ it('Appstorage - React Native storage keeps legacy value when keychain migration
     accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
   });
   expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+  expect(mockLogger.warn).toHaveBeenCalledWith({
+    category: 'secure-storage-migration',
+    message: 'Legacy secure-storage wallet migration to Keychain failed; returning legacy value.',
+  });
 });
 
 it('Appstorage - React Native storage keeps migrated legacy value when legacy cleanup fails', async () => {
@@ -307,4 +342,8 @@ it('Appstorage - React Native storage keeps migrated legacy value when legacy cl
     accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
   });
   expect(mockLegacySecureStore.remove).toHaveBeenCalledWith('data');
+  expect(mockLogger.warn).toHaveBeenCalledWith({
+    category: 'secure-storage-migration',
+    message: 'Legacy secure-storage wallet cleanup failed after migration; value remains readable.',
+  });
 });

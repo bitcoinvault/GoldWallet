@@ -12,6 +12,7 @@ const yesNoLabels = [
   'Legacy fallback reads active',
   'Legacy writes disabled',
   'Legacy cleanup after successful migration',
+  'Legacy fallback instrumentation active',
   'Removal release validation claimed',
   'Legacy package removal ready',
   'Android warning source still expected',
@@ -110,6 +111,10 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
 
   if (getLineValue(summary, 'Legacy cleanup after successful migration') !== 'yes') {
     errors.push('Legacy cleanup after successful migration must stay enabled');
+  }
+
+  if (getLineValue(summary, 'Legacy fallback instrumentation active') !== 'yes') {
+    errors.push('Legacy fallback instrumentation must stay enabled until fallback-free validation is claimed');
   }
 
   if (getLineValue(summary, 'Removal release validation claimed') !== 'no') {

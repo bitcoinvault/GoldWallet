@@ -18,10 +18,24 @@ import logger from '../logger';
 
 const encryption = require('../encryption');
 
+const secureStorageMigrationLogCategory = 'secure-storage-migration';
+
 const secureStorageOptions = key => ({
   service: key,
   accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
 });
+
+const logSecureStorageMigrationInfo = message =>
+  logger.info({
+    category: secureStorageMigrationLogCategory,
+    message,
+  });
+
+const logSecureStorageMigrationWarning = message =>
+  logger.warn({
+    category: secureStorageMigrationLogCategory,
+    message,
+  });
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -80,13 +94,32 @@ export class AppStorage {
         RNSecureKeyStore.get(key)
           .then(value => {
             if (value) {
+              logSecureStorageMigrationInfo('Legacy secure-storage wallet value found; migrating to Keychain.');
+
               return Keychain.setGenericPassword(key, value, secureStorageOptions(key))
-                .then(() =>
-                  RNSecureKeyStore.remove(key)
-                    .then(() => value)
-                    .catch(() => value),
-                )
-                .catch(() => value);
+                .then(() => {
+                  logSecureStorageMigrationInfo('Legacy secure-storage wallet value migrated to Keychain.');
+
+                  return RNSecureKeyStore.remove(key)
+                    .then(() => {
+                      logSecureStorageMigrationInfo(
+                        'Migrated legacy secure-storage wallet value removed from legacy backend.',
+                      );
+                      return value;
+                    })
+                    .catch(() => {
+                      logSecureStorageMigrationWarning(
+                        'Legacy secure-storage wallet cleanup failed after migration; value remains readable.',
+                      );
+                      return value;
+                    });
+                })
+                .catch(() => {
+                  logSecureStorageMigrationWarning(
+                    'Legacy secure-storage wallet migration to Keychain failed; returning legacy value.',
+                  );
+                  return value;
+                });
             }
 
             return value;
@@ -101,7 +134,10 @@ export class AppStorage {
 
           return getLegacyValue();
         })
-        .catch(getLegacyValue);
+        .catch(() => {
+          logSecureStorageMigrationWarning('Keychain wallet read failed; trying legacy secure-storage fallback.');
+          return getLegacyValue();
+        });
     } else {
       return AsyncStorage.getItem(key);
     }

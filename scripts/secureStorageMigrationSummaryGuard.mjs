@@ -42,6 +42,7 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
   const legacyWritesDisabled = getLineValue(summary, 'Legacy secure-storage writes disabled');
   const legacyFallbackReadsActive = getLineValue(summary, 'Legacy secure-storage fallback reads active');
   const legacyCleanupAfterSuccessfulMigration = getLineValue(summary, 'Legacy secure-storage cleanup after successful migration');
+  const legacyFallbackInstrumentation = getLineValue(summary, 'Legacy fallback instrumentation active');
   const focusedValidation = getLineValue(summary, 'Focused validation script');
   const focusedValidationCommand = getLineValue(summary, 'Focused validation command');
   const warningBaselineMentionsSecureStorage = getLineValue(summary, 'Warning baseline mentions secure-key-store');
@@ -79,6 +80,7 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
     ['Legacy secure-storage writes disabled', legacyWritesDisabled],
     ['Legacy secure-storage fallback reads active', legacyFallbackReadsActive],
     ['Legacy secure-storage cleanup after successful migration', legacyCleanupAfterSuccessfulMigration],
+    ['Legacy fallback instrumentation active', legacyFallbackInstrumentation],
     ['Warning baseline mentions secure-key-store', warningBaselineMentionsSecureStorage],
     ['Legacy secure-storage removal ready', legacyRemovalReady],
     ['Secure-storage migration baseline stable', baselineStable],
@@ -124,6 +126,10 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
 
   if (legacyCleanupAfterSuccessfulMigration !== 'yes') {
     errors.push(`Legacy secure-storage cleanup after successful migration must be yes. Received: ${legacyCleanupAfterSuccessfulMigration || 'missing'}`);
+  }
+
+  if (legacyFallbackInstrumentation !== 'yes') {
+    errors.push(`Legacy fallback instrumentation must stay active before removal readiness can be tracked. Received: ${legacyFallbackInstrumentation || 'missing'}`);
   }
 
   if (!legacyRemovalBlocker.includes('legacy fallback reads are still active')) {

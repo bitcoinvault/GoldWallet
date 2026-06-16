@@ -28,6 +28,7 @@ const yesNoLabels = [
   'Legacy fallback reads active',
   'Legacy write path disabled',
   'Legacy cleanup after successful migration',
+  'Legacy fallback instrumentation active',
   'SecureStorageService fallback migration tests present',
   'AppStorage fallback migration tests present',
   'Fallback migration tests present',
@@ -92,6 +93,10 @@ export const getSecureStorageRemovalReadinessSummaryErrors = summary => {
 
   if (getLineValue(summary, 'Legacy cleanup after successful migration') !== 'yes') {
     errors.push('Legacy cleanup after successful migration must stay yes before removal readiness can be tracked');
+  }
+
+  if (getLineValue(summary, 'Legacy fallback instrumentation active') !== 'yes') {
+    errors.push('Legacy fallback instrumentation must stay active before removal readiness can be tracked');
   }
 
   if (getLineValue(summary, 'SecureStorageService fallback migration tests present') !== 'yes') {

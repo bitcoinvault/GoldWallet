@@ -10,6 +10,12 @@ const mockLegacySecureStore = {
   set: jest.fn(),
   remove: jest.fn(),
 };
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  captureException: jest.fn(),
+};
 
 jest.mock('react-native-keychain', () => ({
   __esModule: true,
@@ -27,6 +33,10 @@ jest.mock('react-native-secure-key-store', () => ({
     WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
   },
 }));
+jest.mock('../../logger', () => ({
+  __esModule: true,
+  default: mockLogger,
+}));
 
 const SecureStorageService = require('../../src/services/SecureStorageService').default;
 
@@ -41,6 +51,10 @@ describe('unit - SecureStorageService', function () {
     mockLegacySecureStore.get.mockReset();
     mockLegacySecureStore.set.mockReset();
     mockLegacySecureStore.remove.mockReset();
+    mockLogger.info.mockReset();
+    mockLogger.warn.mockReset();
+    mockLogger.error.mockReset();
+    mockLogger.captureException.mockReset();
   });
 
   it('returns an empty string when a secured value is unavailable', async function () {
@@ -71,6 +85,8 @@ describe('unit - SecureStorageService', function () {
     });
     expect(mockLegacySecureStore.get).not.toHaveBeenCalled();
     expect(mockSecureStore.setGenericPassword).not.toHaveBeenCalled();
+    expect(mockLogger.info).not.toHaveBeenCalled();
+    expect(mockLogger.warn).not.toHaveBeenCalled();
   });
 
   it('falls back to the legacy secure store and migrates the value into keychain', async function () {
@@ -86,6 +102,18 @@ describe('unit - SecureStorageService', function () {
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
     expect(mockLegacySecureStore.remove).toHaveBeenCalledWith('pin');
+    expect(mockLogger.info).toHaveBeenCalledWith({
+      category: 'secure-storage-migration',
+      message: 'Legacy secure-storage value found; migrating to Keychain.',
+    });
+    expect(mockLogger.info).toHaveBeenCalledWith({
+      category: 'secure-storage-migration',
+      message: 'Legacy secure-storage value migrated to Keychain.',
+    });
+    expect(mockLogger.info).toHaveBeenCalledWith({
+      category: 'secure-storage-migration',
+      message: 'Migrated legacy secure-storage value removed from legacy backend.',
+    });
   });
 
   it('falls back to the legacy secure store when keychain read fails', async function () {
@@ -96,6 +124,10 @@ describe('unit - SecureStorageService', function () {
 
     await expect(service.getSecuredValue('pin')).resolves.toBe('1234');
     expect(mockLegacySecureStore.get).toHaveBeenCalledWith('pin');
+    expect(mockLogger.warn).toHaveBeenCalledWith({
+      category: 'secure-storage-migration',
+      message: 'Keychain read failed; trying legacy secure-storage fallback.',
+    });
     expect(mockSecureStore.setGenericPassword).toHaveBeenCalledWith('pin', '1234', {
       service: 'pin',
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
@@ -115,6 +147,10 @@ describe('unit - SecureStorageService', function () {
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
     expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+    expect(mockLogger.warn).toHaveBeenCalledWith({
+      category: 'secure-storage-migration',
+      message: 'Legacy secure-storage migration to Keychain failed; returning legacy value.',
+    });
   });
 
   it('keeps returning the migrated legacy value when legacy cleanup fails', async function () {
@@ -129,6 +165,10 @@ describe('unit - SecureStorageService', function () {
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
     expect(mockLegacySecureStore.remove).toHaveBeenCalledWith('pin');
+    expect(mockLogger.warn).toHaveBeenCalledWith({
+      category: 'secure-storage-migration',
+      message: 'Legacy secure-storage cleanup failed after migration; value remains readable.',
+    });
   });
 
   it('stores plain values with the current accessibility mode', async function () {
