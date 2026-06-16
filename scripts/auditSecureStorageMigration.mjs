@@ -61,6 +61,8 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'getGenericPassword');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'resetGenericPassword');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'RNSecureKeyStore.get');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'secure-storage-migration');
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'Legacy secure-storage value found; migrating to Keychain.');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'sha256(value).toString()');
   requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-keychain'");
   requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-secure-key-store'");
@@ -68,6 +70,8 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'setGenericPassword');
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'getGenericPassword');
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'RNSecureKeyStore.get');
+  requireSnippet(errors, 'class/app-storage.js', appStorage, 'secure-storage-migration');
+  requireSnippet(errors, 'class/app-storage.js', appStorage, 'Legacy secure-storage wallet value found; migrating to Keychain.');
   requireSnippet(errors, 'authentication sagas', authSagas, 'CONST.pin');
   requireSnippet(errors, 'authentication sagas', authSagas, 'CONST.transactionPassword');
   requireSnippet(errors, 'UnlockTransaction.tsx', unlockTransaction, 'checkSecuredPassword(CONST.transactionPassword');
@@ -99,6 +103,13 @@ export const collectSecureStorageMigrationAudit = () => {
   const legacyCleanupAfterSuccessfulMigration =
     secureStorageService.includes('await RNSecureKeyStore.remove(key)') &&
     appStorage.includes('RNSecureKeyStore.remove(key)');
+  const legacyFallbackInstrumentation =
+    secureStorageService.includes('secure-storage-migration') &&
+    secureStorageService.includes('Legacy secure-storage value found; migrating to Keychain.') &&
+    secureStorageService.includes('Legacy secure-storage migration to Keychain failed; returning legacy value.') &&
+    appStorage.includes('secure-storage-migration') &&
+    appStorage.includes('Legacy secure-storage wallet value found; migrating to Keychain.') &&
+    appStorage.includes('Legacy secure-storage wallet migration to Keychain failed; returning legacy value.');
   const keychainPrimaryWrite =
     secureStorageService.includes('return Keychain.setGenericPassword(key, value, secureStorageOptions(key))') &&
     appStorage.includes('return Keychain.setGenericPassword(key, value, secureStorageOptions(key))');
@@ -123,6 +134,7 @@ export const collectSecureStorageMigrationAudit = () => {
     legacyWritesDisabled,
     legacyFallbackReadsActive,
     legacyCleanupAfterSuccessfulMigration,
+    legacyFallbackInstrumentation,
     warningBaselineMentionsSecureStorage: warningBaseline.includes('react-native-secure-key-store'),
     legacyRemovalReady: false,
     legacyRemovalBlocker:
@@ -147,6 +159,7 @@ export const formatSecureStorageMigrationSummary = (audit, generatedAt = new Dat
     `Legacy secure-storage writes disabled: ${audit.legacyWritesDisabled ? 'yes' : 'no'}`,
     `Legacy secure-storage fallback reads active: ${audit.legacyFallbackReadsActive ? 'yes' : 'no'}`,
     `Legacy secure-storage cleanup after successful migration: ${audit.legacyCleanupAfterSuccessfulMigration ? 'yes' : 'no'}`,
+    `Legacy fallback instrumentation active: ${audit.legacyFallbackInstrumentation ? 'yes' : 'no'}`,
     `Focused validation script: ${audit.focusedValidation}`,
     `Focused validation command: ${audit.focusedValidationCommand}`,
     `Warning baseline mentions secure-key-store: ${audit.warningBaselineMentionsSecureStorage ? 'yes' : 'no'}`,

@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.675 - Secure-storage fallback instrumentation
+
+- Branch: `feature/bem-37-675-secure-storage-warning-reduction`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add secret-safe `secure-storage-migration` breadcrumbs to `SecureStorageService` and `AppStorage` legacy fallback paths.
+- Record fallback entry, successful Keychain migration, migration-write failure, and legacy cleanup failure without logging secure keys or stored wallet values.
+- Extend secure-storage unit/integration tests so fallback instrumentation is part of the guarded migration contract.
+- Extend migration, removal-readiness, release-validation summary guards, and handoff fixtures so future warning-removal work cannot drop fallback observability.
+- Refresh secure-storage, storage/network, and Android warning follow-up docs to state that `react-native-secure-key-store` removal remains blocked until fallback-free validation is claimed.
+
+Findings:
+
+- Keychain remains the primary write backend and `react-native-secure-key-store` remains installed only for legacy fallback reads and cleanup.
+- The new breadcrumbs give Sentry/log evidence for whether legacy fallback is still being used in release candidates while avoiding secret values.
+- The secure-storage migration and removal-readiness summaries now report `Legacy fallback instrumentation active: yes`.
+- The secure-storage release-validation summary is current and valid after a fresh Android dev smoke with Settings Terms WebView validation.
+- Legacy package removal remains explicitly not claimed: fallback reads are still active and existing installs may still depend on the legacy backend for PIN, transaction-password, or encrypted wallet buckets.
+
+Validation:
+
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node --check scripts/auditSecureStorageMigration.mjs`
+- `& $node --check scripts/secureStorageMigrationSummaryGuard.mjs`
+- `& $node --check scripts/auditSecureStorageRemovalReadiness.mjs`
+- `& $node --check scripts/secureStorageRemovalReadinessSummaryGuard.mjs`
+- `& $node --check scripts/runSecureStorageReleaseValidationSummary.mjs`
+- `& $node --check scripts/secureStorageReleaseValidationSummaryGuard.mjs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' test:secure-storage:unit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' test:storage`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' test:storage-network:focused`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' secure-storage:migration:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' secure-storage:migration:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' secure-storage:removal-readiness:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' secure-storage:removal-readiness:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:secure-storage-release-validation-handoff-guard`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:assemble` produced `BUILD SUCCESSFUL`
+- `$env:ANDROID_SMOKE_VALIDATE_SETTINGS_TERMS_WEBVIEW='true'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:smoke:embedded`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' secure-storage:release-validation:summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' secure-storage:release-validation:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-smoke-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-light`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' secure-storage:release-validation:handoff --skip-android-smoke`
+
 ### BEM-37.674 - Foundation online refresh wrapper
 
 - Branch: `feature/bem-37-674-foundation-online-refresh-script`

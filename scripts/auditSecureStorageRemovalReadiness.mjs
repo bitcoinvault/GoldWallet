@@ -34,6 +34,13 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
   const legacyCleanupAfterSuccessfulMigration =
     secureStorageService.includes('await RNSecureKeyStore.remove(key)') &&
     appStorage.includes('RNSecureKeyStore.remove(key)');
+  const legacyFallbackInstrumentation =
+    secureStorageService.includes('secure-storage-migration') &&
+    secureStorageService.includes('Legacy secure-storage value found; migrating to Keychain.') &&
+    secureStorageService.includes('Legacy secure-storage migration to Keychain failed; returning legacy value.') &&
+    appStorage.includes('secure-storage-migration') &&
+    appStorage.includes('Legacy secure-storage wallet value found; migrating to Keychain.') &&
+    appStorage.includes('Legacy secure-storage wallet migration to Keychain failed; returning legacy value.');
   const serviceFallbackMigrationTestsPresent =
     unitTest.includes('returns keychain credentials without touching the legacy secure store') &&
     unitTest.includes('falls back to the legacy secure store and migrates the value into keychain') &&
@@ -75,6 +82,10 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     errors.push('focused fallback migration tests are missing');
   }
 
+  if (!legacyFallbackInstrumentation) {
+    errors.push('legacy fallback instrumentation must stay active before package removal can be evaluated');
+  }
+
   if (!androidWarningSourceStillExpected) {
     warnings.push('android warning follow-up plan no longer lists secure-key-store as the expected remaining source');
   }
@@ -91,6 +102,7 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     legacyFallbackReadsActive,
     legacyWritePathDisabled,
     legacyCleanupAfterSuccessfulMigration,
+    legacyFallbackInstrumentation,
     serviceFallbackMigrationTestsPresent,
     appStorageFallbackMigrationTestsPresent,
     fallbackMigrationTestsPresent,
@@ -115,6 +127,7 @@ export const formatSecureStorageRemovalReadinessSummary = (audit, generatedAt = 
     `Legacy fallback reads active: ${audit.legacyFallbackReadsActive ? 'yes' : 'no'}`,
     `Legacy write path disabled: ${audit.legacyWritePathDisabled ? 'yes' : 'no'}`,
     `Legacy cleanup after successful migration: ${audit.legacyCleanupAfterSuccessfulMigration ? 'yes' : 'no'}`,
+    `Legacy fallback instrumentation active: ${audit.legacyFallbackInstrumentation ? 'yes' : 'no'}`,
     `SecureStorageService fallback migration tests present: ${audit.serviceFallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `AppStorage fallback migration tests present: ${audit.appStorageFallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `Fallback migration tests present: ${audit.fallbackMigrationTestsPresent ? 'yes' : 'no'}`,

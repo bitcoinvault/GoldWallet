@@ -13,6 +13,7 @@ const validSummary = [
   'Legacy secure-storage writes disabled: yes',
   'Legacy secure-storage fallback reads active: yes',
   'Legacy secure-storage cleanup after successful migration: yes',
+  'Legacy fallback instrumentation active: yes',
   'Focused validation script: test:storage-network:focused',
   'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
   'Warning baseline mentions secure-key-store: yes',
@@ -85,6 +86,11 @@ assertRejected(
   'Legacy secure-storage cleanup fixture',
   validSummary.replace('Legacy secure-storage cleanup after successful migration: yes', 'Legacy secure-storage cleanup after successful migration: no'),
   'Legacy secure-storage cleanup after successful migration must be yes',
+);
+assertRejected(
+  'Legacy fallback instrumentation fixture',
+  validSummary.replace('Legacy fallback instrumentation active: yes', 'Legacy fallback instrumentation active: no'),
+  'Legacy fallback instrumentation',
 );
 assertRejected(
   'Legacy secure-storage removal ready fixture',

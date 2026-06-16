@@ -10,6 +10,7 @@ const validSummary = [
   'Legacy fallback reads active: yes',
   'Legacy write path disabled: yes',
   'Legacy cleanup after successful migration: yes',
+  'Legacy fallback instrumentation active: yes',
   'SecureStorageService fallback migration tests present: yes',
   'AppStorage fallback migration tests present: yes',
   'Fallback migration tests present: yes',
@@ -55,6 +56,11 @@ assertRejected(
   'Missing cleanup fixture',
   validSummary.replace('Legacy cleanup after successful migration: yes', 'Legacy cleanup after successful migration: no'),
   'Legacy cleanup after successful migration',
+);
+assertRejected(
+  'Missing instrumentation fixture',
+  validSummary.replace('Legacy fallback instrumentation active: yes', 'Legacy fallback instrumentation active: no'),
+  'Legacy fallback instrumentation',
 );
 assertRejected(
   'Missing SecureStorageService fallback tests fixture',

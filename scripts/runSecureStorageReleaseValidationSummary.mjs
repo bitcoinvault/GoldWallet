@@ -73,6 +73,7 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Legacy fallback reads active: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy fallback reads active'))}`,
     `Legacy writes disabled: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy write path disabled'))}`,
     `Legacy cleanup after successful migration: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy cleanup after successful migration'))}`,
+    `Legacy fallback instrumentation active: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy fallback instrumentation active'))}`,
     `Removal release validation claimed: ${yesNo(getLineValue(evidence.removalSummary, 'Removal release validation claimed'))}`,
     `Legacy package removal ready: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy package removal ready'))}`,
     `Android warning source still expected: ${yesNo(getLineValue(evidence.removalSummary, 'Android warning source still expected'))}`,
