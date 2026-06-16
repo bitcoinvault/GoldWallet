@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.672 - iOS static readiness refresh
+
+- Branch: `feature/bem-37-672-ios-static-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Windows-safe iOS static release readiness, macOS prerequisite, validation handoff, and Podfile.lock refresh-plan evidence after the latest Android release, React Navigation, dev-tooling, and Axios refresh branches.
+- Re-run the all-scheme macOS handoff dry-run so the required macOS command sequence stays current for RN `0.86.0`.
+- Record the exact iOS blocker state without changing iOS project files, `ios/Podfile.lock`, runtime code, package versions, Android files, or Metro behavior.
+
+Findings:
+
+- Static iOS release files remain valid for React Native `0.86.0`: minimum iOS `15.1`, minimum Xcode `16.1`, Podfile platform `15.1`, Xcode deployment targets `15.1`, 8 guarded schemes, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, 0 CodePush plist placeholders, and 4 remote-notification plists.
+- iOS archive/runtime validation remains not claimed on this Windows machine. Current blockers are platform `win32`, unavailable `xcodebuild`, unavailable CocoaPods through both `pod` and `bundle exec pod`, and stale `ios/Podfile.lock` drift.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh and has 12 active drift issues against the current JavaScript/native package baseline: React-Core, RNBootSplash, react-native-config, RNCAsyncStorage, RNDeviceInfo, RNFastImage, RNFBApp, RNGestureHandler, RNLocalize, RNScreens, RNSentry, and RNVectorIcons.
+- Removed-pod references remain at `0`, so the current blocker is stale pod resolution rather than stale removed-package references.
+- The all-scheme macOS handoff dry-run expands the 8 guarded Debug/Release schemes and records the required sequence: prerequisite audit/check, one `pod install`, iOS release-readiness audit/check, simulator builds for all shared schemes, and post-build readiness checks.
+
+Validation:
+
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:ios-release-readiness-audit-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:ios-release-readiness-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' ios:release:readiness:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' ios:release:readiness:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:ios-mac-validation-prereq-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' ios:mac-validation-prereq:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' ios:mac-validation-prereq:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:ios-mac-validation-handoff-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' ios:mac-validation:handoff:dry-run --all-schemes`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:ios-validation-handoff-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' ios:validation:handoff-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:ios-podfile-refresh-plan-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' ios:podfile-refresh:plan`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' ios:podfile-refresh:check-plan`
+
 ### BEM-37.671 - Android release evidence refresh
 
 - Branch: `feature/bem-37-671-android-release-evidence-refresh`
