@@ -12,7 +12,9 @@ const validSummary = [
   'Legacy cleanup after successful migration: yes',
   'Legacy fallback instrumentation active: yes',
   'SecureStorageService fallback migration tests present: yes',
+  'SecureStorageService keychain-failure empty fallback tests present: yes',
   'AppStorage fallback migration tests present: yes',
+  'AppStorage keychain-failure empty fallback tests present: yes',
   'Fallback migration tests present: yes',
   'Removal release validation claimed: no',
   'Android warning source still expected: yes',
@@ -68,9 +70,25 @@ assertRejected(
   'SecureStorageService fallback migration tests',
 );
 assertRejected(
+  'Missing SecureStorageService keychain-failure empty fallback tests fixture',
+  validSummary.replace(
+    'SecureStorageService keychain-failure empty fallback tests present: yes',
+    'SecureStorageService keychain-failure empty fallback tests present: no',
+  ),
+  'SecureStorageService keychain-failure empty fallback tests',
+);
+assertRejected(
   'Missing AppStorage fallback tests fixture',
   validSummary.replace('AppStorage fallback migration tests present: yes', 'AppStorage fallback migration tests present: no'),
   'AppStorage fallback migration tests',
+);
+assertRejected(
+  'Missing AppStorage keychain-failure empty fallback tests fixture',
+  validSummary.replace(
+    'AppStorage keychain-failure empty fallback tests present: yes',
+    'AppStorage keychain-failure empty fallback tests present: no',
+  ),
+  'AppStorage keychain-failure empty fallback tests',
 );
 assertRejected('Claimed validation fixture', validSummary.replace('Removal release validation claimed: no', 'Removal release validation claimed: yes'), 'must not be claimed');
 assertRejected('Removal ready fixture', validSummary.replace('Legacy package removal ready: no', 'Legacy package removal ready: yes'), 'must stay blocked');
