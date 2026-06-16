@@ -61,7 +61,7 @@ For a fast Android maintenance check that does not build or launch the app, run:
 $ yarn android:dev:check-light
 ```
 
-This runs the lightweight Android warning, validation artifact, Android dev environment audit, Metro dev runtime audit, React Native renderer exact-version guard, camera usage, QR scanner caller, QR scanner validation scripts, QR render usage, QR render validation scripts, legacy Android autolink disables, Sentry usage, Sentry release integration, CodePush usage, Firebase usage, Firebase Messaging modular API guard, iOS push notification bridge, release-service env keys, Android env mapping, iOS scheme config mapping, explorer/env readiness, store metadata readiness, rebranding release-config readiness, storage/network usage, storage/network validation scripts, Electrum runtime observation parser guard, wallet crypto validation scripts, transaction details amount label guard, native module inventory and upgrade-plan, git dependency snapshot guard, wallet crypto latest snapshot guard, direct outdated snapshot guard, node-fetch resolution guard, secure-storage removal readiness guard, node polyfill shim, TypeScript, and diff whitespace guards used before the offline suites in `prepush`.
+This runs the lightweight Android warning, validation artifact, Android dev environment audit, Metro dev runtime audit, React Native renderer exact-version guard, camera usage, QR scanner caller, QR scanner validation scripts, QR render usage, QR render validation scripts, legacy Android autolink disables, Sentry usage, Sentry release integration, CodePush usage, Firebase usage, Firebase Messaging modular API guard, iOS push notification bridge, release-service env keys, Android env mapping, iOS scheme config mapping, explorer/env readiness, store metadata readiness, rebranding release-config readiness, storage/network usage, storage/network validation scripts, Electrum runtime observation parser guard, Electrum Metro observation path guard, wallet crypto validation scripts, transaction details amount label guard, native module inventory and upgrade-plan, git dependency snapshot guard, wallet crypto latest snapshot guard, direct outdated snapshot guard, node-fetch resolution guard, secure-storage removal readiness guard, node polyfill shim, TypeScript, and diff whitespace guards used before the offline suites in `prepush`.
 
 The React Native upgrade path guard is included through `check:rn-upgrade-path-audit-guard` and `rn:upgrade-path:audit`.
 
@@ -134,6 +134,18 @@ $ yarn metro:dev-runtime:audit
 ```
 
 The lightweight check includes a Metro dev runtime audit self-check so fixture coverage stays stable even when the active shell is not using Node 24.
+
+When Android debug runtime evidence needs logcat lines from Metro, start Metro without multipart bundle progress:
+
+```sh
+$ yarn start:metro:no-multipart --reset-cache --port 8081
+```
+
+Then run the Metro-specific smoke path in another shell:
+
+```sh
+$ yarn android:dev:create-wallet-electrum-observe:metro
+```
 
 For Android development verification, use the dev build plus embedded emulator smoke check:
 
