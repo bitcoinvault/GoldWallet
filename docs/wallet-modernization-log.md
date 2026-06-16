@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.687 - iOS static readiness refresh
+
+- Branch: `feature/bem-37-687-ios-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh iOS static release-readiness and macOS prerequisite evidence on the RN `0.86.0` baseline.
+- Keep iOS runtime/archive delivery explicitly unclaimed on Windows.
+- Update iOS/release-services docs so the current blocker state reflects the 2026-06-16 audit output.
+
+Findings:
+
+- Static iOS release files remain valid for React Native `0.86.0`, iOS deployment target `15.1`, React Native minimum Xcode `16.1`, 8 guarded schemes, 4 Sentry bundle/source-map phases, 3 Sentry dSYM phases, 4 remote-notification plists, and 0 CodePush plist placeholders.
+- `ios/Podfile.lock` still has 12 active drift issues against the current package baseline and must be refreshed with `pod install` on macOS.
+- This Windows machine still has no `xcodebuild`, no `pod`, and no `bundle exec pod`, so iOS archive/simulator validation remains blocked externally.
+- iOS runtime delivery remains `not claimed` until macOS/Xcode/CocoaPods validation and an affected scheme build run on a Mac.
+
+Validation:
+
+- `& $node $yarn ios:release:readiness:audit`
+- `& $node $yarn ios:mac-validation-prereq:audit`
+- `& $node $yarn ios:validation:handoff-summary`
+- `& $node $yarn ios:release:readiness:check-summary`
+- `& $node $yarn ios:mac-validation-prereq:check-summary`
+- `& $node $yarn check:ios-release-readiness-summary-guard`
+- `& $node $yarn check:ios-validation-handoff-summary-guard`
+- `& $node $yarn release-services:check-summaries`
+
 ### BEM-37.686 - Sentry release evidence refresh
 
 - Branch: `feature/bem-37-686-sentry-release-evidence-refresh`
