@@ -94,6 +94,14 @@ corepack yarn sentry:release:validation:handoff
 
 This validates the properties generator, optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO_UPLOAD=true`, runs the Android release embedded smoke, validates the release-smoke summary, generates `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` from the local Sentry env, then refreshes and validates the Sentry release prerequisite summary plus the aggregate release-services summary artifacts. The dry run prints only required env variable names, not token values. Use `--skip-android-release` only when the latest Android release summary and release-smoke summary already match the current release inputs.
 
+After `BEM-37.699`, the Sentry handoff also supports a non-secret preflight path for local readiness checks without generating properties:
+
+```powershell
+corepack yarn sentry:release:validation:handoff --preflight-only --skip-android-release
+```
+
+This validates the current Sentry SDK/CLI targets, Android warning surface, RN bundle task compatibility, current Android release/smoke/create-wallet evidence, and aggregate release-services summaries while keeping release upload explicitly `not claimed` until `SENTRY_AUTH_TOKEN` and the three `sentry.properties` files are available.
+
 After `BEM-37.422`, CodePush has a narrower update-validation handoff for the point when deployment keys and beta strategy are available:
 
 ```powershell
@@ -150,6 +158,7 @@ Results:
 - The Sentry prerequisite audit now records per-file readiness for the root, Android, and iOS Sentry properties files, validates that `create-sentry-properties.sh` writes all three expected paths with the expected non-secret defaults, supports optional `SENTRY_ORG` / `SENTRY_PROJECT` overrides, verifies that the local direct `@sentry/cli` package binary is present and executable, records nested `@sentry/cli@3.5.0` copies under Sentry-owned SDK tooling, and guards that release build phases use the direct root CLI package.
 - Sentry `8.14.0` keeps the Android Gradle/source-map wiring visible and no active Sentry `execResult` warning is reported on the RN `0.86.0` baseline. The repo-owned legacy args shim lets Sentry read release bundle output and source-map output from RN `0.86.0` bundle tasks, so local Android release validation now produces source maps for `dev`, `stage`, `prod`, and `beta` without the previous `Could not extract bundle task arguments` warning. Release artifact upload still needs credentials before it can be claimed as fully validated.
 - The 2026-06-16 Sentry-specific refresh validated current Android release build, manifest, release-smoke, and release create-wallet evidence against the Sentry prerequisite audit. The release upload path remains blocked only by missing `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties`.
+- The Sentry preflight handoff now completes without `SENTRY_AUTH_TOKEN` when release evidence is already fresh, proving the non-secret release-source-map readiness path while preserving the credentialed upload blocker.
 - Sentry/RN bundle task compatibility is now guarded by `corepack yarn sentry:rn-bundle-task-compat:audit` and `corepack yarn sentry:rn-bundle-task-compat:check-summary`; current static evidence reports the path `ready` because Sentry can use the repo-owned legacy args shim when RN `0.86.0` exposes `jsIntermediateSourceMapsDir` as `RegularFileProperty` and does not expose the fallback `args` property directly.
 - Push notification bridge wiring is valid for `@react-native-community/push-notification-ios@1.12.0`, but APNs registration, token handling, foreground/background delivery, badge behavior, and tap-through behavior remain `not claimed` until iOS device/simulator validation runs on macOS.
 - iOS static release files remain valid for RN `0.86.0`, minimum iOS `15.1`, and 8 guarded schemes, but macOS archive readiness remains blocked because this Windows machine has no `xcodebuild`, no CocoaPods, and `ios/Podfile.lock` still has 12 active drift entries after the RN/package upgrades.

@@ -19,6 +19,8 @@ const fullCommands = getSentryReleaseValidationCommands({ skipAndroidRelease: fa
 const fullRendered = fullCommands.map(renderSentryReleaseValidationCommand).join('\n');
 const skippedCommands = getSentryReleaseValidationCommands({ skipAndroidRelease: true });
 const skippedRendered = skippedCommands.map(renderSentryReleaseValidationCommand).join('\n');
+const preflightCommands = getSentryReleaseValidationCommands({ preflightOnly: true, skipAndroidRelease: true });
+const preflightRendered = preflightCommands.map(renderSentryReleaseValidationCommand).join('\n');
 const fixtureApkPath = path.resolve('package.json');
 const fixtureApkBytes = statSync(fixtureApkPath).size;
 const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath)).digest('hex');
@@ -52,7 +54,9 @@ const createWalletEvidenceOptions = {
 });
 
 assert(
-  !fullRendered.includes('SENTRY_AUTH_TOKEN=') && !skippedRendered.includes('SENTRY_AUTH_TOKEN='),
+  !fullRendered.includes('SENTRY_AUTH_TOKEN=') &&
+    !skippedRendered.includes('SENTRY_AUTH_TOKEN=') &&
+    !preflightRendered.includes('SENTRY_AUTH_TOKEN='),
   'Sentry handoff rendered commands must not print SENTRY_AUTH_TOKEN assignments',
 );
 assert(
@@ -62,6 +66,16 @@ assert(
 assert(
   skippedRendered.includes('corepack yarn sentry:release:create-properties'),
   'Skipped Sentry handoff must still generate Sentry release properties',
+);
+assert(
+  !preflightRendered.includes('corepack yarn sentry:release:create-properties'),
+  'Preflight-only Sentry handoff must not generate Sentry release properties',
+);
+assert(
+  preflightRendered.includes('corepack yarn sentry:release:prereq-audit') &&
+    preflightRendered.includes('corepack yarn sentry:release:prereq-check-summary') &&
+    preflightRendered.includes('corepack yarn release-services:check-summaries'),
+  'Preflight-only Sentry handoff must still audit prerequisites and aggregate release-services summaries',
 );
 assert(
   skippedRendered.includes('corepack yarn sentry:android-warning:audit'),
@@ -99,6 +113,12 @@ assert(
     error.includes('skipAndroidRelease must be a boolean'),
   ),
   'Invalid skipAndroidRelease option must be rejected',
+);
+assert(
+  getSentryReleaseValidationHandoffErrors({ preflightOnly: 'false', skipAndroidRelease: false }).some(error =>
+    error.includes('preflightOnly must be a boolean'),
+  ),
+  'Invalid preflightOnly option must be rejected',
 );
 
 const readyAndroidReleaseSmokeSummary = [
@@ -238,6 +258,81 @@ const readySentryReleasePrereqSummary = [
   'Required action: none; release source-map prerequisites are present locally.',
 ].join('\n');
 
+const notReadySentryReleasePrereqSummary = [
+  'Sentry release prerequisite audit',
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Release source-map prerequisites: not ready',
+  '@sentry/react-native version: 8.14.0',
+  '@sentry/react-native latest: 8.14.0',
+  '@sentry/react-native current: yes',
+  '@sentry/cli package version: 3.5.1',
+  '@sentry/cli latest: 3.5.1',
+  '@sentry/cli current: yes',
+  '@sentry/cli installed package instances: 3',
+  '- node_modules/@sentry/cli/package.json: 3.5.1 (direct)',
+  '- node_modules/@sentry/expo-upload-sourcemaps/node_modules/@sentry/cli/package.json: 3.5.0 (nested)',
+  '- node_modules/@sentry/react-native/node_modules/@sentry/cli/package.json: 3.5.0 (nested)',
+  '@sentry/cli installed package versions: 3.5.1, 3.5.0',
+  '@sentry/cli nested package versions: 3.5.0',
+  '@sentry/cli direct package installed: yes',
+  'Sentry CLI release build path uses direct package: yes',
+  'Sentry CLI binary present: yes',
+  'Sentry CLI version output: sentry-cli 3.5.1',
+  'Sentry CLI executable: yes',
+  'Sentry release integration wired: yes',
+  'Sentry release integration errors: 0',
+  'sentry.properties files present: no',
+  'Missing files: 3',
+  '- sentry.properties',
+  '- android/sentry.properties',
+  '- ios/sentry.properties',
+  'Invalid files: 0',
+  'Properties file readiness entries: 3',
+  '- sentry.properties: missing',
+  '- android/sentry.properties: missing',
+  '- ios/sentry.properties: missing',
+  'Ready properties files: 0',
+  'Android release summary present: yes',
+  'Android release summary variants: dev, stage, prod, beta',
+  'Android release summary required variants covered: yes',
+  'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
+  'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
+  'Android release smoke summary present: yes',
+  'Android release smoke summary valid: yes',
+  'Android release smoke summary errors: 0',
+  'Sentry release smoke evidence ready: yes',
+  'Android release create-wallet smoke summary present: yes',
+  'Android release create-wallet smoke summary valid: yes',
+  'Android release create-wallet smoke summary errors: 0',
+  'Sentry release create-wallet evidence ready: yes',
+  'Sentry release upload validation: not claimed',
+  'create-sentry-properties.sh present: yes',
+  'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
+  'create-sentry-properties.sh rejects missing SENTRY_AUTH_TOKEN: yes',
+  'create-sentry-properties.sh writes root properties: yes',
+  'create-sentry-properties.sh writes Android properties: yes',
+  'create-sentry-properties.sh writes iOS properties: yes',
+  'create-sentry-properties.sh static defaults valid: yes',
+  'create-sentry-properties.sh supports SENTRY_ORG override: yes',
+  'create-sentry-properties.sh supports SENTRY_PROJECT override: yes',
+  'createSentryProperties.mjs present: yes',
+  'createSentryProperties.mjs requires SENTRY_AUTH_TOKEN: yes',
+  'createSentryProperties.mjs rejects missing SENTRY_AUTH_TOKEN: yes',
+  'createSentryProperties.mjs writes root properties: yes',
+  'createSentryProperties.mjs writes Android properties: yes',
+  'createSentryProperties.mjs writes iOS properties: yes',
+  'createSentryProperties.mjs static defaults valid: yes',
+  'createSentryProperties.mjs supports SENTRY_ORG override: yes',
+  'createSentryProperties.mjs supports SENTRY_PROJECT override: yes',
+  'createSentryProperties.mjs supports --root override: yes',
+  'sentry:release:create-properties script present: yes',
+  'SENTRY_AUTH_TOKEN available in current shell: no',
+  'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
+].join('\n');
+
 const partialSentryReleasePrereqSummary = [
   'Release source-map prerequisites: ready',
   '@sentry/react-native current: yes',
@@ -254,6 +349,27 @@ assert(
     smokeEvidenceOptions,
   }).length === 0,
   'Ready Sentry release handoff smoke fixture must pass readiness checks',
+);
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    sentryReleasePrereqSummaryText: notReadySentryReleasePrereqSummary,
+    createWalletEvidenceOptions,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Sentry release prerequisite summary is not ready')),
+  'Full Sentry release handoff readiness must reject not-ready prerequisite summaries',
+);
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    requireReadyPrereqs: false,
+    sentryReleasePrereqSummaryText: notReadySentryReleasePrereqSummary,
+    createWalletEvidenceOptions,
+    smokeEvidenceOptions,
+  }).length === 0,
+  'Preflight-only Sentry release handoff readiness must accept structurally valid not-ready prerequisite summaries',
 );
 assert(
   getSentryReleaseValidationReadinessErrors({
