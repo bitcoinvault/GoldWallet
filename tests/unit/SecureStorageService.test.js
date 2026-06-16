@@ -75,6 +75,26 @@ describe('unit - SecureStorageService', function () {
     await expect(service.getSecuredValue('pin')).resolves.toBe('');
   });
 
+  it('normalizes a null legacy fallback result to an empty secured value', async function () {
+    mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
+    mockLegacySecureStore.get.mockResolvedValueOnce(null);
+
+    await expect(service.getSecuredValue('pin')).resolves.toBe('');
+    expect(mockLegacySecureStore.get).toHaveBeenCalledWith('pin');
+    expect(mockSecureStore.setGenericPassword).not.toHaveBeenCalled();
+    expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+  });
+
+  it('normalizes an undefined legacy fallback result to an empty secured value', async function () {
+    mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
+    mockLegacySecureStore.get.mockResolvedValueOnce(undefined);
+
+    await expect(service.getSecuredValue('pin')).resolves.toBe('');
+    expect(mockLegacySecureStore.get).toHaveBeenCalledWith('pin');
+    expect(mockSecureStore.setGenericPassword).not.toHaveBeenCalled();
+    expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+  });
+
   it('returns keychain credentials without touching the legacy secure store', async function () {
     mockSecureStore.getGenericPassword.mockResolvedValueOnce({ password: '1234' });
 

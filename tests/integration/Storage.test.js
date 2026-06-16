@@ -258,6 +258,30 @@ it('Appstorage - React Native storage reads keychain before legacy store', async
   expect(mockLegacySecureStore.get).not.toHaveBeenCalled();
 });
 
+it('Appstorage - React Native storage normalizes a null legacy fallback result to missing storage', async () => {
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockResolvedValueOnce(false);
+  mockLegacySecureStore.get.mockResolvedValueOnce(null);
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('data')).resolves.toBeNull();
+  expect(mockLegacySecureStore.get).toHaveBeenCalledWith('data');
+  expect(mockKeychain.setGenericPassword).not.toHaveBeenCalled();
+  expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+});
+
+it('Appstorage - React Native storage normalizes an undefined legacy fallback result to missing storage', async () => {
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockResolvedValueOnce(false);
+  mockLegacySecureStore.get.mockResolvedValueOnce(undefined);
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('data')).resolves.toBeNull();
+  expect(mockLegacySecureStore.get).toHaveBeenCalledWith('data');
+  expect(mockKeychain.setGenericPassword).not.toHaveBeenCalled();
+  expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+});
+
 it('Appstorage - React Native storage migrates legacy value into keychain when keychain is empty', async () => {
   setReactNativeNavigator();
   mockKeychain.getGenericPassword.mockResolvedValueOnce(false);

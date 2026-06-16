@@ -43,10 +43,14 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     appStorage.includes('Legacy secure-storage wallet migration to Keychain failed; returning legacy value.');
   const serviceFallbackMigrationTestsPresent =
     unitTest.includes('returns keychain credentials without touching the legacy secure store') &&
+    unitTest.includes('normalizes a null legacy fallback result to an empty secured value') &&
+    unitTest.includes('normalizes an undefined legacy fallback result to an empty secured value') &&
     unitTest.includes('falls back to the legacy secure store and migrates the value into keychain') &&
     unitTest.includes('keeps returning the legacy value when keychain migration write fails') &&
     unitTest.includes('rejects transaction passwords that do not match the stored hash');
   const appStorageFallbackMigrationTestsPresent =
+    storageTest.includes('normalizes a null legacy fallback result to missing storage') &&
+    storageTest.includes('normalizes an undefined legacy fallback result to missing storage') &&
     storageTest.includes('migrates legacy value into keychain when keychain is empty') &&
     storageTest.includes('falls back to legacy value when keychain read fails') &&
     storageTest.includes('keeps legacy value when keychain migration write fails');

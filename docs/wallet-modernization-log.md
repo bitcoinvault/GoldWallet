@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.696 - Secure-storage empty fallback hardening
+
+- Branch: `feature/bem-37-696-secure-storage-empty-fallback`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the staged Keychain migration path when the legacy `react-native-secure-key-store` fallback resolves with an empty native result instead of rejecting.
+- Normalize empty legacy fallback results in `SecureStorageService` to the existing missing-secured-value contract: an empty string for PIN/transaction-password helpers.
+- Normalize empty legacy fallback results in encrypted wallet storage to the AsyncStorage-compatible missing-value contract: `null`.
+- Add focused regression coverage for both `null` and `undefined` legacy native results in `SecureStorageService` and `AppStorage`.
+- Extend secure-storage removal-readiness auditing so those empty-fallback regression tests must remain present before legacy package removal can be evaluated.
+
+Findings:
+
+- `react-native-keychain@10.0.0` remains the primary write backend for new secure values.
+- `react-native-secure-key-store@2.0.10` remains installed intentionally for fallback reads and post-migration cleanup; package removal is still not claimed.
+- Legacy fallback migration still migrates real legacy values into Keychain and attempts legacy cleanup after a successful migration.
+- Empty legacy fallback results now behave like missing secure values instead of propagating `null`/`undefined` through wallet unlock/storage flows.
+- Secure-storage release validation evidence is ready for the staged migration posture: migration and removal-readiness summaries are valid, focused storage contracts passed, Android dev assemble passed, and Android embedded smoke passed on `emulator-5554`.
+- Full unit tests passed; the existing BlueElectrum unit suite still emits known post-test async logging after Jest completion.
+
+Validation:
+
+- `& $node $yarn test:secure-storage:unit`
+- `& $node $yarn test:storage`
+- `& $node $yarn secure-storage:migration:audit`
+- `& $node $yarn secure-storage:migration:check-summary`
+- `& $node $yarn secure-storage:removal-readiness:audit`
+- `& $node $yarn secure-storage:removal-readiness:check-summary`
+- `& $node $yarn test:storage-network:focused`
+- `& $node node_modules\jest\bin\jest.js tests\unit --forceExit --runInBand`
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 & $node $yarn android:dev:smoke:embedded`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `& $node $yarn secure-storage:release-validation:summary`
+- `& $node $yarn secure-storage:release-validation:check-summary`
+- `& $node $yarn check:secure-storage-release-validation-handoff-guard`
+- `& $node $yarn secure-storage:release-validation:handoff:dry-run --skip-android-smoke`
+
 ### BEM-37.695 - Foundation latest-target refresh
 
 - Branch: `feature/bem-37-695-foundation-target-refresh`
