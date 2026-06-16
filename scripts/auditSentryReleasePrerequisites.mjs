@@ -525,11 +525,14 @@ const printReport = audit => {
   console.log(`Android release summary valid: ${audit.androidReleaseSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release summary current inputs covered: ${audit.androidReleaseSummaryCurrentInputsCovered ? 'yes' : 'no'}`);
   console.log(`Android release summary errors: ${audit.androidReleaseSummaryErrors.length}`);
+  audit.androidReleaseSummaryErrors.forEach(error => console.log(`- ${error}`));
   console.log(`Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`);
+  audit.androidReleaseApkManifestErrors.forEach(error => console.log(`- ${error}`));
   console.log(`Android release smoke summary present: ${audit.hasAndroidReleaseSmokeSummary ? 'yes' : 'no'}`);
   console.log(`Android release smoke summary valid: ${audit.androidReleaseSmokeSummaryErrors.length === 0 ? 'yes' : 'no'}`);
   console.log(`Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`);
+  audit.androidReleaseSmokeSummaryErrors.forEach(error => console.log(`- ${error}`));
   console.log(`Sentry release smoke evidence ready: ${audit.androidReleaseSmokeEvidenceReady ? 'yes' : 'no'}`);
   console.log(`Android release create-wallet smoke summary present: ${audit.hasAndroidReleaseCreateWalletSmokeSummary ? 'yes' : 'no'}`);
   console.log(
@@ -538,6 +541,7 @@ const printReport = audit => {
     }`,
   );
   console.log(`Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`);
+  audit.androidReleaseCreateWalletSmokeSummaryErrors.forEach(error => console.log(`- ${error}`));
   console.log(`Sentry release create-wallet evidence ready: ${audit.androidReleaseCreateWalletSmokeEvidenceReady ? 'yes' : 'no'}`);
   console.log('Sentry release upload validation: not claimed');
   console.log(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
