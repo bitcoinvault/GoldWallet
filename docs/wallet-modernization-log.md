@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.670 - Axios runtime refresh
+
+- Branch: `feature/bem-37-670-axios-runtime-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the wallet API HTTP client dependency from `axios` `1.17.0` to the latest npm target observed on 2026-06-16, `axios` `1.18.0`.
+- Keep the existing Metro-safe runtime import in `src/api/client.ts`: `axios/dist/browser/axios.cjs`.
+- Refresh `yarn.lock`; no application source, Android native, iOS native, Metro, release-service, wallet-crypto, or storage code changed.
+
+Findings:
+
+- Live npm metadata reports `axios@1.18.0` as current `latest`.
+- The browser CJS entrypoint remains present after the upgrade: `require('axios/dist/browser/axios.cjs')` reports `VERSION` `1.18.0` and `create` as a function.
+- After this branch, `direct-outdated:snapshot:audit` returns to `Review-required entries: 0`; remaining direct-outdated entries are known blocked or exotic decisions.
+- Android dev build and emulator smoke passed with first-run setup, empty-dashboard create/import wallet CTA navigation, QR scanner open/close, and bottom-tab navigation.
+
+Validation:
+
+- `cmd /c npm.cmd view axios version dist-tags engines dependencies peerDependencies --json`
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' add --exact axios@1.18.0`
+- `& $node -e "const axios=require('axios/dist/browser/axios.cjs'); console.log(axios.VERSION); console.log(typeof axios.create);"`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' direct-outdated:snapshot:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' direct-outdated:snapshot:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:rn-nodeify-shims`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' typescript:check`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' test:unit --runInBand`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' test:storage-network:focused` passed with the existing async BlueElectrum post-test console logs.
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:assemble`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:smoke:embedded`
+
 ### BEM-37.669 - Dev tooling patch refresh
 
 - Branch: `feature/bem-37-669-dev-tooling-patch-refresh`
