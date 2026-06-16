@@ -159,7 +159,9 @@ This keeps iOS macOS validation prerequisite summaries as one aggregate gate ins
 
 `check:electrum-metro-observation-path-guard` verifies the Metro-specific Android smoke and create-wallet Electrum observation scripts. Use `android:dev:create-wallet-electrum-observe:metro` only when Metro is running and logcat evidence from debug JS is needed; keep `android:dev:create-wallet-electrum-observe` as the default embedded, release-like smoke path.
 
-Start Metro for that path with `start:metro:no-multipart --reset-cache --port 8081`. This sets `RN_DISABLE_METRO_MULTIPART=true`, and `metro.config.js` then strips `multipart/mixed` from Metro bundle requests so Android dev support receives a plain bundle response instead of the multipart progress stream that can fail in `BundleDownloader.processMultipartResponse` on this RN baseline.
+Start Metro for that path with `start:metro:no-multipart --reset-cache --port 8081`. This sets `RN_DISABLE_METRO_MULTIPART=true` and defaults `LOG_BOX_IGNORE=true` so React Native warning overlays do not block automated smoke taps; pass `LOG_BOX_IGNORE=false` for manual warning inspection. `metro.config.js` then strips `multipart/mixed` from bundle requests so Android dev support receives a plain bundle response instead of the multipart progress stream that can fail in `BundleDownloader.processMultipartResponse` on this RN baseline.
+
+Use `android:dev:create-wallet-electrum-observe:metro:managed` when the branch needs one self-contained emulator validation command. It starts `startMetroNoMultipart.mjs`, refuses to silently reuse an already-running Metro server unless `ANDROID_METRO_REUSE_EXISTING=true`, waits for `packager-status:running`, runs `android:dev:create-wallet-electrum-observe:metro`, writes Metro output to `local-docs/metro-managed-electrum-observation.log`, and stops the managed Metro process afterwards.
 
 `check:wallet-crypto-validation-scripts` keeps the aggregate `test:wallet-crypto:offline` script wired into `prepush` and verifies that the wallet-critical HD wallet, watch-only wallet, wallet-core, and signer offline fixtures stay present before wallet/crypto runtime dependency changes.
 

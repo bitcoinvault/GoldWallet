@@ -80,6 +80,7 @@
     "clean:ios": "rm -fr node_modules && rm -fr ios/Pods && yarn install && cd ios && pod update && cd ..; yarn start -- --reset-cache",
     "start": "react-native start",
     "start:metro:no-multipart": "node scripts/startMetroNoMultipart.mjs",
+    "android:dev:create-wallet-electrum-observe:metro:managed": "node scripts/runManagedMetroElectrumObservation.mjs",
     "start:detox": "LOG_BOX_IGNORE=true CHAMBER_OF_SECRETS=true RN_SRC_EXT=e2e.tsx react-native start --reset-cache",
     "debug": "open 'rndebugger://set-debugger-loc?host=localhost&port=8081'",
     "android:dev": "react-native run-android --variant=devDebug",

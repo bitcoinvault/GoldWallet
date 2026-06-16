@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.691 - Managed Metro Electrum observation runner
+
+- Branch: `feature/bem-37-691-managed-metro-electrum-observation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a managed Android Metro/Electrum observation runner that starts no-multipart Metro, waits for readiness, runs the Metro create-wallet Electrum observation path, and stops Metro afterwards.
+- Make the no-multipart Metro validation helper default `LOG_BOX_IGNORE=true` so React Native warning overlays do not intercept automated smoke taps.
+- Guard and document the managed command so future Metro-backed emulator validation does not depend on manual start/stop steps.
+
+Findings:
+
+- The first managed run started Metro and reached the first-run transaction-password screen, but failed because the React Native LogBox warning overlay could block the Save tap in the Metro/dev path.
+- The final managed run passed after the no-multipart Metro helper defaulted `LOG_BOX_IGNORE=true`.
+- The managed run validated first-run onboarding, empty-dashboard CTA navigation, QR scanner, Settings Terms WebView, standard wallet mnemonic backup, default 3-key vault public-key integration, and Electrum connection evidence.
+- Metro was stopped by the managed runner after validation.
+
+Validation:
+
+- `node --check scripts/runManagedMetroElectrumObservation.mjs`
+- `node --check scripts/startMetroNoMultipart.mjs`
+- `node --check scripts/checkElectrumMetroObservationPathGuard.mjs`
+- `& $node $yarn check:electrum-metro-observation-path-guard`
+- `ANDROID_SERIAL=emulator-5554 ELECTRUM_OBSERVATION_WAIT_MS=5000 ELECTRUM_OBSERVATION_LOGCAT_LINES=4000 ELECTRUM_OBSERVATION_GLOBAL_LOGCAT_LINES=8000 ELECTRUM_OBSERVATION_ADB_MAX_BUFFER_BYTES=33554432 & $node $yarn android:dev:create-wallet-electrum-observe:metro:managed`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `& $node $yarn android:dev:check-create-wallet-smoke-summary`
+- `& $node $yarn electrum:runtime:check-artifact`
+- `& $node $yarn android:dev:check-light`
+- `& $node $yarn test:storage-network:focused`
+- `& $node $yarn test:unit --runInBand`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.690 - Electrum Metro observation path
 
 - Branch: `feature/bem-37-690-electrum-metro-observation-path`

@@ -10,6 +10,7 @@ const child = spawn(process.execPath, [reactNativeCli, ...args], {
   env: {
     ...process.env,
     RN_DISABLE_METRO_MULTIPART: 'true',
+    LOG_BOX_IGNORE: process.env.LOG_BOX_IGNORE ?? 'true',
   },
 });
 

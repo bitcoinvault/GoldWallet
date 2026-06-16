@@ -147,6 +147,14 @@ Then run the Metro-specific smoke path in another shell:
 $ yarn android:dev:create-wallet-electrum-observe:metro
 ```
 
+The no-multipart Metro helper defaults `LOG_BOX_IGNORE=true` so React Native warning overlays do not block automated smoke taps. Set `LOG_BOX_IGNORE=false` when running it manually to inspect warnings.
+
+For a self-contained run that starts no-multipart Metro, waits for readiness, runs the same Metro create-wallet Electrum observation, and stops Metro afterwards:
+
+```sh
+$ yarn android:dev:create-wallet-electrum-observe:metro:managed
+```
+
 For Android development verification, use the dev build plus embedded emulator smoke check:
 
 ```sh
