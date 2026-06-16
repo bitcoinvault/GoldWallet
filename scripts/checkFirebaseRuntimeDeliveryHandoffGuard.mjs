@@ -29,11 +29,13 @@ const smokeEvidenceOptions = {
   requireSourceApkDigest: true,
   expectedSourceApkPath: fixtureApkPath,
 };
+const createWalletEvidenceOptions = {
+  expectedApkPath: fixtureApkPath,
+  expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+};
 
 [
-  'corepack yarn android:dev:release:verify-local',
-  'corepack yarn android:dev:release:smoke:embedded',
-  'corepack yarn android:dev:release:check-smoke-summary',
+  'corepack yarn android:dev:release:create-wallet-verify',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn firebase:release-services:audit',
   'corepack yarn firebase:release-services:check-summary',
@@ -45,16 +47,8 @@ const smokeEvidenceOptions = {
 });
 
 assert(
-  !skippedRendered.includes('android:dev:release:verify-local'),
-  'Skipped Firebase runtime handoff must omit Android release evidence refresh',
-);
-assert(
-  !skippedRendered.includes('android:dev:release:smoke:embedded'),
-  'Skipped Firebase runtime handoff must omit Android release smoke refresh',
-);
-assert(
-  !skippedRendered.includes('android:dev:release:check-smoke-summary'),
-  'Skipped Firebase runtime handoff must omit Android release smoke summary validation',
+  !skippedRendered.includes('android:dev:release:create-wallet-verify'),
+  'Skipped Firebase runtime handoff must omit Android release create-wallet evidence refresh',
 );
 assert(
   skippedRendered.includes('corepack yarn firebase:release-services:audit'),
@@ -172,8 +166,36 @@ const readyAndroidReleaseSmokeSummary = [
   'Validated empty-dashboard CTA flow: yes',
   'Validated empty-tab navigation: yes',
   'Validated QR scanner screen: yes',
+  'Validated settings Terms WebView: yes',
   `UI hierarchy attempts: 1`,
   'UI hierarchy path: package.json',
+  'Screenshot path: package.json',
+  'Screenshot bytes: 1234',
+].join('\n');
+
+const readyAndroidReleaseCreateWalletSmokeSummary = [
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Android create-wallet smoke outcome: passed',
+  'Android create-wallet smoke exit code: 0',
+  'Android create-wallet smoke reason: standard and vault wallet flows completed without fatal/runtime logcat findings',
+  'Android serial: emulator-5554',
+  'Android package: io.goldwallet.wallet.dev',
+  'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+  'Artifact base: android-create-wallet-smoke-dev-release',
+  `Source APK path: ${fixtureApkPath}`,
+  `Source APK bytes: ${fixtureApkBytes}`,
+  `Source APK sha256: ${fixtureApkSha256}`,
+  'Standard wallet name: Smoke Standard',
+  'Standard wallet created: yes',
+  'Standard mnemonic screen reached: yes',
+  'Vault wallet name: Smoke Vault',
+  'Vault next-step reached: yes',
+  'No create-wallet error UI: yes',
+  'Fatal/runtime logcat findings: no',
+  'App PID: 1234',
+  'Captured logcat lines: 400',
+  'UI hierarchy path: package.json',
+  'Logcat path: package.json',
   'Screenshot path: package.json',
   'Screenshot bytes: 1234',
 ].join('\n');
@@ -182,7 +204,9 @@ assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: readyFirebaseSummary,
     pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).length === 0,
   'Ready Firebase runtime handoff summary fixtures must pass readiness checks',
@@ -191,7 +215,9 @@ assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: partialReadyFirebaseSummary,
     pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('Firebase release-services summary is invalid')),
   'Firebase runtime readiness check must reject partial Firebase release-services summaries',
@@ -200,7 +226,9 @@ assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: readyFirebaseSummary,
     pushBridgeSummaryText: partialReadyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('Push notification bridge summary is invalid')),
   'Firebase runtime readiness check must reject partial push notification bridge summaries',
@@ -209,7 +237,9 @@ assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: readyFirebaseSummary.replace('Firebase runtime delivery validation: not claimed', 'Firebase runtime delivery validation: claimed'),
     pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('must stay unclaimed')),
   'Firebase runtime readiness check must reject claimed delivery without a real runtime handoff',
@@ -218,7 +248,9 @@ assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: readyFirebaseSummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
     pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('current release inputs')),
   'Firebase runtime readiness check must require fresh Android release inputs',
@@ -227,7 +259,9 @@ assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: readyFirebaseSummary,
     pushBridgeSummaryText: readyPushBridgeSummary.replace('Static readiness issues: 0', 'Static readiness issues: 1'),
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('0 static readiness issues')),
   'Firebase runtime readiness check must require push notification static readiness',
@@ -236,7 +270,9 @@ assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: '',
     pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('Firebase release-services summary is missing')),
   'Firebase runtime readiness check must report a missing Firebase summary',
@@ -245,7 +281,9 @@ assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: readyFirebaseSummary,
     pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: '',
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is missing')),
   'Firebase runtime readiness check must report a missing Android release smoke summary',
@@ -254,10 +292,37 @@ assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: readyFirebaseSummary,
     pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace('Validated empty-tab navigation: yes', 'Validated empty-tab navigation: no'),
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is invalid')),
   'Firebase runtime readiness check must reject invalid Android release smoke evidence',
+);
+assert(
+  getFirebaseRuntimeDeliveryReadinessErrors({
+    firebaseSummaryText: readyFirebaseSummary,
+    pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: '',
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Android release create-wallet smoke summary is missing')),
+  'Firebase runtime readiness check must report a missing Android release create-wallet smoke summary',
+);
+assert(
+  getFirebaseRuntimeDeliveryReadinessErrors({
+    firebaseSummaryText: readyFirebaseSummary,
+    pushBridgeSummaryText: readyPushBridgeSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary.replace(
+      'Vault next-step reached: yes',
+      'Vault next-step reached: no',
+    ),
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Android release create-wallet smoke summary is invalid')),
+  'Firebase runtime readiness check must reject invalid Android release create-wallet smoke evidence',
 );
 
 console.log('Firebase runtime delivery handoff guard checks are valid.');

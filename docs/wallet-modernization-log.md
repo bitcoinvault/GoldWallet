@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.665 - Runtime handoff release create-wallet evidence
+
+- Branch: `feature/bem-37-665-runtime-handoffs-create-wallet-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the Firebase runtime-delivery handoff so its Android release refresh uses `android:dev:release:create-wallet-verify` instead of only release build plus release startup smoke.
+- Upgrade the CodePush update-validation handoff to the same release create-wallet evidence gate while keeping deployment-key values out of rendered commands and summaries.
+- Make both handoff readiness checks directly validate `local-docs/android-create-wallet-smoke-dev-release-summary.txt` in addition to the existing release smoke summary.
+- Keep Firebase, CodePush, push notification, wallet runtime code, package versions, native files, Gradle files, and Metro configuration unchanged.
+
+Findings:
+
+- `BEM-37.664` made Sentry and the aggregate release-services checker require release create-wallet evidence, but the focused Firebase and CodePush runtime handoffs still refreshed only the older release startup smoke sequence.
+- A release runtime handoff can now be skipped only when release build, manifest, release-smoke, and release create-wallet evidence are already fresh.
+- Firebase delivery, Crashlytics upload, Analytics behavior, CodePush OTA delivery, and any replacement OTA path remain explicitly not claimed.
+
+Validation:
+
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node --check scripts/runFirebaseRuntimeDeliveryHandoff.mjs`
+- `& $node --check scripts/checkFirebaseRuntimeDeliveryHandoffGuard.mjs`
+- `& $node --check scripts/runCodePushUpdateValidationHandoff.mjs`
+- `& $node --check scripts/checkCodePushUpdateValidationHandoffGuard.mjs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:firebase-runtime-delivery-handoff-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' firebase:runtime:delivery:handoff:dry-run`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' firebase:runtime:delivery:handoff:dry-run --skip-android-release`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:codepush-update-validation-handoff-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:update:validation:handoff:dry-run`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:update:validation:handoff:dry-run --skip-android-release`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-smoke-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-create-wallet-smoke-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' release-services:check-summaries`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-light-docs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:rn-nodeify-shims`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' typescript:check`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' lint:baseline:audit` passed as the existing baseline audit while reporting the known lint debt.
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.664 - Sentry release create-wallet evidence gate
 
 - Branch: `feature/bem-37-664-sentry-release-create-wallet-evidence`
