@@ -4,7 +4,7 @@ const validPlan = [
   'Sentry release credential plan',
   'Generated at: 2026-06-12T00:00:00.000Z',
   '@sentry/react-native version: 8.14.0',
-  '@sentry/cli package version: 3.5.0',
+  '@sentry/cli package version: 3.5.1',
   'Release source-map prerequisites: not ready',
   'SENTRY_AUTH_TOKEN available in current shell: no',
   'Properties file readiness:',

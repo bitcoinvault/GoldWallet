@@ -10,6 +10,56 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.693 - Sentry CLI patch refresh
+
+- Branch: `feature/bem-37-693-sentry-cli-patch`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the direct root Sentry release-tooling dependency from `@sentry/cli@3.5.0` to npm-latest `3.5.1`.
+- Refresh Sentry release prerequisite docs and guard fixtures so they reflect the current direct CLI and nested Sentry-owned CLI copies.
+- Refresh Android release APK, manifest, release-smoke, and release create-wallet evidence after the package input changed.
+
+Findings:
+
+- `foundation:target:refresh-online` initially detected `@sentry/cli@3.5.1` as a new review-required direct outdated entry; after the patch, the direct outdated snapshot returned to `16` known entries with `0` review-required entries.
+- Live npm metadata reports `@sentry/cli@3.5.1` as latest with Node engine `>= 18`, compatible with the repo Node `24.16.0`.
+- `sentry:release:prereq-audit` now reports direct root `@sentry/cli@3.5.1`, nested Sentry-owned `@sentry/cli@3.5.0` copies under `@sentry/expo-upload-sourcemaps` and `@sentry/react-native`, and release build paths using the direct root CLI package.
+- `sentry-cli --version` reports `sentry-cli 3.5.1`.
+- Sentry release source-map upload validation remains explicitly `not claimed` because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not available locally.
+- Android release evidence was refreshed with `SENTRY_DISABLE_AUTO_UPLOAD=true`; `dev`, `stage`, `prod`, and `beta` release APK evidence, APK manifests, `devRelease` smoke, and `devRelease` create-wallet smoke all validate.
+
+Validation:
+
+- `npm view @sentry/cli version engines dependencies peerDependencies bin dist-tags --json`
+- `npm view @sentry/cli@3.5.1 version engines dependencies peerDependencies bin time --json`
+- `& $node $yarn add --dev @sentry/cli@3.5.1`
+- `& $node node_modules\@sentry\cli\bin\sentry-cli --version`
+- `node --check scripts\checkSentryReleasePrereqSummaryGuard.mjs`
+- `node --check scripts\checkSentryReleaseValidationHandoffGuard.mjs`
+- `node --check scripts\checkSentryReleaseCredentialPlanGuard.mjs`
+- `& $node $yarn check:sentry-release-prereq-summary-guard`
+- `& $node $yarn check:sentry-release-validation-handoff-guard`
+- `& $node $yarn check:sentry-release-credential-plan-guard`
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true & $node $yarn android:dev:release:create-wallet-verify`
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn sentry:release:prereq-audit`
+- `& $node $yarn sentry:release:prereq-check-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn foundation:target:refresh-online`
+- `& $node $yarn android:dev:check-light`
+- `& $node $yarn test:storage-network:focused`
+- `& $node $yarn test:unit --runInBand`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.692 - Android release evidence refresh
 
 - Branch: `feature/bem-37-692-android-release-evidence-refresh`
