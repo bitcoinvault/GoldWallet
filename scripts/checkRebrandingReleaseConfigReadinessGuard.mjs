@@ -47,6 +47,7 @@ const files = new Map([
       'PRODUCT_BUNDLE_IDENTIFIER = com.minebest.goldwalletbtcv.dev;',
       'PRODUCT_BUNDLE_IDENTIFIER = com.minebest.goldwalletbtcv.stage;',
       'PRODUCT_BUNDLE_IDENTIFIER = com.minebest.goldwalletbtcv.beta;',
+      'PRODUCT_NAME = "GoldWallet Beta";',
       'INFOPLIST_FILE = GoldWallet/Info.plist;',
       'INFOPLIST_FILE = "GoldWalletDev-Info.plist";',
       'INFOPLIST_FILE = "GoldWalletStage-Info.plist";',
@@ -78,6 +79,7 @@ const files = new Map([
       'Scope: `BEM-37.335`, rebranding and explorer/release-config preparation.',
       'Do not change `APP_ID` without matching Android `applicationId`, Firebase `google-services.json`, iOS bundle identifier, and store metadata.',
       'Do not change `EXPLORER_URL` or Electrum hosts without at least startup smoke, wallet list smoke, and link/address-flow checks.',
+      'Do not change iOS Beta `PRODUCT_NAME` separately from `GoldWallet-beta.plist`, schemes, bundle identifier, and store metadata.',
       'Do not print Sentry DSNs, CodePush deployment keys, or Firebase app IDs in logs/docs.',
       'Explorer/env alignment',
       'Store metadata refresh',
@@ -220,6 +222,15 @@ assertRejected(
       fixture.get('ios/GoldWallet.xcodeproj/project.pbxproj').replace('PRODUCT_BUNDLE_IDENTIFIER = com.minebest.goldwalletbtcv.beta;', ''),
     ),
   'com.minebest.goldwalletbtcv.beta',
+);
+assertRejected(
+  'iOS Beta product name drift fixture',
+  fixture =>
+    fixture.set(
+      'ios/GoldWallet.xcodeproj/project.pbxproj',
+      fixture.get('ios/GoldWallet.xcodeproj/project.pbxproj').replace('PRODUCT_NAME = "GoldWallet Beta";', ''),
+    ),
+  'PRODUCT_NAME = "GoldWallet Beta";',
 );
 assertRejected(
   'Missing env key fixture',

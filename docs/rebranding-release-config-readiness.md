@@ -25,7 +25,7 @@ iOS:
 | Project/workspace | `GoldWallet.xcodeproj`, `GoldWallet.xcworkspace` |
 | Schemes | `GoldWallet`, `GoldWallet Dev`, `GoldWallet Stage`, `GoldWallet Beta`, debug and release variants |
 | Bundle identifiers | `com.minebest.goldwalletbtcv`, `.dev`, `.stage`, `.beta` |
-| Display names | `GoldWallet`, `GoldWallet Dev`, `GoldWallet Stage`; beta uses `$(PRODUCT_NAME)` |
+| Display names | `GoldWallet`, `GoldWallet Dev`, `GoldWallet Stage`; beta uses `$(PRODUCT_NAME)` from the guarded Xcode `PRODUCT_NAME = "GoldWallet Beta"` setting |
 | Deep link schemes | `goldwallet`, `lapp` |
 | Firebase plist files | `GoogleService-Info.plist`, `GoogleService-Info-dev.plist`, `GoogleService-Info-prod.plist`, `GoogleService-Info-stage.plist` |
 | CodePush placeholder | removed from iOS Info.plist files after CodePush native/runtime removal |
@@ -90,6 +90,7 @@ These decisions must be made before implementation:
 - Do not change `APP_ID` without matching Android `applicationId`, Firebase `google-services.json`, iOS bundle identifier, and store metadata.
 - Do not change `APPLICATION_NAME` without checking Android strings, iOS display names, localized app copy, assets, fastlane metadata, and screenshots.
 - Do not change `EXPLORER_URL` or Electrum hosts without at least startup smoke, wallet list smoke, and link/address-flow checks.
+- Do not change iOS Beta `PRODUCT_NAME` separately from `GoldWallet-beta.plist`, schemes, bundle identifier, and store metadata.
 - Do not remove `goldwallet` deep-link handling until migration behavior for existing users is decided.
 - Do not print Sentry DSNs, CodePush deployment keys, or Firebase app IDs in logs/docs.
 - Keep beta behavior explicit: beta iOS currently has no separate Firebase plist file in the captured scheme pre-actions, and beta env files do not require CodePush keys.
