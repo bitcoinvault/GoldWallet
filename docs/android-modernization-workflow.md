@@ -153,6 +153,8 @@ This keeps iOS macOS validation prerequisite summaries as one aggregate gate ins
 
 `check:storage-network-validation-scripts-guard` verifies the focused validation script guard self-check fixtures. `check:storage-network-validation-scripts` verifies that secure-storage, storage, authenticator, and wallet-core offline tests still exist as package scripts and remain part of `prepush` before Group C dependency changes.
 
+`check:electrum-runtime-observation-parser-guard` verifies the Electrum runtime observation parser guard fixtures. It locks success, failed-connection, inconclusive, fatal-runtime, UI-marker, and secret-redaction parsing before Electrum observation output is used as Android runtime evidence.
+
 `check:wallet-crypto-validation-scripts` keeps the aggregate `test:wallet-crypto:offline` script wired into `prepush` and verifies that the wallet-critical HD wallet, watch-only wallet, wallet-core, and signer offline fixtures stay present before wallet/crypto runtime dependency changes.
 
 `check:native-module-inventory` keeps the current BEM-36 native dependency inventory explicit before grouped native module upgrades. `check:native-module-upgrade-plan-guard` self-checks the plan coverage comparison logic, and `check:native-module-upgrade-plan` verifies that every tracked native dependency appears in `docs/native-module-upgrade-plan.md`. If a native dependency version changes, update the inventory, the plan, and the related upgrade notes in the same branch.

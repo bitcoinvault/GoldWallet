@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.676 - Electrum observation parser guard
+
+- Branch: `feature/bem-37-676-electrum-observation-parser-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `scripts/captureElectrumRuntimeObservation.mjs` safe to import by moving ADB execution behind an explicit CLI entrypoint.
+- Export the Electrum log parser, UI hierarchy parser, summary renderer, and secret redaction helper for deterministic guard coverage.
+- Add `check:electrum-runtime-observation-parser-guard` with fixtures for successful Electrum evidence, failed connection evidence, inconclusive logcat, fatal runtime findings, UI markers, and Sentry/CodePush secret redaction.
+- Promote the parser guard into `android:dev:check-light` and update the README, Android modernization workflow, storage/network audit, and baseline documentation.
+- Keep wallet runtime code, package versions, native files, Gradle files, Metro configuration, and app behavior unchanged.
+
+Findings:
+
+- The existing runtime observation helper was executable-only, so future parser changes could not be guarded without invoking ADB.
+- The new parser guard locks the distinction between `passed`, `observed-without-success`, `inconclusive`, and `failed` observation outcomes before local Electrum artifacts are used as Android runtime evidence.
+- Live emulator observation on `emulator-5554` remained valid but inconclusive: the app process was visible, UI hierarchy was ready, no connection-issue UI or fatal/runtime logcat findings were found, but the captured process logcat contained no Electrum lines.
+- Runtime Electrum success is still not claimed by this branch; a later branch should improve how the observation captures or triggers the connection window.
+
+Validation:
+
+- `node --check scripts/captureElectrumRuntimeObservation.mjs`
+- `node --check scripts/checkElectrumRuntimeObservationParserGuard.mjs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:electrum-runtime-observation-parser-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-light-docs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-light`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' lint:baseline:audit` passed with the existing ESLint baseline
+- `$env:ANDROID_SERIAL='emulator-5554'; $env:ELECTRUM_OBSERVATION_WAIT_MS='5000'; $env:ELECTRUM_OBSERVATION_LOGCAT_LINES='4000'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' electrum:runtime:observe`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' electrum:runtime:check-artifact`
+
 ### BEM-37.675 - Secure-storage fallback instrumentation
 
 - Branch: `feature/bem-37-675-secure-storage-warning-reduction`

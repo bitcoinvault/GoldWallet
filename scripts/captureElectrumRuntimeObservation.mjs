@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -101,7 +101,7 @@ const waitForPid = selectedSerial => {
   throw new Error(`Unable to find running process for ${packageName}. Run android:dev:smoke:embedded first.`);
 };
 
-const sanitizeLine = line =>
+export const sanitizeLine = line =>
   line
     .replace(/(SENTRY_DSN_(?:IOS|ANDROID)=)[^\s,]+/g, '$1<redacted>')
     .replace(/(CODEPUSH_DEPLOYMENT_KEY_(?:IOS|ANDROID)=)[^\s,]+/g, '$1<redacted>');
@@ -145,7 +145,7 @@ const captureUiHierarchy = selectedSerial => {
   };
 };
 
-const parseUiHierarchy = hierarchy => {
+export const parseUiHierarchy = hierarchy => {
   const connectionIssueMarkers = [
     'No internet connection',
     'Ensure that WI-FI or mobile data are turned on, then try again.',
@@ -177,7 +177,7 @@ const parseUiHierarchy = hierarchy => {
   };
 };
 
-const parseObservation = logcat => {
+export const parseObservation = logcat => {
   const lines = logcat.split(/\r?\n/).filter(Boolean);
   const electrumLines = lines
     .filter(line => /BlueElectrum|ElectrumX|Electrum|electrum|connected to server|begin connection|bad connection/.test(line))
@@ -199,7 +199,15 @@ const parseObservation = logcat => {
   };
 };
 
-const renderSummary = ({ selectedSerial, pid, logcat, observation, uiCapture, uiObservation }) => {
+export const renderSummary = ({
+  selectedSerial,
+  pid,
+  logcat,
+  observation,
+  uiCapture,
+  uiObservation,
+  generatedAt = new Date().toISOString(),
+}) => {
   const logcatSha256 = fileSha256(logcat);
   const uiHierarchySha256 = uiCapture.captured ? fileSha256(uiCapture.hierarchy) : '<missing>';
   const uiReady =
@@ -225,7 +233,7 @@ const renderSummary = ({ selectedSerial, pid, logcat, observation, uiCapture, ui
           : 'fatal/runtime logcat findings found';
 
   const summaryLines = [
-    `Generated at: ${new Date().toISOString()}`,
+    `Generated at: ${generatedAt}`,
     `Electrum observation outcome: ${outcome}`,
     `Electrum observation reason: ${reason}`,
     `Android serial: ${selectedSerial}`,
@@ -264,7 +272,7 @@ const renderSummary = ({ selectedSerial, pid, logcat, observation, uiCapture, ui
   };
 };
 
-try {
+export const runElectrumRuntimeObservation = () => {
   if (!adbCommand) {
     throw new Error('adb not found. Set ANDROID_HOME, ANDROID_SDK_ROOT, or add adb to PATH.');
   }
@@ -292,9 +300,17 @@ try {
   console.log(`Electrum observation outcome: ${outcome}`);
 
   if (outcome === 'failed' || (requireSuccess && outcome !== 'passed')) {
+    return 1;
+  }
+
+  return 0;
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    process.exit(runElectrumRuntimeObservation());
+  } catch (error) {
+    console.error(error.message);
     process.exit(1);
   }
-} catch (error) {
-  console.error(error.message);
-  process.exit(1);
 }
