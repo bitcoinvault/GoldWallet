@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.671 - Android release evidence refresh
+
+- Branch: `feature/bem-37-671-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release evidence after the React Navigation, dev-tooling, and Axios refresh branches.
+- Rebuild and validate `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK 17 and Sentry auto-upload disabled for local validation.
+- Re-run the signed `devRelease` embedded smoke flow without Metro, then run release create-wallet smoke against the same signed release APK.
+- Refresh Sentry, Firebase, CodePush, and aggregate release-services summaries so they reference current Android release evidence.
+- Update the Android modernization workflow document with the current release-evidence branch/date.
+
+Findings:
+
+- `android:dev:release:create-wallet-verify` rebuilt all four release variants successfully. Each variant recorded exit code `0`, APK evidence, release JS bundle evidence, release source-map evidence, and no Gradle spawn error.
+- The generated Android release summary covers the current release input fingerprint and the generated APK manifest check passed for the required release variants.
+- The signed `devRelease` smoke APK installed on `emulator-5554` without Metro, completed first-run setup, validated empty-dashboard create/import CTA navigation, tab navigation, QR scanner, and Settings Terms WebView without fatal/runtime logcat findings.
+- Release create-wallet smoke passed through standard-wallet mnemonic backup and default 3-key vault public-key integration screens without create-wallet error UI or fatal/runtime logcat findings.
+- Sentry release prerequisites now have current Android release, release-smoke, and release create-wallet evidence ready. Source-map upload validation remains not claimed because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are not present in this local environment.
+- Firebase release-services and CodePush release/removal readiness summaries validated against the refreshed Android release evidence. Real Firebase runtime delivery and CodePush update delivery remain explicitly not claimed.
+
+Validation:
+
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'`
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:create-wallet-verify`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:prereq-audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' sentry:release:prereq-check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' firebase:release-services:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' firebase:release-services:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:release:path-audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:release:path-check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:migration:readiness-audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:migration:readiness-check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:removal-readiness:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:removal-readiness:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' release-services:check-summaries`
+
 ### BEM-37.670 - Axios runtime refresh
 
 - Branch: `feature/bem-37-670-axios-runtime-refresh`
