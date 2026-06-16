@@ -5,7 +5,7 @@ Scope: `BEM-37.282 - CodePush retirement audit`.
 ## Current State
 
 - `BEM-37.583` removes `react-native-code-push` from JavaScript, Android, iOS plist/native integration, `package.json`, `yarn.lock`, and `ios/Podfile.lock`.
-- Historical `.env.*` files may still carry stale `CODEPUSH_*` keys until a secrets-safe cleanup is done; those keys are no longer required by the app runtime or release-service env guard.
+- `BEM-37.688` removes stale `CODEPUSH_*` entries from the tracked `.env.*` files through a secrets-safe mechanical cleanup; those keys are no longer required by the app runtime or release-service env guard.
 - `react-native-code-push@9.0.1` is the latest npm release checked on 2026-06-11.
 - The latest npm release was published on 2024-12-19.
 - Microsoft App Center CodePush was retired on 2025-03-31.
@@ -60,6 +60,7 @@ Expected summary claims after `BEM-37.583`:
 - local Android release evidence currently covers `dev`, `stage`, `prod`, and `beta` release variants;
 - release build evidence readiness is recorded separately from OTA update validation;
 - stale CodePush env-key presence is not treated as a release blocker and no deployment-key values are printed;
+- after `BEM-37.688`, the tracked `.env.*` files carry `0` `CODEPUSH_*` entries and `0` non-empty CodePush deployment-key entries;
 - the migration readiness summary records the current posture as removed;
 - the long-term options are recorded as removed;
 - the decision handoff generator defaults to the current post-removal decision `remove` with beta strategy `beta has no OTA`, while still allowing explicit `pending`, `replace`, or temporary legacy overrides for future planning;
@@ -71,6 +72,7 @@ Expected summary claims after `BEM-37.583`:
 - the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence;
 - no deployment key values are printed.
 - the env cleanup plan lists only file paths, key names, blank/non-empty state, and the required secrets-safe action; it never prints key values.
+- after `BEM-37.688`, the env cleanup plan reports `Files needing cleanup: 0`, `CodePush env key entries: 0`, and `Non-empty deployment key entries: 0`.
 - the env cleanup readiness summary guard is run before release-services handoff refreshes CodePush env cleanup readiness, so stale cleanup evidence cannot silently drift.
 
 ## Decision Needed
@@ -134,7 +136,7 @@ The first removal-readiness audit provides the inventory required by the decisio
 - run Android debug assemble and emulator smoke;
 - run Android release build, manifest check, and release smoke;
 - leave iOS runtime/archive validation unclaimed unless it ran on macOS/Xcode.
-- keep stale `.env.*` CodePush key cleanup separate and secrets-safe.
+- keep stale `.env.*` CodePush key cleanup separate and secrets-safe if CodePush keys are reintroduced in tracked env files.
 
 ## Replace Branch Acceptance Gate
 
@@ -153,8 +155,7 @@ After `BEM-37.583`, CodePush runtime/native removal is implemented. Remaining fo
 If removing CodePush:
 
 - run iOS `pod install` plus simulator/archive validation on macOS/Xcode before claiming iOS runtime delivery;
-- remove stale `CODEPUSH_*` values from `.env.*` only through a secrets-safe cleanup that does not expose historical deployment-key values in review;
-- use `corepack yarn codepush:env-cleanup:plan` before cleanup so the review-safe artifact records exactly which env files and key names need secure regeneration without printing secret values;
+- keep the tracked `.env.*` files free of `CODEPUSH_*` values; if future keys appear, use `corepack yarn codepush:env-cleanup:plan` before cleanup so the review-safe artifact records exactly which env files and key names need secure regeneration without printing secret values;
 - do not claim OTA update validation unless a maintained replacement is selected and tested.
 
 If replacing CodePush:
