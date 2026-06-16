@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
 const outputPath = path.join(outputDir, 'electrum-runtime-observation.txt');
+const uiOutputPath = path.join(outputDir, 'electrum-runtime-observation-ui.xml');
 const packageName = process.env.ELECTRUM_OBSERVATION_PACKAGE || 'io.goldwallet.wallet.dev';
 const requestedSerial = process.env.ANDROID_SERIAL?.trim();
 const logcatLineLimit = Number(process.env.ELECTRUM_OBSERVATION_LOGCAT_LINES || 1200);
@@ -105,6 +106,77 @@ const sanitizeLine = line =>
     .replace(/(SENTRY_DSN_(?:IOS|ANDROID)=)[^\s,]+/g, '$1<redacted>')
     .replace(/(CODEPUSH_DEPLOYMENT_KEY_(?:IOS|ANDROID)=)[^\s,]+/g, '$1<redacted>');
 
+const fileSha256 = content => createHash('sha256').update(content).digest('hex');
+
+const captureUiHierarchy = selectedSerial => {
+  const devicePath = '/sdcard/goldwallet-electrum-runtime-window.xml';
+  const dumpResult = runAdb('dump UI hierarchy', ['shell', 'uiautomator', 'dump', devicePath], {
+    selectedSerial,
+    allowFailure: true,
+  });
+
+  if (dumpResult.status !== 0) {
+    return {
+      captured: false,
+      hierarchy: '',
+      error: sanitizeLine(dumpResult.stderr.trim() || dumpResult.stdout.trim() || `exit ${dumpResult.status}`),
+    };
+  }
+
+  const readResult = runAdb('read UI hierarchy', ['exec-out', 'cat', devicePath], {
+    selectedSerial,
+    allowFailure: true,
+  });
+
+  if (readResult.status !== 0 || !readResult.stdout.trim()) {
+    return {
+      captured: false,
+      hierarchy: '',
+      error: sanitizeLine(readResult.stderr.trim() || readResult.stdout.trim() || `exit ${readResult.status}`),
+    };
+  }
+
+  writeFileSync(uiOutputPath, readResult.stdout);
+
+  return {
+    captured: true,
+    hierarchy: readResult.stdout,
+    error: '',
+  };
+};
+
+const parseUiHierarchy = hierarchy => {
+  const connectionIssueMarkers = [
+    'No internet connection',
+    'Ensure that WI-FI or mobile data are turned on, then try again.',
+    "You're offline",
+    'Connect to the internet to restore full functionality.',
+    'Connect to the internet to continue using these functions.',
+    'No network',
+    'Your internet works, but you are not connected to the network.',
+    'Electrum client is not connected',
+  ];
+  const runtimeUiMarkers = [
+    'dashboard-header',
+    'navigation-tab-0',
+    'create-wallet-button',
+    'import-wallet-button',
+    'scan-public-key-code-button',
+    'Wallets',
+    'No wallets',
+    'Create new wallet',
+    'Import wallet',
+    'Add new wallet',
+    'Add Fast Key',
+  ];
+
+  return {
+    appPackageVisible: hierarchy.includes(`package="${packageName}"`),
+    connectionIssueMarkers: connectionIssueMarkers.filter(marker => hierarchy.includes(marker)),
+    runtimeUiMarkers: runtimeUiMarkers.filter(marker => hierarchy.includes(marker)),
+  };
+};
+
 const parseObservation = logcat => {
   const lines = logcat.split(/\r?\n/).filter(Boolean);
   const electrumLines = lines
@@ -127,8 +199,14 @@ const parseObservation = logcat => {
   };
 };
 
-const renderSummary = ({ selectedSerial, pid, logcat, observation }) => {
-  const logcatSha256 = createHash('sha256').update(logcat).digest('hex');
+const renderSummary = ({ selectedSerial, pid, logcat, observation, uiCapture, uiObservation }) => {
+  const logcatSha256 = fileSha256(logcat);
+  const uiHierarchySha256 = uiCapture.captured ? fileSha256(uiCapture.hierarchy) : '<missing>';
+  const uiReady =
+    uiCapture.captured &&
+    uiObservation.appPackageVisible &&
+    uiObservation.connectionIssueMarkers.length === 0 &&
+    uiObservation.runtimeUiMarkers.length > 0;
   const outcome =
     observation.fatalLines.length > 0
       ? 'failed'
@@ -163,6 +241,18 @@ const renderSummary = ({ selectedSerial, pid, logcat, observation }) => {
     `Fatal/runtime logcat lines: ${observation.fatalLines.length}`,
     'Secret values printed: no',
     `Require success: ${requireSuccess ? 'yes' : 'no'}`,
+    `UI hierarchy path: ${uiOutputPath}`,
+    `UI hierarchy captured: ${uiCapture.captured ? 'yes' : 'no'}`,
+    `UI hierarchy bytes: ${uiCapture.hierarchy.length}`,
+    `UI hierarchy sha256: ${uiHierarchySha256}`,
+    `UI capture error: ${uiCapture.error || '<none>'}`,
+    `App UI package visible: ${uiObservation.appPackageVisible ? 'yes' : 'no'}`,
+    `Connection issue UI visible: ${uiObservation.connectionIssueMarkers.length > 0 ? 'yes' : 'no'}`,
+    `Connection issue UI markers: ${
+      uiObservation.connectionIssueMarkers.length > 0 ? uiObservation.connectionIssueMarkers.join(', ') : '<none>'
+    }`,
+    `Runtime UI evidence: ${uiReady ? 'ready' : 'not ready'}`,
+    `Runtime UI markers: ${uiObservation.runtimeUiMarkers.length > 0 ? uiObservation.runtimeUiMarkers.join(', ') : '<none>'}`,
     '',
     'Electrum evidence lines:',
     ...(observation.electrumLines.length > 0 ? observation.electrumLines : ['<none>']),
@@ -189,11 +279,13 @@ try {
   const pid = waitForPid(selectedSerial);
   sleep(waitMs);
 
+  const uiCapture = captureUiHierarchy(selectedSerial);
+  const uiObservation = parseUiHierarchy(uiCapture.hierarchy);
   const logcat = runAdb('read process logcat', ['logcat', '-d', '--pid', pid, '-t', String(logcatLineLimit)], {
     selectedSerial,
   }).stdout;
   const observation = parseObservation(logcat);
-  const { outcome, summary } = renderSummary({ selectedSerial, pid, logcat, observation });
+  const { outcome, summary } = renderSummary({ selectedSerial, pid, logcat, observation, uiCapture, uiObservation });
 
   writeFileSync(outputPath, summary);
   console.log(`Electrum runtime observation written to ${path.relative(root, outputPath)}`);
