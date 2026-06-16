@@ -16,14 +16,16 @@ const sentryReleasePrereqSummaryPath = path.join(root, 'local-docs', 'sentry-rel
 
 const defaultOptions = {
   dryRun: false,
+  preflightOnly: false,
   skipAndroidRelease: false,
 };
 
 const usage = [
-  'Usage: node scripts/runSentryReleaseValidationHandoff.mjs [--dry-run] [--skip-android-release]',
+  'Usage: node scripts/runSentryReleaseValidationHandoff.mjs [--dry-run] [--preflight-only] [--skip-android-release]',
   '',
   'Examples:',
   '  node scripts/runSentryReleaseValidationHandoff.mjs --dry-run',
+  '  node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release',
   '  node scripts/runSentryReleaseValidationHandoff.mjs --skip-android-release',
 ].join('\n');
 
@@ -61,9 +63,10 @@ const yarnStep = (label, script, extra = {}) => ({
 });
 
 export const getSentryReleaseValidationCommands = (options = defaultOptions) => {
+  const resolvedOptions = { ...defaultOptions, ...options };
   const steps = [yarnStep('Validate Sentry properties generator', 'check:sentry-properties-generator')];
 
-  if (!options.skipAndroidRelease) {
+  if (!resolvedOptions.skipAndroidRelease) {
     steps.push(
       yarnStep('Refresh Android release create-wallet evidence without upload', 'android:dev:release:create-wallet-verify', {
         env: {
@@ -78,9 +81,17 @@ export const getSentryReleaseValidationCommands = (options = defaultOptions) => 
     yarnStep('Validate Sentry Android warning summary', 'sentry:android-warning:check-summary'),
     yarnStep('Audit Sentry RN bundle task compatibility', 'sentry:rn-bundle-task-compat:audit'),
     yarnStep('Validate Sentry RN bundle task compatibility summary', 'sentry:rn-bundle-task-compat:check-summary'),
-    yarnStep('Generate Sentry release properties from local env', 'sentry:release:create-properties', {
-      requiredEnv: ['SENTRY_AUTH_TOKEN'],
-    }),
+  );
+
+  if (!resolvedOptions.preflightOnly) {
+    steps.push(
+      yarnStep('Generate Sentry release properties from local env', 'sentry:release:create-properties', {
+        requiredEnv: ['SENTRY_AUTH_TOKEN'],
+      }),
+    );
+  }
+
+  steps.push(
     yarnStep('Audit Sentry release prerequisites', 'sentry:release:prereq-audit'),
     yarnStep('Validate Sentry release prerequisite summary', 'sentry:release:prereq-check-summary'),
     yarnStep('Validate aggregate release-services summary artifacts', 'release-services:check-summaries'),
@@ -90,9 +101,14 @@ export const getSentryReleaseValidationCommands = (options = defaultOptions) => 
 };
 
 export const getSentryReleaseValidationHandoffErrors = options => {
+  const resolvedOptions = { ...defaultOptions, ...options };
   const errors = [];
 
-  if (typeof options.skipAndroidRelease !== 'boolean') {
+  if (typeof resolvedOptions.preflightOnly !== 'boolean') {
+    errors.push('preflightOnly must be a boolean');
+  }
+
+  if (typeof resolvedOptions.skipAndroidRelease !== 'boolean') {
     errors.push('skipAndroidRelease must be a boolean');
   }
 
@@ -107,9 +123,16 @@ const readSummary = summaryPath => {
   return readFileSync(summaryPath, 'utf8');
 };
 
+const getSummaryLineValue = (summary, label) => {
+  const line = summary.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
+
+  return line ? line.slice(label.length + 2).trim() : '';
+};
+
 export const getSentryReleaseValidationReadinessErrors = ({
   androidReleaseCreateWalletSmokeSummaryText,
   androidReleaseSmokeSummaryText,
+  requireReadyPrereqs = true,
   sentryReleasePrereqSummaryText,
   createWalletEvidenceOptions = {
     expectedApkPath: androidReleaseSignedSmokeApkPath,
@@ -125,6 +148,15 @@ export const getSentryReleaseValidationReadinessErrors = ({
     getSentryReleasePrereqSummaryErrors(sentryReleasePrereqSummaryText).forEach(error => {
       errors.push(`Sentry release prerequisite summary is invalid: ${error}`);
     });
+
+    if (
+      requireReadyPrereqs &&
+      getSummaryLineValue(sentryReleasePrereqSummaryText, 'Release source-map prerequisites') !== 'ready'
+    ) {
+      errors.push(
+        'Sentry release prerequisite summary is not ready; run with --preflight-only or provide SENTRY_AUTH_TOKEN and generated sentry.properties files before claiming release upload validation',
+      );
+    }
   }
 
   if (!androidReleaseSmokeSummaryText) {
@@ -157,6 +189,8 @@ const parseArgs = argv => {
 
     if (arg === '--dry-run') {
       options.dryRun = true;
+    } else if (arg === '--preflight-only') {
+      options.preflightOnly = true;
     } else if (arg === '--skip-android-release') {
       options.skipAndroidRelease = true;
     } else if (arg === '--help' || arg === '-h') {
@@ -224,6 +258,7 @@ const main = () => {
 
   if (options.dryRun) {
     console.log('Sentry release validation handoff dry run');
+    console.log(`Credentialed upload mode: ${options.preflightOnly ? 'preflight-only' : 'full handoff'}`);
     console.log(`Android release evidence refresh: ${options.skipAndroidRelease ? 'skipped' : 'included'}`);
     console.log('Secret values are not rendered; SENTRY_AUTH_TOKEN is only reported as a required env name.');
     commands.forEach((step, index) => {
@@ -245,6 +280,7 @@ const main = () => {
   const readinessErrors = getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readSummary(androidReleaseCreateWalletSmokeSummaryPath),
     androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
+    requireReadyPrereqs: !options.preflightOnly,
     sentryReleasePrereqSummaryText: readSummary(sentryReleasePrereqSummaryPath),
   });
 
@@ -254,7 +290,14 @@ const main = () => {
     return 1;
   }
 
-  console.log('\nSentry release validation handoff completed.');
+  if (options.preflightOnly) {
+    console.log(
+      '\nSentry release validation preflight completed. Credentialed upload remains unclaimed until SENTRY_AUTH_TOKEN and sentry.properties files are present.',
+    );
+  } else {
+    console.log('\nSentry release validation handoff completed.');
+  }
+
   return 0;
 };
 

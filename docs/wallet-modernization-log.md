@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.699 - Sentry release preflight handoff
+
+- Branch: `feature/bem-37-699-sentry-release-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry release-target evidence before attempting any source-map or dSYM upload claim.
+- Add a `--preflight-only` mode to the Sentry release validation handoff so non-secret release readiness can complete without `SENTRY_AUTH_TOKEN`.
+- Keep the full Sentry handoff strict: credentialed upload validation still requires `SENTRY_AUTH_TOKEN` plus generated `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties`.
+- Guard that preflight-only mode skips properties generation, does not render token assignments, still validates Sentry warning and RN bundle task compatibility evidence, and still checks aggregate release-services summaries.
+
+Findings:
+
+- Live npm metadata on 2026-06-16 shows `@sentry/react-native@8.14.0` and direct `@sentry/cli@3.5.1` are already current, so this branch does not change package versions.
+- Sentry Android warning evidence reports no active `execResult` warning on the RN `0.86.0` baseline.
+- Sentry RN bundle task compatibility is ready because the repo-owned legacy args shim exposes release bundle/source-map output to Sentry while RN `0.86.0` uses `jsIntermediateSourceMapsDir`.
+- Android release, manifest, release smoke, and release create-wallet evidence are fresh enough for Sentry prerequisite auditing after `BEM-37.698`.
+- Full Sentry release upload validation remains not claimed because `SENTRY_AUTH_TOKEN` and all three generated Sentry properties files are unavailable in the current shell.
+- iOS Sentry dSYM/source-map runtime validation remains unclaimed on this Windows environment until macOS/Xcode validation runs with credentials.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies engines dist-tags --json`
+- `npm view @sentry/cli version engines dist-tags --json`
+- `& $node --check scripts\runSentryReleaseValidationHandoff.mjs`
+- `& $node --check scripts\checkSentryReleaseValidationHandoffGuard.mjs`
+- `& $node $yarn check:sentry-release-validation-handoff-guard`
+- `& $node $yarn sentry:release:validation:handoff:dry-run --preflight-only --skip-android-release`
+- `& $node $yarn sentry:release:validation:handoff --preflight-only --skip-android-release`
+
 ### BEM-37.698 - Camera/QR release validation handoff
 
 - Branch: `feature/bem-37-698-camera-qr-release-validation-handoff`
