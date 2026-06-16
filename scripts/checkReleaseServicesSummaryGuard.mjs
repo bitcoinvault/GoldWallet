@@ -25,6 +25,7 @@ const requiredSnippets = [
   "import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';",
   "import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';",
   "import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';",
+  "import { getIosPodfileRefreshPlanErrors } from './iosPodfileRefreshPlanGuard.mjs';",
   "import { getIosValidationHandoffSummaryErrors } from './iosValidationHandoffSummaryGuard.mjs';",
   "import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';",
   "import { getSentryRnBundleTaskCompatibilitySummaryErrors } from './sentryRnBundleTaskCompatibilitySummaryGuard.mjs';",
@@ -65,6 +66,8 @@ const requiredSnippets = [
   "relativePath: 'local-docs/ios-release-static-readiness-summary.txt'",
   "label: 'iOS macOS validation prerequisites'",
   "relativePath: 'local-docs/ios-mac-validation-prereqs-summary.txt'",
+  "label: 'iOS Podfile refresh plan'",
+  "relativePath: 'local-docs/ios-podfile-refresh-plan.txt'",
   "label: 'iOS validation handoff'",
   "relativePath: 'local-docs/ios-validation-handoff-summary.txt'",
   'Release-services summary artifacts are invalid:',
@@ -90,6 +93,7 @@ const expectedArtifacts = [
   ['push notification bridge', 'local-docs/push-notification-bridge-summary.txt'],
   ['iOS release readiness', 'local-docs/ios-release-static-readiness-summary.txt'],
   ['iOS macOS validation prerequisites', 'local-docs/ios-mac-validation-prereqs-summary.txt'],
+  ['iOS Podfile refresh plan', 'local-docs/ios-podfile-refresh-plan.txt'],
   ['iOS validation handoff', 'local-docs/ios-validation-handoff-summary.txt'],
 ];
 const artifactErrors = [];

@@ -13,6 +13,7 @@ import { getCodePushEnvCleanupReadinessSummaryErrors } from './codePushEnvCleanu
 import { getCodePushDecisionHandoffErrors } from './codePushDecisionHandoffGuard.mjs';
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
 import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';
+import { getIosPodfileRefreshPlanErrors } from './iosPodfileRefreshPlanGuard.mjs';
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
 import { getIosValidationHandoffSummaryErrors } from './iosValidationHandoffSummaryGuard.mjs';
 import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';
@@ -107,6 +108,11 @@ export const releaseServicesSummaryArtifacts = [
     label: 'iOS macOS validation prerequisites',
     relativePath: 'local-docs/ios-mac-validation-prereqs-summary.txt',
     getErrors: getIosMacValidationPrereqSummaryErrors,
+  },
+  {
+    label: 'iOS Podfile refresh plan',
+    relativePath: 'local-docs/ios-podfile-refresh-plan.txt',
+    getErrors: getIosPodfileRefreshPlanErrors,
   },
   {
     label: 'iOS validation handoff',

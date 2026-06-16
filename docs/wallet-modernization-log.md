@@ -10,6 +10,58 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.694 - iOS Podfile refresh handoff baseline
+
+- Branch: `feature/bem-37-694-ios-podfile-refresh-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the existing `ios:podfile-refresh:plan` and `ios:podfile-refresh:check-plan` into the RN baseline preflight so active iOS pod drift is checked with the rest of the React Native baseline.
+- Add the iOS Podfile.lock refresh-plan generation and validation into the release-services validation handoff sequence.
+- Include the generated iOS Podfile.lock refresh plan in `release-services:check-summaries` so the aggregate release-services gate validates the active `ios/Podfile.lock` drift handoff, not only static iOS release/prerequisite summaries.
+
+Findings:
+
+- Static iOS release files remain valid for React Native `0.86.0`, minimum iOS `15.1`, minimum Xcode `16.1`, `8` guarded shared schemes, `4` remote-notification plists, `4` Sentry bundle/source-map phases, and `3` Sentry dSYM upload phases.
+- `ios/Podfile.lock` still has `12` active package-vs-pod drift entries and `0` removed-pod references.
+- iOS archive/runtime validation remains not claimed on this Windows host because macOS with Xcode `16.1+`, CocoaPods, and a refreshed `ios/Podfile.lock` are required.
+- Changing `package.json` invalidated the Android release input fingerprint; Android release evidence was refreshed and release smoke/create-wallet smoke passed again on `emulator-5554`.
+- The release-services aggregate now validates the iOS Podfile.lock refresh plan together with Android release, Sentry, Firebase, CodePush, push, iOS release-readiness, iOS macOS prerequisite, and iOS validation-handoff artifacts.
+
+Validation:
+
+- `node --check scripts\runReleaseServicesValidationHandoff.mjs`
+- `node --check scripts\checkReleaseServicesValidationHandoffGuard.mjs`
+- `node --check scripts\checkReleaseServicesSummaryArtifacts.mjs`
+- `node --check scripts\checkReleaseServicesSummaryGuard.mjs`
+- `node --check scripts\auditReactNativeUpgradePath.mjs`
+- `& $node $yarn check:ios-podfile-refresh-plan-guard`
+- `& $node $yarn ios:release:readiness:audit`
+- `& $node $yarn ios:release:readiness:check-summary`
+- `& $node $yarn ios:mac-validation-prereq:audit`
+- `& $node $yarn ios:mac-validation-prereq:check-summary`
+- `& $node $yarn ios:podfile-refresh:plan`
+- `& $node $yarn ios:podfile-refresh:check-plan`
+- `& $node $yarn ios:validation:handoff-summary`
+- `& $node $yarn check:ios-validation-handoff-summary-guard`
+- `& $node $yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true & $node $yarn android:dev:release:create-wallet-verify`
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:release-services-validation-handoff-guard`
+- `& $node $yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `& $node $yarn rn:upgrade-path:audit`
+- `& $node $yarn android:dev:check-light`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.693 - Sentry CLI patch refresh
 
 - Branch: `feature/bem-37-693-sentry-cli-patch`
