@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.669 - Dev tooling patch refresh
+
+- Branch: `feature/bem-37-669-dev-tooling-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the dev-tooling package family to the latest npm targets observed on 2026-06-16:
+  `@typescript-eslint/eslint-plugin` `8.61.0` -> `8.61.1`,
+  `@typescript-eslint/parser` `8.61.0` -> `8.61.1`,
+  `eslint` `10.4.1` -> `10.5.0`,
+  and `commitizen` `4.3.1` -> `4.3.2`.
+- Refresh `yarn.lock` for the TypeScript-ESLint transitive package family and the Commitizen dependency tree.
+- Update the Husky tooling audit so the repo-owned Windows-safe `.husky/pre-commit` runner is validated after `BEM-37.667`.
+- Refresh the baseline document so it records the actual pre-commit path: `.nvmrc` Node through `npx -y -p node@... -p yarn@1.22.22 yarn precommit`.
+
+Findings:
+
+- Live npm metadata reports `eslint@10.5.0`, `@typescript-eslint/eslint-plugin@8.61.1`, `@typescript-eslint/parser@8.61.1`, and `commitizen@4.3.2` as current `latest` targets.
+- The first Husky audit run rejected the new multi-line pre-commit hook because the guard compared LF-only expected text against the CRLF hook file; the guard now normalizes CRLF to LF before comparing hook contents.
+- After this branch, `direct-outdated:snapshot:audit` reports one remaining review-required entry: `axios` `1.17.0` -> `1.18.0`. Keep that as a dedicated runtime compatibility branch because it can affect API/network behavior.
+- Android dev build and emulator smoke passed with first-run setup, empty-dashboard create/import wallet CTA navigation, QR scanner open/close, and bottom-tab navigation.
+
+Validation:
+
+- `cmd /c npm.cmd view eslint version dist-tags --json`
+- `cmd /c npm.cmd view @typescript-eslint/eslint-plugin version dist-tags --json`
+- `cmd /c npm.cmd view @typescript-eslint/parser version dist-tags --json`
+- `cmd /c npm.cmd view commitizen version dist-tags --json`
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' add --dev --exact eslint@10.5.0 @typescript-eslint/eslint-plugin@8.61.1 @typescript-eslint/parser@8.61.1`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' add --exact commitizen@4.3.2`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' lint-staged:tooling:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' husky:tooling:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' prettier:tooling:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' jest:tooling:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:rn-nodeify-shims`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' typescript:check`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' lint:baseline:audit` passed as the existing baseline audit while reporting the known lint debt.
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:assemble`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:smoke:embedded`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' direct-outdated:snapshot:audit` expected remaining follow-up blocker: `axios`.
+
 ### BEM-37.668 - React Navigation patch refresh
 
 - Branch: `feature/bem-37-668-react-navigation-patch-refresh`
