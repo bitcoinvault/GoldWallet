@@ -95,6 +95,34 @@ describe('unit - SecureStorageService', function () {
     expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
   });
 
+  it('normalizes a null legacy fallback result after keychain read failure to an empty secured value', async function () {
+    mockSecureStore.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));
+    mockLegacySecureStore.get.mockResolvedValueOnce(null);
+
+    await expect(service.getSecuredValue('pin')).resolves.toBe('');
+    expect(mockLegacySecureStore.get).toHaveBeenCalledWith('pin');
+    expect(mockSecureStore.setGenericPassword).not.toHaveBeenCalled();
+    expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+    expect(mockLogger.warn).toHaveBeenCalledWith({
+      category: 'secure-storage-migration',
+      message: 'Keychain read failed; trying legacy secure-storage fallback.',
+    });
+  });
+
+  it('normalizes an undefined legacy fallback result after keychain read failure to an empty secured value', async function () {
+    mockSecureStore.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));
+    mockLegacySecureStore.get.mockResolvedValueOnce(undefined);
+
+    await expect(service.getSecuredValue('pin')).resolves.toBe('');
+    expect(mockLegacySecureStore.get).toHaveBeenCalledWith('pin');
+    expect(mockSecureStore.setGenericPassword).not.toHaveBeenCalled();
+    expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+    expect(mockLogger.warn).toHaveBeenCalledWith({
+      category: 'secure-storage-migration',
+      message: 'Keychain read failed; trying legacy secure-storage fallback.',
+    });
+  });
+
   it('returns keychain credentials without touching the legacy secure store', async function () {
     mockSecureStore.getGenericPassword.mockResolvedValueOnce({ password: '1234' });
 

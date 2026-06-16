@@ -282,6 +282,38 @@ it('Appstorage - React Native storage normalizes an undefined legacy fallback re
   expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
 });
 
+it('Appstorage - React Native storage normalizes a null legacy fallback result after keychain read failure to missing storage', async () => {
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));
+  mockLegacySecureStore.get.mockResolvedValueOnce(null);
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('data')).resolves.toBeNull();
+  expect(mockLegacySecureStore.get).toHaveBeenCalledWith('data');
+  expect(mockKeychain.setGenericPassword).not.toHaveBeenCalled();
+  expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+  expect(mockLogger.warn).toHaveBeenCalledWith({
+    category: 'secure-storage-migration',
+    message: 'Keychain wallet read failed; trying legacy secure-storage fallback.',
+  });
+});
+
+it('Appstorage - React Native storage normalizes an undefined legacy fallback result after keychain read failure to missing storage', async () => {
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));
+  mockLegacySecureStore.get.mockResolvedValueOnce(undefined);
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('data')).resolves.toBeNull();
+  expect(mockLegacySecureStore.get).toHaveBeenCalledWith('data');
+  expect(mockKeychain.setGenericPassword).not.toHaveBeenCalled();
+  expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+  expect(mockLogger.warn).toHaveBeenCalledWith({
+    category: 'secure-storage-migration',
+    message: 'Keychain wallet read failed; trying legacy secure-storage fallback.',
+  });
+});
+
 it('Appstorage - React Native storage migrates legacy value into keychain when keychain is empty', async () => {
   setReactNativeNavigator();
   mockKeychain.getGenericPassword.mockResolvedValueOnce(false);

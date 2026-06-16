@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.702 - Secure-storage keychain-failure empty fallback coverage
+
+- Branch: `feature/bem-37-702-secure-storage-keychain-failure-empty-fallback`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused secure-storage coverage for the edge case where the Keychain read fails and the legacy `react-native-secure-key-store` fallback returns `null` or `undefined`.
+- Require the secure-storage removal-readiness audit to prove both `SecureStorageService` and encrypted wallet `AppStorage` cover that keychain-failure empty-fallback path.
+- Keep runtime storage behavior, package versions, native Android/iOS files, and the staged legacy fallback backend unchanged.
+
+Findings:
+
+- `android:dev:audit-warnings` still reports exactly one targeted Android Gradle warning source: `react-native-secure-key-store/android/build.gradle:46`.
+- The legacy package remains intentionally installed because fallback reads are still active for existing PIN, transaction-password, and encrypted wallet data.
+- The added tests prove that an unavailable Keychain plus an empty legacy result preserves the missing-value contract: `SecureStorageService` returns an empty string and `AppStorage` returns `null`, without writing an empty value into Keychain or attempting legacy cleanup.
+- This branch does not change runtime storage code, Android/iOS native files, Metro, or package versions. The secure-storage release-validation summary still validates the existing Android dev smoke artifact and keeps legacy package removal unclaimed.
+
+Validation:
+
+- `& $node $yarn android:dev:audit-warnings`
+- `& $node --check scripts\auditSecureStorageRemovalReadiness.mjs`
+- `& $node --check scripts\secureStorageRemovalReadinessSummaryGuard.mjs`
+- `& $node --check scripts\checkSecureStorageRemovalReadinessSummaryGuard.mjs`
+- `& $node $yarn test:secure-storage:unit`
+- `& $node $yarn test:storage`
+- `& $node $yarn check:secure-storage-removal-readiness-summary-guard`
+- `& $node $yarn secure-storage:migration:audit`
+- `& $node $yarn secure-storage:migration:check-summary`
+- `& $node $yarn secure-storage:removal-readiness:audit`
+- `& $node $yarn secure-storage:removal-readiness:check-summary`
+- `& $node $yarn test:storage-network:focused`
+- `& $node $yarn android:dev:check-warning-audit-summary`
+- `& $node $yarn check:android-remaining-warning-plan`
+- `& $node $yarn secure-storage:release-validation:summary`
+- `& $node $yarn secure-storage:release-validation:check-summary`
+- `& $node $yarn check:secure-storage-release-validation-handoff-guard`
+- `& $node $yarn secure-storage:release-validation:handoff:dry-run --skip-android-smoke`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.701 - BigNumber 11.1.4 runtime refresh
 
 - Branch: `feature/bem-37-701-bignumber-11-1-4`

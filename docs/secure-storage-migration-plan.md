@@ -15,6 +15,7 @@ Checked on: 2026-06-16
 - Keychain is the only write target for new PIN, transaction-password, and encrypted wallet storage values.
 - Legacy fallback reads now return the legacy value even if a one-off migration write into Keychain or a post-migration legacy cleanup fails.
 - Empty legacy fallback results are normalized to the current missing-value contracts: `SecureStorageService` returns an empty string and encrypted wallet storage returns `null`.
+- Empty legacy fallback results are also covered after a Keychain read failure, so a temporary Keychain read error plus an empty legacy backend does not turn into a migrated empty value or a cleanup attempt.
 - After a legacy value is successfully written into Keychain, the app attempts to remove the migrated legacy value from `react-native-secure-key-store`.
 - Legacy fallback entry, migration success, migration-write failure, and cleanup failure are recorded through secret-safe `secure-storage-migration` breadcrumbs without logging keys or stored values.
 - Keychain-primary reads are covered by focused unit tests so existing migrated secure values do not unnecessarily touch the legacy backend.
@@ -61,6 +62,7 @@ Branch: `feature/bem-37-secure-storage-keychain-migration`
 - `corepack yarn test:storage-network:focused`, including `test:secure-storage:unit` before storage, authenticator, and wallet-core offline checks.
 - Focused fallback regression coverage for failed Keychain migration writes in `SecureStorageService` and `AppStorage`.
 - Focused empty-fallback coverage for `null` and `undefined` legacy native results in `SecureStorageService` and `AppStorage`.
+- Focused Keychain-read-failure plus empty-fallback coverage for `null` and `undefined` legacy native results in `SecureStorageService` and `AppStorage`.
 - Focused fallback instrumentation coverage for secret-safe `secure-storage-migration` breadcrumbs in `SecureStorageService` and `AppStorage`.
 - `secure-storage:removal-readiness:audit` must report both `SecureStorageService fallback migration tests present: yes` and `AppStorage fallback migration tests present: yes`; a single aggregate fallback-test line is not enough to prove encrypted wallet storage migration coverage.
 - `corepack yarn android:dev:check-light`
