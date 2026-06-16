@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.667 - Husky Node 24 precommit runner
+
+- Branch: `feature/bem-37-667-husky-node24-precommit`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make `.husky/pre-commit` run the existing `precommit` script through the Node version declared in `.nvmrc`.
+- Pin the hook runner to Yarn `1.22.22`, matching the repo's current Yarn 1 workflow, instead of depending on the global Windows Yarn shim.
+- Keep application runtime code, package versions, native files, release-service summaries, Gradle files, and Metro configuration unchanged.
+
+Findings:
+
+- Running `git commit` from this Windows checkout invoked the global Yarn shim with Node `v22.18.0`, so `check:node-runtime-version` rejected the hook even after the same `precommit` command passed manually on Node `v24.16.0`.
+- Git Bash can run `npx -y -p node@24.16.0 -p yarn@1.22.22 yarn ...`, including nested Yarn script calls, with `node` resolving to the `.nvmrc` version.
+- This branch is commit-tooling only; Android emulator smoke is not required because runtime, native, dependency, and Metro behavior are unchanged.
+
+Validation:
+
+- `C:\Program Files\Git\bin\bash.exe -lc "cd /d/GoldWallet && npx -y -p node@24.16.0 -p yarn@1.22.22 yarn check:node-runtime-version"`
+- `C:\Program Files\Git\bin\bash.exe -lc "cd /d/GoldWallet && sh -e .husky/pre-commit"`
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-light-docs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:rn-nodeify-shims`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' typescript:check`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' lint:baseline:audit` passed as the existing baseline audit while reporting the known lint debt.
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.666 - CodePush release create-wallet readiness
 
 - Branch: `feature/bem-37-666-codepush-create-wallet-readiness`
