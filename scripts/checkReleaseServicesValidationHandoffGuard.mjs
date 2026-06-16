@@ -54,6 +54,9 @@ const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesV
   'corepack yarn ios:release:readiness:check-summary',
   'corepack yarn ios:mac-validation-prereq:audit',
   'corepack yarn ios:mac-validation-prereq:check-summary',
+  'corepack yarn check:ios-podfile-refresh-plan-guard',
+  'corepack yarn ios:podfile-refresh:plan',
+  'corepack yarn ios:podfile-refresh:check-plan',
   'corepack yarn ios:validation:handoff-summary',
   'corepack yarn check:ios-validation-handoff-summary-guard',
   'corepack yarn check:ios-mac-validation-handoff-guard',
@@ -154,6 +157,26 @@ assert(
   skippedCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary')) >
     skippedCommands.findIndex(step => step.args.includes('ios:mac-validation-prereq:check-summary')),
   'iOS validation handoff summary must be refreshed after iOS release and macOS prerequisite summaries are validated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('check:ios-podfile-refresh-plan-guard')) >
+    skippedCommands.findIndex(step => step.args.includes('ios:mac-validation-prereq:check-summary')),
+  'iOS Podfile refresh plan guard must run after iOS release and macOS prerequisite summaries are validated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('ios:podfile-refresh:plan')) >
+    skippedCommands.findIndex(step => step.args.includes('check:ios-podfile-refresh-plan-guard')),
+  'iOS Podfile refresh plan must run after its guard self-check',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('ios:podfile-refresh:check-plan')) >
+    skippedCommands.findIndex(step => step.args.includes('ios:podfile-refresh:plan')),
+  'iOS Podfile refresh plan must be checked after it is generated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary')) >
+    skippedCommands.findIndex(step => step.args.includes('ios:podfile-refresh:check-plan')),
+  'iOS validation handoff summary must be refreshed after the Podfile refresh plan is validated',
 );
 assert(
   skippedCommands.findIndex(step => step.args.includes('check:ios-validation-handoff-summary-guard')) >
