@@ -60,7 +60,7 @@ export default class SecureStorageService {
         }
       }
 
-      return legacyValue;
+      return legacyValue || '';
     } catch (_) {
       return '';
     }

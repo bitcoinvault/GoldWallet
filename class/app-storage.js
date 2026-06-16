@@ -122,7 +122,7 @@ export class AppStorage {
                 });
             }
 
-            return value;
+            return value || null;
           })
           .catch(() => null);
 
