@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs
 import net from 'net';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { formatAdbFailureReason, runAdbProcessWithRetry } from './androidAdbRetry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -112,13 +113,15 @@ const fileEvidence = filePath => {
 const run = (label, args, options = {}) => {
   append(`\n> ${label}`);
   const { printOutput = true, recordOutput = true, useSelectedDevice = true, ...spawnOptions } = options;
-  const adbArgs = useSelectedDevice && selectedAndroidSerial ? ['-s', selectedAndroidSerial, ...args] : args;
-  const result = spawnSync(adbCommand, adbArgs, {
-    cwd: root,
-    encoding: 'utf8',
-    shell: adbCommand === 'adb' && process.platform === 'win32',
-    timeout: adbCommandTimeoutMs,
-    ...spawnOptions,
+  const result = runAdbProcessWithRetry({
+    adbCommand,
+    args,
+    root,
+    selectedAndroidSerial,
+    useSelectedDevice,
+    timeoutMs: adbCommandTimeoutMs,
+    spawnOptions,
+    append,
   });
 
   if (result.stdout) {
@@ -138,9 +141,7 @@ const run = (label, args, options = {}) => {
   }
 
   if (result.error || result.status !== 0) {
-    const reason = result.error?.message || `exit ${result.status}`;
-
-    throw new Error(`${label} failed: ${reason}`);
+    throw new Error(`${label} failed: ${formatAdbFailureReason(result)}`);
   }
 
   return result.stdout || '';
@@ -211,19 +212,18 @@ const tryCaptureFailureScreenshot = () => {
 
 const runBinary = (label, args, outputFile) => {
   append(`\n> ${label}`);
-  const adbArgs = selectedAndroidSerial ? ['-s', selectedAndroidSerial, ...args] : args;
-  const result = spawnSync(adbCommand, adbArgs, {
-    cwd: root,
+  const result = runAdbProcessWithRetry({
+    adbCommand,
+    args,
+    root,
+    selectedAndroidSerial,
+    timeoutMs: adbCommandTimeoutMs,
     encoding: 'buffer',
-    shell: adbCommand === 'adb' && process.platform === 'win32',
-    timeout: adbCommandTimeoutMs,
+    append,
   });
 
   if (result.error || result.status !== 0) {
-    const stderr = result.stderr ? result.stderr.toString('utf8').trim() : '';
-    const reason = result.error?.message || stderr || `exit ${result.status}`;
-
-    throw new Error(`${label} failed: ${reason}`);
+    throw new Error(`${label} failed: ${formatAdbFailureReason(result)}`);
   }
 
   if (!result.stdout || result.stdout.length === 0) {

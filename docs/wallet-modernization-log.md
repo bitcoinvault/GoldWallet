@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.684 - Android smoke ADB retry hardening
+
+- Branch: `feature/bem-37-684-adb-smoke-retry`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a shared ADB command runner for Android smoke helpers with one bounded retry for transient transport failures.
+- Restart the ADB server and refresh `adb devices` before retrying only when the failure matches daemon/connectivity symptoms.
+- Keep regular ADB command failures, app runtime errors, UI assertion failures, and logcat findings as hard smoke failures.
+- Wire an offline guard into `android:dev:check-light` so the retry contract is validated with simulated ADB daemon failures.
+
+Findings:
+
+- The previous release smoke evidence exposed a real ADB daemon timeout during a PIN-entry step; manual `adb kill-server` / `adb start-server` recovered the same validation run.
+- `androidSmokeDev.mjs` and `androidCreateWalletSmoke.mjs` duplicated direct `spawnSync(adb, ...)` handling, so the bounded retry now lives in `androidAdbRetry.mjs` and is used by both text and binary ADB calls.
+- The retry is deliberately narrow: install/version failures and other normal command errors are not retried, so smoke still catches app regressions instead of hiding them.
+
+Validation:
+
+- `& $node scripts/checkAndroidAdbRetryGuard.mjs`
+- `& $node --check scripts/androidAdbRetry.mjs`
+- `& $node --check scripts/androidSmokeDev.mjs`
+- `& $node --check scripts/androidCreateWalletSmoke.mjs`
+- `& $node $yarn check:android-adb-retry-guard`
+- `& $node $yarn android:dev:smoke:embedded`
+- `& $node $yarn android:dev:create-wallet-smoke`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `& $node $yarn android:dev:check-create-wallet-smoke-summary`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.683 - CodePush env cleanup guard wiring
 
 - Branch: `feature/bem-37-683-codepush-env-cleanup-guard`
