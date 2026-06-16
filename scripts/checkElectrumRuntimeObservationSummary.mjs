@@ -37,21 +37,37 @@ if (
   errors.push('Electrum observation reason is not the expected success reason');
 }
 
-['Android serial', 'Android package', 'Captured logcat sha256'].forEach(label => {
+['Android serial', 'Android package', 'Captured logcat sha256', 'Global logcat sha256'].forEach(label => {
   if (!getLineValue(summary, label)) {
     errors.push(`${label} is missing`);
   }
 });
 
-['App PID', 'Captured logcat line limit', 'Captured logcat lines', 'Electrum log lines', 'Electrum success lines'].forEach(
-  label => {
-    if (!isPositiveInteger(getLineValue(summary, label))) {
-      errors.push(`${label} must be a positive integer`);
-    }
-  },
-);
+[
+  'App PID',
+  'ADB max buffer bytes',
+  'Captured logcat line limit',
+  'Captured logcat lines',
+  'Global logcat line limit',
+  'Electrum log lines',
+  'Electrum success lines',
+].forEach(label => {
+  if (!isPositiveInteger(getLineValue(summary, label))) {
+    errors.push(`${label} must be a positive integer`);
+  }
+});
 
-['Electrum failure lines', 'Fatal/runtime logcat lines'].forEach(label => {
+[
+  'Global logcat lines',
+  'Process Electrum log lines',
+  'Process Electrum success lines',
+  'Process Electrum failure lines',
+  'Global Electrum log lines',
+  'Global Electrum success lines',
+  'Global Electrum failure lines',
+  'Electrum failure lines',
+  'Fatal/runtime logcat lines',
+].forEach(label => {
   if (!isNonNegativeInteger(getLineValue(summary, label))) {
     errors.push(`${label} must be a non-negative integer`);
   }

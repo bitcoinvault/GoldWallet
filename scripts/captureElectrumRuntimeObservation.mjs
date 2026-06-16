@@ -12,9 +12,11 @@ const uiOutputPath = path.join(outputDir, 'electrum-runtime-observation-ui.xml')
 const packageName = process.env.ELECTRUM_OBSERVATION_PACKAGE || 'io.goldwallet.wallet.dev';
 const requestedSerial = process.env.ANDROID_SERIAL?.trim();
 const logcatLineLimit = Number(process.env.ELECTRUM_OBSERVATION_LOGCAT_LINES || 1200);
+const globalLogcatLineLimit = Number(process.env.ELECTRUM_OBSERVATION_GLOBAL_LOGCAT_LINES || logcatLineLimit);
 const waitMs = Number(process.env.ELECTRUM_OBSERVATION_WAIT_MS || 20000);
 const appPidWaitMs = Number(process.env.ELECTRUM_OBSERVATION_PID_WAIT_MS || 60000);
 const pollIntervalMs = Number(process.env.ELECTRUM_OBSERVATION_POLL_INTERVAL_MS || 1000);
+const adbMaxBufferBytes = Number(process.env.ELECTRUM_OBSERVATION_ADB_MAX_BUFFER_BYTES || 16 * 1024 * 1024);
 const requireSuccess = process.env.ELECTRUM_OBSERVATION_REQUIRE_SUCCESS === 'true';
 
 const sdkRoots = [
@@ -36,6 +38,7 @@ const runAdb = (label, args, options = {}) => {
     encoding: 'utf8',
     shell: adbCommand === 'adb' && process.platform === 'win32',
     timeout: Number(process.env.ELECTRUM_OBSERVATION_ADB_TIMEOUT_MS || 60000),
+    maxBuffer: adbMaxBufferBytes,
   });
 
   if (!allowFailure && (result.error || result.status !== 0)) {
@@ -204,11 +207,28 @@ export const renderSummary = ({
   pid,
   logcat,
   observation,
+  globalLogcat = '',
+  globalObservation,
   uiCapture,
   uiObservation,
   generatedAt = new Date().toISOString(),
 }) => {
   const logcatSha256 = fileSha256(logcat);
+  const effectiveGlobalObservation = globalObservation || parseObservation(globalLogcat);
+  const globalLogcatSha256 = fileSha256(globalLogcat);
+  const uniqueLines = lines => [...new Set(lines)];
+  const combinedElectrumLines = uniqueLines([
+    ...observation.electrumLines,
+    ...effectiveGlobalObservation.electrumLines,
+  ]);
+  const combinedSuccessfulLines = uniqueLines([
+    ...observation.successfulLines,
+    ...effectiveGlobalObservation.successfulLines,
+  ]);
+  const combinedFailureLines = uniqueLines([
+    ...observation.failureLines,
+    ...effectiveGlobalObservation.failureLines,
+  ]);
   const uiHierarchySha256 = uiCapture.captured ? fileSha256(uiCapture.hierarchy) : '<missing>';
   const uiReady =
     uiCapture.captured &&
@@ -218,9 +238,9 @@ export const renderSummary = ({
   const outcome =
     observation.fatalLines.length > 0
       ? 'failed'
-      : observation.successfulLines.length > 0
+      : combinedSuccessfulLines.length > 0
         ? 'passed'
-        : observation.electrumLines.length > 0
+        : combinedElectrumLines.length > 0
           ? 'observed-without-success'
           : 'inconclusive';
   const reason =
@@ -229,7 +249,7 @@ export const renderSummary = ({
       : outcome === 'observed-without-success'
         ? 'Electrum log lines found but no connection success evidence'
         : outcome === 'inconclusive'
-          ? 'No Electrum log lines found in the captured process logcat'
+          ? 'No Electrum log lines found in the captured process/global logcat'
           : 'fatal/runtime logcat findings found';
 
   const summaryLines = [
@@ -240,12 +260,22 @@ export const renderSummary = ({
     `Android package: ${packageName}`,
     `App PID: ${pid}`,
     `Wait before capture ms: ${waitMs}`,
+    `ADB max buffer bytes: ${adbMaxBufferBytes}`,
     `Captured logcat line limit: ${logcatLineLimit}`,
     `Captured logcat lines: ${observation.lines.length}`,
     `Captured logcat sha256: ${logcatSha256}`,
-    `Electrum log lines: ${observation.electrumLines.length}`,
-    `Electrum success lines: ${observation.successfulLines.length}`,
-    `Electrum failure lines: ${observation.failureLines.length}`,
+    `Process Electrum log lines: ${observation.electrumLines.length}`,
+    `Process Electrum success lines: ${observation.successfulLines.length}`,
+    `Process Electrum failure lines: ${observation.failureLines.length}`,
+    `Global logcat line limit: ${globalLogcatLineLimit}`,
+    `Global logcat lines: ${effectiveGlobalObservation.lines.length}`,
+    `Global logcat sha256: ${globalLogcatSha256}`,
+    `Global Electrum log lines: ${effectiveGlobalObservation.electrumLines.length}`,
+    `Global Electrum success lines: ${effectiveGlobalObservation.successfulLines.length}`,
+    `Global Electrum failure lines: ${effectiveGlobalObservation.failureLines.length}`,
+    `Electrum log lines: ${combinedElectrumLines.length}`,
+    `Electrum success lines: ${combinedSuccessfulLines.length}`,
+    `Electrum failure lines: ${combinedFailureLines.length}`,
     `Fatal/runtime logcat lines: ${observation.fatalLines.length}`,
     'Secret values printed: no',
     `Require success: ${requireSuccess ? 'yes' : 'no'}`,
@@ -263,7 +293,7 @@ export const renderSummary = ({
     `Runtime UI markers: ${uiObservation.runtimeUiMarkers.length > 0 ? uiObservation.runtimeUiMarkers.join(', ') : '<none>'}`,
     '',
     'Electrum evidence lines:',
-    ...(observation.electrumLines.length > 0 ? observation.electrumLines : ['<none>']),
+    ...(combinedElectrumLines.length > 0 ? combinedElectrumLines : ['<none>']),
   ];
 
   return {
@@ -281,6 +311,18 @@ export const runElectrumRuntimeObservation = () => {
     throw new Error(`ELECTRUM_OBSERVATION_LOGCAT_LINES must be a positive integer. Received: ${logcatLineLimit}`);
   }
 
+  if (!Number.isInteger(globalLogcatLineLimit) || globalLogcatLineLimit <= 0) {
+    throw new Error(
+      `ELECTRUM_OBSERVATION_GLOBAL_LOGCAT_LINES must be a positive integer. Received: ${globalLogcatLineLimit}`,
+    );
+  }
+
+  if (!Number.isInteger(adbMaxBufferBytes) || adbMaxBufferBytes <= 0) {
+    throw new Error(
+      `ELECTRUM_OBSERVATION_ADB_MAX_BUFFER_BYTES must be a positive integer. Received: ${adbMaxBufferBytes}`,
+    );
+  }
+
   mkdirSync(outputDir, { recursive: true });
 
   const selectedSerial = selectDevice();
@@ -292,8 +334,21 @@ export const runElectrumRuntimeObservation = () => {
   const logcat = runAdb('read process logcat', ['logcat', '-d', '--pid', pid, '-t', String(logcatLineLimit)], {
     selectedSerial,
   }).stdout;
+  const globalLogcat = runAdb('read global logcat', ['logcat', '-d', '-t', String(globalLogcatLineLimit)], {
+    selectedSerial,
+  }).stdout;
   const observation = parseObservation(logcat);
-  const { outcome, summary } = renderSummary({ selectedSerial, pid, logcat, observation, uiCapture, uiObservation });
+  const globalObservation = parseObservation(globalLogcat);
+  const { outcome, summary } = renderSummary({
+    selectedSerial,
+    pid,
+    logcat,
+    observation,
+    globalLogcat,
+    globalObservation,
+    uiCapture,
+    uiObservation,
+  });
 
   writeFileSync(outputPath, summary);
   console.log(`Electrum runtime observation written to ${path.relative(root, outputPath)}`);
