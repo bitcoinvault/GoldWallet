@@ -6,7 +6,7 @@ const requiredSourceSnippets = [
   'permissionsAndroid.check(permission)',
   'permissionsAndroid.request(permission)',
   'requestAndroidPostNotificationsPermission()',
-  'messaging().requestPermission',
+  'requestPermission(firebaseMessaging',
   'getFcmToken()',
 ];
 
@@ -43,7 +43,7 @@ export const getAndroidNotificationPermissionFlowErrors = ({
   });
 
   const permissionRequestIndex = notificationServiceSource.indexOf('requestAndroidPostNotificationsPermission()');
-  const firebasePermissionRequestIndex = notificationServiceSource.indexOf('messaging().requestPermission');
+  const firebasePermissionRequestIndex = notificationServiceSource.indexOf('requestPermission(firebaseMessaging');
 
   if (
     permissionRequestIndex !== -1 &&

@@ -1,4 +1,4 @@
-import messaging from '@react-native-firebase/messaging';
+import { AuthorizationStatus, getMessaging, getToken, requestPermission } from '@react-native-firebase/messaging';
 import { useEffect, useCallback } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { useDispatch } from 'react-redux';
@@ -7,6 +7,7 @@ import { Dispatch } from 'redux';
 import { setFCMToken } from 'app/state/appSettings/actions';
 
 export const POST_NOTIFICATIONS_PERMISSION = 'android.permission.POST_NOTIFICATIONS';
+const firebaseMessaging = getMessaging();
 
 type AndroidNotificationPermissionOptions = {
   platformOS?: typeof Platform.OS;
@@ -39,7 +40,7 @@ const NotificationsServices = () => {
   const dispatch = useDispatch<Dispatch<any>>();
 
   const getFcmToken = useCallback(async () => {
-    const fcmToken = await messaging().getToken();
+    const fcmToken = await getToken(firebaseMessaging);
 
     if (fcmToken) {
       dispatch(setFCMToken(fcmToken));
@@ -57,10 +58,8 @@ const NotificationsServices = () => {
       return;
     }
 
-    const authStatus = await messaging().requestPermission({ sound: true, badge: true });
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    const authStatus = await requestPermission(firebaseMessaging, { sound: true, badge: true });
+    const enabled = authStatus === AuthorizationStatus.AUTHORIZED || authStatus === AuthorizationStatus.PROVISIONAL;
 
     if (enabled) {
       getFcmToken();

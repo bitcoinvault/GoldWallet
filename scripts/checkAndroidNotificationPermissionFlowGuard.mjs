@@ -9,7 +9,7 @@ const validFixture = {
     'permissionsAndroid.check(permission)',
     'permissionsAndroid.request(permission)',
     'requestAndroidPostNotificationsPermission()',
-    'messaging().requestPermission',
+    'requestPermission(firebaseMessaging',
     'getFcmToken()',
   ].join('\n'),
   androidManifestSource: '<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />',
@@ -76,8 +76,8 @@ assertRejected(
     ...validFixture,
     notificationServiceSource: validFixture.notificationServiceSource
       .replace('requestAndroidPostNotificationsPermission()', 'TEMP_MARKER')
-      .replace('messaging().requestPermission', 'requestAndroidPostNotificationsPermission()')
-      .replace('TEMP_MARKER', 'messaging().requestPermission'),
+      .replace('requestPermission(firebaseMessaging', 'requestAndroidPostNotificationsPermission()')
+      .replace('TEMP_MARKER', 'requestPermission(firebaseMessaging'),
   },
   'before Firebase Messaging permission',
 );
