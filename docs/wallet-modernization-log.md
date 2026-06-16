@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.662 - Create-wallet Electrum observation evidence
+
+- Branch: `feature/bem-37-662-electrum-create-wallet-observation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Electrum runtime observation helper with UI hierarchy evidence so a post-create-wallet run records whether the app is still on a valid runtime screen and whether the connection-issue overlay is visible.
+- Add a non-success artifact checker for the ignored `local-docs/electrum-runtime-observation.txt` output; this validates no fatal runtime logcat findings and ready app UI evidence without weakening the strict Electrum-success checker.
+- Add a combined Android script that runs embedded smoke, create-wallet smoke, Electrum observation, and the non-success artifact checker in sequence.
+- Keep wallet runtime code, package versions, native files, Gradle files, and Metro configuration unchanged.
+
+Findings:
+
+- Running the existing Electrum observation after create-wallet smoke produced `inconclusive`: the app process was alive and had no fatal runtime logcat findings, but the captured process logcat had no Electrum success lines.
+- The UI hierarchy showed the create-wallet/vault flow still active at `Add Fast Key` with `scan-public-key-code-button`, so the missing Electrum log evidence is now recorded separately from app runtime health.
+- `electrum:runtime:check-summary` remains strict and still requires real Electrum connection success evidence; this branch only adds a guard for valid non-fatal observation artifacts.
+- A confirmed Electrum network pass still requires current log evidence from the runtime or a follow-up app-side instrumentation path that exposes connection state in a testable way.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SERIAL=emulator-5554 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk ELECTRUM_OBSERVATION_WAIT_MS=30000 ELECTRUM_OBSERVATION_LOGCAT_LINES=4000 corepack yarn electrum:runtime:observe` produced `inconclusive` with no fatal/runtime logcat findings before the branch changes.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/captureElectrumRuntimeObservation.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/checkElectrumRuntimeObservationArtifact.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SERIAL=emulator-5554 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk ELECTRUM_OBSERVATION_WAIT_MS=5000 ELECTRUM_OBSERVATION_LOGCAT_LINES=4000 corepack yarn electrum:runtime:observe`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn electrum:runtime:check-artifact` passed while reporting Electrum success is not confirmed.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk ELECTRUM_OBSERVATION_WAIT_MS=20000 ELECTRUM_OBSERVATION_LOGCAT_LINES=4000 corepack yarn android:dev:create-wallet-electrum-observe` passed embedded smoke, standard wallet creation, vault public-key step, and non-fatal Electrum observation artifact validation.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-create-wallet-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed as the existing baseline audit while reporting the known lint debt.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.661 - Create-wallet smoke guard
 
 - Branch: `feature/bem-37-661-create-wallet-smoke-guard`
