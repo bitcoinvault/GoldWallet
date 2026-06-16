@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.678 - Firebase release evidence refresh
+
+- Branch: `feature/bem-37-678-firebase-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release evidence after the Firebase Messaging modular API migration changed release inputs.
+- Re-run local release validation for dev, stage, prod, and beta variants so the generated release fingerprint matches the current source/package baseline.
+- Validate the embedded devRelease APK on the Android emulator without Metro, including first-run setup, dashboard, create/import navigation, QR scanner, tab navigation, and Settings Terms WebView.
+- Validate the devRelease create-wallet smoke flow through standard wallet mnemonic backup and default 3-key vault public-key integration.
+- Refresh Firebase runtime delivery and aggregate release-services handoff summaries against the current Android release evidence.
+- Keep runtime code, package versions, native files, Gradle files, and Metro configuration unchanged in this validation-only branch.
+
+Findings:
+
+- The pre-refresh `android:dev:release:check-summary` correctly failed because the release input fingerprint no longer matched current release inputs after the Firebase Messaging modular API branch.
+- Fresh Android release validation passed for dev, stage, prod, and beta variants; APK manifest validation remained valid for all required variants.
+- Embedded devRelease smoke passed on `emulator-5554` with Metro unreachable, proving the release APK starts from bundled JS and reaches the expected wallet UI without fatal/runtime logcat findings.
+- Create-wallet release smoke passed for a standard wallet and default 3-key vault path.
+- Firebase release-services audit reports `@react-native-firebase/app` and `@react-native-firebase/messaging` current at `24.1.1`, with Android release summary present, valid, and current.
+- Runtime Firebase delivery, Crashlytics upload, and Analytics behavior remain not claimed until real FCM token/notification and credentialed release-service tests run.
+- Aggregate release-services validation remains valid; Sentry source-map upload still requires generated `sentry.properties` files from `SENTRY_AUTH_TOKEN`, and iOS runtime/archive validation remains blocked on macOS/Xcode/CocoaPods plus a refreshed `ios/Podfile.lock`.
+
+Validation:
+
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-summary` failed before refresh with stale release input fingerprint.
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-apk-manifest`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; $env:SENTRY_DISABLE_AUTO_UPLOAD='true'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:verify-local`
+- `$env:ANDROID_SERIAL='emulator-5554'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:smoke:embedded`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-smoke-summary`
+- `$env:ANDROID_SERIAL='emulator-5554'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:create-wallet-smoke:embedded`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-create-wallet-smoke-summary`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node scripts/runFirebaseRuntimeDeliveryHandoff.mjs --skip-android-release`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node scripts/runReleaseServicesValidationHandoff.mjs --skip-android-release`
+
 ### BEM-37.677 - Firebase Messaging modular API
 
 - Branch: `feature/bem-37-677-firebase-messaging-modular-api`
