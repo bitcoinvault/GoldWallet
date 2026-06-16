@@ -5,8 +5,12 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const summaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-summary.txt');
+const requestedOutputBaseName = process.env.ANDROID_CREATE_WALLET_SMOKE_OUTPUT_BASENAME || 'android-create-wallet-smoke';
+const isSafeOutputBaseName = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(requestedOutputBaseName);
+const outputBaseName = isSafeOutputBaseName ? requestedOutputBaseName : 'android-create-wallet-smoke';
+const summaryPath = path.join(root, 'local-docs', `${outputBaseName}-summary.txt`);
 const debugApkPath = path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
+const expectedApkPath = process.env.ANDROID_CREATE_WALLET_SMOKE_EXPECTED_APK || debugApkPath;
 
 const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}:`));
@@ -72,6 +76,10 @@ if (!existsSync(summaryPath)) {
 const summary = readFileSync(summaryPath, 'utf8');
 const errors = [];
 
+if (!isSafeOutputBaseName) {
+  errors.push(`ANDROID_CREATE_WALLET_SMOKE_OUTPUT_BASENAME must be a safe file basename. Received: ${requestedOutputBaseName}`);
+}
+
 if (!isIsoTimestamp(getLineValue(summary, 'Generated at'))) {
   errors.push('Generated at must be an ISO timestamp');
 }
@@ -110,7 +118,7 @@ requireFileEvidence(
     pathLabel: 'Source APK path',
     bytesLabel: 'Source APK bytes',
     shaLabel: 'Source APK sha256',
-    expectedPath: debugApkPath,
+    expectedPath: expectedApkPath,
   },
   errors,
 );
