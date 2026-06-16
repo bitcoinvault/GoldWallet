@@ -25,9 +25,7 @@ const removeDecisionCommands = getReleaseServicesValidationCommands({
 const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesValidationCommand).join('\n');
 
 [
-  'corepack yarn android:dev:release:verify-local',
-  'corepack yarn android:dev:release:smoke:embedded',
-  'corepack yarn android:dev:release:check-smoke-summary',
+  'corepack yarn android:dev:release:create-wallet-verify',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn check:sentry-properties-generator',
   'corepack yarn sentry:android-warning:audit',
@@ -66,16 +64,8 @@ const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesV
 });
 
 assert(
-  !skippedRendered.includes('android:dev:release:verify-local'),
-  'Skipped release-services handoff must omit Android release evidence refresh',
-);
-assert(
-  !skippedRendered.includes('android:dev:release:smoke:embedded'),
-  'Skipped release-services handoff must omit Android release smoke refresh',
-);
-assert(
-  !skippedRendered.includes('android:dev:release:check-smoke-summary'),
-  'Skipped release-services handoff must omit Android release smoke summary validation',
+  !skippedRendered.includes('android:dev:release:create-wallet-verify'),
+  'Skipped release-services handoff must omit Android release create-wallet evidence refresh',
 );
 assert(
   skippedRendered.includes('corepack yarn sentry:release:prereq-audit'),

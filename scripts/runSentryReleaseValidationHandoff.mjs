@@ -3,12 +3,15 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
+import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
+const androidReleaseSignedSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 const sentryReleasePrereqSummaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary.txt');
 
 const defaultOptions = {
@@ -62,13 +65,11 @@ export const getSentryReleaseValidationCommands = (options = defaultOptions) => 
 
   if (!options.skipAndroidRelease) {
     steps.push(
-      yarnStep('Refresh Android release APK evidence without upload', 'android:dev:release:verify-local', {
+      yarnStep('Refresh Android release create-wallet evidence without upload', 'android:dev:release:create-wallet-verify', {
         env: {
           SENTRY_DISABLE_AUTO_UPLOAD: 'true',
         },
       }),
-      yarnStep('Run Android release APK embedded smoke', 'android:dev:release:smoke:embedded'),
-      yarnStep('Validate Android release smoke summary', 'android:dev:release:check-smoke-summary'),
     );
   }
 
@@ -107,8 +108,13 @@ const readSummary = summaryPath => {
 };
 
 export const getSentryReleaseValidationReadinessErrors = ({
+  androidReleaseCreateWalletSmokeSummaryText,
   androidReleaseSmokeSummaryText,
   sentryReleasePrereqSummaryText,
+  createWalletEvidenceOptions = {
+    expectedApkPath: androidReleaseSignedSmokeApkPath,
+    expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+  },
   smokeEvidenceOptions = getAndroidReleaseSmokeEvidenceOptions(root),
 }) => {
   const errors = [];
@@ -123,12 +129,22 @@ export const getSentryReleaseValidationReadinessErrors = ({
 
   if (!androidReleaseSmokeSummaryText) {
     errors.push('Android release smoke summary is missing; run android:dev:release:smoke:embedded first');
-    return errors;
+  } else {
+    const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, smokeEvidenceOptions);
+
+    smokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
   }
 
-  const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, smokeEvidenceOptions);
+  if (!androidReleaseCreateWalletSmokeSummaryText) {
+    errors.push('Android release create-wallet smoke summary is missing; run android:dev:release:create-wallet-smoke:embedded first');
+  } else {
+    const createWalletErrors = getAndroidCreateWalletSmokeSummaryErrors(
+      androidReleaseCreateWalletSmokeSummaryText,
+      createWalletEvidenceOptions,
+    );
 
-  smokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
+    createWalletErrors.forEach(error => errors.push(`Android release create-wallet smoke summary is invalid: ${error}`));
+  }
 
   return errors;
 };
@@ -227,6 +243,7 @@ const main = () => {
   }
 
   const readinessErrors = getSentryReleaseValidationReadinessErrors({
+    androidReleaseCreateWalletSmokeSummaryText: readSummary(androidReleaseCreateWalletSmokeSummaryPath),
     androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
     sentryReleasePrereqSummaryText: readSummary(sentryReleasePrereqSummaryPath),
   });

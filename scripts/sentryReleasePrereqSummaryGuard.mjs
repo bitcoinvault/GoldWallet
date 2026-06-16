@@ -62,6 +62,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseSmokeSummaryValid = getLineValue(summary, 'Android release smoke summary valid');
   const androidReleaseSmokeSummaryErrors = getLineValue(summary, 'Android release smoke summary errors');
   const sentryReleaseSmokeEvidenceReady = getLineValue(summary, 'Sentry release smoke evidence ready');
+  const androidReleaseCreateWalletSmokeSummaryPresent = getLineValue(summary, 'Android release create-wallet smoke summary present');
+  const androidReleaseCreateWalletSmokeSummaryValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
+  const androidReleaseCreateWalletSmokeSummaryErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
+  const sentryReleaseCreateWalletEvidenceReady = getLineValue(summary, 'Sentry release create-wallet evidence ready');
   const sentryReleaseUploadValidation = getLineValue(summary, 'Sentry release upload validation');
   const createScriptPresent = getLineValue(summary, 'create-sentry-properties.sh present');
   const createScriptUsesToken = getLineValue(summary, 'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN');
@@ -93,6 +97,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseSummaryErrorLines = getBulletLinesAfter(summary, 'Android release summary errors');
   const androidReleaseApkManifestErrorLines = getBulletLinesAfter(summary, 'Android release APK manifest errors');
   const androidReleaseSmokeSummaryErrorLines = getBulletLinesAfter(summary, 'Android release smoke summary errors');
+  const androidReleaseCreateWalletSmokeSummaryErrorLines = getBulletLinesAfter(
+    summary,
+    'Android release create-wallet smoke summary errors',
+  );
 
   if (/(auth\.token|SENTRY_AUTH_TOKEN)\s*=/.test(summary)) {
     errors.push('summary must not print Sentry token assignments');
@@ -313,6 +321,30 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Sentry release smoke evidence must be ready before source-map release validation is useful');
   }
 
+  if (!/^\d+$/.test(androidReleaseCreateWalletSmokeSummaryErrors)) {
+    errors.push(
+      `Android release create-wallet smoke summary errors must be a non-negative integer. Received: ${
+        androidReleaseCreateWalletSmokeSummaryErrors || 'missing'
+      }`,
+    );
+  } else if (Number(androidReleaseCreateWalletSmokeSummaryErrors) !== androidReleaseCreateWalletSmokeSummaryErrorLines.length) {
+    errors.push(
+      `Android release create-wallet smoke summary errors count is ${androidReleaseCreateWalletSmokeSummaryErrors}, but listed ${androidReleaseCreateWalletSmokeSummaryErrorLines.length}`,
+    );
+  }
+
+  if (androidReleaseCreateWalletSmokeSummaryPresent !== 'yes') {
+    errors.push('Android release create-wallet smoke summary must be present for Sentry release validation');
+  }
+
+  if (androidReleaseCreateWalletSmokeSummaryValid !== 'yes' || androidReleaseCreateWalletSmokeSummaryErrors !== '0') {
+    errors.push('Sentry release prerequisites require a valid Android release create-wallet smoke summary');
+  }
+
+  if (sentryReleaseCreateWalletEvidenceReady !== 'yes') {
+    errors.push('Sentry release create-wallet evidence must be ready before source-map release validation is useful');
+  }
+
   if (sentryReleaseUploadValidation !== 'not claimed') {
     errors.push(`Sentry release upload validation must be not claimed. Received: ${sentryReleaseUploadValidation || 'missing'}`);
   }
@@ -326,6 +358,9 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseSmokeSummaryPresent,
     androidReleaseSmokeSummaryValid,
     sentryReleaseSmokeEvidenceReady,
+    androidReleaseCreateWalletSmokeSummaryPresent,
+    androidReleaseCreateWalletSmokeSummaryValid,
+    sentryReleaseCreateWalletEvidenceReady,
     sentryReactNativeCurrent,
     sentryCliCurrent,
     sentryCliDirectPackageInstalled,
@@ -416,9 +451,12 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       androidReleaseApkManifestValid !== 'yes' ||
       androidReleaseSmokeSummaryPresent !== 'yes' ||
       androidReleaseSmokeSummaryValid !== 'yes' ||
-      sentryReleaseSmokeEvidenceReady !== 'yes')
+      sentryReleaseSmokeEvidenceReady !== 'yes' ||
+      androidReleaseCreateWalletSmokeSummaryPresent !== 'yes' ||
+      androidReleaseCreateWalletSmokeSummaryValid !== 'yes' ||
+      sentryReleaseCreateWalletEvidenceReady !== 'yes')
   ) {
-    errors.push('Ready summary must have wired Sentry release integration, direct Sentry CLI release build path, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, current Android release evidence with valid APK manifests, and ready Android release smoke evidence');
+    errors.push('Ready summary must have wired Sentry release integration, direct Sentry CLI release build path, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, current Android release evidence with valid APK manifests, ready Android release smoke evidence, and ready Android release create-wallet evidence');
   }
 
   if (
