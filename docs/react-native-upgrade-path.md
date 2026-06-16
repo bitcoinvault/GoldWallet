@@ -38,7 +38,7 @@ Current Android template/toolchain baseline compiles and targets SDK 36 on AGP 8
 - Keep target SDK changes tied to the React Native/toolchain path that owns Android template and debug receiver behavior.
 - Run emulator smoke for every runtime, dependency, native, or Metro-affecting branch.
 - Re-check the latest stable React Native release during the actual RN baseline branch instead of hardcoding it in this document.
-- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.86.x` line. As of the 2026-06-12 live probe, npm `latest` is `0.86.0`; `0.86.0-rc.3` remains a prerelease planning signal and `0.87.0-nightly-20260608-2ff3b81dc` remains a nightly signal rather than the default wallet upgrade target.
+- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.86.x` line. As of the 2026-06-16 live probe, npm `latest` is `0.86.0`; `0.86.0-rc.3` remains a prerelease planning signal and `0.87.0-nightly-20260608-2ff3b81dc` remains a nightly signal rather than the default wallet upgrade target.
 
 ## Required Work Before The Next RN Step
 
@@ -74,13 +74,19 @@ Before changing a React Native baseline, run the broader preflight so the curren
 corepack yarn rn:baseline:preflight
 ```
 
+When network access is available for target discovery without a full offline preflight, refresh the live foundation target summaries with:
+
+```powershell
+corepack yarn foundation:target:refresh-online
+```
+
 When network access is available at the start of an actual RN baseline branch, use the online variant first so the live npm target snapshot is refreshed and validated before the offline preflight runs:
 
 ```powershell
 corepack yarn rn:baseline:preflight:online
 ```
 
-The online preflight refreshes the live foundation target summaries and then runs:
+The online preflight runs `foundation:target:refresh-online` and then the normal offline baseline gate. The foundation refresh ends by running:
 
 ```powershell
 corepack yarn foundation:target:check-summaries

@@ -1,4 +1,5 @@
 import {
+  expectedFoundationTargetOnlineRefresh,
   expectedReactNativeBaselinePreflight,
   expectedReactNativeOnlinePreflight,
   expectedReactNativeUpgradePathBaseline,
@@ -51,6 +52,7 @@ const validEnvironment = {
     'direct-outdated:snapshot:audit': 'node scripts/auditDirectOutdatedSnapshot.mjs',
     'direct-outdated:snapshot:check-summary': 'node scripts/checkDirectOutdatedSnapshotSummary.mjs',
     'check:direct-outdated-snapshot-summary-guard': 'node scripts/checkDirectOutdatedSnapshotSummaryGuard.mjs',
+    'foundation:target:refresh-online': expectedFoundationTargetOnlineRefresh,
     'foundation:target:check-summaries': 'node scripts/checkFoundationTargetSummaryArtifacts.mjs',
     'check:foundation-target-summary-guard': 'node scripts/checkFoundationTargetSummaryGuard.mjs',
     'rn:baseline:preflight': expectedReactNativeBaselinePreflight,
@@ -108,6 +110,14 @@ assertRejected(
   'Wrong Gradle wrapper fixture',
   { ...validEnvironment, gradleWrapperProperties: 'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-all.zip' },
   'Gradle wrapper 8.13',
+);
+assertRejected(
+  'Missing foundation target online refresh package script fixture',
+  {
+    ...validEnvironment,
+    scripts: { ...validEnvironment.scripts, 'foundation:target:refresh-online': 'yarn rn:target-snapshot:current' },
+  },
+  'foundation:target:refresh-online',
 );
 assertRejected(
   'Missing RN baseline preflight package script fixture',

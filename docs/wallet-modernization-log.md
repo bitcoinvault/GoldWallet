@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.674 - Foundation online refresh wrapper
+
+- Branch: `feature/bem-37-674-foundation-online-refresh-script`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `foundation:target:refresh-online` as a smaller online evidence refresh gate for React Native and foundation target discovery.
+- Refactor `rn:baseline:preflight:online` so it runs `foundation:target:refresh-online` first, then the normal offline baseline preflight.
+- Guard the exact wrapper command through the React Native upgrade path and foundation target summary guard scripts.
+- Update the modernization workflow, dependency strategy, RN target snapshot, RN upgrade path, and baseline docs so future branches can refresh live target evidence without running the full offline preflight every time.
+
+Findings:
+
+- The online refresh wrapper passed end-to-end on Node `24.16.0` and refreshed the live RN target, direct outdated, git dependency, wallet/crypto, storage/network, tooling, Android toolchain, BL, and node-fetch target summaries.
+- The live RN target check still matches the recorded snapshot: npm `latest` is `react-native@0.86.0`, `next` is `0.86.0-rc.3`, nightly is `0.87.0-nightly-20260608-2ff3b81dc`, React peer is `^19.2.3`, and Node engine is `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- Direct outdated has no review-required entries; git dependency forks remain current; wallet/crypto, storage/network, and tooling target summaries remain current with the BTCV `bitcoinjs-lib` fork intentionally pinned.
+- Android toolchain latest remains blocked beyond the validated AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20` baseline because AGP `9.2.1` needs Gradle `9.4.1+`, while Gradle 9 embedded Kotlin metadata is still incompatible with the current RN Gradle plugin `0.86` `compileKotlin` path.
+- BL `7.0.3` remains blocked by ESM/export-map compatibility for current CommonJS consumers, so the repo keeps the validated `bl@6.1.6` resolution.
+- No runtime, native, dependency, Metro, Android, or iOS project behavior changed in this branch; emulator smoke was not required for this tooling/docs-only milestone.
+
+Validation:
+
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node --check scripts/auditReactNativeUpgradePath.mjs`
+- `& $node --check scripts/checkReactNativeUpgradePathGuard.mjs`
+- `& $node --check scripts/checkFoundationTargetSummaryGuard.mjs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:rn-upgrade-path-audit-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:foundation-target-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' rn:upgrade-path:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' foundation:target:refresh-online`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-light-docs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:rn-nodeify-shims`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' typescript:check`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' lint:baseline:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.673 - Sentry release readiness refresh
 
 - Branch: `feature/bem-37-673-sentry-release-readiness-refresh`
