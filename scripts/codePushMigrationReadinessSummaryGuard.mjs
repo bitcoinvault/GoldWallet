@@ -18,6 +18,8 @@ const yesNoLabels = [
   'CodePush release build evidence ready',
   'Android release smoke summary valid',
   'CodePush release smoke evidence ready',
+  'Android release create-wallet smoke summary valid',
+  'CodePush release create-wallet evidence ready',
   'Beta CodePush strategy confirmed',
   'Secret values printed',
 ];
@@ -50,6 +52,9 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
   const androidReleaseSmokeSummaryValid = getLineValue(summary, 'Android release smoke summary valid');
   const androidReleaseSmokeSummaryErrors = getLineValue(summary, 'Android release smoke summary errors');
   const releaseSmokeEvidenceReady = getLineValue(summary, 'CodePush release smoke evidence ready');
+  const androidReleaseCreateWalletSmokeSummaryValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
+  const androidReleaseCreateWalletSmokeSummaryErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
+  const releaseCreateWalletEvidenceReady = getLineValue(summary, 'CodePush release create-wallet evidence ready');
   const readyEnvironmentCount = getLineValue(summary, 'Ready CodePush environments');
   const blockedEnvironmentCount = getLineValue(summary, 'Blocked CodePush environments');
   const unconfirmedEnvironmentCount = getLineValue(summary, 'Unconfirmed CodePush environments');
@@ -156,6 +161,14 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
 
   if (releaseSmokeEvidenceReady !== 'yes') {
     errors.push('CodePush release smoke evidence must be ready before migration readiness is useful');
+  }
+
+  if (androidReleaseCreateWalletSmokeSummaryValid !== 'yes' || androidReleaseCreateWalletSmokeSummaryErrors !== '0') {
+    errors.push('CodePush migration readiness requires a valid Android release create-wallet smoke summary');
+  }
+
+  if (releaseCreateWalletEvidenceReady !== 'yes') {
+    errors.push('CodePush release create-wallet evidence must be ready before migration readiness is useful');
   }
 
   [

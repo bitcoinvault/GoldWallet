@@ -7,12 +7,14 @@ import {
 } from './codePushUsageGuard.mjs';
 import { codePushEnvFiles, codePushIosInfoPlists, collectCodePushReleasePathAudit } from './auditCodePushReleasePath.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { getCodePushDecisionHandoffErrors } from './codePushDecisionHandoffGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'codepush-removal-readiness-summary.txt');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
 const decisionHandoffPath = path.join(root, 'local-docs', 'codepush-decision-handoff.txt');
 const signedReleaseApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 const unsignedReleaseApkPath = path.join(
@@ -62,6 +64,8 @@ export const collectCodePushRemovalReadinessAudit = () => {
   const decisionHandoff = collectDecisionHandoff();
   let androidReleaseSmokeSummaryValid = false;
   let androidReleaseSmokeSummaryErrors = ['missing Android release smoke summary'];
+  let androidReleaseCreateWalletSmokeSummaryValid = false;
+  let androidReleaseCreateWalletSmokeSummaryErrors = ['missing Android release create-wallet smoke summary'];
   const packageInstalled = Boolean(packageJson.dependencies?.['react-native-code-push'] || packageJson.devDependencies?.['react-native-code-push']);
   const envFilesCarryingCodePushKeys = codePushEnvFiles.filter(relativePath => {
     if (!existsSync(path.join(root, relativePath))) {
@@ -86,6 +90,17 @@ export const collectCodePushRemovalReadinessAudit = () => {
     androidReleaseSmokeSummaryValid = androidReleaseSmokeSummaryErrors.length === 0;
   }
 
+  if (existsSync(androidReleaseCreateWalletSmokeSummaryPath)) {
+    androidReleaseCreateWalletSmokeSummaryErrors = getAndroidCreateWalletSmokeSummaryErrors(
+      readFileSync(androidReleaseCreateWalletSmokeSummaryPath, 'utf8'),
+      {
+        expectedApkPath: signedReleaseApkPath,
+        expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+      },
+    );
+    androidReleaseCreateWalletSmokeSummaryValid = androidReleaseCreateWalletSmokeSummaryErrors.length === 0;
+  }
+
   const removalDecisionAvailable = decisionHandoff.valid && decisionHandoff.decision === 'remove';
   const replacementDecisionAvailable = decisionHandoff.valid && decisionHandoff.decision === 'replace';
   const safeToRemoveNow =
@@ -93,6 +108,7 @@ export const collectCodePushRemovalReadinessAudit = () => {
     removalDecisionAvailable &&
     releasePathAudit.releaseBuildEvidenceReady &&
     androidReleaseSmokeSummaryValid &&
+    androidReleaseCreateWalletSmokeSummaryValid &&
     releasePathAudit.migrationRequired &&
     releasePathAudit.runtimeGatePresent &&
     releasePathAudit.nativeBundleGatePresent;
@@ -112,6 +128,9 @@ export const collectCodePushRemovalReadinessAudit = () => {
     androidReleaseSmokeSummaryValid,
     androidReleaseSmokeSummaryErrors,
     releaseSmokeEvidenceReady: androidReleaseSmokeSummaryValid,
+    androidReleaseCreateWalletSmokeSummaryValid,
+    androidReleaseCreateWalletSmokeSummaryErrors,
+    releaseCreateWalletEvidenceReady: androidReleaseCreateWalletSmokeSummaryValid,
     runtimeUsageFiles: [...expectedCodePushRuntimeUsageFiles],
     nativeIntegrationFiles: [...expectedCodePushNativeUsageFiles],
     envFilesCarryingCodePushKeys,
@@ -153,6 +172,10 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
     `Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`,
     ...audit.androidReleaseSmokeSummaryErrors.map(error => `- ${error}`),
     `CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`,
+    `Android release create-wallet smoke summary valid: ${audit.androidReleaseCreateWalletSmokeSummaryValid ? 'yes' : 'no'}`,
+    `Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`,
+    ...audit.androidReleaseCreateWalletSmokeSummaryErrors.map(error => `- ${error}`),
+    `CodePush release create-wallet evidence ready: ${audit.releaseCreateWalletEvidenceReady ? 'yes' : 'no'}`,
     `Runtime usage files: ${audit.runtimeUsageFiles.length}`,
     ...audit.runtimeUsageFiles.map(filePath => `- ${filePath}`),
     `Native integration files: ${audit.nativeIntegrationFiles.length}`,
@@ -197,6 +220,7 @@ const printReport = audit => {
   console.log(`CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`);
   console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
   console.log(`CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`CodePush release create-wallet evidence ready: ${audit.releaseCreateWalletEvidenceReady ? 'yes' : 'no'}`);
   console.log(`Runtime usage files: ${audit.runtimeUsageFiles.length}`);
   console.log(`Native integration files: ${audit.nativeIntegrationFiles.length}`);
   console.log(`Env files carrying CodePush keys: ${audit.envFilesCarryingCodePushKeys.length}`);

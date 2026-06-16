@@ -33,6 +33,8 @@ const yesNoLabels = [
   'CodePush release build evidence ready',
   'Android release smoke summary valid',
   'CodePush release smoke evidence ready',
+  'Android release create-wallet smoke summary valid',
+  'CodePush release create-wallet evidence ready',
   'Android native integration present',
   'iOS native integration present',
   'CodePush runtime gated off by default',
@@ -63,6 +65,9 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
   const androidReleaseSmokeSummaryValid = getLineValue(summary, 'Android release smoke summary valid');
   const androidReleaseSmokeSummaryErrors = getLineValue(summary, 'Android release smoke summary errors');
   const releaseSmokeEvidenceReady = getLineValue(summary, 'CodePush release smoke evidence ready');
+  const androidReleaseCreateWalletSmokeSummaryValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
+  const androidReleaseCreateWalletSmokeSummaryErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
+  const releaseCreateWalletEvidenceReady = getLineValue(summary, 'CodePush release create-wallet evidence ready');
   const runtimeUsageCount = getLineValue(summary, 'Runtime usage files');
   const nativeIntegrationCount = getLineValue(summary, 'Native integration files');
   const envFileCount = getLineValue(summary, 'Env files carrying CodePush keys');
@@ -146,6 +151,16 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
 
   if (releaseSmokeEvidenceReady !== 'yes') {
     errors.push(`CodePush release smoke evidence must be ready before removal planning. Received: ${releaseSmokeEvidenceReady || 'missing'}`);
+  }
+
+  if (androidReleaseCreateWalletSmokeSummaryValid !== 'yes' || androidReleaseCreateWalletSmokeSummaryErrors !== '0') {
+    errors.push('CodePush removal planning requires a valid Android release create-wallet smoke summary');
+  }
+
+  if (releaseCreateWalletEvidenceReady !== 'yes') {
+    errors.push(
+      `CodePush release create-wallet evidence must be ready before removal planning. Received: ${releaseCreateWalletEvidenceReady || 'missing'}`,
+    );
   }
 
   [
