@@ -7,11 +7,18 @@ import { fileURLToPath } from 'url';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8').trim();
+const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8').replace(/\r\n/g, '\n').trim();
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const expectedVersion = '9.1.7';
+const expectedPreCommit = [
+  '#!/usr/bin/env sh',
+  'set -e',
+  '',
+  'node_version="$(tr -d \'\\r\\n\' < .nvmrc)"',
+  'npx -y -p "node@$node_version" -p yarn@1.22.22 yarn precommit',
+].join('\n');
 const expectedHooks = {
-  '.husky/pre-commit': 'yarn precommit',
+  '.husky/pre-commit': expectedPreCommit,
   '.husky/pre-push': 'yarn prepush',
 };
 const errors = [];
