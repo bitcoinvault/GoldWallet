@@ -1,9 +1,12 @@
 jest.mock('@react-native-firebase/messaging', () => ({
   __esModule: true,
-  default: jest.fn(() => ({
-    getToken: jest.fn(),
-    requestPermission: jest.fn(),
-  })),
+  AuthorizationStatus: {
+    AUTHORIZED: 1,
+    PROVISIONAL: 2,
+  },
+  getMessaging: jest.fn(() => ({})),
+  getToken: jest.fn(),
+  requestPermission: jest.fn(),
 }));
 jest.mock('react-redux', () => ({
   useDispatch: jest.fn(() => jest.fn()),

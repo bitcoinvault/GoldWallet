@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.677 - Firebase Messaging modular API
+
+- Branch: `feature/bem-37-677-firebase-messaging-modular-api`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Migrate notification runtime usage from deprecated namespaced Firebase Messaging calls to the `@react-native-firebase/messaging` modular API.
+- Replace `messaging().getToken()`, `messaging().requestPermission()`, `messaging().setBackgroundMessageHandler()`, `messaging().onMessage()`, `messaging().getInitialNotification()`, `messaging().onNotificationOpenedApp()`, and `messaging.AuthorizationStatus` with modular calls around one `getMessaging()` instance per module.
+- Update the Android notification permission guard so it still verifies `POST_NOTIFICATIONS` is requested before Firebase Messaging permission while accepting the modular `requestPermission(firebaseMessaging, ...)` call.
+- Add `check:firebase-messaging-modular-usage-guard` and `check:firebase-messaging-modular-usage` so future notification changes cannot reintroduce deprecated `messaging()` calls.
+- Promote the modular API guard into `android:dev:check-light` and refresh the README, Android modernization workflow, and baseline docs.
+- Keep Firebase package versions unchanged; npm reports `@react-native-firebase/app` and `@react-native-firebase/messaging` current at `24.1.1`.
+
+Findings:
+
+- Android emulator logcat on the previous branch showed RN Firebase deprecation warnings for namespaced `getApp()`, `requestPermission`, `getToken`, `onMessage`, and `setBackgroundMessageHandler` usage.
+- After the modular API migration, Android dev embedded smoke passed and a targeted emulator logcat check found no RN Firebase namespaced Messaging deprecation warnings in the recent runtime log.
+- Push delivery, FCM server delivery, and production notification receipt remain not claimed by this local smoke; this branch validates app startup, permission/token/listener wiring, and removal of the local deprecation warnings.
+
+Validation:
+
+- `npm view @react-native-firebase/app version peerDependencies --json`
+- `npm view @react-native-firebase/messaging version peerDependencies --json`
+- `node --check scripts/firebaseMessagingModularUsageGuard.mjs`
+- `node --check scripts/checkFirebaseMessagingModularUsageGuard.mjs`
+- `node --check scripts/checkFirebaseMessagingModularUsage.mjs`
+- `& $node node_modules/jest/bin/jest.js tests/unit/NotificationServices.test.tsx --forceExit --runInBand`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:firebase-messaging-modular-usage-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:firebase-messaging-modular-usage`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:android-notification-permission-flow-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:android-notification-permission-flow`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-light`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' test:unit --runInBand` passed with the existing async BlueElectrum post-test console logs.
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' test:storage-network:focused`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:assemble` produced `BUILD SUCCESSFUL`.
+- `$env:ANDROID_SERIAL='emulator-5554'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:smoke:embedded`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-smoke-summary`
+- Targeted emulator logcat grep for RN Firebase namespaced Messaging deprecation warnings returned no matches.
+
 ### BEM-37.676 - Electrum observation parser guard
 
 - Branch: `feature/bem-37-676-electrum-observation-parser-guard`

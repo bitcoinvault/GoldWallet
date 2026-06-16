@@ -1,6 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import messaging from '@react-native-firebase/messaging';
+import {
+  getInitialNotification,
+  getMessaging,
+  onMessage,
+  onNotificationOpenedApp,
+  setBackgroundMessageHandler,
+} from '@react-native-firebase/messaging';
 import { NavigationContainer } from '@react-navigation/native';
 import JailMonkey from 'jail-monkey';
 import React from 'react';
@@ -48,6 +54,8 @@ import { loadWallets, LoadWalletsAction } from 'app/state/wallets/actions';
 import { isAndroid, isIos } from 'app/styles';
 
 const i18n = require('../../loc');
+
+const firebaseMessaging = getMessaging();
 
 interface MapStateToProps {
   isPinSet: boolean;
@@ -134,7 +142,7 @@ class Navigator extends React.Component<Props, State> {
   }
 
   handleNotification = () => {
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
+    setBackgroundMessageHandler(firebaseMessaging, async remoteMessage => {
       PushNotificationIOS.setApplicationIconBadgeNumber(this.props.badge + 1);
       this.props.countBadge(this.props.badge + 1);
       if (remoteMessage.data) {
@@ -142,7 +150,7 @@ class Navigator extends React.Component<Props, State> {
       }
     });
 
-    messaging().onMessage(async remoteMessage => {
+    onMessage(firebaseMessaging, async remoteMessage => {
       this.props.loadWallets();
       if (remoteMessage.messageId) {
         this.props.loadWallets();
@@ -161,24 +169,22 @@ class Navigator extends React.Component<Props, State> {
 
   async componentDidUpdate(prevProps: Props) {
     if (prevProps.isAuthenticated !== this.props.isAuthenticated) {
-      messaging()
-        .getInitialNotification()
-        .then(async remoteMessage => {
-          if (remoteMessage) {
-            if (remoteMessage.messageId) {
-              this.props.loadWallets();
-              if (isIos()) {
-                setTimeout(() => {
-                  this.handleClickToast(normalizeNotificationDataValue(remoteMessage.data?.tx));
-                }, 1000);
-              } else {
+      getInitialNotification(firebaseMessaging).then(async remoteMessage => {
+        if (remoteMessage) {
+          if (remoteMessage.messageId) {
+            this.props.loadWallets();
+            if (isIos()) {
+              setTimeout(() => {
                 this.handleClickToast(normalizeNotificationDataValue(remoteMessage.data?.tx));
-              }
+              }, 1000);
+            } else {
+              this.handleClickToast(normalizeNotificationDataValue(remoteMessage.data?.tx));
             }
           }
-        });
+        }
+      });
 
-      messaging().onNotificationOpenedApp(remoteMessage => {
+      onNotificationOpenedApp(firebaseMessaging, remoteMessage => {
         if (remoteMessage.data) {
           this.handleClickToast(normalizeNotificationDataValue(remoteMessage.data?.tx));
         }
