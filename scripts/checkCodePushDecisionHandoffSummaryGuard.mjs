@@ -16,6 +16,7 @@ const validSummary = [
   'CodePush runtime gated off by default: yes',
   'CodePush release build evidence ready: yes',
   'CodePush release smoke evidence ready: yes',
+  'CodePush release create-wallet evidence ready: yes',
   'iOS runtime validation: not claimed on this Windows host; run macOS/Xcode/CocoaPods validation before claiming iOS delivery.',
   'Release path summary errors: 0',
   'Migration readiness summary errors: 0',
@@ -102,6 +103,11 @@ assertRejected(
   'Claimed OTA fixture',
   validSummary.replace('CodePush update validation: not claimed', 'CodePush update validation: passed'),
   'not claimed',
+);
+assertRejected(
+  'Missing release create-wallet evidence fixture',
+  validSummary.replace('CodePush release create-wallet evidence ready: yes', 'CodePush release create-wallet evidence ready: no'),
+  'release create-wallet evidence',
 );
 assertRejected(
   'Secret assignment fixture',

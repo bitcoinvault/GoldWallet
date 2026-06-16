@@ -138,6 +138,7 @@ const formatSummary = ({ evidence, options, generatedAt = new Date().toISOString
   const removalReadinessSummaryValid = evidence.removalReadinessErrors.length === 0;
   const releaseBuildEvidenceReady = getLineValue(evidence.migrationReadinessSummary, 'CodePush release build evidence ready') || 'no';
   const releaseSmokeEvidenceReady = getLineValue(evidence.migrationReadinessSummary, 'CodePush release smoke evidence ready') || 'no';
+  const releaseCreateWalletEvidenceReady = getLineValue(evidence.migrationReadinessSummary, 'CodePush release create-wallet evidence ready') || 'no';
   const migrationRequired = getLineValue(evidence.migrationReadinessSummary, 'CodePush migration required') || 'no';
   const codePushRemoved = getLineValue(evidence.migrationReadinessSummary, 'CodePush removed') || 'no';
   const updateValidation = getLineValue(evidence.migrationReadinessSummary, 'CodePush update validation') || 'not claimed';
@@ -150,7 +151,8 @@ const formatSummary = ({ evidence, options, generatedAt = new Date().toISOString
     migrationReadinessSummaryValid &&
     removalReadinessSummaryValid &&
     releaseBuildEvidenceReady === 'yes' &&
-    releaseSmokeEvidenceReady === 'yes'
+    releaseSmokeEvidenceReady === 'yes' &&
+    releaseCreateWalletEvidenceReady === 'yes'
       ? 'yes'
       : 'no';
   const requiredAction =
@@ -178,6 +180,7 @@ const formatSummary = ({ evidence, options, generatedAt = new Date().toISOString
     `CodePush runtime gated off by default: ${runtimeGatedOff}`,
     `CodePush release build evidence ready: ${releaseBuildEvidenceReady}`,
     `CodePush release smoke evidence ready: ${releaseSmokeEvidenceReady}`,
+    `CodePush release create-wallet evidence ready: ${releaseCreateWalletEvidenceReady}`,
     'iOS runtime validation: not claimed on this Windows host; run macOS/Xcode/CocoaPods validation before claiming iOS delivery.',
     `Release path summary errors: ${evidence.releasePathErrors.length}`,
     ...evidence.releasePathErrors.map(error => `- ${error}`),

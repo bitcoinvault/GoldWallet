@@ -10,6 +10,58 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.666 - CodePush release create-wallet readiness
+
+- Branch: `feature/bem-37-666-codepush-create-wallet-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make CodePush migration-readiness and removal-readiness summaries require `local-docs/android-create-wallet-smoke-dev-release-summary.txt` in addition to release build and release-smoke evidence.
+- Make the CodePush decision handoff report and require release create-wallet evidence before a `remove` decision is marked implementation-ready.
+- Extend CodePush readiness summary guards and fixtures so missing release create-wallet evidence fails locally.
+- Keep CodePush runtime code, package versions, native files, Gradle files, wallet runtime code, and Metro configuration unchanged.
+
+Findings:
+
+- The CodePush update-validation handoff already refreshed release create-wallet evidence through `android:dev:release:create-wallet-verify`, but focused migration/removal/decision summaries still only surfaced release build plus release startup-smoke evidence.
+- CodePush OTA update validation remains explicitly not claimed because App Center CodePush is retired and a replacement/removal decision still depends on deployment-key strategy and real delivery validation.
+- This branch is validation/readiness tooling only; Android emulator smoke is not required because runtime, native, dependency, and Metro behavior are unchanged.
+
+Validation:
+
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node --check scripts/auditCodePushMigrationReadiness.mjs`
+- `& $node --check scripts/auditCodePushRemovalReadiness.mjs`
+- `& $node --check scripts/codePushMigrationReadinessSummaryGuard.mjs`
+- `& $node --check scripts/checkCodePushMigrationReadinessSummaryGuard.mjs`
+- `& $node --check scripts/codePushRemovalReadinessSummaryGuard.mjs`
+- `& $node --check scripts/checkCodePushRemovalReadinessSummaryGuard.mjs`
+- `& $node --check scripts/runCodePushDecisionHandoff.mjs`
+- `& $node --check scripts/codePushDecisionHandoffGuard.mjs`
+- `& $node --check scripts/checkCodePushDecisionHandoffSummaryGuard.mjs`
+- `& $node --check scripts/checkCodePushUpdateValidationHandoffGuard.mjs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:codepush-migration-readiness-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:codepush-removal-readiness-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:codepush-decision-handoff-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:codepush-update-validation-handoff-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:release:path-audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:release:path-check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:migration:readiness-audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:migration:readiness-check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:removal-readiness:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:removal-readiness:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-smoke-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:release:check-create-wallet-smoke-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' release-services:check-summaries`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-light-docs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:rn-nodeify-shims`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' typescript:check`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' lint:baseline:audit` passed as the existing baseline audit while reporting the known lint debt.
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.665 - Runtime handoff release create-wallet evidence
 
 - Branch: `feature/bem-37-665-runtime-handoffs-create-wallet-evidence`

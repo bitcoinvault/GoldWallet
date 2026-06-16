@@ -28,6 +28,9 @@ const validSummary = [
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
   'CodePush release smoke evidence ready: yes',
+  'Android release create-wallet smoke summary valid: yes',
+  'Android release create-wallet smoke summary errors: 0',
+  'CodePush release create-wallet evidence ready: yes',
   'Ready CodePush environments: 2',
   'Blocked CodePush environments: 1',
   'Unconfirmed CodePush environments: 2',
@@ -97,6 +100,16 @@ assertRejected(
   'Missing release smoke evidence fixture',
   validSummary.replace('CodePush release smoke evidence ready: yes', 'CodePush release smoke evidence ready: no'),
   'release smoke evidence',
+);
+assertRejected(
+  'Invalid Android release create-wallet smoke summary fixture',
+  validSummary.replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no'),
+  'Android release create-wallet smoke summary',
+);
+assertRejected(
+  'Missing release create-wallet evidence fixture',
+  validSummary.replace('CodePush release create-wallet evidence ready: yes', 'CodePush release create-wallet evidence ready: no'),
+  'release create-wallet evidence',
 );
 assertRejected(
   'Bad environment count fixture',

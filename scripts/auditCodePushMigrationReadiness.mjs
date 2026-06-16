@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { collectCodePushReleasePathAudit } from './auditCodePushReleasePath.mjs';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -11,6 +12,7 @@ const summaryPath = path.join(root, 'local-docs', 'codepush-migration-readiness-
 const releasePathSummaryPath = path.join(root, 'local-docs', 'codepush-release-path-summary.txt');
 const decisionDocPath = path.join(root, 'docs', 'codepush-retirement-migration-plan.md');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
 const signedReleaseApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 const unsignedReleaseApkPath = path.join(
   root,
@@ -34,6 +36,8 @@ export const collectCodePushMigrationReadinessAudit = () => {
   let releasePathSummaryErrors = ['missing CodePush release path summary'];
   let androidReleaseSmokeSummaryValid = false;
   let androidReleaseSmokeSummaryErrors = ['missing Android release smoke summary'];
+  let androidReleaseCreateWalletSmokeSummaryValid = false;
+  let androidReleaseCreateWalletSmokeSummaryErrors = ['missing Android release create-wallet smoke summary'];
 
   if (existsSync(releasePathSummaryPath)) {
     releasePathSummaryErrors = getCodePushReleasePathSummaryErrors(readFileSync(releasePathSummaryPath, 'utf8'));
@@ -49,6 +53,17 @@ export const collectCodePushMigrationReadinessAudit = () => {
       expectedSourceApkPath: unsignedReleaseApkPath,
     });
     androidReleaseSmokeSummaryValid = androidReleaseSmokeSummaryErrors.length === 0;
+  }
+
+  if (existsSync(androidReleaseCreateWalletSmokeSummaryPath)) {
+    androidReleaseCreateWalletSmokeSummaryErrors = getAndroidCreateWalletSmokeSummaryErrors(
+      readFileSync(androidReleaseCreateWalletSmokeSummaryPath, 'utf8'),
+      {
+        expectedApkPath: signedReleaseApkPath,
+        expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+      },
+    );
+    androidReleaseCreateWalletSmokeSummaryValid = androidReleaseCreateWalletSmokeSummaryErrors.length === 0;
   }
 
   return {
@@ -76,6 +91,9 @@ export const collectCodePushMigrationReadinessAudit = () => {
     androidReleaseSmokeSummaryValid,
     androidReleaseSmokeSummaryErrors,
     releaseSmokeEvidenceReady: androidReleaseSmokeSummaryValid,
+    androidReleaseCreateWalletSmokeSummaryValid,
+    androidReleaseCreateWalletSmokeSummaryErrors,
+    releaseCreateWalletEvidenceReady: androidReleaseCreateWalletSmokeSummaryValid,
     readyEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'ready').length,
     blockedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'blocked').length,
     unconfirmedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'unconfirmed').length,
@@ -117,6 +135,10 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
     `Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`,
     ...audit.androidReleaseSmokeSummaryErrors.map(error => `- ${error}`),
     `CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`,
+    `Android release create-wallet smoke summary valid: ${audit.androidReleaseCreateWalletSmokeSummaryValid ? 'yes' : 'no'}`,
+    `Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`,
+    ...audit.androidReleaseCreateWalletSmokeSummaryErrors.map(error => `- ${error}`),
+    `CodePush release create-wallet evidence ready: ${audit.releaseCreateWalletEvidenceReady ? 'yes' : 'no'}`,
     `Ready CodePush environments: ${audit.readyEnvironmentCount}`,
     `Blocked CodePush environments: ${audit.blockedEnvironmentCount}`,
     `Unconfirmed CodePush environments: ${audit.unconfirmedEnvironmentCount}`,
@@ -149,6 +171,7 @@ const printReport = audit => {
   console.log(`Release path summary valid: ${audit.releasePathSummaryValid ? 'yes' : 'no'}`);
   console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
   console.log(`CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`CodePush release create-wallet evidence ready: ${audit.releaseCreateWalletEvidenceReady ? 'yes' : 'no'}`);
   console.log(`Ready CodePush environments: ${audit.readyEnvironmentCount}`);
   console.log(`Blocked CodePush environments: ${audit.blockedEnvironmentCount}`);
   console.log(`Unconfirmed CodePush environments: ${audit.unconfirmedEnvironmentCount}`);

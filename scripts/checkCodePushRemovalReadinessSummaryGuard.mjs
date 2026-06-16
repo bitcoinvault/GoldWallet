@@ -17,6 +17,9 @@ const validSummary = [
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
   'CodePush release smoke evidence ready: yes',
+  'Android release create-wallet smoke summary valid: yes',
+  'Android release create-wallet smoke summary errors: 0',
+  'CodePush release create-wallet evidence ready: yes',
   'Runtime usage files: 1',
   '- App.tsx',
   'Native integration files: 8',
@@ -147,6 +150,16 @@ assertRejected(
   'Release smoke evidence missing fixture',
   validSummary.replace('CodePush release smoke evidence ready: yes', 'CodePush release smoke evidence ready: no'),
   'release smoke evidence',
+);
+assertRejected(
+  'Invalid Android release create-wallet smoke summary fixture',
+  validSummary.replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no'),
+  'Android release create-wallet smoke summary',
+);
+assertRejected(
+  'Release create-wallet evidence missing fixture',
+  validSummary.replace('CodePush release create-wallet evidence ready: yes', 'CodePush release create-wallet evidence ready: no'),
+  'release create-wallet evidence',
 );
 assertRejected('Bad runtime count fixture', validSummary.replace('Runtime usage files: 1', 'Runtime usage files: 2'), 'Runtime usage files count');
 assertRejected('Bad native count fixture', validSummary.replace('Native integration files: 8', 'Native integration files: 7'), 'Native integration files');

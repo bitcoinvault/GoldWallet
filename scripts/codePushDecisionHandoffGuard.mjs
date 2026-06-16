@@ -22,6 +22,7 @@ export const getCodePushDecisionHandoffErrors = summary => {
   const runtimeGatedOff = getLineValue(summary, 'CodePush runtime gated off by default');
   const releaseBuildEvidenceReady = getLineValue(summary, 'CodePush release build evidence ready');
   const releaseSmokeEvidenceReady = getLineValue(summary, 'CodePush release smoke evidence ready');
+  const releaseCreateWalletEvidenceReady = getLineValue(summary, 'CodePush release create-wallet evidence ready');
   const iosValidationStatus = getLineValue(summary, 'iOS runtime validation');
   const secretValuesPrinted = getLineValue(summary, 'Secret values printed');
   const requiredAction = getLineValue(summary, 'Required action');
@@ -55,6 +56,7 @@ export const getCodePushDecisionHandoffErrors = summary => {
     ['CodePush runtime gated off by default', runtimeGatedOff],
     ['CodePush release build evidence ready', releaseBuildEvidenceReady],
     ['CodePush release smoke evidence ready', releaseSmokeEvidenceReady],
+    ['CodePush release create-wallet evidence ready', releaseCreateWalletEvidenceReady],
     ['Secret values printed', secretValuesPrinted],
   ].forEach(([label, value]) => {
     if (!['yes', 'no'].includes(value)) {
@@ -82,8 +84,8 @@ export const getCodePushDecisionHandoffErrors = summary => {
     errors.push('Decision handoff requires valid CodePush release, migration, and removal summaries');
   }
 
-  if (releaseBuildEvidenceReady !== 'yes' || releaseSmokeEvidenceReady !== 'yes') {
-    errors.push('Decision handoff requires current Android release build and release-smoke evidence');
+  if (releaseBuildEvidenceReady !== 'yes' || releaseSmokeEvidenceReady !== 'yes' || releaseCreateWalletEvidenceReady !== 'yes') {
+    errors.push('Decision handoff requires current Android release build, release-smoke, and release create-wallet evidence');
   }
 
   if (decision === 'replace' && (!replacementTarget || replacementTarget === 'none')) {
