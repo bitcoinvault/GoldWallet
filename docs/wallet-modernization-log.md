@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.661 - Create-wallet smoke guard
+
+- Branch: `feature/bem-37-661-create-wallet-smoke-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a committed Android create-wallet smoke helper that replays the two runtime flows which failed during the RN/storage/crypto modernization: standard wallet creation and default 3-key vault creation.
+- Add a summary checker for the ignored `local-docs/android-create-wallet-smoke-summary.txt` artifact so future runs can be validated without committing logcat, UI XML, screenshots, or wallet names.
+- Wire package scripts for standalone create-wallet smoke, embedded smoke setup plus create-wallet smoke, and summary validation.
+- Keep wallet runtime code, package versions, native files, Gradle files, and Metro configuration unchanged.
+
+Findings:
+
+- Fresh npm metadata confirmed the already-installed Sentry and Camera/QR package targets are current before this branch: `@sentry/react-native@8.14.0`, `@sentry/cli@3.5.0`, `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `react-native-svg@15.15.5`.
+- The previous create-wallet recovery branch was validated manually with adb; this branch turns that evidence path into a repeatable repo command.
+- The create-wallet smoke intentionally depends on the existing embedded Android smoke setup for onboarding, then validates create-wallet behavior from a ready dashboard.
+- Android restarts after standard wallet creation show the unlock PIN overlay above the dashboard, so the helper detects `unlock-screen-logo` and taps the configured test PIN through the visible PIN keypad before continuing.
+- Standard wallet success requires `create-wallet-mnemonic`, `mnemonic-word-0`, and `create-wallet-close-button`.
+- Vault success requires reaching the public-key integration screen with `scan-public-key-code-button`.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version peerDependencies dependencies engines --json`
+- `npm view react-native-camera-kit version peerDependencies dependencies engines --json`
+- `npm view react-native-qrcode-svg version peerDependencies dependencies engines --json`
+- `npm view react-native-svg version peerDependencies dependencies engines --json`
+- `node --check scripts/androidCreateWalletSmoke.mjs`
+- `node --check scripts/checkAndroidCreateWalletSmokeSummary.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SERIAL=emulator-5554 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:create-wallet-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk ANDROID_HOME=C:\Users\User\AppData\Local\Android\Sdk corepack yarn android:dev:create-wallet-smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-create-wallet-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed as the existing baseline audit while reporting the known lint debt.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.660 - Create-wallet runtime recovery
 
 - Branch: `feature/bem-37-660-wallet-create-failure`
