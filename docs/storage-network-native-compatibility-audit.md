@@ -50,6 +50,14 @@ corepack yarn check:storage-network-validation-scripts
 
 The guard verifies that `test:terms-webview:unit`, `test:electrum-reconnect:unit`, `test:secure-storage:unit`, `test:storage`, `test:authenticator`, and `test:wallet-core:offline` keep pointing at existing focused Jest files and remain part of `prepush`.
 
+Electrum runtime observation parsing is guarded by:
+
+```powershell
+corepack yarn check:electrum-runtime-observation-parser-guard
+```
+
+The guard verifies success, failed-connection, inconclusive, fatal-runtime, UI-marker, and secret-redaction parsing before `local-docs/electrum-runtime-observation.txt` is used as Android runtime evidence.
+
 The latest package snapshot is generated and validated by:
 
 ```powershell
