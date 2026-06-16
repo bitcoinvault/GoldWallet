@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.668 - React Navigation patch refresh
+
+- Branch: `feature/bem-37-668-react-navigation-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the React Navigation package family to the latest npm patch/minor targets observed on 2026-06-16:
+  `@react-navigation/bottom-tabs` `7.18.0` -> `7.18.2`,
+  `@react-navigation/devtools` `7.0.62` -> `7.1.1`,
+  `@react-navigation/native` `7.3.1` -> `7.3.3`,
+  and `@react-navigation/stack` `7.10.3` -> `7.10.5`.
+- Refresh `yarn.lock`, including the transitive `@react-navigation/core` `7.20.0` -> `7.21.1` resolution.
+- Keep wallet crypto, storage, networking, Android native files, iOS native files, release services, Metro configuration, and React/React Native versions unchanged.
+
+Findings:
+
+- Live npm metadata reports `react-native@0.86.0` and `@react-native/metro-config@0.86.0` as current latest targets.
+- Live npm metadata reports `react@19.2.7`, but the React Native renderer exact-version audit requires React and `react-test-renderer` to remain on `19.2.3` with RN `0.86.0`.
+- After this branch, `direct-outdated:snapshot:audit` no longer reports the React Navigation package family; remaining review-required entries are separate follow-up branches: `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser`, `axios`, `commitizen`, and `eslint`.
+- Android dev build and emulator smoke passed with onboarding, empty-dashboard create/import wallet CTA navigation, QR scanner open/close, and bottom-tab navigation.
+
+Validation:
+
+- `cmd /c npm.cmd view react-native version time dist-tags --json`
+- `cmd /c npm.cmd view react version time dist-tags --json`
+- `cmd /c npm.cmd view @react-native/metro-config version dist-tags --json`
+- `$node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' react:package-coupling:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' react:renderer-version:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' rn:target-snapshot:current`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' rn:target-snapshot:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' add --exact @react-navigation/bottom-tabs@7.18.2 @react-navigation/devtools@7.1.1 @react-navigation/native@7.3.3 @react-navigation/stack@7.10.5`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:rn-nodeify-shims`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' typescript:check`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' test:unit --runInBand`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' test:storage-network:focused`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:assemble`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:smoke:embedded`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' android:dev:check-smoke-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' direct-outdated:snapshot:audit` expected remaining follow-up blockers: `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser`, `axios`, `commitizen`, and `eslint`.
+
 ### BEM-37.667 - Husky Node 24 precommit runner
 
 - Branch: `feature/bem-37-667-husky-node24-precommit`
