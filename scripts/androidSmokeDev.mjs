@@ -112,7 +112,8 @@ const fileEvidence = filePath => {
 
 const run = (label, args, options = {}) => {
   append(`\n> ${label}`);
-  const { printOutput = true, recordOutput = true, useSelectedDevice = true, ...spawnOptions } = options;
+  const { allowDumpSuccessOutput = false, printOutput = true, recordOutput = true, useSelectedDevice = true, ...spawnOptions } =
+    options;
   const result = runAdbProcessWithRetry({
     adbCommand,
     args,
@@ -141,6 +142,11 @@ const run = (label, args, options = {}) => {
   }
 
   if (result.error || result.status !== 0) {
+    if (allowDumpSuccessOutput && /UI hier\S* dumped to:/i.test(result.stdout || '')) {
+      append(`${label} returned non-zero after writing the hierarchy; reading the dumped file for validation.`);
+      return result.stdout || '';
+    }
+
     throw new Error(`${label} failed: ${formatAdbFailureReason(result)}`);
   }
 
@@ -242,7 +248,9 @@ const sleep = milliseconds => {
 };
 
 const readUiHierarchy = label => {
-  run(`dump UI hierarchy ${label}`, ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml']);
+  run(`dump UI hierarchy ${label}`, ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml'], {
+    allowDumpSuccessOutput: true,
+  });
   return run(`read UI hierarchy ${label}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], {
     printOutput: false,
     recordOutput: false,

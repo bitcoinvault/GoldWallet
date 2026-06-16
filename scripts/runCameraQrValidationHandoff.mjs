@@ -5,24 +5,41 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.mjs';
 import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const cameraCandidateSummaryPath = path.join(root, 'local-docs', 'camera-candidate-summary.txt');
 const cameraQrMigrationSummaryPath = path.join(root, 'local-docs', 'camera-qr-migration-summary.txt');
 const androidSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-summary.txt');
+const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const androidReleaseCreateWalletSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
+const signedReleaseApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
+const unsignedDevReleaseApkPath = path.join(
+  root,
+  'android',
+  'app',
+  'build',
+  'outputs',
+  'apk',
+  'dev',
+  'release',
+  'app-dev-release-unsigned.apk',
+);
 
 const defaultOptions = {
   dryRun: false,
   includeAndroidSmoke: false,
+  includeAndroidReleaseSmoke: false,
 };
 
 const usage = [
-  'Usage: node scripts/runCameraQrValidationHandoff.mjs [--dry-run] [--include-android-smoke]',
+  'Usage: node scripts/runCameraQrValidationHandoff.mjs [--dry-run] [--include-android-smoke] [--include-android-release-smoke]',
   '',
   'Examples:',
   '  node scripts/runCameraQrValidationHandoff.mjs --dry-run',
   '  node scripts/runCameraQrValidationHandoff.mjs --dry-run --include-android-smoke',
+  '  node scripts/runCameraQrValidationHandoff.mjs --dry-run --include-android-release-smoke',
   '  node scripts/runCameraQrValidationHandoff.mjs',
 ].join('\n');
 
@@ -82,6 +99,12 @@ export const getCameraQrValidationCommands = (options = defaultOptions) => {
     );
   }
 
+  if (options.includeAndroidReleaseSmoke) {
+    commands.push(
+      yarnStep('Run Android devRelease build, release smoke, and create-wallet smoke for Camera/QR', 'android:dev:release:create-wallet-verify'),
+    );
+  }
+
   return commands;
 };
 
@@ -96,6 +119,10 @@ export const getCameraQrValidationHandoffErrors = options => {
     errors.push('includeAndroidSmoke must be a boolean');
   }
 
+  if (typeof options.includeAndroidReleaseSmoke !== 'boolean') {
+    errors.push('includeAndroidReleaseSmoke must be a boolean');
+  }
+
   return errors;
 };
 
@@ -104,6 +131,12 @@ export const getCameraQrValidationReadinessErrors = ({
   migrationSummaryText,
   includeAndroidSmoke = false,
   androidSmokeSummaryText,
+  includeAndroidReleaseSmoke = false,
+  androidReleaseSmokeSummaryText,
+  androidReleaseCreateWalletSummaryText,
+  androidReleaseSmokeExpectedApkPath = signedReleaseApkPath,
+  androidReleaseSmokeExpectedSourceApkPath = unsignedDevReleaseApkPath,
+  androidReleaseCreateWalletExpectedApkPath = signedReleaseApkPath,
 }) => {
   const errors = [];
 
@@ -133,6 +166,33 @@ export const getCameraQrValidationReadinessErrors = ({
     }
   }
 
+  if (includeAndroidReleaseSmoke) {
+    if (!androidReleaseSmokeSummaryText) {
+      errors.push('Android release smoke summary is missing; run android:dev:release:smoke:embedded first');
+    } else {
+      getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, {
+        expectedArtifactBase: 'android-smoke-dev-release',
+        requireSmokeApkDigest: true,
+        expectedSmokeApkPath: androidReleaseSmokeExpectedApkPath,
+        requireSourceApkDigest: true,
+        expectedSourceApkPath: androidReleaseSmokeExpectedSourceApkPath,
+      }).forEach(error => {
+        errors.push(`Android release smoke summary is invalid: ${error}`);
+      });
+    }
+
+    if (!androidReleaseCreateWalletSummaryText) {
+      errors.push('Android release create-wallet smoke summary is missing; run android:dev:release:create-wallet-smoke:embedded first');
+    } else {
+      getAndroidCreateWalletSmokeSummaryErrors(androidReleaseCreateWalletSummaryText, {
+        expectedApkPath: androidReleaseCreateWalletExpectedApkPath,
+        expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+      }).forEach(error => {
+        errors.push(`Android release create-wallet smoke summary is invalid: ${error}`);
+      });
+    }
+  }
+
   return errors;
 };
 
@@ -154,6 +214,8 @@ const parseArgs = argv => {
       options.dryRun = true;
     } else if (arg === '--include-android-smoke') {
       options.includeAndroidSmoke = true;
+    } else if (arg === '--include-android-release-smoke') {
+      options.includeAndroidReleaseSmoke = true;
     } else if (arg === '--help' || arg === '-h') {
       options.help = true;
     } else {
@@ -210,6 +272,7 @@ const main = () => {
   if (options.dryRun) {
     console.log('Camera/QR validation handoff dry run');
     console.log(`Android smoke validation: ${options.includeAndroidSmoke ? 'included' : 'skipped'}`);
+    console.log(`Android release smoke validation: ${options.includeAndroidReleaseSmoke ? 'included' : 'skipped'}`);
     commands.forEach((step, index) => {
       console.log(`${index + 1}. ${step.label}`);
       console.log(`   ${renderCameraQrValidationCommand(step)}`);
@@ -231,6 +294,9 @@ const main = () => {
     migrationSummaryText: readSummary(cameraQrMigrationSummaryPath),
     includeAndroidSmoke: options.includeAndroidSmoke,
     androidSmokeSummaryText: readSummary(androidSmokeSummaryPath),
+    includeAndroidReleaseSmoke: options.includeAndroidReleaseSmoke,
+    androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
+    androidReleaseCreateWalletSummaryText: readSummary(androidReleaseCreateWalletSummaryPath),
   });
 
   if (readinessErrors.length > 0) {

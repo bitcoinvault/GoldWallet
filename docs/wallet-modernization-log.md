@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.698 - Camera/QR release validation handoff
+
+- Branch: `feature/bem-37-698-camera-qr-release-validation-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Camera/QR validation handoff with an explicit `--include-android-release-smoke` mode for scanner-affecting release branches.
+- Make the release handoff run `android:dev:release:create-wallet-verify` after the focused QR scanner and QR render tests.
+- Validate release-smoke readiness against both `android-smoke-dev-release-summary.txt` and `android-create-wallet-smoke-dev-release-summary.txt`.
+- Keep Camera/QR candidate evidence current without changing package versions because `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `qrcode@1.5.4` remain the latest stable package targets.
+- Harden Android smoke UI hierarchy capture for the observed `uiautomator dump` non-zero/WebView edge case while still requiring the expected screen resource IDs before a smoke can pass.
+
+Findings:
+
+- CameraKit remains the active scanner runtime and the legacy `react-native-camera` package remains absent from the runtime dependency set.
+- The release handoff now proves the QR scanner path inside the signed local `devRelease` APK, not only in debug/dev smoke evidence.
+- The signed local `devRelease` APK passed embedded smoke on `emulator-5554` without Metro, including first-run terms, PIN, transaction password, empty dashboard CTA flow, import-wallet QR scanner screen, tab navigation, and Settings Terms WebView.
+- The same signed local `devRelease` APK passed create-wallet smoke for a standard wallet mnemonic path and the default 3-key vault public-key integration screen.
+- The previous failure was isolated to a transient `uiautomator dump` return code while the Terms WebView was visibly loaded; the smoke runner now reads the dumped hierarchy when Android reports a hierarchy file was written, then lets the existing resource-ID checks decide pass/fail.
+- iOS Camera/QR runtime validation remains unclaimed on this Windows environment; current iOS evidence is static only until macOS/Xcode/CocoaPods validation runs.
+
+Validation:
+
+- `& $node --check scripts\androidSmokeDev.mjs`
+- `& $node --check scripts\androidCreateWalletSmoke.mjs`
+- `& $node --check scripts\runCameraQrValidationHandoff.mjs`
+- `& $node --check scripts\checkCameraQrValidationHandoffGuard.mjs`
+- `& $node $yarn check:camera-qr-validation-handoff-guard`
+- `& $node $yarn camera:qr-validation:handoff:dry-run --include-android-release-smoke`
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true & $node $yarn camera:qr-validation:handoff --include-android-release-smoke`
+
 ### BEM-37.697 - Android release source fingerprint guard
 
 - Branch: `feature/bem-37-697-android-release-source-fingerprint`
