@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.680 - Secure-storage release validation refresh
+
+- Branch: `feature/bem-37-680-secure-storage-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh secure-storage release-validation evidence for the current RN `0.86.0` baseline after the Android smoke contract started requiring Settings Terms WebView evidence by default.
+- Run the guarded secure-storage release-validation handoff with focused unit/integration storage tests, Android dev environment audit, Android dev assemble, and embedded Android emulator smoke.
+- Generate and validate the aggregate secure-storage release-validation summary.
+- Check live npm latest metadata for the current and legacy secure-storage packages.
+- Keep app runtime code, package versions, native configuration, Gradle configuration, and Metro configuration unchanged.
+
+Findings:
+
+- npm reports `react-native-keychain@10.0.0` and `react-native-secure-key-store@2.0.10` as current latest package versions.
+- The secure-storage migration audit remains stable: Keychain is the primary write path, legacy secure-storage writes are disabled, legacy fallback reads remain active, and successful migration cleanup is present.
+- The removal-readiness audit still correctly reports `Legacy package removal ready: no` because fallback reads remain active and release validation has not been claimed for migrated PIN, transaction-password, and encrypted wallet data without the fallback backend.
+- Focused secure-storage, wallet storage, authenticator storage, and offline wallet core contracts passed.
+- Embedded Android smoke passed on `emulator-5554` without Metro: first-run setup, Create/Import navigation, QR scanner, bottom-tab navigation, and Settings Terms WebView all validated without fatal/runtime logcat findings.
+- The generated secure-storage release-validation summary reports evidence ready, but it still requires keeping `react-native-secure-key-store` installed until fallback-free validation is claimed.
+
+Validation:
+
+- `npm view react-native-keychain version dist-tags peerDependencies --json`
+- `npm view react-native-secure-key-store version dist-tags peerDependencies --json`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; $env:ANDROID_SERIAL='emulator-5554'; & $node scripts/runSecureStorageReleaseValidationHandoff.mjs`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' secure-storage:release-validation:summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' secure-storage:release-validation:check-summary`
+
 ### BEM-37.679 - Camera QR validation refresh
 
 - Branch: `feature/bem-37-679-camera-qr-validation-refresh`
