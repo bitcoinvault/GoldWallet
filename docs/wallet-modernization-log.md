@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.660 - Create-wallet runtime recovery
+
+- Branch: `feature/bem-37-660-wallet-create-failure`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Fix the Android runtime create-wallet failure observed during Electrum runtime validation.
+- Centralize wallet random-byte generation through `utils/crypto.getRandomBytes()` so legacy, HD P2SH, and HD Bech32 wallet generation use the same RN/test-safe implementation instead of direct `NativeModules.RNRandomBytes` calls.
+- Add minimal `TextEncoder`/`TextDecoder` shims for the bundled RN runtime path that lacks those globals.
+- Stop clearing the unencrypted storage flag by writing an empty string to keychain; remove the flag from the current keychain store and best-effort legacy secure store instead.
+- Preserve the specific create-wallet error message in the UI alert instead of always masking failures as `Failed to create wallet`.
+
+Findings:
+
+- The first Android runtime failure path was a missing `TextDecoder` global after the RN/runtime upgrade.
+- After that was fixed, create-wallet still failed with `RNKeychainManager: EmptyParameterException` because unencrypted wallet save tried to call `Keychain.setGenericPassword(key, '')` for `AppStorage.FLAG_ENCRYPTED`.
+- The new `AppStorage.removeItem()` path removes `data_encrypted` from `react-native-secure-key-store` when present and uses `Keychain.resetGenericPassword()` for the current keychain backend.
+- Android emulator validation confirmed the default `3-Key Vault` create flow reaches the expected `Add Fast Key` screen with `scan-public-key-code-button`, no failed-wallet alert, no `EmptyParameterException`, and no fatal/runtime logcat findings.
+- Android emulator validation also confirmed the `Standard` wallet create flow reaches the mnemonic backup screen with `create-wallet-mnemonic`, `mnemonic-word-0`, and `create-wallet-close-button`, no failed-wallet alert, and no fatal/runtime logcat findings.
+- Full `corepack yarn test:unit --runInBand` remains blocked by the existing live Electrum unit baseline: asynchronous `BlueElectrum` connections to `e1.electrumx.bitcoinvault.global:50001` continue logging after Jest completes and can terminate with `Error: close connect`. Focused storage/network and wallet tests passed for the changed area.
+
+Validation:
+
+- `corepack yarn android:dev:smoke:embedded`
+- `corepack yarn android:dev:check-smoke-summary`
+- Local adb create-wallet vault smoke: reached `Add Fast Key` / `scan-public-key-code-button`, no failed-wallet UI, no fatal/runtime logcat findings
+- Local adb create-wallet standard smoke: reached `create-wallet-mnemonic`, `mnemonic-word-0`, and `create-wallet-close-button`, no failed-wallet UI, no fatal/runtime logcat findings
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:hdwallet:offline`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+
 ### BEM-37.659 - Electrum runtime observation helper
 
 - Branch: `feature/bem-37-659-electrum-runtime-observation`

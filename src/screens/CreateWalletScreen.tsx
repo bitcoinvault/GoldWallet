@@ -143,7 +143,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     });
   };
 
-  generateWallet = (wallet: Wallet, onError: () => void) => {
+  generateWallet = (wallet: Wallet, onError: (error?: string) => void) => {
     const { label } = this.state;
     const { navigation, createWallet, email } = this.props;
 
@@ -156,12 +156,12 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
           handleNavigationSubscription: !!email ? () => this.navigateToConfirmEmailSubscription(wallet) : undefined,
         });
       },
-      onFailure: () => onError(),
+      onFailure: (error?: string) => onError(error),
     });
   };
 
   // TODO: interface Wallet isn't compatible with all wallet classes thus any must stay here for now
-  createWalletMessage = (wallet: any, onError: () => void) => {
+  createWalletMessage = (wallet: any, onError: (error?: string) => void) => {
     CreateMessage({
       title: i18n.message.creatingWallet,
       description: i18n.message.creatingWalletDescription,
@@ -261,10 +261,10 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
 
     const wallet = new WalletClass();
 
-    const onError = () =>
+    const onError = (error?: string) =>
       this.showAlert(() => {
         navigation.navigate(Route.CreateWallet);
-      }, i18n.wallets.add.failed);
+      }, error || i18n.wallets.add.failed);
 
     this.createWalletMessage(wallet, onError);
   };

@@ -1,12 +1,11 @@
 import b58 from 'bs58check';
 import { findLast, difference } from 'lodash';
-import { NativeModules } from 'react-native';
 
 import logger from '../logger';
-import config from '../src/config';
 import { AbstractWallet } from './abstract-wallet';
+import config from '../src/config';
+import { getRandomBytes } from '../utils/crypto';
 
-const { RNRandomBytes } = NativeModules;
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 
@@ -35,39 +34,14 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async generate() {
-    const that = this;
+    const bytes = await getRandomBytes(32);
 
-    return new Promise(function(resolve) {
-      if (typeof RNRandomBytes === 'undefined') {
-        // CLI/CI environment
-        // crypto should be provided globally by test launcher
-        return crypto.randomBytes(32, (err, buf) => {
-          // eslint-disable-line
-          if (err) throw err;
-          that.secret = bitcoin.ECPair.makeRandom({
-            rng(length) {
-              return buf;
-            },
-            network: config.network,
-          }).toWIF();
-          resolve();
-        });
-      }
-
-      // RN environment
-      RNRandomBytes.randomBytes(32, (err, bytes) => {
-        if (err) throw new Error(err);
-        that.secret = bitcoin.ECPair.makeRandom({
-          rng(length) {
-            const b = Buffer.from(bytes, 'base64');
-
-            return b;
-          },
-          network: config.network,
-        }).toWIF();
-        resolve();
-      });
-    });
+    this.secret = bitcoin.ECPair.makeRandom({
+      rng() {
+        return bytes;
+      },
+      network: config.network,
+    }).toWIF();
   }
 
   // add during problem with subscribe email

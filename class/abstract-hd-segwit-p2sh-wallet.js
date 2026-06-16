@@ -1,20 +1,22 @@
 import BigNumber from 'bignumber.js';
 import * as bip39 from 'bip39';
 import b58 from 'bs58check';
-import { NativeModules } from 'react-native';
 
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import config from '../src/config';
 import { ELECTRUM_VAULT_SEED_PREFIXES } from '../src/consts';
-import { electrumVaultMnemonicToSeed, isElectrumVaultMnemonic, getMasterPublicKeyPrefix } from '../utils/crypto';
+import {
+  electrumVaultMnemonicToSeed,
+  getMasterPublicKeyPrefix,
+  getRandomBytes,
+  isElectrumVaultMnemonic,
+} from '../utils/crypto';
 
 const bitcoin = require('bitcoinjs-lib');
 
 const i18n = require('../loc');
 const HDNode = require('../utils/bip32');
-
-const { RNRandomBytes } = NativeModules;
 
 /**
  * Converts ypub to xpub
@@ -96,35 +98,9 @@ export class AbstractHDSegwitP2SHWallet extends AbstractHDWallet {
   }
 
   async generate() {
-    return new Promise((resolve, reject) => {
-      if (typeof RNRandomBytes === 'undefined') {
-        // CLI/CI environment
-        // crypto should be provided globally by test launcher
-        // eslint-disable-next-line no-undef
-        return crypto.randomBytes(AbstractHDSegwitP2SHWallet.randomBytesSize, async (err, buf) => {
-          if (err) throw err;
-          try {
-            await this.setSecret(bip39.entropyToMnemonic(buf.toString('hex')));
-          } catch (error) {
-            reject(error);
-          }
-          resolve();
-        });
-      }
+    const bytes = await getRandomBytes(AbstractHDSegwitP2SHWallet.randomBytesSize);
 
-      // RN environment
-      RNRandomBytes.randomBytes(AbstractHDSegwitP2SHWallet.randomBytesSize, async (err, bytes) => {
-        if (err) throw new Error(err);
-        const b = Buffer.from(bytes, 'base64').toString('hex');
-
-        try {
-          await this.setSecret(bip39.entropyToMnemonic(b));
-        } catch (error) {
-          reject(error);
-        }
-        resolve();
-      });
-    });
+    await this.setSecret(bip39.entropyToMnemonic(bytes.toString('hex')));
   }
 
   getDerivationPath() {

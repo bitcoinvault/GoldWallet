@@ -1,18 +1,15 @@
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import b58 from 'bs58check';
-import { NativeModules } from 'react-native';
 
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import config from '../src/config';
-import { electrumVaultMnemonicToSeed, getMasterPublicKeyPrefix } from '../utils/crypto';
+import { electrumVaultMnemonicToSeed, getMasterPublicKeyPrefix, getRandomBytes } from '../utils/crypto';
 
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
 
 const HDNode = require('../utils/bip32');
-
-const { RNRandomBytes } = NativeModules;
 
 /**
  * HD Wallet (BIP39).
@@ -66,27 +63,9 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   }
 
   async generate() {
-    return new Promise(resolve => {
-      if (typeof RNRandomBytes === 'undefined') {
-        // CLI/CI environment
-        // crypto should be provided globally by test launcher
-        // eslint-disable-next-line no-undef
-        return crypto.randomBytes(HDSegwitBech32Wallet.randomBytesSize, async (err, buf) => {
-          if (err) throw err;
-          await this.setSecret(bip39.entropyToMnemonic(buf.toString('hex')));
-          resolve();
-        });
-      }
+    const bytes = await getRandomBytes(HDSegwitBech32Wallet.randomBytesSize);
 
-      // RN environment
-      RNRandomBytes.randomBytes(HDSegwitBech32Wallet.randomBytesSize, async (err, bytes) => {
-        if (err) throw new Error(err);
-        const b = Buffer.from(bytes, 'base64').toString('hex');
-
-        await this.setSecret(bip39.entropyToMnemonic(b));
-        resolve();
-      });
-    });
+    await this.setSecret(bip39.entropyToMnemonic(bytes.toString('hex')));
   }
 
   getDerivationPath() {

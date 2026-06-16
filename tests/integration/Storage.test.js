@@ -13,6 +13,7 @@ jest.mock('react-native-keychain', () => ({
   },
   getGenericPassword: jest.fn(),
   setGenericPassword: jest.fn(),
+  resetGenericPassword: jest.fn(),
 }));
 jest.mock('react-native-secure-key-store', () => ({
   __esModule: true,
@@ -45,6 +46,7 @@ const setReactNativeNavigator = () => {
 afterEach(() => {
   mockKeychain.getGenericPassword.mockReset();
   mockKeychain.setGenericPassword.mockReset();
+  mockKeychain.resetGenericPassword.mockReset();
   mockLegacySecureStore.get.mockReset();
   mockLegacySecureStore.set.mockReset();
   mockLegacySecureStore.remove.mockReset();
@@ -201,6 +203,35 @@ it('Appstorage - React Native storage does not write new values to the legacy st
     accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
   });
   expect(mockLegacySecureStore.set).not.toHaveBeenCalled();
+});
+
+it('Appstorage - React Native storage removes values from current and legacy stores', async () => {
+  setReactNativeNavigator();
+  mockLegacySecureStore.remove.mockResolvedValueOnce('removed');
+  mockKeychain.resetGenericPassword.mockResolvedValueOnce(true);
+  const Storage = new AppStorage();
+
+  await expect(Storage.removeItem(AppStorage.FLAG_ENCRYPTED)).resolves.toBe(true);
+  expect(mockLegacySecureStore.remove).toHaveBeenCalledWith(AppStorage.FLAG_ENCRYPTED);
+  expect(mockKeychain.resetGenericPassword).toHaveBeenCalledWith({
+    service: AppStorage.FLAG_ENCRYPTED,
+    accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+  });
+  expect(mockKeychain.setGenericPassword).not.toHaveBeenCalled();
+});
+
+it('Appstorage - React Native storage still removes current value when legacy cleanup fails', async () => {
+  setReactNativeNavigator();
+  mockLegacySecureStore.remove.mockRejectedValueOnce(new Error('legacy value absent'));
+  mockKeychain.resetGenericPassword.mockResolvedValueOnce(true);
+  const Storage = new AppStorage();
+
+  await expect(Storage.removeItem(AppStorage.FLAG_ENCRYPTED)).resolves.toBe(true);
+  expect(mockLegacySecureStore.remove).toHaveBeenCalledWith(AppStorage.FLAG_ENCRYPTED);
+  expect(mockKeychain.resetGenericPassword).toHaveBeenCalledWith({
+    service: AppStorage.FLAG_ENCRYPTED,
+    accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+  });
 });
 
 it('Appstorage - React Native storage reads keychain before legacy store', async () => {

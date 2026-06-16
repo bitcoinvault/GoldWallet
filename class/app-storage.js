@@ -53,6 +53,20 @@ export class AppStorage {
     }
   }
 
+  async removeItem(key) {
+    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+      try {
+        await RNSecureKeyStore.remove(key);
+      } catch (_) {
+        // Keep keychain cleanup as the authoritative current-store cleanup.
+      }
+
+      return Keychain.resetGenericPassword(secureStorageOptions(key));
+    }
+
+    return AsyncStorage.removeItem(key);
+  }
+
   /**
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
    * used for cli/tests
@@ -210,7 +224,7 @@ export class AppStorage {
       }
       data = newData;
     } else {
-      await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
+      await this.removeItem(AppStorage.FLAG_ENCRYPTED); // drop the flag
     }
 
     return this.setItem('data', JSON.stringify(data));
@@ -408,7 +422,7 @@ export class AppStorage {
       }
       data = newData;
     } else {
-      await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
+      await this.removeItem(AppStorage.FLAG_ENCRYPTED); // drop the flag
     }
 
     return this.setItem('data', JSON.stringify(data));
