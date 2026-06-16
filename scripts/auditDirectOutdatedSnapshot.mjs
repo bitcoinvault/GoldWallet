@@ -14,6 +14,38 @@ const args = process.platform === 'win32' ? ['/d', '/s', '/c', 'corepack', 'yarn
 
 const knownDecisions = new Map([
   [
+    '@babel/cli',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  ],
+  [
+    '@babel/core',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  ],
+  [
+    '@babel/plugin-transform-runtime',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  ],
+  [
+    '@babel/preset-env',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  ],
+  [
+    '@babel/preset-react',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  ],
+  [
+    '@babel/preset-typescript',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  ],
+  [
+    '@babel/runtime',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  ],
+  [
+    '@babel/traverse',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  ],
+  [
     'bitcoinjs-lib',
     'exotic - BitcoinVault fork is tracked by git dependency snapshot; do not replace with upstream npm without wallet compatibility proof',
   ],

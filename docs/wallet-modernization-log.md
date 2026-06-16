@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.681 - Foundation target and Detox patch refresh
+
+- Branch: `feature/bem-37-681-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the Detox runner from `20.51.3` to current npm latest `20.51.4` after the online direct-outdated snapshot reported it as a new review-required entry.
+- Keep the Android Detox native test artifact pin aligned with the npm package via `com.wix:detox:20.51.4`.
+- Refresh the tooling snapshot fixture and docs so current ESLint `10.5.0`, TypeScript ESLint `8.61.1`, and Detox `20.51.4` evidence no longer drift from `package.json`.
+- Re-run the online foundation target refresh to prove there are no new untriaged direct dependency updates and record the new Babel 8 major-line blockers explicitly.
+
+Findings:
+
+- `detox@20.51.4` is the current npm latest and keeps the existing Detox 20 runner-object config and Jest peer range.
+- `check:detox-readiness` confirms `package.json`, `.detoxrc.json`, Android build wrapper mapping, and Android `com.wix:detox` are aligned.
+- `foundation:target:refresh-online` initially found newly published Babel `8.0.0` direct outdated entries. Those are now recorded as blocked because RN `0.86.0` still depends on the Babel `7.x` plugin stack through `@react-native/babel-preset`.
+- `foundation:target:refresh-online` now reports `Review-required entries: 0`; remaining direct-outdated entries are the expected fork/exotic or blocked decisions for Babel 8, BTCV forks, React renderer coupling, `bl`, prompt Android, and rn-nodeify.
+- Android Detox build completed successfully on JDK 17. Gradle still logs the known `detox-20.51.4.pom` XML/prolog warning, but the app and Android test APKs assemble successfully.
+- No wallet runtime, Metro runtime, production Android flavor, iOS project, or release-service behavior changed in this branch.
+
+Validation:
+
+- `npm view detox@20.51.4 version time engines peerDependencies dependencies dist-tags --json`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:detox-readiness`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' check:tooling-latest-snapshot-summary-guard`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' tooling:latest-snapshot:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' tooling:latest-snapshot:check-summary`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' direct-outdated:snapshot:audit`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' direct-outdated:snapshot:check-summary`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; & $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' build:detox:android:debug`
+- `& $node 'C:\Program Files\nodejs\node_modules\corepack\dist\yarn.js' foundation:target:refresh-online`
+
 ### BEM-37.680 - Secure-storage release validation refresh
 
 - Branch: `feature/bem-37-680-secure-storage-release-validation-refresh`

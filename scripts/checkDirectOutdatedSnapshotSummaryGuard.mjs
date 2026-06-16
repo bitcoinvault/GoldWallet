@@ -5,7 +5,16 @@ const validSummary = [
   'Generated at: 2026-06-05T00:00:00.000Z',
   'Node version: v24.16.0',
   'Expected Node version: v24.16.0',
-  'Entries: 7',
+  'Entries: 16',
+  '- @babel/cli: current 7.29.7, wanted 7.29.7, latest 8.0.0, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  '- @babel/core: current 7.29.7, wanted 7.29.7, latest 8.0.0, type resolutionDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  '- @babel/core: current 7.29.7, wanted 7.29.7, latest 8.0.0, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  '- @babel/plugin-transform-runtime: current 7.29.7, wanted 7.29.7, latest 8.0.0, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  '- @babel/preset-env: current 7.29.7, wanted 7.29.7, latest 8.0.0, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  '- @babel/preset-react: current 7.29.7, wanted 7.29.7, latest 8.0.0, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  '- @babel/preset-typescript: current 7.29.7, wanted 7.29.7, latest 8.0.0, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  '- @babel/runtime: current 7.29.7, wanted 7.29.7, latest 8.0.0, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  '- @babel/traverse: current 7.29.7, wanted 7.29.7, latest 8.0.0, type resolutionDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   '- bitcoinjs-lib: current 5.1.6, wanted exotic, latest exotic, type dependencies, decision exotic - BitcoinVault fork is tracked by git dependency snapshot; do not replace with upstream npm without wallet compatibility proof',
   '- bl: current 6.1.6, wanted 6.1.6, latest 7.0.3, type resolutionDependencies, decision blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   '- electrum-client: current 2.0.0, wanted exotic, latest exotic, type dependencies, decision exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
@@ -13,7 +22,7 @@ const validSummary = [
   '- react-native-prompt-android: current 0.3.6, wanted exotic, latest exotic, type dependencies, decision exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
   '- react-test-renderer: current 19.2.3, wanted 19.2.3, latest 19.2.7, type devDependencies, decision blocked - React Native renderer exact-version coupling requires test renderer to stay aligned with React and RN',
   '- rn-nodeify: current 10.3.0, wanted exotic, latest exotic, type devDependencies, decision exotic - GitHub pin is guarded by rn-nodeify shim checks and git dependency snapshot',
-  'Known blocked entries: 3',
+  'Known blocked entries: 12',
   'Exotic entries: 4',
   'Review-required entries: 0',
   'Secret values printed: no',
@@ -62,14 +71,14 @@ assertRejected(
   validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 7', 'Entries: 6'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 16', 'Entries: 15'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 7', 'Entries: 8').replace(
+  validSummary.replace('Entries: 16', 'Entries: 17').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
-  'Unexpected direct outdated entry for extra-package',
+  'Unexpected direct outdated entry for extra-package (dependencies)',
 );
 assertRejected(
   'Duplicate direct outdated entry fixture',
@@ -77,7 +86,12 @@ assertRejected(
     '- rn-nodeify: current 10.3.0, wanted exotic, latest exotic, type devDependencies, decision exotic - GitHub pin is guarded by rn-nodeify shim checks and git dependency snapshot',
     '- react: current 19.2.3, wanted 19.2.3, latest 19.2.7, type dependencies, decision blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
   ),
-  'Duplicate direct outdated entry for react',
+  'Duplicate direct outdated entry for react (dependencies)',
+);
+assertRejected(
+  'Missing Babel blocker fixture',
+  validSummary.replace('Babel 8 is a major Metro/RN transform migration', 'generic Babel major update'),
+  'dedicated RN/Metro/Babel branch',
 );
 assertRejected(
   'Review required fixture',

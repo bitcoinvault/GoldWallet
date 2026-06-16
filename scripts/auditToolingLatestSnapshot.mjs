@@ -71,12 +71,12 @@ const trackedTooling = [
   {
     name: '@typescript-eslint/eslint-plugin',
     source: 'devDependencies',
-    decision: 'current - parser/plugin 8.61.0 pair verified through the ESLint 10 flat-config bridge',
+    decision: 'current - parser/plugin pair verified through the ESLint 10 flat-config bridge',
   },
   {
     name: '@typescript-eslint/parser',
     source: 'devDependencies',
-    decision: 'current - parser/plugin 8.61.0 pair verified through the ESLint 10 flat-config bridge',
+    decision: 'current - parser/plugin pair verified through the ESLint 10 flat-config bridge',
   },
   {
     name: 'eslint',
