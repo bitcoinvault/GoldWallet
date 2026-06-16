@@ -1,1 +1,5 @@
-yarn precommit
+#!/usr/bin/env sh
+set -e
+
+node_version="$(tr -d '\r\n' < .nvmrc)"
+npx -y -p "node@$node_version" -p yarn@1.22.22 yarn precommit
