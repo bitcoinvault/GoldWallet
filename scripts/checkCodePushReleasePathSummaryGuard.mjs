@@ -28,7 +28,9 @@ const notReadySummary = [
   'App Center CodePush retirement date: 2025-03-31',
   'CodePush upstream retired: yes',
   'CodePush upstream archived: yes',
+  'CodePush upstream archived date: 2025-05-20',
   'CodePush upstream New Architecture support: no',
+  'CodePush upstream New Architecture unsupported RN range: >=0.76',
   'Android New Architecture enabled: yes',
   'CodePush migration required: yes',
   'CodePush release build evidence ready: yes',
@@ -83,7 +85,9 @@ const readySummary = [
   'App Center CodePush retirement date: 2025-03-31',
   'CodePush upstream retired: yes',
   'CodePush upstream archived: yes',
+  'CodePush upstream archived date: 2025-05-20',
   'CodePush upstream New Architecture support: no',
+  'CodePush upstream New Architecture unsupported RN range: >=0.76',
   'Android New Architecture enabled: yes',
   'CodePush migration required: yes',
   'CodePush release build evidence ready: yes',
@@ -165,9 +169,22 @@ assertRejected(
   'retired and archived',
 );
 assertRejected(
+  'Bad upstream archive date fixture',
+  notReadySummary.replace('CodePush upstream archived date: 2025-05-20', 'CodePush upstream archived date: 2025-05-21'),
+  'archived date',
+);
+assertRejected(
   'Bad New Architecture support fixture',
   notReadySummary.replace('CodePush upstream New Architecture support: no', 'CodePush upstream New Architecture support: yes'),
   'New Architecture support must remain no',
+);
+assertRejected(
+  'Bad New Architecture unsupported range fixture',
+  notReadySummary.replace(
+    'CodePush upstream New Architecture unsupported RN range: >=0.76',
+    'CodePush upstream New Architecture unsupported RN range: unknown',
+  ),
+  'unsupported RN range',
 );
 assertRejected(
   'Missing migration requirement fixture',

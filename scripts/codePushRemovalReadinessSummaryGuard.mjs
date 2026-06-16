@@ -58,7 +58,9 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
   const packageRepositoryUrl = getLineValue(summary, 'CodePush npm repository');
   const upstreamRepository = getLineValue(summary, 'CodePush upstream repository');
   const upstreamArchived = getLineValue(summary, 'CodePush upstream archived');
+  const upstreamArchivedDate = getLineValue(summary, 'CodePush upstream archived date');
   const upstreamNewArchitectureSupport = getLineValue(summary, 'CodePush upstream New Architecture support');
+  const upstreamNewArchitectureUnsupportedRange = getLineValue(summary, 'CodePush upstream New Architecture unsupported RN range');
   const androidNewArchitectureEnabled = getLineValue(summary, 'Android New Architecture enabled');
   const migrationRequired = getLineValue(summary, 'CodePush migration required');
   const releaseBuildEvidenceReady = getLineValue(summary, 'CodePush release build evidence ready');
@@ -125,8 +127,18 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
     errors.push(`CodePush upstream archived must remain yes for the removal decision. Received: ${upstreamArchived || 'missing'}`);
   }
 
+  if (upstreamArchivedDate !== '2025-05-20') {
+    errors.push(`CodePush upstream archived date must be 2025-05-20. Received: ${upstreamArchivedDate || 'missing'}`);
+  }
+
   if (upstreamNewArchitectureSupport !== 'no') {
     errors.push(`CodePush upstream New Architecture support must remain no. Received: ${upstreamNewArchitectureSupport || 'missing'}`);
+  }
+
+  if (upstreamNewArchitectureUnsupportedRange !== '>=0.76') {
+    errors.push(
+      `CodePush upstream New Architecture unsupported RN range must be >=0.76. Received: ${upstreamNewArchitectureUnsupportedRange || 'missing'}`,
+    );
   }
 
   if (androidNewArchitectureEnabled !== 'yes') {

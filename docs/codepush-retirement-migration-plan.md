@@ -9,14 +9,14 @@ Scope: `BEM-37.282 - CodePush retirement audit`.
 - `react-native-code-push@9.0.1` is the latest npm release checked on 2026-06-11.
 - The latest npm release was published on 2024-12-19.
 - Microsoft App Center CodePush was retired on 2025-03-31.
-- The Microsoft `react-native-code-push` and standalone `code-push-server` repositories are archived/read-only. `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` and `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` confirmed `isArchived: true` on 2026-06-11.
-- The upstream Microsoft README states that React Native CodePush does not support New Architecture.
+- The Microsoft `react-native-code-push` repository is archived/read-only as of 2025-05-20, and the standalone `code-push-server` repository is also archived/read-only. `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` and `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` confirmed `isArchived: true` on 2026-06-11.
+- The upstream Microsoft README states that React Native CodePush does not support New Architecture and requires opting out on React Native versions starting from `0.76`.
 - This repo currently has Android `newArchEnabled=true`, so CodePush must be treated as legacy release infrastructure even when local builds still pass.
 - CodePush runtime startup and native bundle resolution are no longer present after `BEM-37.583`; non-dev builds use bundled JS assets instead of the retired OTA client.
 
 Official references:
 
-- https://learn.microsoft.com/appcenter/retirement
+- https://learn.microsoft.com/en-us/appcenter/retirement
 - https://github.com/microsoft/react-native-code-push
 - https://github.com/microsoft/code-push-server
 
@@ -51,7 +51,9 @@ Expected summary claims after `BEM-37.583`:
 - package dependency and installed package are reported as `removed`, while latest npm metadata remains recorded for historical context;
 - App Center CodePush retirement date is recorded as `2025-03-31`;
 - upstream retired/archived state is recorded;
+- upstream `react-native-code-push` archive date is recorded as `2025-05-20`;
 - upstream New Architecture support is recorded as `no`;
+- upstream New Architecture unsupported React Native range is recorded as `>=0.76`;
 - Android New Architecture enabled state is recorded;
 - CodePush migration required is recorded as `no` after removal;
 - npm latest version, latest published timestamp, npm repository, and upstream repository are recorded in the migration-readiness summary so the remove-or-replace decision carries package/upstream evidence directly;
@@ -66,7 +68,7 @@ Expected summary claims after `BEM-37.583`:
 - the decision handoff generator defaults to the current post-removal decision `remove` with beta strategy `beta has no OTA`, while still allowing explicit `pending`, `replace`, or temporary legacy overrides for future planning;
 - the decision handoff keeps release build evidence, release-smoke evidence, beta strategy, iOS validation status, and OTA update validation state in one local artifact without printing deployment-key values;
 - the removal-readiness summary records zero runtime, Android, iOS, and plist surfaces remaining after removal;
-- the removal-readiness summary also records the CodePush package latest version, latest published timestamp, npm repository, upstream repository, archived state, New Architecture support, Android New Architecture enabled state, migration-required state, and Android release evidence readiness before any removal is planned;
+- the removal-readiness summary also records the CodePush package latest version, latest published timestamp, npm repository, upstream repository, archived state, archive date, New Architecture support, unsupported React Native range, Android New Architecture enabled state, migration-required state, and Android release evidence readiness before any removal is planned;
 - the removal-readiness summary records `Safe to remove now: no` after removal because there is no remaining CodePush integration to remove;
 - the release-services handoff now defaults to `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota` so the selected post-removal decision is preserved through the full release-services validation sequence instead of being reset to `pending`;
 - the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence;

@@ -15,7 +15,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-firebase/crashlytics` | `24.1.1` | `24.1.1` | Peer requires matching `@react-native-firebase/app@24.1.1`. |
 | `@react-native-firebase/messaging` | `24.1.1` | `24.1.1` | Peer requires matching `@react-native-firebase/app@24.1.1`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
-| `react-native-code-push` | removed | `9.0.1` | Removed in `BEM-37.583`; App Center CodePush was retired on 2025-03-31 and the Microsoft repositories are archived. |
+| `react-native-code-push` | removed | `9.0.1` | Removed in `BEM-37.583`; App Center CodePush was retired on 2025-03-31, the Microsoft `react-native-code-push` repository was archived on 2025-05-20, and upstream does not support New Architecture on React Native `>=0.76`. |
 | `@sentry/react-native` | `8.14.0` | `8.14.0` | Latest checked SDK line; source-map and dSYM behavior must still be proven with local credentials. |
 | `@sentry/cli` | `3.5.1` | `3.5.1` | Explicit release-tooling dependency; prerequisite audit checks binary availability, live latest metadata, installed direct/nested CLI versions, and whether release build phases use the direct root CLI package. |
 
@@ -141,7 +141,7 @@ Results:
 - Android release APK manifest proof is valid for the current `dev`, `stage`, `prod`, and `beta` release artifacts.
 - Android `devRelease` embedded smoke passed on `emulator-5554` with Metro not required, first-run terms/PIN/transaction-password setup completed, empty-wallet dashboard reached, Create/Import CTA navigation validated, tab navigation validated, QR scanner screen validated, and no fatal/runtime logcat findings.
 - CodePush package readiness records live npm latest metadata for historical context and confirms the app package is removed.
-- CodePush upstream retirement readiness records App Center CodePush retirement on 2025-03-31, archived Microsoft upstream state, lack of upstream New Architecture support, Android `newArchEnabled=true`, and `CodePush migration required: no` after removal.
+- CodePush upstream retirement readiness records App Center CodePush retirement on 2025-03-31, Microsoft `react-native-code-push` archive date 2025-05-20, archived upstream state, lack of upstream New Architecture support for React Native `>=0.76`, Android `newArchEnabled=true`, and `CodePush migration required: no` after removal.
 - CodePush release-path env readiness is recorded as removed without printing deployment-key values.
 - CodePush release-path package readiness verifies that `package.json` and `node_modules` no longer carry `react-native-code-push`.
 - CodePush update validation remains `not claimed`; OTA delivery is no longer a supported release path unless a maintained replacement is selected.
@@ -218,7 +218,7 @@ Shared env/config:
 - `corepack yarn firebase:runtime:delivery:handoff` validates the local Firebase runtime-delivery prerequisites and static push bridge prerequisites without claiming real FCM, Crashlytics, Analytics, or push delivery behavior.
 - CodePush removal can affect non-dev startup and release bundling, so removal branches still require Android debug/release builds and emulator smoke.
 - `react-native-code-push` was removed after the RN `0.86.0` proof and a 2026-06-11 live npm/GitHub refresh confirmed the latest package was archived/retired infrastructure rather than a viable long-term update target.
-- `corepack yarn codepush:release:path-audit` verifies the removed state, latest historical npm/upstream metadata, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, the dedicated release-build evidence readiness line, and unclaimed OTA update-validation status without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
+- `corepack yarn codepush:release:path-audit` verifies the removed state, latest historical npm/upstream metadata, upstream archive date, upstream New Architecture unsupported React Native range, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, the dedicated release-build evidence readiness line, and unclaimed OTA update-validation status without printing deployment-key values. It writes `local-docs/codepush-release-path-summary.txt`.
 - `corepack yarn codepush:release:path-check-summary` validates the generated local CodePush release-path summary.
 - Sentry changes can affect release bundling, source-map upload, dSYM upload, DSN handling, and Android Gradle integration even though the active RN `0.86.0` warning audit no longer reports Sentry `execResult`.
 - `@sentry/react-native` is on latest checked `8.14.0` after the Sentry SDK upgrade; Android build and smoke validation are required for any future runtime/package Sentry branch, while source-map/dSYM upload remains blocked locally until Sentry credentials/properties are available and the credentialed release runner proves upload.

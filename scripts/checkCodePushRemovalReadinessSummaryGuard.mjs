@@ -10,7 +10,9 @@ const validSummary = [
   'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
   'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
   'CodePush upstream archived: yes',
+  'CodePush upstream archived date: 2025-05-20',
   'CodePush upstream New Architecture support: no',
+  'CodePush upstream New Architecture unsupported RN range: >=0.76',
   'Android New Architecture enabled: yes',
   'CodePush migration required: yes',
   'CodePush release build evidence ready: yes',
@@ -134,9 +136,22 @@ assertRejected(
 );
 assertRejected('Not archived fixture', validSummary.replace('CodePush upstream archived: yes', 'CodePush upstream archived: no'), 'upstream archived');
 assertRejected(
+  'Bad upstream archive date fixture',
+  validSummary.replace('CodePush upstream archived date: 2025-05-20', 'CodePush upstream archived date: 2025-05-21'),
+  'archived date',
+);
+assertRejected(
   'New Architecture support claimed fixture',
   validSummary.replace('CodePush upstream New Architecture support: no', 'CodePush upstream New Architecture support: yes'),
   'New Architecture support',
+);
+assertRejected(
+  'Bad New Architecture unsupported range fixture',
+  validSummary.replace(
+    'CodePush upstream New Architecture unsupported RN range: >=0.76',
+    'CodePush upstream New Architecture unsupported RN range: unknown',
+  ),
+  'unsupported RN range',
 );
 assertRejected('Android New Architecture disabled fixture', validSummary.replace('Android New Architecture enabled: yes', 'Android New Architecture enabled: no'), 'Android New Architecture');
 assertRejected('Migration not required fixture', validSummary.replace('CodePush migration required: yes', 'CodePush migration required: no'), 'migration required');

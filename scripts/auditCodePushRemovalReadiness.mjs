@@ -120,8 +120,10 @@ export const collectCodePushRemovalReadinessAudit = () => {
     packageLatestPublishedAt: releasePathAudit.packageLatestPublishedAt,
     packageRepositoryUrl: releasePathAudit.packageRepositoryUrl,
     codePushUpstreamRepository: releasePathAudit.codePushUpstreamRepository,
+    codePushUpstreamArchivedDate: releasePathAudit.codePushUpstreamArchivedDate,
     upstreamArchived: releasePathAudit.upstreamArchived,
     upstreamNewArchitectureSupported: releasePathAudit.upstreamNewArchitectureSupported,
+    codePushNewArchitectureUnsupportedReactNativeRange: releasePathAudit.codePushNewArchitectureUnsupportedReactNativeRange,
     androidNewArchitectureEnabled: releasePathAudit.androidNewArchitectureEnabled,
     migrationRequired: releasePathAudit.migrationRequired,
     releaseBuildEvidenceReady: releasePathAudit.releaseBuildEvidenceReady,
@@ -164,7 +166,9 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
     `CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`,
     `CodePush upstream repository: ${audit.codePushUpstreamRepository || 'missing'}`,
     `CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`,
+    `CodePush upstream archived date: ${audit.codePushUpstreamArchivedDate}`,
     `CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`,
+    `CodePush upstream New Architecture unsupported RN range: ${audit.codePushNewArchitectureUnsupportedReactNativeRange}`,
     `Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`,
     `CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`,
     `CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`,
@@ -215,7 +219,9 @@ const printReport = audit => {
   console.log(`CodePush npm repository: ${audit.packageRepositoryUrl || 'missing'}`);
   console.log(`CodePush upstream repository: ${audit.codePushUpstreamRepository || 'missing'}`);
   console.log(`CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`);
+  console.log(`CodePush upstream archived date: ${audit.codePushUpstreamArchivedDate}`);
   console.log(`CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`);
+  console.log(`CodePush upstream New Architecture unsupported RN range: ${audit.codePushNewArchitectureUnsupportedReactNativeRange}`);
   console.log(`Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`);
   console.log(`CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`);
   console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);

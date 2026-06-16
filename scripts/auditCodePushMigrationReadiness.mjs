@@ -73,8 +73,10 @@ export const collectCodePushMigrationReadinessAudit = () => {
     packageRepositoryUrl: releasePathAudit.packageRepositoryUrl,
     codePushUpstreamRepository: releasePathAudit.codePushUpstreamRepository,
     appCenterRetirementDate: releasePathAudit.appCenterRetirementDate,
+    codePushUpstreamArchivedDate: releasePathAudit.codePushUpstreamArchivedDate,
     upstreamArchived: releasePathAudit.upstreamArchived,
     upstreamNewArchitectureSupported: releasePathAudit.upstreamNewArchitectureSupported,
+    codePushNewArchitectureUnsupportedReactNativeRange: releasePathAudit.codePushNewArchitectureUnsupportedReactNativeRange,
     androidNewArchitectureEnabled: releasePathAudit.androidNewArchitectureEnabled,
     runtimeGatedOffByDefault: releasePathAudit.runtimeGatePresent && releasePathAudit.nativeBundleGatePresent && !releasePathAudit.runtimeDefaultEnabled,
     updateValidation: 'not claimed',
@@ -116,7 +118,9 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
     `CodePush upstream repository: ${audit.codePushUpstreamRepository || 'missing'}`,
     `App Center CodePush retirement date: ${audit.appCenterRetirementDate}`,
     `CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`,
+    `CodePush upstream archived date: ${audit.codePushUpstreamArchivedDate}`,
     `CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`,
+    `CodePush upstream New Architecture unsupported RN range: ${audit.codePushNewArchitectureUnsupportedReactNativeRange}`,
     `Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`,
     `CodePush runtime gated off by default: ${audit.runtimeGatedOffByDefault ? 'yes' : 'no'}`,
     `CodePush update validation: ${audit.updateValidation}`,
@@ -162,7 +166,9 @@ const printReport = audit => {
   console.log(`CodePush upstream repository: ${audit.codePushUpstreamRepository || 'missing'}`);
   console.log(`App Center CodePush retirement date: ${audit.appCenterRetirementDate}`);
   console.log(`CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`);
+  console.log(`CodePush upstream archived date: ${audit.codePushUpstreamArchivedDate}`);
   console.log(`CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`);
+  console.log(`CodePush upstream New Architecture unsupported RN range: ${audit.codePushNewArchitectureUnsupportedReactNativeRange}`);
   console.log(`Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`);
   console.log(`CodePush runtime gated off by default: ${audit.runtimeGatedOffByDefault ? 'yes' : 'no'}`);
   console.log(`CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`);
