@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.689 - Electrum observation logcat window
+
+- Branch: `feature/bem-37-689-electrum-observation-logcat-window`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Android Electrum runtime observation helper with a second global logcat capture window.
+- Keep the existing process-PID logcat as the source for fatal/runtime failures while using the global logcat fallback for Electrum connection evidence that may occur outside the current PID capture.
+- Harden the parser, artifact checker, and strict success checker so the new process/global split is recorded and validated.
+
+Findings:
+
+- The previous Electrum runtime observation path could return `inconclusive` when the app UI was ready but the process-filtered logcat missed the Electrum connection window.
+- The updated summary keeps legacy combined `Electrum * lines` counters for existing checkers and adds source-specific process/global counters plus a global logcat SHA-256 digest.
+- Global logcat evidence can now confirm Electrum success, but fatal/runtime failures still depend on the app process logcat to avoid failing on unrelated system-wide Android logs.
+- The Android create-wallet runtime path still completes on emulator, but the final observation remained `inconclusive`: process and global logcat both contained `0` Electrum lines, `0` Electrum success lines, `0` Electrum failure lines, and `0` fatal/runtime lines.
+- The global logcat capture required an explicit ADB output buffer (`ELECTRUM_OBSERVATION_ADB_MAX_BUFFER_BYTES`) to avoid `spawnSync ENOBUFS` when capturing a larger observation window.
+
+Validation:
+
+- `node --check scripts/captureElectrumRuntimeObservation.mjs`
+- `node --check scripts/checkElectrumRuntimeObservationParserGuard.mjs`
+- `node --check scripts/checkElectrumRuntimeObservationArtifact.mjs`
+- `node --check scripts/checkElectrumRuntimeObservationSummary.mjs`
+- `& $node scripts/checkElectrumRuntimeObservationParserGuard.mjs`
+- `ANDROID_SERIAL=emulator-5554 ELECTRUM_OBSERVATION_WAIT_MS=5000 ELECTRUM_OBSERVATION_LOGCAT_LINES=4000 ELECTRUM_OBSERVATION_GLOBAL_LOGCAT_LINES=8000 ELECTRUM_OBSERVATION_ADB_MAX_BUFFER_BYTES=33554432 & $node $yarn android:dev:create-wallet-electrum-observe`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `& $node $yarn android:dev:check-create-wallet-smoke-summary`
+- `& $node $yarn electrum:runtime:check-artifact`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.688 - CodePush env cleanup
 
 - Branch: `feature/bem-37-688-codepush-env-cleanup`

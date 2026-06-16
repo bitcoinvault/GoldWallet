@@ -29,12 +29,14 @@ const connectionIssueUiHierarchy = [
   '</hierarchy>',
 ].join('');
 
-const renderFixture = (logcat, hierarchy = readyUiHierarchy) =>
+const renderFixture = (logcat, hierarchy = readyUiHierarchy, globalLogcat = '') =>
   renderSummary({
     selectedSerial: 'emulator-5554',
     pid: '12345',
     logcat,
     observation: parseObservation(logcat),
+    globalLogcat,
+    globalObservation: parseObservation(globalLogcat),
     uiCapture: {
       captured: true,
       hierarchy,
@@ -52,8 +54,30 @@ const successLogcat = [
 const successResult = renderFixture(successLogcat);
 
 assert(successResult.outcome === 'passed', 'success Electrum logcat should pass');
+assert(successResult.summary.includes('ADB max buffer bytes: '), 'success summary should include adb max buffer');
 assert(successResult.summary.includes('Electrum success lines: 2'), 'success summary should count success lines');
+assert(successResult.summary.includes('Process Electrum success lines: 2'), 'success summary should count process success lines');
 assert(successResult.summary.includes('Runtime UI evidence: ready'), 'ready UI hierarchy should be recorded');
+
+const globalFallbackResult = renderFixture(
+  '06-16 10:00:00.000 I ReactNativeJS: unrelated startup log',
+  readyUiHierarchy,
+  successLogcat,
+);
+
+assert(globalFallbackResult.outcome === 'passed', 'global Electrum fallback success logcat should pass');
+assert(
+  globalFallbackResult.summary.includes('Process Electrum success lines: 0'),
+  'global fallback summary should preserve process success count',
+);
+assert(
+  globalFallbackResult.summary.includes('Global Electrum success lines: 2'),
+  'global fallback summary should count global success lines',
+);
+assert(
+  globalFallbackResult.summary.includes('Electrum success lines: 2'),
+  'global fallback summary should count combined success lines',
+);
 
 const failedConnectionLogcat = [
   '06-16 10:00:00.000 I ReactNativeJS: 10:00 | INFO : BlueElectrum {"message":"begin connection"}',

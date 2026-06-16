@@ -35,13 +35,13 @@ if (!['passed', 'observed-without-success', 'inconclusive'].includes(outcome)) {
   errors.push(`Electrum observation outcome must be non-fatal. Received: ${outcome || 'missing'}`);
 }
 
-['Android serial', 'Android package', 'App PID', 'Captured logcat sha256'].forEach(label => {
+['Android serial', 'Android package', 'App PID', 'Captured logcat sha256', 'Global logcat sha256'].forEach(label => {
   if (!getLineValue(summary, label)) {
     errors.push(`${label} is missing`);
   }
 });
 
-['Captured logcat line limit', 'Captured logcat lines'].forEach(label => {
+['ADB max buffer bytes', 'Captured logcat line limit', 'Captured logcat lines', 'Global logcat line limit'].forEach(label => {
   if (!isPositiveInteger(getLineValue(summary, label))) {
     errors.push(`${label} must be a positive integer`);
   }
@@ -51,6 +51,13 @@ if (!['passed', 'observed-without-success', 'inconclusive'].includes(outcome)) {
   'Electrum log lines',
   'Electrum success lines',
   'Electrum failure lines',
+  'Process Electrum log lines',
+  'Process Electrum success lines',
+  'Process Electrum failure lines',
+  'Global logcat lines',
+  'Global Electrum log lines',
+  'Global Electrum success lines',
+  'Global Electrum failure lines',
   'Fatal/runtime logcat lines',
   'UI hierarchy bytes',
 ].forEach(label => {
@@ -61,6 +68,10 @@ if (!['passed', 'observed-without-success', 'inconclusive'].includes(outcome)) {
 
 if (getLineValue(summary, 'Fatal/runtime logcat lines') !== '0') {
   errors.push('Fatal/runtime logcat lines must be 0');
+}
+
+if (!/^[a-f0-9]{64}$/.test(getLineValue(summary, 'Global logcat sha256'))) {
+  errors.push('Global logcat sha256 must be a lowercase SHA-256 digest');
 }
 
 if (getLineValue(summary, 'Secret values printed') !== 'no') {
