@@ -6,14 +6,32 @@ const getLineValue = (content, label) => {
 const getEntryLines = summary => summary.split(/\r?\n/).filter(line => line.startsWith('- '));
 
 const requiredKnownEntries = [
-  'bitcoinjs-lib',
-  'bl',
-  'electrum-client',
-  'react',
-  'react-native-prompt-android',
-  'react-test-renderer',
-  'rn-nodeify',
+  ['@babel/cli', 'devDependencies'],
+  ['@babel/core', 'resolutionDependencies'],
+  ['@babel/core', 'devDependencies'],
+  ['@babel/plugin-transform-runtime', 'devDependencies'],
+  ['@babel/preset-env', 'devDependencies'],
+  ['@babel/preset-react', 'devDependencies'],
+  ['@babel/preset-typescript', 'devDependencies'],
+  ['@babel/runtime', 'devDependencies'],
+  ['@babel/traverse', 'resolutionDependencies'],
+  ['bitcoinjs-lib', 'dependencies'],
+  ['bl', 'resolutionDependencies'],
+  ['electrum-client', 'dependencies'],
+  ['react', 'dependencies'],
+  ['react-native-prompt-android', 'dependencies'],
+  ['react-test-renderer', 'devDependencies'],
+  ['rn-nodeify', 'devDependencies'],
 ];
+const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
+
+const parseEntryLine = line => {
+  const match = /^- (?<name>.*?): .* type (?<type>[^,]+), decision /.exec(line);
+  return {
+    name: match?.groups?.name || line.slice(2, line.indexOf(': ')),
+    type: match?.groups?.type || '<missing>',
+  };
+};
 
 const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value);
 const isNonNegativeInteger = value => /^\d+$/.test(value);
@@ -67,23 +85,27 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     }
   });
 
-  const entryNames = entryLines.map(line => line.slice(2, line.indexOf(': ')));
-  const duplicateEntryNames = entryNames.filter((name, index) => entryNames.indexOf(name) !== index);
-  duplicateEntryNames.forEach(name => {
-    errors.push(`Duplicate direct outdated entry for ${name}`);
+  const entryInfos = entryLines.map(parseEntryLine);
+  const entryKeys = entryInfos.map(entry => `${entry.name}|${entry.type}`);
+  const duplicateEntryKeys = entryKeys.filter((key, index) => entryKeys.indexOf(key) !== index);
+  duplicateEntryKeys.forEach(key => {
+    const [name, type] = key.split('|');
+    errors.push(`Duplicate direct outdated entry for ${name} (${type})`);
   });
 
-  entryNames.forEach(name => {
-    if (!requiredKnownEntries.includes(name)) {
-      errors.push(`Unexpected direct outdated entry for ${name}`);
+  entryInfos.forEach(entry => {
+    const key = `${entry.name}|${entry.type}`;
+
+    if (!requiredKnownEntryKeys.includes(key)) {
+      errors.push(`Unexpected direct outdated entry for ${entry.name} (${entry.type})`);
     }
   });
 
-  requiredKnownEntries.forEach(name => {
-    const entry = entryLines.find(line => line.startsWith(`- ${name}: `));
+  requiredKnownEntries.forEach(([name, type]) => {
+    const entry = entryLines.find(line => line.startsWith(`- ${name}: `) && line.includes(` type ${type},`));
 
     if (!entry) {
-      errors.push(`Missing direct outdated entry for ${name}`);
+      errors.push(`Missing direct outdated entry for ${name} (${type})`);
       return;
     }
 
@@ -115,6 +137,19 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
 
   if (!entryLines.some(line => line.startsWith('- react: ') && line.includes('React Native renderer exact-version coupling'))) {
     errors.push('React patch drift must remain tied to the React Native renderer exact-version coupling decision');
+  }
+
+  const babelEntryLines = entryLines.filter(line => line.startsWith('- @babel/'));
+  if (
+    babelEntryLines.length > 0 &&
+    !babelEntryLines.every(
+      line =>
+        line.includes('Babel 8 is a major Metro/RN transform migration') &&
+        line.includes('current RN 0.86 Babel preset depends on the Babel 7 plugin stack') &&
+        line.includes('dedicated RN/Metro/Babel branch'),
+    )
+  ) {
+    errors.push('Babel 8 drift must remain tied to a dedicated RN/Metro/Babel branch decision');
   }
 
   if (

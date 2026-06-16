@@ -5556,10 +5556,10 @@ detox-getprops@^0.1.2:
   resolved "https://registry.yarnpkg.com/detox-getprops/-/detox-getprops-0.1.2.tgz#a76ec631629f2cca643c98d687700b82884b8f35"
   integrity sha512-fAv+emwiwRvVrOcVQAn3Gkl540If/Any9GBYmFzTAxxgRTwDqcg/X2LVLU8/Dkb4k7KPNAZeIHcIPMVGbt0X9w==
 
-detox@20.51.3:
-  version "20.51.3"
-  resolved "https://registry.yarnpkg.com/detox/-/detox-20.51.3.tgz#74bf905e76e8d63e57141f182e511f1511ad490a"
-  integrity sha512-wrR1Xr+mojmM+UsycyLalLmednc2ZMHasdzGZgdmqfcVXN5OcSyVzA/JGoTmmz3Q/Xqv4bvT3jg/HdfQwiQMiw==
+detox@20.51.4:
+  version "20.51.4"
+  resolved "https://registry.yarnpkg.com/detox/-/detox-20.51.4.tgz#b55f41aece47bfa0cf4c5a2e09a9f05e27edd17c"
+  integrity sha512-tVes0sVV+jdr5Hp3XONRDtLqLvbTHZORfEAImY50MYdrUgtnrSHx8HsgqZqAuw3ulRdfp4kN6RH5P1s0Aoagng==
   dependencies:
     "@wix-pilot/core" "^3.4.2"
     "@wix-pilot/detox" "^1.0.13"
