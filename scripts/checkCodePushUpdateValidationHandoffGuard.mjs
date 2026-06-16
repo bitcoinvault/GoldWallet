@@ -29,11 +29,13 @@ const smokeEvidenceOptions = {
   requireSourceApkDigest: true,
   expectedSourceApkPath: fixtureApkPath,
 };
+const createWalletEvidenceOptions = {
+  expectedApkPath: fixtureApkPath,
+  expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+};
 
 [
-  'corepack yarn android:dev:release:verify-local',
-  'corepack yarn android:dev:release:smoke:embedded',
-  'corepack yarn android:dev:release:check-smoke-summary',
+  'corepack yarn android:dev:release:create-wallet-verify',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn codepush:release:path-audit',
   'corepack yarn codepush:release:path-check-summary',
@@ -54,16 +56,8 @@ assert(
   'CodePush handoff rendered commands must not print deployment-key assignments',
 );
 assert(
-  !skippedRendered.includes('android:dev:release:verify-local'),
-  'Skipped CodePush handoff must omit Android release evidence refresh',
-);
-assert(
-  !skippedRendered.includes('android:dev:release:smoke:embedded'),
-  'Skipped CodePush handoff must omit Android release smoke refresh',
-);
-assert(
-  !skippedRendered.includes('android:dev:release:check-smoke-summary'),
-  'Skipped CodePush handoff must omit Android release smoke summary validation',
+  !skippedRendered.includes('android:dev:release:create-wallet-verify'),
+  'Skipped CodePush handoff must omit Android release create-wallet evidence refresh',
 );
 assert(
   skippedRendered.includes('corepack yarn codepush:release:path-audit'),
@@ -268,8 +262,36 @@ const readyAndroidReleaseSmokeSummary = [
   'Validated empty-dashboard CTA flow: yes',
   'Validated empty-tab navigation: yes',
   'Validated QR scanner screen: yes',
+  'Validated settings Terms WebView: yes',
   'UI hierarchy attempts: 1',
   'UI hierarchy path: package.json',
+  'Screenshot path: package.json',
+  'Screenshot bytes: 1234',
+].join('\n');
+
+const readyAndroidReleaseCreateWalletSmokeSummary = [
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Android create-wallet smoke outcome: passed',
+  'Android create-wallet smoke exit code: 0',
+  'Android create-wallet smoke reason: standard and vault wallet flows completed without fatal/runtime logcat findings',
+  'Android serial: emulator-5554',
+  'Android package: io.goldwallet.wallet.dev',
+  'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+  'Artifact base: android-create-wallet-smoke-dev-release',
+  `Source APK path: ${fixtureApkPath}`,
+  `Source APK bytes: ${fixtureApkBytes}`,
+  `Source APK sha256: ${fixtureApkSha256}`,
+  'Standard wallet name: Smoke Standard',
+  'Standard wallet created: yes',
+  'Standard mnemonic screen reached: yes',
+  'Vault wallet name: Smoke Vault',
+  'Vault next-step reached: yes',
+  'No create-wallet error UI: yes',
+  'Fatal/runtime logcat findings: no',
+  'App PID: 1234',
+  'Captured logcat lines: 400',
+  'UI hierarchy path: package.json',
+  'Logcat path: package.json',
   'Screenshot path: package.json',
   'Screenshot bytes: 1234',
 ].join('\n');
@@ -279,7 +301,9 @@ assert(
     releasePathSummaryText: readySummary,
     migrationReadinessSummaryText: migrationReadinessSummary,
     removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).length === 0,
   'Ready CodePush handoff summary fixture must pass readiness checks',
@@ -289,7 +313,9 @@ assert(
     releasePathSummaryText: blockedSummary,
     migrationReadinessSummaryText: migrationReadinessSummary,
     removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('not ready for update validation')),
   'Blocked CodePush handoff summary fixture must report update-validation readiness blocker',
@@ -299,7 +325,9 @@ assert(
     releasePathSummaryText: partialReadySummary,
     migrationReadinessSummaryText: migrationReadinessSummary,
     removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('CodePush release path summary is invalid')),
   'CodePush readiness check must reject partial release path summaries before accepting readiness strings',
@@ -309,7 +337,9 @@ assert(
     releasePathSummaryText: 'Release path ready for update validation: yes',
     migrationReadinessSummaryText: migrationReadinessSummary,
     removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('deployment-key values were not printed')),
   'CodePush readiness check must require secret-safe summary evidence',
@@ -319,7 +349,9 @@ assert(
     releasePathSummaryText: readySummary,
     migrationReadinessSummaryText: partialMigrationReadinessSummary,
     removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('CodePush migration readiness summary is invalid')),
   'CodePush readiness check must reject partial migration readiness summaries',
@@ -329,7 +361,9 @@ assert(
     releasePathSummaryText: readySummary,
     migrationReadinessSummaryText: migrationReadinessSummary,
     removalReadinessSummaryText: partialRemovalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('CodePush removal readiness summary is invalid')),
   'CodePush readiness check must reject partial removal readiness summaries',
@@ -339,7 +373,9 @@ assert(
     releasePathSummaryText: readySummary,
     migrationReadinessSummaryText: migrationReadinessSummary,
     removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: '',
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is missing')),
   'CodePush readiness check must report a missing Android release smoke summary',
@@ -349,10 +385,39 @@ assert(
     releasePathSummaryText: readySummary,
     migrationReadinessSummaryText: migrationReadinessSummary,
     removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace('Validated empty-dashboard CTA flow: yes', 'Validated empty-dashboard CTA flow: no'),
+    createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('Android release smoke summary is invalid')),
   'CodePush readiness check must reject invalid Android release smoke evidence',
+);
+assert(
+  getCodePushUpdateValidationReadinessErrors({
+    releasePathSummaryText: readySummary,
+    migrationReadinessSummaryText: migrationReadinessSummary,
+    removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: '',
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Android release create-wallet smoke summary is missing')),
+  'CodePush readiness check must report a missing Android release create-wallet smoke summary',
+);
+assert(
+  getCodePushUpdateValidationReadinessErrors({
+    releasePathSummaryText: readySummary,
+    migrationReadinessSummaryText: migrationReadinessSummary,
+    removalReadinessSummaryText: removalReadinessSummary,
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary.replace(
+      'Standard wallet created: yes',
+      'Standard wallet created: no',
+    ),
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Android release create-wallet smoke summary is invalid')),
+  'CodePush readiness check must reject invalid Android release create-wallet smoke evidence',
 );
 
 console.log('CodePush update validation handoff guard checks are valid.');

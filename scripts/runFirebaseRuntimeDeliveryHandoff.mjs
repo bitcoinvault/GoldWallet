@@ -3,6 +3,7 @@ import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
+import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
 import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';
@@ -12,6 +13,8 @@ const root = path.resolve(__dirname, '..');
 const firebaseSummaryPath = path.join(root, 'local-docs', 'firebase-release-services-summary.txt');
 const pushBridgeSummaryPath = path.join(root, 'local-docs', 'push-notification-bridge-summary.txt');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
+const androidReleaseSignedSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 
 const defaultOptions = {
   dryRun: false,
@@ -63,13 +66,11 @@ export const getFirebaseRuntimeDeliveryCommands = (options = defaultOptions) => 
 
   if (!options.skipAndroidRelease) {
     steps.push(
-      yarnStep('Refresh Android release APK evidence without upload', 'android:dev:release:verify-local', {
+      yarnStep('Refresh Android release create-wallet evidence without upload', 'android:dev:release:create-wallet-verify', {
         env: {
           SENTRY_DISABLE_AUTO_UPLOAD: 'true',
         },
       }),
-      yarnStep('Run Android release APK embedded smoke', 'android:dev:release:smoke:embedded'),
-      yarnStep('Validate Android release smoke summary', 'android:dev:release:check-smoke-summary'),
     );
   }
 
@@ -103,7 +104,12 @@ const requireSummaryLine = (errors, summaryText, snippet, message) => {
 export const getFirebaseRuntimeDeliveryReadinessErrors = ({
   firebaseSummaryText,
   pushBridgeSummaryText,
+  androidReleaseCreateWalletSmokeSummaryText,
   androidReleaseSmokeSummaryText,
+  createWalletEvidenceOptions = {
+    expectedApkPath: androidReleaseSignedSmokeApkPath,
+    expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+  },
   smokeEvidenceOptions = getAndroidReleaseSmokeEvidenceOptions(root),
 }) => {
   const errors = [];
@@ -152,6 +158,17 @@ export const getFirebaseRuntimeDeliveryReadinessErrors = ({
     const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, smokeEvidenceOptions);
 
     smokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
+  }
+
+  if (!androidReleaseCreateWalletSmokeSummaryText) {
+    errors.push('Android release create-wallet smoke summary is missing; run android:dev:release:create-wallet-smoke:embedded first');
+  } else {
+    const createWalletErrors = getAndroidCreateWalletSmokeSummaryErrors(
+      androidReleaseCreateWalletSmokeSummaryText,
+      createWalletEvidenceOptions,
+    );
+
+    createWalletErrors.forEach(error => errors.push(`Android release create-wallet smoke summary is invalid: ${error}`));
   }
 
   return errors;
@@ -256,6 +273,7 @@ const main = () => {
   const readinessErrors = getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: readSummary(firebaseSummaryPath),
     pushBridgeSummaryText: readSummary(pushBridgeSummaryPath),
+    androidReleaseCreateWalletSmokeSummaryText: readSummary(androidReleaseCreateWalletSmokeSummaryPath),
     androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
   });
 
