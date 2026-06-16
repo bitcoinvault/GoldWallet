@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.690 - Electrum Metro observation path
+
+- Branch: `feature/bem-37-690-electrum-metro-observation-path`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a Metro-specific Android smoke wrapper and create-wallet Electrum observation script.
+- Add a no-multipart Metro start helper and env-gated `metro.config.js` middleware for debug runtime evidence.
+- Guard the new package scripts and Metro middleware so the observation path cannot drift silently.
+
+Findings:
+
+- A first Metro run with normal `yarn start --reset-cache --port 8081` reproduced a runtime blocker: Android stayed on the splash screen and logcat reported `BundleDownloader.processMultipartResponse` / `ProtocolException: Expected leading [0-9a-fA-F] character but was 0xd`.
+- Starting Metro through `start:metro:no-multipart --reset-cache --port 8081` sets `RN_DISABLE_METRO_MULTIPART=true`; `metro.config.js` then strips `multipart/mixed` from bundle requests while leaving default Metro behavior unchanged.
+- With the no-multipart Metro helper, Android Metro smoke passed first-run onboarding, dashboard CTA navigation, tab navigation, QR scanner screen, and Settings Terms WebView.
+- The create-wallet smoke passed standard wallet mnemonic backup and default 3-key vault public-key integration.
+- The Electrum runtime observation passed with real logcat evidence: `12` combined Electrum lines, `4` combined success lines, `0` failure lines, `0` fatal/runtime lines, and `Secret values printed: no`.
+
+Validation:
+
+- `node --check scripts/androidSmokeDevMetro.mjs`
+- `node --check scripts/startMetroNoMultipart.mjs`
+- `node --check scripts/checkElectrumMetroObservationPathGuard.mjs`
+- `& $node $yarn check:electrum-metro-observation-path-guard`
+- `& $node $yarn android:dev:check-light-docs`
+- `& $node $yarn start:metro:no-multipart --reset-cache --port 8081`
+- `ANDROID_SERIAL=emulator-5554 ELECTRUM_OBSERVATION_WAIT_MS=5000 ELECTRUM_OBSERVATION_LOGCAT_LINES=4000 ELECTRUM_OBSERVATION_GLOBAL_LOGCAT_LINES=8000 ELECTRUM_OBSERVATION_ADB_MAX_BUFFER_BYTES=33554432 & $node $yarn android:dev:create-wallet-electrum-observe:metro`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `& $node $yarn android:dev:check-create-wallet-smoke-summary`
+- `& $node $yarn electrum:runtime:check-artifact`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.689 - Electrum observation logcat window
 
 - Branch: `feature/bem-37-689-electrum-observation-logcat-window`

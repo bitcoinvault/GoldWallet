@@ -4,6 +4,19 @@ const defaultConfig = getDefaultConfig(__dirname);
 const defaultSourceExts = defaultConfig.resolver.sourceExts;
 
 module.exports = mergeConfig(defaultConfig, {
+  server: {
+    enhanceMiddleware: middleware => (req, res, next) => {
+      if (process.env.RN_DISABLE_METRO_MULTIPART === 'true' && req.headers.accept?.includes('multipart/mixed')) {
+        req.headers.accept = req.headers.accept
+          .split(',')
+          .map(value => value.trim())
+          .filter(value => value && value !== 'multipart/mixed')
+          .join(', ');
+      }
+
+      return middleware(req, res, next);
+    },
+  },
   resolver: {
     sourceExts: process.env.RN_SRC_EXT
       ? process.env.RN_SRC_EXT.split(',').concat(defaultSourceExts)
