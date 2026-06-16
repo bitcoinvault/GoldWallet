@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.704 - iOS Podfile refresh all-schemes handoff plan
+
+- Branch: `feature/bem-37-704-ios-podfile-refresh-all-schemes-plan`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the iOS Podfile.lock refresh handoff plan so it records the current guarded iOS scheme count.
+- Keep the default `GoldWallet Dev (Debug)` macOS handoff command visible for a quick simulator check after `pod install`.
+- Add the full `ios:mac-validation:handoff --all-schemes` command to the generated plan so full shared-scheme validation is not hidden behind the default one-scheme path.
+- Guard the plan format so it rejects missing all-schemes validation, wrong guarded scheme count, claimed runtime validation, secret leakage, or missing pod/install/archive follow-up.
+- Keep iOS runtime/archive validation explicitly unclaimed on this Windows host.
+
+Findings:
+
+- Current iOS static release readiness remains valid, but macOS archive readiness is blocked on this Windows machine by missing `xcodebuild`, missing CocoaPods, and 12 active `ios/Podfile.lock` drift issues.
+- The repo currently has 8 guarded shared iOS schemes; full iOS release confidence after the pod refresh requires the macOS all-schemes handoff, not only the default Dev Debug path.
+- This branch changes only iOS handoff scripts and documentation; runtime app code, Android/iOS native project files, package versions, Metro, and release env values are unchanged.
+
+Validation:
+
+- `& $node --check scripts\planIosPodfileRefresh.mjs`
+- `& $node --check scripts\iosPodfileRefreshPlanGuard.mjs`
+- `& $node --check scripts\checkIosPodfileRefreshPlanGuard.mjs`
+- `& $node $yarn check:ios-podfile-refresh-plan-guard`
+- `& $node $yarn ios:release:readiness:audit`
+- `& $node $yarn ios:release:readiness:check-summary`
+- `& $node $yarn ios:mac-validation-prereq:audit`
+- `& $node $yarn ios:mac-validation-prereq:check-summary`
+- `& $node $yarn ios:podfile-refresh:plan`
+- `& $node $yarn ios:podfile-refresh:check-plan`
+- `& $node $yarn ios:mac-validation:handoff:preflight:dry-run --all-schemes`
+- `& $node $yarn check:ios-mac-validation-handoff-guard`
+- `& $node $yarn ios:validation:handoff-summary`
+- `& $node $yarn check:ios-validation-handoff-summary-guard`
+- `& $node $yarn check:release-services-summary-guard`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.703 - CodePush retirement evidence guard
 
 - Branch: `feature/bem-37-703-codepush-retirement-evidence-guard`
