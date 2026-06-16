@@ -33,6 +33,7 @@ export const getIosPodfileRefreshPlanErrors = plan => {
   const generatedAt = getLineValue(plan, 'Generated at');
   const platform = getLineValue(plan, 'Platform');
   const staticFilesValid = getLineValue(plan, 'Static iOS release files valid');
+  const guardedSchemeCount = getLineValue(plan, 'Guarded iOS schemes');
   const refreshRequired = getLineValue(plan, 'Podfile.lock refresh required');
   const driftCount = getLineValue(plan, 'Podfile.lock drift issues');
   const removedReferenceCount = getLineValue(plan, 'Removed Podfile.lock pod references');
@@ -68,6 +69,7 @@ export const getIosPodfileRefreshPlanErrors = plan => {
   [
     ['Podfile.lock drift issues', driftCount],
     ['Removed Podfile.lock pod references', removedReferenceCount],
+    ['Guarded iOS schemes', guardedSchemeCount],
   ].forEach(([label, value]) => {
     if (!isNonNegativeInteger(value)) {
       errors.push(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
@@ -80,6 +82,10 @@ export const getIosPodfileRefreshPlanErrors = plan => {
 
   if (staticFilesValid !== 'yes') {
     errors.push('Static iOS release files must be valid before a Podfile.lock refresh handoff');
+  }
+
+  if (guardedSchemeCount !== '8') {
+    errors.push(`Guarded iOS schemes must remain 8. Received: ${guardedSchemeCount || 'missing'}`);
   }
 
   if (refreshRequired === 'yes' && driftCount === '0') {
@@ -103,14 +109,15 @@ export const getIosPodfileRefreshPlanErrors = plan => {
     'corepack yarn ios:release:readiness:audit',
     'corepack yarn ios:release:readiness:check-summary',
     'corepack yarn ios:mac-validation:handoff',
+    'corepack yarn ios:mac-validation:handoff --all-schemes',
   ].forEach(snippet => {
     if (!plan.includes(snippet)) {
       errors.push(`plan is missing required command: ${snippet}`);
     }
   });
 
-  if (!requiredAction.includes('pod install') || !requiredAction.includes('archive/simulator validation')) {
-    errors.push('Required action must name pod install and archive/simulator validation');
+  if (!requiredAction.includes('pod install') || !requiredAction.includes('archive/simulator validation') || !requiredAction.includes('--all-schemes')) {
+    errors.push('Required action must name pod install, archive/simulator validation, and --all-schemes');
   }
 
   return errors;

@@ -19,6 +19,7 @@ export const collectIosPodfileRefreshPlan = () => {
     rnMinIosVersion: releaseReadiness.rnMinIosVersion,
     rnMinXcodeVersion: releaseReadiness.rnMinXcodeVersion,
     staticReady: releaseReadiness.staticReady,
+    guardedSchemeCount: releaseReadiness.schemeCount,
     podfileLockDriftIssues: releaseReadiness.podfileLockDriftIssues,
     removedPodfileLockDriftIssues: releaseReadiness.removedPodfileLockDriftIssues,
   };
@@ -35,6 +36,7 @@ export const formatIosPodfileRefreshPlan = (audit, generatedAt = new Date().toIS
     `React Native minimum iOS: ${audit.rnMinIosVersion || '<unknown>'}`,
     `React Native minimum Xcode: ${audit.rnMinXcodeVersion || '<unknown>'}`,
     `Static iOS release files valid: ${audit.staticReady ? 'yes' : 'no'}`,
+    `Guarded iOS schemes: ${audit.guardedSchemeCount}`,
     `Podfile.lock refresh required: ${refreshRequired ? 'yes' : 'no'}`,
     `Podfile.lock drift issues: ${audit.podfileLockDriftIssues.length}`,
     ...audit.podfileLockDriftIssues.map(issue => `- ${issue}`),
@@ -49,10 +51,11 @@ export const formatIosPodfileRefreshPlan = (audit, generatedAt = new Date().toIS
     '4. cwd=. corepack yarn ios:release:readiness:audit',
     '5. cwd=. corepack yarn ios:release:readiness:check-summary',
     '6. cwd=. corepack yarn ios:mac-validation:handoff --scheme "GoldWallet Dev (Debug)"',
+    '7. cwd=. corepack yarn ios:mac-validation:handoff --all-schemes',
     'Secret values printed: no',
     refreshRequired
-      ? 'Required action: refresh ios/Podfile.lock with pod install on macOS, commit the refreshed lockfile after review, then run iOS archive/simulator validation before claiming iOS runtime delivery.'
-      : 'Required action: run iOS archive/simulator validation on macOS before claiming iOS runtime delivery.',
+      ? 'Required action: refresh ios/Podfile.lock with pod install on macOS, commit the refreshed lockfile after review, then run iOS archive/simulator validation before claiming iOS runtime delivery; use --all-schemes for full shared-scheme release validation.'
+      : 'Required action: run iOS archive/simulator validation on macOS before claiming iOS runtime delivery; use --all-schemes for full shared-scheme release validation.',
     '',
   ].join('\n');
 };
