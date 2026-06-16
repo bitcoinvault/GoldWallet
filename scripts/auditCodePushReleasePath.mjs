@@ -24,6 +24,8 @@ const missingAndroidReleaseSummaryError = 'Android release summary artifact is m
 const codePushPackageName = 'react-native-code-push';
 const appCenterRetirementDate = '2025-03-31';
 const codePushUpstreamRepository = 'https://github.com/microsoft/react-native-code-push';
+const codePushUpstreamArchivedDate = '2025-05-20';
+const codePushNewArchitectureUnsupportedReactNativeRange = '>=0.76';
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 
@@ -285,9 +287,11 @@ export const collectCodePushReleasePathAudit = () => {
     runtimeHocLazyGated: codePushRemoved || runtimeHocLazyGated,
     appCenterRetirementDate,
     codePushUpstreamRepository,
+    codePushUpstreamArchivedDate,
     upstreamRetired,
     upstreamArchived,
     upstreamNewArchitectureSupported,
+    codePushNewArchitectureUnsupportedReactNativeRange,
     androidNewArchitectureEnabled,
     migrationRequired: codePushRemoved ? false : upstreamMigrationRequired,
     packageVersionsAligned:
@@ -345,7 +349,9 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
     `App Center CodePush retirement date: ${audit.appCenterRetirementDate}`,
     `CodePush upstream retired: ${audit.upstreamRetired ? 'yes' : 'no'}`,
     `CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`,
+    `CodePush upstream archived date: ${audit.codePushUpstreamArchivedDate}`,
     `CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`,
+    `CodePush upstream New Architecture unsupported RN range: ${audit.codePushNewArchitectureUnsupportedReactNativeRange}`,
     `Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`,
     `CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`,
     `CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`,
@@ -422,7 +428,9 @@ const printReport = audit => {
   console.log(`App Center CodePush retirement date: ${audit.appCenterRetirementDate}`);
   console.log(`CodePush upstream retired: ${audit.upstreamRetired ? 'yes' : 'no'}`);
   console.log(`CodePush upstream archived: ${audit.upstreamArchived ? 'yes' : 'no'}`);
+  console.log(`CodePush upstream archived date: ${audit.codePushUpstreamArchivedDate}`);
   console.log(`CodePush upstream New Architecture support: ${audit.upstreamNewArchitectureSupported ? 'yes' : 'no'}`);
+  console.log(`CodePush upstream New Architecture unsupported RN range: ${audit.codePushNewArchitectureUnsupportedReactNativeRange}`);
   console.log(`Android New Architecture enabled: ${audit.androidNewArchitectureEnabled ? 'yes' : 'no'}`);
   console.log(`CodePush migration required: ${audit.migrationRequired ? 'yes' : 'no'}`);
   console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);

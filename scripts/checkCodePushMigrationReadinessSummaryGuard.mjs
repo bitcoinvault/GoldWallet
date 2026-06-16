@@ -11,7 +11,9 @@ const validSummary = [
   'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
   'App Center CodePush retirement date: 2025-03-31',
   'CodePush upstream archived: yes',
+  'CodePush upstream archived date: 2025-05-20',
   'CodePush upstream New Architecture support: no',
+  'CodePush upstream New Architecture unsupported RN range: >=0.76',
   'Android New Architecture enabled: yes',
   'CodePush runtime gated off by default: yes',
   'CodePush update validation: not claimed',
@@ -78,6 +80,19 @@ assertRejected(
   'Wrong upstream repository fixture',
   validSummary.replace('CodePush upstream repository: https://github.com/microsoft/react-native-code-push', 'CodePush upstream repository: missing'),
   'upstream repository',
+);
+assertRejected(
+  'Bad upstream archive date fixture',
+  validSummary.replace('CodePush upstream archived date: 2025-05-20', 'CodePush upstream archived date: missing'),
+  'archived date',
+);
+assertRejected(
+  'Bad New Architecture unsupported range fixture',
+  validSummary.replace(
+    'CodePush upstream New Architecture unsupported RN range: >=0.76',
+    'CodePush upstream New Architecture unsupported RN range: unknown',
+  ),
+  'unsupported RN range',
 );
 assertRejected('Runtime enabled fixture', validSummary.replace('CodePush runtime gated off by default: yes', 'CodePush runtime gated off by default: no'), 'gated off by default');
 assertRejected('Claimed update validation fixture', validSummary.replace('CodePush update validation: not claimed', 'CodePush update validation: claimed'), 'not claimed');

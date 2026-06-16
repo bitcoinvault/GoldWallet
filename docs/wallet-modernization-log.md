@@ -10,6 +10,56 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.703 - CodePush retirement evidence guard
+
+- Branch: `feature/bem-37-703-codepush-retirement-evidence-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add guarded CodePush release-services summary fields for the upstream `react-native-code-push` archive date and the React Native range where upstream requires opting out of New Architecture.
+- Propagate the fields through release-path, migration-readiness, removal-readiness, and update-validation handoff guard fixtures.
+- Refresh CodePush retirement documentation so the post-removal release posture records the official retirement/archive evidence directly.
+- Keep runtime app code, Android/iOS native files, Metro, package versions, and release env values unchanged.
+
+Findings:
+
+- Microsoft App Center CodePush remains retired as of 2025-03-31.
+- The Microsoft `react-native-code-push` repository records an archive date of 2025-05-20.
+- The upstream README states that React Native CodePush does not support New Architecture and requires opting out for React Native versions starting from `0.76`; the current Android baseline has New Architecture enabled.
+- Because this branch changes only guard scripts and committed documentation, Android emulator smoke is not rerun here; the CodePush release-services summaries continue to consume the existing Android dev/release evidence artifacts and keep OTA update validation unclaimed.
+
+Validation:
+
+- `& $node --check scripts\auditCodePushReleasePath.mjs`
+- `& $node --check scripts\auditCodePushMigrationReadiness.mjs`
+- `& $node --check scripts\auditCodePushRemovalReadiness.mjs`
+- `& $node --check scripts\codePushReleasePathSummaryGuard.mjs`
+- `& $node --check scripts\codePushMigrationReadinessSummaryGuard.mjs`
+- `& $node --check scripts\codePushRemovalReadinessSummaryGuard.mjs`
+- `& $node --check scripts\checkCodePushReleasePathSummaryGuard.mjs`
+- `& $node --check scripts\checkCodePushMigrationReadinessSummaryGuard.mjs`
+- `& $node --check scripts\checkCodePushRemovalReadinessSummaryGuard.mjs`
+- `& $node --check scripts\checkCodePushUpdateValidationHandoffGuard.mjs`
+- `& $node $yarn check:codepush-release-path-summary-guard`
+- `& $node $yarn codepush:release:path-audit`
+- `& $node $yarn codepush:release:path-check-summary`
+- `& $node $yarn check:codepush-migration-readiness-summary-guard`
+- `& $node $yarn codepush:migration:readiness-audit`
+- `& $node $yarn codepush:migration:readiness-check-summary`
+- `& $node $yarn check:codepush-removal-readiness-summary-guard`
+- `& $node $yarn codepush:removal-readiness:audit`
+- `& $node $yarn codepush:removal-readiness:check-summary`
+- `& $node $yarn check:codepush-update-validation-handoff-guard`
+- `& $node $yarn codepush:update:validation:handoff:dry-run --skip-android-release`
+- `& $node $yarn check:release-services-summary-guard`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.702 - Secure-storage keychain-failure empty fallback coverage
 
 - Branch: `feature/bem-37-702-secure-storage-keychain-failure-empty-fallback`
