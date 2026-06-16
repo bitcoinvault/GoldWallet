@@ -79,6 +79,22 @@ The Russian `name.txt` content appears mojibake when read from PowerShell in the
 - Do not assume Android metadata is fully covered by the repo baseline; Play Console screenshots and the live listing state must be checked separately.
 - Do not include App Store Connect review credentials, demo passwords, or private contact values in docs or command output.
 
+## Store Metadata Release Handoff
+
+The repo can validate tracked Fastlane metadata and release-config consistency, but it cannot prove live Play Console or App Store Connect state from committed files alone.
+
+Use the guarded handoff before store-facing release or rebrand work:
+
+```powershell
+corepack yarn check:store-metadata-release-handoff-guard
+corepack yarn store-metadata:release-handoff:dry-run
+corepack yarn store-metadata:release-handoff
+```
+
+The non-dry-run command writes an ignored local artifact to `local-docs/store-metadata-release-handoff.txt`.
+
+The handoff must keep this status explicit: `External store validation: not claimed`. A release owner still has to verify the Play Console live listing, App Store Connect localized metadata, screenshots, icon, privacy/support/marketing URLs, release notes, legal owner, and final explorer/network wording externally before claiming store release readiness.
+
 ## Validation Path
 
 Audit/docs/tooling only:
@@ -86,6 +102,8 @@ Audit/docs/tooling only:
 ```powershell
 corepack yarn check:store-metadata-readiness-guard
 corepack yarn check:store-metadata-readiness
+corepack yarn check:store-metadata-release-handoff-guard
+corepack yarn store-metadata:release-handoff:dry-run
 corepack yarn android:dev:check-light
 corepack yarn check:rn-nodeify-shims
 corepack yarn typescript:check
