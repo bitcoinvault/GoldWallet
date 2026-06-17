@@ -10,6 +10,8 @@ const detoxConfig = JSON.parse(read('.detoxrc.json'));
 const androidBuildGradle = read('android/app/build.gradle');
 const e2eEnvironment = read('tests/e2e/environment.js');
 const expectedDetoxVersion = packageJson.devDependencies.detox;
+const expectedStartDetoxScript = 'node scripts/runDetoxMetro.mjs';
+const expectedAndroidAvdName = 'Medium_Phone_API_36.0';
 const errors = [];
 const expectedIosApps = new Map([
   ['ios.dev.debug', { build: 'node scripts/runDetoxIosBuild.mjs dev debug', binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/GoldWallet Dev.app' }],
@@ -22,6 +24,10 @@ const expectedIosApps = new Map([
 
 if (!expectedDetoxVersion) {
   errors.push('package.json is missing devDependencies.detox');
+}
+
+if (packageJson.scripts?.['start:detox'] !== expectedStartDetoxScript) {
+  errors.push(`package.json start:detox must use "${expectedStartDetoxScript}" for cross-platform env handling`);
 }
 
 if (expectedDetoxVersion && !androidBuildGradle.includes(`androidTestImplementation('com.wix:detox:${expectedDetoxVersion}')`)) {
@@ -38,6 +44,10 @@ if (typeof detoxConfig.testRunner !== 'object' || detoxConfig.testRunner?.args?.
 
 if (detoxConfig.testRunner?.args?.config !== 'tests/e2e/config.json') {
   errors.push('.detoxrc.json testRunner.args.config must point to tests/e2e/config.json');
+}
+
+if (detoxConfig.devices?.['pixel.emu']?.device?.avdName !== expectedAndroidAvdName) {
+  errors.push(`.detoxrc.json pixel.emu must use Android validation AVD ${expectedAndroidAvdName}`);
 }
 
 const androidApps = Object.entries(detoxConfig.apps || {}).filter(([, app]) => app.type === 'android.apk');

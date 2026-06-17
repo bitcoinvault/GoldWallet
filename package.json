@@ -81,7 +81,7 @@
     "start": "react-native start",
     "start:metro:no-multipart": "node scripts/startMetroNoMultipart.mjs",
     "android:dev:create-wallet-electrum-observe:metro:managed": "node scripts/runManagedMetroElectrumObservation.mjs",
-    "start:detox": "LOG_BOX_IGNORE=true CHAMBER_OF_SECRETS=true RN_SRC_EXT=e2e.tsx react-native start --reset-cache",
+    "start:detox": "node scripts/runDetoxMetro.mjs",
     "debug": "open 'rndebugger://set-debugger-loc?host=localhost&port=8081'",
     "android:dev": "react-native run-android --variant=devDebug",
     "android:stage": "react-native run-android --variant=stageDebug",

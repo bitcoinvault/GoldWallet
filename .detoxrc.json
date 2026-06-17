@@ -83,7 +83,7 @@
     "pixel.emu": {
       "type": "android.emulator",
       "device": {
-        "avdName": "Pixel_API_28_AOSP"
+        "avdName": "Medium_Phone_API_36.0"
       }
     }
   },
