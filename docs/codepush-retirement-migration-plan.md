@@ -6,10 +6,10 @@ Scope: `BEM-37.282 - CodePush retirement audit`.
 
 - `BEM-37.583` removes `react-native-code-push` from JavaScript, Android, iOS plist/native integration, `package.json`, `yarn.lock`, and `ios/Podfile.lock`.
 - `BEM-37.688` removes stale `CODEPUSH_*` entries from the tracked `.env.*` files through a secrets-safe mechanical cleanup; those keys are no longer required by the app runtime or release-service env guard.
-- `react-native-code-push@9.0.1` is the latest npm release checked on 2026-06-11.
+- `react-native-code-push@9.0.1` is the latest npm release checked on 2026-06-17.
 - The latest npm release was published on 2024-12-19.
 - Microsoft App Center CodePush was retired on 2025-03-31.
-- The Microsoft `react-native-code-push` repository is archived/read-only as of 2025-05-20, and the standalone `code-push-server` repository is also archived/read-only. `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` and `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` confirmed `isArchived: true` on 2026-06-11.
+- The Microsoft `react-native-code-push` repository is archived/read-only as of 2025-05-20, and the standalone `code-push-server` repository is also archived/read-only. `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` and `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url` confirmed `isArchived: true` on 2026-06-17.
 - The upstream Microsoft README states that React Native CodePush does not support New Architecture and requires opting out on React Native versions starting from `0.76`.
 - This repo currently has Android `newArchEnabled=true`, so CodePush must be treated as legacy release infrastructure even when local builds still pass.
 - CodePush runtime startup and native bundle resolution are no longer present after `BEM-37.583`; non-dev builds use bundled JS assets instead of the retired OTA client.
@@ -76,6 +76,7 @@ Expected summary claims after `BEM-37.583`:
 - the env cleanup plan lists only file paths, key names, blank/non-empty state, and the required secrets-safe action; it never prints key values.
 - after `BEM-37.688`, the env cleanup plan reports `Files needing cleanup: 0`, `CodePush env key entries: 0`, and `Non-empty deployment key entries: 0`.
 - the env cleanup readiness summary guard is run before release-services handoff refreshes CodePush env cleanup readiness, so stale cleanup evidence cannot silently drift.
+- the 2026-06-17 posture refresh confirmed `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, `Beta deployment-key strategy: beta has no OTA`, `Secret values printed: no`, and `CodePush update validation: not claimed` through the dedicated CodePush decision handoff and aggregate release-services handoff.
 
 ## Decision Needed
 
