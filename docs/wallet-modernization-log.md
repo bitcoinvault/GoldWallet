@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.722 - iOS validation handoff refresh
+
+- Branch: `feature/bem-37-722-ios-validation-handoff-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Windows-safe iOS release readiness, macOS prerequisite, Podfile.lock refresh-plan, validation handoff summary, and all-scheme macOS handoff dry-run evidence after the CodePush posture refresh.
+- Keep iOS runtime/archive validation explicitly unclaimed on this Windows host.
+- Keep `ios/Podfile.lock`, iOS project files, package versions, runtime app code, Android files, Metro config, env files, and release credentials unchanged.
+
+Findings:
+
+- Static iOS release files remain valid for React Native `0.86.0`, iOS deployment target `15.1`, 8 guarded shared schemes, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, 4 remote-notification plists, and 0 CodePush plist placeholders.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh and has 12 active package-vs-pod drift issues: React-Core, RNBootSplash, react-native-config, RNCAsyncStorage, RNDeviceInfo, RNFastImage, RNFBApp, RNGestureHandler, RNLocalize, RNScreens, RNSentry, and RNVectorIcons.
+- Removed `ios/Podfile.lock` pod references remain at `0`, so the current iOS blocker is active pod drift plus missing macOS/Xcode/CocoaPods, not stale removed-pod references.
+- The macOS prerequisite summary reports platform `win32`, `xcodebuild available: no`, `pod available: no`, `bundle exec pod available: no`, and `Ready for macOS pod/archive validation: no`.
+- The combined iOS validation handoff reports `Implementation ready: no`, `Blockers: 6`, `Secret values printed: no`, and required action to refresh `ios/Podfile.lock` with `pod install` on macOS before archive/simulator validation.
+- The all-scheme dry run renders the required simulator build sequence for `GoldWallet Dev`, `GoldWallet Stage`, `GoldWallet Beta`, and `GoldWallet` debug/release schemes against `ios/GoldWallet.xcworkspace`.
+- No runtime code, dependency versions, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required for this docs/readiness milestone.
+
+Validation:
+
+- `& $node $yarn check:ios-release-readiness-audit-guard`
+- `& $node $yarn check:ios-release-readiness-summary-guard`
+- `& $node $yarn check:ios-mac-validation-prereq-summary-guard`
+- `& $node $yarn check:ios-podfile-refresh-plan-guard`
+- `& $node $yarn check:ios-mac-validation-handoff-guard`
+- `& $node $yarn ios:mac-validation:handoff:preflight --all-schemes`
+- `& $node $yarn release-services:check-summaries`
+
 ### BEM-37.721 - CodePush posture readiness refresh
 
 - Branch: `feature/bem-37-721-codepush-posture-readiness-refresh`
