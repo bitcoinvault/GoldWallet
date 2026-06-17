@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.723 - Foundation target evidence refresh
+
+- Branch: `feature/bem-37-723-foundation-target-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the React Native foundation target matrix and target snapshot evidence after the latest online foundation-target refresh.
+- Record that React Native `0.86.0` remains the current npm `latest` wallet foundation target and that npm `next` remains a prerelease channel.
+- Record the current Android toolchain latest-target blocker without changing package versions, native files, runtime code, Metro config, lockfiles, release credentials, or local app state.
+
+Findings:
+
+- The live RN target snapshot generated on `2026-06-17T10:35:28.881Z` matched the recorded `2026-06-12` snapshot with `Mismatches: 0`.
+- npm `react-native@latest` remains `0.86.0`, npm `next` remains `0.86.0-rc.3`, npm `nightly` remains `0.87.0-nightly-20260608-2ff3b81dc`, and the default upgrade channel remains `latest`.
+- React remains pinned to `19.2.3` because the RN `0.86.0` renderer path still requires the `19.2.3` line; package-only React `19.2.7` remains blocked by renderer exact-version coupling.
+- Direct outdated entries remain triaged: `16` entries total, `12` known blocked entries, `4` exotic/git-pinned entries, and `0` review-required entries.
+- Latest Android toolchain targets remain blocked: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle `9.4.1` and `9.5.1` load newer embedded Kotlin runtime metadata that the RN Gradle plugin `0.86.0` Kotlin compile path cannot read.
+- The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17` until a newer RN Gradle plugin baseline clears the blocker.
+- Wallet/crypto, storage/network, tooling, BL, node-fetch, and git dependency snapshots have no new review-required entries; the BTCV `bitcoinjs-lib`, Electrum, prompt Android, and rn-nodeify git pins remain intentionally preserved.
+- No runtime code, dependency versions, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required for this docs/readiness milestone.
+
+Validation:
+
+- `& $node $yarn foundation:target:refresh-online`
+- `& $node $yarn foundation:target:check-summaries`
+- `& $node $yarn check:rn-target-snapshot-current-guard`
+- `& $node $yarn rn:target-snapshot:check-summary`
+- `& $node $yarn check:foundation-target-summary-guard`
+- `& $node $yarn rn:target-snapshot:audit`
+- `& $node $yarn rn:upgrade-path:audit`
+- `& $node $yarn upgrade:strategy:audit`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.722 - iOS validation handoff refresh
 
 - Branch: `feature/bem-37-722-ios-validation-handoff-refresh`
