@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.735 - Sentry release evidence refresh
+
+- Branch: `feature/bem-37-735-sentry-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release build, bundle, source-map, summary, and manifest evidence used by Sentry release/source-map prerequisite checks.
+- Keep Sentry upload unclaimed; no Sentry credentials or properties files were generated or committed.
+
+Findings:
+
+- Before refresh, `sentry:release:prereq-audit` reported `Android release summary valid: no` and `Android release summary current inputs covered: no` because the release-input fingerprint did not match current release inputs.
+- `android:dev:release:verify-local` rebuilt `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK 17, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and Sentry auto upload disabled.
+- New release input fingerprint: `eb1040aa4e81c7e62f6638b1bcacdae50d079589e6ee252b809f8c71d69b497f` over `507` files.
+- After refresh, `sentry:release:prereq-audit` reports Android release summary valid/current, APK manifests valid, release smoke valid, and release create-wallet smoke valid.
+- Sentry SDK/CLI remain current at `@sentry/react-native@8.14.0` and direct `@sentry/cli@3.5.1`; nested Sentry-owned CLI copies remain `3.5.0`.
+- Source-map upload remains not claimed because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are absent.
+- No app code/package/runtime/native files changed in this branch. Android release build validation was required and passed; new emulator smoke was not required because existing release smoke and create-wallet summaries still validate against the refreshed release evidence.
+
+Validation:
+
+- `& $node $yarn sentry:release:credential-plan`
+- `& $node $yarn sentry:release:credential-plan:check`
+- `& $node $yarn sentry:rn-bundle-task-compat:audit`
+- `& $node $yarn sentry:rn-bundle-task-compat:check-summary`
+- `& $node $yarn sentry:release:validation:handoff:dry-run --preflight-only --skip-android-release`
+- `& $node $yarn android:dev:release:verify-local`
+- `& $node $yarn sentry:release:prereq-audit`
+- `& $node $yarn sentry:release:prereq-check-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light-docs`
+- `git diff --check`
+
 ### BEM-37.734 - Babel 8 direct-outdated guard refresh
 
 - Branch: `feature/bem-37-734-babel8-outdated-guard-refresh`

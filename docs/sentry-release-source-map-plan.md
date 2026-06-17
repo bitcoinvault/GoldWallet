@@ -34,14 +34,14 @@
 - Android release APK generation has now been proven locally for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled; Sentry source-map upload remains explicitly not claimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available.
 - Android release Gradle output on Sentry `8.14.0` no longer prints `Could not extract bundle task arguments` after the repo-owned RN `0.86.0` bundle task args shim; final source-map upload validation still requires generated Sentry properties and a credentialed upload run.
 - Static compatibility evidence shows Sentry expects `jsIntermediateSourceMapsDir` as a `Directory`, while RN `0.86.0` exposes it on `BundleHermesCTask` as a `RegularFileProperty`; Sentry's fallback also expects an `args` property that the RN task does not expose. Do not patch `node_modules` or add unsupported dynamic task properties in `android/app/build.gradle`.
-- The 2026-06-17 readiness refresh confirms current Android release build, manifest, `devRelease` embedded smoke, and release create-wallet evidence are valid, Sentry release integration uses the direct root `@sentry/cli@3.5.1`, nested Sentry-owned tooling still carries `@sentry/cli@3.5.0`, the Sentry RN bundle task compatibility path is ready through the repo-owned legacy args shim, and source-map upload remains blocked only by missing local `SENTRY_AUTH_TOKEN` plus generated root, Android, and iOS `sentry.properties` files.
+- The 2026-06-17 BEM-37.735 readiness refresh fixed the previous stale Android release-input fingerprint in `sentry:release:prereq-audit` and confirms current Android release build/manifest evidence, existing `devRelease` embedded smoke, and existing release create-wallet evidence are valid. Sentry release integration uses the direct root `@sentry/cli@3.5.1`, nested Sentry-owned tooling still carries `@sentry/cli@3.5.0`, the Sentry RN bundle task compatibility path is ready through the repo-owned legacy args shim, and source-map upload remains blocked only by missing local `SENTRY_AUTH_TOKEN` plus generated root, Android, and iOS `sentry.properties` files.
 
 ## 2026-06-17 Preflight Refresh
 
 - `npm view @sentry/react-native version dist-tags --json` reports `latest` as `8.14.0`, matching the installed SDK.
 - `npm view @sentry/cli version dist-tags --json` reports `latest` as `3.5.1`, matching the direct release CLI package.
 - `sentry:release:validation:handoff --preflight-only --skip-android-release` passes without rendering secret values and keeps credentialed upload explicitly unclaimed.
-- `sentry:release:prereq-audit` reports Android release summary, APK manifests, release smoke, and release create-wallet smoke as valid/current.
+- `sentry:release:prereq-audit` reports Android release summary, APK manifests, release smoke, and release create-wallet smoke as valid/current after the BEM-37.735 release-input fingerprint refresh.
 - `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim.
 - `sentry:release:credential-plan` reports `SENTRY_AUTH_TOKEN available in current shell: no`, three missing properties files, zero invalid properties files, and `Sentry release upload validation: not claimed`.
 
