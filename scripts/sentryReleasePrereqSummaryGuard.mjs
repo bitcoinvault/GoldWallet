@@ -66,6 +66,14 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseCreateWalletSmokeSummaryValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
   const androidReleaseCreateWalletSmokeSummaryErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
   const sentryReleaseCreateWalletEvidenceReady = getLineValue(summary, 'Sentry release create-wallet evidence ready');
+  const iosReleaseStaticReady = getLineValue(summary, 'iOS release static readiness valid');
+  const iosMacArchiveReady = getLineValue(summary, 'iOS macOS archive validation ready');
+  const iosSentryBundlePhaseCount = getLineValue(summary, 'iOS Sentry bundle/source-map phases');
+  const iosSentryDsymPhaseCount = getLineValue(summary, 'iOS Sentry dSYM upload phases');
+  const iosPodfileLockRefreshRequired = getLineValue(summary, 'iOS Podfile.lock refresh required');
+  const iosPodfileLockDriftIssues = getLineValue(summary, 'iOS Podfile.lock drift issues');
+  const iosMacValidationPrereqsReady = getLineValue(summary, 'iOS macOS validation prerequisites ready');
+  const iosMacValidationBlockers = getLineValue(summary, 'iOS macOS validation blockers');
   const sentryReleaseUploadValidation = getLineValue(summary, 'Sentry release upload validation');
   const createScriptPresent = getLineValue(summary, 'create-sentry-properties.sh present');
   const createScriptUsesToken = getLineValue(summary, 'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN');
@@ -101,6 +109,8 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     summary,
     'Android release create-wallet smoke summary errors',
   );
+  const iosPodfileLockDriftIssueLines = getBulletLinesAfter(summary, 'iOS Podfile.lock drift issues');
+  const iosMacValidationBlockerLines = getBulletLinesAfter(summary, 'iOS macOS validation blockers');
 
   if (/(auth\.token|SENTRY_AUTH_TOKEN)\s*=/.test(summary)) {
     errors.push('summary must not print Sentry token assignments');
@@ -345,6 +355,59 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Sentry release create-wallet evidence must be ready before source-map release validation is useful');
   }
 
+  if (!['yes', 'no'].includes(iosReleaseStaticReady)) {
+    errors.push(`iOS release static readiness valid must be yes or no. Received: ${iosReleaseStaticReady || 'missing'}`);
+  }
+
+  if (!['yes', 'no'].includes(iosMacArchiveReady)) {
+    errors.push(`iOS macOS archive validation ready must be yes or no. Received: ${iosMacArchiveReady || 'missing'}`);
+  }
+
+  [
+    ['iOS Sentry bundle/source-map phases', iosSentryBundlePhaseCount],
+    ['iOS Sentry dSYM upload phases', iosSentryDsymPhaseCount],
+  ].forEach(([label, value]) => {
+    if (!/^\d+$/.test(value) || Number(value) <= 0) {
+      errors.push(`${label} must be a positive integer. Received: ${value || 'missing'}`);
+    }
+  });
+
+  if (!['yes', 'no'].includes(iosPodfileLockRefreshRequired)) {
+    errors.push(`iOS Podfile.lock refresh required must be yes or no. Received: ${iosPodfileLockRefreshRequired || 'missing'}`);
+  }
+
+  if (!/^\d+$/.test(iosPodfileLockDriftIssues)) {
+    errors.push(`iOS Podfile.lock drift issues must be a non-negative integer. Received: ${iosPodfileLockDriftIssues || 'missing'}`);
+  } else if (Number(iosPodfileLockDriftIssues) !== iosPodfileLockDriftIssueLines.length) {
+    errors.push(`iOS Podfile.lock drift issues count is ${iosPodfileLockDriftIssues}, but listed ${iosPodfileLockDriftIssueLines.length}`);
+  }
+
+  if (iosPodfileLockRefreshRequired === 'yes' && iosPodfileLockDriftIssues === '0') {
+    errors.push('iOS Podfile.lock refresh cannot be required with 0 drift issues');
+  }
+
+  if (iosPodfileLockRefreshRequired === 'no' && iosPodfileLockDriftIssues !== '0') {
+    errors.push('iOS Podfile.lock refresh must be required when drift issues are listed');
+  }
+
+  if (!['yes', 'no'].includes(iosMacValidationPrereqsReady)) {
+    errors.push(`iOS macOS validation prerequisites ready must be yes or no. Received: ${iosMacValidationPrereqsReady || 'missing'}`);
+  }
+
+  if (!/^\d+$/.test(iosMacValidationBlockers)) {
+    errors.push(`iOS macOS validation blockers must be a non-negative integer. Received: ${iosMacValidationBlockers || 'missing'}`);
+  } else if (Number(iosMacValidationBlockers) !== iosMacValidationBlockerLines.length) {
+    errors.push(`iOS macOS validation blockers count is ${iosMacValidationBlockers}, but listed ${iosMacValidationBlockerLines.length}`);
+  }
+
+  if (iosMacValidationPrereqsReady === 'yes' && iosMacValidationBlockers !== '0') {
+    errors.push('Ready iOS macOS validation prerequisites must have 0 blockers');
+  }
+
+  if (iosMacValidationPrereqsReady === 'no' && iosMacValidationBlockers === '0') {
+    errors.push('Not-ready iOS macOS validation prerequisites must list at least one blocker');
+  }
+
   if (sentryReleaseUploadValidation !== 'not claimed') {
     errors.push(`Sentry release upload validation must be not claimed. Received: ${sentryReleaseUploadValidation || 'missing'}`);
   }
@@ -361,6 +424,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseCreateWalletSmokeSummaryPresent,
     androidReleaseCreateWalletSmokeSummaryValid,
     sentryReleaseCreateWalletEvidenceReady,
+    iosReleaseStaticReady,
+    iosMacArchiveReady,
+    iosPodfileLockRefreshRequired,
+    iosMacValidationPrereqsReady,
     sentryReactNativeCurrent,
     sentryCliCurrent,
     sentryCliDirectPackageInstalled,
@@ -454,9 +521,15 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       sentryReleaseSmokeEvidenceReady !== 'yes' ||
       androidReleaseCreateWalletSmokeSummaryPresent !== 'yes' ||
       androidReleaseCreateWalletSmokeSummaryValid !== 'yes' ||
-      sentryReleaseCreateWalletEvidenceReady !== 'yes')
+      sentryReleaseCreateWalletEvidenceReady !== 'yes' ||
+      iosReleaseStaticReady !== 'yes' ||
+      iosMacArchiveReady !== 'yes' ||
+      iosPodfileLockRefreshRequired !== 'no' ||
+      iosPodfileLockDriftIssues !== '0' ||
+      iosMacValidationPrereqsReady !== 'yes' ||
+      iosMacValidationBlockers !== '0')
   ) {
-    errors.push('Ready summary must have wired Sentry release integration, direct Sentry CLI release build path, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, current Android release evidence with valid APK manifests, ready Android release smoke evidence, and ready Android release create-wallet evidence');
+    errors.push('Ready summary must have wired Sentry release integration, direct Sentry CLI release build path, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, current Android release evidence with valid APK manifests, ready Android release smoke evidence, ready Android release create-wallet evidence, and ready iOS archive/macOS validation prerequisites');
   }
 
   if (
@@ -492,9 +565,12 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   if (
     readiness === 'not ready' &&
     (!requiredAction.includes('SENTRY_AUTH_TOKEN') ||
-      !requiredSentryPropertiesFiles.every(relativePath => requiredAction.includes(relativePath)))
+      !requiredSentryPropertiesFiles.every(relativePath => requiredAction.includes(relativePath)) ||
+      !requiredAction.includes('ios/Podfile.lock') ||
+      !requiredAction.includes('macOS') ||
+      !requiredAction.includes('Xcode'))
   ) {
-    errors.push('Not ready summary must include SENTRY_AUTH_TOKEN and all sentry.properties paths in the required action');
+    errors.push('Not ready summary must include SENTRY_AUTH_TOKEN, all sentry.properties paths, ios/Podfile.lock, macOS, and Xcode in the required action');
   }
 
   return errors;

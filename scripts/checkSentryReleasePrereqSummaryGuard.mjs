@@ -51,6 +51,17 @@ const notReadySummary = [
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
   'Sentry release create-wallet evidence ready: yes',
+  'iOS release static readiness valid: yes',
+  'iOS macOS archive validation ready: no',
+  'iOS Sentry bundle/source-map phases: 4',
+  'iOS Sentry dSYM upload phases: 3',
+  'iOS Podfile.lock refresh required: yes',
+  'iOS Podfile.lock drift issues: 1',
+  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.14.0',
+  'iOS macOS validation prerequisites ready: no',
+  'iOS macOS validation blockers: 2',
+  '- Current platform is win32; iOS archive/simulator validation requires macOS with Xcode.',
+  '- ios/Podfile.lock has 1 active drift issues; run pod install on macOS before archive validation.',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
@@ -73,7 +84,7 @@ const notReadySummary = [
   'createSentryProperties.mjs supports --root override: yes',
   'sentry:release:create-properties script present: yes',
   'SENTRY_AUTH_TOKEN available in current shell: no',
-  'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
+  'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN, refresh ios/Podfile.lock on macOS with Xcode/CocoaPods, then run iOS archive/simulator validation before claiming Sentry release validation.',
   '',
 ].join('\n');
 
@@ -115,6 +126,14 @@ const readySummary = [
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
   'Sentry release create-wallet evidence ready: yes',
+  'iOS release static readiness valid: yes',
+  'iOS macOS archive validation ready: yes',
+  'iOS Sentry bundle/source-map phases: 4',
+  'iOS Sentry dSYM upload phases: 3',
+  'iOS Podfile.lock refresh required: no',
+  'iOS Podfile.lock drift issues: 0',
+  'iOS macOS validation prerequisites ready: yes',
+  'iOS macOS validation blockers: 0',
   'Sentry release upload validation: not claimed',
   'create-sentry-properties.sh present: yes',
   'create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: yes',
@@ -339,12 +358,39 @@ assertRejected(
   'release create-wallet evidence',
 );
 assertRejected(
+  'Ready summary with stale iOS Podfile fixture',
+  readySummary
+    .replace('iOS Podfile.lock refresh required: no', 'iOS Podfile.lock refresh required: yes')
+    .replace('iOS Podfile.lock drift issues: 0', 'iOS Podfile.lock drift issues: 1\n- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.14.0'),
+  'ready iOS archive/macOS validation prerequisites',
+);
+assertRejected(
+  'Bad iOS Podfile drift count fixture',
+  notReadySummary.replace('iOS Podfile.lock drift issues: 1', 'iOS Podfile.lock drift issues: 0'),
+  'iOS Podfile.lock drift issues count',
+);
+assertRejected(
+  'Ready summary without iOS archive fixture',
+  readySummary.replace('iOS macOS archive validation ready: yes', 'iOS macOS archive validation ready: no'),
+  'ready iOS archive/macOS validation prerequisites',
+);
+assertRejected(
+  'Ready summary without iOS macOS prereqs fixture',
+  readySummary.replace('iOS macOS validation prerequisites ready: yes', 'iOS macOS validation prerequisites ready: no'),
+  'ready iOS archive/macOS validation prerequisites',
+);
+assertRejected(
+  'Bad iOS macOS blocker count fixture',
+  notReadySummary.replace('iOS macOS validation blockers: 2', 'iOS macOS validation blockers: 0'),
+  'iOS macOS validation blockers count',
+);
+assertRejected(
   'Missing required action fixture',
   notReadySummary.replace(
-    'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
+    'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN, refresh ios/Podfile.lock on macOS with Xcode/CocoaPods, then run iOS archive/simulator validation before claiming Sentry release validation.',
     'Required action: generate sentry.properties before claiming Sentry release validation.',
   ),
-  'SENTRY_AUTH_TOKEN and all sentry.properties paths',
+  'SENTRY_AUTH_TOKEN, all sentry.properties paths, ios/Podfile.lock, macOS, and Xcode',
 );
 assertRejected(
   'Secret assignment fixture',

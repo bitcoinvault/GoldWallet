@@ -10,6 +10,64 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.742 - Sentry iOS release prerequisite gate
+
+- Branch: `feature/bem-37-742-sentry-ios-prereq-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the Sentry release prerequisite audit so source-map readiness includes iOS static/macOS validation state, not only Android release evidence and Sentry credentials.
+- Reuse the existing iOS release-readiness and macOS-prerequisite collectors to report `ios/Podfile.lock` drift, Sentry iOS source-map/dSYM phase counts, and macOS/Xcode/CocoaPods blockers inside `local-docs/sentry-release-prereq-summary.txt`.
+- Tighten the Sentry prerequisite summary guard so `Release source-map prerequisites: ready` requires ready iOS archive/macOS validation prerequisites and zero Podfile.lock drift.
+- Keep package versions, app runtime code, native project files, Android release artifacts, Sentry credentials, and local app state unchanged.
+
+Findings:
+
+- Live npm metadata still reports `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.1` as current.
+- Sentry Android release evidence remains valid: `dev`, `stage`, `prod`, and `beta` release summary evidence is current, Android release APK manifests are valid, release startup smoke is valid, and release create-wallet smoke is valid.
+- Sentry release upload validation remains `not claimed` because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not present.
+- Sentry iOS readiness is now also visible in the Sentry prerequisite summary: static iOS files are valid, Sentry bundle/source-map phases count `4`, Sentry dSYM upload phases count `3`, but macOS archive validation is not ready on Windows.
+- `ios/Podfile.lock` has `12` active drift issues, including `RNSentry 3.1.0` while `package.json` has `@sentry/react-native 8.14.0`.
+- iOS release validation remains blocked on macOS with Xcode `16.1+`, CocoaPods, a refreshed `ios/Podfile.lock`, and simulator/archive validation.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies engines --json`
+- `npm view @sentry/cli version engines --json`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:rn-bundle-task-compat:audit`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:release:credential-plan`
+- `corepack yarn sentry:release:credential-plan:check`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn ios:mac-validation-prereq:audit`
+- `corepack yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn ios:podfile-refresh:plan`
+- `corepack yarn ios:podfile-refresh:check-plan`
+- `node --check scripts\auditSentryReleasePrerequisites.mjs`
+- `node --check scripts\sentryReleasePrereqSummaryGuard.mjs`
+- `node --check scripts\checkSentryReleasePrereqSummaryGuard.mjs`
+- `node --check scripts\checkSentryReleaseValidationHandoffGuard.mjs`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn sentry:rn-bundle-task-compat:audit`
+- `corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn check:sentry-properties-generator`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn check:sentry-credential-handoff-guard`
+- `corepack yarn check:sentry-release-credential-plan-guard`
+- `corepack yarn sentry:release:validation:handoff:dry-run --preflight-only --skip-android-release`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.741 - Secure-storage release summary evidence
 
 - Branch: `feature/bem-37-741-secure-storage-release-summary-evidence`
