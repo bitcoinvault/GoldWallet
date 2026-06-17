@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.737 - Foundation target refresh
+
+- Branch: `feature/bem-37-737-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live latest-first foundation target evidence before the next dependency or React Native baseline branch.
+- Re-check React Native target, direct outdated decisions, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, Android toolchain target, BL resolution, and node-fetch resolution without changing package versions.
+
+Findings:
+
+- Live npm React Native target still matches the recorded target snapshot: `latest` is `0.86.0`, `next` is `0.86.0-rc.3`, and `nightly` is `0.87.0-nightly-20260608-2ff3b81dc`; default upgrade channel remains `latest`.
+- `react-native@0.86.0` still requires React peer `^19.2.3` and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- Direct outdated snapshot still has `16` entries: `12` known blocked, `4` exotic/git-pinned, and `0` review-required.
+- Babel 8 remains blocked by the RN `0.86.0` Babel preset/plugin stack; React `19.2.7` and `react-test-renderer 19.2.7` remain blocked by RN renderer exact-version coupling to React `19.2.3`.
+- Wallet/crypto latest snapshot reports the BTCV `bitcoinjs-lib` fork as intentionally pinned while the other tracked crypto packages are current.
+- Storage/network latest snapshot reports all `10` tracked entries current.
+- Tooling latest snapshot reports all `24` tracked tooling entries current.
+- Git dependency snapshot reports `0` mismatches for the BTCV forks and guarded git dependencies.
+- Latest Android toolchain target remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle `9.4.1` and `9.5.1` load newer embedded Kotlin runtime metadata that the React Native Gradle plugin `0.86.0` Kotlin compiler path cannot read. The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- `bl` remains pinned at `6.1.6` because latest `7.0.3` is ESM/export-map only for bare CommonJS consumers; `node-fetch` remains current and compatible at `3.3.2`.
+- No app code/package/runtime/native files changed in this branch. Android emulator smoke was not required for this evidence-only refresh.
+
+Validation:
+
+- `& $node $yarn foundation:target:refresh-online`
+- `& $node $yarn foundation:target:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.736 - iOS static validation refresh
 
 - Branch: `feature/bem-37-736-ios-static-validation-refresh`
