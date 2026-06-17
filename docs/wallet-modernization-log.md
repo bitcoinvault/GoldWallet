@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.720 - Firebase runtime delivery readiness refresh
+
+- Branch: `feature/bem-37-720-firebase-runtime-delivery-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Firebase release-services, push notification bridge, and Firebase runtime-delivery handoff evidence after the Sentry release readiness refresh.
+- Verify current npm latest metadata for React Native Firebase and iOS push notification packages before any delivery claim.
+- Re-run the Firebase runtime-delivery handoff without refreshing Android release artifacts because current release build, manifest, release-smoke, and release create-wallet evidence are already valid/current.
+- Keep runtime app code, package versions, lockfiles, Android/iOS native project settings, env values, Firebase config files, release credentials, and local delivery state unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-17 reports `@react-native-firebase/app@24.1.1`, `@react-native-firebase/messaging@24.1.1`, and `@react-native-community/push-notification-ios@1.12.0` as current `latest`; the installed packages match.
+- Firebase package-family alignment remains valid at `24.1.1` for app, analytics, Crashlytics, and messaging.
+- Android Firebase build plugins remain guarded at Google Services `4.4.4`, Firebase Crashlytics Gradle plugin `3.0.7`, and strict version matcher `1.2.4`.
+- Firebase release-services wiring remains valid for Android config, iOS plist files, and Messaging runtime paths, with `0` wiring errors and no local required action.
+- Android release summary, APK manifest proof, release smoke, and release create-wallet smoke are valid/current for the Firebase handoff.
+- Push notification bridge wiring remains valid for package manifest, runtime badge handling, AppDelegate forwarding, foreground presentation hooks, and `0` static readiness issues.
+- Firebase runtime delivery and push runtime delivery remain explicitly `not claimed` until real FCM token/notification delivery, Crashlytics upload, Analytics behavior, APNs registration, badge behavior, and tap-through behavior are tested in the required runtime/service environment.
+- iOS runtime/archive validation remains blocked on Windows; this branch only refreshes static iOS push bridge readiness and release-service handoff evidence.
+
+Validation:
+
+- `npm view @react-native-firebase/app version dist-tags peerDependencies engines --json`
+- `npm view @react-native-firebase/messaging version dist-tags peerDependencies engines --json`
+- `npm view @react-native-community/push-notification-ios version dist-tags peerDependencies engines --json`
+- `& $node $yarn check:firebase-runtime-delivery-handoff-guard`
+- `& $node $yarn check:firebase-release-services-summary-guard`
+- `& $node $yarn check:push-notification-bridge-summary-guard`
+- `& $node $yarn firebase:runtime:delivery:handoff:dry-run --skip-android-release`
+- `& $node $yarn firebase:release-services:audit`
+- `& $node $yarn push-notification:bridge-audit`
+- `& $node $yarn firebase:runtime:delivery:handoff --skip-android-release`
+- `& $node $yarn firebase:release-services:check-summary`
+- `& $node $yarn push-notification:bridge-check-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.719 - Sentry release readiness refresh
 
 - Branch: `feature/bem-37-719-sentry-release-readiness-refresh`
