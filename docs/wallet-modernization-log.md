@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.724 - Camera/QR runtime validation refresh
+
+- Branch: `feature/bem-37-724-camera-qr-runtime-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR runtime validation from the current RN `0.86.0` and Android SDK `36` integration baseline.
+- Re-run live CameraKit, QR renderer, and scanner migration summary audits before relying on emulator runtime proof.
+- Re-run focused scanner/render unit tests, Android dev debug assemble, and embedded emulator smoke with QR scanner screen coverage.
+- Keep package versions, runtime code, native project files, Metro config, lockfiles, release credentials, and local app state unchanged.
+
+Findings:
+
+- Live camera metadata generated on `2026-06-17T10:39:43.022Z` still matches: legacy `react-native-camera@4.2.1`, VisionCamera `5.0.11`, CameraKit `18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`, with `0` live metadata issues.
+- VisionCamera remains deferred because its latest line requires Nitro peers (`react-native-nitro-modules` and `react-native-nitro-image`); CameraKit remains the selected installed proof target.
+- Camera/QR migration wiring generated on `2026-06-17T10:39:49.913Z` remains valid: `react-native-camera` and the unused QR local-image package are absent, CameraKit is installed at `18.0.0`, and QR renderer/native renderer targets match live metadata.
+- iOS removed camera pod cleanup is complete with `0` removed Podfile.lock drift issues, but broader `ios/Podfile.lock` drift still has `12` active issues, so iOS camera QR runtime validation remains unclaimed until macOS `pod install` and simulator/device validation run.
+- Focused QR scanner and QR render unit suites passed: `ScanQrCodeScreen.test.tsx` reported `4` tests passed, and `QrRenderScreens.test.tsx` reported `5` tests passed.
+- Android dev debug assemble passed with JDK `17` on the current AGP `8.13.2` / Gradle `8.13` baseline.
+- Embedded Android smoke installed `app-dev-debug.apk` on `emulator-5554` without Metro, cleared app data, completed first-run terms/PIN/transaction-password/email-skip/success flow, validated the empty-dashboard CTA flow, validated tab navigation, opened and closed the import-wallet QR scanner screen, validated Settings Terms WebView, and reported no fatal/runtime logcat findings.
+- Smoke summary generated on `2026-06-17T10:44:40.061Z` reports `Android smoke outcome: passed`, `Metro required: no`, `Validated QR scanner screen: yes`, and APK SHA-256 `c51148aeeb2af7e659905052c590d793942a7870ef5d04178553b0f8166137d0`.
+
+Validation:
+
+- `& $node $yarn camera:qr-validation:handoff --include-android-smoke`
+- `& $node $yarn camera:candidate:check-summary`
+- `& $node $yarn camera:qr-migration:check-summary`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.723 - Foundation target evidence refresh
 
 - Branch: `feature/bem-37-723-foundation-target-evidence-refresh`
