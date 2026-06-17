@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.747 - Secure-storage handoff guard fixture
+
+- Branch: `feature/bem-37-747-secure-storage-handoff-guard-fixture`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the `checkSecureStorageReleaseValidationHandoffGuard.mjs` blocked-removal fixture so it matches the current secure-storage removal readiness summary contract.
+- Add the four guarded test-presence fields that the removal readiness summary now requires for `SecureStorageService` and `AppStorage` secret-safe fallback/native-module-unavailable coverage.
+- Keep secure-storage runtime code, package versions, native files, Android build outputs, release credentials, and app state unchanged.
+
+Findings:
+
+- `android:dev:check-light` reached `checkSecureStorageReleaseValidationHandoffGuard` and failed because the fixture omitted fields that `secureStorageRemovalReadinessSummaryGuard.mjs` now requires.
+- Current `secure-storage:removal-readiness:audit` writes those fields as `yes`, so the failing guard was stale fixture drift rather than a missing runtime implementation.
+- Legacy secure-storage removal remains correctly blocked: fallback reads are active and release validation is not claimed.
+- No runtime, native, dependency, or Metro behavior changed in this branch, so Android emulator smoke is not required for this guard fixture branch.
+
+Validation:
+
+- `corepack yarn secure-storage:removal-readiness:audit`
+- `corepack yarn secure-storage:migration:audit`
+- `corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.746 - Sentry release preflight script
 
 - Branch: `feature/bem-37-746-sentry-release-preflight-script`
