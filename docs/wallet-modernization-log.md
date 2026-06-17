@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.718 - Rebranding release-config readiness refresh
+
+- Branch: `feature/bem-37-718-rebranding-release-config-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh rebranding release-config, explorer/env, store metadata, and store metadata release-handoff readiness evidence from the current integration baseline.
+- Keep runtime app code, Android/iOS native configuration, package versions, lockfiles, env values, store metadata files, and release-service credentials unchanged.
+- Preserve the boundary that repo-only checks can validate tracked files and guard coverage, but cannot claim live Play Console or App Store Connect state.
+
+Findings:
+
+- Rebranding release-config readiness remains guarded for Android namespace/app IDs/native names/deep links, iOS bundle identifiers/display names/plists/schemes, runtime config keys, explorer/env readiness, and store metadata readiness.
+- Explorer/env readiness remains documented and guarded for 7 env files without printing secret or environment values.
+- Store metadata readiness remains documented and guarded for 8 iOS Fastlane locales and 1 Android Fastlane locale.
+- Store metadata release handoff dry-run reports `Store metadata readiness valid: yes`, `External store validation: not claimed`, and no secret-looking values printed.
+- Live store verification is still required before any release or rebrand claim: Play Console listing, App Store Connect localized metadata, screenshots, support/privacy/marketing URLs, release notes, legal owner, and final explorer/network wording are outside repo-only validation.
+- iOS runtime/archive validation remains not claimed on Windows; this branch only refreshes static iOS release-config readiness evidence.
+
+Validation:
+
+- `& $node $yarn check:rebranding-release-config-readiness-guard`
+- `& $node $yarn check:rebranding-release-config-readiness`
+- `& $node $yarn check:explorer-env-config-readiness-guard`
+- `& $node $yarn check:explorer-env-config-readiness`
+- `& $node $yarn check:store-metadata-readiness-guard`
+- `& $node $yarn check:store-metadata-readiness`
+- `& $node $yarn check:store-metadata-release-handoff-guard`
+- `& $node $yarn store-metadata:release-handoff:dry-run`
+
 ### BEM-37.717 - Secure-storage fallback-free evidence
 
 - Branch: `feature/bem-37-717-secure-storage-fallback-free-evidence`
