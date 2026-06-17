@@ -18,9 +18,11 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 - npm `react-native@latest`: `0.86.0`
 - npm `react-native@next`: `0.86.0-rc.3`
+- npm `react-native@nightly`: `0.87.0-nightly-20260608-2ff3b81dc`
 - `react-native@0.86.0` peer React: `^19.2.3`
 - `react-native@0.86.0` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
-- Snapshot refreshed: `2026-06-12`
+- Snapshot recorded: `2026-06-12`
+- Latest live verification: `2026-06-17`, outcome `matched`, mismatches `0`
 - `react-native@next` is currently a prerelease channel and is not the default wallet target.
 
 ## Milestone Jump Strategy
@@ -63,7 +65,9 @@ Why:
 Status:
 
 - This is now the current foundation checkpoint.
-- It keeps React pinned to `19.2.3` and records AGP 9 / Gradle 9 as blocked until a future React Native Gradle plugin baseline clears the Kotlin metadata path.
+- It keeps React pinned to `19.2.3` while `react-native-renderer` stays on `19.2.3`; package-only React `19.2.7` remains blocked by renderer coupling.
+- It records AGP `9.2.1`, Gradle `9.5.1`, and Kotlin `2.4.0` as not yet adoptable because the React Native Gradle plugin `0.86.0` path cannot compile through the Gradle 9 embedded Kotlin metadata path.
+- The validated Android foundation remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17` until a future RN Gradle plugin baseline clears that blocker.
 
 ### Milestone C: Future current line
 
