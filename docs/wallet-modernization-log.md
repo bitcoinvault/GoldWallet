@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.748 - Camera/QR validation refresh
+
+- Branch: `feature/bem-37-748-camera-qr-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR package metadata, migration wiring, focused QR unit tests, and Android emulator smoke evidence after the RN `0.86.0` foundation work.
+- Verify that `react-native-camera-kit`, `react-native-qrcode-svg`, `react-native-svg`, and the transitive `qrcode` encoder still match the current npm latest targets before planning any scanner-affecting change.
+- Keep package versions, scanner runtime code, native project files, release credentials, and committed build outputs unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-17 still matches the installed Camera/QR stack: `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
+- CameraKit QR migration wiring remains valid: legacy `react-native-camera` and `react-native-qrcode-local-image` are absent, scanner runtime usage remains scoped to `ScanQrCodeScreen.tsx`, and QR scanner callers remain stable at eight guarded callers.
+- Android dev debug APK builds with JDK 17 and the embedded smoke validates first-run onboarding, empty-dashboard navigation, import-wallet QR scanner screen open/close, tab navigation, and Settings Terms WebView on `emulator-5554` without fatal/runtime logcat findings.
+- `camera:qr-validation:summary` reports Android dev QR scanner validation ready and Android release evidence ready from the current release-smoke artifacts.
+- iOS camera Podfile cleanup is complete for removed camera pods, but broader `ios/Podfile.lock` drift remains at 12 active package-vs-pod entries; iOS scanner runtime validation is not claimed on this Windows host.
+
+Validation:
+
+- `npm view react-native-camera-kit version`
+- `npm view react-native-qrcode-svg version`
+- `npm view react-native-svg version`
+- `npm view qrcode version`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn camera:qr-validation:handoff --include-android-smoke`
+- `corepack yarn camera:qr-validation:summary`
+- `corepack yarn camera:qr-validation:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.747 - Secure-storage handoff guard fixture
 
 - Branch: `feature/bem-37-747-secure-storage-handoff-guard-fixture`
