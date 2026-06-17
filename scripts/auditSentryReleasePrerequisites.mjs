@@ -8,6 +8,8 @@ import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkMani
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
+import { collectIosReleaseReadiness } from './auditIosReleaseReadiness.mjs';
+import { collectIosMacValidationPrereqs } from './auditIosMacValidationPrereqs.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -240,6 +242,8 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
         expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
       })
     : ['Android release create-wallet smoke summary artifact is missing'];
+  const iosReleaseReadiness = collectIosReleaseReadiness();
+  const iosMacValidationPrereqs = collectIosMacValidationPrereqs();
 
   const hasCreateScript = existsSync(createScriptPath);
   const createScript = hasCreateScript ? readFileSync(createScriptPath, 'utf8') : '';
@@ -288,7 +292,10 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     sentryCliExecutable &&
     androidReleaseEvidenceReady &&
     androidReleaseSmokeEvidenceReady &&
-    androidReleaseCreateWalletSmokeEvidenceReady;
+    androidReleaseCreateWalletSmokeEvidenceReady &&
+    iosReleaseReadiness.staticReady &&
+    iosReleaseReadiness.ready &&
+    iosMacValidationPrereqs.ready;
 
   return {
     sentryReactNativeVersion,
@@ -323,6 +330,14 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     hasAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseCreateWalletSmokeSummaryErrors,
     androidReleaseCreateWalletSmokeEvidenceReady,
+    iosReleaseStaticReady: iosReleaseReadiness.staticReady,
+    iosMacArchiveReady: iosReleaseReadiness.ready,
+    iosSentryBundlePhaseCount: iosReleaseReadiness.sentryBundlePhaseCount,
+    iosSentryDsymPhaseCount: iosReleaseReadiness.sentryDsymPhaseCount,
+    iosPodfileLockRefreshRequired: iosReleaseReadiness.podfileLockDriftIssues.length > 0,
+    iosPodfileLockDriftIssues: iosReleaseReadiness.podfileLockDriftIssues,
+    iosMacValidationPrereqsReady: iosMacValidationPrereqs.ready,
+    iosMacValidationBlockers: iosMacValidationPrereqs.blockers,
     hasCreateScript,
     createScriptUsesToken,
     createScriptRejectsMissingToken,
@@ -431,6 +446,16 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`);
   audit.androidReleaseCreateWalletSmokeSummaryErrors.forEach(error => lines.push(`- ${error}`));
   lines.push(`Sentry release create-wallet evidence ready: ${audit.androidReleaseCreateWalletSmokeEvidenceReady ? 'yes' : 'no'}`);
+  lines.push(`iOS release static readiness valid: ${audit.iosReleaseStaticReady ? 'yes' : 'no'}`);
+  lines.push(`iOS macOS archive validation ready: ${audit.iosMacArchiveReady ? 'yes' : 'no'}`);
+  lines.push(`iOS Sentry bundle/source-map phases: ${audit.iosSentryBundlePhaseCount}`);
+  lines.push(`iOS Sentry dSYM upload phases: ${audit.iosSentryDsymPhaseCount}`);
+  lines.push(`iOS Podfile.lock refresh required: ${audit.iosPodfileLockRefreshRequired ? 'yes' : 'no'}`);
+  lines.push(`iOS Podfile.lock drift issues: ${audit.iosPodfileLockDriftIssues.length}`);
+  audit.iosPodfileLockDriftIssues.forEach(issue => lines.push(`- ${issue}`));
+  lines.push(`iOS macOS validation prerequisites ready: ${audit.iosMacValidationPrereqsReady ? 'yes' : 'no'}`);
+  lines.push(`iOS macOS validation blockers: ${audit.iosMacValidationBlockers.length}`);
+  audit.iosMacValidationBlockers.forEach(blocker => lines.push(`- ${blocker}`));
   lines.push('Sentry release upload validation: not claimed');
   lines.push(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
@@ -456,7 +481,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(
     audit.ready
       ? 'Required action: none; release source-map prerequisites are present locally.'
-      : 'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.',
+      : 'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN, refresh ios/Podfile.lock on macOS with Xcode/CocoaPods, then run iOS archive/simulator validation before claiming Sentry release validation.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -543,6 +568,16 @@ const printReport = audit => {
   console.log(`Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`);
   audit.androidReleaseCreateWalletSmokeSummaryErrors.forEach(error => console.log(`- ${error}`));
   console.log(`Sentry release create-wallet evidence ready: ${audit.androidReleaseCreateWalletSmokeEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`iOS release static readiness valid: ${audit.iosReleaseStaticReady ? 'yes' : 'no'}`);
+  console.log(`iOS macOS archive validation ready: ${audit.iosMacArchiveReady ? 'yes' : 'no'}`);
+  console.log(`iOS Sentry bundle/source-map phases: ${audit.iosSentryBundlePhaseCount}`);
+  console.log(`iOS Sentry dSYM upload phases: ${audit.iosSentryDsymPhaseCount}`);
+  console.log(`iOS Podfile.lock refresh required: ${audit.iosPodfileLockRefreshRequired ? 'yes' : 'no'}`);
+  console.log(`iOS Podfile.lock drift issues: ${audit.iosPodfileLockDriftIssues.length}`);
+  audit.iosPodfileLockDriftIssues.forEach(issue => console.log(`- ${issue}`));
+  console.log(`iOS macOS validation prerequisites ready: ${audit.iosMacValidationPrereqsReady ? 'yes' : 'no'}`);
+  console.log(`iOS macOS validation blockers: ${audit.iosMacValidationBlockers.length}`);
+  audit.iosMacValidationBlockers.forEach(blocker => console.log(`- ${blocker}`));
   console.log('Sentry release upload validation: not claimed');
   console.log(`create-sentry-properties.sh present: ${audit.hasCreateScript ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh requires SENTRY_AUTH_TOKEN: ${audit.createScriptUsesToken ? 'yes' : 'no'}`);
@@ -569,7 +604,7 @@ const printReport = audit => {
   if (!audit.ready) {
     console.log('Release source-map validation is not ready locally.');
     console.log(
-      'Required before claiming Sentry release validation: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN.',
+      'Required before claiming Sentry release validation: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN, refresh ios/Podfile.lock on macOS with Xcode/CocoaPods, then run iOS archive/simulator validation.',
     );
   } else {
     console.log('Release source-map prerequisites are present locally.');

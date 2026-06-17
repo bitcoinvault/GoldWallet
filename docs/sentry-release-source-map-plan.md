@@ -12,7 +12,7 @@
 - `corepack yarn check:sentry-release-integration` guards the current Android Sentry Gradle integration and iOS source-map/dSYM upload phases.
 - `corepack yarn check:sentry-release-integration-guard` verifies the Sentry release integration guard fixtures.
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available before release source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
-- The prerequisite audit records per-file readiness for the three required Sentry properties files, validates that `create-sentry-properties.sh` writes all three paths, confirms the expected non-secret defaults without printing token values, records local `@sentry/cli` package/bin executability, and records whether the latest local Android release summary artifact is present and valid.
+- The prerequisite audit records per-file readiness for the three required Sentry properties files, validates that `create-sentry-properties.sh` writes all three paths, confirms the expected non-secret defaults without printing token values, records local `@sentry/cli` package/bin executability, records whether the latest local Android release summary artifact is present and valid, and now also embeds iOS static/macOS prerequisite evidence for Podfile.lock drift plus Sentry iOS source-map/dSYM phase coverage.
 - `create-sentry-properties.sh` now rejects a missing `SENTRY_AUTH_TOKEN` before writing any properties files, so local release setup cannot accidentally create `auth.token=` files that look configured but fail during upload.
 - `create-sentry-properties.sh` accepts optional `SENTRY_ORG` and `SENTRY_PROJECT` overrides, defaulting to the current `cloudbest` / `goldwallet` release target, so a future rebrand or Sentry project move does not require editing the generator script.
 - `corepack yarn sentry:release:create-properties` is the cross-platform release setup command for generating the root, Android, and iOS Sentry properties files after `SENTRY_AUTH_TOKEN` is provided.
@@ -34,7 +34,8 @@
 - Android release APK generation has now been proven locally for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled; Sentry source-map upload remains explicitly not claimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available.
 - Android release Gradle output on Sentry `8.14.0` no longer prints `Could not extract bundle task arguments` after the repo-owned RN `0.86.0` bundle task args shim; final source-map upload validation still requires generated Sentry properties and a credentialed upload run.
 - Static compatibility evidence shows Sentry expects `jsIntermediateSourceMapsDir` as a `Directory`, while RN `0.86.0` exposes it on `BundleHermesCTask` as a `RegularFileProperty`; Sentry's fallback also expects an `args` property that the RN task does not expose. Do not patch `node_modules` or add unsupported dynamic task properties in `android/app/build.gradle`.
-- The 2026-06-17 BEM-37.735 readiness refresh fixed the previous stale Android release-input fingerprint in `sentry:release:prereq-audit` and confirms current Android release build/manifest evidence, existing `devRelease` embedded smoke, and existing release create-wallet evidence are valid. Sentry release integration uses the direct root `@sentry/cli@3.5.1`, nested Sentry-owned tooling still carries `@sentry/cli@3.5.0`, the Sentry RN bundle task compatibility path is ready through the repo-owned legacy args shim, and source-map upload remains blocked only by missing local `SENTRY_AUTH_TOKEN` plus generated root, Android, and iOS `sentry.properties` files.
+- The 2026-06-17 BEM-37.735 readiness refresh fixed the previous stale Android release-input fingerprint in `sentry:release:prereq-audit` and confirms current Android release build/manifest evidence, existing `devRelease` embedded smoke, and existing release create-wallet evidence are valid. Sentry release integration uses the direct root `@sentry/cli@3.5.1`, nested Sentry-owned tooling still carries `@sentry/cli@3.5.0`, and the Sentry RN bundle task compatibility path is ready through the repo-owned legacy args shim.
+- The 2026-06-17 BEM-37.742 prerequisite gate makes Sentry source-map readiness depend on iOS readiness as well: the summary reports static iOS files valid, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, `ios/Podfile.lock` refresh required with 12 active drift issues, and macOS validation prerequisites not ready on this Windows host. Source-map/dSYM upload remains blocked by both missing local `SENTRY_AUTH_TOKEN` plus generated root/Android/iOS `sentry.properties` files and the required macOS/Xcode/CocoaPods Podfile/archive validation.
 
 ## 2026-06-17 Preflight Refresh
 
@@ -42,6 +43,7 @@
 - `npm view @sentry/cli version dist-tags --json` reports `latest` as `3.5.1`, matching the direct release CLI package.
 - `sentry:release:validation:handoff --preflight-only --skip-android-release` passes without rendering secret values and keeps credentialed upload explicitly unclaimed.
 - `sentry:release:prereq-audit` reports Android release summary, APK manifests, release smoke, and release create-wallet smoke as valid/current after the BEM-37.735 release-input fingerprint refresh.
+- `sentry:release:prereq-audit` now also reports iOS static readiness, iOS Sentry source-map/dSYM phase counts, active `ios/Podfile.lock` drift, and macOS validation prerequisites in the same Sentry prerequisite summary.
 - `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim.
 - `sentry:release:credential-plan` reports `SENTRY_AUTH_TOKEN available in current shell: no`, three missing properties files, zero invalid properties files, and `Sentry release upload validation: not claimed`.
 
@@ -61,6 +63,7 @@ Evidence that must be attached to the credential handoff:
 - current `sentry:release:validation:handoff:dry-run --skip-android-release` output;
 - current `sentry:release:prereq-audit` and `sentry:release:prereq-check-summary` output after credentials are generated;
 - current Android release build, manifest, and release-smoke evidence;
+- current iOS release-readiness and macOS-prerequisite summaries, including whether `ios/Podfile.lock` drift is zero;
 - current `sentry:android-warning:audit` and `sentry:android-warning:check-summary` output;
 - current `sentry:rn-bundle-task-compat:audit` and `sentry:rn-bundle-task-compat:check-summary` output;
 - current release-services aggregate summary;
@@ -78,6 +81,7 @@ Do not claim iOS dSYM/source-map upload validation unless it ran on macOS/Xcode 
 - prove Android release artifact generation still covers `dev`, `stage`, `prod`, and `beta` variants;
 - prove the Sentry release prerequisite summary reports `Release source-map prerequisites: ready`;
 - prove Android release Gradle output still generates source maps without `Could not extract bundle task arguments`, and then run the credentialed upload path;
+- prove iOS macOS validation prerequisites are ready, `ios/Podfile.lock` drift is zero, and the iOS source-map/dSYM phases remain present before claiming iOS symbol upload readiness;
 - leave release source-map upload as `not claimed` when credentials are missing.
 
 ## Why This Needs A Dedicated Branch
