@@ -51,6 +51,7 @@ Current release-validation posture checked on 2026-06-17:
 - Legacy native-module absence is guarded for secure PIN/transaction-password storage and encrypted wallet storage cleanup/read fallback paths, so a future removal branch can fail closed instead of crashing the JS bundle path.
 - Removal release validation is not claimed and `Legacy package removal ready` remains `no`.
 - Required action remains: keep `react-native-secure-key-store` installed until fallback-free validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.
+- The 2026-06-17 release-mode evidence refresh after the `LegacySecureKeyStore` adapter rebuilt all Android release variants, installed the locally signed `devRelease` APK on `emulator-5554`, completed first-run PIN and transaction-password setup without Metro, and validated standard-wallet plus default 3-key vault creation screens without fatal/runtime logcat findings.
 
 Branch: `feature/bem-37-secure-storage-keychain-migration`
 
