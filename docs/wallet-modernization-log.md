@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.736 - iOS static validation refresh
+
+- Branch: `feature/bem-37-736-ios-static-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Windows-safe iOS static release readiness, macOS prerequisite, Podfile.lock refresh plan, validation handoff summary, and preflight handoff evidence.
+- Keep iOS runtime/archive validation explicitly unclaimed on Windows.
+
+Findings:
+
+- Static iOS release files remain valid for RN `0.86.0`; RN minimum iOS is `15.1`, RN minimum Xcode is `16.1`, `ios/Podfile` platform is `15.1`, and Xcode deployment targets are `15.1`.
+- Eight guarded iOS schemes remain tracked.
+- Sentry iOS bundle/source-map phases remain at `4`, Sentry dSYM upload phases remain at `3`, CodePush plist placeholders remain at `0`, and remote-notification plists remain at `4`.
+- Removed Podfile.lock pod references remain at `0`.
+- `ios/Podfile.lock` still requires macOS refresh: `12` active package-vs-pod drift entries remain, including React-Core `0.65.3` versus `react-native 0.86.0`, RNSentry `3.1.0` versus `@sentry/react-native 8.14.0`, and RNFBApp `12.7.5` versus `@react-native-firebase/app 24.1.1`.
+- The iOS validation handoff summary remains `Implementation ready: no` because this Windows host has no `xcodebuild`, no CocoaPods, and cannot refresh `ios/Podfile.lock` or run simulator/archive validation.
+- Required action remains: refresh `ios/Podfile.lock` with `pod install` on macOS with Xcode `16.1+` and CocoaPods, then run iOS archive/simulator validation before claiming iOS runtime delivery.
+- No app code/package/runtime/native files changed in this branch. Android emulator smoke was not required because this branch only refreshes iOS static/handoff documentation and local ignored evidence.
+
+Validation:
+
+- `& $node $yarn check:ios-release-readiness-audit-guard`
+- `& $node $yarn check:ios-release-readiness-summary-guard`
+- `& $node $yarn ios:release:readiness:audit`
+- `& $node $yarn ios:release:readiness:check-summary`
+- `& $node $yarn check:ios-mac-validation-prereq-summary-guard`
+- `& $node $yarn ios:mac-validation-prereq:audit`
+- `& $node $yarn ios:mac-validation-prereq:check-summary`
+- `& $node $yarn check:ios-podfile-refresh-plan-guard`
+- `& $node $yarn ios:podfile-refresh:plan`
+- `& $node $yarn ios:podfile-refresh:check-plan`
+- `& $node $yarn check:ios-validation-handoff-summary-guard`
+- `& $node $yarn ios:validation:handoff-summary`
+- `& $node $yarn check:ios-mac-validation-handoff-guard`
+- `& $node $yarn ios:mac-validation:handoff:preflight`
+- `& $node $yarn ios:mac-validation:handoff:preflight:dry-run`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light-docs`
+- `git diff --check`
+
 ### BEM-37.735 - Sentry release evidence refresh
 
 - Branch: `feature/bem-37-735-sentry-release-evidence-refresh`
