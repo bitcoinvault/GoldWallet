@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.729 - BL lightweight gate coverage
+
+- Branch: `feature/bem-37-729-bl-light-gate-coverage`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the BL resolution summary guard to `android:dev:check-light` so daily Android validation catches drift in the `bl@6.1.6` CommonJS compatibility decision.
+- Keep package versions, runtime code, native project files, lockfiles, Metro config, release credentials, env files, and local app state unchanged.
+- Align README, Android modernization workflow docs, wallet modernization baseline docs, and the lightweight documentation checker with the new guard coverage.
+
+Findings:
+
+- Live npm metadata checked on `2026-06-17` still reports `bl@7.0.3` as latest, with `type: module` and no CommonJS `require` export.
+- The current `bl@6.1.6` resolution remains required because guarded CommonJS/transitive consumers still require the existing function-shaped CommonJS entry.
+- `foundation:target:refresh-online` already validates the generated BL readiness summary; this branch makes the same blocker visible in the normal Android lightweight gate before commits and prepush.
+- No runtime/native/dependency/Metro files changed in this branch, so Android emulator smoke was not required for this validation-gate coverage change.
+
+Validation:
+
+- `npm view bl version type exports --json`
+- `& $node $yarn check:bl-resolution-summary-guard`
+- `& $node $yarn bl:resolution:check-summary`
+- `& $node $yarn android:dev:check-light-docs`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.728 - Babel 8 blocker evidence refresh
 
 - Branch: `feature/bem-37-728-babel8-blocker-refresh`
