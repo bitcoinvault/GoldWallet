@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.745 - Babel 8 foundation gate
+
+- Branch: `feature/bem-37-745-babel8-foundation-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire the existing Babel 8 migration blocker probe into `foundation:target:refresh-online` so live target refreshes explicitly validate the RN 0.86/Babel 7 constraint before git dependency, wallet crypto, storage/network, tooling, Android toolchain, BL, and node-fetch evidence.
+- Wire the same `babel8:migration-probe:check` step into `rn:baseline:preflight` after the direct-outdated snapshot guard so React Native baseline branches cannot skip the Babel 8 blocker evidence.
+- Align the foundation target guard, RN upgrade path audit, RN upgrade path guard, and modernization docs with the new aggregate gate.
+- Keep package versions, app runtime code, native project files, Android build outputs, release credentials, and local app state unchanged.
+
+Findings:
+
+- `corepack yarn node:runtime:yarn foundation:target:refresh-online` runs through Node `v24.16.0` from `.nvmrc` and now includes `yarn babel8:migration-probe:check` in the aggregate command.
+- Live npm metadata still reports React Native latest stable `0.86.0`; the current target remains aligned with latest stable RN metadata.
+- The direct outdated snapshot still records Babel `8.0.x` entries as blocked because the RN `0.86.0` Babel preset remains on the Babel 7 plugin stack.
+- The dedicated Babel 8 migration probe confirms the current RN 0.86/Babel 7 blocker and keeps Babel 8 as a future dedicated RN/Metro/Babel branch, not a blind direct dependency bump.
+- No dependency versions, runtime code, native code, or Metro behavior changed in this branch, so Android emulator smoke is not required for this guard/evidence wiring branch.
+- iOS runtime validation is not claimed; this branch only changes JavaScript tooling guards and documentation.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn foundation:target:refresh-online`
+- `corepack yarn babel8:migration-probe:check`
+- `corepack yarn check:foundation-target-summary-guard`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn foundation:target:check-summaries`
+- `node --check scripts\auditReactNativeUpgradePath.mjs`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.744 - Node runtime Yarn runner
 
 - Branch: `feature/bem-37-744-node-runtime-runner`
