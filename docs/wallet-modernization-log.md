@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.708 - Android release evidence refresh after store handoff wiring
+
+- Branch: `feature/bem-37-708-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release APK, manifest, release-smoke, and release create-wallet evidence after `BEM-37.707` changed `package.json` release inputs.
+- Keep Sentry release upload validation explicitly unclaimed; local release builds still run with Sentry auto-upload disabled.
+- Keep generated APKs, screenshots, UI hierarchies, logcat captures, and release summaries in ignored `local-docs/`.
+- Keep runtime app code, Android/iOS native project settings, package versions, Metro config, and env values unchanged.
+
+Findings:
+
+- `android:dev:release:check-summary` correctly rejected the previous release evidence because the release input fingerprint no longer matched current `package.json`.
+- Fresh release build evidence rebuilt and validated `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK 17, AGP `8.13.2`, Gradle `8.13`, compile SDK `36`, and target SDK `36`.
+- Release manifest validation passed for all four variants and confirmed the generated APK metadata with `aapt2`.
+- Release startup smoke installed the locally signed `devRelease` APK on `emulator-5554` without Metro, completed first-run terms/PIN/transaction-password setup, validated empty-dashboard CTA navigation, tab navigation, QR scanner, and Settings Terms WebView.
+- The first combined release create-wallet verification refreshed build and release-smoke evidence but ADB lost the emulator during the create-wallet phase; after restarting `Medium_Phone_API_36.0` headless, the isolated release create-wallet smoke completed successfully.
+- Release create-wallet smoke validated standard wallet mnemonic backup and default 3-key vault public-key integration screens in the locally signed `devRelease` app without fatal/runtime logcat findings.
+- `release-services:check-summaries` is valid again after the release input fingerprint refresh.
+- iOS runtime/archive validation remains blocked on this Windows host until macOS/Xcode/CocoaPods validation is run.
+
+Validation:
+
+- `& $node $yarn android:dev:release:verify-local`
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:create-wallet-smoke:embedded`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn release-services:check-summaries`
+
 ### BEM-37.707 - Store metadata release handoff
 
 - Branch: `feature/bem-37-707-store-metadata-release-handoff`
