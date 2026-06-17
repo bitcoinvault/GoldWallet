@@ -26,24 +26,21 @@ jest.mock('react-native-keychain', () => ({
   setGenericPassword: mockSecureStore.setGenericPassword,
   resetGenericPassword: mockSecureStore.resetGenericPassword,
 }));
-jest.mock('react-native-secure-key-store', () => ({
-  __esModule: true,
-  default: mockLegacySecureStore,
-  ACCESSIBLE: {
-    WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
-  },
-}));
 jest.mock('../../logger', () => ({
   __esModule: true,
   default: mockLogger,
 }));
 
+const { NativeModules } = require('react-native');
+
+NativeModules.RNSecureKeyStore = mockLegacySecureStore;
 const SecureStorageService = require('../../src/services/SecureStorageService').default;
 
 describe('unit - SecureStorageService', function () {
   let service;
 
   beforeEach(function () {
+    NativeModules.RNSecureKeyStore = mockLegacySecureStore;
     service = new SecureStorageService();
     mockSecureStore.getGenericPassword.mockReset();
     mockSecureStore.setGenericPassword.mockReset();
@@ -73,6 +70,15 @@ describe('unit - SecureStorageService', function () {
     mockLegacySecureStore.get.mockRejectedValueOnce(new Error('missing'));
 
     await expect(service.getSecuredValue('pin')).resolves.toBe('');
+  });
+
+  it('returns an empty string when the legacy native module is unavailable', async function () {
+    delete NativeModules.RNSecureKeyStore;
+    mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
+
+    await expect(service.getSecuredValue('pin')).resolves.toBe('');
+    expect(mockLegacySecureStore.get).not.toHaveBeenCalled();
+    expect(mockSecureStore.setGenericPassword).not.toHaveBeenCalled();
   });
 
   it('normalizes a null legacy fallback result to an empty secured value', async function () {
@@ -331,6 +337,18 @@ describe('unit - SecureStorageService', function () {
 
     await expect(service.removeSecuredPassword('pin')).resolves.toBe(true);
     expect(mockLegacySecureStore.remove).toHaveBeenCalledWith('pin');
+    expect(mockSecureStore.resetGenericPassword).toHaveBeenCalledWith({
+      service: 'pin',
+      accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+    });
+  });
+
+  it('continues keychain cleanup when the legacy native module is unavailable', async function () {
+    delete NativeModules.RNSecureKeyStore;
+    mockSecureStore.resetGenericPassword.mockResolvedValueOnce(true);
+
+    await expect(service.removeSecuredPassword('pin')).resolves.toBe(true);
+    expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
     expect(mockSecureStore.resetGenericPassword).toHaveBeenCalledWith({
       service: 'pin',
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',

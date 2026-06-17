@@ -1,7 +1,7 @@
 import sha256 from 'crypto-js/sha256';
 import * as Keychain from 'react-native-keychain';
-import RNSecureKeyStore from 'react-native-secure-key-store';
 
+import RNSecureKeyStore from './LegacySecureKeyStore';
 import logger from '../../logger';
 
 const secureStorageMigrationLogCategory = 'secure-storage-migration';

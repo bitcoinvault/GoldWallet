@@ -9,6 +9,7 @@ Checked on: 2026-06-17
 - New package: `react-native-keychain@10.0.0`.
 - Legacy package: `react-native-secure-key-store@2.0.10`, retained temporarily for fallback reads and cleanup while existing installs migrate.
 - Runtime wrapper: `src/services/SecureStorageService.ts`.
+- Legacy native adapter: `src/services/LegacySecureKeyStore.ts`, which routes fallback reads and cleanup through `NativeModules.RNSecureKeyStore` instead of direct `react-native-secure-key-store` imports in storage runtime files.
 - Stored keys: `CONST.pin` and `CONST.transactionPassword`.
 - The transaction password is stored as `sha256(value).toString()`.
 - The current Android accessibility mode is `ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`.
@@ -47,6 +48,7 @@ Current release-validation posture checked on 2026-06-17:
 - Secret-safe legacy fallback instrumentation is guarded so a future removal decision can distinguish "fallback no longer observed" evidence from a warning-only cleanup.
 - Secret-safe fallback instrumentation tests are guarded for both `SecureStorageService` and encrypted wallet `AppStorage` so fallback telemetry can be used without exposing stored keys or values.
 - Fallback-free Keychain reads are guarded for migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading without invoking `react-native-secure-key-store`.
+- Legacy native-module absence is guarded for secure PIN/transaction-password storage and encrypted wallet storage cleanup/read fallback paths, so a future removal branch can fail closed instead of crashing the JS bundle path.
 - Removal release validation is not claimed and `Legacy package removal ready` remains `no`.
 - Required action remains: keep `react-native-secure-key-store` installed until fallback-free validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.
 
@@ -68,6 +70,7 @@ Branch: `feature/bem-37-secure-storage-keychain-migration`
 - Focused Keychain-read-failure plus empty-fallback coverage for `null` and `undefined` legacy native results in `SecureStorageService` and `AppStorage`.
 - Focused fallback instrumentation coverage for secret-safe `secure-storage-migration` breadcrumbs in `SecureStorageService` and `AppStorage`.
 - Focused fallback-free Keychain coverage for migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading without touching the legacy secure-storage backend.
+- Focused legacy-native-module-unavailable coverage for `SecureStorageService` and `AppStorage`.
 - `secure-storage:removal-readiness:audit` must report both `SecureStorageService fallback migration tests present: yes` and `AppStorage fallback migration tests present: yes`; a single aggregate fallback-test line is not enough to prove encrypted wallet storage migration coverage.
 - `corepack yarn android:dev:check-light`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`

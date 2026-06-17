@@ -37,8 +37,8 @@ assertRejected('Missing storage/network usage scope', missingUsageFixture);
 assertRejected('Unexpected storage/network usage scope', unexpectedUsageFixture);
 assertRejected('Unexpected storage/network package scope', unexpectedPackageFixture);
 
-if (expectedStorageNetworkUsage.size !== 9) {
-  console.error(`Expected 9 storage/network tracked packages, got ${expectedStorageNetworkUsage.size}.`);
+if (expectedStorageNetworkUsage.size !== 8) {
+  console.error(`Expected 8 storage/network tracked packages, got ${expectedStorageNetworkUsage.size}.`);
   process.exit(1);
 }
 
