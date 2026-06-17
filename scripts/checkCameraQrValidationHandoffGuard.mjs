@@ -106,7 +106,7 @@ assert(
 const candidateSummary = [
   'Camera candidate audit',
   'Generated at: 2026-06-12T00:00:00.000Z',
-  'Metadata checked on: 2026-06-16',
+  'Metadata checked on: 2026-06-17',
   'Legacy camera latest: react-native-camera@4.2.1',
   'VisionCamera latest: react-native-vision-camera@5.0.11',
   'VisionCamera Nitro peers: yes',

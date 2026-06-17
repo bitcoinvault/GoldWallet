@@ -10,6 +10,53 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.714 - Camera QR evidence refresh
+
+- Branch: `feature/bem-37-714-camera-qr-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR latest-target evidence after the Android dev, Electrum runtime, and iOS static readiness refreshes.
+- Update the Camera/QR candidate metadata date, guard fixtures, and compatibility docs after live npm checks.
+- Re-run the Camera/QR validation handoff without Android smoke because this branch changes documentation and audit guards only, not runtime code, package versions, native project files, Metro config, env files, or release credentials.
+- Keep generated Camera/QR summaries in ignored `local-docs/`.
+
+Findings:
+
+- Live npm metadata on 2026-06-17 still reports `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` as the current latest scanner/render targets.
+- Legacy `react-native-camera` remains at `4.2.1`, and the app no longer depends on it.
+- VisionCamera remains a future architecture branch rather than a drop-in update because the current latest line still requires `react-native-nitro-modules` and `react-native-nitro-image`.
+- CameraKit remains the installed scanner baseline and its runtime usage remains scoped to `src/screens/ScanQrCodeScreen.tsx`.
+- The guarded QR scanner caller inventory remains stable at 8 callers.
+- The guarded QR render inventory remains stable at 5 screens.
+- `@remobile/react-native-qrcode-local-image` remains removed.
+- iOS removed camera pod cleanup is complete: the migration summary reports 0 stale removed camera pods and 0 removed Podfile.lock drift issues.
+- Broader iOS runtime validation remains blocked by the existing 12 active `ios/Podfile.lock` drift issues until `pod install` and archive/simulator validation run on macOS.
+
+Validation:
+
+- `npm view react-native-camera version engines peerDependencies dependencies --json`
+- `npm view react-native-camera-kit version engines peerDependencies dependencies --json`
+- `npm view react-native-vision-camera version engines peerDependencies dependencies --json`
+- `npm view react-native-qrcode-svg version engines peerDependencies dependencies --json`
+- `npm view react-native-svg version engines peerDependencies dependencies --json`
+- `npm view qrcode version engines dependencies --json`
+- `& $node $yarn camera:candidate:audit`
+- `& $node $yarn camera:candidate:check-summary`
+- `& $node $yarn camera:qr-migration:audit`
+- `& $node $yarn camera:qr-migration:check-summary`
+- `& $node $yarn check:camera-candidate-summary-guard`
+- `& $node $yarn check:camera-qr-validation-handoff-guard`
+- `& $node $yarn camera:qr-validation:handoff:dry-run`
+- `& $node $yarn camera:qr-validation:handoff`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.713 - iOS static readiness refresh
 
 - Branch: `feature/bem-37-713-ios-static-readiness-refresh`
