@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.726 - Release-services aggregate readiness refresh
+
+- Branch: `feature/bem-37-726-release-services-aggregate-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the aggregate Sentry, Firebase, CodePush, push-notification, and iOS release-services handoff against the current Android release evidence from `BEM-37.725`.
+- Keep package versions, runtime code, native project files, lockfiles, Metro config, release credentials, env files, and local app state unchanged.
+- Use the fresh Android release build, manifest, release-smoke, and release create-wallet summaries as the runtime proof for this docs/readiness branch instead of rebuilding APKs again.
+
+Findings:
+
+- `release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota` completed successfully and regenerated the local release-services summary artifacts on `2026-06-17`.
+- Sentry remains current at `@sentry/react-native@8.14.0` and direct `@sentry/cli@3.5.1`; the RN bundle task compatibility summary is ready through the repo-owned legacy args shim, and current Android release, release-smoke, and release create-wallet evidence are all valid.
+- Sentry release upload validation remains `not claimed` because `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are not available locally.
+- React Native Firebase remains current at `24.1.1` across the package family, Firebase release-services wiring is valid, and Android release summary plus APK manifest proof are valid. Real FCM token/notification delivery, Crashlytics upload, and Analytics behavior remain `not claimed`.
+- CodePush remains removed from runtime/native/package/plist/env surfaces. The decision handoff reports `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, beta strategy `beta has no OTA`, and OTA update validation `not claimed`.
+- The push-notification bridge remains current at `@react-native-community/push-notification-ios@1.12.0` with static bridge readiness valid, but APNs/device delivery remains `not claimed`.
+- iOS static release files remain valid for RN `0.86.0`, but iOS runtime/archive validation remains unclaimed on this Windows host. The current blockers are platform `win32`, unavailable `xcodebuild`, unavailable CocoaPods, and `12` active `ios/Podfile.lock` drift entries.
+- No runtime/native/dependency/Metro files changed in this branch, so a new Android emulator smoke was not required; the aggregate gate consumed the already fresh `BEM-37.725` release-smoke and release create-wallet evidence.
+
+Validation:
+
+- `& $node $yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.725 - Android release validation refresh
 
 - Branch: `feature/bem-37-725-android-release-validation-refresh`

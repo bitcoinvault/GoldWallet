@@ -134,12 +134,13 @@ corepack yarn android:dev:release:check-summary
 corepack yarn android:dev:release:check-apk-manifest
 corepack yarn android:dev:release:smoke:embedded
 corepack yarn android:dev:release:check-smoke-summary
-corepack yarn release-services:validation:handoff --skip-android-release
+corepack yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota
 corepack yarn release-services:check-summaries
 ```
 
 Results:
 
+- The 2026-06-17 aggregate release-services refresh completed against the current Android release evidence without rebuilding APKs: Sentry Android warning, Sentry RN bundle task compatibility, Sentry release prerequisite, Firebase release-services, CodePush release path, CodePush migration/removal/env cleanup readiness, CodePush decision handoff, push notification bridge, iOS release readiness, iOS macOS prerequisite, iOS Podfile refresh plan, iOS validation handoff, and the final aggregate `release-services:check-summaries` gate all validated.
 - CodePush release-path wiring is removed from non-dev runtime, Android, iOS, package, and lockfile surfaces.
 - Android local release evidence was refreshed on 2026-06-17 and covers `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, target SDK `36`, and Sentry auto upload disabled; the summary records APK path, byte count, SHA-256, JS bundle, and source-map evidence for each unsigned release artifact.
 - Android release APK manifest proof is valid for the current `dev`, `stage`, `prod`, and `beta` release artifacts.
