@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.719 - Sentry release readiness refresh
+
+- Branch: `feature/bem-37-719-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry release/source-map readiness evidence after the rebranding release-config readiness refresh.
+- Verify current npm latest metadata for the direct Sentry SDK and CLI packages before any release/source-map claim.
+- Re-run the Sentry release preflight without generating local credential files or claiming source-map upload.
+- Keep runtime app code, package versions, lockfiles, Android/iOS native project settings, env values, release credentials, and generated local Sentry properties unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-17 reports `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.1` as current `latest`; both match the installed direct packages.
+- The Sentry Android warning audit remains stable: no active Sentry `execResult` warning is reported on the RN `0.86.0` baseline.
+- Sentry RN bundle task compatibility remains ready because the repo-owned legacy args shim still covers Sentry release bundle task argument extraction.
+- Sentry release integration remains wired, and the release build path uses the direct root `@sentry/cli@3.5.1`; nested Sentry-owned CLI copies remain at `3.5.0`.
+- Android release build evidence, APK manifests, release smoke, and release create-wallet smoke are valid/current for this preflight, so no Android release rebuild was needed in this docs/readiness branch.
+- Sentry release/source-map upload validation is still not ready because `SENTRY_AUTH_TOKEN` is not available in this shell and `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are intentionally absent.
+- The credential plan prints only env variable names, file paths, and command names; no token, DSN, or `auth.token` values are printed.
+- iOS runtime/archive validation remains not claimed on Windows; the iOS source-map/dSYM path still needs macOS/Xcode or CI validation before a release upload claim.
+
+Validation:
+
+- `npm view @sentry/react-native version dist-tags --json`
+- `npm view @sentry/cli version dist-tags --json`
+- `& $node $yarn check:sentry-properties-generator`
+- `& $node $yarn check:sentry-release-validation-handoff-guard`
+- `& $node $yarn check:sentry-credential-handoff-guard`
+- `& $node $yarn check:sentry-release-credential-plan-guard`
+- `& $node $yarn sentry:release:validation:handoff:dry-run --preflight-only --skip-android-release`
+- `& $node $yarn sentry:release:validation:handoff --preflight-only --skip-android-release`
+- `& $node $yarn sentry:release:credential-plan`
+- `& $node $yarn sentry:release:credential-plan:check`
+- `& $node $yarn sentry:android-warning:check-summary`
+- `& $node $yarn sentry:rn-bundle-task-compat:check-summary`
+- `& $node $yarn sentry:release:prereq-check-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.718 - Rebranding release-config readiness refresh
 
 - Branch: `feature/bem-37-718-rebranding-release-config-readiness-refresh`
