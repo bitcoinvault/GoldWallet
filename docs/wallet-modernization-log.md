@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.710 - Foundation target evidence refresh
+
+- Branch: `feature/bem-37-710-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the online foundation target evidence after the Sentry release prerequisite refresh.
+- Re-check the current React Native stable target, direct outdated package decisions, Git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, Android toolchain target, BL resolution, and node-fetch resolution.
+- Keep package versions, native project files, runtime code, Metro config, env files, release credentials, and local secrets unchanged.
+- Keep generated evidence in ignored `local-docs/`.
+
+Findings:
+
+- React Native remains current: npm `latest` is `0.86.0`, npm `next` is `0.86.0-rc.3`, and the latest nightly remains a planning signal rather than the default wallet target.
+- The React Native `0.86.0` peer range still reports React `^19.2.3`, but React `19.2.7` and `react-test-renderer@19.2.7` stay blocked by the already-recorded `react-native-renderer@19.2.3` exact-version runtime mismatch.
+- Babel `8.0.0` remains blocked because the current RN `0.86.0` Babel preset still depends on the Babel 7 plugin stack.
+- Wallet crypto, storage/network, and tooling cohorts are current except for the intentional BitcoinVault/Git fork pins and known blocked entries.
+- `node-fetch@3.3.2` is already installed through the current dependency graph and remains compatible through the guarded dynamic-import consumer evidence.
+- `bl@7.0.3` remains blocked because the latest package is ESM/export-map only while current transitive CommonJS consumers still require the validated `bl@6.1.6` resolution.
+- Latest Android toolchain targets are not yet compatible with the current RN Gradle plugin path: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle `9.4.1`/`9.5.1` hit the known React Native Gradle plugin Kotlin metadata blocker. The validated Android foundation remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- iOS runtime/archive validation remains blocked on this Windows host until macOS/Xcode/CocoaPods validation is run.
+
+Validation:
+
+- `& $node $yarn foundation:target:refresh-online`
+- `& $node $yarn foundation:target:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.709 - Sentry release prerequisite refresh
 
 - Branch: `feature/bem-37-709-sentry-release-prereq-refresh`
