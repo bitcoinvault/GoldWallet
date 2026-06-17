@@ -10,6 +10,53 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.721 - CodePush posture readiness refresh
+
+- Branch: `feature/bem-37-721-codepush-posture-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh CodePush release-path, migration, removal, env-cleanup, decision, and aggregate release-services evidence after the Firebase runtime-delivery readiness refresh.
+- Verify live npm and GitHub metadata before any OTA update claim or replacement planning.
+- Keep the current post-removal decision explicit: CodePush stays removed, beta has no OTA, and OTA update validation remains unclaimed until a maintained replacement is selected and delivery-tested.
+- Keep runtime app code, package versions, lockfiles, Android/iOS native project settings, env values, deployment keys, and local release artifacts unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-17 reports `react-native-code-push@9.0.1` as current `latest`, with the latest publish timestamp `2024-12-19T14:31:05.513Z`.
+- GitHub metadata on 2026-06-17 confirms `microsoft/react-native-code-push` and `microsoft/code-push-server` are still archived.
+- CodePush remains removed from runtime, Android native bundle resolution, iOS native/plist integration, `package.json`, installed package state, and tracked env files.
+- CodePush release build evidence, Android release APK manifest proof, release smoke, and release create-wallet smoke are valid/current for `dev`, `stage`, `prod`, and `beta`.
+- CodePush decision handoff reports `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, `Beta deployment-key strategy: beta has no OTA`, `Secret values printed: no`, and `CodePush update validation: not claimed`.
+- CodePush env cleanup readiness reports `0` env files carrying CodePush keys, `0` CodePush env key entries, and `0` non-empty deployment key entries.
+- `release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota` completed and preserved the remove posture through the aggregate release-services gate.
+- iOS runtime/archive validation remains not claimed on Windows; the refreshed iOS summaries still require macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock` before iOS delivery can be claimed.
+- No runtime code, dependency versions, native project files, or Metro behavior changed in this branch, so Android emulator smoke is not required for this docs/readiness milestone.
+
+Validation:
+
+- `npm view react-native-code-push version time dist-tags repository deprecated --json`
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
+- `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,updatedAt,defaultBranchRef,description,url`
+- `& $node $yarn codepush:release:path-audit`
+- `& $node $yarn codepush:release:path-check-summary`
+- `& $node $yarn codepush:migration:readiness-audit`
+- `& $node $yarn codepush:migration:readiness-check-summary`
+- `& $node $yarn codepush:removal-readiness:audit`
+- `& $node $yarn codepush:removal-readiness:check-summary`
+- `& $node $yarn codepush:env-cleanup:audit`
+- `& $node $yarn codepush:env-cleanup:check-summary`
+- `& $node $yarn codepush:env-cleanup:plan`
+- `& $node $yarn codepush:env-cleanup:check-plan`
+- `& $node $yarn check:codepush-decision-handoff-guard`
+- `& $node $yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota`
+- `& $node $yarn check:codepush-decision-handoff-summary-guard`
+- `& $node $yarn check:codepush-update-validation-handoff-guard`
+- `& $node $yarn codepush:update:validation:handoff:dry-run --skip-android-release`
+- `& $node $yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `& $node $yarn release-services:check-summaries`
+
 ### BEM-37.720 - Firebase runtime delivery readiness refresh
 
 - Branch: `feature/bem-37-720-firebase-runtime-delivery-readiness-refresh`

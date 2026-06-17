@@ -8,7 +8,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 ## Current Package State
 
-| Package | Current package.json | Latest npm checked on 2026-06-12 | Notes |
+| Package | Current package.json | Latest npm checked on 2026-06-17 | Notes |
 | --- | --- | --- | --- |
 | `@react-native-firebase/app` | `24.1.1` | `24.1.1` | Current package pulls `firebase@12.14.0`. |
 | `@react-native-firebase/analytics` | `24.1.1` | `24.1.1` | Peer requires matching `@react-native-firebase/app@24.1.1`. |
@@ -85,6 +85,8 @@ The full handoff refreshes Android release APK evidence with Sentry auto-upload 
 
 After `BEM-37.627`, the release-services handoff defaults to the current post-removal CodePush posture: `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota`. Pass explicit CodePush decision flags only when planning a future `replace` branch or an explicit temporary legacy exception. The default handoff must keep OTA update validation unclaimed because CodePush runtime/native integration is removed and no maintained replacement has been selected or delivery-tested.
 
+The 2026-06-17 CodePush posture refresh confirms `react-native-code-push@9.0.1` is still the latest npm release, Microsoft `react-native-code-push` and `code-push-server` are still archived, local runtime/native/env/plist CodePush surfaces remain removed, `Decision: remove` is the current handoff posture, beta has no OTA, and OTA update validation remains `not claimed`.
+
 After `BEM-37.421`, Sentry has a narrower source-map prerequisite handoff for the point when `SENTRY_AUTH_TOKEN` is available:
 
 ```powershell
@@ -124,7 +126,7 @@ The 2026-06-17 Firebase runtime-delivery readiness refresh confirms `@react-nati
 
 ## Current Release Readiness Snapshot
 
-Checked on 2026-06-12 after the RN `0.86.0` foundation, Android release build evidence refresh, Android `devRelease` embedded smoke, and release-services aggregate refresh:
+Checked on 2026-06-17 after the RN `0.86.0` foundation, Android release build evidence refresh, Android `devRelease` embedded smoke, and release-services aggregate refresh:
 
 ```powershell
 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local
