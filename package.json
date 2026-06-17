@@ -96,6 +96,8 @@
     "node:runtime-transition:audit": "node scripts/auditNodeRuntimeTransition.mjs",
     "check:node-runtime-version": "node scripts/checkNodeRuntimeVersion.mjs",
     "check:node-runtime-version-guard": "node scripts/checkNodeRuntimeVersionGuard.mjs",
+    "node:runtime:yarn": "node scripts/runYarnWithNvmrcNode.mjs",
+    "check:node-runtime-yarn-runner-guard": "node scripts/checkNodeRuntimeYarnRunnerGuard.mjs",
     "check:node-runtime-transition-guard": "node scripts/checkNodeRuntimeTransitionGuard.mjs",
     "upgrade:strategy:audit": "node scripts/auditDependencyUpgradeStrategy.mjs",
     "rn:upgrade-path:audit": "node scripts/auditReactNativeUpgradePath.mjs",

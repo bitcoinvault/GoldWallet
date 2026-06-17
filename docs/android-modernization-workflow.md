@@ -42,6 +42,8 @@ The environment audit checks the active Node version, `.nvmrc`, `JAVA_HOME`/Java
 
 Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Native, RN Babel/Metro config packages, README, workflow, and baseline docs still agree on the Node 24 Metro/dev runtime baseline.
 
+When a terminal is still on a different global Node version, use `corepack yarn node:runtime:yarn <script>` to run a Yarn script under the exact Node version from `.nvmrc` through Corepack. This is useful for network-backed latest snapshots such as `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`, because those summaries intentionally fail if they are generated with a non-baseline Node runtime. `check:node-runtime-yarn-runner-guard` keeps the wrapper pinned to `.nvmrc` and non-interactive `npm exec --package node@<version>` instead of silently falling back to the shell's global Node.
+
 Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.86.0` package baseline, Android SDK 36 toolchain baseline, and related documentation still agree.
 
 Use the legacy-named `corepack yarn rn:076-foundation:audit` before the next React Native foundation branch to verify that the RN `0.86.0` checkpoint still includes React 19, Node 24, Metro/Babel, Android template, iOS Podfile, and package-only blocker scope.
