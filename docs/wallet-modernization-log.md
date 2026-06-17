@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.752 - Detox Metro Windows readiness
+
+- Branch: `feature/bem-37-752-detox-metro-windows-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Detox Metro startup script work on Windows/PowerShell without POSIX inline env assignment.
+- Align the Android Detox emulator target with the validated local Android SDK 36 AVD used by the current smoke harness.
+- Extend `check:detox-readiness` so future e2e config changes cannot reintroduce the broken Windows `start:detox` script or stale Android AVD target.
+- Keep app runtime code, package versions, native implementation files, lockfile, release credentials, and local app state unchanged.
+
+Findings:
+
+- Live npm metadata reports `detox@20.51.4` as the current latest, matching the repo dev dependency and Android `com.wix:detox` test dependency.
+- Before this branch, `corepack yarn start:detox` failed immediately on Windows with `'LOG_BOX_IGNORE' is not recognized as an internal or external command`.
+- `scripts/runDetoxMetro.mjs` now sets `LOG_BOX_IGNORE=true`, `CHAMBER_OF_SECRETS=true`, and `RN_SRC_EXT=e2e.tsx` in Node before launching the React Native CLI, while still allowing `LOG_BOX_IGNORE=false` override for manual warning inspection.
+- The only local Android AVD is `Medium_Phone_API_36.0`; `.detoxrc.json` now points Android Detox at that same SDK 36 emulator instead of the stale `Pixel_API_28_AOSP` name.
+- The Detox Android debug build passes through both the normal Yarn script and the `.nvmrc` Node runtime runner, producing the dev debug APK and dev debug androidTest APK. Gradle still prints the known non-fatal `detox-20.51.4.pom` prolog warning, but the build completes successfully.
+- A short Metro startup probe on port `8091` returned `/status` HTTP `200` and the Metro process was stopped afterward.
+- Android embedded smoke passed on `emulator-5554`, including first-run terms, PIN setup, transaction-password setup, email skip, empty-dashboard Create/Import navigation, QR scanner open/close, bottom-tab navigation, Settings Terms WebView, and no fatal/runtime logcat findings.
+
+Validation:
+
+- `npm view detox version peerDependencies dependencies engines bin dist-tags --json`
+- `corepack yarn check:detox-readiness`
+- `corepack yarn start:detox -- --help`
+- `node scripts\runDetoxMetro.mjs --help`
+- `corepack yarn node:runtime:yarn detox config --configuration android.emu.dev.debug`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn build:detox:android:debug`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn build:detox:android:debug`
+- `node scripts\runDetoxMetro.mjs --port 8091 --no-interactive`, then `GET http://127.0.0.1:8091/status`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn android:dev:smoke:embedded`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.751 - Secure-storage validation refresh
 
 - Branch: `feature/bem-37-751-secure-storage-validation-refresh`
