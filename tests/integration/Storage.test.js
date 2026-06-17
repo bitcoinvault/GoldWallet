@@ -379,6 +379,26 @@ it('Appstorage - React Native storage migrates legacy value into keychain when k
   });
 });
 
+it('Appstorage - React Native storage keeps migration logs free of storage keys and values', async () => {
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockResolvedValueOnce(false);
+  mockLegacySecureStore.get.mockResolvedValueOnce('sensitive-wallet-json');
+  mockKeychain.setGenericPassword.mockResolvedValueOnce({
+    service: 'sensitive-wallet-key',
+    storage: 'keychain',
+  });
+  mockLegacySecureStore.remove.mockResolvedValueOnce('removed');
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('sensitive-wallet-key')).resolves.toBe('sensitive-wallet-json');
+
+  const logPayload = JSON.stringify([...mockLogger.info.mock.calls, ...mockLogger.warn.mock.calls]);
+
+  expect(logPayload).toContain('secure-storage-migration');
+  expect(logPayload).not.toContain('sensitive-wallet-key');
+  expect(logPayload).not.toContain('sensitive-wallet-json');
+});
+
 it('Appstorage - React Native storage falls back to legacy value when keychain read fails', async () => {
   setReactNativeNavigator();
   mockKeychain.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));

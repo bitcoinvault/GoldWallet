@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.738 - Secure-storage secret-safe telemetry coverage
+
+- Branch: `feature/bem-37-738-secure-storage-secret-safe-telemetry`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused secure-storage regression coverage proving fallback/migration telemetry does not log stored keys or stored values.
+- Extend secure-storage removal-readiness evidence with explicit `SecureStorageService` and encrypted wallet `AppStorage` secret-safe instrumentation test fields.
+- Keep runtime storage behavior, package versions, native project files, Metro config, release credentials, and local app state unchanged.
+
+Findings:
+
+- `SecureStorageService.test.js` now covers a legacy PIN/transaction-password fallback migration with sentinel key/value data and verifies `secure-storage-migration` log payloads do not contain either stored key or stored value.
+- `Storage.test.js` now covers an encrypted wallet bucket fallback migration with sentinel key/value data and verifies `secure-storage-migration` log payloads do not contain either stored key or stored value.
+- `secure-storage:removal-readiness:audit` now reports both `SecureStorageService secret-safe fallback instrumentation tests present: yes` and `AppStorage secret-safe fallback instrumentation tests present: yes`.
+- The refreshed removal-readiness summary still reports Keychain primary writes, active legacy fallback reads, disabled legacy writes, post-migration legacy cleanup, and fallback instrumentation all guarded with `0` warnings and `0` errors.
+- Legacy package removal remains `no`: `react-native-secure-key-store@2.0.10` must stay installed until fallback-free release validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.
+- No runtime code changed in this branch, so Android emulator smoke was not required; the secure-storage release-validation summary still consumes the existing valid Android dev smoke artifact.
+
+Validation:
+
+- `& $node --check scripts\auditSecureStorageRemovalReadiness.mjs`
+- `& $node --check scripts\secureStorageRemovalReadinessSummaryGuard.mjs`
+- `& $node --check scripts\checkSecureStorageRemovalReadinessSummaryGuard.mjs`
+- `& $node $yarn check:secure-storage-removal-readiness-summary-guard`
+- `& $node $yarn test:secure-storage:unit`
+- `& $node $yarn test:storage`
+- `& $node $yarn secure-storage:removal-readiness:audit`
+- `& $node $yarn secure-storage:removal-readiness:check-summary`
+- `& $node $yarn secure-storage:migration:audit`
+- `& $node $yarn secure-storage:migration:check-summary`
+- `& $node $yarn secure-storage:release-validation:summary`
+- `& $node $yarn secure-storage:release-validation:check-summary`
+- `& $node $yarn test:storage-network:focused`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.737 - Foundation target refresh
 
 - Branch: `feature/bem-37-737-foundation-target-refresh`

@@ -54,6 +54,8 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
   const serviceFallbackFreeKeychainTestsPresent =
     unitTest.includes('validates fallback-free migrated PIN reads from keychain') &&
     unitTest.includes('validates fallback-free transaction-password checks from keychain hash');
+  const serviceSecretSafeFallbackInstrumentationTestsPresent =
+    unitTest.includes('keeps secure-storage migration logs free of stored keys and values');
   const appStorageFallbackMigrationTestsPresent =
     storageTest.includes('normalizes a null legacy fallback result to missing storage') &&
     storageTest.includes('normalizes an undefined legacy fallback result to missing storage') &&
@@ -65,13 +67,17 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     storageTest.includes('normalizes an undefined legacy fallback result after keychain read failure to missing storage');
   const appStorageFallbackFreeKeychainTestsPresent =
     storageTest.includes('validates fallback-free encrypted wallet data from keychain');
+  const appStorageSecretSafeFallbackInstrumentationTestsPresent =
+    storageTest.includes('keeps migration logs free of storage keys and values');
   const fallbackMigrationTestsPresent =
     serviceFallbackMigrationTestsPresent &&
     serviceKeychainFailureEmptyFallbackTestsPresent &&
     serviceFallbackFreeKeychainTestsPresent &&
+    serviceSecretSafeFallbackInstrumentationTestsPresent &&
     appStorageFallbackMigrationTestsPresent &&
     appStorageKeychainFailureEmptyFallbackTestsPresent &&
-    appStorageFallbackFreeKeychainTestsPresent;
+    appStorageFallbackFreeKeychainTestsPresent &&
+    appStorageSecretSafeFallbackInstrumentationTestsPresent;
   const androidWarningSourceStillExpected =
     warningFollowups.includes('react-native-secure-key-store') &&
     warningFollowups.includes('dedicated secure-storage removal after legacy fallback migration validation');
@@ -127,9 +133,11 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     serviceFallbackMigrationTestsPresent,
     serviceKeychainFailureEmptyFallbackTestsPresent,
     serviceFallbackFreeKeychainTestsPresent,
+    serviceSecretSafeFallbackInstrumentationTestsPresent,
     appStorageFallbackMigrationTestsPresent,
     appStorageKeychainFailureEmptyFallbackTestsPresent,
     appStorageFallbackFreeKeychainTestsPresent,
+    appStorageSecretSafeFallbackInstrumentationTestsPresent,
     fallbackMigrationTestsPresent,
     removalReleaseValidationClaimed: false,
     androidWarningSourceStillExpected,
@@ -156,9 +164,11 @@ export const formatSecureStorageRemovalReadinessSummary = (audit, generatedAt = 
     `SecureStorageService fallback migration tests present: ${audit.serviceFallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `SecureStorageService keychain-failure empty fallback tests present: ${audit.serviceKeychainFailureEmptyFallbackTestsPresent ? 'yes' : 'no'}`,
     `SecureStorageService fallback-free keychain tests present: ${audit.serviceFallbackFreeKeychainTestsPresent ? 'yes' : 'no'}`,
+    `SecureStorageService secret-safe fallback instrumentation tests present: ${audit.serviceSecretSafeFallbackInstrumentationTestsPresent ? 'yes' : 'no'}`,
     `AppStorage fallback migration tests present: ${audit.appStorageFallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `AppStorage keychain-failure empty fallback tests present: ${audit.appStorageKeychainFailureEmptyFallbackTestsPresent ? 'yes' : 'no'}`,
     `AppStorage fallback-free encrypted wallet tests present: ${audit.appStorageFallbackFreeKeychainTestsPresent ? 'yes' : 'no'}`,
+    `AppStorage secret-safe fallback instrumentation tests present: ${audit.appStorageSecretSafeFallbackInstrumentationTestsPresent ? 'yes' : 'no'}`,
     `Fallback migration tests present: ${audit.fallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `Removal release validation claimed: ${audit.removalReleaseValidationClaimed ? 'yes' : 'no'}`,
     `Android warning source still expected: ${audit.androidWarningSourceStillExpected ? 'yes' : 'no'}`,
