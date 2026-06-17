@@ -21,6 +21,8 @@ const skippedCommands = getSentryReleaseValidationCommands({ skipAndroidRelease:
 const skippedRendered = skippedCommands.map(renderSentryReleaseValidationCommand).join('\n');
 const preflightCommands = getSentryReleaseValidationCommands({ preflightOnly: true, skipAndroidRelease: true });
 const preflightRendered = preflightCommands.map(renderSentryReleaseValidationCommand).join('\n');
+const packageJson = JSON.parse(readFileSync(path.resolve('package.json'), 'utf8'));
+const scripts = packageJson.scripts || {};
 const fixtureApkPath = path.resolve('package.json');
 const fixtureApkBytes = statSync(fixtureApkPath).size;
 const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath)).digest('hex');
@@ -76,6 +78,16 @@ assert(
     preflightRendered.includes('corepack yarn sentry:release:prereq-check-summary') &&
     preflightRendered.includes('corepack yarn release-services:check-summaries'),
   'Preflight-only Sentry handoff must still audit prerequisites and aggregate release-services summaries',
+);
+assert(
+  scripts['sentry:release:validation:preflight'] ===
+    'node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release',
+  'package.json must expose a Sentry release validation preflight script that skips credentialed upload and Android release refresh',
+);
+assert(
+  scripts['sentry:release:validation:preflight:dry-run'] ===
+    'node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release --dry-run',
+  'package.json must expose a dry-run Sentry release validation preflight script',
 );
 assert(
   skippedRendered.includes('corepack yarn sentry:android-warning:audit'),

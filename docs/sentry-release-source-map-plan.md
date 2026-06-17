@@ -19,6 +19,8 @@
 - `corepack yarn check:sentry-properties-generator` validates the cross-platform `scripts/createSentryProperties.mjs` generator without touching repo-level Sentry files: it checks missing-token failure, `--root` temp output, root/Android/iOS file generation, org/project overrides, and secret-safe command output.
 - `corepack yarn sentry:release:validation:handoff:dry-run` renders the Sentry source-map prerequisite sequence without printing token assignments.
 - `corepack yarn sentry:release:validation:handoff` validates the generator, optionally refreshes Android release APK evidence with Sentry auto-upload disabled, refreshes the Sentry RN bundle task compatibility summary, generates the three Sentry properties files from `SENTRY_AUTH_TOKEN`, refreshes the Sentry prerequisite summary, and validates aggregate release-services summaries.
+- `corepack yarn sentry:release:validation:preflight` runs the non-secret readiness path with `--preflight-only --skip-android-release` when current Android release/smoke evidence is already fresh and `SENTRY_AUTH_TOKEN` is unavailable.
+- `corepack yarn sentry:release:validation:preflight:dry-run` renders that non-secret preflight path without printing token assignments.
 - `corepack yarn check:sentry-release-validation-handoff-guard` validates the handoff command order, `--skip-android-release` behavior, required-env handling, and secret-safe command rendering.
 - `corepack yarn sentry:release:credential-plan` writes `local-docs/sentry-release-credential-plan.txt`, listing only file paths, env variable names, command names, and missing readiness states for Sentry release credential handoff.
 - `corepack yarn sentry:release:credential-plan:check` validates that the local credential plan keeps source-map upload unclaimed and does not print token, DSN, or `auth.token` values.
@@ -41,7 +43,7 @@
 
 - `npm view @sentry/react-native version dist-tags --json` reports `latest` as `8.14.0`, matching the installed SDK.
 - `npm view @sentry/cli version dist-tags --json` reports `latest` as `3.5.1`, matching the direct release CLI package.
-- `sentry:release:validation:handoff --preflight-only --skip-android-release` passes without rendering secret values and keeps credentialed upload explicitly unclaimed.
+- `sentry:release:validation:preflight` passes without rendering secret values and keeps credentialed upload explicitly unclaimed while using the existing current Android release/smoke evidence.
 - `sentry:release:prereq-audit` reports Android release summary, APK manifests, release smoke, and release create-wallet smoke as valid/current after the BEM-37.735 release-input fingerprint refresh.
 - `sentry:release:prereq-audit` now also reports iOS static readiness, iOS Sentry source-map/dSYM phase counts, active `ios/Podfile.lock` drift, and macOS validation prerequisites in the same Sentry prerequisite summary.
 - `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim.
@@ -60,7 +62,7 @@ Evidence that must be attached to the credential handoff:
 
 - current `check:sentry-properties-generator` output;
 - current `sentry:release:credential-plan` and `sentry:release:credential-plan:check` output;
-- current `sentry:release:validation:handoff:dry-run --skip-android-release` output;
+- current `sentry:release:validation:preflight:dry-run` output;
 - current `sentry:release:prereq-audit` and `sentry:release:prereq-check-summary` output after credentials are generated;
 - current Android release build, manifest, and release-smoke evidence;
 - current iOS release-readiness and macOS-prerequisite summaries, including whether `ios/Podfile.lock` drift is zero;

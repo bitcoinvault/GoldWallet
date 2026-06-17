@@ -99,7 +99,8 @@ This validates the properties generator, optionally refreshes Android release AP
 After `BEM-37.699`, the Sentry handoff also supports a non-secret preflight path for local readiness checks without generating properties:
 
 ```powershell
-corepack yarn sentry:release:validation:handoff --preflight-only --skip-android-release
+corepack yarn sentry:release:validation:preflight:dry-run
+corepack yarn sentry:release:validation:preflight
 ```
 
 This validates the current Sentry SDK/CLI targets, Android warning surface, RN bundle task compatibility, current Android release/smoke/create-wallet evidence, and aggregate release-services summaries while keeping release upload explicitly `not claimed` until `SENTRY_AUTH_TOKEN` and the three `sentry.properties` files are available.

@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.746 - Sentry release preflight script
+
+- Branch: `feature/bem-37-746-sentry-release-preflight-script`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `sentry:release:validation:preflight` as the short, secret-safe Sentry release readiness command for the common case where Android release build, release-smoke, and release create-wallet evidence are already fresh.
+- Add `sentry:release:validation:preflight:dry-run` so the preflight command order can be rendered without printing token assignments.
+- Guard the package scripts through `check:sentry-release-validation-handoff-guard` and include them in the Android/RN modernization environment audit.
+- Update release-service and Sentry documentation to prefer the package scripts over manually passing `--preflight-only --skip-android-release`.
+- Keep package versions, app runtime code, native project files, Android build outputs, release credentials, and local app state unchanged.
+
+Findings:
+
+- `sentry:release:validation:preflight` runs `runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release`, so it validates the properties generator, Sentry Android warning summary, Sentry RN bundle-task compatibility, Sentry release prerequisites, and aggregate release-services summaries without requiring `SENTRY_AUTH_TOKEN`.
+- The full credentialed Sentry handoff remains unchanged and still requires `SENTRY_AUTH_TOKEN` before properties generation.
+- Current local Sentry preflight remains blocked only for the expected external readiness reasons: missing local Sentry properties/token and iOS macOS/Xcode/CocoaPods Podfile/archive validation.
+- No runtime, native, dependency, or Metro behavior changed in this branch, so Android emulator smoke is not required for this script/guard/documentation branch.
+- iOS runtime validation is not claimed.
+
+Validation:
+
+- `corepack yarn sentry:release:validation:preflight:dry-run`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn sentry:release:validation:preflight`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn android:dev:check-light-docs`
+- `corepack yarn check:android-dev-env-audit-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.745 - Babel 8 foundation gate
 
 - Branch: `feature/bem-37-745-babel8-foundation-gate`

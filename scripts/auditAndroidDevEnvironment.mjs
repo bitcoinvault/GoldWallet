@@ -217,6 +217,8 @@ export const requiredAndroidDevPackageScripts = [
   'check:sentry-release-prereq-summary-guard',
   'sentry:release:validation:handoff',
   'sentry:release:validation:handoff:dry-run',
+  'sentry:release:validation:preflight',
+  'sentry:release:validation:preflight:dry-run',
   'check:sentry-release-validation-handoff-guard',
   'codepush:release:path-check-summary',
   'check:codepush-release-path-summary-guard',

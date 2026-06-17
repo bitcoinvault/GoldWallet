@@ -259,6 +259,8 @@
     "sentry:release:create-properties": "node scripts/createSentryProperties.mjs",
     "sentry:release:validation:handoff": "node scripts/runSentryReleaseValidationHandoff.mjs",
     "sentry:release:validation:handoff:dry-run": "node scripts/runSentryReleaseValidationHandoff.mjs --dry-run",
+    "sentry:release:validation:preflight": "node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release",
+    "sentry:release:validation:preflight:dry-run": "node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release --dry-run",
     "sentry:release:credential-plan": "node scripts/planSentryReleaseCredentials.mjs",
     "sentry:release:credential-plan:check": "node scripts/checkSentryReleaseCredentialPlan.mjs",
     "check:sentry-release-prereq-summary-guard": "node scripts/checkSentryReleasePrereqSummaryGuard.mjs",
