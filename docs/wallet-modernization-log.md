@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.741 - Secure-storage release summary evidence
+
+- Branch: `feature/bem-37-741-secure-storage-release-summary-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the secure-storage release-validation summary so it reports Android release startup smoke and release create-wallet smoke evidence when those local artifacts are present.
+- Reuse the existing release smoke and create-wallet smoke summary guards instead of duplicating artifact validation rules.
+- Keep release evidence optional for dev-only secure-storage handoffs, while rejecting inconsistent claims when release smoke evidence is reported.
+- Keep app runtime code, package versions, native project files, Android build outputs, release credentials, and local app state unchanged.
+
+Findings:
+
+- The refreshed `local-docs/secure-storage-release-validation-summary.txt` reports Android dev smoke, Android release smoke, and Android release create-wallet smoke as present and valid.
+- Release startup smoke still reports `Artifact base: android-smoke-dev-release`, `Android smoke outcome: passed`, and `0` summary errors.
+- Release create-wallet smoke still reports `Artifact base: android-create-wallet-smoke-dev-release`, `Android create-wallet smoke outcome: passed`, and `0` summary errors.
+- `Android release evidence ready: yes` is now derived from both release startup and release create-wallet smoke evidence.
+- `Secure-storage release validation evidence ready: yes` remains based on migration summary, removal-readiness summary, and Android dev smoke evidence, so dev-only secure-storage handoffs are not forced to rerun release APK smoke.
+- Legacy package removal remains explicitly blocked while fallback reads are active and fallback-free release validation is not claimed.
+
+Validation:
+
+- `node --check scripts\runSecureStorageReleaseValidationSummary.mjs`
+- `node --check scripts\secureStorageReleaseValidationSummaryGuard.mjs`
+- `node --check scripts\checkSecureStorageReleaseValidationSummaryGuard.mjs`
+- `node scripts\checkSecureStorageReleaseValidationSummaryGuard.mjs`
+- `corepack yarn check:secure-storage-release-validation-summary-guard`
+- `corepack yarn secure-storage:release-validation:summary`
+- `corepack yarn secure-storage:release-validation:check-summary`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `corepack yarn android:dev:release:check-create-wallet-smoke-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.740 - Secure-storage Android release evidence refresh
 
 - Branch: `feature/bem-37-740-secure-storage-release-evidence-refresh`
