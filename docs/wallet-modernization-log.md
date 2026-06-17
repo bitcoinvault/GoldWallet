@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.727 - Secure-storage release validation refresh
+
+- Branch: `feature/bem-37-727-secure-storage-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh secure-storage migration, removal-readiness, Android build, focused storage tests, and embedded Android smoke evidence on the current RN `0.86.0` / Android SDK `36` baseline.
+- Keep `react-native-secure-key-store` installed because fallback reads are still active for existing migrated secure values.
+- Keep package versions, runtime storage code, native project files, lockfiles, Metro config, release credentials, env files, and iOS files unchanged.
+
+Findings:
+
+- `secure-storage:release-validation:handoff` completed successfully and regenerated secure-storage migration/removal evidence on `2026-06-17`.
+- Secure-storage migration remains stable with `react-native-keychain@10.0.0` as the primary write backend, `react-native-secure-key-store@2.0.10` as the legacy fallback-read package, legacy writes disabled, cleanup after successful migration enabled, and fallback instrumentation active.
+- Focused storage contracts passed: `SecureStorageService.test.js` reported `20` tests passed, `Storage.test.js` reported `16` tests passed, `authenticator.test.js` reported `6` tests passed, and `App.offline.test.js` reported `3` tests passed.
+- Android `devDebug` assemble passed with JDK `17` on the current AGP `8.13.2` / Gradle `8.13` baseline.
+- Embedded Android smoke generated on `2026-06-17T11:15:43.709Z` installed `app-dev-debug.apk` on `emulator-5554` without Metro, cleared app data, completed first-run terms/PIN/transaction-password/email-skip/success flow, validated empty-dashboard CTA navigation, tab navigation, QR scanner screen, Settings Terms WebView, and reported no fatal/runtime logcat findings.
+- Smoke summary reports APK SHA-256 `c51148aeeb2af7e659905052c590d793942a7870ef5d04178553b0f8166137d0`, `Metro required: no`, `Validated QR scanner screen: yes`, and `Validated settings Terms WebView: yes`.
+- `secure-storage:release-validation:summary` regenerated a valid summary on `2026-06-17T11:16:06.812Z` with migration summary valid, removal-readiness summary valid, Android smoke summary valid, and secure-storage release validation evidence ready.
+- Legacy package removal remains `no`: fallback reads are still active, removal release validation is not claimed, and the required action remains to keep `react-native-secure-key-store` installed until fallback-free validation proves migrated PIN, transaction-password, and encrypted wallet data without the legacy backend.
+
+Validation:
+
+- `& $node $yarn secure-storage:release-validation:handoff`
+- `& $node $yarn secure-storage:release-validation:summary`
+- `& $node $yarn secure-storage:release-validation:check-summary`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.726 - Release-services aggregate readiness refresh
 
 - Branch: `feature/bem-37-726-release-services-aggregate-refresh`
