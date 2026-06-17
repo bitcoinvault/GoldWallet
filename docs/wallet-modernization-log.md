@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.750 - Release-services aggregate refresh
+
+- Branch: `feature/bem-37-750-release-services-aggregate-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the aggregate release-services handoff after the latest RN `0.86.0`, Android SDK 36, Sentry, Firebase, CodePush removal, push-notification, and iOS static-readiness evidence.
+- Re-run the secret-safe release-services sequence without rebuilding Android release artifacts, relying on the current validated Android release build, release-smoke, and create-wallet evidence while letting the aggregate checker reject stale artifacts.
+- Keep package versions, lockfile, runtime code, native project files, release credentials, Sentry properties, and committed build outputs unchanged.
+
+Findings:
+
+- Sentry release prerequisites are structurally valid and current: `@sentry/react-native@8.14.0` and direct `@sentry/cli@3.5.1` are latest, Android release build/smoke/create-wallet evidence is ready, and the RN bundle task compatibility summary remains ready through the repo-owned args shim.
+- Sentry upload validation is still correctly not claimed because `SENTRY_AUTH_TOKEN` and the three local-only `sentry.properties` files are unavailable, and iOS archive/dSYM validation still requires macOS/Xcode/CocoaPods after `ios/Podfile.lock` refresh.
+- Firebase release-services summary is current: React Native Firebase packages are aligned at `24.1.1`, Android config is present, release build evidence is ready, and real FCM/Crashlytics/Analytics runtime delivery remains not claimed.
+- CodePush remains removed from runtime/native integration, App Center CodePush remains retired/archived, Android New Architecture remains enabled, and the guarded decision handoff remains `remove` with beta OTA out of scope.
+- CodePush env cleanup remains safe: tracked env files scanned `5`, env files carrying CodePush keys `0`, non-empty deployment-key entries `0`, and secret values were not printed.
+- Push-notification iOS bridge static readiness remains current at `@react-native-community/push-notification-ios@1.12.0`; runtime delivery still requires Mac/device validation.
+- Static iOS release readiness remains valid with eight guarded schemes, no removed CodePush plist placeholders, and no removed camera pod references, but `ios/Podfile.lock` still has 12 active drift entries and iOS runtime delivery is not claimed on Windows.
+- The final `release-services:check-summaries` aggregate gate passed after all refreshed summaries.
+
+Validation:
+
+- `corepack yarn release-services:validation:handoff:dry-run --skip-android-release`
+- `corepack yarn release-services:validation:handoff --skip-android-release`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.749 - Foundation target refresh
 
 - Branch: `feature/bem-37-749-foundation-target-refresh`
