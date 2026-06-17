@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.730 - BL current lightweight check
+
+- Branch: `feature/bem-37-730-bl-current-light-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add an offline current-state BL resolution checker for the Android lightweight gate.
+- Validate `package.json` keeps `resolutions.bl = 6.1.6`, installed `bl` resolves to `6.1.6`, bare CommonJS `require('bl')` still returns the function-shaped entry expected by current consumers, and guarded CommonJS consumers still load.
+- Wire the new checker into `android:dev:check-light` and align README, Android modernization workflow docs, wallet modernization baseline docs, and the lightweight documentation checker.
+
+Findings:
+
+- `check:bl-resolution-current` now validates the actual repo/package state without npm network access and without depending on generated `local-docs` summaries.
+- The existing online `bl:resolution:audit` still owns latest-target evidence for `bl@7.0.3`; the new lightweight check owns daily drift detection for the validated `bl@6.1.6` baseline.
+- The checked CommonJS consumers remain `levelup` and `ora`, matching the existing BL readiness audit.
+- No runtime/native/dependency/Metro files changed in this branch, so Android emulator smoke was not required for this validation-gate hardening change.
+
+Validation:
+
+- `& $node --check scripts\checkBlResolutionCurrent.mjs`
+- `& $node $yarn check:bl-resolution-current`
+- `& $node $yarn android:dev:check-light-docs`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.729 - BL lightweight gate coverage
 
 - Branch: `feature/bem-37-729-bl-light-gate-coverage`
