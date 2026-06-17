@@ -18,6 +18,7 @@ Checked on: 2026-06-17
 - Empty legacy fallback results are also covered after a Keychain read failure, so a temporary Keychain read error plus an empty legacy backend does not turn into a migrated empty value or a cleanup attempt.
 - After a legacy value is successfully written into Keychain, the app attempts to remove the migrated legacy value from `react-native-secure-key-store`.
 - Legacy fallback entry, migration success, migration-write failure, and cleanup failure are recorded through secret-safe `secure-storage-migration` breadcrumbs without logging keys or stored values.
+- Secret-safe fallback instrumentation is covered for both secure PIN/transaction-password storage and encrypted wallet bucket storage, so migration breadcrumbs cannot include stored keys or values.
 - Keychain-primary reads are covered by focused unit tests so existing migrated secure values do not unnecessarily touch the legacy backend.
 - Transaction-password verification is covered for both matching and non-matching candidate passwords.
 - Legacy removal readiness: not ready while legacy fallback reads are still active.
@@ -44,6 +45,7 @@ Current release-validation posture checked on 2026-06-17:
 - `react-native-secure-key-store@2.0.10` remains installed for fallback reads and post-migration cleanup.
 - Keychain primary writes, legacy fallback reads, legacy-write disablement, and legacy cleanup after successful migration are all guarded.
 - Secret-safe legacy fallback instrumentation is guarded so a future removal decision can distinguish "fallback no longer observed" evidence from a warning-only cleanup.
+- Secret-safe fallback instrumentation tests are guarded for both `SecureStorageService` and encrypted wallet `AppStorage` so fallback telemetry can be used without exposing stored keys or values.
 - Fallback-free Keychain reads are guarded for migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading without invoking `react-native-secure-key-store`.
 - Removal release validation is not claimed and `Legacy package removal ready` remains `no`.
 - Required action remains: keep `react-native-secure-key-store` installed until fallback-free validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.

@@ -14,9 +14,11 @@ const validSummary = [
   'SecureStorageService fallback migration tests present: yes',
   'SecureStorageService keychain-failure empty fallback tests present: yes',
   'SecureStorageService fallback-free keychain tests present: yes',
+  'SecureStorageService secret-safe fallback instrumentation tests present: yes',
   'AppStorage fallback migration tests present: yes',
   'AppStorage keychain-failure empty fallback tests present: yes',
   'AppStorage fallback-free encrypted wallet tests present: yes',
+  'AppStorage secret-safe fallback instrumentation tests present: yes',
   'Fallback migration tests present: yes',
   'Removal release validation claimed: no',
   'Android warning source still expected: yes',
@@ -88,6 +90,14 @@ assertRejected(
   'SecureStorageService fallback-free keychain tests',
 );
 assertRejected(
+  'Missing SecureStorageService secret-safe fallback instrumentation tests fixture',
+  validSummary.replace(
+    'SecureStorageService secret-safe fallback instrumentation tests present: yes',
+    'SecureStorageService secret-safe fallback instrumentation tests present: no',
+  ),
+  'SecureStorageService secret-safe fallback instrumentation tests',
+);
+assertRejected(
   'Missing AppStorage fallback tests fixture',
   validSummary.replace('AppStorage fallback migration tests present: yes', 'AppStorage fallback migration tests present: no'),
   'AppStorage fallback migration tests',
@@ -107,6 +117,14 @@ assertRejected(
     'AppStorage fallback-free encrypted wallet tests present: no',
   ),
   'AppStorage fallback-free encrypted wallet tests',
+);
+assertRejected(
+  'Missing AppStorage secret-safe fallback instrumentation tests fixture',
+  validSummary.replace(
+    'AppStorage secret-safe fallback instrumentation tests present: yes',
+    'AppStorage secret-safe fallback instrumentation tests present: no',
+  ),
+  'AppStorage secret-safe fallback instrumentation tests',
 );
 assertRejected('Claimed validation fixture', validSummary.replace('Removal release validation claimed: no', 'Removal release validation claimed: yes'), 'must not be claimed');
 assertRejected('Removal ready fixture', validSummary.replace('Legacy package removal ready: no', 'Legacy package removal ready: yes'), 'must stay blocked');

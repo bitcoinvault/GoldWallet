@@ -32,9 +32,11 @@ const yesNoLabels = [
   'SecureStorageService fallback migration tests present',
   'SecureStorageService keychain-failure empty fallback tests present',
   'SecureStorageService fallback-free keychain tests present',
+  'SecureStorageService secret-safe fallback instrumentation tests present',
   'AppStorage fallback migration tests present',
   'AppStorage keychain-failure empty fallback tests present',
   'AppStorage fallback-free encrypted wallet tests present',
+  'AppStorage secret-safe fallback instrumentation tests present',
   'Fallback migration tests present',
   'Removal release validation claimed',
   'Android warning source still expected',
@@ -115,6 +117,10 @@ export const getSecureStorageRemovalReadinessSummaryErrors = summary => {
     errors.push('SecureStorageService fallback-free keychain tests must be present before removal readiness can be tracked');
   }
 
+  if (getLineValue(summary, 'SecureStorageService secret-safe fallback instrumentation tests present') !== 'yes') {
+    errors.push('SecureStorageService secret-safe fallback instrumentation tests must be present before removal readiness can be tracked');
+  }
+
   if (getLineValue(summary, 'AppStorage fallback migration tests present') !== 'yes') {
     errors.push('AppStorage fallback migration tests must be present before removal readiness can be tracked');
   }
@@ -125,6 +131,10 @@ export const getSecureStorageRemovalReadinessSummaryErrors = summary => {
 
   if (getLineValue(summary, 'AppStorage fallback-free encrypted wallet tests present') !== 'yes') {
     errors.push('AppStorage fallback-free encrypted wallet tests must be present before removal readiness can be tracked');
+  }
+
+  if (getLineValue(summary, 'AppStorage secret-safe fallback instrumentation tests present') !== 'yes') {
+    errors.push('AppStorage secret-safe fallback instrumentation tests must be present before removal readiness can be tracked');
   }
 
   if (getLineValue(summary, 'Fallback migration tests present') !== 'yes') {

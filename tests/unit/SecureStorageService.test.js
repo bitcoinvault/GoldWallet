@@ -184,6 +184,24 @@ describe('unit - SecureStorageService', function () {
     });
   });
 
+  it('keeps secure-storage migration logs free of stored keys and values', async function () {
+    mockSecureStore.getGenericPassword.mockResolvedValueOnce(false);
+    mockLegacySecureStore.get.mockResolvedValueOnce('sensitive-pin-value');
+    mockSecureStore.setGenericPassword.mockResolvedValueOnce({
+      service: 'sensitive-pin-key',
+      storage: 'keychain',
+    });
+    mockLegacySecureStore.remove.mockResolvedValueOnce('removed');
+
+    await expect(service.getSecuredValue('sensitive-pin-key')).resolves.toBe('sensitive-pin-value');
+
+    const logPayload = JSON.stringify([...mockLogger.info.mock.calls, ...mockLogger.warn.mock.calls]);
+
+    expect(logPayload).toContain('secure-storage-migration');
+    expect(logPayload).not.toContain('sensitive-pin-key');
+    expect(logPayload).not.toContain('sensitive-pin-value');
+  });
+
   it('falls back to the legacy secure store when keychain read fails', async function () {
     mockSecureStore.getGenericPassword.mockRejectedValueOnce(new Error('keychain unavailable'));
     mockLegacySecureStore.get.mockResolvedValueOnce('1234');
