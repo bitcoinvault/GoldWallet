@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.716 - Foundation target refresh
+
+- Branch: `feature/bem-37-716-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live foundation-target evidence after the Android release evidence refresh.
+- Re-check the current React Native stable target, direct outdated package decisions, Git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, Android toolchain target, BL resolution, and node-fetch resolution.
+- Keep generated latest-target summaries in ignored `local-docs/`.
+- Do not change package versions, native project files, lockfiles, runtime code, release credentials, or local app state in this branch.
+
+Findings:
+
+- React Native remains current: npm `latest` is `0.86.0`, npm `next` is `0.86.0-rc.3`, and npm `nightly` is `0.87.0-nightly-20260608-2ff3b81dc`, so there is no higher stable RN line to adopt in this branch.
+- The React Native `0.86.0` peer range still reports React `^19.2.3`, and package-only React `19.2.7` / `react-test-renderer@19.2.7` remains blocked by the RN renderer exact-version constraint.
+- Direct outdated entries remain `16`: `12` known blocked entries and `4` exotic or git-pinned entries, with `0` review-required entries.
+- Babel `8.0.0` remains blocked because the current RN `0.86.0` Babel preset still depends on the Babel 7 plugin stack.
+- BitcoinVault wallet-critical git pins are current against their recorded remotes: `bitcoinjs-lib`, `electrum-client`, and `react-native-prompt-android`.
+- Wallet/crypto latest snapshot reports `15` tracked entries with no deferred entries; storage/network latest snapshot reports `10` current entries; tooling latest snapshot reports `24` current entries.
+- Latest Android toolchain targets are still not compatible with the current RN Gradle plugin path: AGP `9.2.1` requires Gradle `9.4.1+`, while Gradle `9.4.1` and `9.5.1` load newer embedded Kotlin runtime metadata that the RN Gradle plugin `0.86.0` Kotlin compile path cannot read. The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- `bl@7.0.3` remains blocked for current CommonJS/transitive consumers, while `node-fetch@3.3.2` remains on the latest ESM v3 package entry with the old snap-carousel/isomorphic-fetch blocker chain removed.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn foundation:target:refresh-online`
+- `& $node $yarn foundation:target:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.715 - Android release evidence refresh
 
 - Branch: `feature/bem-37-715-android-release-evidence-refresh`
