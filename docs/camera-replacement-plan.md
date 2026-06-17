@@ -10,7 +10,7 @@
 - Android and iOS camera permissions are already present.
 - `react-native-camera` has been removed from the runtime dependency list.
 - The unused legacy QR local-image package `@remobile/react-native-qrcode-local-image` has been removed from the JS dependency list and Android autolink guard.
-- The latest legacy `react-native-camera` package checked on 2026-06-16 is still `4.2.1`, and it still does not solve the dependency-owned Android `jcenter()` warning cleanly.
+- The latest legacy `react-native-camera` package checked on 2026-06-17 is still `4.2.1`, and it still does not solve the dependency-owned Android `jcenter()` warning cleanly.
 - `corepack yarn check:camera-usage-guard` verifies the camera usage guard fixtures.
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface after the CameraKit migration.
 - `corepack yarn check:qr-scan-caller-guard` verifies the caller-inventory guard fixtures.
@@ -40,7 +40,7 @@
 - Package path: `react-native-vision-camera`.
 - Upstream docs describe barcode/QR scanning for both Android and iOS.
 - The modern API can scan only `qr-code`, which matches GoldWallet's current use.
-- Current latest package checked on 2026-06-16 is `react-native-vision-camera@5.0.11`.
+- Current latest package checked on 2026-06-17 is `react-native-vision-camera@5.0.11`.
 - The camera candidate audit verifies this against live npm metadata before future scanner work.
 - Risk: the current latest line depends on the Nitro module stack (`react-native-nitro-modules` and `react-native-nitro-image`); the live peer ranges are wildcarded (`react@*`, `react-native@*`, `react-native-nitro-image@*`, `react-native-nitro-modules@*`), so the blocker is the extra native architecture stack, not a narrow semver range. Align it with a future RN/native-module milestone rather than attempting it as a small warning cleanup.
 - Highest checked v4 line is `react-native-vision-camera@4.7.3`; it still requires additional native/worklet dependencies and needs a proof build before selection.
@@ -50,18 +50,18 @@
 
 - Package path: `react-native-camera-kit`.
 - Smaller API surface for scanner use cases.
-- Current latest package checked on 2026-06-16 is `react-native-camera-kit@18.0.0`.
+- Current latest package checked on 2026-06-17 is `react-native-camera-kit@18.0.0`.
 - The camera candidate audit verifies this against live npm metadata before future scanner work.
 - Node requirement `>=18` is compatible with the current Node 24 modernization baseline.
-- Live peer ranges checked on 2026-06-16 remain `react@*` and `react-native@*`, so the installed CameraKit scanner remains the highest current compatible target without adding a new native peer stack.
+- Live peer ranges checked on 2026-06-17 remain `react@*` and `react-native@*`, so the installed CameraKit scanner remains the highest current compatible target without adding a new native peer stack.
 - Current proof role: selected implementation for the QR scanner migration.
 
 ### QR Rendering Pair
 
-- Current latest package checked on 2026-06-16 is `react-native-qrcode-svg@6.3.21`.
-- Current latest native renderer package checked on 2026-06-16 is `react-native-svg@15.15.5`.
-- Current latest encoder package checked on 2026-06-16 is `qrcode@1.5.4`.
-- Live `react-native-qrcode-svg@6.3.21` peer ranges checked on 2026-06-16 remain `react@*`, `react-native@>=0.63.4`, and `react-native-svg@>=14.0.0`; the direct dependency set remains `prop-types@^15.8.0`, `qrcode@^1.5.4`, and `text-encoding@^0.7.0`.
+- Current latest package checked on 2026-06-17 is `react-native-qrcode-svg@6.3.21`.
+- Current latest native renderer package checked on 2026-06-17 is `react-native-svg@15.15.5`.
+- Current latest encoder package checked on 2026-06-17 is `qrcode@1.5.4`.
+- Live `react-native-qrcode-svg@6.3.21` peer ranges checked on 2026-06-17 remain `react@*`, `react-native@>=0.63.4`, and `react-native-svg@>=14.0.0`; the direct dependency set remains `prop-types@^15.8.0`, `qrcode@^1.5.4`, and `text-encoding@^0.7.0`.
 - The camera candidate audit verifies all three QR rendering values against live npm metadata before future QR renderer work.
 - The installed QR rendering pair remains current, so scanner follow-up work should focus on runtime camera behavior rather than another QR renderer bump.
 
