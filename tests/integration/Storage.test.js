@@ -42,6 +42,7 @@ jest.mock('../../BlueElectrum', () => ({
 }));
 
 const { SegwitP2SHWallet, AppStorage } = require('../../class');
+const encryption = require('../../encryption');
 
 jest.useFakeTimers();
 
@@ -256,6 +257,41 @@ it('Appstorage - React Native storage reads keychain before legacy store', async
 
   await expect(Storage.getItem('data')).resolves.toBe('wallet-json');
   expect(mockLegacySecureStore.get).not.toHaveBeenCalled();
+});
+
+it('Appstorage - React Native storage validates fallback-free encrypted wallet data from keychain', async () => {
+  const sourceStorage = new AppStorage();
+  const wallet = new SegwitP2SHWallet();
+
+  wallet.setLabel('keychain-only-wallet');
+  await wallet.generate();
+  sourceStorage.wallets.push(wallet);
+  await sourceStorage.saveToDisk();
+
+  const serializedWalletData = await AsyncStorage.getItem('data');
+  const encryptedWalletBuckets = JSON.stringify([encryption.encrypt(serializedWalletData, 'password')]);
+
+  setReactNativeNavigator();
+  mockKeychain.getGenericPassword.mockImplementation(({ service }) => {
+    if (service === AppStorage.FLAG_ENCRYPTED) {
+      return Promise.resolve({ password: '1' });
+    }
+
+    if (service === 'data') {
+      return Promise.resolve({ password: encryptedWalletBuckets });
+    }
+
+    return Promise.resolve(false);
+  });
+
+  const keychainOnlyStorage = new AppStorage();
+
+  await expect(keychainOnlyStorage.storageIsEncrypted()).resolves.toBe(true);
+  await expect(keychainOnlyStorage.loadFromDisk('password')).resolves.toBe(true);
+  expect(keychainOnlyStorage.wallets).toHaveLength(1);
+  expect(keychainOnlyStorage.wallets[0].getLabel()).toBe('keychain-only-wallet');
+  expect(mockLegacySecureStore.get).not.toHaveBeenCalled();
+  expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
 });
 
 it('Appstorage - React Native storage normalizes a null legacy fallback result to missing storage', async () => {

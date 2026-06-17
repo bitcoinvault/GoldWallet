@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.717 - Secure-storage fallback-free evidence
+
+- Branch: `feature/bem-37-717-secure-storage-fallback-free-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add focused fallback-free secure-storage evidence before any future legacy package removal branch.
+- Prove migrated PIN and transaction-password values can be read and verified from `react-native-keychain` without touching `react-native-secure-key-store`.
+- Prove encrypted wallet buckets can load from Keychain without touching the legacy secure-storage backend.
+- Extend the secure-storage removal-readiness audit and summary guard so these fallback-free checks stay visible.
+- Keep `react-native-secure-key-store` installed because legacy fallback reads are still active and package removal remains not claimed.
+
+Findings:
+
+- `SecureStorageService` now has explicit fallback-free Keychain coverage for migrated PIN reads and transaction-password hash checks; both paths assert that legacy `get` and `remove` are not invoked.
+- `AppStorage` now has explicit fallback-free encrypted wallet coverage that builds encrypted wallet data, serves the encrypted flag and wallet bucket through Keychain, loads the wallet with the correct password, and asserts the legacy backend is not touched.
+- `secure-storage:removal-readiness:audit` now reports `SecureStorageService fallback-free keychain tests present: yes` and `AppStorage fallback-free encrypted wallet tests present: yes`.
+- `secure-storage:release-validation:summary` reports migration summary valid, removal-readiness summary valid, Android dev smoke present/valid, focused validation script `test:storage-network:focused`, and release-validation evidence ready.
+- Legacy package removal remains `no` because fallback reads are still active; this branch strengthens removal prerequisites but does not remove `react-native-secure-key-store`.
+- Android dev smoke passed on `emulator-5554` without Metro, completed first-run terms/PIN/transaction-password/email-skip flow, validated dashboard CTA navigation, tab navigation, QR scanner screen, Settings Terms WebView, and reported no fatal/runtime logcat findings.
+
+Validation:
+
+- `& $node $yarn check:secure-storage-removal-readiness-summary-guard`
+- `& $node $yarn secure-storage:removal-readiness:audit`
+- `& $node $yarn secure-storage:removal-readiness:check-summary`
+- `& $node $yarn test:secure-storage:unit`
+- `& $node $yarn test:storage`
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn secure-storage:release-validation:handoff`
+- `& $node $yarn secure-storage:release-validation:summary`
+- `& $node $yarn secure-storage:release-validation:check-summary`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.716 - Foundation target refresh
 
 - Branch: `feature/bem-37-716-foundation-target-refresh`
