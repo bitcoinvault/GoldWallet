@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.751 - Secure-storage validation refresh
+
+- Branch: `feature/bem-37-751-secure-storage-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the secure-storage release-validation handoff after the current RN `0.86.0`, Android SDK 36, Keychain `10.0.0`, and legacy secure-storage fallback baseline.
+- Re-run focused secure-storage, storage, authenticator, and offline wallet-core contracts, then rebuild and smoke-test the Android dev debug APK on emulator.
+- Keep storage runtime code, package versions, native project files, release credentials, and committed build outputs unchanged.
+
+Findings:
+
+- `react-native-keychain@10.0.0` remains the primary secure-storage package, while `react-native-secure-key-store@2.0.10` remains installed for staged legacy fallback reads.
+- Secure-storage migration and removal-readiness summaries remain valid: Keychain primary writes are active, legacy writes are disabled, legacy fallback reads remain active, and cleanup after successful migration is guarded.
+- Focused secure-storage validation passed: `SecureStorageService.test.js` 23 tests, `Storage.test.js` 19 tests, `authenticator.test.js` 6 tests, and `App.offline.test.js` 3 tests.
+- Android dev debug APK assembled with JDK 17 and the embedded smoke passed on `emulator-5554`, including first-run PIN setup, transaction-password setup, empty-dashboard CTA navigation, QR scanner screen, tab navigation, and Settings Terms WebView without fatal/runtime logcat findings.
+- `secure-storage:release-validation:summary` reports secure-storage release validation evidence ready and Android release evidence ready.
+- Legacy package removal is still correctly not claimed: fallback reads remain active and `react-native-secure-key-store` must stay installed until fallback-free validation is proven for migrated PIN, transaction-password, and encrypted wallet data.
+
+Validation:
+
+- `corepack yarn secure-storage:release-validation:handoff:dry-run`
+- `corepack yarn secure-storage:release-validation:handoff:dry-run --skip-android-smoke`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn secure-storage:release-validation:handoff`
+- `corepack yarn secure-storage:release-validation:summary`
+- `corepack yarn secure-storage:release-validation:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.750 - Release-services aggregate refresh
 
 - Branch: `feature/bem-37-750-release-services-aggregate-refresh`
