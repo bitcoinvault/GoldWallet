@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.744 - Node runtime Yarn runner
+
+- Branch: `feature/bem-37-744-node-runtime-runner`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `scripts/runYarnWithNvmrcNode.mjs`, a cross-platform helper that runs Corepack/Yarn through `npm exec --package node@<.nvmrc>`.
+- Add `node:runtime:yarn` and `check:node-runtime-yarn-runner-guard` package scripts.
+- Document the wrapper in the Android modernization workflow and dependency upgrade strategy for network-backed latest snapshot work.
+- Keep package versions, app runtime code, native project files, Android build outputs, release credentials, and local app state unchanged.
+
+Findings:
+
+- The current shell resolves `node` to `C:\Program Files\nodejs\node.exe` version `v22.18.0`, while `.nvmrc` requires `24.16.0`.
+- `corepack yarn check:node-runtime-version` fails in that shell with `Current Node v22.18.0 does not match .nvmrc v24.16.0`.
+- `npm exec --yes --package node@24.16.0 -- node` successfully provides `v24.16.0`.
+- `corepack yarn node:runtime:yarn check:node-runtime-version` runs the repo check through Node `v24.16.0` and passes.
+- The previously failing `direct-outdated:snapshot:audit` passes through the wrapper, writes a valid summary, and confirms RN `0.86.0` remains the current npm latest target while React `19.2.7` stays blocked by renderer coupling.
+
+Validation:
+
+- `npm view react-native version peerDependencies engines --json`
+- `npm view react version engines --json`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn direct-outdated:snapshot:audit` failed as expected under global Node `v22.18.0`
+- `npm exec --yes --package node@24.16.0 -- node -v`
+- `npm exec --yes --package node@24.16.0 -- node "C:\Program Files\nodejs\node_modules\corepack\dist\corepack.js" yarn check:node-runtime-version`
+- `node --check scripts\runYarnWithNvmrcNode.mjs`
+- `node --check scripts\checkNodeRuntimeYarnRunnerGuard.mjs`
+- `corepack yarn check:node-runtime-yarn-runner-guard`
+- `corepack yarn node:runtime:yarn check:node-runtime-version`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.743 - Camera/QR validation summary evidence
 
 - Branch: `feature/bem-37-743-camera-qr-validation-summary`

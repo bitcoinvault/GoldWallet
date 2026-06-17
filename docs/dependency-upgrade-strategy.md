@@ -11,6 +11,7 @@ This project should not upgrade dependencies one package at a time unless the pa
 - Do not mix unrelated runtime families in the same branch.
 - Validate the strategy guard with `corepack yarn upgrade:strategy:audit` before starting a foundation or cohort upgrade branch.
 - When network access is available for target discovery or a React Native foundation branch, use `corepack yarn foundation:target:refresh-online` so `check:node-runtime-version` runs before the live RN target snapshot, direct outdated snapshot, git dependency snapshot, wallet/crypto latest snapshot, storage/network latest snapshot, tooling latest snapshot, Android toolchain target, BL resolution, and node-fetch resolution summaries are refreshed and validated through `foundation:target:check-summaries`. For an actual RN baseline branch, use `corepack yarn rn:baseline:preflight:online`; it runs the same online refresh first and then follows with the offline baseline gate.
+- If the terminal is on a different global Node than `.nvmrc`, use `corepack yarn node:runtime:yarn <script>` for network-backed latest snapshots. The wrapper runs Corepack/Yarn through `npm exec --package node@<.nvmrc>` so generated snapshot summaries are not invalidated by a stale shell runtime.
 - Treat clean Git dependency snapshots as fork-preservation evidence, not permission to casually replace wallet-critical forks. If `bitcoinjs-lib`, `electrum-client`, or `react-native-prompt-android` changes, use a dedicated compatibility branch with wallet/storage validation.
 
 ## Upgrade Layers
