@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.732 - Android toolchain current checker guard
+
+- Branch: `feature/bem-37-732-android-toolchain-current-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a fixture-backed self-check for the Android toolchain current-state checker.
+- Expose the current-state checker comparison rules as a pure function so invalid toolchain fixtures can be rejected without reading the local machine state.
+- Wire the guard into `android:dev:check-light` before the real current-state checker and align README, Android modernization workflow docs, wallet modernization baseline docs, and the lightweight documentation checker.
+
+Findings:
+
+- The guard rejects mismatched JDK, Android Gradle Plugin, Gradle wrapper, Kotlin Gradle Plugin, build tools, min/compile/target SDK, NDK, React Native Gradle plugin, New Architecture, Hermes, missing Gradle JDK guard, and Java execution errors.
+- The real `check:android-toolchain-current` still owns current repo/JAVA_HOME validation; the new guard owns fixture coverage for the checker rules.
+- No runtime/native/dependency/Metro files changed in this branch, so Android emulator smoke was not required for this validation-gate hardening change.
+
+Validation:
+
+- `& $node --check scripts\checkAndroidToolchainCurrent.mjs`
+- `& $node --check scripts\checkAndroidToolchainCurrentGuard.mjs`
+- `& $node $yarn check:android-toolchain-current-guard`
+- `& $node $yarn check:android-toolchain-current`
+- `& $node $yarn android:dev:check-light-docs`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.731 - Android toolchain current lightweight gate
 
 - Branch: `feature/bem-37-731-android-toolchain-current-gate`

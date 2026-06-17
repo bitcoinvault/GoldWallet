@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 
-const expected = {
+export const expectedAndroidToolchainCurrentState = {
   javaMajor: 17,
   agp: '8.13.2',
   gradle: '8.13',
@@ -76,6 +76,12 @@ export const collectAndroidToolchainCurrentState = () => {
     javaError: java.error,
   };
 
+  const errors = getAndroidToolchainCurrentStateErrors(values);
+
+  return { values, errors };
+};
+
+export const getAndroidToolchainCurrentStateErrors = (values, expected = expectedAndroidToolchainCurrentState) => {
   const errors = [];
 
   Object.entries(expected).forEach(([key, expectedValue]) => {
@@ -92,7 +98,7 @@ export const collectAndroidToolchainCurrentState = () => {
     errors.push(`unable to run Java version check from ${values.javaCommand}: ${values.javaError}`);
   }
 
-  return { values, errors };
+  return errors;
 };
 
 const printReport = audit => {
