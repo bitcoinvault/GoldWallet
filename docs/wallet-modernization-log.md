@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.713 - iOS static readiness refresh
+
+- Branch: `feature/bem-37-713-ios-static-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Windows-safe iOS release readiness evidence after the Android dev smoke and Electrum runtime observation refreshes.
+- Re-run the static iOS release readiness audit, macOS/Xcode/CocoaPods prerequisite audit, Podfile.lock refresh plan, validation handoff summary, and macOS handoff dry runs.
+- Keep `ios/Podfile.lock`, iOS project files, package versions, runtime app code, native Android files, Metro config, env files, and release credentials unchanged.
+- Keep generated iOS readiness summaries and handoff artifacts in ignored `local-docs/`.
+
+Findings:
+
+- Static iOS release files remain valid for React Native `0.86.0`, iOS deployment target `15.1`, and React Native minimum Xcode `16.1`.
+- The guarded iOS shared-scheme matrix still contains 8 schemes, and the all-schemes dry run renders Debug and Release simulator build commands for Dev, Stage, Beta, and Prod.
+- iOS Sentry release integration remains statically present with 4 bundle/source-map phases and 3 dSYM upload phases.
+- iOS remote-notification plist coverage remains at 4 plists, and there are 0 CodePush plist placeholders.
+- iOS runtime/archive validation remains not claimed on this Windows host because `xcodebuild` is unavailable, CocoaPods is unavailable, and `ios/Podfile.lock` still needs a macOS `pod install` refresh.
+- `ios/Podfile.lock` drift remains active with 12 package-vs-pod entries, including React-Core, RNBootSplash, react-native-config, AsyncStorage, DeviceInfo, FastImage, Firebase App, Gesture Handler, Localize, Screens, Sentry, and Vector Icons.
+- Removed `ios/Podfile.lock` pod references remain at 0, so the current blocker is refresh/archive readiness rather than stale removed-pod references.
+- Secret values were not printed in the generated iOS handoff summary.
+
+Validation:
+
+- `& $node $yarn ios:mac-validation:handoff:preflight`
+- `& $node $yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `& $node $yarn ios:release:readiness:check-summary`
+- `& $node $yarn ios:mac-validation-prereq:check-summary`
+- `& $node $yarn ios:podfile-refresh:check-plan`
+- `& $node $yarn check:ios-validation-handoff-summary-guard`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.712 - Electrum runtime observation refresh
 
 - Branch: `feature/bem-37-712-electrum-runtime-observation-refresh`
