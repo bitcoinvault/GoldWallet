@@ -2,7 +2,14 @@
 
 Scope: `BEM-37.335`, rebranding and explorer/release-config preparation.
 
-Checked on 2026-06-12 from the current `upgrade/wallet-modernization` baseline. This document does not change runtime behavior. It records the app identity, release-service, store metadata, and explorer surfaces that must move together when the GoldWallet rebrand starts.
+Checked on 2026-06-17 from the current `upgrade/wallet-modernization` baseline. This document does not change runtime behavior. It records the app identity, release-service, store metadata, and explorer surfaces that must move together when the GoldWallet rebrand starts.
+
+Refresh evidence:
+
+- `check:rebranding-release-config-readiness-guard` passes and keeps the readiness guard self-test valid.
+- `check:rebranding-release-config-readiness` reports coverage for 13 Android snippets, 13 iOS snippets, and 8 iOS schemes.
+- Explorer/env readiness, store metadata readiness, and store metadata release handoff dry-run all pass from the same baseline.
+- Live Play Console and App Store Connect state is not claimed by repo-only checks; external store verification remains required before any release or rebrand claim.
 
 ## Current Identity Surface
 
