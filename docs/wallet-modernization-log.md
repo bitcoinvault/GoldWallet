@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.709 - Sentry release prerequisite refresh
+
+- Branch: `feature/bem-37-709-sentry-release-prereq-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry release/source-map prerequisite evidence after the Android release evidence refresh in `BEM-37.708`.
+- Confirm the direct Sentry SDK and CLI package targets are current before any credentialed release/source-map validation.
+- Keep credentialed Sentry release upload validation explicitly unclaimed until local Sentry credentials and properties files exist.
+- Keep generated Sentry prerequisite summaries in ignored `local-docs/`.
+- Keep runtime app code, Android/iOS native project settings, package versions, Metro, and env values unchanged.
+
+Findings:
+
+- `@sentry/react-native` is already current at `8.14.0`; npm registry latest is also `8.14.0`.
+- The direct `@sentry/cli` package is already current at `3.5.1`; npm registry latest is also `3.5.1`.
+- Nested Sentry CLI packages remain at `3.5.0` under Sentry-managed package internals, but the repo-owned release build path uses the direct `3.5.1` CLI package.
+- The Sentry Android warning baseline is stable on the RN `0.86.0` baseline; the refreshed audit does not report an active `execResult` warning.
+- RN bundle task compatibility remains ready because the repo-owned legacy args shim still covers Sentry release bundle task argument extraction.
+- Android release build, APK manifest, release startup smoke, and release create-wallet smoke evidence from `BEM-37.708` remains valid and current for Sentry prerequisite checks.
+- Sentry release/source-map upload validation is still not ready because `SENTRY_AUTH_TOKEN` is not available in this shell and `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are intentionally absent.
+- iOS runtime/archive validation remains blocked on this Windows host until macOS/Xcode/CocoaPods validation is run.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version engines --json`
+- `& $node $yarn sentry:release:validation:handoff --preflight-only --skip-android-release`
+- `& $node $yarn sentry:android-warning:check-summary`
+- `& $node $yarn sentry:rn-bundle-task-compat:check-summary`
+- `& $node $yarn sentry:release:prereq-check-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.708 - Android release evidence refresh after store handoff wiring
 
 - Branch: `feature/bem-37-708-android-release-evidence-refresh`
