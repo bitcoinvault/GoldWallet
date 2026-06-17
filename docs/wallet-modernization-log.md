@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.740 - Secure-storage Android release evidence refresh
+
+- Branch: `feature/bem-37-740-secure-storage-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release-mode evidence after `BEM-37.739` moved legacy secure-storage access behind `LegacySecureKeyStore`.
+- Rebuild all guarded Android release variants and validate generated APK, JS bundle, source-map, and manifest summaries.
+- Run release-mode startup smoke and create-wallet smoke on the locally signed `devRelease` APK without Metro.
+- Keep code, package versions, native project files, release credentials, and local app state unchanged.
+
+Findings:
+
+- `android:dev:release:create-wallet-verify` rebuilt `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- Release input fingerprint: `6ba9a1727b27554624f3386fa4f7316f3b8f61637480352fc4c02a9cdd57d1c3` across `508` files.
+- All four release variants exited `0` in one Gradle attempt each and produced release APK, JS bundle, and source-map artifacts with valid summaries.
+- `devRelease` unsigned source APK SHA-256: `6c456824a05ad5a53072a6acbe05a8a8cf5b3da36d322b5c11e0fd5606378549`.
+- Locally signed release-smoke APK SHA-256: `ff5ca96b8e784f505e195cc91a0619cd9f38c31033695c5995fb8826fb7a283e`.
+- Release startup smoke on `emulator-5554` completed first-run terms, PIN setup, transaction-password setup, skipped email, closed success, validated empty-dashboard CTA navigation, empty-tab navigation, QR scanner, and Settings Terms WebView with no fatal/runtime logcat findings.
+- Release create-wallet smoke on `emulator-5554` validated standard wallet creation to mnemonic backup and default 3-key vault creation to the public-key integration screen with no create-wallet error UI and no fatal/runtime logcat findings.
+- Sentry source-map upload validation remains not claimed because local release builds intentionally disable auto-upload without Sentry credentials.
+
+Validation:
+
+- `& $node $yarn android:dev:release:create-wallet-verify`
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn secure-storage:release-validation:summary`
+- `& $node $yarn secure-storage:release-validation:check-summary`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.739 - Secure-storage legacy native adapter
 
 - Branch: `feature/bem-37-739-secure-storage-legacy-native-adapter`
