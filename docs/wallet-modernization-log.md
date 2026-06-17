@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.728 - Babel 8 blocker evidence refresh
+
+- Branch: `feature/bem-37-728-babel8-blocker-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Babel 8 blocker evidence after the online foundation-target audit reported live Babel `8.0.x` drift as the main direct dependency blocker.
+- Keep package versions, runtime code, native project files, lockfiles, Metro config, release credentials, env files, and local app state unchanged.
+- Keep the existing React Native `0.86.0` Babel preset path on Babel `7.29.7` because the current blocker is still the RN preset/plugin stack, not Node runtime support.
+
+Findings:
+
+- Live npm metadata checked on `2026-06-17` reports `@babel/core@8.0.1`, `@babel/plugin-transform-runtime@8.0.1`, `@babel/plugin-transform-flow-strip-types@8.0.1`, and `@babel/runtime@8.0.0`.
+- The current Babel 8 line requires Node `^22.18.0 || >=24.11.0`, and the repo's Node `24.16.0` baseline satisfies that range.
+- `babel8:migration-probe:check` still confirms the RN `0.86.0` blocker: `@react-native/babel-preset@0.86.0` depends on the Babel 7 plugin stack, with `@babel/plugin-transform-flow-strip-types` requiring Babel `^7.0.0-0`.
+- `foundation:target:refresh-online` still reports `Review-required entries: 0`; Babel 8 entries remain known blocked entries rather than untriaged package drift.
+- No Babel package versions changed in this branch, so Android emulator smoke was not required for this docs/guard evidence refresh.
+
+Validation:
+
+- `& $node $yarn babel8:migration-probe:check`
+- `npm view @babel/core version engines peerDependencies dependencies --json`
+- `npm view @babel/runtime version engines dependencies --json`
+- `npm view @babel/plugin-transform-runtime version engines peerDependencies dependencies --json`
+- `npm view @babel/plugin-transform-flow-strip-types version engines peerDependencies dependencies --json`
+- `& $node $yarn direct-outdated:snapshot:check-summary`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.727 - Secure-storage release validation refresh
 
 - Branch: `feature/bem-37-727-secure-storage-release-validation-refresh`
