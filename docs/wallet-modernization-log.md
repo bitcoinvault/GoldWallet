@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.749 - Foundation target refresh
+
+- Branch: `feature/bem-37-749-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the online foundation target evidence after the RN `0.86.0`, Node `24.16.0`, Android SDK 36, and release-service validation work.
+- Record which surfaces are already on current latest targets and which larger latest-first jumps remain blocked by compatibility, instead of doing unsafe version churn.
+- Keep package versions, lockfile, Android/iOS native files, runtime code, release credentials, and committed build outputs unchanged.
+
+Findings:
+
+- React Native latest is still `0.86.0`; `0.86.0-rc.3` is the prerelease `next` channel and `0.87.0-nightly-20260608-2ff3b81dc` remains nightly-only, so the repo is on the current stable RN line.
+- Direct outdated snapshot has 16 entries: 12 known blocked entries and 4 exotic git/fork pins. There are no new review-required direct dependencies.
+- Babel 8 remains blocked for a dedicated Metro/RN transform branch because the RN `0.86.0` Babel preset still depends on the Babel 7 plugin stack.
+- Wallet crypto, storage/network, and tooling latest snapshots report no deferred entries; those tracked packages are already on current latest npm targets or intentionally fork-pinned.
+- Git dependency snapshot reports the wallet-critical forks `bitcoinjs-lib`, `electrum-client`, and `react-native-prompt-android` are current against their configured remotes, with `rn-nodeify` also current against its guarded pin.
+- Android latest toolchain target is not ready: AGP `9.2.1` needs Gradle `9.4.1+`, but Gradle 9 loads newer embedded Kotlin metadata that the React Native Gradle plugin `0.86.0` Kotlin compiler path cannot read. The validated baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK 36, and JDK 17.
+- `bl@7.0.3` remains blocked by ESM/export-map compatibility for CommonJS transitive consumers; `node-fetch@3.3.2` remains current and compatible through dynamic-import consumers.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn foundation:target:refresh-online`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.748 - Camera/QR validation refresh
 
 - Branch: `feature/bem-37-748-camera-qr-validation-refresh`
