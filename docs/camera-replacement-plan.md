@@ -23,6 +23,8 @@
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
 - `corepack yarn camera:qr-validation:handoff --include-android-smoke` extends the Camera/QR handoff with Android dev assemble, embedded emulator smoke, and smoke-summary validation for scanner-affecting runtime changes.
 - `corepack yarn camera:qr-validation:handoff --include-android-release-smoke` extends the Camera/QR handoff with local devRelease build evidence, release APK smoke, release create-wallet smoke, and both release smoke summary checks for scanner-affecting release branches.
+- `corepack yarn camera:qr-validation:summary` writes `local-docs/camera-qr-validation-summary.txt`, tying candidate metadata, CameraKit migration wiring, Android dev QR scanner smoke evidence, optional Android release smoke evidence, and the iOS Podfile/runtime blocker into one guardable artifact.
+- `corepack yarn camera:qr-validation:check-summary` validates that artifact and keeps iOS runtime validation explicitly unclaimed on Windows until `pod install` and scanner testing are completed on macOS/device.
 - The QR migration audit verifies that removed camera pods are absent from `ios/Podfile.lock`; the same summary also reports broader iOS `Podfile.lock` drift from the RN/native-module baseline, so a stable Android/CameraKit scanner baseline is not mistaken for complete iOS runtime validation.
 - The 2026-06-17 Camera/QR runtime validation refresh ran the full handoff with Android smoke included: CameraKit and QR renderer metadata matched live npm, focused scanner/render tests passed, `app-dev-debug.apk` installed on `emulator-5554`, first-run onboarding completed, empty dashboard CTA and tab navigation passed, the import-wallet QR scanner screen was opened and closed successfully, Settings Terms WebView passed, and no fatal/runtime logcat findings were reported. iOS camera QR runtime validation remains unclaimed until the broader `ios/Podfile.lock` drift is refreshed with `pod install` and the scanner is tested on macOS/device.
 - On Windows the expected state is that Android/runtime dependency wiring can be guarded while iOS camera migration validation remains unclaimed until `pod install` refreshes the broader lockfile drift on macOS.
@@ -111,6 +113,9 @@ Scope:
 - `corepack yarn camera:qr-migration:check-summary`.
 - `corepack yarn camera:qr-validation:handoff --include-android-smoke` for scanner-affecting runtime changes.
 - `corepack yarn camera:qr-validation:handoff --include-android-release-smoke` for scanner-affecting release branches or when current release APK evidence must prove the QR scanner screen.
+- `corepack yarn check:camera-qr-validation-summary-guard`.
+- `corepack yarn camera:qr-validation:summary`.
+- `corepack yarn camera:qr-validation:check-summary`.
 - `corepack yarn typescript:check`.
 - `git diff --check`.
 - Android debug build on JDK 17.
