@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.734 - Babel 8 direct-outdated guard refresh
+
+- Branch: `feature/bem-37-734-babel8-outdated-guard-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the direct-outdated snapshot guard fixture for the current Babel 8 latest-target evidence.
+- Keep the direct Babel package baseline unchanged at `7.29.7`; this branch only updates blocker guard evidence.
+
+Findings:
+
+- Live `direct-outdated:snapshot:audit` now reports the mixed Babel 8 latest target as `8.0.1` for `@babel/cli`, `@babel/core`, `@babel/plugin-transform-runtime`, `@babel/preset-env`, `@babel/preset-react`, and `@babel/preset-typescript`, while `@babel/runtime` and `@babel/traverse` remain `8.0.0`.
+- Babel 8 remains blocked by the RN `0.86.0` Babel preset/plugin stack, not by the Node runtime; `babel8:migration-probe:check` still passes against the current blocker evidence.
+- The generated direct-outdated snapshot still has `16` entries, `12` known blocked entries, `4` exotic entries, `0` review-required entries, and no secret output.
+- No runtime/native/dependency/Metro files changed in this branch, so Android emulator smoke was not required for this guard-fixture refresh.
+
+Validation:
+
+- `& $node $yarn check:direct-outdated-snapshot-summary-guard`
+- `& $node $yarn babel8:migration-probe:check`
+- `& $node $yarn direct-outdated:snapshot:audit`
+- `& $node $yarn direct-outdated:snapshot:check-summary`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.733 - Baseline runtime snapshot correction
 
 - Branch: `feature/bem-37-733-baseline-runtime-snapshot`
