@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.715 - Android release evidence refresh
+
+- Branch: `feature/bem-37-715-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release build, manifest, release-smoke, release create-wallet, and aggregate release-services evidence after the Camera/QR, iOS static, Electrum runtime, and Android dev smoke evidence refreshes.
+- Build all configured Android release variants locally with Sentry auto-upload disabled.
+- Install the locally signed `devRelease` smoke APK on the Android emulator and validate release startup without Metro.
+- Run the release create-wallet smoke against the installed release app.
+- Refresh aggregate release-services summaries using the fresh Android release evidence without re-running the release build.
+- Keep generated APKs, source maps, signed smoke APK, screenshots, UI hierarchies, logcat captures, and release summaries in ignored `local-docs/`.
+
+Findings:
+
+- `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` built successfully with JDK `17.0.19`, Android Gradle Plugin `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- The release summary records APK, JS bundle, and source-map evidence for all four release variants, and `android:dev:release:check-apk-manifest` validates the generated APK manifests.
+- The local release build kept Sentry auto-upload disabled; Sentry source-map upload validation remains not claimed.
+- The locally signed `devRelease` smoke APK installed on `emulator-5554` without Metro, completed first-run terms/PIN/transaction-password/email-skip flow, reached the empty dashboard, validated Create/Import CTA navigation, tab navigation, QR scanner screen, and Settings Terms WebView.
+- Release create-wallet smoke validated standard wallet creation through mnemonic backup and the default 3-key vault creation path through the public-key integration screen.
+- Release smoke and release create-wallet summaries report no fatal/runtime logcat findings.
+- Aggregate release-services summaries are valid after the refresh: Sentry, Firebase, CodePush, push notification bridge, iOS static readiness, iOS macOS prerequisite, Podfile refresh plan, and iOS validation handoff summaries all validate.
+- Sentry SDK and direct CLI remain current at `@sentry/react-native@8.14.0` and `@sentry/cli@3.5.1`, but credentialed release upload is still blocked by missing `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties`.
+- Firebase release-services wiring remains valid and current at `24.1.1`, while real FCM/Crashlytics/Analytics runtime delivery remains not claimed.
+- CodePush remains removed from runtime/native/package/env surfaces; OTA update validation remains not claimed.
+- iOS runtime/archive validation remains blocked on this Windows host until macOS/Xcode/CocoaPods validation refreshes `ios/Podfile.lock` and builds the guarded schemes.
+
+Validation:
+
+- `ANDROID_SERIAL=emulator-5554 JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn android:dev:release:create-wallet-verify`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 & $node $yarn release-services:validation:handoff --skip-android-release`
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn release-services:check-summaries`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.714 - Camera QR evidence refresh
 
 - Branch: `feature/bem-37-714-camera-qr-evidence-refresh`
