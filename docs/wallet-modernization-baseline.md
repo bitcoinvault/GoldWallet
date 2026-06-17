@@ -26,8 +26,9 @@ All modernization work should be developed on focused task branches and merged i
 - Detox: `20.51.4`
 - RN Babel preset: `0.86.0`
 - RN Metro config: `0.86.0`
-- Hermes: disabled
-- JSC: `org.webkit:android-jsc:+`
+- Android New Architecture: enabled
+- Hermes: enabled
+- JSC flavor declaration: `org.webkit:android-jsc:+` remains present as the inactive fallback path while Hermes is enabled.
 
 ## Required Local Toolchain
 
@@ -44,7 +45,7 @@ Current stack:
 - Android target SDK: `36`
 - Android min SDK: `26`
 - Kotlin: `2.1.20`
-- NDK: `20.1.5948944`
+- NDK: `27.1.12297006`
 
 Observed incompatibilities:
 

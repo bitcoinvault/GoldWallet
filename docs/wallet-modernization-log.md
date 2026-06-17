@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.733 - Baseline runtime snapshot correction
+
+- Branch: `feature/bem-37-733-baseline-runtime-snapshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Correct the current wallet modernization baseline runtime snapshot so it matches the actual Android RN `0.86.0` foundation state.
+- Replace stale Hermes/JSC and NDK entries in `docs/wallet-modernization-baseline.md` with the current New Architecture, Hermes, and NDK state.
+
+Findings:
+
+- `android/gradle.properties` has `newArchEnabled=true` and `hermesEnabled=true`.
+- `android/app/build.gradle` sets `project.ext.react.enableHermes` to `true`; the `jscFlavor` declaration remains present as the inactive fallback path.
+- `android/build.gradle` and `check:android-toolchain-current` agree on NDK `27.1.12297006`.
+- No runtime/native/dependency/Metro files changed in this branch, so Android emulator smoke was not required for this baseline documentation correction.
+
+Validation:
+
+- `rg -n "hermesEnabled|enableHermes|Hermes|JSC|android-jsc|newArchEnabled" android package.json docs\wallet-modernization-baseline.md docs\android-modernization-workflow.md scripts\checkAndroidToolchainCurrent.mjs`
+- `rg -n "ndkVersion|27\.1\.12297006|20\.1\.5948944|hermesEnabled|newArchEnabled" android\build.gradle android\gradle.properties docs\wallet-modernization-baseline.md docs\android-modernization-workflow.md scripts\checkAndroidToolchainCurrent.mjs`
+- `& $node $yarn check:android-toolchain-current`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light-docs`
+- `git diff --check`
+
 ### BEM-37.732 - Android toolchain current checker guard
 
 - Branch: `feature/bem-37-732-android-toolchain-current-guard`
