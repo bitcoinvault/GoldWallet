@@ -23,7 +23,7 @@ Checked on: 2026-06-17
 - Keychain-primary reads are covered by focused unit tests so existing migrated secure values do not unnecessarily touch the legacy backend.
 - Transaction-password verification is covered for both matching and non-matching candidate passwords.
 - Legacy removal readiness: not ready while legacy fallback reads are still active.
-- The 2026-06-17 release-validation summary reports migration and removal-readiness summaries valid, Android dev smoke evidence present/valid, focused secure-storage/storage/authenticator/wallet-core contracts passing, and `Secure-storage release validation evidence ready: yes`. Focused fallback-free tests now cover migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading from Keychain without touching the legacy backend; legacy package removal still remains blocked because fallback reads are active and package removal is not claimed.
+- The 2026-06-17 release-validation summary reports migration and removal-readiness summaries valid, Android dev smoke evidence present/valid, release startup smoke present/valid, release create-wallet smoke present/valid, focused secure-storage/storage/authenticator/wallet-core contracts passing, `Secure-storage release validation evidence ready: yes`, and `Android release evidence ready: yes`. Focused fallback-free tests now cover migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading from Keychain without touching the legacy backend; legacy package removal still remains blocked because fallback reads are active and package removal is not claimed.
 
 ## Decision
 
@@ -49,6 +49,7 @@ Current release-validation posture checked on 2026-06-17:
 - Secret-safe fallback instrumentation tests are guarded for both `SecureStorageService` and encrypted wallet `AppStorage` so fallback telemetry can be used without exposing stored keys or values.
 - Fallback-free Keychain reads are guarded for migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading without invoking `react-native-secure-key-store`.
 - Legacy native-module absence is guarded for secure PIN/transaction-password storage and encrypted wallet storage cleanup/read fallback paths, so a future removal branch can fail closed instead of crashing the JS bundle path.
+- Release-mode startup and create-wallet smoke evidence is now surfaced by the secure-storage release-validation summary when local release artifacts are present; this proves the current staged migration posture in the locally signed `devRelease` APK without making legacy package removal ready.
 - Removal release validation is not claimed and `Legacy package removal ready` remains `no`.
 - Required action remains: keep `react-native-secure-key-store` installed until fallback-free validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.
 - The 2026-06-17 release-mode evidence refresh after the `LegacySecureKeyStore` adapter rebuilt all Android release variants, installed the locally signed `devRelease` APK on `emulator-5554`, completed first-run PIN and transaction-password setup without Metro, and validated standard-wallet plus default 3-key vault creation screens without fatal/runtime logcat findings.

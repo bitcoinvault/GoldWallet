@@ -11,6 +11,14 @@ const validSummary = [
   'Android dev smoke summary valid: yes',
   'Android smoke artifact base: android-smoke-dev',
   'Android smoke outcome: passed',
+  'Android release smoke summary present: yes',
+  'Android release smoke summary valid: yes',
+  'Android release smoke artifact base: android-smoke-dev-release',
+  'Android release smoke outcome: passed',
+  'Android release create-wallet smoke summary present: yes',
+  'Android release create-wallet smoke summary valid: yes',
+  'Android release create-wallet smoke artifact base: android-create-wallet-smoke-dev-release',
+  'Android release create-wallet smoke outcome: passed',
   'Focused validation script: test:storage-network:focused',
   'Keychain primary write: yes',
   'Legacy fallback reads active: yes',
@@ -23,11 +31,33 @@ const validSummary = [
   'Migration summary errors: 0',
   'Removal readiness summary errors: 0',
   'Android dev smoke summary errors: 0',
+  'Android release smoke summary errors: 0',
+  'Android release create-wallet smoke summary errors: 0',
   'Secure-storage release validation evidence ready: yes',
+  'Android release evidence ready: yes',
   'Secret values printed: no',
   'Required action: keep react-native-secure-key-store installed until fallback-free validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.',
   '',
 ].join('\n');
+
+const releaseEvidenceMissingSummary = validSummary
+  .replace('Android release smoke summary present: yes', 'Android release smoke summary present: no')
+  .replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no')
+  .replace('Android release smoke artifact base: android-smoke-dev-release', 'Android release smoke artifact base: <missing>')
+  .replace('Android release smoke outcome: passed', 'Android release smoke outcome: <missing>')
+  .replace('Android release create-wallet smoke summary present: yes', 'Android release create-wallet smoke summary present: no')
+  .replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no')
+  .replace(
+    'Android release create-wallet smoke artifact base: android-create-wallet-smoke-dev-release',
+    'Android release create-wallet smoke artifact base: <missing>',
+  )
+  .replace('Android release create-wallet smoke outcome: passed', 'Android release create-wallet smoke outcome: <missing>')
+  .replace('Android release smoke summary errors: 0', 'Android release smoke summary errors: 1\n- missing Android release smoke summary')
+  .replace(
+    'Android release create-wallet smoke summary errors: 0',
+    'Android release create-wallet smoke summary errors: 1\n- missing Android release create-wallet smoke summary',
+  )
+  .replace('Android release evidence ready: yes', 'Android release evidence ready: no');
 
 const assertAccepted = (label, summary) => {
   const errors = getSecureStorageReleaseValidationSummaryErrors(summary);
@@ -50,6 +80,7 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid secure-storage release validation summary fixture', validSummary);
+assertAccepted('Secure-storage release validation summary without optional release evidence fixture', releaseEvidenceMissingSummary);
 assertRejected('Missing header fixture', validSummary.replace('Secure-storage release validation summary', 'Bad summary'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-11T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Bad current package fixture', validSummary.replace('react-native-keychain@10.0.0', 'react-native-keychain@9.0.0'), 'Current secure-storage package');
@@ -57,6 +88,21 @@ assertRejected('Invalid migration summary fixture', validSummary.replace('Migrat
 assertRejected('Invalid removal summary fixture', validSummary.replace('Removal readiness summary valid: yes', 'Removal readiness summary valid: no'), 'Removal readiness summary must be valid');
 assertRejected('Missing smoke fixture', validSummary.replace('Android dev smoke summary present: yes', 'Android dev smoke summary present: no'), 'Android dev smoke summary must be present');
 assertRejected('Failed smoke fixture', validSummary.replace('Android smoke outcome: passed', 'Android smoke outcome: failed'), 'Android smoke outcome must be passed');
+assertRejected(
+  'Failed release smoke fixture',
+  validSummary.replace('Android release smoke outcome: passed', 'Android release smoke outcome: failed'),
+  'Android release smoke outcome',
+);
+assertRejected(
+  'Failed release create-wallet smoke fixture',
+  validSummary.replace('Android release create-wallet smoke outcome: passed', 'Android release create-wallet smoke outcome: failed'),
+  'Android release create-wallet smoke outcome',
+);
+assertRejected(
+  'Inconsistent release evidence fixture',
+  validSummary.replace('Android release evidence ready: yes', 'Android release evidence ready: no'),
+  'Android release evidence ready must be yes',
+);
 assertRejected('No fallback fixture', validSummary.replace('Legacy fallback reads active: yes', 'Legacy fallback reads active: no'), 'Legacy fallback reads must remain active');
 assertRejected(
   'No fallback instrumentation fixture',

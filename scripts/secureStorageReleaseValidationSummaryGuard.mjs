@@ -8,6 +8,10 @@ const yesNoLabels = [
   'Removal readiness summary valid',
   'Android dev smoke summary present',
   'Android dev smoke summary valid',
+  'Android release smoke summary present',
+  'Android release smoke summary valid',
+  'Android release create-wallet smoke summary present',
+  'Android release create-wallet smoke summary valid',
   'Keychain primary write',
   'Legacy fallback reads active',
   'Legacy writes disabled',
@@ -17,6 +21,7 @@ const yesNoLabels = [
   'Legacy package removal ready',
   'Android warning source still expected',
   'Secure-storage release validation evidence ready',
+  'Android release evidence ready',
   'Secret values printed',
 ];
 
@@ -31,9 +36,19 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
   const focusedValidationScript = getLineValue(summary, 'Focused validation script');
   const androidSmokeArtifactBase = getLineValue(summary, 'Android smoke artifact base');
   const androidSmokeOutcome = getLineValue(summary, 'Android smoke outcome');
+  const androidReleaseSmokePresent = getLineValue(summary, 'Android release smoke summary present');
+  const androidReleaseSmokeValid = getLineValue(summary, 'Android release smoke summary valid');
+  const androidReleaseSmokeArtifactBase = getLineValue(summary, 'Android release smoke artifact base');
+  const androidReleaseSmokeOutcome = getLineValue(summary, 'Android release smoke outcome');
+  const androidReleaseCreateWalletSmokePresent = getLineValue(summary, 'Android release create-wallet smoke summary present');
+  const androidReleaseCreateWalletSmokeValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
+  const androidReleaseCreateWalletSmokeArtifactBase = getLineValue(summary, 'Android release create-wallet smoke artifact base');
+  const androidReleaseCreateWalletSmokeOutcome = getLineValue(summary, 'Android release create-wallet smoke outcome');
   const migrationErrors = getLineValue(summary, 'Migration summary errors');
   const removalErrors = getLineValue(summary, 'Removal readiness summary errors');
   const androidSmokeErrors = getLineValue(summary, 'Android dev smoke summary errors');
+  const androidReleaseSmokeErrors = getLineValue(summary, 'Android release smoke summary errors');
+  const androidReleaseCreateWalletSmokeErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
   const requiredAction = getLineValue(summary, 'Required action');
 
   if (!summary.startsWith('Secure-storage release validation summary')) {
@@ -63,6 +78,8 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     ['Migration summary errors', migrationErrors],
     ['Removal readiness summary errors', removalErrors],
     ['Android dev smoke summary errors', androidSmokeErrors],
+    ['Android release smoke summary errors', androidReleaseSmokeErrors],
+    ['Android release create-wallet smoke summary errors', androidReleaseCreateWalletSmokeErrors],
   ].forEach(([label, value]) => {
     if (!isNonNegativeInteger(value)) {
       errors.push(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
@@ -79,6 +96,61 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
 
   if (androidSmokeOutcome !== 'passed') {
     errors.push(`Android smoke outcome must be passed for release-validation evidence. Received: ${androidSmokeOutcome || 'missing'}`);
+  }
+
+  if (androidReleaseSmokePresent === 'yes') {
+    if (androidReleaseSmokeValid !== 'yes' || androidReleaseSmokeErrors !== '0') {
+      errors.push('Android release smoke summary must be valid when present');
+    }
+
+    if (androidReleaseSmokeArtifactBase !== 'android-smoke-dev-release') {
+      errors.push(`Android release smoke artifact base must be android-smoke-dev-release. Received: ${androidReleaseSmokeArtifactBase || 'missing'}`);
+    }
+
+    if (androidReleaseSmokeOutcome !== 'passed') {
+      errors.push(`Android release smoke outcome must be passed when present. Received: ${androidReleaseSmokeOutcome || 'missing'}`);
+    }
+  } else if (androidReleaseSmokeValid === 'yes') {
+    errors.push('Android release smoke summary cannot be valid when it is not present');
+  }
+
+  if (androidReleaseCreateWalletSmokePresent === 'yes') {
+    if (androidReleaseCreateWalletSmokeValid !== 'yes' || androidReleaseCreateWalletSmokeErrors !== '0') {
+      errors.push('Android release create-wallet smoke summary must be valid when present');
+    }
+
+    if (androidReleaseCreateWalletSmokeArtifactBase !== 'android-create-wallet-smoke-dev-release') {
+      errors.push(
+        `Android release create-wallet smoke artifact base must be android-create-wallet-smoke-dev-release. Received: ${
+          androidReleaseCreateWalletSmokeArtifactBase || 'missing'
+        }`,
+      );
+    }
+
+    if (androidReleaseCreateWalletSmokeOutcome !== 'passed') {
+      errors.push(`Android release create-wallet smoke outcome must be passed when present. Received: ${androidReleaseCreateWalletSmokeOutcome || 'missing'}`);
+    }
+  } else if (androidReleaseCreateWalletSmokeValid === 'yes') {
+    errors.push('Android release create-wallet smoke summary cannot be valid when it is not present');
+  }
+
+  const androidReleaseEvidenceReady = getLineValue(summary, 'Android release evidence ready');
+  const expectedAndroidReleaseEvidenceReady =
+    androidReleaseSmokePresent === 'yes' &&
+    androidReleaseSmokeValid === 'yes' &&
+    androidReleaseSmokeErrors === '0' &&
+    androidReleaseCreateWalletSmokePresent === 'yes' &&
+    androidReleaseCreateWalletSmokeValid === 'yes' &&
+    androidReleaseCreateWalletSmokeErrors === '0'
+      ? 'yes'
+      : 'no';
+
+  if (androidReleaseEvidenceReady !== expectedAndroidReleaseEvidenceReady) {
+    errors.push(
+      `Android release evidence ready must be ${expectedAndroidReleaseEvidenceReady} for the reported release smoke evidence. Received: ${
+        androidReleaseEvidenceReady || 'missing'
+      }`,
+    );
   }
 
   if (getLineValue(summary, 'Migration summary valid') !== 'yes') {
