@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
-import RNSecureKeyStore from 'react-native-secure-key-store';
 
 import {
   HDSegwitP2SHWallet,
@@ -15,6 +14,7 @@ import {
   Authenticator,
 } from './';
 import logger from '../logger';
+import RNSecureKeyStore from '../src/services/LegacySecureKeyStore';
 
 const encryption = require('../encryption');
 

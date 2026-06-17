@@ -2,13 +2,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import assert from 'assert';
 import crypto from 'crypto';
 import * as mockKeychain from 'react-native-keychain';
-import mockLegacySecureStore from 'react-native-secure-key-store';
 
 const mockLogger = {
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
   captureException: jest.fn(),
+};
+const mockLegacySecureStore = {
+  get: jest.fn(),
+  set: jest.fn(),
+  remove: jest.fn(),
 };
 
 jest.mock('react-native-keychain', () => ({
@@ -20,17 +24,6 @@ jest.mock('react-native-keychain', () => ({
   setGenericPassword: jest.fn(),
   resetGenericPassword: jest.fn(),
 }));
-jest.mock('react-native-secure-key-store', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(),
-    set: jest.fn(),
-    remove: jest.fn(),
-  },
-  ACCESSIBLE: {
-    WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'LegacyAccessibleWhenUnlockedThisDeviceOnly',
-  },
-}));
 jest.mock('../../logger', () => ({
   __esModule: true,
   default: mockLogger,
@@ -41,6 +34,9 @@ jest.mock('../../BlueElectrum', () => ({
   getDustValue: jest.fn().mockResolvedValue(546),
 }));
 
+const { NativeModules } = require('react-native');
+
+NativeModules.RNSecureKeyStore = mockLegacySecureStore;
 const { SegwitP2SHWallet, AppStorage } = require('../../class');
 const encryption = require('../../encryption');
 
@@ -56,6 +52,7 @@ const setReactNativeNavigator = () => {
 };
 
 afterEach(() => {
+  NativeModules.RNSecureKeyStore = mockLegacySecureStore;
   mockKeychain.getGenericPassword.mockReset();
   mockKeychain.setGenericPassword.mockReset();
   mockKeychain.resetGenericPassword.mockReset();
@@ -250,6 +247,20 @@ it('Appstorage - React Native storage still removes current value when legacy cl
   });
 });
 
+it('Appstorage - React Native storage still removes current value when legacy native module is unavailable', async () => {
+  setReactNativeNavigator();
+  delete NativeModules.RNSecureKeyStore;
+  mockKeychain.resetGenericPassword.mockResolvedValueOnce(true);
+  const Storage = new AppStorage();
+
+  await expect(Storage.removeItem(AppStorage.FLAG_ENCRYPTED)).resolves.toBe(true);
+  expect(mockLegacySecureStore.remove).not.toHaveBeenCalled();
+  expect(mockKeychain.resetGenericPassword).toHaveBeenCalledWith({
+    service: AppStorage.FLAG_ENCRYPTED,
+    accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
+  });
+});
+
 it('Appstorage - React Native storage reads keychain before legacy store', async () => {
   setReactNativeNavigator();
   mockKeychain.getGenericPassword.mockResolvedValueOnce({ password: 'wallet-json' });
@@ -257,6 +268,17 @@ it('Appstorage - React Native storage reads keychain before legacy store', async
 
   await expect(Storage.getItem('data')).resolves.toBe('wallet-json');
   expect(mockLegacySecureStore.get).not.toHaveBeenCalled();
+});
+
+it('Appstorage - React Native storage returns missing storage when legacy native module is unavailable', async () => {
+  setReactNativeNavigator();
+  delete NativeModules.RNSecureKeyStore;
+  mockKeychain.getGenericPassword.mockResolvedValueOnce(false);
+  const Storage = new AppStorage();
+
+  await expect(Storage.getItem('data')).resolves.toBeNull();
+  expect(mockLegacySecureStore.get).not.toHaveBeenCalled();
+  expect(mockKeychain.setGenericPassword).not.toHaveBeenCalled();
 });
 
 it('Appstorage - React Native storage validates fallback-free encrypted wallet data from keychain', async () => {

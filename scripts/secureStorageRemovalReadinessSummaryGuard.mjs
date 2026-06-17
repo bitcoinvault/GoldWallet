@@ -33,10 +33,12 @@ const yesNoLabels = [
   'SecureStorageService keychain-failure empty fallback tests present',
   'SecureStorageService fallback-free keychain tests present',
   'SecureStorageService secret-safe fallback instrumentation tests present',
+  'SecureStorageService legacy native-module unavailable tests present',
   'AppStorage fallback migration tests present',
   'AppStorage keychain-failure empty fallback tests present',
   'AppStorage fallback-free encrypted wallet tests present',
   'AppStorage secret-safe fallback instrumentation tests present',
+  'AppStorage legacy native-module unavailable tests present',
   'Fallback migration tests present',
   'Removal release validation claimed',
   'Android warning source still expected',
@@ -121,6 +123,10 @@ export const getSecureStorageRemovalReadinessSummaryErrors = summary => {
     errors.push('SecureStorageService secret-safe fallback instrumentation tests must be present before removal readiness can be tracked');
   }
 
+  if (getLineValue(summary, 'SecureStorageService legacy native-module unavailable tests present') !== 'yes') {
+    errors.push('SecureStorageService legacy native-module unavailable tests must be present before removal readiness can be tracked');
+  }
+
   if (getLineValue(summary, 'AppStorage fallback migration tests present') !== 'yes') {
     errors.push('AppStorage fallback migration tests must be present before removal readiness can be tracked');
   }
@@ -135,6 +141,10 @@ export const getSecureStorageRemovalReadinessSummaryErrors = summary => {
 
   if (getLineValue(summary, 'AppStorage secret-safe fallback instrumentation tests present') !== 'yes') {
     errors.push('AppStorage secret-safe fallback instrumentation tests must be present before removal readiness can be tracked');
+  }
+
+  if (getLineValue(summary, 'AppStorage legacy native-module unavailable tests present') !== 'yes') {
+    errors.push('AppStorage legacy native-module unavailable tests must be present before removal readiness can be tracked');
   }
 
   if (getLineValue(summary, 'Fallback migration tests present') !== 'yes') {

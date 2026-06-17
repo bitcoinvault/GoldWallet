@@ -38,6 +38,7 @@ export const collectSecureStorageMigrationAudit = () => {
   const currentVersion = dependencies['react-native-keychain'];
   const legacyVersion = dependencies['react-native-secure-key-store'];
   const secureStorageService = requireFile(errors, 'src/services/SecureStorageService.ts');
+  const legacySecureKeyStore = requireFile(errors, 'src/services/LegacySecureKeyStore.ts');
   const appStorage = requireFile(errors, 'class/app-storage.js');
   const authSagas = requireFile(errors, 'src/state/authentication/sagas.ts');
   const unlockTransaction = requireFile(errors, 'src/screens/UnlockTransaction.tsx');
@@ -55,7 +56,10 @@ export const collectSecureStorageMigrationAudit = () => {
   }
 
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, "from 'react-native-keychain'");
-  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, "from 'react-native-secure-key-store'");
+  requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, "from './LegacySecureKeyStore'");
+  requireSnippet(errors, 'LegacySecureKeyStore.ts', legacySecureKeyStore, "from 'react-native'");
+  requireSnippet(errors, 'LegacySecureKeyStore.ts', legacySecureKeyStore, 'nativeModules.RNSecureKeyStore');
+  requireSnippet(errors, 'LegacySecureKeyStore.ts', legacySecureKeyStore, 'Legacy secure-storage native module is unavailable');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'setGenericPassword');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'getGenericPassword');
@@ -65,7 +69,7 @@ export const collectSecureStorageMigrationAudit = () => {
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'Legacy secure-storage value found; migrating to Keychain.');
   requireSnippet(errors, 'SecureStorageService.ts', secureStorageService, 'sha256(value).toString()');
   requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-keychain'");
-  requireSnippet(errors, 'class/app-storage.js', appStorage, "from 'react-native-secure-key-store'");
+  requireSnippet(errors, 'class/app-storage.js', appStorage, "from '../src/services/LegacySecureKeyStore'");
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY');
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'setGenericPassword');
   requireSnippet(errors, 'class/app-storage.js', appStorage, 'getGenericPassword');

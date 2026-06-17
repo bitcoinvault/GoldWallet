@@ -2,8 +2,8 @@
 
 This audit supports `BEM-36 - Native modules upgrade` before changing storage, environment, secure storage, Electrum networking, or WebView dependencies.
 
-Checked on: 2026-06-16
-Baseline refreshed on: 2026-06-16 after the RN `0.86.0` foundation checkpoint, storage/network latest-target refresh, and secure-storage fallback instrumentation refresh.
+Checked on: 2026-06-17
+Baseline refreshed on: 2026-06-17 after the RN `0.86.0` foundation checkpoint, storage/network latest-target refresh, secure-storage fallback instrumentation refresh, and legacy secure-storage native adapter extraction.
 
 ## Current Repository State
 
@@ -27,7 +27,7 @@ Direct usage found in this audit:
 - `react-native-config`: app environment, Electrum host/protocol, explorer URL, Sentry DSNs, CodePush keys.
 - `react-native-localize`: mocked in tests and used through localization runtime.
 - `react-native-keychain`: `SecureStorageService`, legacy `AppStorage` React Native secure-storage path, focused `SecureStorageService` unit contract tests, and `AppStorage` migration-fallback integration tests.
-- `react-native-secure-key-store`: retained as a legacy fallback-read and cleanup backend during the Keychain migration window.
+- `react-native-secure-key-store`: retained as a native autolinked legacy fallback-read and cleanup backend during the Keychain migration window; runtime JS access now goes through `src/services/LegacySecureKeyStore.ts`.
 - `react-native-tcp-socket`: TLS Electrum socket implementation. Updated from `6.0.6` to `6.4.1` in `BEM-36.50`.
 - `react-native-webview`: terms and conditions screens.
 - `react-native-get-random-values`: manifest and lockfile `2.0.0`; imported in `index.js` before app startup. Deprecated `react-native-randombytes` is removed.
@@ -153,6 +153,7 @@ The 2026-06-12 generated latest snapshot confirms the tracked storage/network/co
 - `--skip-android-smoke` skips refreshing Android build/smoke evidence only; the handoff still requires a current valid `android-smoke-dev` summary artifact that records clean first-run onboarding, empty-dashboard CTA navigation, empty-tab navigation, and no fatal/runtime logcat findings.
 - The secure-storage handoff is intentionally conservative: it validates the staged migration posture and keeps `react-native-secure-key-store` installed while fallback reads are active; it does not claim removal readiness.
 - The 2026-06-17 secure-storage release-validation summary reports migration summary valid, removal-readiness summary valid, Android dev smoke summary present/valid, focused validation script `test:storage-network:focused`, Keychain primary writes enabled, legacy writes disabled, legacy fallback reads active, legacy cleanup after successful migration enabled, and fallback-free Keychain tests present for migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading. Legacy package removal remains `no` because fallback reads are still active and package removal is not claimed.
+- `src/services/LegacySecureKeyStore.ts` centralizes access to `NativeModules.RNSecureKeyStore`, keeping direct app runtime imports of `react-native-secure-key-store` out of `SecureStorageService` and `AppStorage` while the native package remains installed for fallback reads and cleanup.
 - Successful legacy secure-storage reads now migrate the value into Keychain and then attempt to remove the migrated legacy key. Cleanup failure is non-fatal so existing users can still unlock while the migration window remains open.
 - Legacy fallback and migration outcomes now emit secret-safe `secure-storage-migration` breadcrumbs from both `SecureStorageService` and `AppStorage`, so release candidates can observe fallback usage without exposing secure keys or wallet values.
 - `tests/unit/SecureStorageService.test.js` locks the current wrapper contract for missing-value fallback, Keychain-primary reads that skip the legacy backend, fallback-free migrated PIN reads, fallback-free transaction-password hash verification, legacy fallback, failed Keychain migration writes, Keychain-only new writes, plain storage, hashed transaction-password storage, positive and negative password verification, and value removal across the native secure-storage package boundary.

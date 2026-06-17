@@ -10,6 +10,57 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.739 - Secure-storage legacy native adapter
+
+- Branch: `feature/bem-37-739-secure-storage-legacy-native-adapter`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Centralize legacy secure-storage native access in `src/services/LegacySecureKeyStore.ts`.
+- Remove direct `react-native-secure-key-store` runtime imports from `SecureStorageService` and `AppStorage` while keeping the package installed for native fallback reads and cleanup.
+- Add focused coverage for missing `NativeModules.RNSecureKeyStore` fallback behavior before any future legacy package removal branch.
+- Keep Keychain primary writes, active legacy fallback reads, legacy cleanup after successful migration, and package versions unchanged.
+
+Findings:
+
+- `react-native-secure-key-store@2.0.10` remains installed and autolinked; package removal is still blocked while fallback reads are active for existing installs.
+- Runtime storage code now calls the legacy backend through `LegacySecureKeyStore`, which fails closed when `NativeModules.RNSecureKeyStore` is absent instead of requiring direct package imports in wallet storage files.
+- `SecureStorageService.test.js` now covers missing legacy native-module reads and cleanup while preserving Keychain cleanup behavior.
+- `Storage.test.js` now covers missing legacy native-module reads and encrypted wallet cleanup behavior for `AppStorage`.
+- `secure-storage:removal-readiness:audit` now reports `SecureStorageService legacy native-module unavailable tests present: yes` and `AppStorage legacy native-module unavailable tests present: yes`.
+- Android dev build and emulator smoke passed after the runtime refactor. The smoke APK `D:\GoldWallet\android\app\build\outputs\apk\dev\debug\app-dev-debug.apk` had SHA-256 `53f0565beba953f6583a54fa4d4c2f841763047ddc8050a44abe382a04ee16c3`; smoke accepted first-run terms, created PIN, created transaction password, skipped email, closed success, validated dashboard CTAs, tab navigation, QR scanner, and Settings Terms WebView with no fatal/runtime logcat findings.
+
+Validation:
+
+- `& $node --check scripts\auditSecureStorageMigration.mjs`
+- `& $node --check scripts\auditSecureStorageRemovalReadiness.mjs`
+- `& $node --check scripts\secureStorageRemovalReadinessSummaryGuard.mjs`
+- `& $node --check scripts\checkSecureStorageRemovalReadinessSummaryGuard.mjs`
+- `& $node --check scripts\storageNetworkUsageGuard.mjs`
+- `& $node --check scripts\checkStorageNetworkUsageGuard.mjs`
+- `& $node $yarn check:secure-storage-removal-readiness-summary-guard`
+- `& $node $yarn check:storage-network-usage-guard`
+- `& $node $yarn test:secure-storage:unit`
+- `& $node $yarn test:storage`
+- `& $node $yarn secure-storage:migration:audit`
+- `& $node $yarn secure-storage:migration:check-summary`
+- `& $node $yarn secure-storage:removal-readiness:audit`
+- `& $node $yarn secure-storage:removal-readiness:check-summary`
+- `& $node $yarn check:storage-network-usage`
+- `& $node $yarn test:storage-network:focused`
+- `& $node $yarn secure-storage:release-validation:summary`
+- `& $node $yarn secure-storage:release-validation:check-summary`
+- `& $node $yarn typescript:check`
+- `& $node $yarn android:dev:env-audit`
+- `& $node $yarn android:dev:assemble`
+- `& $node $yarn android:dev:smoke:embedded`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light-docs`
+- `git diff --check`
+
 ### BEM-37.738 - Secure-storage secret-safe telemetry coverage
 
 - Branch: `feature/bem-37-738-secure-storage-secret-safe-telemetry`

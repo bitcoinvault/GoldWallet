@@ -56,6 +56,9 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     unitTest.includes('validates fallback-free transaction-password checks from keychain hash');
   const serviceSecretSafeFallbackInstrumentationTestsPresent =
     unitTest.includes('keeps secure-storage migration logs free of stored keys and values');
+  const serviceLegacyNativeModuleUnavailableTestsPresent =
+    unitTest.includes('returns an empty string when the legacy native module is unavailable') &&
+    unitTest.includes('continues keychain cleanup when the legacy native module is unavailable');
   const appStorageFallbackMigrationTestsPresent =
     storageTest.includes('normalizes a null legacy fallback result to missing storage') &&
     storageTest.includes('normalizes an undefined legacy fallback result to missing storage') &&
@@ -69,15 +72,20 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     storageTest.includes('validates fallback-free encrypted wallet data from keychain');
   const appStorageSecretSafeFallbackInstrumentationTestsPresent =
     storageTest.includes('keeps migration logs free of storage keys and values');
+  const appStorageLegacyNativeModuleUnavailableTestsPresent =
+    storageTest.includes('still removes current value when legacy native module is unavailable') &&
+    storageTest.includes('returns missing storage when legacy native module is unavailable');
   const fallbackMigrationTestsPresent =
     serviceFallbackMigrationTestsPresent &&
     serviceKeychainFailureEmptyFallbackTestsPresent &&
     serviceFallbackFreeKeychainTestsPresent &&
     serviceSecretSafeFallbackInstrumentationTestsPresent &&
+    serviceLegacyNativeModuleUnavailableTestsPresent &&
     appStorageFallbackMigrationTestsPresent &&
     appStorageKeychainFailureEmptyFallbackTestsPresent &&
     appStorageFallbackFreeKeychainTestsPresent &&
-    appStorageSecretSafeFallbackInstrumentationTestsPresent;
+    appStorageSecretSafeFallbackInstrumentationTestsPresent &&
+    appStorageLegacyNativeModuleUnavailableTestsPresent;
   const androidWarningSourceStillExpected =
     warningFollowups.includes('react-native-secure-key-store') &&
     warningFollowups.includes('dedicated secure-storage removal after legacy fallback migration validation');
@@ -134,10 +142,12 @@ export const collectSecureStorageRemovalReadinessAudit = () => {
     serviceKeychainFailureEmptyFallbackTestsPresent,
     serviceFallbackFreeKeychainTestsPresent,
     serviceSecretSafeFallbackInstrumentationTestsPresent,
+    serviceLegacyNativeModuleUnavailableTestsPresent,
     appStorageFallbackMigrationTestsPresent,
     appStorageKeychainFailureEmptyFallbackTestsPresent,
     appStorageFallbackFreeKeychainTestsPresent,
     appStorageSecretSafeFallbackInstrumentationTestsPresent,
+    appStorageLegacyNativeModuleUnavailableTestsPresent,
     fallbackMigrationTestsPresent,
     removalReleaseValidationClaimed: false,
     androidWarningSourceStillExpected,
@@ -165,10 +175,12 @@ export const formatSecureStorageRemovalReadinessSummary = (audit, generatedAt = 
     `SecureStorageService keychain-failure empty fallback tests present: ${audit.serviceKeychainFailureEmptyFallbackTestsPresent ? 'yes' : 'no'}`,
     `SecureStorageService fallback-free keychain tests present: ${audit.serviceFallbackFreeKeychainTestsPresent ? 'yes' : 'no'}`,
     `SecureStorageService secret-safe fallback instrumentation tests present: ${audit.serviceSecretSafeFallbackInstrumentationTestsPresent ? 'yes' : 'no'}`,
+    `SecureStorageService legacy native-module unavailable tests present: ${audit.serviceLegacyNativeModuleUnavailableTestsPresent ? 'yes' : 'no'}`,
     `AppStorage fallback migration tests present: ${audit.appStorageFallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `AppStorage keychain-failure empty fallback tests present: ${audit.appStorageKeychainFailureEmptyFallbackTestsPresent ? 'yes' : 'no'}`,
     `AppStorage fallback-free encrypted wallet tests present: ${audit.appStorageFallbackFreeKeychainTestsPresent ? 'yes' : 'no'}`,
     `AppStorage secret-safe fallback instrumentation tests present: ${audit.appStorageSecretSafeFallbackInstrumentationTestsPresent ? 'yes' : 'no'}`,
+    `AppStorage legacy native-module unavailable tests present: ${audit.appStorageLegacyNativeModuleUnavailableTestsPresent ? 'yes' : 'no'}`,
     `Fallback migration tests present: ${audit.fallbackMigrationTestsPresent ? 'yes' : 'no'}`,
     `Removal release validation claimed: ${audit.removalReleaseValidationClaimed ? 'yes' : 'no'}`,
     `Android warning source still expected: ${audit.androidWarningSourceStillExpected ? 'yes' : 'no'}`,
