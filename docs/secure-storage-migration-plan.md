@@ -2,7 +2,7 @@
 
 This plan covers the staged secure-storage migration from `react-native-secure-key-store` to `react-native-keychain`.
 
-Checked on: 2026-06-16
+Checked on: 2026-06-17
 
 ## Current State
 
@@ -21,7 +21,7 @@ Checked on: 2026-06-16
 - Keychain-primary reads are covered by focused unit tests so existing migrated secure values do not unnecessarily touch the legacy backend.
 - Transaction-password verification is covered for both matching and non-matching candidate passwords.
 - Legacy removal readiness: not ready while legacy fallback reads are still active.
-- The 2026-06-12 release-validation summary reports migration and removal-readiness summaries valid, Android dev smoke evidence present/valid, focused secure-storage/storage/authenticator/wallet-core contracts passing, and `Secure-storage release validation evidence ready: yes`; legacy package removal still remains blocked because fallback-free validation for migrated secure values is not claimed.
+- The 2026-06-17 release-validation summary reports migration and removal-readiness summaries valid, Android dev smoke evidence present/valid, focused secure-storage/storage/authenticator/wallet-core contracts passing, and `Secure-storage release validation evidence ready: yes`. Focused fallback-free tests now cover migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading from Keychain without touching the legacy backend; legacy package removal still remains blocked because fallback reads are active and package removal is not claimed.
 
 ## Decision
 
@@ -38,12 +38,13 @@ Successful read-time migrations now also attempt to clean the migrated legacy ke
 
 The release-validation handoff still does not claim `react-native-secure-key-store` removal readiness; it proves the current staged migration posture and keeps the package installed until migrated values are validated without fallback reads.
 
-Current release-validation posture checked on 2026-06-16:
+Current release-validation posture checked on 2026-06-17:
 
 - `react-native-keychain@10.0.0` remains the primary write backend.
 - `react-native-secure-key-store@2.0.10` remains installed for fallback reads and post-migration cleanup.
 - Keychain primary writes, legacy fallback reads, legacy-write disablement, and legacy cleanup after successful migration are all guarded.
 - Secret-safe legacy fallback instrumentation is guarded so a future removal decision can distinguish "fallback no longer observed" evidence from a warning-only cleanup.
+- Fallback-free Keychain reads are guarded for migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading without invoking `react-native-secure-key-store`.
 - Removal release validation is not claimed and `Legacy package removal ready` remains `no`.
 - Required action remains: keep `react-native-secure-key-store` installed until fallback-free validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.
 
@@ -64,6 +65,7 @@ Branch: `feature/bem-37-secure-storage-keychain-migration`
 - Focused empty-fallback coverage for `null` and `undefined` legacy native results in `SecureStorageService` and `AppStorage`.
 - Focused Keychain-read-failure plus empty-fallback coverage for `null` and `undefined` legacy native results in `SecureStorageService` and `AppStorage`.
 - Focused fallback instrumentation coverage for secret-safe `secure-storage-migration` breadcrumbs in `SecureStorageService` and `AppStorage`.
+- Focused fallback-free Keychain coverage for migrated PIN, transaction-password hash verification, and encrypted wallet bucket loading without touching the legacy secure-storage backend.
 - `secure-storage:removal-readiness:audit` must report both `SecureStorageService fallback migration tests present: yes` and `AppStorage fallback migration tests present: yes`; a single aggregate fallback-test line is not enough to prove encrypted wallet storage migration coverage.
 - `corepack yarn android:dev:check-light`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
