@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.711 - Android dev smoke evidence refresh
+
+- Branch: `feature/bem-37-711-android-dev-smoke-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android `devDebug` build and emulator smoke evidence after the latest foundation-target and release-readiness evidence refreshes.
+- Prove the current integration branch still installs and starts without Metro, reaches the first-run and empty-dashboard flows, and keeps QR/settings smoke coverage working.
+- Refresh the create-wallet smoke evidence for the standard wallet mnemonic backup path and the default 3-key vault public-key integration path.
+- Keep runtime app code, package versions, native project files, Metro config, env files, and release credentials unchanged.
+- Keep generated APK, screenshot, UI hierarchy, and logcat evidence in ignored `local-docs/`.
+
+Findings:
+
+- `android:dev:verify` rebuilt `devDebug`, installed `io.goldwallet.wallet.dev` on `emulator-5554`, and passed the embedded smoke path without Metro.
+- The refreshed Android smoke reached the first-run terms/PIN/transaction-password/email-skip flow, empty dashboard CTA flow, tab navigation, QR scanner screen, and Settings Terms WebView.
+- The refreshed smoke summary reports expected UI text/resource matches and no fatal Android runtime or React Native bundle/logcat findings.
+- The create-wallet smoke validated standard wallet creation through the mnemonic backup screen.
+- The create-wallet smoke validated the default 3-key vault creation path through the public-key integration screen.
+- Existing Android warning baseline remains unchanged: one known targeted `jcenter()` warning from `react-native-secure-key-store` and zero unexpected targeted warnings.
+- iOS runtime/archive validation remains blocked on this Windows host until macOS/Xcode/CocoaPods validation is run.
+
+Validation:
+
+- `& $node $yarn android:dev:verify`
+- `& $node $yarn android:dev:create-wallet-smoke`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `& $node $yarn android:dev:check-create-wallet-smoke-summary`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.710 - Foundation target evidence refresh
 
 - Branch: `feature/bem-37-710-foundation-target-refresh`
