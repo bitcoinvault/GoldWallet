@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.725 - Android release validation refresh
+
+- Branch: `feature/bem-37-725-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release build, APK manifest, release-smoke, and release create-wallet evidence after the foundation target and Camera/QR runtime validation refreshes.
+- Validate the current release-input fingerprint without changing package versions, runtime code, native project files, lockfiles, Metro config, release credentials, or local app state.
+- Keep Sentry source-map upload explicitly unclaimed because local Sentry credentials/properties are not available.
+
+Findings:
+
+- `android:dev:release:create-wallet-verify` completed successfully with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- Release validation generated on `2026-06-17T10:52:44.982Z` rebuilt `dev`, `stage`, `prod`, and `beta` release variants. Each Gradle task exited `0` in one attempt with no retry reason.
+- Release input fingerprint remains `f43a917bb88d27962c0c280b28ebdd0f2faa98c7cacffa7467e6834b74d9e542` across `507` input files.
+- Each release variant produced an unsigned APK, release JS bundle, and release source map. The release JS bundle SHA-256 was `704642f7ecaab196b3f8036b2ceba007609d1faa69b7b65164e3167704709024`; the release source-map SHA-256 was `6285f1d74b48d615256e3d3ca85d7c786d9b98bc9feaad6efcb1e6ae9e26c201`.
+- The dev release APK SHA-256 was `047b2713c3fe8e705dc6508930b1a14838193e4cd991b6fee72962f359efd4d5`; stage was `7da1cc1fe18eaa1bbba674eded13f14fe205a1b2aa9db69cf07c0249fdf7a9b9`; prod was `be974277ba44945e9123d89bbb0955b758db34eb7d434dc84858f4020f98bbcf`; beta was `a9d51040506f7696ac5156969c7e5d784badf0a2d7f9a775afd7f274e862090e`.
+- Release smoke generated on `2026-06-17T10:56:27.617Z` installed a locally signed `devRelease` smoke APK on `emulator-5554` without Metro, cleared app data, completed first-run terms/PIN/transaction-password/email-skip/success flow, validated empty-dashboard CTA flow, tab navigation, QR scanner screen, and Settings Terms WebView, and reported no fatal/runtime logcat findings.
+- Release create-wallet smoke generated on `2026-06-17T10:57:54.065Z` used the same signed release APK, created a standard wallet to the mnemonic screen, reached the default 3-key vault public-key integration screen, and reported no create-wallet error UI or fatal/runtime logcat findings.
+- Sentry auto-upload was disabled for this local build, and Sentry release upload validation remains `not claimed` until `SENTRY_AUTH_TOKEN` or Sentry properties are available.
+
+Validation:
+
+- `& $node $yarn android:dev:release:create-wallet-verify`
+- `& $node $yarn android:dev:release:check-summary`
+- `& $node $yarn android:dev:release:check-apk-manifest`
+- `& $node $yarn android:dev:release:check-smoke-summary`
+- `& $node $yarn android:dev:release:check-create-wallet-smoke-summary`
+- `& $node $yarn android:dev:check-light-docs`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.724 - Camera/QR runtime validation refresh
 
 - Branch: `feature/bem-37-724-camera-qr-runtime-validation-refresh`
