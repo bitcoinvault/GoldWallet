@@ -10,6 +10,62 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.743 - Camera/QR validation summary evidence
+
+- Branch: `feature/bem-37-743-camera-qr-validation-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guardable Camera/QR validation summary artifact at `local-docs/camera-qr-validation-summary.txt`.
+- Tie CameraKit/QR package metadata, CameraKit migration wiring, Android dev QR scanner smoke evidence, optional Android release smoke evidence, release create-wallet evidence, and iOS Podfile/runtime blockers into one validation output.
+- Add `camera:qr-validation:summary`, `camera:qr-validation:check-summary`, and `check:camera-qr-validation-summary-guard` package scripts.
+- Keep package versions, app runtime code, native project files, Android build outputs, release credentials, and local app state unchanged.
+
+Findings:
+
+- Live npm metadata still reports `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, and `react-native-svg@15.15.5` as current for the installed Camera/QR stack.
+- `local-docs/camera-qr-validation-summary.txt` reports valid candidate metadata, valid CameraKit migration wiring, valid Android dev smoke, valid Android release smoke, and valid release create-wallet smoke.
+- Android dev and release smoke artifacts both report `Validated QR scanner screen: yes`.
+- Android release evidence is ready for the current locally signed `devRelease` artifact, but iOS runtime validation remains explicitly unclaimed on Windows.
+- Removed camera pods are absent from `ios/Podfile.lock`, but the broader `ios/Podfile.lock` drift remains `12` active package-vs-pod entries and still requires `pod install` plus scanner runtime validation on macOS/device.
+
+Validation:
+
+- `npm view react-native-camera-kit version peerDependencies engines --json`
+- `npm view react-native-qrcode-svg version peerDependencies engines --json`
+- `npm view react-native-svg version peerDependencies engines --json`
+- `node --check scripts\cameraQrValidationSummaryGuard.mjs`
+- `node --check scripts\runCameraQrValidationSummary.mjs`
+- `node --check scripts\checkCameraQrValidationSummary.mjs`
+- `node --check scripts\checkCameraQrValidationSummaryGuard.mjs`
+- `corepack yarn check:camera-qr-validation-summary-guard`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn camera:qr-validation:handoff:dry-run`
+- `corepack yarn camera:qr-validation:summary`
+- `corepack yarn camera:qr-validation:check-summary`
+- `corepack yarn check:camera-usage-guard`
+- `corepack yarn check:camera-usage-scope`
+- `corepack yarn check:qr-scan-caller-guard`
+- `corepack yarn check:qr-scan-callers`
+- `corepack yarn check:qr-scanner-validation-scripts`
+- `corepack yarn check:qr-render-validation-scripts`
+- `corepack yarn test:qr-scanner:unit`
+- `corepack yarn test:qr-render:unit`
+- `corepack yarn check:qr-render-usage-guard`
+- `corepack yarn check:qr-render-usage`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `corepack yarn android:dev:release:check-create-wallet-smoke-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.742 - Sentry iOS release prerequisite gate
 
 - Branch: `feature/bem-37-742-sentry-ios-prereq-gate`
