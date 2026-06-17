@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.712 - Electrum runtime observation refresh
+
+- Branch: `feature/bem-37-712-electrum-runtime-observation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Electrum runtime observation after the Android dev smoke evidence refresh.
+- Run the embedded Electrum observation path first with required success, then use the managed Metro observation path when the embedded logcat capture window is inconclusive.
+- Keep runtime app code, package versions, native project files, Metro config, env files, and release credentials unchanged.
+- Keep generated logcat, screenshot, UI hierarchy, and Electrum evidence artifacts in ignored `local-docs/`.
+
+Findings:
+
+- The embedded `android:dev:create-wallet-electrum-observe` path passed the Android dev smoke and create-wallet smoke phases, but the Electrum observation phase was inconclusive: zero Electrum log lines were captured, zero fatal/runtime logcat findings were reported, the app UI was ready, and no connection issue UI was visible.
+- The embedded inconclusive result is treated as a log-observation window limitation, not as app startup or Electrum connectivity failure.
+- The managed Metro observation path started and stopped a dedicated Metro process, passed the first-run/empty-dashboard/QR/settings smoke, and passed the standard wallet plus default 3-key vault create-wallet smoke.
+- The managed Metro Electrum observation captured required success evidence for `electrumx.testnet.btcv.stage.rnd.land:443` over TLS, including `connected to server` and `connected to, ElectrumX 2.0.a,2.0`.
+- The final Electrum observation summary reports 11 combined Electrum log lines, 4 success lines, 0 failure lines, 0 fatal/runtime logcat findings, no connection issue UI, and no secret values printed.
+- Funded transaction/send-flow validation remains blocked until a funded BTCV testnet wallet is available.
+- iOS runtime/archive validation remains blocked on this Windows host until macOS/Xcode/CocoaPods validation is run.
+
+Validation:
+
+- `ELECTRUM_OBSERVATION_REQUIRE_SUCCESS=true & $node $yarn android:dev:create-wallet-electrum-observe`
+- `ELECTRUM_OBSERVATION_WAIT_MS=5000 ELECTRUM_OBSERVATION_LOGCAT_LINES=4000 ELECTRUM_OBSERVATION_GLOBAL_LOGCAT_LINES=8000 ELECTRUM_OBSERVATION_ADB_MAX_BUFFER_BYTES=33554432 ELECTRUM_OBSERVATION_REQUIRE_SUCCESS=true & $node $yarn android:dev:create-wallet-electrum-observe:metro:managed`
+- `& $node $yarn electrum:runtime:check-artifact`
+- `& $node $yarn android:dev:check-smoke-summary`
+- `& $node $yarn android:dev:check-create-wallet-smoke-summary`
+- `& $node $yarn check:rn-nodeify-shims`
+- `& $node $yarn typescript:check`
+- `& $node $yarn check:modernization-log-ids`
+- `& $node $yarn lint:baseline:audit`
+- `& $node $yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.711 - Android dev smoke evidence refresh
 
 - Branch: `feature/bem-37-711-android-dev-smoke-refresh`
