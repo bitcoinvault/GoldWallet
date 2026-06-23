@@ -17,7 +17,6 @@ const requiredKnownEntries = [
   ['@typescript-eslint/eslint-plugin', 'devDependencies'],
   ['@typescript-eslint/parser', 'devDependencies'],
   ['@babel/traverse', 'resolutionDependencies'],
-  ['axios', 'dependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
@@ -165,6 +164,13 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     !entryLines.some(line => line.startsWith('- react-native-gesture-handler: ') && line.includes('dedicated navigation/gesture smoke branch'))
   ) {
     errors.push('react-native-gesture-handler drift must remain tied to a dedicated navigation/gesture smoke branch decision');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- axios: ')) &&
+    !entryLines.some(line => line.startsWith('- axios: ') && line.includes('dedicated storage/network branch') && line.includes('API') && line.includes('Electrum'))
+  ) {
+    errors.push('axios drift must remain tied to a dedicated storage/network branch decision with API and Electrum proof');
   }
 
   if (!entryLines.some(line => line.startsWith('- bl: ') && line.includes('CommonJS transitive consumers'))) {

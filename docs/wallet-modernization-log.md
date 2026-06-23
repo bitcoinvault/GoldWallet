@@ -10,6 +10,56 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.763 - Axios 1.18.1 API client runtime validation
+
+- Branch: `feature/bem-37-763-axios-1-18-1`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the API HTTP client dependency from `axios` `1.18.0` to live npm latest `1.18.1`.
+- Keep the existing Metro-safe runtime import in `src/api/client.ts`: `axios/dist/browser/axios.cjs`.
+- Refresh direct-outdated guard/docs so axios is no longer treated as a pending blocker after the dedicated storage/network branch.
+- Preserve the future-drift rule: any later axios drift must still use a dedicated storage/network branch with API, Electrum, focused tests, Android build, and emulator smoke proof.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `axios@1.18.1` as current latest with dependencies on `form-data`, `proxy-from-env`, `follow-redirects`, and `https-proxy-agent`.
+- `corepack yarn node:runtime:yarn add axios@1.18.1` updated `package.json` and `yarn.lock`; the repo postinstall completed `patch-package`, `rn-nodeify`, shim restoration, and Jetifier.
+- The browser CJS entrypoint remains present after the upgrade: `require('axios/dist/browser/axios.cjs')` reports `VERSION` `1.18.1` and `create` as a function.
+- Direct-outdated snapshot drops from `24` to `23` entries and from `20` to `19` known blockers, with `0` review-required entries.
+- Storage/network native latest snapshot remains at `10` current native entries; axios is a JS API client dependency and is documented separately from the native package cohort.
+- Focused storage/network validation passes, including Terms WebView, Electrum reconnect, SecureStorage, Storage, authenticator, and offline app core checks.
+- Full unit tests pass with the existing BlueElectrum post-test async log baseline.
+- Android dev assemble passes on JDK 17 after the package bump. The first run hit the known transient RN settings/autolinking `cmd` exit, then the second stacktrace assemble run completed successfully.
+- The first Android dev smoke attempt failed before app launch with emulator `INSTALL_FAILED_INSUFFICIENT_STORAGE`; `/data` still had about `1.1G` free, and `adb uninstall io.goldwallet.wallet.dev` cleared the stale install state. The rerun installed the APK and completed successfully.
+- Android dev embedded smoke passes on `emulator-5554`, including first-run onboarding, empty dashboard CTA navigation, QR scanner screen validation, tab navigation, and Settings Terms WebView navigation.
+- iOS runtime validation remains not claimed on this Windows host; this branch changes only JS/package metadata and requires normal macOS/Xcode validation before any iOS delivery claim.
+
+Validation:
+
+- `npm view axios version engines dependencies --json`
+- `corepack yarn node:runtime:yarn add axios@1.18.1`
+- `corepack yarn node -e "const axios=require('axios/dist/browser/axios.cjs'); console.log(axios.VERSION); console.log(typeof axios.create);"`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn storage-network:latest-snapshot:audit`
+- `corepack yarn node:runtime:yarn storage-network:latest-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:storage-network-latest-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn check:storage-network-usage-guard`
+- `corepack yarn node:runtime:yarn check:storage-network-usage`
+- `corepack yarn node:runtime:yarn check:storage-network-validation-scripts-guard`
+- `corepack yarn node:runtime:yarn check:storage-network-validation-scripts`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:assemble --stacktrace`
+- `adb -s emulator-5554 uninstall io.goldwallet.wallet.dev`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:check-smoke-summary`
+
 ### BEM-37.762 - React Native Gesture Handler 3.0.2 navigation validation
 
 - Branch: `feature/bem-37-762-gesture-handler-3-0-2`
