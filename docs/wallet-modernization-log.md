@@ -10,6 +10,55 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.776 - Sentry release source-map readiness refresh
+
+- Branch: `feature/bem-37-776-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry release/source-map readiness after the latest Android release, iOS static, CodePush removal, and foundation-target evidence refreshes.
+- Fix the Sentry credential handoff guard so it checks the current `sentry:release:validation:preflight:dry-run` package script instead of the older manual `handoff:dry-run --skip-android-release` spelling.
+- Re-run the non-secret Sentry release preflight without generating or committing Sentry properties files and without claiming upload validation.
+- Keep package versions, runtime code, native project files, release credentials, generated Sentry properties, and committed build outputs unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `@sentry/react-native@8.15.1` as current `latest`, matching the installed SDK.
+- Live npm metadata on 2026-06-23 reports direct `@sentry/cli@3.5.1` as current `latest`, matching the installed release CLI package.
+- `check:sentry-credential-handoff-guard` had stale expected wording for the old manual dry-run command; the tracked Sentry plan already documents `sentry:release:validation:preflight:dry-run`, so the guard now follows the current package-script flow.
+- The non-secret `sentry:release:validation:preflight` path passes and keeps credentialed upload explicitly unclaimed.
+- Sentry RN bundle task compatibility remains ready through the repo-owned legacy args shim: Sentry expects `jsIntermediateSourceMapsDir` as a `Directory`, RN `0.86.0` exposes `RegularFileProperty`, RN does not expose `args`, and the repo shim supplies legacy bundle args.
+- Android release summary, APK manifests, release smoke, and release create-wallet smoke remain valid/current for Sentry prerequisite purposes.
+- Sentry release source-map validation remains not ready locally because `SENTRY_AUTH_TOKEN` is absent, `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing, iOS macOS archive validation is not ready, and `ios/Podfile.lock` still has `12` drift issues.
+- Android runtime validation is not required for this branch because no app runtime, native, Metro config, package, lockfile, or Android build files are changed.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `npm view @sentry/react-native version dist-tags peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version dist-tags dependencies engines --json`
+- `corepack yarn node:runtime:yarn check:sentry-properties-generator`
+- `corepack yarn node:runtime:yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn node:runtime:yarn check:sentry-credential-handoff-guard`
+- `corepack yarn node:runtime:yarn check:sentry-release-credential-plan-guard`
+- `corepack yarn node:runtime:yarn sentry:release:credential-plan`
+- `corepack yarn node:runtime:yarn sentry:release:credential-plan:check`
+- `corepack yarn node:runtime:yarn sentry:android-warning:audit`
+- `corepack yarn node:runtime:yarn sentry:android-warning:check-summary`
+- `corepack yarn node:runtime:yarn sentry:rn-bundle-task-compat:audit`
+- `corepack yarn node:runtime:yarn sentry:rn-bundle-task-compat:check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-audit`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:validation:preflight:dry-run`
+- `corepack yarn node:runtime:yarn sentry:release:validation:preflight`
+- `corepack yarn node:runtime:yarn release-services:check-summaries`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.775 - iOS static readiness refresh
 
 - Branch: `feature/bem-37-775-ios-static-readiness-refresh`

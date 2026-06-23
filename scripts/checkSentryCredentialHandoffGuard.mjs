@@ -16,7 +16,7 @@ const requiredSnippets = [
   '- keep generated Sentry properties files and token values out of commits, screenshots, and handoff artifacts.',
   'Evidence that must be attached to the credential handoff:',
   '- current `check:sentry-properties-generator` output;',
-  '- current `sentry:release:validation:handoff:dry-run --skip-android-release` output;',
+  '- current `sentry:release:validation:preflight:dry-run` output;',
   '- current `sentry:release:prereq-audit` and `sentry:release:prereq-check-summary` output after credentials are generated;',
   '- current Android release build, manifest, and release-smoke evidence;',
   '- current `sentry:android-warning:audit` and `sentry:android-warning:check-summary` output;',
