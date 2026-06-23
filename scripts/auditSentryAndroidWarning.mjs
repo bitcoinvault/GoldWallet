@@ -12,6 +12,7 @@ const dependencies = packageJson.dependencies || {};
 const scripts = packageJson.scripts || {};
 const sentryGradlePath = 'node_modules/@sentry/react-native/sentry.gradle';
 const sentryGradleKtsPath = 'node_modules/@sentry/react-native/sentry.gradle.kts';
+const expectedSentryReactNativeVersion = '8.15.1';
 
 const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {
@@ -32,8 +33,10 @@ export const collectSentryAndroidWarningAudit = () => {
   const warnings = [];
   const readinessIssues = [];
 
-  if (sentryVersion !== '8.14.0') {
-    readinessIssues.push(`package.json has @sentry/react-native@${sentryVersion || '<missing>'}; expected current baseline 8.14.0`);
+  if (sentryVersion !== expectedSentryReactNativeVersion) {
+    readinessIssues.push(
+      `package.json has @sentry/react-native@${sentryVersion || '<missing>'}; expected current baseline ${expectedSentryReactNativeVersion}`,
+    );
   }
 
   if (scripts['sentry:release:prereq-audit'] !== 'node scripts/auditSentryReleasePrerequisites.mjs') {
@@ -70,13 +73,17 @@ export const collectSentryAndroidWarningAudit = () => {
     warnings.push('Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.86.0 baseline.');
   }
 
-  if (sentryVersion === '8.14.0' && exists(sentryGradleKtsPath)) {
-    warnings.push('Sentry 8.14.0 routes Android Gradle integration through sentry.gradle.kts; release source-map and dSYM behavior still require credentialed validation.');
+  if (sentryVersion === expectedSentryReactNativeVersion && exists(sentryGradleKtsPath)) {
+    warnings.push(
+      `Sentry ${expectedSentryReactNativeVersion} routes Android Gradle integration through sentry.gradle.kts; release source-map and dSYM behavior still require credentialed validation.`,
+    );
   }
 
-  if (sentryVersion === '8.14.0') {
-    warnings.push('Sentry 8.14.0 still performs release bundle task argument extraction; check Android release Gradle output for "Could not extract bundle task arguments" before claiming source-map upload.');
-    warnings.push('Sentry is on 8.14.0; source-map and dSYM behavior still require release validation with local Sentry credentials.');
+  if (sentryVersion === expectedSentryReactNativeVersion) {
+    warnings.push(
+      `Sentry ${expectedSentryReactNativeVersion} still performs release bundle task argument extraction; check Android release Gradle output for "Could not extract bundle task arguments" before claiming source-map upload.`,
+    );
+    warnings.push(`Sentry is on ${expectedSentryReactNativeVersion}; source-map and dSYM behavior still require release validation with local Sentry credentials.`);
   }
 
   return {
