@@ -17,8 +17,8 @@ const validSummary = [
   '- mailosaur: package 11.1.1, installed 11.1.1, latest 11.1.1, decision current - latest E2E mail helper verified with TypeScript',
   '- jsdom: package 29.1.1, installed 29.1.1, latest 29.1.1, decision current - latest E2E mail DOM parser verified with TypeScript and helper probe',
   '- jetifier: package 2.0.0, installed 2.0.0, latest 2.0.0, decision current - latest AndroidX migration helper verified with postinstall, Android build, and emulator smoke',
-  '- @typescript-eslint/eslint-plugin: package 8.61.1, installed 8.61.1, latest 8.61.1, decision current - parser/plugin pair verified through the ESLint 10 flat-config bridge',
-  '- @typescript-eslint/parser: package 8.61.1, installed 8.61.1, latest 8.61.1, decision current - parser/plugin pair verified through the ESLint 10 flat-config bridge',
+  '- @typescript-eslint/eslint-plugin: package 8.61.1, installed 8.61.1, latest 8.62.0, decision blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
+  '- @typescript-eslint/parser: package 8.61.1, installed 8.61.1, latest 8.62.0, decision blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
   '- eslint: package 10.5.0, installed 10.5.0, latest 10.5.0, decision current - latest ESLint 10 runtime verified through eslint.config.mjs while preserving the existing lint baseline',
   '- @eslint/js: package 10.0.1, installed 10.0.1, latest 10.0.1, decision current - latest ESLint recommended config package required by the ESLint 10 flat-config bridge',
   '- @eslint/eslintrc: package 3.3.5, installed 3.3.5, latest 3.3.5, decision current - latest FlatCompat package used to bridge the legacy .eslintrc baseline into ESLint 10',
@@ -27,7 +27,7 @@ const validSummary = [
   '- prettier: package 3.8.4, installed 3.8.4, latest 3.8.4, decision current - latest Prettier 3 formatting runtime verified against the existing lint baseline without mass formatting',
   '- eslint-plugin-prettier: package 5.5.6, installed 5.5.6, latest 5.5.6, decision current - latest Prettier ESLint plugin verified with Prettier 3 and the ESLint 10 flat-config bridge',
   '- eslint-config-prettier: package 10.1.8, installed 10.1.8, latest 10.1.8, decision current - latest Prettier ESLint config verified with the ESLint 10 flat-config bridge',
-  '- lint-staged: package 17.0.7, installed 17.0.7, latest 17.0.7, decision current - latest lint-staged verified on the Node 24 tooling baseline',
+  '- lint-staged: package 17.0.7, installed 17.0.7, latest 17.0.8, decision blocked - precommit tooling patch drift requires a dedicated hook/tooling branch with lint-staged, precommit, and TypeScript proof',
   '- husky: package 9.1.7, installed 9.1.7, latest 9.1.7, decision current - latest hook runner verified with repo-owned .husky hooks and precommit/prepush scripts',
   '- detox: package 20.51.4, installed 20.51.4, latest 20.51.4, decision current - latest Detox runner version is guarded by check:detox-readiness; Android Detox build passed and iOS runtime validation remains a macOS follow-up',
   'Deferred entries: 0',
@@ -97,8 +97,16 @@ assertRejected(
   'Deferred tooling fixture',
   validSummary
     .replace('Deferred entries: 0', 'Deferred entries: 1')
-    .replace('decision current - latest lint-staged verified', 'decision deferred - latest lint-staged verified'),
+    .replace('decision blocked - precommit tooling patch drift requires', 'decision deferred - precommit tooling patch drift requires'),
   'deferred entries',
+);
+assertRejected(
+  'Non-current marked current fixture',
+  validSummary.replace(
+    'decision blocked - precommit tooling patch drift requires a dedicated hook/tooling branch with lint-staged, precommit, and TypeScript proof',
+    'decision current - latest lint-staged verified on the Node 24 tooling baseline',
+  ),
+  'must not be marked current',
 );
 assertRejected(
   'Missing required action fixture',

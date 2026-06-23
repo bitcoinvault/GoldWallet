@@ -42,8 +42,24 @@ const knownDecisions = new Map([
     'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
+    'babel-plugin-polyfill-regenerator',
+    'blocked - polyfill plugin major drift belongs with a dedicated RN/Metro/Babel branch so Babel runtime and bundle transforms stay aligned',
+  ],
+  [
     '@babel/traverse',
     'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  ],
+  [
+    '@typescript-eslint/eslint-plugin',
+    'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
+  ],
+  [
+    '@typescript-eslint/parser',
+    'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
+  ],
+  [
+    'axios',
+    'blocked - network client patch drift requires a dedicated storage/network branch with API, Electrum, focused tests, and emulator smoke proof',
   ],
   [
     'bitcoinjs-lib',
@@ -70,12 +86,32 @@ const knownDecisions = new Map([
     'blocked - gesture runtime patch drift requires a dedicated navigation/gesture smoke branch before bumping',
   ],
   [
+    'react-native-bootsplash',
+    'blocked - native startup/splash patch drift requires a dedicated startup smoke branch with Android build and emulator proof',
+  ],
+  [
+    'react-native-webview',
+    'blocked - WebView major drift requires a dedicated Terms WebView branch with Android smoke and iOS static readiness proof',
+  ],
+  [
+    'lint-staged',
+    'blocked - precommit tooling patch drift requires a dedicated hook/tooling branch with lint-staged, precommit, and TypeScript proof',
+  ],
+  [
     'react-test-renderer',
     'blocked - React Native renderer exact-version coupling requires test renderer to stay aligned with React and RN',
   ],
   [
     'bl',
     'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
+  ],
+  [
+    'semver',
+    'blocked - semver patch drift must move in a dedicated tooling/runtime branch because it is both a direct dependency and enforced resolution',
+  ],
+  [
+    'uuid',
+    'blocked - uuid patch drift requires a dedicated runtime compatibility branch with TypeScript, unit, and Android smoke proof',
   ],
 ]);
 

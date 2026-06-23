@@ -26,6 +26,11 @@ const getBulletLinesAfter = (content, label) => {
 
 const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value);
 const isNonNegativeInteger = value => /^\d+$/.test(value);
+const parseEntryLine = line => {
+  const match = /^(.+?): package (?<packageVersion>.*?), installed (?<installed>.*?), latest (?<latest>.*?), decision (?<decision>.*)$/.exec(line);
+
+  return match?.groups || null;
+};
 const requiredToolingEntries = [
   'typescript',
   'jest',
@@ -134,6 +139,18 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
   ) {
     errors.push('summary entry lines must include package, installed, latest, and decision fields');
   }
+
+  entryLines.forEach(line => {
+    const parsed = parseEntryLine(line);
+
+    if (!parsed) {
+      return;
+    }
+
+    if (parsed.installed !== parsed.latest && parsed.decision.startsWith('current')) {
+      errors.push('tooling entries with installed != latest must not be marked current');
+    }
+  });
 
   if (!entryLines.some(line => line.includes('lint-staged'))) {
     errors.push('summary must include lint-staged');

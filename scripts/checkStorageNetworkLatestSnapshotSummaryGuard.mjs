@@ -15,8 +15,8 @@ const validSummary = [
   '- react-native-keychain: package 10.0.0, installed 10.0.0, latest 10.0.0, peers none, engines node@>=16, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-secure-key-store: package 2.0.10, installed 2.0.10, latest 2.0.10, peers none, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-tcp-socket: package 6.4.1, installed 6.4.1, latest 6.4.1, peers react-native@>=0.60.0, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
-  '- react-native-webview: package 13.16.1, installed 13.16.1, latest 13.16.1, peers react@*, react-native@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
-  'Current entries: 10',
+  '- react-native-webview: package 13.16.1, installed 13.16.1, latest 14.0.1, peers react@*, react-native@*, engines none, decision blocked - WebView major drift requires a dedicated Terms WebView branch with Android smoke and iOS static readiness proof',
+  'Current entries: 9',
   'Deferred entries: 0',
   'Secret values printed: no',
   'Required action: use this snapshot before storage/network dependency branches; package changes require focused tests, Android build, and emulator smoke.',
@@ -52,15 +52,15 @@ assertRejected('Bad entry count fixture', validSummary.replace('Entries: 10', 'E
 assertRejected(
   'Unexpected package fixture',
   validSummary.replace('Entries: 10', 'Entries: 11').replace(
-    'Current entries: 10',
-    '- react-native-extra-storage: package 1.0.0, installed 1.0.0, latest 1.0.0, peers none, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline\nCurrent entries: 11',
+    'Current entries: 9',
+    '- react-native-extra-storage: package 1.0.0, installed 1.0.0, latest 1.0.0, peers none, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline\nCurrent entries: 10',
   ),
   'Unexpected storage/network latest entry for react-native-extra-storage',
 );
 assertRejected(
   'Duplicate package fixture',
   validSummary.replace(
-    '- react-native-webview: package 13.16.1, installed 13.16.1, latest 13.16.1, peers react@*, react-native@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
+    '- react-native-webview: package 13.16.1, installed 13.16.1, latest 14.0.1, peers react@*, react-native@*, engines none, decision blocked - WebView major drift requires a dedicated Terms WebView branch with Android smoke and iOS static readiness proof',
     '- react-native-tcp-socket: package 6.4.1, installed 6.4.1, latest 6.4.1, peers react-native@>=0.60.0, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   ),
   'Duplicate storage/network latest entry for react-native-tcp-socket',
@@ -81,8 +81,16 @@ assertRejected(
   'react-native-get-random-values entry must include peers react-native@>=0.81',
 );
 assertRejected(
+  'Missing WebView blocker fixture',
+  validSummary.replace('WebView major drift requires a dedicated Terms WebView branch with Android smoke and iOS static readiness proof', 'generic WebView update review'),
+  'dedicated Terms WebView branch',
+);
+assertRejected(
   'Deferred entry fixture',
-  validSummary.replace('Deferred entries: 0', 'Deferred entries: 1'),
+  validSummary.replace(
+    'react-native-webview: package 13.16.1, installed 13.16.1, latest 14.0.1, peers react@*, react-native@*, engines none, decision blocked - WebView major drift requires a dedicated Terms WebView branch with Android smoke and iOS static readiness proof',
+    'react-native-webview: package 13.16.1, installed 13.16.1, latest 14.0.1, peers react@*, react-native@*, engines none, decision deferred - open a dedicated storage/network compatibility branch before changing this package',
+  ).replace('Deferred entries: 0', 'Deferred entries: 1'),
   'deferred entries',
 );
 assertRejected(
