@@ -16,8 +16,8 @@ const notReadySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: not ready',
-  '@sentry/react-native version: 8.14.0',
-  '@sentry/react-native latest: 8.14.0',
+  '@sentry/react-native version: 8.15.1',
+  '@sentry/react-native latest: 8.15.1',
   '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.5.1',
   '@sentry/cli latest: 3.5.1',
@@ -57,7 +57,7 @@ const notReadySummary = [
   'iOS Sentry dSYM upload phases: 3',
   'iOS Podfile.lock refresh required: yes',
   'iOS Podfile.lock drift issues: 1',
-  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.14.0',
+  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.15.1',
   'iOS macOS validation prerequisites ready: no',
   'iOS macOS validation blockers: 2',
   '- Current platform is win32; iOS archive/simulator validation requires macOS with Xcode.',
@@ -92,8 +92,8 @@ const readySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: ready',
-  '@sentry/react-native version: 8.14.0',
-  '@sentry/react-native latest: 8.14.0',
+  '@sentry/react-native version: 8.15.1',
+  '@sentry/react-native latest: 8.15.1',
   '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.5.1',
   '@sentry/cli latest: 3.5.1',
@@ -186,17 +186,17 @@ assertRejected('Missing header fixture', notReadySummary.replace('Sentry release
 assertRejected('Bad timestamp fixture', notReadySummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected(
   'Missing Sentry SDK version fixture',
-  notReadySummary.replace('@sentry/react-native version: 8.14.0', '@sentry/react-native version: missing'),
+  notReadySummary.replace('@sentry/react-native version: 8.15.1', '@sentry/react-native version: missing'),
   '@sentry/react-native version must be present',
 );
 assertRejected(
   'Missing Sentry SDK latest fixture',
-  notReadySummary.replace('@sentry/react-native latest: 8.14.0', '@sentry/react-native latest: missing'),
+  notReadySummary.replace('@sentry/react-native latest: 8.15.1', '@sentry/react-native latest: missing'),
   '@sentry/react-native latest must be present',
 );
 assertRejected(
   'Stale Sentry SDK current fixture',
-  notReadySummary.replace('@sentry/react-native latest: 8.14.0', '@sentry/react-native latest: 9.0.0'),
+  notReadySummary.replace('@sentry/react-native latest: 8.15.1', '@sentry/react-native latest: 9.0.0'),
   '@sentry/react-native current cannot be yes',
 );
 assertRejected(
@@ -361,7 +361,7 @@ assertRejected(
   'Ready summary with stale iOS Podfile fixture',
   readySummary
     .replace('iOS Podfile.lock refresh required: no', 'iOS Podfile.lock refresh required: yes')
-    .replace('iOS Podfile.lock drift issues: 0', 'iOS Podfile.lock drift issues: 1\n- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.14.0'),
+    .replace('iOS Podfile.lock drift issues: 0', 'iOS Podfile.lock drift issues: 1\n- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.15.1'),
   'ready iOS archive/macOS validation prerequisites',
 );
 assertRejected(

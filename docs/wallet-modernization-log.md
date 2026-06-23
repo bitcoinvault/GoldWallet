@@ -10,6 +10,61 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.757 - Sentry React Native 8.15.1 upgrade
+
+- Branch: `feature/bem-37-757-sentry-8151-upgrade`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@sentry/react-native` from `8.14.0` to `8.15.1`, matching the live npm latest checked on 2026-06-23.
+- Keep the direct release CLI package on current `@sentry/cli@3.5.1`.
+- Refresh the Sentry release/source-map docs, native-module docs, and guard fixtures that track the current Sentry baseline.
+- Rebuild and smoke-test Android dev/release artifacts after the SDK bump without adding Sentry secrets or claiming upload validation.
+
+Findings:
+
+- `@sentry/react-native@8.15.1` remains compatible with the current RN baseline from package metadata (`react-native >=0.65.0`), and `@sentry/cli@3.5.1` remains the current direct release CLI.
+- Yarn resolution now installs a single direct `@sentry/cli@3.5.1` instance for the release path; nested Sentry-owned CLI package versions are absent in the current install audit.
+- Android release validation rebuilt `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- The refreshed Android release fingerprint is `ced2199f645adcd36519e3eb7e6bcd3f50b10e1309be01b3cdcb5dab35e756b8` over `508` release input files; all four release variants generated APKs and source maps, and APK manifest validation passed.
+- The locally signed `devRelease` APK passed embedded startup smoke on `emulator-5554` without Metro, including first-run terms, PIN setup, transaction-password setup, email skip, empty-dashboard Create/Import navigation, QR scanner open/close, bottom-tab navigation, and Settings Terms WebView.
+- The same signed release APK generated a passing release create-wallet summary: standard wallet creation reached the mnemonic screen and vault creation reached the expected next-step screen, with no create-wallet error UI and no fatal/runtime logcat findings.
+- The dev debug APK still builds and passes embedded emulator smoke after the Sentry SDK bump.
+- Sentry Android warning and RN bundle-task compatibility audits are stable on `8.15.1`; the repo-owned RN bundle task args shim remains required for the Sentry/RN `0.86.0` compatibility path.
+- Sentry source-map upload validation remains explicitly not claimed because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable locally.
+- iOS remains static-only on this Windows host: release files are valid, but `ios/Podfile.lock` still has `12` active drift issues including `RNSentry 3.1.0` versus `@sentry/react-native 8.15.1`; macOS with Xcode `16.1+` and CocoaPods is required before iOS archive/simulator validation can be claimed.
+- `lint:baseline:audit` still reports the existing repo-wide ESLint debt baseline, but the audit command exits successfully and did not identify a branch-specific blocker.
+
+Validation:
+
+- `npm view @sentry/react-native version --json`
+- `npm view @sentry/cli version --json`
+- `corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `corepack yarn node:runtime:yarn android:dev:release:smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:release:check-smoke-summary`
+- `corepack yarn node:runtime:yarn android:dev:release:create-wallet-smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:release:check-create-wallet-smoke-summary`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn android:dev:assemble`
+- `corepack yarn node:runtime:yarn android:dev:smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:check-smoke-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `corepack yarn node:runtime:yarn sentry:android-warning:audit`
+- `corepack yarn node:runtime:yarn sentry:android-warning:check-summary`
+- `corepack yarn node:runtime:yarn sentry:rn-bundle-task-compat:audit`
+- `corepack yarn node:runtime:yarn sentry:rn-bundle-task-compat:check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-audit`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:credential-plan`
+- `corepack yarn node:runtime:yarn sentry:release:credential-plan:check`
+- `corepack yarn node:runtime:yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `git diff --check`
+
 ### BEM-37.756 - Release-services aggregate refresh
 
 - Branch: `feature/bem-37-756-release-services-aggregate-refresh`
