@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.775 - iOS static readiness refresh
+
+- Branch: `feature/bem-37-775-ios-static-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Windows-safe iOS static release readiness after the latest RN `0.86.0`, Android toolchain, CodePush removal, and dependency evidence refreshes.
+- Re-run macOS prerequisite, Podfile.lock refresh-plan, and combined iOS validation handoff evidence without claiming iOS runtime validation on Windows.
+- Keep app runtime code, package versions, iOS project files, CocoaPods outputs, release credentials, and committed build outputs unchanged.
+
+Findings:
+
+- Static iOS release files remain valid for RN `0.86.0`, minimum iOS `15.1`, minimum Xcode `16.1`, Podfile platform `15.1`, and Xcode deployment targets `15.1`.
+- The guarded iOS scheme count remains `8`.
+- Sentry iOS release wiring remains present with `4` bundle/source-map phases and `3` dSYM upload phases.
+- CodePush plist placeholders remain removed at `0`, and remote-notification plist wiring remains present for `4` plist files.
+- iOS runtime delivery validation remains explicitly `not claimed` on this Windows host.
+- `ios/Podfile.lock` still requires a macOS refresh: `12` active drift issues remain, including React-Core `0.65.3` versus RN `0.86.0`, RNBootSplash `3.2.5` versus `7.3.2`, RNFBApp `12.7.5` versus `24.1.1`, RNSentry `3.1.0` versus `8.15.1`, and other native package drift.
+- macOS prerequisite summary remains not ready here because the current platform is `win32`, `xcodebuild` is unavailable, CocoaPods is unavailable, and `ios/Podfile.lock` cannot be refreshed on this machine.
+- Combined iOS validation handoff summary remains `Implementation ready: no`; required action is to run on macOS with Xcode `16.1+`, refresh `ios/Podfile.lock` with `pod install`, then run iOS simulator/archive validation before claiming iOS runtime delivery.
+- Android runtime validation is not required for this branch because no app runtime, native, Metro config, package, or lockfile changes are made.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn check:ios-release-readiness-audit-guard`
+- `corepack yarn node:runtime:yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn check:ios-mac-validation-prereq-summary-guard`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:audit`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn node:runtime:yarn check:ios-podfile-refresh-plan-guard`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:plan`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:check-plan`
+- `corepack yarn node:runtime:yarn check:ios-mac-validation-handoff-guard`
+- `corepack yarn node:runtime:yarn ios:mac-validation:handoff:preflight:dry-run`
+- `corepack yarn node:runtime:yarn check:ios-validation-handoff-summary-guard`
+- `corepack yarn node:runtime:yarn ios:validation:handoff-summary`
+- `corepack yarn node:runtime:yarn release-services:check-summaries`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.774 - AGP 9.2.1 / Gradle 9.6.0 direct toolchain probe
 
 - Branch: `feature/bem-37-774-agp96-toolchain-probe`
