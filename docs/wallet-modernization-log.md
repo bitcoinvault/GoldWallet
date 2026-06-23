@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.765 - TypeScript ESLint 8.62.0 and lint-staged 17.0.8 tooling patch
+
+- Branch: `feature/bem-37-765-eslint-lint-staged-patches`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@typescript-eslint/eslint-plugin` from `8.61.1` to live npm latest `8.62.0`.
+- Upgrade `@typescript-eslint/parser` from `8.61.1` to live npm latest `8.62.0`.
+- Upgrade `lint-staged` from `17.0.7` to live npm latest `17.0.8`.
+- Refresh tooling and direct-outdated snapshot guards/docs so this tooling patch cohort is no longer treated as pending drift.
+- Keep this branch tooling-only: no app runtime, native, Metro, wallet, or Android dependency is changed.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `@typescript-eslint/eslint-plugin@8.62.0` and `@typescript-eslint/parser@8.62.0`; both support ESLint `^8.57.0 || ^9.0.0 || ^10.0.0` and TypeScript `>=4.8.4 <6.1.0`, matching the current ESLint 10 and TypeScript 6 baseline.
+- Live npm metadata on 2026-06-23 reports `lint-staged@17.0.8` with Node engine `>=22.22.1`; the repo `.nvmrc` Node `24.16.0` satisfies this.
+- Tooling latest snapshot now reports all 24 tracked tooling entries current.
+- Direct-outdated snapshot drops from `20` to `17` entries and from `16` to `13` known blockers, with `0` review-required entries.
+- `lint-staged:tooling:audit` now verifies package.json, node_modules, CLI version, Node engine, and the precommit wiring against `lint-staged@17.0.8`.
+- Android runtime validation is not required for this branch because it changes only dev tooling packages and snapshot guard/docs; runtime/native/Metro changes still require Android build and emulator smoke.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `npm view @typescript-eslint/eslint-plugin version engines peerDependencies dependencies --json`
+- `npm view @typescript-eslint/parser version engines peerDependencies dependencies --json`
+- `npm view lint-staged version engines dependencies --json`
+- `corepack yarn node:runtime:yarn add --dev --exact @typescript-eslint/eslint-plugin@8.62.0 @typescript-eslint/parser@8.62.0 lint-staged@17.0.8`
+- `corepack yarn node:runtime:yarn lint-staged:tooling:audit`
+- `corepack yarn node:runtime:yarn tooling:latest-snapshot:audit`
+- `corepack yarn node:runtime:yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn precommit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.764 - Semver 7.8.5 and UUID 14.0.1 tooling/runtime validation
 
 - Branch: `feature/bem-37-764-semver-uuid-patches`

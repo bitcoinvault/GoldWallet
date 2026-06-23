@@ -14,14 +14,11 @@ const requiredKnownEntries = [
   ['@babel/preset-react', 'devDependencies'],
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
-  ['@typescript-eslint/eslint-plugin', 'devDependencies'],
-  ['@typescript-eslint/parser', 'devDependencies'],
   ['@babel/traverse', 'resolutionDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
-  ['lint-staged', 'devDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
@@ -175,6 +172,20 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     !entryLines.every(line => !line.startsWith('- semver: ') || (line.includes('dedicated tooling/runtime branch') && line.includes('direct dependency') && line.includes('enforced resolution')))
   ) {
     errors.push('semver drift must remain tied to a dedicated tooling/runtime branch decision with direct dependency and enforced resolution proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- @typescript-eslint/')) &&
+    !entryLines.every(line => !line.startsWith('- @typescript-eslint/') || (line.includes('dedicated lint/tooling branch') && line.includes('precommit') && line.includes('baseline audit proof')))
+  ) {
+    errors.push('TypeScript ESLint drift must remain tied to a dedicated lint/tooling branch decision with precommit and baseline audit proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- lint-staged: ')) &&
+    !entryLines.some(line => line.startsWith('- lint-staged: ') && line.includes('dedicated hook/tooling branch') && line.includes('precommit') && line.includes('TypeScript proof'))
+  ) {
+    errors.push('lint-staged drift must remain tied to a dedicated hook/tooling branch decision with precommit and TypeScript proof');
   }
 
   if (
