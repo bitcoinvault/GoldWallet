@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.766 - Android release validation refresh and manifest subset guard
+
+- Branch: `feature/bem-37-766-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release package validation for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` on the current RN `0.86.0`/Android SDK 36 baseline.
+- Fix the Android release APK manifest checker so `ANDROID_RELEASE_VARIANTS` is honored by the CLI manifest check as well as by the release summary checker.
+- Guard the manifest-checker subset parser so unsupported variant names fail fast with an explicit error.
+- Refresh release-mode emulator evidence for the locally signed `devRelease` APK without Metro, including release startup and create-wallet smoke.
+- Re-check Sentry package freshness before release-service follow-up work without claiming credentialed source-map upload.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `@sentry/react-native@8.15.1` and `@sentry/cli@3.5.1`; both are already current in this branch, so no Sentry package bump is included.
+- The first full release validation attempt exposed a useful checker gap: a narrowed `ANDROID_RELEASE_VARIANTS=dev` rerun produced valid dev release evidence, but `android:dev:release:check-apk-manifest` still expected `stage`, `prod`, and `beta` artifacts because the manifest CLI ignored the variant override.
+- `scripts/checkAndroidReleaseApkManifest.mjs` now parses `ANDROID_RELEASE_VARIANTS`, rejects unsupported variants, passes the selected variants into manifest validation, and reports the selected set in the success message.
+- `scripts/checkAndroidReleaseApkManifestGuard.mjs` now covers both the `ANDROID_RELEASE_VARIANTS=dev` subset path and the invalid-variant failure path.
+- Full local release validation then passed for `dev`, `stage`, `prod`, and `beta` with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- The latest release-input fingerprint is `8234531312a92f8c93db6f839061f7501d0996c973478041f8dca51d982acae5` across `508` files.
+- The unsigned `devRelease` APK SHA-256 is `9662c3faa16284c9cc66d165640f366dfde2c28f17b787586e680df2eb837829`; the locally signed release-smoke APK SHA-256 is `ceb6017d645f24a9cecaf722f6fda29de1143e2864e68f783b73bf79339a088b`.
+- Release startup smoke passed on `emulator-5554` without Metro, including first-run terms, PIN, transaction password, skipped email, empty dashboard CTA navigation, tab navigation, QR scanner screen, and Settings Terms WebView.
+- Release create-wallet smoke passed on `emulator-5554`, reaching the standard wallet mnemonic screen and the default 3-key vault public-key integration screen without create-wallet error UI or fatal/runtime logcat findings.
+- Sentry source-map upload validation remains not claimed because `sentry.properties` or equivalent Sentry env values are still required.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `npm view @sentry/react-native version engines peerDependencies dependencies --json`
+- `npm view @sentry/cli version engines dependencies --json`
+- `ANDROID_RELEASE_VARIANTS=dev corepack yarn node:runtime:yarn android:dev:release:check-summary`
+- `ANDROID_RELEASE_VARIANTS=dev corepack yarn node:runtime:yarn android:dev:release:check-apk-manifest`
+- `corepack yarn node:runtime:yarn check:android-release-apk-manifest-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SDK_ROOT=C:\Users\User\AppData\Local\Android\Sdk corepack yarn node:runtime:yarn android:dev:release:create-wallet-smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:release:check-smoke-summary`
+- `corepack yarn node:runtime:yarn android:dev:release:check-create-wallet-smoke-summary`
+- `corepack yarn node:runtime:yarn release-services:check-summaries`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.765 - TypeScript ESLint 8.62.0 and lint-staged 17.0.8 tooling patch
 
 - Branch: `feature/bem-37-765-eslint-lint-staged-patches`

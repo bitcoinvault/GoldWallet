@@ -2,7 +2,7 @@ import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
+import { getAndroidReleaseApkManifestErrors, getAndroidReleaseExpectedVariantsFromEnv } from './checkAndroidReleaseApkManifest.mjs';
 
 const fixtureRoot = path.join(os.tmpdir(), `goldwallet-release-manifest-${process.pid}`);
 const variant = 'dev';
@@ -77,6 +77,20 @@ try {
 
   const validErrors = checkFixture();
   assert(validErrors.length === 0, `Valid Android release APK manifest fixture should pass, got: ${validErrors.join('; ')}`);
+  assert(
+    getAndroidReleaseExpectedVariantsFromEnv({ ANDROID_RELEASE_VARIANTS: 'dev' }).join(',') === 'dev',
+    'Android release APK manifest checker must respect ANDROID_RELEASE_VARIANTS=dev',
+  );
+
+  try {
+    getAndroidReleaseExpectedVariantsFromEnv({ ANDROID_RELEASE_VARIANTS: 'unknown' });
+    assert(false, 'Android release APK manifest checker must reject unsupported ANDROID_RELEASE_VARIANTS values');
+  } catch (error) {
+    assert(
+      error.message.includes('Unsupported Android release variant(s): unknown'),
+      `Unsupported Android release variant error should name invalid variant. Got: ${error.message}`,
+    );
+  }
 
   writeFileSync(
     path.join(fixtureRoot, 'android', 'app', 'build.gradle'),

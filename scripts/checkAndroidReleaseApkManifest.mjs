@@ -6,11 +6,26 @@ import { fileURLToPath, pathToFileURL } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const defaultVariants = ['dev', 'stage', 'prod', 'beta'];
+const allowedVariants = new Set(defaultVariants);
 const expectedPackageNames = {
   dev: 'io.goldwallet.wallet.dev',
   stage: 'io.goldwallet.wallet.stage',
   prod: 'io.goldwallet.wallet',
   beta: 'io.goldwallet.wallet.beta',
+};
+
+export const getAndroidReleaseExpectedVariantsFromEnv = (env = process.env) => {
+  const variants = (env.ANDROID_RELEASE_VARIANTS || defaultVariants.join(','))
+    .split(',')
+    .map(variant => variant.trim().toLowerCase())
+    .filter(Boolean);
+  const invalidVariants = variants.filter(variant => !allowedVariants.has(variant));
+
+  if (invalidVariants.length > 0) {
+    throw new Error(`Unsupported Android release variant(s): ${invalidVariants.join(', ')}`);
+  }
+
+  return variants;
 };
 
 const getQuotedGradleValue = (content, key) => {
@@ -166,7 +181,16 @@ export const getAndroidReleaseApkManifestErrors = ({
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const errors = getAndroidReleaseApkManifestErrors();
+  let expectedVariants;
+
+  try {
+    expectedVariants = getAndroidReleaseExpectedVariantsFromEnv();
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
+
+  const errors = getAndroidReleaseApkManifestErrors({ expectedVariants });
 
   if (errors.length > 0) {
     console.error('Android release APK manifest validation failed:');
@@ -174,5 +198,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
 
-  console.log(`Android release APK manifests are valid for ${defaultVariants.join(', ')} using ${path.relative(root, getAapt2Path(root))}.`);
+  console.log(`Android release APK manifests are valid for ${expectedVariants.join(', ')} using ${path.relative(root, getAapt2Path(root))}.`);
 }
