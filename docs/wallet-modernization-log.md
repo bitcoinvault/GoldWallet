@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.773 - Foundation target live evidence refresh
+
+- Branch: `feature/bem-37-773-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the live foundation target evidence before the next RN, Android, or dependency milestone.
+- Keep package versions, runtime code, native project files, Metro config, and lockfiles unchanged because the latest stable RN target is already installed and remaining drift is blocked or intentionally fork-pinned.
+- Align tracked Android toolchain evidence with the current live Gradle target reported by the online audit.
+
+Findings:
+
+- React Native npm `latest` remains `0.86.0`; npm `next` remains prerelease `0.86.0-rc.3`, and npm `nightly` is `0.87.0-nightly-20260623-dc4d5e8ad`, so there is no higher stable RN line to adopt in this branch.
+- The current RN `0.86.0` target still peers React `^19.2.3`; React and `react-test-renderer` remain pinned to `19.2.3` because the renderer exact-version coupling remains active.
+- Direct outdated evidence remains triaged: `17` entries, `13` known blockers, `4` exotic/git-pinned entries, and `0` review-required entries.
+- Git dependency evidence remains current for the BTCV wallet-critical forks `bitcoinjs-lib`, `electrum-client`, and `react-native-prompt-android`; `rn-nodeify` also remains current against its guarded pin.
+- Wallet crypto, storage/network, and tooling snapshots remain current for their tracked package cohorts.
+- Android latest toolchain remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, and Gradle `9.6.0` still hits the React Native Gradle plugin `0.86.0` Kotlin metadata path. The validated baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`.
+- `bl@7.0.4` remains blocked by ESM/export-map compatibility for CommonJS transitive consumers; `node-fetch@3.3.2` remains current and compatible through dynamic-import consumers.
+- Android runtime validation is not required for this branch because no app runtime, native, Metro config, package, or lockfile changes are made.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn foundation:target:refresh-online`
+- `corepack yarn node:runtime:yarn check:android-toolchain-target-summary-guard`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.772 - CodePush removal readiness native-state fix
 
 - Branch: `feature/bem-37-772-codepush-removal-readiness-fix`
