@@ -176,6 +176,22 @@ const getInstalledVersion = packageName => {
   }
 };
 
+const getDecision = ({ name, installed, latest, decision }) => {
+  if (installed === latest) {
+    return decision;
+  }
+
+  if (name === '@typescript-eslint/eslint-plugin' || name === '@typescript-eslint/parser') {
+    return 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof';
+  }
+
+  if (name === 'lint-staged') {
+    return 'blocked - precommit tooling patch drift requires a dedicated hook/tooling branch with lint-staged, precommit, and TypeScript proof';
+  }
+
+  return 'blocked - tooling patch drift requires a dedicated tooling dependency branch before updating the baseline snapshot';
+};
+
 export const collectToolingLatestSnapshot = () =>
   trackedTooling.map(entry => {
     const current = packageJson[entry.source]?.[entry.name];
@@ -187,7 +203,7 @@ export const collectToolingLatestSnapshot = () =>
       current,
       installed,
       latest,
-      deferred: installed !== latest,
+      decision: getDecision({ ...entry, installed, latest }),
     };
   });
 

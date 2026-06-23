@@ -15,7 +15,7 @@ const requiredStorageNetworkEntries = new Map([
   ['react-native-keychain', 'latest 10.0.0'],
   ['react-native-secure-key-store', 'latest 2.0.10'],
   ['react-native-tcp-socket', 'latest 6.4.1'],
-  ['react-native-webview', 'latest 13.16.1'],
+  ['react-native-webview', 'latest 14.0.1'],
 ]);
 
 const requiredPeerSnippets = new Map([
@@ -116,6 +116,16 @@ export const getStorageNetworkLatestSnapshotSummaryErrors = summary => {
       errors.push(`${packageName} entry must include ${requiredSnippet}`);
     }
   });
+
+  const webviewEntry = entryLines.find(line => line.startsWith('- react-native-webview: '));
+  if (
+    webviewEntry &&
+    (!webviewEntry.includes('WebView major drift') ||
+      !webviewEntry.includes('dedicated Terms WebView branch') ||
+      !webviewEntry.includes('Android smoke and iOS static readiness proof'))
+  ) {
+    errors.push('react-native-webview drift must remain tied to a dedicated Terms WebView branch decision');
+  }
 
   const listedCurrentEntries = entryLines.filter(line => line.includes('decision current')).length;
   if (isNonNegativeInteger(currentEntries) && Number(currentEntries) !== listedCurrentEntries) {

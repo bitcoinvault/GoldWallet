@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.759 - Foundation target live snapshot refresh
+
+- Branch: `feature/bem-37-759-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live React Native and foundation-target evidence against npm metadata on 2026-06-23 without changing app package versions.
+- Update the guarded React Native target snapshot after the planning-only nightly tag moved while stable `react-native@latest` stayed on `0.86.0`.
+- Reclassify newly visible direct-outdated, storage/network, and tooling drift into dedicated follow-up branches instead of letting broad foundation preflight pass with false `current` claims.
+
+Findings:
+
+- Stable React Native remains current: npm `latest` is `0.86.0`, npm `next` is prerelease `0.86.0-rc.3`, and npm `nightly` moved to `0.87.0-nightly-20260623-dc4d5e8ad`; the default wallet target remains npm `latest`, not RC/nightly.
+- Direct outdated snapshot now has `27` entries: `23` known blocked entries, `4` exotic/git-pinned entries, and `0` review-required entries.
+- New direct-outdated follow-up targets are explicitly split: `@typescript-eslint`/`lint-staged` tooling patch branch, `axios` storage/network patch branch, `react-native-webview@14` Terms WebView branch, `react-native-bootsplash` startup smoke branch, `react-native-gesture-handler` navigation smoke branch, `semver`/`uuid` tooling/runtime branch, and Babel/polyfill major drift for the RN/Metro/Babel branch.
+- Storage/network summary now reports `react-native-webview@14.0.1` as blocked to a dedicated Terms WebView branch with Android smoke and iOS static readiness proof.
+- Tooling summary now rejects entries marked `current` when `installed` differs from `latest`; `@typescript-eslint@8.62.0` and `lint-staged@17.0.8` are blocked to a dedicated lint/tooling branch until upgraded.
+- Android toolchain latest target remains blocked: AGP `9.2.1` needs Gradle `9.4.1+`, and Gradle `9.6.0` still hits the React Native Gradle plugin `0.86.0` Kotlin metadata path; validated baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, JDK `17`.
+- Wallet crypto and git dependency snapshots remain current for the guarded BTCV fork pins; `bl@7` remains blocked by CommonJS consumers while `node-fetch@3.3.2` remains current.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn rn:target-snapshot:current`
+- `corepack yarn node:runtime:yarn rn:target-snapshot:audit`
+- `corepack yarn node:runtime:yarn rn:target-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:storage-network-latest-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn storage-network:latest-snapshot:audit`
+- `corepack yarn node:runtime:yarn storage-network:latest-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn tooling:latest-snapshot:audit`
+- `corepack yarn node:runtime:yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn foundation:target:refresh-online`
+
 ### BEM-37.758 - Camera QR autolink cleanup and validation refresh
 
 - Branch: `feature/bem-37-758-camera-qr-validation-refresh`

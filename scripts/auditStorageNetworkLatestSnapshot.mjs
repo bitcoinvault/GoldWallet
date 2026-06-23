@@ -58,9 +58,13 @@ const formatMap = value => {
   return entries.length === 0 ? 'none' : entries.map(([name, range]) => `${name}@${range}`).join(', ');
 };
 
-const getDecision = ({ manifestVersion, installedVersion, latestVersion }) => {
+const getDecision = ({ packageName, manifestVersion, installedVersion, latestVersion }) => {
   if (manifestVersion === latestVersion && installedVersion === latestVersion) {
     return 'current - latest npm package is installed and pinned for the storage/network baseline';
+  }
+
+  if (packageName === 'react-native-webview') {
+    return 'blocked - WebView major drift requires a dedicated Terms WebView branch with Android smoke and iOS static readiness proof';
   }
 
   return 'deferred - open a dedicated storage/network compatibility branch before changing this package';
@@ -80,7 +84,7 @@ export const collectStorageNetworkLatestSnapshot = () =>
       latestVersion,
       peerDependencies: formatMap(metadata.peerDependencies),
       engines: formatMap(metadata.engines),
-      decision: getDecision({ manifestVersion, installedVersion, latestVersion }),
+      decision: getDecision({ packageName, manifestVersion, installedVersion, latestVersion }),
     };
   });
 
