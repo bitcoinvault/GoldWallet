@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.778 - Android release validation refresh
+
+- Branch: `feature/bem-37-778-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release evidence for the current RN `0.86.0` modernization branch.
+- Rebuild `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK 17 and Sentry auto-upload disabled.
+- Validate release APK manifests, release embedded smoke, release QR scanner access, Settings Terms WebView, and release create-wallet flows on `emulator-5554`.
+- Keep runtime code, native project files, package versions, lockfiles, Metro config, and committed build outputs unchanged.
+
+Findings:
+
+- Android release validation generated evidence at `2026-06-23T07:46:54.279Z` using JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin Gradle Plugin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- Release validation covered `4` variants: `dev`, `stage`, `prod`, and `beta`; each Gradle task exited `0` on the first attempt.
+- The release-input fingerprint remains `8234531312a92f8c93db6f839061f7501d0996c973478041f8dca51d982acae5` across `508` files.
+- The unsigned `devRelease` APK is `252334576` bytes with SHA-256 `9662c3faa16284c9cc66d165640f366dfde2c28f17b787586e680df2eb837829`.
+- The signed local release-smoke APK is `252461303` bytes with SHA-256 `ceb6017d645f24a9cecaf722f6fda29de1143e2864e68f783b73bf79339a088b`.
+- Android release smoke passed without Metro on `emulator-5554`: first-run terms, PIN, transaction password, empty-dashboard CTA flow, bottom-tab navigation, QR scanner screen, and Settings Terms WebView were validated with no fatal/runtime logcat findings.
+- Android release create-wallet smoke passed: standard wallet mnemonic backup and default 3-key vault public-key integration screens were reached with no create-wallet error UI and no fatal/runtime logcat findings.
+- Android release APK manifests are valid for `dev`, `stage`, `prod`, and `beta` using Android SDK Build Tools `36.0.0` `aapt2`.
+- Aggregate release-services summaries pass against the refreshed release evidence.
+- Sentry source-map upload remains not claimed; `sentry.properties` or equivalent Sentry credentials are still required before claiming upload validation.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:create-wallet-verify`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn android:dev:release:check-apk-manifest`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `corepack yarn android:dev:release:check-create-wallet-smoke-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.777 - Camera/QR readiness refresh
 
 - Branch: `feature/bem-37-777-camera-qr-readiness-refresh`
