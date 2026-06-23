@@ -49,6 +49,16 @@
 - `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim.
 - `sentry:release:credential-plan` reports `SENTRY_AUTH_TOKEN available in current shell: no`, three missing properties files, zero invalid properties files, and `Sentry release upload validation: not claimed`.
 
+## 2026-06-23 Preflight Refresh
+
+- `npm view @sentry/react-native version dist-tags peerDependencies dependencies engines --json` reports `latest` as `8.15.1`, matching the installed SDK.
+- `npm view @sentry/cli version dist-tags dependencies engines --json` reports `latest` as `3.5.1`, matching the direct release CLI package.
+- `check:sentry-credential-handoff-guard` now checks the current package-script preflight evidence line, `sentry:release:validation:preflight:dry-run`, instead of the older manual `handoff:dry-run --skip-android-release` spelling.
+- `sentry:release:validation:preflight` passes without rendering secret values and keeps credentialed upload explicitly unclaimed while using the current Android release, release-smoke, and release create-wallet evidence.
+- `sentry:release:prereq-audit` reports Android release summary, APK manifests, release smoke, release create-wallet smoke, and Sentry RN bundle-task compatibility as valid/current.
+- `sentry:release:prereq-audit` still reports `Release source-map prerequisites: not ready` because `SENTRY_AUTH_TOKEN` is absent, all three Sentry properties files are missing, iOS macOS archive validation is not ready, and `ios/Podfile.lock` has 12 drift issues.
+- `sentry:release:credential-plan` reports `SENTRY_AUTH_TOKEN available in current shell: no`, three missing properties files, zero invalid properties files, Android release evidence ready, Android release smoke evidence ready, and `Sentry release upload validation: not claimed`.
+
 ## Credential Handoff Gate
 
 Credential owner input required before claiming release source-map validation:
@@ -122,6 +132,8 @@ Scope:
 - `corepack yarn check:sentry-release-credential-plan-guard`.
 - `corepack yarn sentry:release:credential-plan`.
 - `corepack yarn sentry:release:credential-plan:check`.
+- `corepack yarn sentry:release:validation:preflight:dry-run`.
+- `corepack yarn sentry:release:validation:preflight`.
 - `corepack yarn sentry:release:validation:handoff:dry-run`.
 - `corepack yarn sentry:android-warning:audit`.
 - `corepack yarn sentry:android-warning:check-summary`.
