@@ -2,8 +2,16 @@ import { expect as jestExpect } from '@jest/globals';
 import { device, expect, waitFor } from 'detox';
 
 import { isBeta } from '../helpers/utils';
-import mailosaur, { Subject } from '../mailing';
 import app from '../pageObjects';
+
+const loadMailing = async () => {
+  const mailing = await import('../mailing');
+
+  return {
+    mailosaur: mailing.default,
+    Subject: mailing.Subject,
+  };
+};
 
 describe('Onboarding', () => {
   beforeEach(async () => {
@@ -25,13 +33,12 @@ describe('Onboarding', () => {
 
       await app.onboarding.addEmailNotificationScreen.skip();
 
-      await waitFor(app.onboarding.successScreen.icon)
-        .toBeVisible()
-        .withTimeout(20000);
+      await waitFor(app.onboarding.successScreen.icon).toBeVisible().withTimeout(20000);
     });
   });
 
   it('should be possible to pass onboarding and add an email address', async () => {
+    const { mailosaur, Subject } = await loadMailing();
     const emailAddress = mailosaur.generateAddress();
 
     await app.onboarding.createPinScreen.typePin('1111');
@@ -51,12 +58,11 @@ describe('Onboarding', () => {
     await app.onboarding.confirmEmailAddressScreen.typeCode(code);
     await app.onboarding.confirmEmailAddressScreen.submit();
 
-    await waitFor(app.onboarding.successScreen.icon)
-      .toBeVisible()
-      .withTimeout(20000);
+    await waitFor(app.onboarding.successScreen.icon).toBeVisible().withTimeout(20000);
   });
 
   it('should be possible to resend the code while adding an email address', async () => {
+    const { mailosaur, Subject } = await loadMailing();
     const emailAddress = mailosaur.generateAddress();
 
     await app.onboarding.createPinScreen.typePin('1111');
@@ -83,9 +89,7 @@ describe('Onboarding', () => {
     await app.onboarding.confirmEmailAddressScreen.typeCode(code);
     await app.onboarding.confirmEmailAddressScreen.submit();
 
-    await waitFor(app.onboarding.successScreen.icon)
-      .toBeVisible()
-      .withTimeout(20000);
+    await waitFor(app.onboarding.successScreen.icon).toBeVisible().withTimeout(20000);
   });
 
   describe('@android @ios @regression', () => {
@@ -126,6 +130,8 @@ describe('Onboarding', () => {
     });
 
     it('should display an error message if typed code is invalid', async () => {
+      const { mailosaur } = await loadMailing();
+
       await app.onboarding.createPinScreen.typePin('1111');
       await app.onboarding.confirmPinScreen.typePin('1111');
 
@@ -145,6 +151,7 @@ describe('Onboarding', () => {
     });
 
     it('should display an error message and send a code if exceeded a limit of attempts of sending codes', async () => {
+      const { mailosaur, Subject } = await loadMailing();
       const emailAddress = mailosaur.generateAddress();
 
       await app.onboarding.createPinScreen.typePin('1111');

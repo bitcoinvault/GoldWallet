@@ -34,7 +34,7 @@ const Actions = () => {
       await target.clearText();
     }
 
-    if (options?.closeKeyboard) {
+    if (options?.closeKeyboard && !text.endsWith('\n')) {
       text = `${text}\n`;
     }
 

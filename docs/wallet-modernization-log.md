@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.753 - Detox Android onboarding smoke
+
+- Branch: `feature/bem-37-753-detox-android-onboarding-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Restore a real Android Detox onboarding smoke path after the Detox 20 / RN 0.86 migration, using the existing `android.emu.dev.debug` configuration.
+- Move the e2e Jest config off deprecated Detox adapters and onto the supported Detox 20 Jest setup, teardown, environment, and reporter.
+- Make the Android Detox test script self-contained on Windows by resolving the Android SDK, exporting `DETOX_CONFIGURATION`, starting e2e Metro with `RN_SRC_EXT=e2e.tsx` and `CHAMBER_OF_SECRETS=true`, waiting for `/status`, and stopping the owned Metro process afterward.
+- Keep app runtime code, package versions, lockfile, native project files, release credentials, and production behavior unchanged.
+
+Findings:
+
+- Live npm metadata reports `detox@20.51.4` as the current latest, matching the repo dev dependency and Android `com.wix:detox` test dependency.
+- The old e2e Jest config still referenced `detox/runners/jest/streamlineReporter`, which Detox 20 no longer ships; the config now uses `detox/runners/jest/reporter`, `globalSetup`, `globalTeardown`, `testEnvironment`, and `maxWorkers: 1`.
+- The e2e helper used private Detox argparse internals that no longer return the selected configuration reliably; it now reads `DETOX_CONFIGURATION` supplied by the Android test wrapper.
+- Focused onboarding smoke initially reached the normal Terms screen because Android debug e2e runtime was not guaranteed to use Metro with `CHAMBER_OF_SECRETS=true`; the wrapper now owns the e2e Metro lifecycle and refuses to silently reuse an unknown existing Metro unless `DETOX_REUSE_METRO=true` is explicit.
+- The onboarding password page object needed to close the keyboard before tapping footer buttons on the SDK 36 emulator; otherwise the flow typed the password but remained on the create-password screen. Password inputs now use the existing `closeKeyboard` path, and duplicate newline injection is guarded.
+- The focused Android Detox onboarding smoke passed on `emulator-5554`: `1` test passed, `7` tests skipped by `--testNamePattern`, with Metro started and stopped by the wrapper.
+- Android dev debug APK assembled with JDK 17 and the embedded smoke passed on `emulator-5554`, including first-run terms, PIN setup, transaction-password setup, email skip, empty-dashboard Create/Import navigation, QR scanner open/close, bottom-tab navigation, Settings Terms WebView, and no fatal/runtime logcat findings.
+
+Validation:
+
+- `npm view detox version --json`
+- `corepack yarn check:detox-readiness`
+- `node --check scripts\runDetoxAndroidTest.mjs`
+- `node scripts\runDetoxAndroidTest.mjs`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn build:detox:android:debug`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn test:detox:android:debug tests/e2e/specFiles/onboarding.spec.ts --testNamePattern "should be possible to pass onboarding and skip adding email address" --record-logs all --take-screenshots failing --artifacts-location local-docs\detox-onboarding-smoke`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn android:dev:smoke:embedded`
+
 ### BEM-37.752 - Detox Metro Windows readiness
 
 - Branch: `feature/bem-37-752-detox-metro-windows-readiness`

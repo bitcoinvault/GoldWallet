@@ -1,12 +1,14 @@
 {
   "preset": "ts-jest",
-  "testEnvironment": "./environment",
-  "testRunner": "jest-circus/runner",
+  "testEnvironment": "detox/runners/jest/testEnvironment",
+  "globalSetup": "detox/runners/jest/globalSetup",
+  "globalTeardown": "detox/runners/jest/globalTeardown",
+  "maxWorkers": 1,
   "testTimeout": 180000,
   "testRegex": "\\.spec\\.ts$",
   "setupFilesAfterEnv": ["./setupTests.ts"],
   "reporters": [
-    "detox/runners/jest/streamlineReporter",
+    "detox/runners/jest/reporter",
     [
       "jest-junit",
       {

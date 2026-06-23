@@ -2,12 +2,23 @@ import { DataTestWallets } from '../types';
 
 export const getWallets = (testWalletsVarName: string): DataTestWallets => {
   const dataString = process.env[testWalletsVarName];
-  let data: DataTestWallets;
 
   if (dataString) {
-    data = JSON.parse(dataString);
-  } else {
-    throw new Error(`Mainnet test data not found. Please provide it in ${testWalletsVarName} env variable`);
+    return JSON.parse(dataString);
   }
-  return data;
+
+  return new Proxy(
+    {},
+    {
+      get(_target, property) {
+        if (typeof property === 'symbol') {
+          return undefined;
+        }
+
+        throw new Error(
+          `Test wallet data not found. Please provide it in ${testWalletsVarName} env variable before reading walletsData.${property}`,
+        );
+      },
+    },
+  ) as DataTestWallets;
 };

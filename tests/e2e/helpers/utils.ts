@@ -1,20 +1,12 @@
-// @ts-ignore
-import { getArgValue } from 'detox/src/utils/argparse';
-
 /**
  * Checks if current configuration includes "beta" word.
  */
 export const isBeta = (): boolean => {
-  const argparse = require('detox/src/utils/argparse');
-
-  return argparse.getArgValue('configuration').includes('beta');
+  return getDetoxConfiguration().includes('beta');
 };
 
 /** Generates random string */
-export const randomString = () =>
-  Math.random()
-    .toString(36)
-    .substring(7);
+export const randomString = () => Math.random().toString(36).substring(7);
 
 /** Waits x miliseconds */
 export const wait = (miliseconds: number) =>
@@ -22,10 +14,25 @@ export const wait = (miliseconds: number) =>
     setTimeout(resolve, miliseconds);
   });
 
-// HACK: unofficial, undocumented way to obtain the name of current detox configuration
+function getDetoxConfiguration() {
+  const configuration = process.env.DETOX_CONFIGURATION;
+
+  if (!configuration) {
+    throw new Error(
+      'DETOX_CONFIGURATION is missing. Use scripts/runDetoxAndroidTest.mjs or set it before running e2e tests.',
+    );
+  }
+
+  return configuration;
+}
+
 export function getBuildEnv() {
-  const configurationName = getArgValue('configuration');
+  const configurationName = getDetoxConfiguration();
   const flavour = configurationName.match(/dev|stage|prod/);
+
+  if (!flavour) {
+    throw new Error(`Unable to determine build environment from Detox configuration: ${configurationName}`);
+  }
 
   return flavour.toString();
 }
