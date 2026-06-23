@@ -26,9 +26,6 @@ const requiredKnownEntries = [
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
-  ['semver', 'resolutionDependencies'],
-  ['semver', 'dependencies'],
-  ['uuid', 'dependencies'],
 ];
 const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
 
@@ -171,6 +168,20 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     !entryLines.some(line => line.startsWith('- axios: ') && line.includes('dedicated storage/network branch') && line.includes('API') && line.includes('Electrum'))
   ) {
     errors.push('axios drift must remain tied to a dedicated storage/network branch decision with API and Electrum proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- semver: ')) &&
+    !entryLines.every(line => !line.startsWith('- semver: ') || (line.includes('dedicated tooling/runtime branch') && line.includes('direct dependency') && line.includes('enforced resolution')))
+  ) {
+    errors.push('semver drift must remain tied to a dedicated tooling/runtime branch decision with direct dependency and enforced resolution proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- uuid: ')) &&
+    !entryLines.some(line => line.startsWith('- uuid: ') && line.includes('dedicated runtime compatibility branch') && line.includes('Android smoke proof'))
+  ) {
+    errors.push('uuid drift must remain tied to a dedicated runtime compatibility branch decision with Android smoke proof');
   }
 
   if (!entryLines.some(line => line.startsWith('- bl: ') && line.includes('CommonJS transitive consumers'))) {
