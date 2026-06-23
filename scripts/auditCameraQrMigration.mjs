@@ -98,13 +98,15 @@ export const collectCameraQrMigrationAudit = () => {
   if (reactNativeConfig.includes("'@remobile/react-native-qrcode-local-image'")) {
     errors.push('react-native.config.js still disables Android autolinking for removed @remobile/react-native-qrcode-local-image');
   }
+  if (reactNativeConfig.includes("'react-native-camera'") || reactNativeConfig.includes('"react-native-camera"')) {
+    errors.push('react-native.config.js still contains removed react-native-camera autolink configuration');
+  }
   if (iosXcodeProject.includes('libRNCamera.a')) {
     errors.push('ios/GoldWallet.xcodeproj/project.pbxproj still references removed libRNCamera.a');
   }
   if (iosXcodeProject.includes('libRCTQRCodeLocalImage.a')) {
     errors.push('ios/GoldWallet.xcodeproj/project.pbxproj still references removed libRCTQRCodeLocalImage.a');
   }
-  requireSnippet(errors, 'react-native.config.js', reactNativeConfig, 'android: null');
   requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'Branch: `feature/bem-37-camera-kit-qr-proof`');
   requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'VisionCamera');
   requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'Current scanner package: `react-native-camera-kit@18.0.0`');

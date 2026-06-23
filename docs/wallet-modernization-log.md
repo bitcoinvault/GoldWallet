@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.758 - Camera QR autolink cleanup and validation refresh
+
+- Branch: `feature/bem-37-758-camera-qr-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove the stale `react-native-camera` Android autolink-disable entry from `react-native.config.js` after the CameraKit migration.
+- Keep `react-native-prompt-android` protected by the legacy Android autolink guard so encrypted-storage password prompts remain linked.
+- Refresh Camera/QR audits against live npm metadata and current Android emulator evidence without changing scanner or QR package versions.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 still matches the installed Camera/QR stack: `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
+- Live metadata also reports `react-native-vision-camera@5.0.11`, but it still requires `react-native-nitro-modules` and `react-native-nitro-image`, so it remains a separate scanner architecture branch rather than a drop-in cleanup.
+- `react-native-camera` remains absent from `package.json`; after this branch it is also absent from `react-native.config.js` instead of being kept as a stale `android: null` entry.
+- The legacy Android autolink guard now expects no disabled Android autolink packages and still rejects disabling `react-native-prompt-android`.
+- `react-native config` succeeds and the generated Android autolinking output includes CameraKit, not legacy `react-native-camera`.
+- Android dev build passes after the autolink cleanup, and the embedded emulator smoke validates the QR scanner screen from the import-wallet flow on `emulator-5554`.
+- Camera/QR validation remains Android-ready and iOS-runtime-unclaimed: removed camera pods are absent from `ios/Podfile.lock`, but broader iOS pod drift still has `12` active issues and requires macOS/Xcode/CocoaPods before claiming iOS scanner runtime.
+
+Validation:
+
+- `npm view react-native-camera-kit version engines peerDependencies dependencies --json`
+- `npm view react-native-qrcode-svg version peerDependencies dependencies --json`
+- `npm view qrcode version dependencies --json`
+- `npm view react-native-vision-camera version engines peerDependencies dependencies --json`
+- `npm view react-native-camera version engines peerDependencies dependencies --json`
+- `corepack yarn node:runtime:yarn check:legacy-android-autolink-guard`
+- `corepack yarn node:runtime:yarn check:legacy-android-autolink`
+- `corepack yarn node:runtime:yarn camera:candidate:audit`
+- `corepack yarn node:runtime:yarn camera:candidate:check-summary`
+- `corepack yarn node:runtime:yarn camera:qr-migration:audit`
+- `corepack yarn node:runtime:yarn camera:qr-migration:check-summary`
+- `corepack yarn node:runtime:yarn camera:qr-validation:summary`
+- `corepack yarn node:runtime:yarn camera:qr-validation:check-summary`
+- `corepack yarn node:runtime:yarn check:qr-scan-callers`
+- `corepack yarn node:runtime:yarn test:qr-scanner:unit`
+- `corepack yarn node:runtime:yarn check:qr-render-usage`
+- `corepack yarn node:runtime:yarn test:qr-render:unit`
+- `corepack yarn node:runtime:yarn react-native config`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:assemble`
+- `corepack yarn node:runtime:yarn android:dev:smoke:embedded`
+
 ### BEM-37.757 - Sentry React Native 8.15.1 upgrade
 
 - Branch: `feature/bem-37-757-sentry-8151-upgrade`
