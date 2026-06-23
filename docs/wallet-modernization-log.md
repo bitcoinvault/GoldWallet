@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.777 - Camera/QR readiness refresh
+
+- Branch: `feature/bem-37-777-camera-qr-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR candidate and validation evidence on the current RN `0.86.0` baseline.
+- Re-check the installed scanner and QR rendering packages against current npm latest metadata.
+- Re-run the guarded CameraKit migration audit, QR scanner caller inventory, QR render inventory, and focused QR scanner/render unit tests.
+- Keep runtime code, native project files, package versions, lockfiles, Metro config, and committed build outputs unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` as current `latest`, matching the installed baseline.
+- The Camera candidate audit still reports `react-native-camera@4.2.1`, `react-native-vision-camera@5.0.11`, and `react-native-camera-kit@18.0.0`; CameraKit remains the installed scanner target, while VisionCamera remains deferred because it adds the Nitro native stack.
+- The CameraKit QR migration audit remains valid: `react-native-camera` is absent, `react-native-camera-kit@18.0.0` is installed, removed camera pods are absent from `ios/Podfile.lock`, and the unused legacy QR local-image package remains removed.
+- QR scanner usage remains scoped to `src/screens/ScanQrCodeScreen.tsx`; the guarded scanner caller inventory remains stable at `8` callers.
+- QR rendering remains scoped to the guarded `5` QR render screens.
+- Focused QR scanner and QR render unit tests pass.
+- Existing Android dev, Android release, and Android release create-wallet QR scanner smoke summaries remain valid, but no new Android emulator smoke was required in this branch because no app runtime, native, Metro config, package, lockfile, or Android build files changed.
+- iOS Camera/QR runtime validation remains not claimed on this Windows host; broader `ios/Podfile.lock` drift still has `12` active issues and requires `pod install` plus simulator/device validation on macOS.
+
+Validation:
+
+- `npm view react-native-camera-kit version dist-tags peerDependencies dependencies engines --json`
+- `npm view react-native-qrcode-svg version dist-tags peerDependencies dependencies engines --json`
+- `npm view react-native-svg version dist-tags peerDependencies dependencies engines --json`
+- `npm view qrcode version dist-tags peerDependencies dependencies engines --json`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:camera-qr-validation-handoff-guard`
+- `corepack yarn camera:qr-validation:handoff:dry-run`
+- `corepack yarn camera:qr-validation:handoff`
+- `corepack yarn camera:qr-validation:summary`
+- `corepack yarn check:camera-qr-validation-summary-guard`
+- `corepack yarn camera:qr-validation:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.776 - Sentry release source-map readiness refresh
 
 - Branch: `feature/bem-37-776-sentry-release-readiness-refresh`
