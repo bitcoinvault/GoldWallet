@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.770 - React renderer coupling evidence refresh
+
+- Branch: `feature/bem-37-770-react-renderer-coupling-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live React, `react-test-renderer`, and React Native target metadata for the current RN `0.86.0` baseline.
+- Re-run the repo-owned React package coupling, React Native renderer, React 19 impact, and RN target snapshot guards.
+- Keep package dependencies, runtime code, native project files, Metro config, and lockfiles unchanged unless the latest React patch proves compatible.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `react@19.2.7` as the current latest React patch.
+- Live npm metadata on 2026-06-23 reports `react-test-renderer@19.2.7` with peer dependency `react ^19.2.7`.
+- Live npm metadata on 2026-06-23 reports `react-native@0.86.0` as the current latest stable target, `0.86.0-rc.3` as the current `next` prerelease, and `0.87.0-nightly-20260623-dc4d5e8ad` as the current nightly tag.
+- The current RN `0.86.0` package peer allows `react ^19.2.3`, but the bundled React Native renderer implementation is still exact-versioned to `19.2.3`.
+- The highest-compatible committed state remains `react@19.2.3` and `react-test-renderer@19.2.3` until a React Native baseline moves or proves the matching renderer with runtime validation.
+- The React 19 impact inventory remains stable: `23` class component files, `16` `componentWillUnmount` files, `1` static `defaultProps` file, `8` function-component type files, and `8` `createRef` files.
+- Android runtime validation is not required for this branch because no app runtime, native, Metro config, package, or lockfile changes are made.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `npm view react version engines dependencies --json`
+- `npm view react-test-renderer version peerDependencies dependencies --json`
+- `npm view react-native version dependencies peerDependencies engines --json`
+- `npm view react-native@0.86.0 version dependencies peerDependencies engines --json`
+- `corepack yarn node:runtime:yarn check:react19-impact-guard`
+- `corepack yarn node:runtime:yarn react19:impact:audit`
+- `corepack yarn node:runtime:yarn check:react-package-coupling-guard`
+- `corepack yarn node:runtime:yarn react:package-coupling:audit`
+- `corepack yarn node:runtime:yarn check:react-renderer-version-guard`
+- `corepack yarn node:runtime:yarn react:renderer-version:audit`
+- `corepack yarn node:runtime:yarn rn:target-snapshot:current`
+- `corepack yarn node:runtime:yarn rn:target-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.769 - iOS static readiness refresh
 
 - Branch: `feature/bem-37-769-ios-static-readiness-refresh`
