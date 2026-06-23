@@ -10,6 +10,54 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.762 - React Native Gesture Handler 3.0.2 navigation validation
+
+- Branch: `feature/bem-37-762-gesture-handler-3-0-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-gesture-handler` from `3.0.1` to live npm latest `3.0.2`.
+- Refresh direct-outdated, native-module inventory, native-module upgrade-plan, navigation-native, masked-view, baseline, and iOS static-readiness evidence after the Gesture Handler bump.
+- Keep the branch scoped to package metadata and guarded documentation; do not change app navigation code, Android project files, iOS project files, wallet runtime logic, or release credentials.
+- Validate Android navigation and gesture-sensitive flows through a full dev assemble plus embedded emulator smoke.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `react-native-gesture-handler@3.0.2` with broad `react` and `react-native` peers and no additional engine requirement.
+- `corepack yarn node:runtime:yarn add react-native-gesture-handler@3.0.2` updated `package.json` and `yarn.lock`; the repo postinstall completed `patch-package`, `rn-nodeify`, shim restoration, and Jetifier.
+- Direct-outdated snapshot drops from `25` to `24` entries and from `21` to `20` known blockers, with `0` review-required entries.
+- Native-module inventory now records `react-native-gesture-handler@3.0.2`.
+- `react-native config` resolves `react-native-gesture-handler@3.0.2` for Android and iOS; Android exposes the gesture-handler native package and codegen metadata.
+- Android dev assemble passes on JDK 17 after the package bump; an initial non-stacktrace build hit the known transient settings/autolinking command exit, then the stacktrace assemble run completed successfully.
+- Android dev embedded smoke passes on `emulator-5554`, including first-run onboarding, empty dashboard CTA navigation, QR scanner screen validation, tab navigation, and Settings Terms WebView navigation.
+- iOS static release readiness remains valid, but iOS runtime validation remains not claimed on this Windows host; `ios/Podfile.lock` still reports `RNGestureHandler 1.10.3` versus `react-native-gesture-handler 3.0.2` and requires macOS/Xcode/CocoaPods refresh before iOS delivery can be claimed.
+
+Validation:
+
+- `npm view react-native-gesture-handler version peerDependencies engines --json`
+- `corepack yarn node:runtime:yarn add react-native-gesture-handler@3.0.2`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn check:native-module-inventory-guard`
+- `corepack yarn node:runtime:yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn node:runtime:yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn node:runtime:yarn check:native-module-inventory`
+- `corepack yarn node:runtime:yarn check:native-module-upgrade-plan`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn masked-view:migration:audit`
+- `corepack yarn node:runtime:yarn masked-view:migration:check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn react-native config`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:assemble --stacktrace`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:check-smoke-summary`
+
 ### BEM-37.761 - React Native Bootsplash 7.3.2 startup validation
 
 - Branch: `feature/bem-37-761-bootsplash-7-3-2`
