@@ -1,4 +1,4 @@
-export const expectedDisabledAndroidAutolinkPackages = new Set(['react-native-camera']);
+export const expectedDisabledAndroidAutolinkPackages = new Set();
 
 export const getLegacyAndroidAutolinkErrors = dependencies => {
   const errors = [];
@@ -12,7 +12,7 @@ export const getLegacyAndroidAutolinkErrors = dependencies => {
 
   Object.entries(dependencyConfig).forEach(([packageName, config]) => {
     if (config?.platforms?.android === null && !expectedDisabledAndroidAutolinkPackages.has(packageName)) {
-      errors.push(`${packageName} disables Android autolinking but is not in the guarded legacy allowlist`);
+      errors.push(`${packageName} disables Android autolinking but is not expected in the current native-module baseline`);
     }
   });
 

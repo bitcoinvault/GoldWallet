@@ -5,11 +5,6 @@ import {
 
 const validFixture = {
   'react-native-prompt-android': {},
-  'react-native-camera': {
-    platforms: {
-      android: null,
-    },
-  },
 };
 
 const assertAccepted = (label, dependencies) => {
@@ -49,8 +44,8 @@ assertRejected('Unexpected disabled package', {
   },
 });
 
-if (expectedDisabledAndroidAutolinkPackages.size !== 1 || !expectedDisabledAndroidAutolinkPackages.has('react-native-camera')) {
-  console.error('Expected react-native-camera to be the only guarded legacy Android autolink disable.');
+if (expectedDisabledAndroidAutolinkPackages.size !== 0) {
+  console.error('Expected no disabled Android autolink packages in the current native-module baseline.');
   process.exit(1);
 }
 
