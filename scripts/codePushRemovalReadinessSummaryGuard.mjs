@@ -74,6 +74,8 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
   const nativeIntegrationCount = getLineValue(summary, 'Native integration files');
   const envFileCount = getLineValue(summary, 'Env files carrying CodePush keys');
   const iosPlistCount = getLineValue(summary, 'iOS plist placeholders');
+  const androidNativeIntegrationPresent = getLineValue(summary, 'Android native integration present');
+  const iosNativeIntegrationPresent = getLineValue(summary, 'iOS native integration present');
   const decisionHandoffPresent = getLineValue(summary, 'Decision handoff present');
   const decisionHandoffValid = getLineValue(summary, 'Decision handoff valid');
   const decision = getLineValue(summary, 'Decision');
@@ -209,6 +211,24 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
     }
   } else if (nativeIntegrationCount !== '8') {
     errors.push(`CodePush native integration inventory must remain 8 files until removal. Received: ${nativeIntegrationCount || 'missing'}`);
+  }
+
+  if (codePushRemoved === 'yes') {
+    if (androidNativeIntegrationPresent !== 'no') {
+      errors.push(`Android native integration present must be no after CodePush removal. Received: ${androidNativeIntegrationPresent || 'missing'}`);
+    }
+
+    if (iosNativeIntegrationPresent !== 'no') {
+      errors.push(`iOS native integration present must be no after CodePush removal. Received: ${iosNativeIntegrationPresent || 'missing'}`);
+    }
+  } else {
+    if (androidNativeIntegrationPresent !== 'yes') {
+      errors.push(`Android native integration present must remain yes until CodePush is removed. Received: ${androidNativeIntegrationPresent || 'missing'}`);
+    }
+
+    if (iosNativeIntegrationPresent !== 'yes') {
+      errors.push(`iOS native integration present must remain yes until CodePush is removed. Received: ${iosNativeIntegrationPresent || 'missing'}`);
+    }
   }
 
   if (!decisions.includes(decision)) {

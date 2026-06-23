@@ -111,6 +111,8 @@ assertAccepted(
       'Native integration files: 0',
     )
     .replace('iOS plist placeholders: 3', 'iOS plist placeholders: 0')
+    .replace('Android native integration present: yes', 'Android native integration present: no')
+    .replace('iOS native integration present: yes', 'iOS native integration present: no')
     .replace(
       'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
       'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.',
@@ -179,6 +181,63 @@ assertRejected(
 assertRejected('Bad runtime count fixture', validSummary.replace('Runtime usage files: 1', 'Runtime usage files: 2'), 'Runtime usage files count');
 assertRejected('Bad native count fixture', validSummary.replace('Native integration files: 8', 'Native integration files: 7'), 'Native integration files');
 assertRejected('Missing plist fixture', validSummary.replace('iOS plist placeholders: 3', 'iOS plist placeholders: 2'), 'iOS plist placeholders');
+assertRejected(
+  'Removed Android native present fixture',
+  validSummary
+    .replace('CodePush package installed: yes', 'CodePush package installed: no')
+    .replace('CodePush removed: no', 'CodePush removed: yes')
+    .replace('CodePush migration required: yes', 'CodePush migration required: no')
+    .replace('Runtime usage files: 1\n- App.tsx', 'Runtime usage files: 0')
+    .replace(
+      [
+        'Native integration files: 8',
+        '- android/app/build.gradle',
+        '- android/app/src/main/java/io/goldwallet/wallet/MainApplication.java',
+        '- android/app/src/main/res/values/strings.xml',
+        '- android/settings.gradle',
+        '- ios/GoldWallet/AppDelegate.m',
+        '- ios/GoldWallet/Info.plist',
+        '- ios/GoldWalletDev-Info.plist',
+        '- ios/GoldWalletStage-Info.plist',
+      ].join('\n'),
+      'Native integration files: 0',
+    )
+    .replace('iOS plist placeholders: 3', 'iOS plist placeholders: 0')
+    .replace(
+      'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
+      'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.',
+    ),
+  'Android native integration present must be no after CodePush removal',
+);
+assertRejected(
+  'Removed iOS native present fixture',
+  validSummary
+    .replace('CodePush package installed: yes', 'CodePush package installed: no')
+    .replace('CodePush removed: no', 'CodePush removed: yes')
+    .replace('CodePush migration required: yes', 'CodePush migration required: no')
+    .replace('Runtime usage files: 1\n- App.tsx', 'Runtime usage files: 0')
+    .replace(
+      [
+        'Native integration files: 8',
+        '- android/app/build.gradle',
+        '- android/app/src/main/java/io/goldwallet/wallet/MainApplication.java',
+        '- android/app/src/main/res/values/strings.xml',
+        '- android/settings.gradle',
+        '- ios/GoldWallet/AppDelegate.m',
+        '- ios/GoldWallet/Info.plist',
+        '- ios/GoldWalletDev-Info.plist',
+        '- ios/GoldWalletStage-Info.plist',
+      ].join('\n'),
+      'Native integration files: 0',
+    )
+    .replace('iOS plist placeholders: 3', 'iOS plist placeholders: 0')
+    .replace('Android native integration present: yes', 'Android native integration present: no')
+    .replace(
+      'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
+      'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.',
+    ),
+  'iOS native integration present must be no after CodePush removal',
+);
 assertRejected('Decision claimed fixture', validSummary.replace('Removal decision available: no', 'Removal decision available: yes'), 'only when Decision is remove');
 assertRejected('Safe removal fixture', validSummary.replace('Safe to remove now: no', 'Safe to remove now: yes'), 'only when Decision is remove');
 assertRejected(

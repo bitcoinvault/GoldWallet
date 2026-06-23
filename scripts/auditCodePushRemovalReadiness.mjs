@@ -138,9 +138,11 @@ export const collectCodePushRemovalReadinessAudit = () => {
     envFilesCarryingCodePushKeys,
     iosPlistPlaceholders,
     androidNativeIntegrationPresent:
+      !releasePathAudit.codePushRemoved &&
       releasePathAudit.nativeBundleGatePresent &&
       releasePathAudit.errors.every(error => !error.includes('MainApplication.java') && !error.includes('android/app/build.gradle')),
     iosNativeIntegrationPresent:
+      !releasePathAudit.codePushRemoved &&
       releasePathAudit.nativeBundleGatePresent &&
       releasePathAudit.errors.every(error => !error.includes('ios/GoldWallet/AppDelegate.m')),
     runtimeGatedOffByDefault: releasePathAudit.runtimeGatePresent && releasePathAudit.nativeBundleGatePresent && !releasePathAudit.runtimeDefaultEnabled,

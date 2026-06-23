@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.772 - CodePush removal readiness native-state fix
+
+- Branch: `feature/bem-37-772-codepush-removal-readiness-fix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Fix the CodePush removal-readiness audit so native integration presence means actual remaining native integration, not merely that the release-path guard considers the removed state valid.
+- Add guard coverage that rejects summaries claiming Android or iOS native CodePush integration is still present after CodePush has already been removed.
+- Keep CodePush removed from runtime, native integration, env files, and iOS plist placeholders; do not reintroduce the package or any deployment-key values.
+
+Findings:
+
+- Microsoft's current App Center retirement guidance still records the March 31, 2025 retirement and notes that remaining App Center features outside Analytics and Diagnostics retired as planned; App Center Analytics and Diagnostics support was extended separately.
+- The repo state remains `CodePush removed: yes`, with `Runtime usage files: 0`, `Native integration files: 0`, `Env files carrying CodePush keys: 0`, and `iOS plist placeholders: 0`.
+- Before this fix, `codepush-removal-readiness-summary.txt` could report `Android native integration present: yes` and `iOS native integration present: yes` even when CodePush was removed, because it reused the release-path native bundle gate instead of actual integration presence.
+- `scripts/auditCodePushRemovalReadiness.mjs` now reports Android and iOS native integration presence as `no` after CodePush removal.
+- `scripts/codePushRemovalReadinessSummaryGuard.mjs` now rejects removed-state summaries unless both Android and iOS native integration presence are `no`.
+- `scripts/checkCodePushRemovalReadinessSummaryGuard.mjs` now covers the removed-state Android and iOS native-presence failure cases.
+- Refreshed local release-service summaries validate the corrected state: CodePush remains removed, migration is not required, update validation remains `not claimed`, and release build/smoke/create-wallet evidence remains ready.
+- Android runtime validation is not required for this branch because no app runtime, native, Metro config, package, or lockfile changes are made.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- Microsoft App Center retirement page checked on 2026-06-23.
+- `corepack yarn node:runtime:yarn check:codepush-removal-readiness-summary-guard`
+- `corepack yarn node:runtime:yarn codepush:release:path-audit`
+- `corepack yarn node:runtime:yarn codepush:migration:readiness-audit`
+- `corepack yarn node:runtime:yarn codepush:removal-readiness:audit`
+- `corepack yarn node:runtime:yarn codepush:removal-readiness:check-summary`
+- `corepack yarn node:runtime:yarn codepush:release:path-check-summary`
+- `corepack yarn node:runtime:yarn codepush:migration:readiness-check-summary`
+- `corepack yarn node:runtime:yarn codepush:decision:handoff:dry-run`
+- `corepack yarn node:runtime:yarn check:codepush-decision-handoff-summary-guard`
+- `corepack yarn node:runtime:yarn release-services:check-summaries`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.771 - BitcoinJS upstream compatibility blocker guard
 
 - Branch: `feature/bem-37-771-bitcoinjs-upstream-probe`
