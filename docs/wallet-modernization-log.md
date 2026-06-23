@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.754 - Android release validation refresh
+
+- Branch: `feature/bem-37-754-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release validation evidence after the current RN `0.86.0`, Android SDK 36, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, and JDK 17 baseline.
+- Rebuild all Android release flavors locally with Sentry auto-upload disabled, then validate release APK manifests, release startup smoke, and release create-wallet smoke on the SDK 36 emulator.
+- Keep app runtime code, package versions, native project files, release credentials, and committed build outputs unchanged.
+
+Findings:
+
+- `android:dev:release:verify-local` rebuilt `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK `17.0.19`; APKs, JS bundles, and source maps were generated for all four variants.
+- Release input fingerprint `5463adb914a78644cee47b57c2fac64c37fd1997a09d80eb40288c252b7223d2` covers `508` release input files, so the release summary is tied to current app/runtime inputs instead of stale native-only evidence.
+- Android release APK manifest validation passed for the generated release APKs.
+- The locally signed `devRelease` APK passed startup smoke on `emulator-5554` without Metro, including first-run terms, PIN setup, transaction-password setup, email skip, empty-dashboard Create/Import navigation, QR scanner open/close, bottom-tab navigation, Settings Terms WebView, and no fatal/runtime logcat findings.
+- Release create-wallet smoke on the same locally signed `devRelease` APK validated standard wallet creation through the mnemonic backup screen and default 3-key vault creation through the public-key integration screen, with no create-wallet error UI and no fatal/runtime logcat findings.
+- Sentry source-map upload validation is still correctly not claimed: local release validation disables auto-upload and requires `sentry.properties`/defaults or `SENTRY_AUTH_TOKEN` before upload readiness can be proven.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn android:dev:release:verify-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:release:smoke:embedded`
+- `corepack yarn android:dev:release:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:release:create-wallet-smoke:embedded`
+- `corepack yarn android:dev:release:check-create-wallet-smoke-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.753 - Detox Android onboarding smoke
 
 - Branch: `feature/bem-37-753-detox-android-onboarding-smoke`
