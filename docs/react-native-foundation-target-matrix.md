@@ -66,7 +66,7 @@ Status:
 
 - This is now the current foundation checkpoint.
 - It keeps React pinned to `19.2.3` while `react-native-renderer` stays on `19.2.3`; package-only React `19.2.7` remains blocked by renderer coupling.
-- It records AGP `9.2.1`, Gradle `9.5.1`, and Kotlin `2.4.0` as not yet adoptable because the React Native Gradle plugin `0.86.0` path cannot compile through the Gradle 9 embedded Kotlin metadata path.
+- It records AGP `9.2.1`, Gradle `9.6.0`, and Kotlin `2.4.0` as not yet adoptable because the React Native Gradle plugin `0.86.0` path cannot compile through the Gradle 9 embedded Kotlin metadata path.
 - The validated Android foundation remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17` until a future RN Gradle plugin baseline clears that blocker.
 
 ### Milestone C: Future current line
