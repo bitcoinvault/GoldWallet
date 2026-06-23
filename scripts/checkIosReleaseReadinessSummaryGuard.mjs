@@ -2,7 +2,7 @@ import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummar
 
 const currentPodfileLockDriftLines = [
   '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.0',
-  '- ios/Podfile.lock has RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.1',
+  '- ios/Podfile.lock has RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.2',
   '- ios/Podfile.lock has react-native-config 1.4.4; package.json has react-native-config 1.6.1',
   '- ios/Podfile.lock has RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
   '- ios/Podfile.lock has RNDeviceInfo 6.2.1; package.json has react-native-device-info 15.0.2',

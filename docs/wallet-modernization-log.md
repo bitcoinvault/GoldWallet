@@ -10,6 +10,56 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.761 - React Native Bootsplash 7.3.2 startup validation
+
+- Branch: `feature/bem-37-761-bootsplash-7-3-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-bootsplash` from `7.3.1` to live npm latest `7.3.2`.
+- Refresh direct-outdated, native-module inventory, native-module upgrade-plan, navigation-native, storage/network, and iOS static-readiness baselines after the Bootsplash bump and the already-merged WebView 14 baseline.
+- Keep the branch scoped to native startup/package metadata and current-state guard alignment; do not change app startup code, splash assets, Android/iOS project files, or release credentials.
+- Validate Android startup through a full dev assemble plus embedded emulator smoke instead of treating package installation as sufficient proof.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `react-native-bootsplash@7.3.2` with broad `react` and `react-native` peers and no additional engine requirement.
+- `corepack yarn node:runtime:yarn add react-native-bootsplash@7.3.2` updated `package.json` and `yarn.lock`; the repo postinstall completed `patch-package`, `rn-nodeify`, shim restoration, and Jetifier.
+- The package bump updates the transitive `sharp` toolchain from `0.34.5` to `0.35.2` in `yarn.lock`; this is Bootsplash build tooling, not app runtime code.
+- Direct-outdated snapshot drops from `26` to `25` entries and still has `0` review-required entries.
+- Native-module inventory now records `react-native-bootsplash@7.3.2` and the current `react-native-webview@14.0.1` baseline.
+- `react-native config` resolves `react-native-bootsplash@7.3.2` for Android and iOS; Android exposes `RNBootSplashPackage` and codegen library `RNBootSplashSpec`.
+- Android dev assemble passes on JDK 17 after the package bump; an initial non-stacktrace build hit the known transient settings/autolinking command exit, then the stacktrace assemble run completed successfully.
+- Android dev embedded smoke passes on `emulator-5554`, including first-run onboarding, empty dashboard CTA navigation, QR scanner screen validation, tab navigation, and Settings Terms WebView navigation.
+- iOS static release readiness remains valid, but iOS runtime validation remains not claimed on this Windows host; `ios/Podfile.lock` still reports `RNBootSplash 3.2.5` versus `react-native-bootsplash 7.3.2` and requires macOS/Xcode/CocoaPods refresh before iOS delivery can be claimed.
+
+Validation:
+
+- `npm view react-native-bootsplash version peerDependencies engines --json`
+- `corepack yarn node:runtime:yarn add react-native-bootsplash@7.3.2`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn check:storage-network-latest-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn check:native-module-inventory-guard`
+- `corepack yarn node:runtime:yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn node:runtime:yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn node:runtime:yarn check:native-module-inventory`
+- `corepack yarn node:runtime:yarn check:native-module-upgrade-plan`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn storage-network:latest-snapshot:audit`
+- `corepack yarn node:runtime:yarn storage-network:latest-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn react-native config`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:assemble --stacktrace`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:check-smoke-summary`
+
 ### BEM-37.760 - React Native WebView 14 upgrade
 
 - Branch: `feature/bem-37-760-webview-14-upgrade`

@@ -41,7 +41,7 @@ Current expectation:
 - `react-native-gesture-handler` -> `3.0.1`
 - `@react-native-community/blur` -> `4.4.1`
 - `@react-native-community/masked-view` -> removed
-- `react-native-bootsplash` -> `7.3.1`
+- `react-native-bootsplash` -> `7.3.2`
 - `react-native-fast-image` -> `8.6.3`
 - `react-native-safe-area-context` -> `5.8.0`
 - `react-native-screens`
@@ -61,7 +61,7 @@ Branch shape:
 - `docs/svg-qr-render-compatibility-audit.md` records the current npm compatibility snapshot and future validation path.
 - `check:legacy-android-autolink` keeps wallet-critical prompt modules Android-autolinked for encrypted-storage startup and blocks any future unguarded legacy Android autolink disables in `react-native.config.js`.
 - Validate TypeScript, Android build, emulator dashboard smoke, wallet list, send/receive navigation, and QR display.
-- `react-native-bootsplash` is on latest checked `7.3.1` after `BEM-37.218`; future splash work should focus on release launch-screen behavior and iOS validation, not another immediate package bump.
+- `react-native-bootsplash` is on latest checked `7.3.2` after `BEM-37.761`; future splash work should focus on release launch-screen behavior and iOS validation, not another immediate package bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
 - `react-native-safe-area-context` is on checked `5.8.0` after `BEM-36.119`; future safe-area work should focus on layout validation and the next RN baseline.
 - `react-native-screens` is on checked latest `4.25.2` after `BEM-37.205`; the package now satisfies the RN `0.86.0` baseline and needs Android navigation smoke after future stack changes.
@@ -88,7 +88,7 @@ Branch shape:
 - `react-native-keychain` -> `10.0.0`
 - `react-native-tcp-socket` -> `6.4.1`
 - `react-native-version-number` -> `0.3.6`
-- `react-native-webview` -> `13.16.1`
+- `react-native-webview` -> `14.0.1`
 
 Risk:
 
@@ -114,7 +114,7 @@ Branch shape:
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 - `react-native-randombytes` was removed after the dedicated crypto/runtime replacement branch; random values are provided by `react-native-get-random-values@2.0.0`, imported in `index.js` before app startup.
 - `react-native-version-number` is pinned to the already-resolved `0.3.6` after `BEM-36.69`; future app metadata work should validate displayed/build version behavior on both platforms.
-- `react-native-webview` is on latest checked `13.16.1` after `BEM-37.162`; future WebView work should focus on Terms screens validation, release builds, and the next RN baseline.
+- `react-native-webview` is on latest checked `14.0.1` after `BEM-37.760`; future WebView work should focus on Terms screens validation, release builds, and the next RN baseline.
 
 ### Debug Tooling Removed From Runtime
 

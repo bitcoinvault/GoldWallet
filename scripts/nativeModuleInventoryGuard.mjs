@@ -13,7 +13,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['jail-monkey', '3.0.0'],
   ['react-native-background-timer', '2.4.1'],
   ['react-native-biometrics', '3.0.1'],
-  ['react-native-bootsplash', '7.3.1'],
+  ['react-native-bootsplash', '7.3.2'],
   ['react-native-camera-kit', '18.0.0'],
   ['react-native-config', '1.6.1'],
   ['react-native-device-info', '15.0.2'],
@@ -31,7 +31,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-tcp-socket', '6.4.1'],
   ['react-native-vector-icons', '10.3.0'],
   ['react-native-version-number', '0.3.6'],
-  ['react-native-webview', '13.16.1'],
+  ['react-native-webview', '14.0.1'],
 ]);
 
 export const getNativeModuleInventoryErrors = dependencies => {

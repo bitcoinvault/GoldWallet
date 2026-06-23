@@ -20,7 +20,8 @@ Current snapshot policy:
 - `@typescript-eslint` and `lint-staged` patch drift is intentionally held for a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline-audit proof.
 - `axios` patch drift is intentionally held for a dedicated storage/network branch with API, Electrum, focused tests, Android build, and emulator smoke proof.
 - `react-native-webview@14.0.1` is now the storage/network baseline; future WebView drift should still use a dedicated Terms WebView branch with Android smoke and iOS static readiness proof.
-- `react-native-bootsplash` and `react-native-gesture-handler` patch drift needs dedicated native startup/navigation smoke branches before moving those runtime packages.
+- `react-native-bootsplash@7.3.2` is now the startup/splash baseline after Android launch smoke; future splash drift should still use a dedicated startup branch with Android build and emulator proof.
+- `react-native-gesture-handler` patch drift needs a dedicated native navigation smoke branch before moving that runtime package.
 - `semver` and `uuid` patch drift needs a dedicated tooling/runtime branch because those packages are direct runtime dependencies and `semver` is also enforced through `resolutions`.
 - `babel-plugin-polyfill-regenerator@1` stays with the RN/Metro/Babel blocker instead of being moved separately from the Babel runtime stack.
 - Any new `review-required` direct outdated entry must fail the online baseline until a dedicated compatibility branch records the decision.
