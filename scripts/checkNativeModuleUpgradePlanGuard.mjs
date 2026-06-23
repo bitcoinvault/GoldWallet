@@ -5,7 +5,7 @@ const fullPlanFixture = [...expectedNativeModuleDependencies]
   .map(([packageName, expectedVersion]) => `- \`${packageName}\` -> \`${expectedVersion}\``)
   .join('\n');
 const missingPlanFixture = fullPlanFixture.replace('- `react-native-webview`', '');
-const missingVersionFixture = fullPlanFixture.replace('`react-native-webview` -> `13.16.1`', '`react-native-webview`');
+const missingVersionFixture = fullPlanFixture.replace('`react-native-webview` -> `14.0.1`', '`react-native-webview`');
 
 const assertAccepted = (label, planContent) => {
   const errors = getNativeModuleUpgradePlanErrors(planContent);

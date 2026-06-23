@@ -5,7 +5,7 @@ const validSummary = [
   'Generated at: 2026-06-05T00:00:00.000Z',
   'Node version: v24.16.0',
   'Expected Node version: v24.16.0',
-  'Entries: 26',
+  'Entries: 25',
   '- @babel/cli: current 7.29.7, wanted 7.29.7, latest 8.0.1, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   '- @babel/core: current 7.29.7, wanted 7.29.7, latest 8.0.1, type resolutionDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   '- @babel/core: current 7.29.7, wanted 7.29.7, latest 8.0.1, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
@@ -24,7 +24,6 @@ const validSummary = [
   '- electrum-client: current 2.0.0, wanted exotic, latest exotic, type dependencies, decision exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
   '- lint-staged: current 17.0.7, wanted 17.0.7, latest 17.0.8, type devDependencies, decision blocked - precommit tooling patch drift requires a dedicated hook/tooling branch with lint-staged, precommit, and TypeScript proof',
   '- react: current 19.2.3, wanted 19.2.3, latest 19.2.7, type dependencies, decision blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
-  '- react-native-bootsplash: current 7.3.1, wanted 7.3.1, latest 7.3.2, type dependencies, decision blocked - native startup/splash patch drift requires a dedicated startup smoke branch with Android build and emulator proof',
   '- react-native-gesture-handler: current 3.0.1, wanted 3.0.1, latest 3.0.2, type dependencies, decision blocked - gesture runtime patch drift requires a dedicated navigation/gesture smoke branch before bumping',
   '- react-native-prompt-android: current 0.3.6, wanted exotic, latest exotic, type dependencies, decision exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
   '- react-test-renderer: current 19.2.3, wanted 19.2.3, latest 19.2.7, type devDependencies, decision blocked - React Native renderer exact-version coupling requires test renderer to stay aligned with React and RN',
@@ -32,7 +31,7 @@ const validSummary = [
   '- semver: current 7.8.4, wanted 7.8.4, latest 7.8.5, type resolutionDependencies, decision blocked - semver patch drift must move in a dedicated tooling/runtime branch because it is both a direct dependency and enforced resolution',
   '- semver: current 7.8.4, wanted 7.8.4, latest 7.8.5, type dependencies, decision blocked - semver patch drift must move in a dedicated tooling/runtime branch because it is both a direct dependency and enforced resolution',
   '- uuid: current 14.0.0, wanted 14.0.0, latest 14.0.1, type dependencies, decision blocked - uuid patch drift requires a dedicated runtime compatibility branch with TypeScript, unit, and Android smoke proof',
-  'Known blocked entries: 22',
+  'Known blocked entries: 21',
   'Exotic entries: 4',
   'Review-required entries: 0',
   'Secret values printed: no',
@@ -81,10 +80,10 @@ assertRejected(
   validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 26', 'Entries: 25'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 25', 'Entries: 24'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 26', 'Entries: 27').replace(
+  validSummary.replace('Entries: 25', 'Entries: 26').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
