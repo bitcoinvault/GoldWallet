@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.760 - React Native WebView 14 upgrade
+
+- Branch: `feature/bem-37-760-webview-14-upgrade`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-webview` from `13.16.1` to live npm latest `14.0.1`.
+- Refresh direct-outdated and storage/network guards so WebView is no longer treated as a pending direct-outdated blocker after the package bump.
+- Validate the WebView runtime path through the existing Settings Terms WebView emulator smoke flow instead of treating package installation as sufficient proof.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `react-native-webview@14.0.1` with broad `react` and `react-native` peers and no additional engine requirement.
+- `corepack yarn node:runtime:yarn add react-native-webview@14.0.1` updated `package.json` and `yarn.lock`; the repo postinstall completed `patch-package`, `rn-nodeify`, shim restoration, and Jetifier.
+- After the upgrade, direct-outdated snapshot drops from `27` to `26` entries and still has `0` review-required entries.
+- Storage/network latest snapshot returns to `10` current entries with `react-native-webview` package, install, and latest all at `14.0.1`.
+- `react-native config` resolves the upgraded WebView Android native module as `RNCWebViewPackage` with codegen component `RNCWebViewSpec`.
+- Android dev assemble passes on JDK 17 after the package bump; an initial non-stacktrace build hit a transient settings/autolinking command exit, then `react-native config` and the stacktrace assemble run completed successfully.
+- Android dev embedded smoke passes on `emulator-5554`, including first-run onboarding, empty dashboard CTA navigation, QR scanner screen validation, tab navigation, and Settings Terms WebView navigation.
+- iOS runtime validation remains not claimed on this Windows host; iOS readiness for WebView still requires macOS/Xcode/CocoaPods.
+
+Validation:
+
+- `npm view react-native-webview version peerDependencies engines dependencies --json`
+- `corepack yarn node:runtime:yarn add react-native-webview@14.0.1`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn storage-network:latest-snapshot:audit`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn check:storage-network-latest-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn test:terms-webview:unit`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn react-native config`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:assemble --stacktrace`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:check-smoke-summary`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+
 ### BEM-37.759 - Foundation target live snapshot refresh
 
 - Branch: `feature/bem-37-759-foundation-target-refresh`

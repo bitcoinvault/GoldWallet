@@ -120,6 +120,7 @@ export const getStorageNetworkLatestSnapshotSummaryErrors = summary => {
   const webviewEntry = entryLines.find(line => line.startsWith('- react-native-webview: '));
   if (
     webviewEntry &&
+    !webviewEntry.includes('decision current') &&
     (!webviewEntry.includes('WebView major drift') ||
       !webviewEntry.includes('dedicated Terms WebView branch') ||
       !webviewEntry.includes('Android smoke and iOS static readiness proof'))

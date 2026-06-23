@@ -27,7 +27,6 @@ const requiredKnownEntries = [
   ['react-native-bootsplash', 'dependencies'],
   ['react-native-gesture-handler', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
-  ['react-native-webview', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
   ['semver', 'resolutionDependencies'],
