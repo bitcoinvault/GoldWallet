@@ -24,7 +24,6 @@ const requiredKnownEntries = [
   ['electrum-client', 'dependencies'],
   ['lint-staged', 'devDependencies'],
   ['react', 'dependencies'],
-  ['react-native-gesture-handler', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],

@@ -19,7 +19,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-device-info', '15.0.2'],
   ['react-native-exit-app', '2.0.0'],
   ['react-native-fast-image', '8.6.3'],
-  ['react-native-gesture-handler', '3.0.1'],
+  ['react-native-gesture-handler', '3.0.2'],
   ['react-native-localize', '3.7.0'],
   ['react-native-get-random-values', '2.0.0'],
   ['react-native-safe-area-context', '5.8.0'],
