@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.771 - BitcoinJS upstream compatibility blocker guard
+
+- Branch: `feature/bem-37-771-bitcoinjs-upstream-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the live upstream `bitcoinjs-lib@7.0.1` package against the BTCV fork runtime surface used by GoldWallet.
+- Strengthen the wallet crypto runtime audit so the BitcoinVault fork cannot be replaced by upstream npm without losing explicit BTCV surface checks.
+- Keep `package.json`, `yarn.lock`, wallet runtime code, native project files, and Metro config unchanged because upstream is not a compatible replacement target.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports upstream `bitcoinjs-lib@7.0.1`, `type: module`, CJS/ESM export map support, Node engine `>=18.0.0`, and dependencies including `bech32@^2.0.0`, `bip174@^3.0.0`, and `valibot@^1.2.0`.
+- An isolated install of upstream `bitcoinjs-lib@7.0.1` under `local-docs/bitcoinjs-upstream-probe` confirms it exports `Block`, `Psbt`, `Transaction`, `address`, `crypto`, `initEccLib`, `networks`, `opcodes`, `payments`, `script`, and `toXOnly`.
+- The same isolated upstream probe confirms upstream `bitcoinjs-lib@7.0.1` does not expose the app-required BTCV fork exports `alt_networks`, `VaultTxType`, `ECPair`, or `TransactionBuilder`.
+- The current BitcoinVault fork still exposes `alt_networks`, `VaultTxType`, `ECPair`, `TransactionBuilder`, `payments`, `address`, and `Transaction`.
+- The strengthened `wallet:crypto-runtime:audit` now fails if the BTCV fork surface loses `bitcoinvault`, `bitcoinvaultTestnet`, `bitcoinvaultRegtest`, `VaultTxType.Alert`, `VaultTxType.Instant`, `VaultTxType.Recovery`, `VaultTxType.NonVault`, `ECPair.fromWIF`, or `ECPair.makeRandom`.
+- The highest-compatible committed state remains the pinned BitcoinVault `bitcoinjs-lib` fork at `0854f675114fada32348d51c80a6ccdb33afc360`.
+- Android runtime validation is not required for this branch because no app runtime, native, Metro config, package, or lockfile changes are made; the wallet crypto guard and offline wallet tests cover the changed audit path.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `npm view bitcoinjs-lib@7.0.1 version type main module exports engines dependencies peerDependencies --json`
+- `npm install --prefix local-docs\bitcoinjs-upstream-probe bitcoinjs-lib@7.0.1 --no-save`
+- isolated upstream export probe for `alt_networks`, `VaultTxType`, `ECPair`, `TransactionBuilder`, `payments`, `address`, and `Transaction`
+- current fork export probe for `alt_networks`, `VaultTxType`, `ECPair`, `TransactionBuilder`, `payments`, `address`, and `Transaction`
+- `corepack yarn node:runtime:yarn wallet:crypto-runtime:audit`
+- `corepack yarn node:runtime:yarn wallet:crypto-latest-snapshot:audit`
+- `corepack yarn node:runtime:yarn wallet:crypto-latest-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:wallet-crypto-latest-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn test:wallet-crypto:offline`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.770 - React renderer coupling evidence refresh
 
 - Branch: `feature/bem-37-770-react-renderer-coupling-refresh`

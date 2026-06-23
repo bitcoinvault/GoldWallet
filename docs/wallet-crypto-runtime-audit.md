@@ -2,13 +2,13 @@
 
 Scope: wallet-critical JavaScript and native-adjacent crypto/runtime dependencies used for BTCV key derivation, address handling, transaction building, signing, and persistence-adjacent wallet flows.
 
-Latest npm checked on 2026-06-12.
+Latest npm checked on 2026-06-23.
 
 ## Current Package State
 
 | Package | Current package.json | Latest checked | Notes |
 | --- | --- | --- | --- |
-| `bitcoinjs-lib` | `git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360` | upstream npm `7.0.1`; BTCV fork `master` at `0854f675114fada32348d51c80a6ccdb33afc360` | Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib` without a dedicated compatibility branch. The fork exposes BTCV-specific `VaultTxType`, `alt_networks`, and recovery/alert transaction behavior used by the app. The app pins the fork commit so fresh installs cannot drift silently. |
+| `bitcoinjs-lib` | `git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360` | upstream npm `7.0.1`; BTCV fork `master` at `0854f675114fada32348d51c80a6ccdb33afc360` | Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib` without a dedicated compatibility branch. The fork exposes BTCV-specific `VaultTxType`, `alt_networks`, `ECPair`, `TransactionBuilder`, and recovery/alert transaction behavior used by the app. An isolated upstream `bitcoinjs-lib@7.0.1` probe on 2026-06-23 confirmed upstream does not expose `alt_networks`, `VaultTxType`, `ECPair`, or `TransactionBuilder`. The app pins the fork commit so fresh installs cannot drift silently. |
 | `bip39` | `3.1.0` | `3.1.0` | Current mnemonic package remains latest. |
 | `bip32` | `5.0.1` | `5.0.1` | Migrated through `utils/bip32.js`, which adapts the factory-based API to the wallet classes. |
 | `@bitcoinerlab/secp256k1` | `1.2.0` | `1.2.0` | Pure-JavaScript ECC backend for the latest `bip32` factory API; selected because `tiny-secp256k1@2.x` pulls WASM/Node crypto paths that do not bundle cleanly in React Native. |
@@ -24,6 +24,7 @@ Latest npm checked on 2026-06-12.
 ## Runtime Surface
 
 - `bitcoinjs-lib` is imported by wallet classes, transaction screens, config/network setup, signer tests, authenticator tests, and Electrum/HD wallet integration tests.
+- The current BTCV fork surface is guarded for `alt_networks`, `VaultTxType`, `ECPair`, `TransactionBuilder`, `payments`, `address`, and `Transaction`; upstream `bitcoinjs-lib@7.0.1` does not expose `alt_networks`, `VaultTxType`, `ECPair`, or `TransactionBuilder`.
 - `bip39` and the local `utils/bip32.js` adapter drive HD wallet mnemonic and derivation behavior in the HD wallet class hierarchy.
 - `coinselect` is used by the SegWit bech32 send flow.
 - Direct `bech32` usage is intentionally absent; Bech32 encode/decode behavior is exercised through `bitcoinjs-lib` address/payment APIs and the offline BIP84 fixtures.

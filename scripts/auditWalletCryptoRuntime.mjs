@@ -31,7 +31,8 @@ const expectedDevDependencies = new Map([
 
 const requiredDocsSnippets = [
   ['docs/wallet-crypto-runtime-audit.md', 'bitcoinvault/bitcoinjs-lib'],
-  ['docs/wallet-crypto-runtime-audit.md', 'Latest npm checked on 2026-06-12'],
+  ['docs/wallet-crypto-runtime-audit.md', 'Latest npm checked on 2026-06-23'],
+  ['docs/wallet-crypto-runtime-audit.md', 'upstream `bitcoinjs-lib@7.0.1` does not expose `alt_networks`, `VaultTxType`, `ECPair`, or `TransactionBuilder`'],
   ['docs/wallet-crypto-runtime-audit.md', 'Funded transaction flow remains blocked until a funded BTCV testnet wallet is available'],
   ['docs/wallet-crypto-runtime-audit.md', 'Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib`'],
   ['docs/dependency-upgrade-strategy.md', 'corepack yarn wallet:crypto-runtime:audit'],
@@ -113,6 +114,7 @@ expectedDevDependencies.forEach((expectedVersion, packageName) => {
 });
 
 const bitcoinjsPackageDirectory = path.dirname(require.resolve('bitcoinjs-lib/package.json'));
+const bitcoinjs = require('bitcoinjs-lib');
 const bitcoinjsWifEntry = require.resolve('wif', { paths: [bitcoinjsPackageDirectory] });
 const bitcoinjsWifVersion = packageVersionFromEntry(bitcoinjsWifEntry);
 const bitcoinjsBech32Entry = require.resolve('bech32', { paths: [bitcoinjsPackageDirectory] });
@@ -122,6 +124,43 @@ if (bitcoinjsWifVersion !== '2.0.6') {
 }
 if (bitcoinjsBech32Version !== '1.1.4') {
   errors.push(`bitcoinjs-lib resolves bech32@${bitcoinjsBech32Version || '<unknown>'}; expected transitive 1.1.4 for the BTCV fork`);
+}
+
+const requiredBitcoinjsSurface = [
+  ['alt_networks', 'object'],
+  ['VaultTxType', 'object'],
+  ['ECPair', 'object'],
+  ['TransactionBuilder', 'function'],
+  ['payments', 'object'],
+  ['address', 'object'],
+  ['Transaction', 'function'],
+];
+
+requiredBitcoinjsSurface.forEach(([exportName, expectedType]) => {
+  const actualType = typeof bitcoinjs[exportName];
+  if (actualType !== expectedType) {
+    errors.push(`bitcoinjs-lib export ${exportName} is ${actualType}; expected ${expectedType} from the BTCV fork`);
+  }
+});
+
+['bitcoinvault', 'bitcoinvaultTestnet', 'bitcoinvaultRegtest'].forEach(networkName => {
+  if (!bitcoinjs.alt_networks?.[networkName]) {
+    errors.push(`bitcoinjs-lib alt_networks is missing ${networkName}`);
+  }
+});
+
+['Alert', 'Instant', 'Recovery', 'NonVault'].forEach(vaultTxType => {
+  if (typeof bitcoinjs.VaultTxType?.[vaultTxType] !== 'number') {
+    errors.push(`bitcoinjs-lib VaultTxType is missing ${vaultTxType}`);
+  }
+});
+
+if (typeof bitcoinjs.ECPair?.fromWIF !== 'function') {
+  errors.push('bitcoinjs-lib ECPair.fromWIF is missing from the BTCV fork surface');
+}
+
+if (typeof bitcoinjs.ECPair?.makeRandom !== 'function') {
+  errors.push('bitcoinjs-lib ECPair.makeRandom is missing from the BTCV fork surface');
 }
 
 requiredDocsSnippets.forEach(([relativePath, snippet]) => {
@@ -167,6 +206,9 @@ expectedDependencies.forEach((expectedVersion, packageName) => {
 console.log(`bitcoinjs-lib nested wif: ${bitcoinjsWifVersion}`);
 console.log(`direct bech32 dependency: absent`);
 console.log(`bitcoinjs-lib transitive bech32: ${bitcoinjsBech32Version}`);
+console.log(`bitcoinjs-lib BTCV networks: ${Object.keys(bitcoinjs.alt_networks).join(', ')}`);
+console.log(`bitcoinjs-lib VaultTxType values: ${['Alert', 'Instant', 'Recovery', 'NonVault'].map(key => `${key}=${bitcoinjs.VaultTxType[key]}`).join(', ')}`);
+console.log('bitcoinjs-lib BTCV surface: alt_networks, VaultTxType, ECPair, TransactionBuilder');
 packageUsage.forEach((files, packageName) => {
   console.log(`${packageName} usage files: ${files.length}`);
 });
