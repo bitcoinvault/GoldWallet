@@ -22,7 +22,7 @@ Upgrade this layer before chasing most library majors:
 
 - React Native, React, Metro, Babel presets/runtime, TypeScript, Jest transform stack.
 - Android Gradle Plugin, Gradle wrapper, Kotlin/Java settings, compile/target SDK.
-- The current Android baseline stays on AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`; use `corepack yarn android:toolchain-target:audit` before another Android toolchain branch. Live metadata on 2026-06-23 showed AGP `9.2.1`, Gradle `9.6.0`, and Kotlin `2.4.0`, but the AGP 9 path is blocked until the React Native Gradle plugin can compile against Gradle 9's embedded Kotlin metadata.
+- The current Android baseline stays on AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`; use `corepack yarn android:toolchain-target:audit` before another Android toolchain branch. Live metadata on 2026-06-23 showed AGP `9.2.1`, Gradle `9.6.0`, and Kotlin `2.4.0`, but a direct AGP `9.2.1` / Gradle `9.6.0` / Kotlin `2.4.0` probe still failed in the React Native Gradle plugin `:gradle-plugin:settings-plugin:compileKotlin` path. The AGP 9 path stays blocked until a future React Native Gradle plugin baseline can compile against Gradle 9's embedded Kotlin metadata.
 - iOS CocoaPods, Xcode project settings, deployment targets, native template drift.
 
 Reason: the first foundation checkpoint is complete, but recent proof branches still show that the next jump has coupled blockers that need to move together:

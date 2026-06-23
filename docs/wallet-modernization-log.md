@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.774 - AGP 9.2.1 / Gradle 9.6.0 direct toolchain probe
+
+- Branch: `feature/bem-37-774-agp96-toolchain-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Directly probe the latest Android toolchain target path on the current RN `0.86.0` baseline.
+- Test AGP `9.2.1`, Gradle `9.6.0`, and Kotlin Gradle Plugin `2.4.0` with JDK 17 in an isolated worktree.
+- Keep committed Android toolchain files unchanged after the probe because the latest target remains blocked.
+
+Findings:
+
+- The probe downloaded and started Gradle `9.6.0`, then failed before app compilation during `:gradle-plugin:settings-plugin:compileKotlin`.
+- The failure is the same compatibility class as the earlier AGP 9 / Gradle 9 probes, now confirmed against Gradle `9.6.0`: Gradle loads Kotlin runtime metadata `2.3.0`, while the React Native Gradle plugin `0.86.0` compile path can read up to metadata `2.2.0`.
+- The exact failing source path was `node_modules/@react-native/gradle-plugin/settings-plugin/src/main/kotlin/com/facebook/react/ReactSettingsExtension.kt`; the log also reported incompatible Kotlin metadata from Gradle `9.6.0` jars such as `kotlin-stdlib-2.3.21.jar`.
+- The highest-compatible committed Android toolchain remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`.
+- The probe log is local-only at `local-docs/agp96-toolchain-probe.log`; it is intentionally not committed.
+- Android runtime validation is not required for this branch because no app runtime, native, Metro config, package, lockfile, or committed Android toolchain files are changed.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble` failed as expected on temporary AGP `9.2.1` / Gradle `9.6.0` / Kotlin `2.4.0` with `Execution failed for task ':gradle-plugin:settings-plugin:compileKotlin'`.
+- `corepack yarn node:runtime:yarn check:android-toolchain-target-summary-guard`
+- `corepack yarn node:runtime:yarn android:toolchain-target:audit`
+- `corepack yarn node:runtime:yarn android:toolchain-target:check-summary`
+- `corepack yarn node:runtime:yarn foundation:target:refresh-online`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.773 - Foundation target live evidence refresh
 
 - Branch: `feature/bem-37-773-foundation-target-refresh`
