@@ -34,7 +34,7 @@ const Onboarding = () => ({
     submitButton: element(by.id('submit-create-transaction-password')),
 
     async typePassword(value: string): Promise<void> {
-      await actions.typeText(this.passowrdInput, value);
+      await actions.typeText(this.passowrdInput, value, { closeKeyboard: true });
     },
 
     async submit(): Promise<void> {
@@ -48,7 +48,7 @@ const Onboarding = () => ({
     submitButton: element(by.id('submit-transaction-password-confirmation')),
 
     async typePassword(value: string): Promise<void> {
-      await actions.typeText(this.passowrdInput, value);
+      await actions.typeText(this.passowrdInput, value, { closeKeyboard: true });
     },
 
     async submit(): Promise<void> {
