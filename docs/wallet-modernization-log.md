@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.767 - Babel 8 blocker evidence refresh
+
+- Branch: `feature/bem-37-767-babel8-blocker-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live Babel 8 target metadata for the current RN `0.86.0` baseline.
+- Re-run an isolated Babel 8 transform probe without changing repo dependencies or `yarn.lock`.
+- Keep the direct-outdated Babel 8 entries tied to a concrete RN/Metro/Babel blocker instead of treating them as safe patch drift.
+- Update `docs/babel-8-migration-probe.md` so future RN/latest work has current blocker evidence.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports current Babel targets as `@babel/cli@8.0.1`, `@babel/core@8.0.1`, `@babel/plugin-transform-runtime@8.0.1`, `@babel/preset-env@8.0.2`, `@babel/preset-react@8.0.1`, `@babel/preset-typescript@8.0.1`, `@babel/plugin-transform-flow-strip-types@8.0.1`, `@babel/runtime@8.0.0`, `@babel/traverse@8.0.0`, and `babel-plugin-polyfill-regenerator@1.0.0`.
+- The current Babel 8 line requires Node `^22.18.0 || >=24.11.0`; repo Node `24.16.0` satisfies that range, so this is not a Node runtime blocker.
+- `@react-native/babel-preset@0.86.0` still depends on the Babel 7 plugin stack, including `@babel/plugin-transform-flow-strip-types` with a `^7.x` range.
+- An isolated `%TEMP%` prefix probe with `@babel/core@8.0.1` and `@react-native/babel-preset@0.86.0` still fails with `BABEL_VERSION_UNSUPPORTED`: the RN preset plugin requires Babel `^7.0.0-0` but is loaded by Babel `8.0.1`.
+- No package upgrade is committed in this branch; keeping Babel packages and `@babel/core`/`@babel/traverse` resolutions on `7.29.7` is the correct highest-compatible state until the RN preset/plugin stack supports Babel 8 or a dedicated RN/Metro/Babel migration replaces it and proves the full transform/bundle/test/build path.
+- Android runtime validation is not required for this branch because no app runtime, native, Metro config, package, or lockfile changes are made.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `npm view @babel/cli version engines dependencies --json`
+- `npm view @babel/core version engines peerDependencies dependencies --json`
+- `npm view @babel/plugin-transform-runtime version engines peerDependencies dependencies --json`
+- `npm view @babel/preset-env version engines peerDependencies dependencies --json`
+- `npm view @babel/preset-react version engines peerDependencies dependencies --json`
+- `npm view @babel/preset-typescript version engines peerDependencies dependencies --json`
+- `npm view @babel/plugin-transform-flow-strip-types version engines peerDependencies dependencies --json`
+- `npm view @babel/runtime version engines dependencies --json`
+- `npm view @babel/traverse version engines dependencies --json`
+- `npm view babel-plugin-polyfill-regenerator version engines dependencies --json`
+- `npm view @react-native/babel-preset@0.86.0 version dependencies peerDependencies engines --json`
+- `%TEMP%\goldwallet-babel8-probe` isolated install and transform probe with `@babel/core@8.0.1` plus `@react-native/babel-preset@0.86.0`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn babel8:migration-probe:check`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.766 - Android release validation refresh and manifest subset guard
 
 - Branch: `feature/bem-37-766-android-release-validation-refresh`
