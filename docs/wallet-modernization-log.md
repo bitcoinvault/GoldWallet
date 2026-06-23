@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.756 - Release-services aggregate refresh
+
+- Branch: `feature/bem-37-756-release-services-aggregate-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the aggregate release-services evidence after the fresh Android release build/smoke/create-wallet evidence and the refreshed iOS static-validation handoff.
+- Re-run the secret-safe Sentry, Firebase, CodePush, push-notification, and iOS summary sequence without rebuilding Android release artifacts, relying on the current validated Android release summaries from `BEM-37.754`.
+- Keep app runtime code, package versions, native project files, release credentials, Sentry properties, CocoaPods outputs, and committed build outputs unchanged.
+
+Findings:
+
+- `release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota` completed all `35` rendered steps and ended with `release-services:check-summaries` passing.
+- The aggregate gate validates current Android release build/manifest evidence, release startup smoke, release create-wallet smoke, Sentry prerequisite evidence, Firebase release-services wiring, CodePush removed-state and decision evidence, push-notification bridge wiring, static iOS readiness, iOS macOS prerequisite blockers, iOS Podfile refresh plan, and iOS validation handoff summary.
+- Sentry prerequisites are partially ready: direct `@sentry/cli@3.5.1` is current and executable, release integration is wired, Android release/smoke/create-wallet evidence is valid, but source-map upload validation remains not ready because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable locally.
+- Live Sentry metadata now reports `@sentry/react-native@8.15.1` while the repo remains on `8.14.0`; the next Sentry branch should probe that latest SDK target with release/source-map validation instead of treating this aggregate refresh as an SDK upgrade.
+- Firebase release-services wiring remains current: React Native Firebase packages are aligned at `24.1.1`, the latest npm version is `24.1.1`, Android release summary and APK manifests are valid, and runtime FCM/Crashlytics/Analytics delivery remains not claimed.
+- CodePush remains removed from runtime/native integration, the guarded decision remains `remove`, release build/smoke/create-wallet evidence is ready, and OTA update validation remains not claimed.
+- Push notification bridge static wiring remains current at `@react-native-community/push-notification-ios@1.12.0`, with runtime delivery not claimed.
+- iOS remains a macOS validation blocker, not a Windows runtime claim: static release files are valid, `8` iOS schemes are guarded, but `ios/Podfile.lock` still has `12` active drift issues and archive/simulator validation requires macOS with Xcode `16.1+` and CocoaPods.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn release-services:validation:handoff:dry-run --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.755 - iOS static validation refresh
 
 - Branch: `feature/bem-37-755-ios-static-validation-refresh`
