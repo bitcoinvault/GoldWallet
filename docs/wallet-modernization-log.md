@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.755 - iOS static validation refresh
+
+- Branch: `feature/bem-37-755-ios-static-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Windows-safe iOS release readiness, macOS prerequisite, Podfile.lock refresh-plan, and macOS validation handoff evidence after the current RN `0.86.0` and release-validation baseline.
+- Keep iOS runtime/archive validation explicitly unclaimed on Windows.
+- Keep app runtime code, package versions, iOS project files, CocoaPods outputs, release credentials, and committed build outputs unchanged.
+
+Findings:
+
+- Static iOS release files remain valid: RN minimum iOS is `15.1`, RN minimum Xcode is `16.1`, `ios/Podfile` platform is `15.1`, Xcode deployment targets are `15.1`, and `8` iOS schemes are guarded.
+- Sentry iOS project wiring remains visible in static checks with `4` bundle/source-map phases and `3` dSYM upload phases.
+- Removed CodePush plist placeholders remain absent, iOS remote-notification plists remain present for `4` app variants, and removed Podfile.lock pod references remain `0`.
+- `ios/Podfile.lock` still requires macOS refresh: `12` active package-vs-pod drift entries remain, including React-Core `0.65.3` versus `react-native 0.86.0`, RNSentry `3.1.0` versus `@sentry/react-native 8.14.0`, and RNFBApp `12.7.5` versus `@react-native-firebase/app 24.1.1`.
+- The iOS validation handoff summary remains `Implementation ready: no` because this Windows host is `win32`, has no `xcodebuild`, has no CocoaPods, and cannot refresh `ios/Podfile.lock` or run simulator/archive validation.
+- The all-scheme dry run renders the required macOS execution sequence for all shared schemes: `GoldWallet Dev`, `GoldWallet Stage`, `GoldWallet Beta`, and `GoldWallet`, each in Debug and Release simulator configurations.
+- Required action remains: run on macOS with Xcode `16.1+` and CocoaPods, refresh `ios/Podfile.lock` with `pod install`, then run iOS simulator/archive validation before claiming iOS runtime delivery.
+
+Validation:
+
+- `corepack yarn check:ios-release-readiness-audit-guard`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:ios-mac-validation-prereq-summary-guard`
+- `corepack yarn check:ios-podfile-refresh-plan-guard`
+- `corepack yarn check:ios-validation-handoff-summary-guard`
+- `corepack yarn check:ios-mac-validation-handoff-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn ios:mac-validation-prereq:audit`
+- `corepack yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn ios:podfile-refresh:plan`
+- `corepack yarn ios:podfile-refresh:check-plan`
+- `corepack yarn ios:validation:handoff-summary`
+- `corepack yarn ios:mac-validation:handoff:preflight:dry-run`
+- `corepack yarn ios:mac-validation:handoff:dry-run --all-schemes`
+
 ### BEM-37.754 - Android release validation refresh
 
 - Branch: `feature/bem-37-754-android-release-validation-refresh`
