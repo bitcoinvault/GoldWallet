@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.779 - Foundation latest snapshot refresh
+
+- Branch: `feature/bem-37-779-foundation-latest-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live foundation-target evidence after the Android release and Camera/QR readiness refreshes.
+- Re-run the online target discovery path for React Native, direct outdated dependencies, wallet-critical git pins, wallet/crypto packages, storage/network packages, tooling packages, Android toolchain target, `bl` resolution, and `node-fetch` resolution.
+- Keep package versions, runtime code, native project files, lockfiles, Metro config, and committed build outputs unchanged.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `react-native@0.86.0` as stable `latest`, matching the installed RN baseline.
+- React Native `next` remains `0.86.0-rc.3` and is classified as `prerelease`; React Native `nightly` is `0.87.0-nightly-20260623-dc4d5e8ad`, so neither is the default wallet target.
+- Direct outdated snapshot has `17` entries: `13` known blocked entries, `4` exotic git/fork entries, and `0` review-required entries.
+- React `19.2.7` and `react-test-renderer@19.2.7` remain blocked by RN renderer exact-version coupling on the `react-native@0.86.0` baseline.
+- Babel `8.x` remains blocked by the RN `0.86.0` Babel preset/plugin stack and requires a dedicated RN/Metro/Babel migration branch.
+- Wallet-critical git pins are current with `0` mismatches: BitcoinVault `bitcoinjs-lib`, BitcoinVault `rn-electrum-client`, `react-native-prompt-android`, and `rn-nodeify`.
+- Wallet/crypto npm packages are current; upstream `bitcoinjs-lib@7.0.1` remains intentionally not used because the BitcoinVault fork is wallet-critical and needs a dedicated compatibility branch before replacement.
+- Storage/network packages are current across `10` tracked entries.
+- Tooling packages are current across `24` tracked entries, including TypeScript `6.0.3`, Jest `30.4.2`, ESLint `10.5.0`, Prettier `3.8.4`, lint-staged `17.0.8`, Husky `9.1.7`, and Detox `20.51.4`.
+- Latest Android toolchain target remains blocked: live AGP `9.2.1`, Gradle `9.6.0`, and Kotlin `2.4.0` still hit the RN Gradle plugin `0.86.0` Kotlin metadata compile blocker; the validated baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`.
+- `bl@7.0.4` remains blocked because the latest line is ESM/export-map only while `levelup` and `ora` still require the current CommonJS-compatible `bl@6.1.6` resolution.
+- `node-fetch@3.3.2` remains current and compatible through the guarded `gaxios` dynamic-import path.
+- No Android runtime validation is required for this branch because no runtime, native, Metro, package, lockfile, or Android build files changed.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn foundation:target:refresh-online`
+- `corepack yarn foundation:target:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.778 - Android release validation refresh
 
 - Branch: `feature/bem-37-778-android-release-validation-refresh`
