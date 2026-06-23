@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.768 - BL 7.0.4 resolution blocker refresh
+
+- Branch: `feature/bem-37-768-bl7-resolution-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live `bl@latest` compatibility evidence for the current CommonJS-compatible `bl@6.1.6` resolution.
+- Re-run the repo-owned BL readiness audit so the `bl@7` direct-outdated blocker stays tied to actual export-map behavior.
+- Keep package dependencies and `yarn.lock` unchanged unless the latest target proves compatible.
+- Update direct-outdated documentation to name the current latest `bl@7.0.4` target.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `bl@7.0.4` with `type: module`, Node engine `>=20`, and an export map containing an `import` target but no CommonJS `require` export.
+- The current repo baseline remains `resolutions.bl = 6.1.6`, installed `bl` is `6.1.6`, and `require('bl')` returns a function.
+- Current guarded CommonJS/transitive consumers still load under the pinned baseline: `require('levelup')` and `require('ora')` both pass.
+- The isolated latest-package probe confirms `bl@7.0.4` supports bare ESM import and exposes `BufferList`, `BufferListStream`, `default`, and `isBufferList`.
+- The same isolated latest-package probe confirms bare CJS `require('bl')` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`, and `bl/package.json` subpath access also fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+- The highest-compatible state remains the validated `bl@6.1.6` resolution until the `bl@7` export map adds a CommonJS-compatible path or the guarded consumers are migrated away from bare CommonJS/package-json access.
+- Android runtime validation is not required for this branch because no app runtime, native, Metro config, package, or lockfile changes are made.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `npm view bl version type main exports engines dependencies --json`
+- `corepack yarn node:runtime:yarn bl:resolution:audit`
+- `corepack yarn node:runtime:yarn bl:resolution:check-summary`
+- `corepack yarn node:runtime:yarn check:bl-resolution-current`
+- `corepack yarn node:runtime:yarn check:bl-resolution-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.767 - Babel 8 blocker evidence refresh
 
 - Branch: `feature/bem-37-767-babel8-blocker-refresh`
