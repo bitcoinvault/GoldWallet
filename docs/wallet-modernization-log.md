@@ -10,6 +10,56 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.764 - Semver 7.8.5 and UUID 14.0.1 tooling/runtime validation
+
+- Branch: `feature/bem-37-764-semver-uuid-patches`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade direct `semver` from `7.8.4` to live npm latest `7.8.5`.
+- Move the enforced `resolutions.semver` pin from `7.8.4` to `7.8.5` in the same branch so Yarn does not keep a stale resolver entry.
+- Upgrade direct `uuid` from `14.0.0` to live npm latest `14.0.1`.
+- Refresh direct-outdated guard/docs and dependency-strategy evidence so semver/uuid are no longer treated as pending direct-outdated blockers.
+- Preserve future-drift rules for both packages: semver still needs a dedicated tooling/runtime branch because it is both a direct dependency and enforced resolution, while uuid still needs runtime compatibility proof and Android smoke.
+
+Findings:
+
+- Live npm metadata on 2026-06-23 reports `semver@7.8.5` with Node engine `>=10` and `uuid@14.0.1` as the current latest package.
+- `corepack yarn node:runtime:yarn add semver@7.8.5 uuid@14.0.1` updated direct dependencies, then `resolutions.semver` was updated manually and `corepack yarn node:runtime:yarn install` refreshed the lockfile.
+- Yarn resolution warnings now reference `semver@7.8.5`, confirming the enforced resolver pin moved with the direct dependency.
+- Runtime probes pass: `require('semver')` reports package version `7.8.5`, and `require('uuid').v4()` remains a function returning a 36-character UUID on `uuid@14.0.1`.
+- The app's direct uuid source usage remains limited to three `v4` call sites in helper/contact/toast ID generation.
+- Direct-outdated snapshot drops from `23` to `20` entries and from `19` to `16` known blockers, with `0` review-required entries.
+- Tooling latest snapshot remains valid after the semver resolution update; current remaining tooling patch blockers are still `@typescript-eslint` and `lint-staged`.
+- Focused storage/network validation and full unit tests pass; unit output still includes the existing BlueElectrum post-test async log baseline.
+- Android dev assemble passes on JDK 17 after a retry. The first build hit the known transient RN settings/autolinking `cmd` exit, then the second stacktrace assemble completed successfully.
+- Android dev embedded smoke passes on `emulator-5554`, including first-run onboarding, empty dashboard CTA navigation, QR scanner screen validation, tab navigation, and Settings Terms WebView navigation.
+- iOS runtime validation remains not claimed on this Windows host; this branch changes JS/package metadata and still needs normal macOS/Xcode validation before any iOS delivery claim.
+
+Validation:
+
+- `npm view semver version engines dependencies --json`
+- `npm view uuid version engines dependencies --json`
+- `corepack yarn node:runtime:yarn add semver@7.8.5 uuid@14.0.1`
+- `corepack yarn node:runtime:yarn install`
+- `corepack yarn node -e "const semver=require('semver'); console.log(semver.valid('1.2.3')); console.log(require('semver/package.json').version);"`
+- `corepack yarn node -e "const { v4 } = require('uuid'); const id = v4(); console.log(typeof v4); console.log(id.length); console.log(require('uuid/package.json').version);"`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn tooling:latest-snapshot:audit`
+- `corepack yarn node:runtime:yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn upgrade:strategy:audit`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:assemble --stacktrace`
+- `adb -s emulator-5554 uninstall io.goldwallet.wallet.dev`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:check-smoke-summary`
+
 ### BEM-37.763 - Axios 1.18.1 API client runtime validation
 
 - Branch: `feature/bem-37-763-axios-1-18-1`

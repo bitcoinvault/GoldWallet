@@ -493,11 +493,11 @@
     "redux-reset": "^0.3.0",
     "redux-saga": "1.5.0",
     "reselect": "5.2.0",
-    "semver": "7.8.4",
+    "semver": "7.8.5",
     "stream-browserify": "3.0.0",
     "url": "0.11.4",
     "util": "0.12.5",
-    "uuid": "14.0.0",
+    "uuid": "14.0.1",
     "wif": "5.0.0"
   },
   "resolutions": {
@@ -507,7 +507,7 @@
     "bl": "6.1.6",
     "@react-native/jest-preset/jest-environment-node": "30.4.1",
     "@react-native/jest-preset/jest-mock": "30.4.1",
-    "semver": "7.8.4",
+    "semver": "7.8.5",
     "qrcode": "1.5.4",
     "caniuse-lite": "1.0.30001799"
   },
