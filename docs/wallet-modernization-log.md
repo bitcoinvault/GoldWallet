@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.796 - React patch renderer probe
+
+- Branch: `feature/bem-37-796-react-patch-renderer-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Strengthen `react:patch-blocker:audit` so it builds a package-only latest React patch candidate from live npm metadata and checks that candidate against the current React Native renderer exact-version rules.
+- Extend the generated blocker summary and summary guard with candidate React, `react-test-renderer`, `@types/react`, and concrete renderer compatibility errors.
+- Document the blocker in `docs/react-package-coupling-audit.md` and the foundation workflow.
+
+Findings:
+
+- Live latest patch candidates are `react@19.2.7`, `react-test-renderer@19.2.7`, and `@types/react@19.2.17`.
+- The package-only candidate is rejected before any package change because the current RN `0.86.0` renderer still reports exact version `19.2.3`.
+- The generated summary now records the concrete blocker: `React package version 19.2.7 does not match React Native renderer exact version 19.2.3`.
+- This branch does not change package versions, lockfiles, runtime code, native config, Metro config, or Android build files, so emulator smoke is not required.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn react:patch-blocker:audit`
+- `corepack yarn node:runtime:yarn react:patch-blocker:check-summary`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn check:react-renderer-version-guard`
+- `corepack yarn node:runtime:yarn react:renderer-version:audit`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.795 - Foundation latest target refresh
 
 - Branch: `feature/bem-37-795-foundation-latest-refresh`

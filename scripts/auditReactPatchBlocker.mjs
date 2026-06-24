@@ -4,7 +4,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { expectedReactNativeTargetSnapshot } from './auditReactNativeTargetSnapshot.mjs';
-import { parseReactNativeRendererVersions } from './auditReactNativeRendererVersion.mjs';
+import {
+  getReactNativeRendererVersionIssues,
+  parseReactNativeRendererVersions,
+  requiredReactNativeRendererVersionDocs,
+} from './auditReactNativeRendererVersion.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -47,6 +51,24 @@ const collectRendererFiles = () => {
     }));
 };
 
+const collectRendererDocs = () => {
+  const docs = {};
+  const existingDocs = new Set();
+
+  requiredReactNativeRendererVersionDocs.forEach(relativePath => {
+    const absolutePath = path.join(root, relativePath);
+
+    if (existsSync(absolutePath)) {
+      docs[relativePath] = readFileSync(absolutePath, 'utf8');
+      existingDocs.add(relativePath);
+    } else {
+      docs[relativePath] = '';
+    }
+  });
+
+  return { docs, existingDocs };
+};
+
 export const collectReactPatchBlocker = () => {
   const rendererFiles = collectRendererFiles();
   const { rendererVersions, exactCheckVersions } = parseReactNativeRendererVersions(rendererFiles);
@@ -54,6 +76,22 @@ export const collectReactPatchBlocker = () => {
   const latestReact = npmViewPackage('react@latest');
   const latestReactTestRenderer = npmViewPackage('react-test-renderer@latest');
   const latestReactTypes = npmViewPackage('@types/react@latest');
+  const { docs, existingDocs } = collectRendererDocs();
+  const candidateRendererCompatibilityErrors = getReactNativeRendererVersionIssues({
+    dependencies: {
+      ...(packageJson.dependencies || {}),
+      react: latestReact.version || '<missing>',
+    },
+    devDependencies: {
+      ...(packageJson.devDependencies || {}),
+      '@types/react': latestReactTypes.version || '<missing>',
+      'react-test-renderer': latestReactTestRenderer.version || '<missing>',
+    },
+    scripts: packageJson.scripts || {},
+    rendererFiles,
+    docs,
+    existingDocs,
+  }).errors;
 
   return {
     reactNativeVersion: packageJson.dependencies?.['react-native'] || '<missing>',
@@ -69,8 +107,13 @@ export const collectReactPatchBlocker = () => {
     rendererVersions: rendererVersions.join(', ') || '<missing>',
     rendererExactCheckVersions: exactCheckVersions.join(', ') || '<missing>',
     expectedReactFromRenderer,
-    packageOnlyPatchSafe: 'no',
-    blockerClassification: 'React Native renderer exact-version blocker',
+    candidateReact: latestReact.version || '<missing>',
+    candidateReactTestRenderer: latestReactTestRenderer.version || '<missing>',
+    candidateReactTypes: latestReactTypes.version || '<missing>',
+    candidateRendererCompatibilityErrors,
+    packageOnlyPatchSafe: candidateRendererCompatibilityErrors.length === 0 ? 'yes' : 'no',
+    blockerClassification:
+      candidateRendererCompatibilityErrors.length === 0 ? 'none' : 'React Native renderer exact-version blocker',
   };
 };
 
@@ -91,6 +134,11 @@ export const formatReactPatchBlockerSummary = (audit, generatedAt = new Date().t
     `Renderer versions: ${audit.rendererVersions}`,
     `Renderer exact-check versions: ${audit.rendererExactCheckVersions}`,
     `Expected React from renderer: ${audit.expectedReactFromRenderer}`,
+    `Candidate react patch: ${audit.candidateReact}`,
+    `Candidate react-test-renderer patch: ${audit.candidateReactTestRenderer}`,
+    `Candidate @types/react patch: ${audit.candidateReactTypes}`,
+    `Candidate renderer compatibility errors: ${audit.candidateRendererCompatibilityErrors.length}`,
+    ...audit.candidateRendererCompatibilityErrors.map(error => `- ${error}`),
     `Package-only latest React patch safe: ${audit.packageOnlyPatchSafe}`,
     `Blocker classification: ${audit.blockerClassification}`,
     'Required action: keep react and react-test-renderer pinned to 19.2.3 until a dedicated React Native renderer baseline branch moves the renderer and proves TypeScript, unit tests, Android build, and emulator smoke.',
