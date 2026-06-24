@@ -46,6 +46,8 @@ After `BEM-37.433`, both iOS release readiness and iOS macOS validation prerequi
 
 After `BEM-37.722`, `corepack yarn ios:mac-validation:handoff:preflight --all-schemes` refreshes the iOS release readiness summary, macOS prerequisite summary, Podfile.lock refresh plan, combined validation handoff summary, and all-scheme macOS dry run on Windows. The 2026-06-17 handoff reports static iOS files valid, 12 active `ios/Podfile.lock` drift issues, 0 removed-pod references, platform `win32`, unavailable `xcodebuild`, unavailable CocoaPods, 8 guarded schemes, `Implementation ready: no`, `Secret values printed: no`, and `iOS runtime delivery validation: not claimed`.
 
+After `BEM-37.794`, `corepack yarn check:ios-release-config-doc-guard` keeps this audit aligned with the current iOS release-config posture. Current CodePush posture is removed: iOS Info.plist files no longer contain native `CodePushDeploymentKey` placeholders, CodePush native/runtime integration is removed, and release-config follow-up must not reintroduce CodePush bundle/deployment-key work as a default iOS validation path. `ios/Podfile.lock` still has `12` active drift issues, so iOS runtime delivery validation remains not claimed until macOS with Xcode `16.1+`, CocoaPods, and a refreshed `ios/Podfile.lock` are available. Use `ios:mac-validation:handoff:preflight --all-schemes` on Windows to refresh static evidence, then run `ios:mac-validation:handoff --all-schemes` on macOS for complete shared-scheme simulator/archive validation.
+
 ## Current Release-Service Keys
 
 Referenced iOS env files carry the current release-service keys as follows:
@@ -58,7 +60,7 @@ Referenced iOS env files carry the current release-service keys as follows:
 | `.env.beta.testnet` | yes | no | yes |
 | `.env.beta.mainnet` | yes | no | yes |
 
-`check:release-service-env-keys` validates required key presence for referenced env files and intentionally does not print secret values. Beta env files currently do not require CodePush deployment keys until beta release/update behavior is confirmed.
+`check:release-service-env-keys` validates required key presence for referenced env files and intentionally does not print secret values. Historical CodePush env keys can still exist in referenced env files, but they are not evidence of native/runtime CodePush integration after the removal work; future OTA replacement work should start from a separate product decision and explicit validation branch.
 
 `check:ios-scheme-config-guard` and `check:ios-scheme-config` now guard the scheme-to-env/Firebase plist matrix above. The guard preserves the currently documented Stage Debug and Beta behavior as an explicit baseline; changing that behavior should happen in a release-config branch with iOS validation.
 
@@ -76,15 +78,15 @@ Referenced iOS env files carry the current release-service keys as follows:
 - Beta schemes currently copy beta env files but no Firebase plist in scheme pre-actions; confirm whether beta relies on build settings, bundled resources, or a missing Firebase copy step.
 - `ios/Podfile.lock` is stale after the Android/RN/native modernization stream; refresh it on macOS before claiming any iOS archive/runtime readiness. The current 2026-06-17 audit records 0 removed Podfile.lock pod references, 12 active drift issues, no local `xcodebuild`, no local CocoaPods, and iOS runtime delivery validation remains not claimed on this Windows machine.
 - Rebranding may require coordinated changes across display names, bundle identifiers, Info.plist files, env `APP_ID`, Firebase plist files, Sentry DSNs, release-service env cleanup, and store metadata.
-- CodePush native/runtime integration is removed; debug scheme startup does not validate any future OTA/update replacement posture.
+- CodePush native/runtime integration is removed; release-config work should keep that posture unless a separate OTA replacement decision is made.
 - Sentry and Firebase config changes need release-build validation, not only Android/iOS debug startup.
 
 ## Recommended Follow-Up Branches
 
-1. `feature/bem-ios-scheme-config-guard`: add a non-secret guard that captures the expected scheme-to-env/plist mapping once the Stage/Beta behavior is confirmed.
-2. `feature/bem-codepush-release-path-audit`: validate non-dev CodePush bundle/deployment-key behavior.
-3. `feature/bem-firebase-release-config-audit`: validate Firebase plist selection and Crashlytics/Messaging setup for iOS schemes.
-4. Rebranding branch: update app names, bundle IDs, env IDs, Firebase/Sentry/CodePush wiring, and store metadata as one coordinated release-config change.
+1. iOS macOS validation branch: refresh `ios/Podfile.lock` with `pod install`, then run `ios:mac-validation:handoff --all-schemes` on macOS before claiming iOS simulator/archive readiness.
+2. Firebase/APNs validation branch: confirm Firebase plist selection, APNs registration, foreground/background notification behavior, and notification tap-through for affected iOS schemes.
+3. Sentry source-map/dSYM upload branch: validate Sentry source-map/dSYM upload once `SENTRY_AUTH_TOKEN` and the required Sentry properties files are available.
+4. Rebranding branch: update app names, bundle IDs, env app IDs, Firebase/Sentry wiring, and store metadata as one coordinated release-config change.
 
 ## Validation Path For Future Changes
 
@@ -98,10 +100,10 @@ Release-config implementation:
 
 - Run `corepack yarn android:dev:check-light`.
 - Run `corepack yarn ios:release:readiness:audit` and `corepack yarn ios:release:readiness:check-summary`; if `Podfile.lock refresh required` is `yes`, refresh CocoaPods on macOS before archive validation.
+- Run `corepack yarn check:ios-release-config-doc-guard` after changing this audit or release-config wording.
 - Run Android build/smoke if shared env or runtime config changes affect Android.
 - Validate iOS schemes on a Mac runner/device or simulator.
-- Validate at least one non-dev build path for Sentry source-map behavior and confirm the intended OTA/update replacement posture.
-- Start CodePush release-path validation with `corepack yarn codepush:release:path-audit`; it checks wiring and key presence only, writes `local-docs/codepush-release-path-summary.txt`, and does not print deployment-key values. Validate that artifact with `corepack yarn codepush:release:path-check-summary`.
+- Validate Sentry source-map/dSYM upload only after Sentry credentials and properties files are available.
 - Start Firebase release-service validation with `corepack yarn firebase:release-services:audit`; it checks package alignment, Android config, iOS plist files, Messaging runtime wiring, and writes `local-docs/firebase-release-services-summary.txt`. Validate that artifact with `corepack yarn firebase:release-services:check-summary`.
 - Start iOS push notification bridge validation with `corepack yarn push-notification:bridge-audit`; after `BEM-37.79` it should report no static readiness issues and write `local-docs/push-notification-bridge-summary.txt`. Validate that artifact with `corepack yarn push-notification:bridge-check-summary`, then run device validation for APNs/token/delivery behavior.
-- Do not guess missing DSNs, Firebase files, or CodePush deployment keys; report exact missing key/file names instead.
+- Do not guess missing DSNs, Firebase files, Sentry credentials, or store metadata values; report exact missing key/file names instead.
