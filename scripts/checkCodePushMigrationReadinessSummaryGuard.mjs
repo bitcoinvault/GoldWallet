@@ -42,6 +42,45 @@ const validSummary = [
   '',
 ].join('\n');
 
+const removedBlockedByReleaseSummary = validSummary
+  .replace('CodePush removed: no', 'CodePush removed: yes')
+  .replace('CodePush migration required: yes', 'CodePush migration required: no')
+  .replace('Current posture: temporary legacy compatibility', 'Current posture: removed')
+  .replace('Long-term options: remove or replace', 'Long-term options: removed')
+  .replace(
+    [
+      'Android release smoke summary valid: yes',
+      'Android release smoke summary errors: 0',
+      'CodePush release smoke evidence ready: yes',
+      'Android release create-wallet smoke summary valid: yes',
+      'Android release create-wallet smoke summary errors: 0',
+      'CodePush release create-wallet evidence ready: yes',
+    ].join('\n'),
+    [
+      'Android release smoke summary valid: no',
+      'Android release smoke summary errors: 8',
+      '- Expected line not found: Android smoke outcome: passed',
+      '- Expected line not found: Android smoke exit code: 0',
+      '- Expected line not found: Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
+      '- Closed first-run success must be yes. Received: no',
+      '- Validated empty-dashboard CTA flow must be yes. Received: no',
+      '- Validated empty-tab navigation must be yes. Received: no',
+      '- Validated QR scanner screen must be yes. Received: no',
+      '- Validated settings Terms WebView must be yes. Received: no',
+      'CodePush release smoke evidence ready: no',
+      'Android release create-wallet smoke summary valid: no',
+      'Android release create-wallet smoke summary errors: 2',
+      '- Source APK bytes does not match the current file size for D:\\GoldWallet\\local-docs\\android-smoke-dev-release-signed.apk',
+      '- Source APK sha256 does not match the current file digest for D:\\GoldWallet\\local-docs\\android-smoke-dev-release-signed.apk',
+      'CodePush release create-wallet evidence ready: no',
+    ].join('\n'),
+  )
+  .replace('Beta CodePush strategy confirmed: no', 'Beta CodePush strategy confirmed: yes')
+  .replace(
+    'Required action: choose remove or replace before treating OTA updates as a supported release capability.',
+    'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.',
+  );
+
 const assertAccepted = (label, summary) => {
   const errors = getCodePushMigrationReadinessSummaryErrors(summary);
 
@@ -63,6 +102,7 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid CodePush migration readiness summary fixture', validSummary);
+assertAccepted('Valid removed CodePush migration readiness summary with blocked release proof fixture', removedBlockedByReleaseSummary);
 assertRejected('Missing header fixture', validSummary.replace('CodePush migration readiness audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-04T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Missing latest package fixture', validSummary.replace('CodePush package latest version: 9.0.1', 'CodePush package latest version: missing'), 'latest version');
