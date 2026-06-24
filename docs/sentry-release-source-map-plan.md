@@ -30,7 +30,7 @@
 - `corepack yarn sentry:rn-bundle-task-compat:audit` records the static compatibility mismatch between Sentry `8.15.1` bundle-task extraction and the RN `0.86.0` `BundleHermesCTask` property model.
 - `corepack yarn sentry:rn-bundle-task-compat:check-summary` validates the generated local compatibility summary.
 - The active RN `0.86.0` Android warning audit no longer reports Sentry `execResult`; Sentry still needs release/source-map validation with local credentials before claiming the SDK/tooling change complete for release artifacts.
-- The latest npm releases checked for the Sentry release path on 2026-06-23 are `@sentry/react-native@8.15.1` and direct `@sentry/cli@3.5.1`. The SDK is current on the RN `0.86.0` baseline, and the release CLI is pinned explicitly as dev tooling.
+- The latest npm releases checked for the Sentry release path on 2026-06-24 are `@sentry/react-native@8.15.1` and direct `@sentry/cli@3.5.1`. The SDK is current on the RN `0.86.0` baseline, and the release CLI is pinned explicitly as dev tooling.
 - The Sentry prerequisite audit now records live latest metadata for both packages and fails stale "current" claims when installed and latest versions differ.
 - `@sentry/react-native@8.15.1` declares `react-native >=0.65.0`, but release artifact behavior still has to be proven instead of patching `node_modules` or disabling source-map upload.
 - Android release APK generation has now been proven locally for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled; Sentry source-map upload remains explicitly not claimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available.
@@ -56,6 +56,16 @@
 - `check:sentry-credential-handoff-guard` now checks the current package-script preflight evidence line, `sentry:release:validation:preflight:dry-run`, instead of the older manual `handoff:dry-run --skip-android-release` spelling.
 - `sentry:release:validation:preflight` passes without rendering secret values and keeps credentialed upload explicitly unclaimed while using the current Android release, release-smoke, and release create-wallet evidence.
 - `sentry:release:prereq-audit` reports Android release summary, APK manifests, release smoke, release create-wallet smoke, and Sentry RN bundle-task compatibility as valid/current.
+- `sentry:release:prereq-audit` still reports `Release source-map prerequisites: not ready` because `SENTRY_AUTH_TOKEN` is absent, all three Sentry properties files are missing, iOS macOS archive validation is not ready, and `ios/Podfile.lock` has 12 drift issues.
+- `sentry:release:credential-plan` reports `SENTRY_AUTH_TOKEN available in current shell: no`, three missing properties files, zero invalid properties files, Android release evidence ready, Android release smoke evidence ready, and `Sentry release upload validation: not claimed`.
+
+## 2026-06-24 Preflight Refresh
+
+- `npm view @sentry/react-native version time repository.url dist-tags peerDependencies dependencies engines --json` reports `latest` as `8.15.1`, matching the installed SDK.
+- `npm view @sentry/cli version time repository.url dist-tags peerDependencies dependencies engines --json` reports `latest` as `3.5.1`, matching the direct release CLI package.
+- `sentry:android-warning:audit` reports Sentry Android warning wiring valid, no active Sentry `execResult` warning on the RN `0.86.0` baseline, `0` readiness issues, and `0` wiring errors.
+- `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim for RN `0.86.0`.
+- `sentry:release:validation:preflight` passes without rendering secret values and keeps credentialed upload explicitly unclaimed while using the current Android release, release-smoke, and release create-wallet evidence.
 - `sentry:release:prereq-audit` still reports `Release source-map prerequisites: not ready` because `SENTRY_AUTH_TOKEN` is absent, all three Sentry properties files are missing, iOS macOS archive validation is not ready, and `ios/Podfile.lock` has 12 drift issues.
 - `sentry:release:credential-plan` reports `SENTRY_AUTH_TOKEN available in current shell: no`, three missing properties files, zero invalid properties files, Android release evidence ready, Android release smoke evidence ready, and `Sentry release upload validation: not claimed`.
 
