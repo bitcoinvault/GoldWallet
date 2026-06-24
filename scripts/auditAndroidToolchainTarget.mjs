@@ -44,6 +44,18 @@ export const collectAndroidToolchainTargetAudit = async () => {
   const latestKotlin = last(extractXmlVersions(kotlinMetadata).filter(isStableVersion));
   const latestGradle = gradleCurrent.version || '';
   const minimumAgp9Gradle = '9.4.1';
+  const directAgp9Probe = {
+    agp: '9.2.1',
+    gradle: '9.6.0',
+    kotlin: '2.4.0',
+    jdk: '17',
+    status: 'blocked',
+    task: ':gradle-plugin:settings-plugin:compileKotlin',
+    source: 'node_modules/@react-native/gradle-plugin/settings-plugin/src/main/kotlin/com/facebook/react/ReactSettingsExtension.kt',
+    kotlinRuntimeMetadata: '2.3.0',
+    rnKotlinMetadataCeiling: '2.2.0',
+    evidence: 'docs/wallet-modernization-log.md BEM-37.774',
+  };
   const rnGradlePlugin =
     packageJson.dependencies?.['@react-native/gradle-plugin'] || packageJson.devDependencies?.['@react-native/gradle-plugin'] || '';
 
@@ -58,10 +70,11 @@ export const collectAndroidToolchainTargetAudit = async () => {
     kotlinMetadataRelease,
     kotlinMetadataReleasePrerelease: kotlinMetadataRelease && !isStableVersion(kotlinMetadataRelease) ? 'yes' : 'no',
     rnGradlePlugin,
+    directAgp9Probe,
     blocked: true,
     blockers: [
       `AGP ${latestStableAgp} requires Gradle ${minimumAgp9Gradle} or newer.`,
-      `Gradle ${minimumAgp9Gradle} and ${latestGradle} load newer embedded Kotlin runtime metadata that the React Native Gradle plugin ${rnGradlePlugin} Kotlin compiler path cannot read during :gradle-plugin:settings-plugin:compileKotlin.`,
+      `The Gradle ${minimumAgp9Gradle}+ path is blocked: direct AGP ${directAgp9Probe.agp} / Gradle ${directAgp9Probe.gradle} / Kotlin ${directAgp9Probe.kotlin} probe failed in ${directAgp9Probe.task} while compiling ${directAgp9Probe.source}; Gradle loaded Kotlin runtime metadata ${directAgp9Probe.kotlinRuntimeMetadata}, but the React Native Gradle plugin ${rnGradlePlugin} compiler path can read up to metadata ${directAgp9Probe.rnKotlinMetadataCeiling}.`,
       `The validated Android baseline remains AGP ${getClasspathVersion(androidBuildGradle, 'com.android.tools.build:gradle')}, Gradle ${getGradleWrapperVersion(
         gradleWrapper,
       )}, Kotlin ${getQuotedGradleValue(androidBuildGradle, 'kotlinVersion')}, compile/target SDK 36, and JDK 17 until a newer React Native Gradle plugin baseline clears the blocker.`,
@@ -83,6 +96,16 @@ export const formatAndroidToolchainTargetSummary = (audit, generatedAt = new Dat
     `Latest Kotlin metadata release: ${audit.kotlinMetadataRelease}`,
     `Latest Kotlin metadata release prerelease: ${audit.kotlinMetadataReleasePrerelease}`,
     `React Native Gradle plugin: ${audit.rnGradlePlugin}`,
+    `Direct AGP 9 probe Android Gradle Plugin: ${audit.directAgp9Probe.agp}`,
+    `Direct AGP 9 probe Gradle wrapper: ${audit.directAgp9Probe.gradle}`,
+    `Direct AGP 9 probe Kotlin Gradle Plugin: ${audit.directAgp9Probe.kotlin}`,
+    `Direct AGP 9 probe JDK: ${audit.directAgp9Probe.jdk}`,
+    `Direct AGP 9 probe status: ${audit.directAgp9Probe.status}`,
+    `Direct AGP 9 probe task: ${audit.directAgp9Probe.task}`,
+    `Direct AGP 9 probe source: ${audit.directAgp9Probe.source}`,
+    `Direct AGP 9 probe Kotlin runtime metadata: ${audit.directAgp9Probe.kotlinRuntimeMetadata}`,
+    `React Native Gradle plugin Kotlin metadata ceiling: ${audit.directAgp9Probe.rnKotlinMetadataCeiling}`,
+    `Direct AGP 9 probe evidence: ${audit.directAgp9Probe.evidence}`,
     `Latest Android toolchain target blocked: ${audit.blocked ? 'yes' : 'no'}`,
     `Blockers: ${audit.blockers.length}`,
     ...audit.blockers.map(blocker => `- ${blocker}`),
