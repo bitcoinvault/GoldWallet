@@ -10,6 +10,63 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.784 - Firebase/push package readiness refresh
+
+- Branch: `feature/bem-37-784-firebase-push-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the React Native Firebase package family from `24.1.1` to the live npm latest `25.0.1`.
+- Keep `@react-native-community/push-notification-ios` at `1.12.0`, because live npm metadata still reports `1.12.0` as latest.
+- Re-check Firebase Messaging modular usage, Android 13+ notification permission flow, iOS push bridge scope, Android debug/release build compatibility, and emulator smoke after the package change.
+
+Findings:
+
+- Live npm metadata on 2026-06-24 reports `@react-native-firebase/app`, `analytics`, `crashlytics`, and `messaging` latest `25.0.1`, published on 2026-06-23; the installed package family is aligned at `25.0.1`.
+- The upgraded `@react-native-firebase/app@25.0.1` pulls `firebase@12.15.0`; Android Gradle config resolves the React Native Firebase package family at `25.0.1` and reports Firebase BoM `34.15.0`.
+- Android release validation rebuilt `dev`, `stage`, `prod`, and `beta` release APK evidence with the new lockfile inputs, and `firebase:release-services:audit` reports Android release summary present, valid, current, and covering all required variants.
+- `prodDebug` using `.env.prod.mainnet` passes embedded emulator smoke on `emulator-5554`: first-run terms/PIN/transaction-password/email-success flow, dashboard, Create/Import CTA navigation, QR scanner screen, tab navigation, and Settings Terms WebView were validated without fatal/runtime logcat findings.
+- `devDebug` and `devRelease` smoke are blocked by external testnet Electrum TLS expiry: logcat reports `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`, and the app reaches the `No network` screen. This does not appear as a Firebase runtime crash, but it prevents claiming a green dev/testnet smoke until the certificate is renewed or the endpoint is changed.
+- Real FCM token/notification delivery, Crashlytics upload, Analytics backend behavior, APNs registration, badge behavior, and notification tap-through behavior remain explicitly `not claimed`.
+- iOS runtime validation remains not claimed on this Windows host; `ios/Podfile.lock` still requires macOS/Xcode/CocoaPods refresh before iOS archive/simulator validation can be claimed.
+
+Validation:
+
+- `npm view @react-native-firebase/app version time repository.url dist-tags peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/analytics version time repository.url dist-tags peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/crashlytics version time repository.url dist-tags peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/messaging version time repository.url dist-tags peerDependencies dependencies engines --json`
+- `npm view @react-native-community/push-notification-ios version time repository.url dist-tags peerDependencies dependencies engines --json`
+- `corepack yarn node:runtime:yarn add @react-native-firebase/app@25.0.1 @react-native-firebase/analytics@25.0.1 @react-native-firebase/crashlytics@25.0.1 @react-native-firebase/messaging@25.0.1`
+- `corepack yarn node:runtime:yarn check:node-runtime-version`
+- `corepack yarn node:runtime:yarn check:firebase-usage-guard`
+- `corepack yarn node:runtime:yarn check:firebase-usage-scope`
+- `corepack yarn node:runtime:yarn check:firebase-messaging-modular-usage-guard`
+- `corepack yarn node:runtime:yarn check:firebase-messaging-modular-usage`
+- `corepack yarn node:runtime:yarn check:android-notification-permission-flow-guard`
+- `corepack yarn node:runtime:yarn check:android-notification-permission-flow`
+- `corepack yarn node:runtime:yarn check:push-notification-ios-usage-guard`
+- `corepack yarn node:runtime:yarn check:push-notification-ios-usage-scope`
+- `corepack yarn node:runtime:yarn push-notification:bridge-audit`
+- `corepack yarn node:runtime:yarn push-notification:bridge-check-summary`
+- `corepack yarn node:runtime:yarn firebase:release-services:audit`
+- `corepack yarn node:runtime:yarn firebase:release-services:check-summary`
+- `corepack yarn node:runtime:yarn check:firebase-runtime-delivery-handoff-guard`
+- `corepack yarn node:runtime:yarn firebase:runtime:delivery:handoff:dry-run --skip-android-release`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble --stacktrace`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn firebase:runtime:delivery:handoff` failed at `devRelease` embedded smoke because the dev testnet Electrum certificate is expired; release build and manifest refresh completed before the smoke blocker.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:smoke:embedded` failed for the same dev testnet Electrum certificate blocker.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 npm exec --yes --package node@24.16.0 -- node scripts/runAndroidGradle.mjs :app:assembleProdDebug -x lint`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SMOKE_APK=D:\GoldWallet\android\app\build\outputs\apk\prod\debug\app-prod-debug.apk ANDROID_SMOKE_PACKAGE=io.goldwallet.wallet ANDROID_SMOKE_ACTIVITY=io.goldwallet.wallet/io.goldwallet.wallet.MainActivity ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-prod-debug corepack yarn node:runtime:yarn android:dev:smoke:embedded`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.783 - Sentry release/source-map readiness refresh
 
 - Branch: `feature/bem-37-783-sentry-release-readiness-refresh`
