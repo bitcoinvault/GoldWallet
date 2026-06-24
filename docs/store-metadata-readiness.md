@@ -2,13 +2,14 @@
 
 Scope: `BEM-37.337`, store metadata and rebranding preparation.
 
-Checked on 2026-06-17 from the current `upgrade/wallet-modernization` baseline. This document records the store metadata surface that must be coordinated with any GoldWallet rebrand, explorer change, or release-config change.
+Checked on 2026-06-24 from the current `upgrade/wallet-modernization` baseline. This document records the store metadata surface that must be coordinated with any GoldWallet rebrand, explorer change, or release-config change.
 
 Refresh evidence:
 
 - `check:store-metadata-readiness-guard` passes and keeps the fixture coverage valid.
 - `check:store-metadata-readiness` reports documented and guarded coverage for 8 iOS locales and 1 Android locale.
 - `check:store-metadata-release-handoff-guard` passes, and `store-metadata:release-handoff:dry-run` reports `Store metadata readiness valid: yes`.
+- Rebranding release-config readiness and explorer/env readiness pass from the same baseline, with runtime Electrum validation still blocked until the dev testnet TLS certificate is renewed or the endpoint changes.
 - External store validation remains explicitly unclaimed: Play Console live listing, App Store Connect live listing, screenshots, privacy/support URLs, release notes, legal owner, and final explorer/network wording still need external verification before release.
 
 ## Current Store Metadata Surface
