@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.805 - Android dev network-blocker summary
+
+- Branch: `feature/bem-37-805-android-dev-network-blocker-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a debug APK no-network smoke wrapper that expects the current `No network` UI without treating it as dashboard/QR proof.
+- Add an Android dev network-blocker audit and guard that classify the current debug smoke failure against the configured dev/testnet Electrum endpoint.
+- Keep full `android:dev:smoke:embedded` strict: it still fails until the app reaches the empty dashboard and QR validation path.
+
+Findings:
+
+- Current `android:dev:smoke:embedded` reaches the app and completes the first-run terms/PIN/transaction-password/email path, then stops on `No network` instead of `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
+- Current debug logcat contains `SSLHandshakeException` and `CertificateExpiredException` for `electrumx.testnet.btcv.stage.rnd.land:443 tls`; the certificate expired at `Tue Jun 23 16:52:40 GMT 2026`.
+- The reduced no-network smoke is blocker evidence only. It does not prove empty-dashboard CTA navigation, tab navigation, QR scanner, Settings Terms WebView, or wallet create/import flows.
+- This branch changes validation scripts and documentation only; it does not change app runtime, native code, Metro config, package versions, or lockfiles.
+
+Validation:
+
+- `node --check scripts/androidDevSmokeEvidence.mjs`
+- `node --check scripts/androidSmokeDevNoNetworkEmbedded.mjs`
+- `node --check scripts/androidDevNetworkBlockerSummaryGuard.mjs`
+- `node --check scripts/auditAndroidDevNetworkBlocker.mjs`
+- `node --check scripts/checkAndroidDevNetworkBlockerSummary.mjs`
+- `node --check scripts/checkAndroidDevNetworkBlockerSummaryGuard.mjs`
+- `corepack yarn node:runtime:yarn check:android-dev-network-blocker-summary-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.804 - Camera/QR not-ready summary guard
 
 - Branch: `feature/bem-37-804-camera-qr-not-ready-summary`
