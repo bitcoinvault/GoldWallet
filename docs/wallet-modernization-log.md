@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.810 - iOS static validation refresh
+
+- Branch: `feature/bem-37-810-ios-static-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh iOS static release-readiness, macOS prerequisite, Podfile.lock refresh-plan, and validation handoff evidence.
+- Keep iOS runtime/archive validation explicitly unclaimed on this Windows host.
+- Record the current macOS/Xcode/CocoaPods and Podfile.lock blockers for the next macOS validation pass.
+
+Findings:
+
+- Static iOS release files are valid: iOS platform/deployment target is `15.1`, React Native is `0.86.0`, minimum Xcode is `16.1`, and `8` shared iOS schemes are guarded.
+- iOS CodePush plist placeholders remain `0`; remote-notification plist coverage remains `4`.
+- iOS runtime delivery validation is still `not claimed` because this machine is `win32`, `xcodebuild` is unavailable, and CocoaPods is unavailable via `pod` or `bundle exec pod`.
+- `ios/Podfile.lock` refresh is required and currently has `12` drift issues against `package.json`, including React Native, Sentry, Firebase, async-storage, bootsplash, device-info, gesture-handler, localize, screens, fast-image, config, and vector-icons pods.
+- Required next action remains macOS-only: refresh `ios/Podfile.lock` with `pod install`, then run `corepack yarn ios:mac-validation:handoff --all-schemes` before claiming iOS runtime delivery.
+- This branch is documentation-only; refreshed evidence remains in ignored `local-docs/`.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:audit`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:plan`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:check-plan`
+- `corepack yarn node:runtime:yarn ios:validation:handoff-summary`
+- `corepack yarn node:runtime:yarn check:ios-validation-handoff-summary-guard`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.809 - CodePush removed-state proof sync
 
 - Branch: `feature/bem-37-809-codepush-decision-proof-sync`
