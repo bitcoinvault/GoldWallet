@@ -7,6 +7,7 @@ import { getBabel8MigrationProbeSummaryErrors } from './babel8MigrationProbeSumm
 import { getDirectOutdatedSnapshotSummaryErrors } from './directOutdatedSnapshotSummaryGuard.mjs';
 import { getGitDependencySnapshotSummaryErrors } from './gitDependencySnapshotSummaryGuard.mjs';
 import { getNodeFetchResolutionSummaryErrors } from './nodeFetchResolutionSummaryGuard.mjs';
+import { getReactPatchBlockerSummaryErrors } from './reactPatchBlockerSummaryGuard.mjs';
 import { getReactNativeTargetSnapshotSummaryErrors } from './reactNativeTargetSnapshotSummaryGuard.mjs';
 import { getStorageNetworkLatestSnapshotSummaryErrors } from './storageNetworkLatestSnapshotSummaryGuard.mjs';
 import { getToolingLatestSnapshotSummaryErrors } from './toolingLatestSnapshotSummaryGuard.mjs';
@@ -26,6 +27,11 @@ const summaries = [
     label: 'direct outdated snapshot',
     relativePath: 'local-docs/direct-outdated-snapshot.txt',
     getErrors: getDirectOutdatedSnapshotSummaryErrors,
+  },
+  {
+    label: 'React patch blocker',
+    relativePath: 'local-docs/react-patch-blocker-summary.txt',
+    getErrors: getReactPatchBlockerSummaryErrors,
   },
   {
     label: 'Babel 8 migration probe',
