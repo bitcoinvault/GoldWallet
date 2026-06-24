@@ -12,6 +12,29 @@ export const defaultSentryPropertiesValues = {
   'defaults.project': 'goldwallet',
 };
 
+const validateSentryPropertiesValue = (key, value) => {
+  if (typeof value !== 'string' || value.length === 0) {
+    throw new Error(`${key} is required to generate Sentry release properties`);
+  }
+
+  if (value.trim().length === 0) {
+    throw new Error(`${key} must not be blank`);
+  }
+
+  if (value !== value.trim()) {
+    throw new Error(`${key} must not include leading or trailing whitespace`);
+  }
+
+  if (/[\r\n]/.test(value)) {
+    throw new Error(`${key} must not contain line breaks`);
+  }
+
+  return value;
+};
+
+const resolveSentryPropertiesValue = (key, value, fallback) =>
+  validateSentryPropertiesValue(key, value || fallback);
+
 export const buildSentryPropertiesContent = env => {
   const token = env.SENTRY_AUTH_TOKEN;
 
@@ -21,9 +44,17 @@ export const buildSentryPropertiesContent = env => {
 
   const values = {
     ...defaultSentryPropertiesValues,
-    'defaults.org': env.SENTRY_ORG || defaultSentryPropertiesValues['defaults.org'],
-    'defaults.project': env.SENTRY_PROJECT || defaultSentryPropertiesValues['defaults.project'],
-    'auth.token': token,
+    'defaults.org': resolveSentryPropertiesValue(
+      'SENTRY_ORG',
+      env.SENTRY_ORG,
+      defaultSentryPropertiesValues['defaults.org'],
+    ),
+    'defaults.project': resolveSentryPropertiesValue(
+      'SENTRY_PROJECT',
+      env.SENTRY_PROJECT,
+      defaultSentryPropertiesValues['defaults.project'],
+    ),
+    'auth.token': validateSentryPropertiesValue('SENTRY_AUTH_TOKEN', token),
   };
 
   return [

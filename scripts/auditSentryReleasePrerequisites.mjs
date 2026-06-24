@@ -330,8 +330,12 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     createNodeScript.includes(`'defaults.url': '${defaultSentryPropertiesValues['defaults.url']}'`) &&
     createNodeScript.includes(`'defaults.org': '${defaultSentryPropertiesValues['defaults.org']}'`) &&
     createNodeScript.includes(`'defaults.project': '${defaultSentryPropertiesValues['defaults.project']}'`);
-  const createNodeScriptSupportsOrgOverride = createNodeScript.includes('env.SENTRY_ORG ||');
-  const createNodeScriptSupportsProjectOverride = createNodeScript.includes('env.SENTRY_PROJECT ||');
+  const createNodeScriptSupportsOrgOverride =
+    createNodeScript.includes('SENTRY_ORG') &&
+    createNodeScript.includes("defaultSentryPropertiesValues['defaults.org']");
+  const createNodeScriptSupportsProjectOverride =
+    createNodeScript.includes('SENTRY_PROJECT') &&
+    createNodeScript.includes("defaultSentryPropertiesValues['defaults.project']");
   const createNodeScriptSupportsRootOverride = createNodeScript.includes("arg === '--root'");
   const createNodePackageScriptPresent = scripts['sentry:release:create-properties'] === 'node scripts/createSentryProperties.mjs';
   const envHasToken = Boolean(env.SENTRY_AUTH_TOKEN);
