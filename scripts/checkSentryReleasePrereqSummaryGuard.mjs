@@ -34,7 +34,12 @@ const notReadySummary = [
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: not ready',
   '@sentry/react-native version: 8.15.1',
-  '@sentry/react-native latest: 8.15.1',
+  '@sentry/react-native latest: 8.14.1',
+  '@sentry/react-native highest published: 8.15.1',
+  '@sentry/react-native published version present: yes',
+  '@sentry/react-native matches latest dist-tag: no',
+  '@sentry/react-native at or above latest dist-tag: yes',
+  '@sentry/react-native npm posture: published-above-latest-dist-tag',
   '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.5.1',
   '@sentry/cli latest: 3.5.1',
@@ -117,6 +122,11 @@ const readySummary = [
   'Release source-map prerequisites: ready',
   '@sentry/react-native version: 8.15.1',
   '@sentry/react-native latest: 8.15.1',
+  '@sentry/react-native highest published: 8.15.1',
+  '@sentry/react-native published version present: yes',
+  '@sentry/react-native matches latest dist-tag: yes',
+  '@sentry/react-native at or above latest dist-tag: yes',
+  '@sentry/react-native npm posture: matches-latest-dist-tag',
   '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.5.1',
   '@sentry/cli latest: 3.5.1',
@@ -274,13 +284,18 @@ assertRejected(
 );
 assertRejected(
   'Missing Sentry SDK latest fixture',
-  notReadySummary.replace('@sentry/react-native latest: 8.15.1', '@sentry/react-native latest: missing'),
+  notReadySummary.replace('@sentry/react-native latest: 8.14.1', '@sentry/react-native latest: missing'),
   '@sentry/react-native latest must be present',
 );
 assertRejected(
   'Stale Sentry SDK current fixture',
-  notReadySummary.replace('@sentry/react-native latest: 8.15.1', '@sentry/react-native latest: 9.0.0'),
-  '@sentry/react-native current cannot be yes',
+  notReadySummary.replace('@sentry/react-native at or above latest dist-tag: yes', '@sentry/react-native at or above latest dist-tag: no'),
+  'current requires a published installed version at or above',
+);
+assertRejected(
+  'Invalid Sentry SDK npm posture fixture',
+  notReadySummary.replace('@sentry/react-native npm posture: published-above-latest-dist-tag', '@sentry/react-native npm posture: missing'),
+  '@sentry/react-native npm posture is invalid',
 );
 assertRejected(
   'Missing Sentry CLI package version fixture',

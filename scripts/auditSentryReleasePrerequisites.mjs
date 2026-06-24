@@ -2,6 +2,7 @@ import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import semver from 'semver';
 import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
 import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
 import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
@@ -74,6 +75,19 @@ const npmViewVersion = packageName =>
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
   }).trim();
+const npmViewJson = (packageName, fields) =>
+  JSON.parse(
+    execFileSync(npmCommand, npmArgs(['view', packageName, ...fields, '--json']), {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    }),
+  );
+const highestStableVersion = versions =>
+  versions
+    .filter(version => semver.valid(version) && !semver.prerelease(version))
+    .sort(semver.rcompare)[0] || 'missing';
 const collectSentryCliInstallations = () => {
   const sentryPackagesRoot = path.join(root, 'node_modules', '@sentry');
   const installations = [];
@@ -143,9 +157,22 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const sentryReactNativeVersion = packageJson.dependencies?.['@sentry/react-native'] || 'missing';
   const sentryCliPackage = existsSync(sentryCliPackagePath) ? JSON.parse(readFileSync(sentryCliPackagePath, 'utf8')) : null;
   const sentryCliPackageVersion = sentryCliPackage?.version || 'missing';
-  const sentryReactNativeLatest = npmViewVersion('@sentry/react-native');
+  const sentryReactNativeMetadata = npmViewJson('@sentry/react-native', ['version', 'dist-tags', 'versions']);
+  const sentryReactNativeLatest = sentryReactNativeMetadata.version || sentryReactNativeMetadata['dist-tags']?.latest || 'missing';
+  const sentryReactNativeHighestPublished = highestStableVersion(sentryReactNativeMetadata.versions || []);
+  const sentryReactNativePublished = (sentryReactNativeMetadata.versions || []).includes(sentryReactNativeVersion);
+  const sentryReactNativeMatchesLatestDistTag = sentryReactNativeVersion === sentryReactNativeLatest;
+  const sentryReactNativeAtOrAboveLatestDistTag =
+    semver.valid(sentryReactNativeVersion) && semver.valid(sentryReactNativeLatest)
+      ? semver.gte(sentryReactNativeVersion, sentryReactNativeLatest)
+      : sentryReactNativeMatchesLatestDistTag;
+  const sentryReactNativeNpmPosture = sentryReactNativeMatchesLatestDistTag
+    ? 'matches-latest-dist-tag'
+    : sentryReactNativePublished && sentryReactNativeAtOrAboveLatestDistTag
+      ? 'published-above-latest-dist-tag'
+      : 'behind-latest-dist-tag';
   const sentryCliLatest = npmViewVersion('@sentry/cli');
-  const sentryReactNativeCurrent = sentryReactNativeVersion === sentryReactNativeLatest;
+  const sentryReactNativeCurrent = sentryReactNativePublished && sentryReactNativeAtOrAboveLatestDistTag;
   const sentryCliCurrent = sentryCliPackageVersion === sentryCliLatest;
   const sentryCliInstallations = collectSentryCliInstallations();
   const sentryCliInstalledVersions = [...new Set(sentryCliInstallations.map(item => item.version))];
@@ -340,6 +367,11 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   return {
     sentryReactNativeVersion,
     sentryReactNativeLatest,
+    sentryReactNativeHighestPublished,
+    sentryReactNativePublished,
+    sentryReactNativeMatchesLatestDistTag,
+    sentryReactNativeAtOrAboveLatestDistTag,
+    sentryReactNativeNpmPosture,
     sentryReactNativeCurrent,
     sentryCliPackageVersion,
     sentryCliLatest,
@@ -417,6 +449,11 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
     `Release source-map prerequisites: ${audit.ready ? 'ready' : 'not ready'}`,
     `@sentry/react-native version: ${audit.sentryReactNativeVersion}`,
     `@sentry/react-native latest: ${audit.sentryReactNativeLatest}`,
+    `@sentry/react-native highest published: ${audit.sentryReactNativeHighestPublished}`,
+    `@sentry/react-native published version present: ${audit.sentryReactNativePublished ? 'yes' : 'no'}`,
+    `@sentry/react-native matches latest dist-tag: ${audit.sentryReactNativeMatchesLatestDistTag ? 'yes' : 'no'}`,
+    `@sentry/react-native at or above latest dist-tag: ${audit.sentryReactNativeAtOrAboveLatestDistTag ? 'yes' : 'no'}`,
+    `@sentry/react-native npm posture: ${audit.sentryReactNativeNpmPosture}`,
     `@sentry/react-native current: ${audit.sentryReactNativeCurrent ? 'yes' : 'no'}`,
     `@sentry/cli package version: ${audit.sentryCliPackageVersion}`,
     `@sentry/cli latest: ${audit.sentryCliLatest}`,

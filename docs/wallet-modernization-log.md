@@ -44,6 +44,49 @@ Validation:
 - `corepack yarn node:runtime:yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.798 - Android release network blocker refresh
+
+- Branch: `feature/bem-37-798-release-network-blocker-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android `devRelease` build, manifest, release-smoke, no-network smoke, network-blocker, and Sentry release preflight evidence on the current RN `0.86.0` baseline.
+- Keep release-services readiness blocked unless the full dashboard release smoke and release create-wallet smoke are valid.
+- Harden Sentry release prerequisite metadata so npm `latest` dist-tag drift does not suggest downgrading from an installed, still-published newer SDK.
+
+Findings:
+
+- The first `android:dev:release:verify-local` attempt hit the known transient Windows RN autolinking `cmd` exit in `android/settings.gradle`; the rerun completed successfully.
+- Fresh Android release validation rebuilt and verified `dev`, `stage`, `prod`, and `beta` APK/bundle/source-map/manifest evidence with JDK `17`, Sentry upload disabled, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, and compile/target SDK `36`.
+- Fresh full `devRelease` smoke installed and launched the signed release APK without Metro, completed first-run terms, PIN, transaction-password setup, and email skip, then failed dashboard assertions because the app reached `No network`.
+- Fresh reduced no-network release smoke passed on `emulator-5554` against the same signed release APK with expected `No network` UI and no fatal/runtime logcat findings.
+- Fresh network-blocker summary is valid and classifies the blocker as `blocked-by-electrum-certificate-expired`; logcat still reports `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`, compared against `Wed Jun 24 15:11:21 GMT 2026`.
+- `@sentry/react-native@8.15.1` remains installed and present in the published npm version list, while npm `latest` currently resolves to `8.14.1`; the Sentry prereq summary now records this as `published-above-latest-dist-tag` and keeps the SDK posture current instead of suggesting a downgrade.
+- Sentry release upload validation remains not claimed because `SENTRY_AUTH_TOKEN` and `sentry.properties` files are not present.
+- iOS runtime/archive validation remains not claimed on Windows; the current static blockers are missing macOS/Xcode/CocoaPods and `12` active `ios/Podfile.lock` drift issues.
+
+Validation:
+
+- `node --check scripts/auditSentryReleasePrerequisites.mjs`
+- `node --check scripts/sentryReleasePrereqSummaryGuard.mjs`
+- `node --check scripts/checkSentryReleasePrereqSummaryGuard.mjs`
+- `corepack yarn node:runtime:yarn check:sentry-release-prereq-summary-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn node:runtime:yarn android:dev:release:verify-local` failed once with the known transient Windows RN autolinking `cmd` exit.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:release:smoke:embedded` failed at expected dashboard assertions after reaching `No network`.
+- `ANDROID_SMOKE_APK=D:\GoldWallet\local-docs\android-smoke-dev-release-signed.apk ANDROID_SMOKE_SOURCE_APK=D:\GoldWallet\android\app\build\outputs\apk\dev\release\app-dev-release-unsigned.apk ANDROID_SMOKE_PACKAGE=io.goldwallet.wallet.dev ANDROID_SMOKE_ACTIVITY=io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release-no-network ANDROID_SMOKE_REQUIRE_METRO=false ANDROID_SMOKE_WAIT_MS=45000 ANDROID_SMOKE_CLEAR_APP_DATA=true ANDROID_SMOKE_EXPECT_TEXTS="No network" ANDROID_SMOKE_EXPECT_RESOURCE_IDS="" ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS=false ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION=false ANDROID_SMOKE_VALIDATE_QR_SCANNER=false ANDROID_SMOKE_VALIDATE_SETTINGS_TERMS_WEBVIEW=false corepack yarn node:runtime:yarn android:dev:smoke`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-audit`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:validation:preflight`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.796 - React patch renderer probe
 
 - Branch: `feature/bem-37-796-react-patch-renderer-probe`
