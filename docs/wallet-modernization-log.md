@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.791 - Sentry release preflight no-network blocker
+
+- Branch: `feature/bem-37-791-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry release/source-map readiness on the current RN `0.86.0` baseline without changing SDK/runtime package versions.
+- Keep `@sentry/react-native@8.15.1` and `@sentry/cli@3.5.1` verified as current npm latest targets.
+- Make Sentry release preflight distinguish a valid controlled `No network` blocker proof from final release-services readiness.
+- Keep final source-map upload, full release smoke, release create-wallet smoke, and iOS symbol upload explicitly unclaimed until their blockers are removed.
+
+Findings:
+
+- Live npm metadata on 2026-06-24 reports `@sentry/react-native@8.15.1` and `@sentry/cli@3.5.1` as latest, matching the installed SDK and direct CLI package.
+- The first Android release validation attempt hit the known transient Windows RN autolinking `cmd` failure from `android/settings.gradle`; the rerun completed successfully.
+- `android:dev:release:verify-local` refreshed `dev`, `stage`, `prod`, and `beta` release APK, JS bundle, source-map, and manifest evidence with JDK 17 and `SENTRY_DISABLE_AUTO_UPLOAD=true`.
+- Full `android:dev:release:smoke:embedded` and `android:dev:release:create-wallet-smoke:embedded` remain blocked after onboarding because the dev/testnet app reaches `No network` before dashboard/create-wallet proof.
+- A reduced release smoke against the freshly signed `devRelease` APK passed on `emulator-5554` with expected `No network` UI and no fatal/runtime logcat findings.
+- `sentry:release:validation:preflight` now passes for this controlled `not ready` state, skips the final aggregate `release-services:check-summaries` gate, and still keeps Sentry release upload validation unclaimed.
+- `release-services:check-summaries` remains intentionally stricter and should stay red until full release smoke, release create-wallet smoke, Sentry credentials/properties, and macOS/Xcode/CocoaPods iOS validation are available.
+
+Validation:
+
+- `npm view @sentry/react-native version dist-tags peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version dist-tags engines --json`
+- `corepack yarn node:runtime:yarn sentry:release:validation:preflight` failed before the branch fix because stale/full release smoke evidence blocked the Sentry prerequisite summary.
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; $env:SENTRY_DISABLE_AUTO_UPLOAD='true'; corepack yarn node:runtime:yarn android:dev:release:verify-local` failed once with the transient Windows RN autolinking `cmd` error.
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; $env:SENTRY_DISABLE_AUTO_UPLOAD='true'; corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn node:runtime:yarn android:dev:release:smoke:embedded` failed at the full dashboard assertions after reaching `No network`.
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn node:runtime:yarn android:dev:release:create-wallet-smoke:embedded` failed before create-wallet proof because the full release smoke reached `No network`.
+- `ANDROID_SMOKE_APK=D:\GoldWallet\local-docs\android-smoke-dev-release-signed.apk ANDROID_SMOKE_SOURCE_APK=D:\GoldWallet\android\app\build\outputs\apk\dev\release\app-dev-release-unsigned.apk ANDROID_SMOKE_PACKAGE=io.goldwallet.wallet.dev ANDROID_SMOKE_ACTIVITY=io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release-no-network ANDROID_SMOKE_REQUIRE_METRO=false ANDROID_SMOKE_WAIT_MS=45000 ANDROID_SMOKE_CLEAR_APP_DATA=true ANDROID_SMOKE_EXPECT_TEXTS="No network" ANDROID_SMOKE_EXPECT_RESOURCE_IDS="" ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS=false ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION=false ANDROID_SMOKE_VALIDATE_QR_SCANNER=false ANDROID_SMOKE_VALIDATE_SETTINGS_TERMS_WEBVIEW=false corepack yarn node:runtime:yarn android:dev:smoke`
+- `corepack yarn node:runtime:yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn node:runtime:yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-audit`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-check-summary`
+- `corepack yarn node:runtime:yarn sentry:android-warning:check-summary`
+- `corepack yarn node:runtime:yarn sentry:rn-bundle-task-compat:check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:validation:preflight`
+
 ### BEM-37.790 - React patch blocker live summary
 
 - Branch: `feature/bem-37-790-react-patch-blocker-summary`

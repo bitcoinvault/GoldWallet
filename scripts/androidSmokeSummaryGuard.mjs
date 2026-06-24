@@ -238,6 +238,34 @@ export const getAndroidEmbeddedSmokeSummaryErrors = (summary, options = {}) => {
   return errors;
 };
 
+export const getAndroidNoNetworkSmokeSummaryErrors = (summary, options = {}) => {
+  const errors = getAndroidSmokeSummaryErrors(summary, options);
+  const { expectedArtifactBase } = options;
+
+  if (expectedArtifactBase) {
+    requireLineValue(summary, 'Artifact base', expectedArtifactBase, errors);
+  }
+
+  [
+    ['Metro required', 'no'],
+    ['Cleared app data', 'yes'],
+    ['Accepted first-run terms', 'yes'],
+    ['Completed first-run PIN', 'yes'],
+    ['Completed first-run transaction password', 'yes'],
+    ['Skipped first-run email', 'yes'],
+    ['Closed first-run success', 'no'],
+    ['Validated empty-dashboard CTA flow', 'no'],
+    ['Validated empty-tab navigation', 'no'],
+    ['Validated QR scanner screen', 'no'],
+    ['Validated settings Terms WebView', 'no'],
+  ].forEach(([label, expectedValue]) => requireLineValue(summary, label, expectedValue, errors));
+
+  requireCsvItems(summary, 'Expected UI texts', ['No network'], errors);
+  requireLineValue(summary, 'Expected resource IDs', 'none', errors);
+
+  return errors;
+};
+
 export const assertAndroidSmokeSummary = summary => {
   const errors = getAndroidSmokeSummaryErrors(summary);
 

@@ -2,14 +2,17 @@ import { spawnSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getAndroidReleaseNoNetworkSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidNoNetworkSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const androidReleaseNoNetworkSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-no-network-summary.txt');
 const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
 const androidReleaseSignedSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 const sentryReleasePrereqSummaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary.txt');
@@ -94,8 +97,11 @@ export const getSentryReleaseValidationCommands = (options = defaultOptions) => 
   steps.push(
     yarnStep('Audit Sentry release prerequisites', 'sentry:release:prereq-audit'),
     yarnStep('Validate Sentry release prerequisite summary', 'sentry:release:prereq-check-summary'),
-    yarnStep('Validate aggregate release-services summary artifacts', 'release-services:check-summaries'),
   );
+
+  if (!resolvedOptions.preflightOnly) {
+    steps.push(yarnStep('Validate aggregate release-services summary artifacts', 'release-services:check-summaries'));
+  }
 
   return steps;
 };
@@ -131,6 +137,7 @@ const getSummaryLineValue = (summary, label) => {
 
 export const getSentryReleaseValidationReadinessErrors = ({
   androidReleaseCreateWalletSmokeSummaryText,
+  androidReleaseNoNetworkSmokeSummaryText,
   androidReleaseSmokeSummaryText,
   requireReadyPrereqs = true,
   sentryReleasePrereqSummaryText,
@@ -139,8 +146,15 @@ export const getSentryReleaseValidationReadinessErrors = ({
     expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
   },
   smokeEvidenceOptions = getAndroidReleaseSmokeEvidenceOptions(root),
+  noNetworkSmokeEvidenceOptions = getAndroidReleaseNoNetworkSmokeEvidenceOptions(root),
 }) => {
   const errors = [];
+  const releaseSmokeErrors = [];
+  const createWalletErrors = [];
+  const noNetworkErrors = androidReleaseNoNetworkSmokeSummaryText
+    ? getAndroidNoNetworkSmokeSummaryErrors(androidReleaseNoNetworkSmokeSummaryText, noNetworkSmokeEvidenceOptions)
+    : ['Android release no-network smoke summary is missing'];
+  const noNetworkBlockerEvidenceReady = noNetworkErrors.length === 0;
 
   if (!sentryReleasePrereqSummaryText) {
     errors.push('Sentry release prerequisite summary is missing; run sentry:release:prereq-audit first');
@@ -162,20 +176,28 @@ export const getSentryReleaseValidationReadinessErrors = ({
   if (!androidReleaseSmokeSummaryText) {
     errors.push('Android release smoke summary is missing; run android:dev:release:smoke:embedded first');
   } else {
-    const smokeErrors = getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, smokeEvidenceOptions);
-
-    smokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
+    releaseSmokeErrors.push(...getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, smokeEvidenceOptions));
   }
 
   if (!androidReleaseCreateWalletSmokeSummaryText) {
     errors.push('Android release create-wallet smoke summary is missing; run android:dev:release:create-wallet-smoke:embedded first');
   } else {
-    const createWalletErrors = getAndroidCreateWalletSmokeSummaryErrors(
+    createWalletErrors.push(...getAndroidCreateWalletSmokeSummaryErrors(
       androidReleaseCreateWalletSmokeSummaryText,
       createWalletEvidenceOptions,
-    );
+    ));
+  }
 
+  if (releaseSmokeErrors.length > 0 && !(requireReadyPrereqs === false && noNetworkBlockerEvidenceReady)) {
+    releaseSmokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
+  }
+
+  if (createWalletErrors.length > 0 && !(requireReadyPrereqs === false && noNetworkBlockerEvidenceReady)) {
     createWalletErrors.forEach(error => errors.push(`Android release create-wallet smoke summary is invalid: ${error}`));
+  }
+
+  if (requireReadyPrereqs === false && releaseSmokeErrors.length > 0 && !noNetworkBlockerEvidenceReady) {
+    noNetworkErrors.forEach(error => errors.push(`Android release no-network smoke summary is invalid: ${error}`));
   }
 
   return errors;
@@ -279,6 +301,7 @@ const main = () => {
 
   const readinessErrors = getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readSummary(androidReleaseCreateWalletSmokeSummaryPath),
+    androidReleaseNoNetworkSmokeSummaryText: readSummary(androidReleaseNoNetworkSmokeSummaryPath),
     androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
     requireReadyPrereqs: !options.preflightOnly,
     sentryReleasePrereqSummaryText: readSummary(sentryReleasePrereqSummaryPath),
