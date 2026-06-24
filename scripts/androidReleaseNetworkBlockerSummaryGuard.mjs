@@ -8,6 +8,10 @@ const requiredLabels = [
   'Full release smoke summary present',
   'Full release smoke outcome',
   'Full release smoke reason',
+  'Full release smoke data storage preflight',
+  'Full release smoke data storage available KiB',
+  'Full release smoke data storage required KiB',
+  'Full release smoke data storage proof ready',
   'No-network release smoke summary present',
   'No-network release smoke outcome',
   'No-network release smoke expected UI',
@@ -51,6 +55,8 @@ export const getAndroidReleaseNetworkBlockerSummaryErrors = summary => {
   [
     ['Full release smoke summary present', 'yes'],
     ['Full release smoke outcome', 'failed'],
+    ['Full release smoke data storage preflight', 'passed'],
+    ['Full release smoke data storage proof ready', 'yes'],
     ['No-network release smoke summary present', 'yes'],
     ['No-network release smoke outcome', 'passed'],
     ['No-network release smoke summary valid', 'yes'],
@@ -90,13 +96,30 @@ export const getAndroidReleaseNetworkBlockerSummaryErrors = summary => {
     );
   }
 
-  ['Release log bytes', 'SSL handshake exception lines', 'Certificate expired exception lines', 'TCP socket exception lines'].forEach(
+  [
+    'Full release smoke data storage available KiB',
+    'Full release smoke data storage required KiB',
+    'Release log bytes',
+    'SSL handshake exception lines',
+    'Certificate expired exception lines',
+    'TCP socket exception lines',
+  ].forEach(
     label => {
       if (!isPositiveInteger(getLineValue(summary, label))) {
         errors.push(`${label} must be a positive integer`);
       }
     },
   );
+
+  const availableKilobytes = getLineValue(summary, 'Full release smoke data storage available KiB');
+  const requiredKilobytes = getLineValue(summary, 'Full release smoke data storage required KiB');
+  if (isPositiveInteger(availableKilobytes) && isPositiveInteger(requiredKilobytes)) {
+    if (Number(availableKilobytes) < Number(requiredKilobytes)) {
+      errors.push(
+        `Full release smoke data storage available KiB must be greater than or equal to required KiB. Received: ${availableKilobytes} < ${requiredKilobytes}`,
+      );
+    }
+  }
 
   const logSha256 = getLineValue(summary, 'Release log sha256');
   if (!/^[a-f0-9]{64}$/.test(logSha256)) {

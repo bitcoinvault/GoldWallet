@@ -48,6 +48,21 @@ const parseReleaseLog = logContent => {
   };
 };
 
+const hasPassedDataStoragePreflight = summary => {
+  const preflight = getLineValue(summary, 'Data storage preflight');
+  const availableKilobytes = Number(getLineValue(summary, 'Data storage available KiB'));
+  const requiredKilobytes = Number(getLineValue(summary, 'Data storage required KiB'));
+
+  return (
+    preflight === 'passed' &&
+    Number.isFinite(availableKilobytes) &&
+    Number.isFinite(requiredKilobytes) &&
+    availableKilobytes > 0 &&
+    requiredKilobytes > 0 &&
+    availableKilobytes >= requiredKilobytes
+  );
+};
+
 const renderSummary = () => {
   mkdirSync(localDocsDir, { recursive: true });
 
@@ -67,10 +82,13 @@ const renderSummary = () => {
       )
     : ['missing Android release no-network smoke summary'];
   const noNetworkReady = noNetworkErrors.length === 0;
+  const fullReleaseStorageReady = hasPassedDataStoragePreflight(fullSmokeSummary);
   const expiredCertificateReady =
     parsedLog.sslHandshakeLines.length > 0 && parsedLog.certificateExpiredLines.length > 0;
   const outcome =
-    noNetworkReady && expiredCertificateReady ? 'blocked-by-electrum-certificate-expired' : 'inconclusive';
+    fullReleaseStorageReady && noNetworkReady && expiredCertificateReady
+      ? 'blocked-by-electrum-certificate-expired'
+      : 'inconclusive';
   const evidenceLines = unique([
     ...parsedLog.sslHandshakeLines.slice(0, 2),
     ...parsedLog.certificateExpiredLines.slice(0, 2),
@@ -85,6 +103,14 @@ const renderSummary = () => {
     `Full release smoke summary present: ${fullSmokeSummary ? 'yes' : 'no'}`,
     `Full release smoke outcome: ${getLineValue(fullSmokeSummary, 'Android smoke outcome') || '<missing>'}`,
     `Full release smoke reason: ${getLineValue(fullSmokeSummary, 'Android smoke reason') || '<missing>'}`,
+    `Full release smoke data storage preflight: ${getLineValue(fullSmokeSummary, 'Data storage preflight') || '<missing>'}`,
+    `Full release smoke data storage available KiB: ${
+      getLineValue(fullSmokeSummary, 'Data storage available KiB') || '<missing>'
+    }`,
+    `Full release smoke data storage required KiB: ${
+      getLineValue(fullSmokeSummary, 'Data storage required KiB') || '<missing>'
+    }`,
+    `Full release smoke data storage proof ready: ${fullReleaseStorageReady ? 'yes' : 'no'}`,
     `No-network release smoke summary present: ${noNetworkSmokeSummary ? 'yes' : 'no'}`,
     `No-network release smoke outcome: ${getLineValue(noNetworkSmokeSummary, 'Android smoke outcome') || '<missing>'}`,
     `No-network release smoke expected UI: ${getLineValue(noNetworkSmokeSummary, 'Expected UI texts') || '<missing>'}`,

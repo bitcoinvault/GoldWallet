@@ -2,6 +2,7 @@ import path from 'path';
 
 export const getAndroidDevSmokeEvidenceOptions = root => ({
   expectedArtifactBase: 'android-smoke-dev',
+  requireDataStoragePreflight: true,
   requireSmokeApkDigest: true,
   expectedSmokeApkPath: path.join(
     root,
