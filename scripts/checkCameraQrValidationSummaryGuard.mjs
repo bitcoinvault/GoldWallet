@@ -36,7 +36,7 @@ const validSummary = [
   'Camera/QR Android validation evidence ready: yes',
   'Android release evidence ready: yes',
   'Secret values printed: no',
-  'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
+  'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; rerun Android dev and release Camera/QR smoke before claiming Android validation; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
   '',
 ].join('\n');
 
@@ -60,6 +60,13 @@ const releaseEvidenceMissingSummary = validSummary
   )
   .replace('Android release evidence ready: yes', 'Android release evidence ready: no');
 
+const notReadyAndroidSmokeSummary = validSummary
+  .replace('Android dev smoke summary valid: yes', 'Android dev smoke summary valid: no')
+  .replace('Android smoke outcome: passed', 'Android smoke outcome: failed')
+  .replace('Android dev QR scanner validated: yes', 'Android dev QR scanner validated: no')
+  .replace('Android dev smoke summary errors: 0', 'Android dev smoke summary errors: 1\n- UI hierarchy is missing expected text(s): Wallets, No wallets, Create new wallet, Import wallet')
+  .replace('Camera/QR Android validation evidence ready: yes', 'Camera/QR Android validation evidence ready: no');
+
 const assertAccepted = (label, summary) => {
   const errors = getCameraQrValidationSummaryErrors(summary);
 
@@ -82,6 +89,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid Camera/QR validation summary fixture', validSummary);
 assertAccepted('Camera/QR validation summary without optional release evidence fixture', releaseEvidenceMissingSummary);
+assertAccepted('Camera/QR validation summary with not-ready Android smoke fixture', notReadyAndroidSmokeSummary);
 assertRejected('Missing header fixture', validSummary.replace('Camera/QR validation summary', 'Bad summary'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-17T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Bad CameraKit package fixture', validSummary.replace('react-native-camera-kit@18.0.0', 'react-native-camera-kit@17.0.0'), 'CameraKit package');
@@ -91,15 +99,19 @@ assertRejected(
   'Camera candidate summary must be valid',
 );
 assertRejected(
-  'Missing Android smoke fixture',
+  'Inconsistent missing Android smoke fixture',
   validSummary.replace('Android dev smoke summary present: yes', 'Android dev smoke summary present: no'),
-  'Android dev smoke summary must be present',
+  'Camera/QR Android validation evidence ready must be no',
 );
-assertRejected('Failed Android smoke fixture', validSummary.replace('Android smoke outcome: passed', 'Android smoke outcome: failed'), 'Android smoke outcome');
+assertRejected(
+  'Inconsistent failed Android smoke fixture',
+  validSummary.replace('Android smoke outcome: passed', 'Android smoke outcome: failed'),
+  'Valid Android smoke outcome must be passed',
+);
 assertRejected(
   'Missing QR scanner evidence fixture',
   validSummary.replace('Android dev QR scanner validated: yes', 'Android dev QR scanner validated: no'),
-  'Android dev smoke summary must prove QR scanner screen validation',
+  'Camera/QR Android validation evidence ready must be no',
 );
 assertRejected(
   'Failed release QR scanner fixture',
@@ -121,6 +133,11 @@ assertRejected(
   'Missing macOS action fixture',
   validSummary.replace('run pod install on macOS and ', ''),
   'Required action must mention pod install on macOS',
+);
+assertRejected(
+  'Missing Android rerun action fixture',
+  validSummary.replace('rerun Android dev and release Camera/QR smoke before claiming Android validation; ', ''),
+  'rerunning Android dev and release Camera/QR smoke',
 );
 
 console.log('Camera/QR validation summary guard checks are valid.');

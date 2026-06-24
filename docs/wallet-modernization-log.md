@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.804 - Camera/QR not-ready summary guard
+
+- Branch: `feature/bem-37-804-camera-qr-not-ready-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the Camera/QR validation summary guard so it can record not-ready Android smoke evidence without keeping a stale green artifact.
+- Keep Camera candidate and CameraKit migration summaries strict, while allowing Android dev/release smoke evidence to be reported as not ready when the current local smoke artifacts are blocked.
+- Require the summary action to name rerunning Android dev and release Camera/QR smoke before claiming Android validation.
+
+Findings:
+
+- `camera:qr-validation:summary` previously failed instead of writing a fresh summary when current Android smoke artifacts were red.
+- The stale `local-docs/camera-qr-validation-summary.txt` still claimed Android release QR/create-wallet proof from 2026-06-23 even after current dev/release smoke reached the `No network` blocker.
+- A fresh Android dev assemble passed on `emulator-5554`, but `android:dev:smoke:embedded` failed after onboarding because the final UI was the `No network` screen instead of the empty-dashboard/QR scanner path.
+- The updated summary now records CameraKit/QR package and migration evidence as valid, but reports `Camera/QR Android validation evidence ready: no` and `Android release evidence ready: no` until dev/release smoke can pass again.
+- This branch changes only validation scripts and documentation; it does not change app runtime, native code, Metro config, package versions, or lockfiles.
+
+Validation:
+
+- `node --check scripts/cameraQrValidationSummaryGuard.mjs`
+- `node --check scripts/runCameraQrValidationSummary.mjs`
+- `node --check scripts/checkCameraQrValidationSummaryGuard.mjs`
+- `corepack yarn node:runtime:yarn check:camera-qr-validation-summary-guard`
+- `corepack yarn node:runtime:yarn camera:qr-validation:summary`
+- `corepack yarn node:runtime:yarn camera:qr-validation:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble`
+- `corepack yarn node:runtime:yarn android:dev:smoke:embedded` failed with `No network` UI after onboarding; this is recorded as current blocker evidence, not claimed as a pass.
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.803 - Direct outdated Babel polyfill guard
 
 - Branch: `feature/bem-37-803-direct-outdated-polyfill-guard`

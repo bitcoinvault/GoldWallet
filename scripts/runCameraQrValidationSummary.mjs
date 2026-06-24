@@ -151,7 +151,7 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Camera/QR Android validation evidence ready: ${androidValidationReady ? 'yes' : 'no'}`,
     `Android release evidence ready: ${androidReleaseEvidenceReady ? 'yes' : 'no'}`,
     'Secret values printed: no',
-    'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
+    'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; rerun Android dev and release Camera/QR smoke before claiming Android validation; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
     '',
   ].join('\n');
 };
