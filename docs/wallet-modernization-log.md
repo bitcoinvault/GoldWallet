@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.814 - Android dev smoke blocker check
+
+- Branch: `feature/bem-37-814-android-dev-smoke-blocker-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep `android:dev:check-smoke-summary` useful while the dev/testnet Electrum TLS certificate is expired.
+- Accept the current failed full dev smoke only when the existing dev no-network smoke summary and `android-dev-network-blocker-summary.txt` are valid.
+- Keep full Android dev runtime proof explicitly unclaimed until the Electrum certificate is fixed and the normal dev smoke can reach dashboard, QR, tab navigation, and settings WebView.
+
+Findings:
+
+- The strict smoke parser still rejects failed full dev smoke; only the CLI checker maps the known failure set to a controlled blocker state.
+- `android:dev:network-blocker:audit` validates the no-network UI proof and certificate-expiration log evidence for `electrumx.testnet.btcv.stage.rnd.land:443 tls`.
+- `android:dev:check-smoke-summary` now reports `blocked-by-electrum-certificate-expired` instead of failing the baseline on the known external network blocker.
+- Full app runtime validation remains blocked; this branch does not claim dashboard/QR/settings smoke success.
+- This branch changes validation tooling only. It does not change runtime app code, native code, package versions, lockfiles, Metro config, or APK contents, so a new Android emulator smoke run is not required.
+
+Validation:
+
+- `node --check scripts/checkAndroidSmokeSummary.mjs`
+- `corepack yarn check:android-dev-network-blocker-summary-guard`
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+- `corepack yarn android:dev:check-smoke-summary`
+- `corepack yarn check:android-smoke-summary-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.813 - Secure-storage blocker summary
 
 - Branch: `feature/bem-37-813-secure-storage-blocker-summary`
