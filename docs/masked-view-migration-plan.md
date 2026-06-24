@@ -2,14 +2,14 @@
 
 This plan records the completed `@react-native-community/masked-view` Android `jcenter()` warning removal.
 
-Checked on: 2026-06-16
+Checked on: 2026-06-24
 
 ## Current State
 
 - Current package: removed.
 - Replacement package: not required.
-- Current navigation packages: `@react-navigation/native@7.3.3`, `@react-navigation/stack@7.10.5`, `@react-navigation/bottom-tabs@7.18.2`, and `@react-navigation/devtools@7.1.1`.
-- `@react-navigation/stack@7.10.5` no longer requires `@react-native-community/masked-view`.
+- Current navigation packages: `@react-navigation/native@7.3.4`, `@react-navigation/stack@7.10.6`, `@react-navigation/bottom-tabs@7.18.3`, and `@react-navigation/devtools@7.1.2`.
+- `@react-navigation/stack@7.10.6` no longer requires `@react-native-community/masked-view`.
 - `react-native-gesture-handler@3.0.2` is the latest checked version validated with the RN `0.86.0` New Architecture baseline; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces.
 - TypeScript was raised to `5.4.5` so the React Navigation 7 declaration syntax is parsed while preserving the existing strictness compatibility setting.
 - The app has no direct `src` imports of either masked-view package.

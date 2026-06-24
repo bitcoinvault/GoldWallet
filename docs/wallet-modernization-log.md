@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.785 - React Navigation/i18next patch refresh
+
+- Branch: `feature/bem-37-785-navigation-i18n-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the coupled React Navigation package family to the live npm latest patch set: `@react-navigation/native` `7.3.3` -> `7.3.4`, `@react-navigation/stack` `7.10.5` -> `7.10.6`, `@react-navigation/bottom-tabs` `7.18.2` -> `7.18.3`, and `@react-navigation/devtools` `7.1.1` -> `7.1.2`.
+- Move `i18next` from `26.3.1` to the live npm latest `26.3.2`.
+- Refresh navigation/masked-view/baseline/direct-outdated docs so future audits do not read stale package baselines.
+- Harden the Android smoke helper against stale UI XML after `uiautomator dump` idle failures and against the current transaction-password onboarding IDs.
+
+Findings:
+
+- Initial `direct-outdated:snapshot:audit` reported five new review-required patch entries: four React Navigation packages and `i18next`.
+- Live npm metadata on 2026-06-24 reports the selected React Navigation and i18next patch versions as latest. React Navigation stack/bottom-tabs peer on `@react-navigation/native ^7.3.4`, `react-native-screens >=4.0.0`, and `react-native-safe-area-context >=4.0.0`, which are satisfied by the current RN `0.86.0` baseline.
+- After the update, `direct-outdated:snapshot:audit` reports `Review-required entries: 0`; the remaining direct outdated entries are the expected blocked or exotic dependency decisions.
+- Android `devDebug` and `prodDebug` assemble successfully with JDK 17. The first Gradle run without stacktrace hit the known transient Windows `settings.gradle`/`cmd` failure, and the rerun with `--stacktrace` completed successfully.
+- The full embedded dashboard smoke is externally blocked in this environment: emulator internet ping fails, and logcat shows Electrum TLS `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`. Because of that, the app reaches the `No network` state and Create/Import/dashboard CTA validation is not claimed for this run.
+- A reduced `prodDebug` smoke on `emulator-5554` passes from a cleared app state: install, launch, first-run terms, PIN, transaction-password setup, email skip, foreground check, `No network` UI detection, and no fatal/runtime logcat findings.
+- iOS runtime validation remains not claimed on this Windows host; macOS/Xcode/CocoaPods validation is still required before any iOS simulator/archive claim.
+
+Validation:
+
+- `npm view @react-navigation/native@7.3.4 version peerDependencies dependencies dist-tags --json`
+- `npm view @react-navigation/bottom-tabs@7.18.3 version peerDependencies dependencies dist-tags --json`
+- `npm view @react-navigation/stack@7.10.6 version peerDependencies dependencies dist-tags --json`
+- `npm view @react-navigation/devtools@7.1.2 version peerDependencies dependencies dist-tags --json`
+- `npm view i18next@26.3.2 version peerDependencies dependencies dist-tags --json`
+- `corepack yarn node:runtime:yarn add @react-navigation/native@7.3.4 @react-navigation/bottom-tabs@7.18.3 @react-navigation/stack@7.10.6 @react-navigation/devtools@7.1.2 i18next@26.3.2`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn check:node-runtime-version`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 npm exec --yes --package node@24.16.0 -- node scripts/runAndroidGradle.mjs :app:assembleDevDebug :app:assembleProdDebug -x lint --stacktrace`
+- `npm exec --yes --package node@24.16.0 -- node --check scripts/androidSmokeDev.mjs`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SMOKE_APK=D:\GoldWallet\android\app\build\outputs\apk\prod\debug\app-prod-debug.apk ANDROID_SMOKE_PACKAGE=io.goldwallet.wallet ANDROID_SMOKE_ACTIVITY=io.goldwallet.wallet/io.goldwallet.wallet.MainActivity ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-prod-debug-navigation-i18n-no-network ANDROID_SMOKE_REQUIRE_METRO=false ANDROID_SMOKE_WAIT_MS=45000 ANDROID_SMOKE_CLEAR_APP_DATA=true ANDROID_SMOKE_EXPECT_TEXTS="No network" npm exec --yes --package node@24.16.0 -- node scripts/androidSmokeDev.mjs`
+
 ### BEM-37.784 - Firebase/push package readiness refresh
 
 - Branch: `feature/bem-37-784-firebase-push-readiness-refresh`

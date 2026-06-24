@@ -248,13 +248,47 @@ const sleep = milliseconds => {
 };
 
 const readUiHierarchy = label => {
-  run(`dump UI hierarchy ${label}`, ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml'], {
-    allowDumpSuccessOutput: true,
-  });
-  return run(`read UI hierarchy ${label}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], {
-    printOutput: false,
-    recordOutput: false,
-  });
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    run(`remove stale UI hierarchy ${label} attempt ${attempt}`, ['shell', 'rm', '-f', '/sdcard/goldwallet-window.xml'], {
+      printOutput: false,
+      recordOutput: false,
+    });
+    const dumpOutput = run(
+      `dump UI hierarchy ${label}${attempt > 1 ? ` retry ${attempt}` : ''}`,
+      ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml'],
+      {
+        allowDumpSuccessOutput: true,
+      },
+    );
+
+    if (/UI hier\S* dumped to:/i.test(dumpOutput || '')) {
+      return run(`read UI hierarchy ${label}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], {
+        printOutput: false,
+        recordOutput: false,
+      });
+    }
+
+    append(`UI hierarchy dump ${label} did not report a fresh hierarchy; retrying with compressed dump.`);
+    const compressedDumpOutput = run(
+      `dump compressed UI hierarchy ${label}${attempt > 1 ? ` retry ${attempt}` : ''}`,
+      ['shell', 'uiautomator', 'dump', '--compressed', '/sdcard/goldwallet-window.xml'],
+      {
+        allowDumpSuccessOutput: true,
+      },
+    );
+
+    if (/UI hier\S* dumped to:/i.test(compressedDumpOutput || '')) {
+      return run(`read compressed UI hierarchy ${label}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], {
+        printOutput: false,
+        recordOutput: false,
+      });
+    }
+
+    append(`Compressed UI hierarchy dump ${label} did not report a fresh hierarchy; retrying after UI settle.`);
+    sleep(1000);
+  }
+
+  throw new Error(`UI hierarchy dump ${label} did not produce a fresh hierarchy.`);
 };
 
 const getNodeByResourceId = (uiHierarchy, resourceId) => {
@@ -707,8 +741,8 @@ const completeFirstRunTransactionPasswordIfNeeded = () => {
       throw new Error('First-run transaction password save button did not become enabled.');
     }
 
-    run('hide keyboard before saving transaction password', ['shell', 'input', 'keyevent', '111']);
-    sleep(500);
+    run('hide keyboard before saving transaction password', ['shell', 'input', 'keyevent', '4']);
+    sleep(1000);
     passwordHierarchy = readUiHierarchy(`for first-run transaction password before save ${attempt}`);
     const visibleSubmitNode = getNodeByResourceId(
       passwordHierarchy,
@@ -792,6 +826,8 @@ const hasFirstRunFlow = uiHierarchy =>
     'resource-id="confirm-pin-input"',
     'resource-id="create-password-input"',
     'resource-id="confirm-password-input"',
+    'resource-id="create-transaction-password"',
+    'resource-id="confirm-transaction-password"',
     'resource-id="email-input"',
     'resource-id="success-modal"',
   ].some(marker => uiHierarchy.includes(marker));
