@@ -17,6 +17,11 @@ const validBlockedWindowsSummary = [
   'pod available: no',
   'bundle exec pod available: no',
   'Guarded iOS schemes: 8',
+  'Mac handoff command: corepack yarn ios:mac-validation:handoff --all-schemes',
+  'Mac handoff dry-run command: corepack yarn ios:mac-validation:handoff:dry-run --all-schemes',
+  'Mac handoff scheme coverage: all shared schemes',
+  'Mac handoff scheme count: 8',
+  'Mac handoff SDK: iphonesimulator',
   'iOS runtime delivery validation: not claimed',
   'Implementation ready: no',
   'Blockers: 4',
@@ -25,7 +30,7 @@ const validBlockedWindowsSummary = [
   '- CocoaPods is unavailable; install pod or run through bundle exec pod on macOS.',
   '- ios/Podfile.lock refresh is required; release drift 12, prereq drift 12.',
   'Secret values printed: no',
-  'Required action: refresh ios/Podfile.lock with pod install on macOS, then run iOS archive/simulator validation before claiming iOS runtime delivery.',
+  'Required action: refresh ios/Podfile.lock with pod install on macOS, then run `corepack yarn ios:mac-validation:handoff --all-schemes` before claiming iOS runtime delivery.',
   '',
 ].join('\n');
 
@@ -46,11 +51,16 @@ const validReadyMacSummary = [
   'pod available: yes',
   'bundle exec pod available: no',
   'Guarded iOS schemes: 8',
+  'Mac handoff command: corepack yarn ios:mac-validation:handoff --all-schemes',
+  'Mac handoff dry-run command: corepack yarn ios:mac-validation:handoff:dry-run --all-schemes',
+  'Mac handoff scheme coverage: all shared schemes',
+  'Mac handoff scheme count: 8',
+  'Mac handoff SDK: iphonesimulator',
   'iOS runtime delivery validation: not claimed',
   'Implementation ready: yes',
   'Blockers: 0',
   'Secret values printed: no',
-  'Required action: run iOS archive/simulator validation on macOS before claiming iOS runtime delivery.',
+  'Required action: run `corepack yarn ios:mac-validation:handoff --all-schemes` on macOS before claiming iOS runtime delivery.',
   '',
 ].join('\n');
 
@@ -115,6 +125,24 @@ assertRejected(
   'Missing pod install action fixture',
   validBlockedWindowsSummary.replace('refresh ios/Podfile.lock with pod install on macOS', 'refresh ios/Podfile.lock on macOS'),
   'must require pod install',
+);
+assertRejected(
+  'Single-scheme handoff fixture',
+  validBlockedWindowsSummary.replace(
+    'Mac handoff command: corepack yarn ios:mac-validation:handoff --all-schemes',
+    'Mac handoff command: corepack yarn ios:mac-validation:handoff --scheme "GoldWallet Dev (Debug)"',
+  ),
+  'all shared schemes',
+);
+assertRejected(
+  'Mismatched handoff scheme count fixture',
+  validBlockedWindowsSummary.replace('Mac handoff scheme count: 8', 'Mac handoff scheme count: 1'),
+  'scheme count must match',
+);
+assertRejected(
+  'Wrong handoff SDK fixture',
+  validBlockedWindowsSummary.replace('Mac handoff SDK: iphonesimulator', 'Mac handoff SDK: iphoneos'),
+  'Mac handoff SDK must be iphonesimulator',
 );
 assertRejected(
   'Secret printed fixture',
