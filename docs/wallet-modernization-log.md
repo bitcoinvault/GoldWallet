@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.807 - Android smoke storage summary guard
+
+- Branch: `feature/bem-37-807-smoke-storage-summary-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Require Android dev and release smoke evidence summaries to include data-storage preflight fields before the evidence is accepted by guards.
+- Reject stale release no-network smoke summaries generated before the storage preflight was added.
+- Require full release smoke storage proof before classifying the current release blocker as the expired dev/testnet Electrum certificate.
+
+Findings:
+
+- The old release no-network summary from `2026-06-24T15:18:39.773Z` did not contain `Data storage ...` fields and is now rejected by release evidence validation.
+- After enabling `requireDataStoragePreflight` for release no-network evidence, the old summary produced `No-network release smoke summary valid: no`, `No-network release smoke summary errors: 4`, and `Release blocker outcome: inconclusive`.
+- A refreshed full release smoke installed the signed `devRelease` APK, passed `/data` storage preflight, completed first-run onboarding, and then failed on the expected `No network` blocker before dashboard CTA validation.
+- A refreshed reduced release no-network smoke passed with storage preflight and the expected `No network` UI.
+- The release blocker remains `blocked-by-electrum-certificate-expired` for `electrumx.testnet.btcv.stage.rnd.land:443 tls`; the certificate expired at `Tue Jun 23 16:52:40 GMT 2026`.
+
+Validation:
+
+- `node --check scripts/androidSmokeSummaryGuard.mjs`
+- `node --check scripts/checkAndroidSmokeSummaryGuard.mjs`
+- `node --check scripts/androidDevSmokeEvidence.mjs`
+- `node --check scripts/androidReleaseSmokeEvidence.mjs`
+- `node --check scripts/auditAndroidReleaseNetworkBlocker.mjs`
+- `node --check scripts/androidReleaseNetworkBlockerSummaryGuard.mjs`
+- `node --check scripts/checkAndroidReleaseNetworkBlockerSummaryGuard.mjs`
+- `corepack yarn node:runtime:yarn check:android-smoke-summary-guard`
+- `corepack yarn node:runtime:yarn check:android-release-network-blocker-summary-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:dev:release:smoke:embedded` (expected failure on `No network` after install, storage preflight, and onboarding)
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 ANDROID_SMOKE_APK=D:\GoldWallet\local-docs\android-smoke-dev-release-signed.apk ANDROID_SMOKE_SOURCE_APK=D:\GoldWallet\android\app\build\outputs\apk\dev\release\app-dev-release-unsigned.apk ANDROID_SMOKE_PACKAGE=io.goldwallet.wallet.dev ANDROID_SMOKE_ACTIVITY=io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release-no-network ANDROID_SMOKE_REQUIRE_METRO=false ANDROID_SMOKE_EXPECT_TEXTS="No network" corepack yarn node:runtime:yarn android:dev:smoke`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-audit`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.806 - Android smoke storage preflight
 
 - Branch: `feature/bem-37-806-android-smoke-storage-preflight`

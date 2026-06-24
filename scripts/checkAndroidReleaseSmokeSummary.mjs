@@ -26,6 +26,7 @@ if (!existsSync(summaryPath)) {
 
 const errors = getAndroidEmbeddedSmokeSummaryErrors(readFileSync(summaryPath, 'utf8'), {
   expectedArtifactBase: 'android-smoke-dev-release',
+  requireDataStoragePreflight: true,
   requireSmokeApkDigest: true,
   expectedSmokeApkPath: signedReleaseApkPath,
   requireSourceApkDigest: true,

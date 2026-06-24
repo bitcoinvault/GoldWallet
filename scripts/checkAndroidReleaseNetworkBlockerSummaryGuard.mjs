@@ -17,6 +17,10 @@ const validSummary = [
   'Full release smoke summary present: yes',
   'Full release smoke outcome: failed',
   'Full release smoke reason: UI hierarchy is missing expected text(s): Wallets, No wallets, Create new wallet, Import wallet',
+  'Full release smoke data storage preflight: passed',
+  'Full release smoke data storage available KiB: 1718252',
+  'Full release smoke data storage required KiB: 739681',
+  'Full release smoke data storage proof ready: yes',
   'No-network release smoke summary present: yes',
   'No-network release smoke outcome: passed',
   'No-network release smoke expected UI: No network',
@@ -54,6 +58,16 @@ const missingNoNetworkProofErrors = getAndroidReleaseNetworkBlockerSummaryErrors
 assert(
   missingNoNetworkProofErrors.some(error => error.includes('No-network UI proof ready must be yes')),
   'summary without no-network UI proof should fail',
+);
+
+const missingStorageProof = validSummary.replace(
+  'Full release smoke data storage proof ready: yes',
+  'Full release smoke data storage proof ready: no',
+);
+const missingStorageProofErrors = getAndroidReleaseNetworkBlockerSummaryErrors(missingStorageProof);
+assert(
+  missingStorageProofErrors.some(error => error.includes('Full release smoke data storage proof ready must be yes')),
+  'summary without full release storage proof should fail',
 );
 
 const missingCertificateEvidence = validSummary.replace(

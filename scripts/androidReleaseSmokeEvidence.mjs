@@ -2,6 +2,7 @@ import path from 'path';
 
 export const getAndroidReleaseSmokeEvidenceOptions = root => ({
   expectedArtifactBase: 'android-smoke-dev-release',
+  requireDataStoragePreflight: true,
   requireSmokeApkDigest: true,
   expectedSmokeApkPath: path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk'),
   requireSourceApkDigest: true,
@@ -20,6 +21,7 @@ export const getAndroidReleaseSmokeEvidenceOptions = root => ({
 
 export const getAndroidReleaseNoNetworkSmokeEvidenceOptions = root => ({
   expectedArtifactBase: 'android-smoke-dev-release-no-network',
+  requireDataStoragePreflight: true,
   requireSmokeApkDigest: true,
   expectedSmokeApkPath: path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk'),
   requireSourceApkDigest: true,

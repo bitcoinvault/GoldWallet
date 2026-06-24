@@ -13,6 +13,8 @@ const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.
 
 const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 
+const isPositiveNumber = value => /^\d+(?:\.\d+)?$/.test(value) && Number(value) > 0;
+
 const isExistingFile = (filePath, requireNonEmpty = false) => {
   if (!filePath || !existsSync(filePath)) {
     return false;
@@ -75,6 +77,37 @@ const requireFileEvidence = (summary, { pathLabel, bytesLabel, shaLabel, expecte
     if (sha256 !== actualSha256) {
       errors.push(`${shaLabel} does not match the current file digest for ${filePath}`);
     }
+  }
+};
+
+const requireDataStoragePreflight = (summary, errors) => {
+  const preflight = getLineValue(summary, 'Data storage preflight');
+  const availableKilobytes = getLineValue(summary, 'Data storage available KiB');
+  const requiredKilobytes = getLineValue(summary, 'Data storage required KiB');
+  const multiplier = getLineValue(summary, 'Data storage multiplier');
+
+  if (preflight !== 'passed') {
+    errors.push(`Data storage preflight must be passed. Received: ${preflight || 'missing'}`);
+  }
+
+  if (!isPositiveInteger(availableKilobytes)) {
+    errors.push(`Data storage available KiB must be a positive integer. Received: ${availableKilobytes || 'missing'}`);
+  }
+
+  if (!isPositiveInteger(requiredKilobytes)) {
+    errors.push(`Data storage required KiB must be a positive integer. Received: ${requiredKilobytes || 'missing'}`);
+  }
+
+  if (isPositiveInteger(availableKilobytes) && isPositiveInteger(requiredKilobytes)) {
+    if (Number(availableKilobytes) < Number(requiredKilobytes)) {
+      errors.push(
+        `Data storage available KiB must be greater than or equal to required KiB. Received: ${availableKilobytes} < ${requiredKilobytes}`,
+      );
+    }
+  }
+
+  if (!isPositiveNumber(multiplier)) {
+    errors.push(`Data storage multiplier must be a positive number. Received: ${multiplier || 'missing'}`);
   }
 };
 
@@ -200,6 +233,10 @@ export const getAndroidSmokeSummaryErrors = (summary, options = {}) => {
       },
       errors,
     );
+  }
+
+  if (options.requireDataStoragePreflight) {
+    requireDataStoragePreflight(summary, errors);
   }
 
   return errors;

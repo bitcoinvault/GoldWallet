@@ -20,6 +20,10 @@ const validSummary = [
   `Source APK path: ${fixtureFilePath}`,
   `Source APK bytes: ${fixtureFileBytes}`,
   `Source APK sha256: ${fixtureFileSha256}`,
+  'Data storage preflight: passed',
+  'Data storage available KiB: 2478788',
+  'Data storage required KiB: 1432932',
+  'Data storage multiplier: 3',
   'Metro required: yes',
   'Metro endpoint: 127.0.0.1:8081',
   'Metro reachable: yes',
@@ -134,6 +138,7 @@ const assertEmbeddedRejected = (label, summary) => {
 const assertReleaseApkDigestRejected = (label, summary) => {
   const errors = getAndroidEmbeddedSmokeSummaryErrors(summary, {
     expectedArtifactBase: 'android-smoke-dev-release',
+    requireDataStoragePreflight: true,
     requireSmokeApkDigest: true,
     expectedSmokeApkPath: 'package.json',
     requireSourceApkDigest: true,
@@ -148,6 +153,7 @@ const assertReleaseApkDigestRejected = (label, summary) => {
 
 const assertDebugApkDigestAccepted = (label, summary) => {
   const errors = getAndroidSmokeSummaryErrors(summary, {
+    requireDataStoragePreflight: true,
     requireSmokeApkDigest: true,
     expectedSmokeApkPath: fixtureFilePath,
     requireSourceApkDigest: true,
@@ -163,6 +169,7 @@ const assertDebugApkDigestAccepted = (label, summary) => {
 
 const assertDebugApkDigestRejected = (label, summary) => {
   const errors = getAndroidSmokeSummaryErrors(summary, {
+    requireDataStoragePreflight: true,
     requireSmokeApkDigest: true,
     expectedSmokeApkPath: fixtureFilePath,
     requireSourceApkDigest: true,
@@ -178,6 +185,7 @@ const assertDebugApkDigestRejected = (label, summary) => {
 const assertReleaseApkDigestAccepted = (label, summary) => {
   const errors = getAndroidEmbeddedSmokeSummaryErrors(summary, {
     expectedArtifactBase: 'android-smoke-dev-release',
+    requireDataStoragePreflight: true,
     requireSmokeApkDigest: true,
     expectedSmokeApkPath: fixtureFilePath,
     requireSourceApkDigest: true,
@@ -191,10 +199,17 @@ const assertReleaseApkDigestAccepted = (label, summary) => {
   }
 };
 
+const removeDataStorageFields = summary =>
+  summary
+    .split('\n')
+    .filter(line => !line.startsWith('Data storage '))
+    .join('\n');
+
 assertAccepted('Valid Android smoke summary fixture', validSummary);
 assertAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertEmbeddedAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertDebugApkDigestAccepted('Valid debug Android smoke APK digest fixture', validSummary);
+assertDebugApkDigestRejected('Debug smoke missing data storage preflight fixture', removeDataStorageFields(validSummary));
 assertDebugApkDigestRejected(
   'Missing debug source APK digest fixture',
   validSummary
