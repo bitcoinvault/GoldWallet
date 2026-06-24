@@ -10,6 +10,61 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.783 - Sentry release/source-map readiness refresh
+
+- Branch: `feature/bem-37-783-sentry-release-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Sentry release/source-map readiness evidence after the CodePush decision/readiness refresh.
+- Re-check live npm metadata for `@sentry/react-native` and `@sentry/cli`.
+- Re-run Sentry Android warning, RN bundle-task compatibility, release prerequisite, credential-plan, non-secret preflight, integration, and aggregate release-services guards without changing runtime code, native project files, env values, package versions, lockfiles, Metro config, or build files.
+
+Findings:
+
+- Live npm metadata on 2026-06-24 reports `@sentry/react-native@8.15.1` and `@sentry/cli@3.5.1` as latest, matching the installed SDK and direct release CLI.
+- Sentry runtime import scope remains limited to `App.tsx`, `Main.tsx`, and `logger/index.ts`.
+- Android/iOS Sentry release integration remains wired: Android applies the Sentry Gradle integration, and iOS still has Sentry React Native bundle/source-map and dSYM upload phases.
+- The Android warning audit reports Sentry Android warning wiring valid, no active Sentry `execResult` warning on the RN `0.86.0` baseline, `0` readiness issues, and `0` wiring errors.
+- The RN bundle-task compatibility audit reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim for RN `0.86.0`.
+- The non-secret Sentry preflight passes against current Android release, release-smoke, and release create-wallet evidence without rendering secret values.
+- Sentry release upload validation remains explicitly not claimed because `SENTRY_AUTH_TOKEN` is absent and `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are missing.
+- iOS archive/dSYM validation remains not claimed on this Windows host: macOS/Xcode/CocoaPods are unavailable and `ios/Podfile.lock` still has `12` active drift issues.
+- No Android runtime validation is required for this branch because it changes only documentation/readiness evidence and does not alter runtime code, native config, env values, package versions, lockfiles, Metro config, or build files.
+
+Validation:
+
+- `npm view @sentry/react-native version time repository.url dist-tags peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version time repository.url dist-tags peerDependencies dependencies engines --json`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn check:sentry-android-warning-summary-guard`
+- `corepack yarn sentry:rn-bundle-task-compat:audit`
+- `corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `corepack yarn check:sentry-rn-bundle-task-compat-summary-guard`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn sentry:release:credential-plan`
+- `corepack yarn sentry:release:credential-plan:check`
+- `corepack yarn check:sentry-release-credential-plan-guard`
+- `corepack yarn check:sentry-properties-generator`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn check:sentry-credential-handoff-guard`
+- `corepack yarn sentry:release:validation:preflight:dry-run`
+- `corepack yarn sentry:release:validation:preflight`
+- `corepack yarn check:sentry-usage-guard`
+- `corepack yarn check:sentry-usage-scope`
+- `corepack yarn check:sentry-release-integration-guard`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.782 - CodePush decision/readiness refresh
 
 - Branch: `feature/bem-37-782-codepush-decision-readiness-refresh`
