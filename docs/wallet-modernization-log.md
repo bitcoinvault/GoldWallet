@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.794 - iOS release-config documentation guard
+
+- Branch: `feature/bem-37-794-ios-release-config-doc-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add `check:ios-release-config-doc-guard` and wire it into `android:dev:check-light`.
+- Refresh `docs/ios-release-config-compatibility-audit.md` so the iOS release-config posture matches the current CodePush-removal state.
+- Keep the iOS validation path explicit: Windows can refresh static/preflight evidence, while real iOS runtime/archive validation still requires macOS, Xcode, CocoaPods, and a refreshed `ios/Podfile.lock`.
+
+Findings:
+
+- The iOS release-config audit previously still suggested CodePush release-path work as a default follow-up even though current native/runtime CodePush posture is removed.
+- The new guard rejects stale CodePush release-path wording and requires the document to keep the current macOS/Xcode/CocoaPods blocker, `12` active `ios/Podfile.lock` drift issues, Sentry source-map/dSYM credential gate, and `iOS runtime delivery validation: not claimed`.
+- `android:dev:check-light-docs` now also tracks the iOS release-config doc guard as part of the lightweight documentation gate.
+- No Android emulator smoke is required for this branch because it changes only validation/documentation scripts and docs; no app runtime, native project, package version, lockfile, Metro, or Android build behavior changed.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn check:ios-release-config-doc-guard`
+- `corepack yarn node:runtime:yarn android:dev:check-light-docs`
+- `corepack yarn node:runtime:yarn check:ios-release-readiness-audit-guard`
+- `corepack yarn node:runtime:yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn check:ios-mac-validation-prereq-summary-guard`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:audit`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn node:runtime:yarn check:ios-podfile-refresh-plan-guard`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:plan`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:check-plan`
+- `corepack yarn node:runtime:yarn check:ios-mac-validation-handoff-guard`
+- `corepack yarn node:runtime:yarn ios:mac-validation:handoff:preflight --all-schemes`
+- `corepack yarn node:runtime:yarn check:ios-validation-handoff-summary-guard`
+- `corepack yarn node:runtime:yarn ios:validation:handoff-summary`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.793 - Sentry network blocker prerequisite integration
 
 - Branch: `feature/bem-37-793-sentry-network-blocker-integration`
