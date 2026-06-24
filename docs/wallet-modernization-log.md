@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.792 - Android release Electrum blocker audit
+
+- Branch: `feature/bem-37-792-electrum-release-blocker-diagnostics`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a local audit for the Android `devRelease` `No network` blocker that currently stops full release-smoke and release create-wallet validation.
+- Classify the blocker only when the failed release-smoke log contains TLS failure evidence and the reduced release no-network smoke proof is valid.
+- Keep the final release-services aggregate gate red until the dev/testnet Electrum TLS certificate is fixed and full release-smoke/create-wallet validation can be rerun.
+
+Findings:
+
+- The latest failed full release-smoke log contains repeated `SSLHandshakeException: Chain validation failed` entries from `TcpSockets`.
+- The same log contains `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`, which matches the app reaching the `No network` screen after onboarding.
+- The reduced `android-smoke-dev-release-no-network` proof remains the only valid runtime evidence while the external dev/testnet Electrum certificate is expired.
+- The new audit writes `local-docs/android-release-network-blocker-summary.txt` and records the blocker as `blocked-by-electrum-certificate-expired` without weakening `release-services:check-summaries`.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn check:android-release-network-blocker-summary-guard`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:check-summary`
+
 ### BEM-37.791 - Sentry release preflight no-network blocker
 
 - Branch: `feature/bem-37-791-sentry-release-readiness-refresh`
