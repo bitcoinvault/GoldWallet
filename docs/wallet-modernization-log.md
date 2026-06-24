@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.811 - Sentry properties input guard
+
+- Branch: `feature/bem-37-811-sentry-properties-input-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the Sentry release properties generator before it writes local secret-bearing `sentry.properties` files.
+- Reject blank/whitespace `SENTRY_AUTH_TOKEN` values and newline or padded values in generated Sentry properties inputs.
+- Keep Sentry release upload validation unclaimed while `SENTRY_AUTH_TOKEN`, local properties files, full Android release smoke/create-wallet evidence, and macOS iOS validation remain unavailable.
+
+Findings:
+
+- `sentry:release:credential-plan` still reports release source-map prerequisites as `not ready`, with `SENTRY_AUTH_TOKEN` unavailable and all three local-only Sentry properties files missing.
+- `sentry:release:prereq-audit` confirms Sentry release integration and direct `@sentry/cli` wiring are valid, while Android full release smoke/create-wallet evidence is not ready because current local release smoke artifacts are controlled blocker evidence, not full runtime proof.
+- iOS archive/source-map validation remains blocked on this Windows host by missing macOS/Xcode/CocoaPods tooling and `12` `ios/Podfile.lock` drift issues.
+- No production `sentry.properties` files were generated, no secret values were printed, and ignored `local-docs/` artifacts were refreshed only as local evidence.
+- This branch changes release tooling guards only. It does not change runtime app code, native code, package versions, lockfiles, Metro config, or APK contents, so Android emulator smoke is not required.
+
+Validation:
+
+- `node --check scripts/createSentryProperties.mjs`
+- `node --check scripts/checkCreateSentryPropertiesGuard.mjs`
+- `node --check scripts/auditSentryReleasePrerequisites.mjs`
+- `corepack yarn check:sentry-properties-generator`
+- `corepack yarn sentry:release:credential-plan`
+- `corepack yarn sentry:release:credential-plan:check`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.810 - iOS static validation refresh
 
 - Branch: `feature/bem-37-810-ios-static-refresh`

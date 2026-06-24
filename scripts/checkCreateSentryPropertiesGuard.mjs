@@ -37,6 +37,12 @@ const assertCondition = (condition, message) => {
   }
 };
 
+const assertNoPropertiesFiles = tempRoot => {
+  sentryPropertiesRelativePaths.forEach(relativePath => {
+    assertCondition(!existsSync(path.join(tempRoot, relativePath)), `Generator wrote ${relativePath} after invalid input`);
+  });
+};
+
 const missingTokenRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-sentry-missing-'));
 try {
   const result = runGenerator({ tempRoot: missingTokenRoot, env: { SENTRY_AUTH_TOKEN: '' } });
@@ -46,11 +52,80 @@ try {
     result.stderr.includes('SENTRY_AUTH_TOKEN is required'),
     'Missing-token failure must mention SENTRY_AUTH_TOKEN requirement',
   );
-  sentryPropertiesRelativePaths.forEach(relativePath => {
-    assertCondition(!existsSync(path.join(missingTokenRoot, relativePath)), `Generator wrote ${relativePath} without token`);
-  });
+  assertNoPropertiesFiles(missingTokenRoot);
 } finally {
   rmSync(missingTokenRoot, { recursive: true, force: true });
+}
+
+const whitespaceTokenRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-sentry-whitespace-token-'));
+try {
+  const result = runGenerator({ tempRoot: whitespaceTokenRoot, env: { SENTRY_AUTH_TOKEN: '   ' } });
+
+  assertCondition(!result.ok, 'Generator must fail when SENTRY_AUTH_TOKEN is blank whitespace');
+  assertCondition(
+    result.stderr.includes('SENTRY_AUTH_TOKEN must not be blank'),
+    'Whitespace-token failure must mention that SENTRY_AUTH_TOKEN must not be blank',
+  );
+  assertNoPropertiesFiles(whitespaceTokenRoot);
+} finally {
+  rmSync(whitespaceTokenRoot, { recursive: true, force: true });
+}
+
+const paddedTokenRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-sentry-padded-token-'));
+try {
+  const result = runGenerator({ tempRoot: paddedTokenRoot, env: { SENTRY_AUTH_TOKEN: ` ${secret}` } });
+
+  assertCondition(!result.ok, 'Generator must fail when SENTRY_AUTH_TOKEN has leading whitespace');
+  assertCondition(
+    result.stderr.includes('SENTRY_AUTH_TOKEN must not include leading or trailing whitespace'),
+    'Padded-token failure must mention leading or trailing whitespace',
+  );
+  assertCondition(!result.stdout.includes(secret) && !result.stderr.includes(secret), 'Generator output must not print invalid token values');
+  assertNoPropertiesFiles(paddedTokenRoot);
+} finally {
+  rmSync(paddedTokenRoot, { recursive: true, force: true });
+}
+
+const newlineOrgRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-sentry-newline-org-'));
+try {
+  const result = runGenerator({
+    tempRoot: newlineOrgRoot,
+    env: {
+      SENTRY_AUTH_TOKEN: secret,
+      SENTRY_ORG: 'custom\norg',
+    },
+  });
+
+  assertCondition(!result.ok, 'Generator must fail when SENTRY_ORG contains a line break');
+  assertCondition(
+    result.stderr.includes('SENTRY_ORG must not contain line breaks'),
+    'Line-break org failure must mention SENTRY_ORG line breaks',
+  );
+  assertCondition(!result.stdout.includes(secret) && !result.stderr.includes(secret), 'Generator output must not print token values on org failure');
+  assertNoPropertiesFiles(newlineOrgRoot);
+} finally {
+  rmSync(newlineOrgRoot, { recursive: true, force: true });
+}
+
+const paddedProjectRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-sentry-padded-project-'));
+try {
+  const result = runGenerator({
+    tempRoot: paddedProjectRoot,
+    env: {
+      SENTRY_AUTH_TOKEN: secret,
+      SENTRY_PROJECT: ' custom-project',
+    },
+  });
+
+  assertCondition(!result.ok, 'Generator must fail when SENTRY_PROJECT has leading whitespace');
+  assertCondition(
+    result.stderr.includes('SENTRY_PROJECT must not include leading or trailing whitespace'),
+    'Padded-project failure must mention leading or trailing whitespace',
+  );
+  assertCondition(!result.stdout.includes(secret) && !result.stderr.includes(secret), 'Generator output must not print token values on project failure');
+  assertNoPropertiesFiles(paddedProjectRoot);
+} finally {
+  rmSync(paddedProjectRoot, { recursive: true, force: true });
 }
 
 const readyRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-sentry-ready-'));
