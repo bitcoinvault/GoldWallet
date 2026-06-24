@@ -76,8 +76,8 @@ assert(
 assert(
   preflightRendered.includes('corepack yarn sentry:release:prereq-audit') &&
     preflightRendered.includes('corepack yarn sentry:release:prereq-check-summary') &&
-    preflightRendered.includes('corepack yarn release-services:check-summaries'),
-  'Preflight-only Sentry handoff must still audit prerequisites and aggregate release-services summaries',
+    !preflightRendered.includes('corepack yarn release-services:check-summaries'),
+  'Preflight-only Sentry handoff must audit Sentry prerequisites without running the final aggregate release-services gate',
 );
 assert(
   scripts['sentry:release:validation:preflight'] ===
@@ -198,6 +198,44 @@ const readyAndroidReleaseCreateWalletSmokeSummary = [
   'Screenshot bytes: 1234',
 ].join('\n');
 
+const readyAndroidReleaseNoNetworkSmokeSummary = [
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Android smoke outcome: passed',
+  'Android smoke exit code: 0',
+  'Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
+  'Android serial: emulator-5554',
+  'Android package: io.goldwallet.wallet.dev',
+  'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+  'Artifact base: android-smoke-dev-release-no-network',
+  `Smoke APK path: ${fixtureApkPath}`,
+  `Smoke APK bytes: ${fixtureApkBytes}`,
+  `Smoke APK sha256: ${fixtureApkSha256}`,
+  `Source APK path: ${fixtureApkPath}`,
+  `Source APK bytes: ${fixtureApkBytes}`,
+  `Source APK sha256: ${fixtureApkSha256}`,
+  'Metro required: no',
+  'Metro endpoint: 127.0.0.1:8081',
+  'Metro reachable: no',
+  'Cleared app data: yes',
+  'Expected UI texts: No network',
+  'Expected resource IDs: none',
+  'App PID: 1234',
+  'Captured logcat lines: 400',
+  'Accepted first-run terms: yes',
+  'Completed first-run PIN: yes',
+  'Completed first-run transaction password: yes',
+  'Skipped first-run email: yes',
+  'Closed first-run success: no',
+  'Validated empty-dashboard CTA flow: no',
+  'Validated empty-tab navigation: no',
+  'Validated QR scanner screen: no',
+  'Validated settings Terms WebView: no',
+  'UI hierarchy attempts: 1',
+  'UI hierarchy path: package.json',
+  'Screenshot path: package.json',
+  'Screenshot bytes: 1234',
+].join('\n');
+
 const readySentryReleasePrereqSummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-06-10T00:00:00.000Z',
@@ -241,6 +279,11 @@ const readySentryReleasePrereqSummary = [
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
   'Sentry release smoke evidence ready: yes',
+  'Android release no-network smoke summary present: no',
+  'Android release no-network smoke summary valid: no',
+  'Android release no-network smoke summary errors: 1',
+  '- Android release no-network smoke summary artifact is missing',
+  'Sentry release no-network blocker evidence ready: no',
   'Android release create-wallet smoke summary present: yes',
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
@@ -324,6 +367,11 @@ const notReadySentryReleasePrereqSummary = [
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
   'Sentry release smoke evidence ready: yes',
+  'Android release no-network smoke summary present: no',
+  'Android release no-network smoke summary valid: no',
+  'Android release no-network smoke summary errors: 1',
+  '- Android release no-network smoke summary artifact is missing',
+  'Sentry release no-network blocker evidence ready: no',
   'Android release create-wallet smoke summary present: yes',
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
@@ -374,6 +422,7 @@ const partialSentryReleasePrereqSummary = [
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseNoNetworkSmokeSummaryText: '',
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
     createWalletEvidenceOptions,
@@ -384,6 +433,7 @@ assert(
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseNoNetworkSmokeSummaryText: '',
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     sentryReleasePrereqSummaryText: notReadySentryReleasePrereqSummary,
     createWalletEvidenceOptions,
@@ -394,6 +444,7 @@ assert(
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseNoNetworkSmokeSummaryText: '',
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     requireReadyPrereqs: false,
     sentryReleasePrereqSummaryText: notReadySentryReleasePrereqSummary,
@@ -405,6 +456,7 @@ assert(
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseNoNetworkSmokeSummaryText: '',
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     sentryReleasePrereqSummaryText: '',
     createWalletEvidenceOptions,
@@ -415,6 +467,7 @@ assert(
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseNoNetworkSmokeSummaryText: '',
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     sentryReleasePrereqSummaryText: partialSentryReleasePrereqSummary,
     createWalletEvidenceOptions,
@@ -425,6 +478,7 @@ assert(
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseNoNetworkSmokeSummaryText: '',
     androidReleaseSmokeSummaryText: '',
     sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
     createWalletEvidenceOptions,
@@ -435,6 +489,7 @@ assert(
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseNoNetworkSmokeSummaryText: '',
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace('Validated empty-dashboard CTA flow: yes', 'Validated empty-dashboard CTA flow: no'),
     sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
     createWalletEvidenceOptions,
@@ -445,6 +500,7 @@ assert(
 assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: '',
+    androidReleaseNoNetworkSmokeSummaryText: '',
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
     createWalletEvidenceOptions,
@@ -458,12 +514,51 @@ assert(
       'Standard wallet created: yes',
       'Standard wallet created: no',
     ),
+    androidReleaseNoNetworkSmokeSummaryText: '',
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
     sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
     createWalletEvidenceOptions,
     smokeEvidenceOptions,
   }).some(error => error.includes('Android release create-wallet smoke summary is invalid')),
   'Sentry release readiness check must reject invalid Android release create-wallet smoke evidence',
+);
+
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary.replace(
+      'Standard wallet created: yes',
+      'Standard wallet created: no',
+    ),
+    androidReleaseNoNetworkSmokeSummaryText: readyAndroidReleaseNoNetworkSmokeSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace(
+      'Validated empty-dashboard CTA flow: yes',
+      'Validated empty-dashboard CTA flow: no',
+    ),
+    requireReadyPrereqs: false,
+    sentryReleasePrereqSummaryText: notReadySentryReleasePrereqSummary
+      .replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no')
+      .replace('Android release smoke summary errors: 0', 'Android release smoke summary errors: 1\n- Expected line not found: Android smoke outcome: passed')
+      .replace('Sentry release smoke evidence ready: yes', 'Sentry release smoke evidence ready: no')
+      .replace('Android release no-network smoke summary present: no', 'Android release no-network smoke summary present: yes')
+      .replace('Android release no-network smoke summary valid: no', 'Android release no-network smoke summary valid: yes')
+      .replace(
+        'Android release no-network smoke summary errors: 1\n- Android release no-network smoke summary artifact is missing',
+        'Android release no-network smoke summary errors: 0',
+      )
+      .replace('Sentry release no-network blocker evidence ready: no', 'Sentry release no-network blocker evidence ready: yes')
+      .replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no')
+      .replace('Sentry release create-wallet evidence ready: yes', 'Sentry release create-wallet evidence ready: no'),
+    createWalletEvidenceOptions,
+    noNetworkSmokeEvidenceOptions: {
+      expectedArtifactBase: 'android-smoke-dev-release-no-network',
+      requireSmokeApkDigest: true,
+      expectedSmokeApkPath: fixtureApkPath,
+      requireSourceApkDigest: true,
+      expectedSourceApkPath: fixtureApkPath,
+    },
+    smokeEvidenceOptions,
+  }).length === 0,
+  'Preflight-only Sentry release handoff readiness must accept controlled no-network blocker evidence without claiming full runtime proof',
 );
 
 console.log('Sentry release validation handoff guard checks are valid.');

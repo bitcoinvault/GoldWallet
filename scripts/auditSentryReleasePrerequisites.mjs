@@ -5,8 +5,12 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
 import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
 import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
-import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
+import {
+  getAndroidReleaseNoNetworkSmokeEvidenceOptions,
+  getAndroidReleaseSmokeEvidenceOptions,
+} from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidNoNetworkSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { collectIosReleaseReadiness } from './auditIosReleaseReadiness.mjs';
 import { collectIosMacValidationPrereqs } from './auditIosMacValidationPrereqs.mjs';
@@ -16,6 +20,11 @@ const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'sentry-release-prereq-summary.txt');
 const androidReleaseSummaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
+const androidReleaseNoNetworkSmokeSummaryPath = path.join(
+  root,
+  'local-docs',
+  'android-smoke-dev-release-no-network-summary.txt',
+);
 const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
 const androidReleaseSignedSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 export const requiredSentryPropertiesFiles = ['sentry.properties', 'android/sentry.properties', 'ios/sentry.properties'];
@@ -232,6 +241,16 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const androidReleaseSmokeSummaryErrors = hasAndroidReleaseSmokeSummary
     ? getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummary, getAndroidReleaseSmokeEvidenceOptions(root))
     : ['Android release smoke summary artifact is missing'];
+  const hasAndroidReleaseNoNetworkSmokeSummary = existsSync(androidReleaseNoNetworkSmokeSummaryPath);
+  const androidReleaseNoNetworkSmokeSummary = hasAndroidReleaseNoNetworkSmokeSummary
+    ? readFileSync(androidReleaseNoNetworkSmokeSummaryPath, 'utf8')
+    : '';
+  const androidReleaseNoNetworkSmokeSummaryErrors = hasAndroidReleaseNoNetworkSmokeSummary
+    ? getAndroidNoNetworkSmokeSummaryErrors(
+        androidReleaseNoNetworkSmokeSummary,
+        getAndroidReleaseNoNetworkSmokeEvidenceOptions(root),
+      )
+    : ['Android release no-network smoke summary artifact is missing'];
   const hasAndroidReleaseCreateWalletSmokeSummary = existsSync(androidReleaseCreateWalletSmokeSummaryPath);
   const androidReleaseCreateWalletSmokeSummary = hasAndroidReleaseCreateWalletSmokeSummary
     ? readFileSync(androidReleaseCreateWalletSmokeSummaryPath, 'utf8')
@@ -281,6 +300,8 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseSummaryCurrentInputsCovered &&
     androidReleaseApkManifestErrors.length === 0;
   const androidReleaseSmokeEvidenceReady = hasAndroidReleaseSmokeSummary && androidReleaseSmokeSummaryErrors.length === 0;
+  const androidReleaseNoNetworkSmokeEvidenceReady =
+    hasAndroidReleaseNoNetworkSmokeSummary && androidReleaseNoNetworkSmokeSummaryErrors.length === 0;
   const androidReleaseCreateWalletSmokeEvidenceReady =
     hasAndroidReleaseCreateWalletSmokeSummary && androidReleaseCreateWalletSmokeSummaryErrors.length === 0;
   const ready =
@@ -327,6 +348,9 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     hasAndroidReleaseSmokeSummary,
     androidReleaseSmokeSummaryErrors,
     androidReleaseSmokeEvidenceReady,
+    hasAndroidReleaseNoNetworkSmokeSummary,
+    androidReleaseNoNetworkSmokeSummaryErrors,
+    androidReleaseNoNetworkSmokeEvidenceReady,
     hasAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseCreateWalletSmokeSummaryErrors,
     androidReleaseCreateWalletSmokeEvidenceReady,
@@ -437,6 +461,19 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`);
   audit.androidReleaseSmokeSummaryErrors.forEach(error => lines.push(`- ${error}`));
   lines.push(`Sentry release smoke evidence ready: ${audit.androidReleaseSmokeEvidenceReady ? 'yes' : 'no'}`);
+  lines.push(`Android release no-network smoke summary present: ${audit.hasAndroidReleaseNoNetworkSmokeSummary ? 'yes' : 'no'}`);
+  lines.push(
+    `Android release no-network smoke summary valid: ${
+      audit.androidReleaseNoNetworkSmokeSummaryErrors.length === 0 ? 'yes' : 'no'
+    }`,
+  );
+  lines.push(`Android release no-network smoke summary errors: ${audit.androidReleaseNoNetworkSmokeSummaryErrors.length}`);
+  audit.androidReleaseNoNetworkSmokeSummaryErrors.forEach(error => lines.push(`- ${error}`));
+  lines.push(
+    `Sentry release no-network blocker evidence ready: ${
+      audit.androidReleaseNoNetworkSmokeEvidenceReady ? 'yes' : 'no'
+    }`,
+  );
   lines.push(`Android release create-wallet smoke summary present: ${audit.hasAndroidReleaseCreateWalletSmokeSummary ? 'yes' : 'no'}`);
   lines.push(
     `Android release create-wallet smoke summary valid: ${
@@ -559,6 +596,19 @@ const printReport = audit => {
   console.log(`Android release smoke summary errors: ${audit.androidReleaseSmokeSummaryErrors.length}`);
   audit.androidReleaseSmokeSummaryErrors.forEach(error => console.log(`- ${error}`));
   console.log(`Sentry release smoke evidence ready: ${audit.androidReleaseSmokeEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`Android release no-network smoke summary present: ${audit.hasAndroidReleaseNoNetworkSmokeSummary ? 'yes' : 'no'}`);
+  console.log(
+    `Android release no-network smoke summary valid: ${
+      audit.androidReleaseNoNetworkSmokeSummaryErrors.length === 0 ? 'yes' : 'no'
+    }`,
+  );
+  console.log(`Android release no-network smoke summary errors: ${audit.androidReleaseNoNetworkSmokeSummaryErrors.length}`);
+  audit.androidReleaseNoNetworkSmokeSummaryErrors.forEach(error => console.log(`- ${error}`));
+  console.log(
+    `Sentry release no-network blocker evidence ready: ${
+      audit.androidReleaseNoNetworkSmokeEvidenceReady ? 'yes' : 'no'
+    }`,
+  );
   console.log(`Android release create-wallet smoke summary present: ${audit.hasAndroidReleaseCreateWalletSmokeSummary ? 'yes' : 'no'}`);
   console.log(
     `Android release create-wallet smoke summary valid: ${

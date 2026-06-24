@@ -17,3 +17,21 @@ export const getAndroidReleaseSmokeEvidenceOptions = root => ({
     'app-dev-release-unsigned.apk',
   ),
 });
+
+export const getAndroidReleaseNoNetworkSmokeEvidenceOptions = root => ({
+  expectedArtifactBase: 'android-smoke-dev-release-no-network',
+  requireSmokeApkDigest: true,
+  expectedSmokeApkPath: path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk'),
+  requireSourceApkDigest: true,
+  expectedSourceApkPath: path.join(
+    root,
+    'android',
+    'app',
+    'build',
+    'outputs',
+    'apk',
+    'dev',
+    'release',
+    'app-dev-release-unsigned.apk',
+  ),
+});

@@ -47,6 +47,11 @@ const notReadySummary = [
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
   'Sentry release smoke evidence ready: yes',
+  'Android release no-network smoke summary present: no',
+  'Android release no-network smoke summary valid: no',
+  'Android release no-network smoke summary errors: 1',
+  '- Android release no-network smoke summary artifact is missing',
+  'Sentry release no-network blocker evidence ready: no',
   'Android release create-wallet smoke summary present: yes',
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
@@ -122,6 +127,11 @@ const readySummary = [
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
   'Sentry release smoke evidence ready: yes',
+  'Android release no-network smoke summary present: no',
+  'Android release no-network smoke summary valid: no',
+  'Android release no-network smoke summary errors: 1',
+  '- Android release no-network smoke summary artifact is missing',
+  'Sentry release no-network blocker evidence ready: no',
   'Android release create-wallet smoke summary present: yes',
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
@@ -335,7 +345,7 @@ assertRejected(
 assertRejected(
   'Invalid Android release smoke fixture',
   notReadySummary.replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no'),
-  'valid Android release smoke summary',
+  'valid full Android release smoke evidence or valid controlled no-network blocker evidence',
 );
 assertRejected(
   'Missing Sentry release smoke evidence fixture',
