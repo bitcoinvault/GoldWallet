@@ -8,14 +8,14 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 ## Current Package State
 
-| Package | Current package.json | Latest npm checked on 2026-06-17 | Notes |
+| Package | Current package.json | Latest npm checked | Notes |
 | --- | --- | --- | --- |
 | `@react-native-firebase/app` | `24.1.1` | `24.1.1` | Current package pulls `firebase@12.14.0`. |
 | `@react-native-firebase/analytics` | `24.1.1` | `24.1.1` | Peer requires matching `@react-native-firebase/app@24.1.1`. |
 | `@react-native-firebase/crashlytics` | `24.1.1` | `24.1.1` | Peer requires matching `@react-native-firebase/app@24.1.1`. |
 | `@react-native-firebase/messaging` | `24.1.1` | `24.1.1` | Peer requires matching `@react-native-firebase/app@24.1.1`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
-| `react-native-code-push` | removed | `9.0.1` | Removed in `BEM-37.583`; App Center CodePush was retired on 2025-03-31, the Microsoft `react-native-code-push` repository was archived on 2025-05-20, and upstream does not support New Architecture on React Native `>=0.76`. |
+| `react-native-code-push` | removed | `9.0.1` on 2026-06-24 | Removed in `BEM-37.583`; App Center CodePush was retired on 2025-03-31, the Microsoft `react-native-code-push` repository was archived on 2025-05-20, and upstream does not support New Architecture on React Native `>=0.76`. |
 | `@sentry/react-native` | `8.15.1` | `8.15.1` | Latest checked SDK line; source-map and dSYM behavior must still be proven with local credentials. |
 | `@sentry/cli` | `3.5.1` | `3.5.1` | Explicit release-tooling dependency; prerequisite audit checks binary availability, live latest metadata, installed direct/nested CLI versions, and whether release build phases use the direct root CLI package. |
 
@@ -85,7 +85,7 @@ The full handoff refreshes Android release APK evidence with Sentry auto-upload 
 
 After `BEM-37.627`, the release-services handoff defaults to the current post-removal CodePush posture: `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota`. Pass explicit CodePush decision flags only when planning a future `replace` branch or an explicit temporary legacy exception. The default handoff must keep OTA update validation unclaimed because CodePush runtime/native integration is removed and no maintained replacement has been selected or delivery-tested.
 
-The 2026-06-17 CodePush posture refresh confirms `react-native-code-push@9.0.1` is still the latest npm release, Microsoft `react-native-code-push` and `code-push-server` are still archived, local runtime/native/env/plist CodePush surfaces remain removed, `Decision: remove` is the current handoff posture, beta has no OTA, and OTA update validation remains `not claimed`.
+The 2026-06-24 CodePush posture refresh confirms `react-native-code-push@9.0.1` is still the latest npm release, Microsoft `react-native-code-push` and `code-push-server` are still archived, local runtime/native/package/env/plist CodePush surfaces remain removed, `Decision: remove` is the current handoff posture, beta has no OTA, and OTA update validation remains `not claimed`.
 
 After `BEM-37.421`, Sentry has a narrower source-map prerequisite handoff for the point when `SENTRY_AUTH_TOKEN` is available:
 
@@ -141,6 +141,7 @@ corepack yarn release-services:check-summaries
 
 Results:
 
+- A focused 2026-06-24 CodePush refresh reran live npm/GitHub checks plus CodePush release-path, migration-readiness, and removal-readiness audits against the existing Android release evidence. It did not rebuild APKs or claim OTA delivery; it confirms `CodePush removed: yes`, `CodePush migration required: no`, `Current posture: removed`, `Long-term options: removed`, runtime/native/package/env/plist surfaces removed, release build/smoke/create-wallet evidence ready, `0` readiness issues, `0` wiring errors, and `Secret values printed: no`.
 - The 2026-06-17 aggregate release-services refresh completed against the current Android release evidence without rebuilding APKs: Sentry Android warning, Sentry RN bundle task compatibility, Sentry release prerequisite, Firebase release-services, CodePush release path, CodePush migration/removal/env cleanup readiness, CodePush decision handoff, push notification bridge, iOS release readiness, iOS macOS prerequisite, iOS Podfile refresh plan, iOS validation handoff, and the final aggregate `release-services:check-summaries` gate all validated.
 - CodePush release-path wiring is removed from non-dev runtime, Android, iOS, package, and lockfile surfaces.
 - Android local release evidence was refreshed on 2026-06-17 and covers `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, target SDK `36`, and Sentry auto upload disabled; the summary records APK path, byte count, SHA-256, JS bundle, and source-map evidence for each unsigned release artifact.

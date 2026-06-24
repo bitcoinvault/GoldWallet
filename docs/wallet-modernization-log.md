@@ -10,6 +10,53 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.782 - CodePush decision/readiness refresh
+
+- Branch: `feature/bem-37-782-codepush-decision-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh CodePush release-decision evidence after the rebranding/env/store metadata readiness refresh.
+- Re-check live `react-native-code-push` npm metadata and Microsoft CodePush GitHub repository archive state.
+- Re-run CodePush release-path, migration-readiness, removal-readiness, decision, and update-validation handoff guards without changing runtime code, native project files, env values, package versions, lockfiles, Metro config, or build files.
+
+Findings:
+
+- Live npm metadata on 2026-06-24 reports `react-native-code-push@9.0.1` as the latest release, published on 2024-12-19.
+- GitHub checks on 2026-06-24 report both `microsoft/react-native-code-push` and `microsoft/code-push-server` as archived/read-only, with latest pushed timestamps on 2025-05-20.
+- Local CodePush audits continue to classify the app posture as removed: runtime, Android native, iOS native, package, lockfile, env, and plist CodePush surfaces remain removed.
+- The migration-readiness summary reports `Current posture: removed`, `Long-term options: removed`, `CodePush migration required: no`, release build/smoke/create-wallet evidence ready, and `CodePush update validation: not claimed`.
+- The removal-readiness summary reports `Runtime usage files: 0`, `Native integration files: 0`, `Env files carrying CodePush keys: 0`, `iOS plist placeholders: 0`, `Decision: remove`, and beta strategy `beta has no OTA`.
+- No Android runtime validation is required for this branch because it changes only documentation/readiness evidence and does not alter runtime code, native config, env values, package versions, lockfiles, Metro config, or build files.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `npm view react-native-code-push version time repository.url dist-tags peerDependencies dependencies --json`
+- `gh repo view microsoft/react-native-code-push --json nameWithOwner,isArchived,pushedAt,defaultBranchRef,description,url`
+- `gh repo view microsoft/code-push-server --json nameWithOwner,isArchived,pushedAt,defaultBranchRef,description,url`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn check:codepush-migration-readiness-summary-guard`
+- `corepack yarn codepush:removal-readiness:audit`
+- `corepack yarn codepush:removal-readiness:check-summary`
+- `corepack yarn check:codepush-removal-readiness-summary-guard`
+- `corepack yarn check:codepush-decision-handoff-guard`
+- `corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota`
+- `corepack yarn check:codepush-decision-handoff-summary-guard`
+- `corepack yarn check:codepush-update-validation-handoff-guard`
+- `corepack yarn codepush:update:validation:handoff:dry-run --skip-android-release`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.781 - Rebranding/env/store metadata readiness refresh
 
 - Branch: `feature/bem-37-781-rebranding-env-readiness-refresh`
