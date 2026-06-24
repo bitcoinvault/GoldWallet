@@ -153,6 +153,16 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     errors.push('Babel 8 drift must remain tied to a dedicated RN/Metro/Babel branch decision');
   }
 
+  const polyfillRegeneratorLine = entryLines.find(line => line.startsWith('- babel-plugin-polyfill-regenerator: '));
+  if (
+    polyfillRegeneratorLine &&
+    (!polyfillRegeneratorLine.includes('dedicated RN/Metro/Babel branch') ||
+      !polyfillRegeneratorLine.includes('Babel runtime') ||
+      !polyfillRegeneratorLine.includes('bundle transforms'))
+  ) {
+    errors.push('babel-plugin-polyfill-regenerator drift must remain tied to the RN/Metro/Babel branch decision');
+  }
+
   if (
     entryLines.some(line => line.startsWith('- react-native-gesture-handler: ')) &&
     !entryLines.some(line => line.startsWith('- react-native-gesture-handler: ') && line.includes('dedicated navigation/gesture smoke branch'))
