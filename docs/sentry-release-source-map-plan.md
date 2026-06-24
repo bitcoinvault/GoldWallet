@@ -71,6 +71,8 @@
 - `sentry:release:validation:preflight` now passes without rendering secret values and keeps credentialed upload explicitly unclaimed while using current Android release build evidence plus the controlled no-network blocker proof.
 - `sentry:release:prereq-audit` still reports `Release source-map prerequisites: not ready` because `SENTRY_AUTH_TOKEN` is absent, all three Sentry properties files are missing, full Android release smoke/create-wallet proof is blocked by `No network`, iOS macOS archive validation is not ready, and `ios/Podfile.lock` has 12 drift issues.
 - `android:dev:release:network-blocker:audit` and `android:dev:release:network-blocker:check-summary` classify the current release-smoke blocker as `blocked-by-electrum-certificate-expired` only when the failed release-smoke log contains `SSLHandshakeException` plus `CertificateExpiredException` and the reduced no-network release-smoke proof is current.
+- `sentry:release:prereq-audit` now embeds `Android release network blocker summary present/valid/outcome/errors` and `Sentry release network blocker classified`, so the no-network preflight fallback is tied to the expired Electrum TLS certificate instead of a generic connection screen.
+- `sentry:release:validation:preflight` passes in the current not-ready state only after `android:dev:release:network-blocker:check-summary` and the Sentry prerequisite summary both classify the release blocker as `blocked-by-electrum-certificate-expired`.
 - `release-services:check-summaries` remains intentionally stricter than Sentry preflight and should stay red until full release-smoke and release create-wallet evidence can be regenerated.
 
 ## Credential Handoff Gate

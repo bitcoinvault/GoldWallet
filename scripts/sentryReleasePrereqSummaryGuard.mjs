@@ -69,6 +69,11 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     summary,
     'Sentry release no-network blocker evidence ready',
   );
+  const androidReleaseNetworkBlockerSummaryPresent = getLineValue(summary, 'Android release network blocker summary present');
+  const androidReleaseNetworkBlockerSummaryValid = getLineValue(summary, 'Android release network blocker summary valid');
+  const androidReleaseNetworkBlockerOutcome = getLineValue(summary, 'Android release network blocker outcome');
+  const androidReleaseNetworkBlockerSummaryErrors = getLineValue(summary, 'Android release network blocker summary errors');
+  const sentryReleaseNetworkBlockerClassified = getLineValue(summary, 'Sentry release network blocker classified');
   const androidReleaseCreateWalletSmokeSummaryPresent = getLineValue(summary, 'Android release create-wallet smoke summary present');
   const androidReleaseCreateWalletSmokeSummaryValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
   const androidReleaseCreateWalletSmokeSummaryErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
@@ -115,6 +120,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseNoNetworkSmokeSummaryErrorLines = getBulletLinesAfter(
     summary,
     'Android release no-network smoke summary errors',
+  );
+  const androidReleaseNetworkBlockerSummaryErrorLines = getBulletLinesAfter(
+    summary,
+    'Android release network blocker summary errors',
   );
   const androidReleaseCreateWalletSmokeSummaryErrorLines = getBulletLinesAfter(
     summary,
@@ -355,7 +364,12 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseNoNetworkSmokeSummaryPresent === 'yes' &&
     androidReleaseNoNetworkSmokeSummaryValid === 'yes' &&
     androidReleaseNoNetworkSmokeSummaryErrors === '0' &&
-    sentryReleaseNoNetworkBlockerEvidenceReady === 'yes';
+    sentryReleaseNoNetworkBlockerEvidenceReady === 'yes' &&
+    androidReleaseNetworkBlockerSummaryPresent === 'yes' &&
+    androidReleaseNetworkBlockerSummaryValid === 'yes' &&
+    androidReleaseNetworkBlockerSummaryErrors === '0' &&
+    androidReleaseNetworkBlockerOutcome === 'blocked-by-electrum-certificate-expired' &&
+    sentryReleaseNetworkBlockerClassified === 'yes';
 
   if (!fullAndroidReleaseSmokeReady && !(readiness === 'not ready' && noNetworkBlockerEvidenceReady)) {
     errors.push(
@@ -369,6 +383,33 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
 
   if (sentryReleaseNoNetworkBlockerEvidenceReady === 'yes' && androidReleaseNoNetworkSmokeSummaryValid !== 'yes') {
     errors.push('Sentry release no-network blocker evidence cannot be ready without a valid no-network smoke summary');
+  }
+
+  if (!/^\d+$/.test(androidReleaseNetworkBlockerSummaryErrors)) {
+    errors.push(
+      `Android release network blocker summary errors must be a non-negative integer. Received: ${
+        androidReleaseNetworkBlockerSummaryErrors || 'missing'
+      }`,
+    );
+  } else if (Number(androidReleaseNetworkBlockerSummaryErrors) !== androidReleaseNetworkBlockerSummaryErrorLines.length) {
+    errors.push(
+      `Android release network blocker summary errors count is ${androidReleaseNetworkBlockerSummaryErrors}, but listed ${androidReleaseNetworkBlockerSummaryErrorLines.length}`,
+    );
+  }
+
+  if (androidReleaseNetworkBlockerSummaryValid === 'yes' && androidReleaseNetworkBlockerSummaryErrors !== '0') {
+    errors.push('Valid Android release network blocker summary must have 0 summary errors');
+  }
+
+  if (
+    sentryReleaseNoNetworkBlockerEvidenceReady === 'yes' &&
+    (androidReleaseNetworkBlockerSummaryValid !== 'yes' ||
+      androidReleaseNetworkBlockerOutcome !== 'blocked-by-electrum-certificate-expired' ||
+      sentryReleaseNetworkBlockerClassified !== 'yes')
+  ) {
+    errors.push(
+      'Sentry release no-network blocker evidence requires a classified Android release network blocker summary with blocked-by-electrum-certificate-expired outcome',
+    );
   }
 
   if (!/^\d+$/.test(androidReleaseCreateWalletSmokeSummaryErrors)) {
@@ -467,6 +508,9 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseNoNetworkSmokeSummaryPresent,
     androidReleaseNoNetworkSmokeSummaryValid,
     sentryReleaseNoNetworkBlockerEvidenceReady,
+    androidReleaseNetworkBlockerSummaryPresent,
+    androidReleaseNetworkBlockerSummaryValid,
+    sentryReleaseNetworkBlockerClassified,
     androidReleaseCreateWalletSmokeSummaryPresent,
     androidReleaseCreateWalletSmokeSummaryValid,
     sentryReleaseCreateWalletEvidenceReady,

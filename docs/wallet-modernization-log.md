@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.793 - Sentry network blocker prerequisite integration
+
+- Branch: `feature/bem-37-793-sentry-network-blocker-integration`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire the Android release network-blocker summary into `sentry:release:prereq-audit`.
+- Require a classified `blocked-by-electrum-certificate-expired` network blocker before Sentry preflight can accept the controlled no-network fallback.
+- Refresh Android release build and emulator release-smoke/no-network evidence after the Sentry prerequisite script changes changed the release-input fingerprint.
+
+Findings:
+
+- The first Android release validation refresh hit the known transient Windows RN autolinking `cmd` failure; the rerun passed.
+- Fresh `dev`, `stage`, `prod`, and `beta` release build/manifest evidence is valid with JDK 17 and Sentry auto-upload disabled.
+- Fresh full `devRelease` smoke on `emulator-5554` still fails before dashboard assertions because the app reaches `No network`.
+- Fresh reduced `android-smoke-dev-release-no-network` proof passes on `emulator-5554` against the same signed release APK.
+- The network-blocker audit now classifies the current release-smoke blocker as `blocked-by-electrum-certificate-expired` with `SSLHandshakeException` and `CertificateExpiredException` logcat evidence.
+- `sentry:release:validation:preflight` passes only as a controlled `not ready` preflight; Sentry upload, full release-smoke, release create-wallet, and iOS archive validation remain unclaimed.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn check:sentry-release-prereq-summary-guard`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; $env:SENTRY_DISABLE_AUTO_UPLOAD='true'; corepack yarn node:runtime:yarn android:dev:release:verify-local` failed once with the transient Windows RN autolinking `cmd` error.
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; $env:SENTRY_DISABLE_AUTO_UPLOAD='true'; corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; corepack yarn node:runtime:yarn android:dev:release:smoke:embedded` failed at expected dashboard assertions after reaching `No network`.
+- `ANDROID_SMOKE_APK=D:\GoldWallet\local-docs\android-smoke-dev-release-signed.apk ANDROID_SMOKE_SOURCE_APK=D:\GoldWallet\android\app\build\outputs\apk\dev\release\app-dev-release-unsigned.apk ANDROID_SMOKE_PACKAGE=io.goldwallet.wallet.dev ANDROID_SMOKE_ACTIVITY=io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release-no-network ANDROID_SMOKE_REQUIRE_METRO=false ANDROID_SMOKE_WAIT_MS=45000 ANDROID_SMOKE_CLEAR_APP_DATA=true ANDROID_SMOKE_EXPECT_TEXTS="No network" ANDROID_SMOKE_EXPECT_RESOURCE_IDS="" ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS=false ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION=false ANDROID_SMOKE_VALIDATE_QR_SCANNER=false ANDROID_SMOKE_VALIDATE_SETTINGS_TERMS_WEBVIEW=false corepack yarn node:runtime:yarn android:dev:smoke`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-audit`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:validation:preflight`
+
 ### BEM-37.792 - Android release Electrum blocker audit
 
 - Branch: `feature/bem-37-792-electrum-release-blocker-diagnostics`
