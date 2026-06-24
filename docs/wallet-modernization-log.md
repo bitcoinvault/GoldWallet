@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.801 - Release-services blocked-state handoff guard
+
+- Branch: `feature/bem-37-801-release-services-blocked-state-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Fix the release-services validation handoff self-guard so it no longer assumes current local summary artifacts must always be fully green.
+- Accept either fully valid release-services artifacts or the current controlled `blocked-by-electrum-certificate-expired` state, but only when the Android release network-blocker summary itself is valid.
+- Keep the final aggregate `release-services:check-summaries` gate strict and red while full Android release smoke/create-wallet proof is blocked by the external Electrum certificate.
+
+Findings:
+
+- Before this branch, `check:release-services-validation-handoff-guard` failed because `release-services:check-summaries` is intentionally red after the current `devRelease` smoke reaches `No network`.
+- The failure was in the self-guard expectation, not in app runtime code: the aggregate gate still correctly rejects missing full dashboard release-smoke and current release create-wallet evidence.
+- The updated guard accepts only the known current Android release-smoke/create-wallet error set and requires the classified network-blocker summary; unexpected aggregate errors still fail the guard.
+- Android runtime validation is not required for this branch because it changes only a guard script and documentation; it does not change runtime code, native files, Metro config, package versions, or lockfiles.
+
+Validation:
+
+- `node --check scripts/checkReleaseServicesValidationHandoffGuard.mjs`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn node:runtime:yarn check:release-services-validation-handoff-guard`
+- `corepack yarn node:runtime:yarn release-services:check-summaries` failed as expected with Android release smoke/create-wallet blockers while the Electrum cert blocker is active.
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.800 - iOS all-schemes handoff command guard
 
 - Branch: `feature/bem-37-800-ios-handoff-command-guard`
