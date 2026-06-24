@@ -33,6 +33,8 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
   const minimumAgp9Gradle = getLineValue(summary, 'AGP 9 minimum Gradle wrapper');
   const currentKotlin = getLineValue(summary, 'Current Kotlin Gradle Plugin');
   const latestKotlin = getLineValue(summary, 'Latest Kotlin Gradle Plugin');
+  const kotlinMetadataRelease = getLineValue(summary, 'Latest Kotlin metadata release');
+  const kotlinMetadataReleasePrerelease = getLineValue(summary, 'Latest Kotlin metadata release prerelease');
   const rnGradlePlugin = getLineValue(summary, 'React Native Gradle plugin');
   const targetBlocked = getLineValue(summary, 'Latest Android toolchain target blocked');
   const blockerCount = getLineValue(summary, 'Blockers');
@@ -61,6 +63,18 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
       errors.push(`${label} must be a semver-like version. Received: ${value || 'missing'}`);
     }
   });
+
+  if (!/^\d+\.\d+(?:\.\d+)?/.test(kotlinMetadataRelease)) {
+    errors.push(`Latest Kotlin metadata release must be a semver-like version. Received: ${kotlinMetadataRelease || 'missing'}`);
+  }
+
+  if (/[A-Za-z]/.test(latestKotlin)) {
+    errors.push(`Latest Kotlin Gradle Plugin must be the latest stable target, not a prerelease. Received: ${latestKotlin || 'missing'}`);
+  }
+
+  if (!['yes', 'no'].includes(kotlinMetadataReleasePrerelease)) {
+    errors.push(`Latest Kotlin metadata release prerelease must be yes or no. Received: ${kotlinMetadataReleasePrerelease || 'missing'}`);
+  }
 
   if (currentAgp !== '8.13.2') {
     errors.push(`Current Android Gradle Plugin must remain 8.13.2 until the AGP 9 blocker is cleared. Received: ${currentAgp || 'missing'}`);

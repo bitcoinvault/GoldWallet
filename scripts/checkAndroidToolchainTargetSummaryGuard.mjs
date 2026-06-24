@@ -10,6 +10,8 @@ const validSummary = [
   'AGP 9 minimum Gradle wrapper: 9.4.1',
   'Current Kotlin Gradle Plugin: 2.1.20',
   'Latest Kotlin Gradle Plugin: 2.4.0',
+  'Latest Kotlin metadata release: 2.4.20-Beta1',
+  'Latest Kotlin metadata release prerelease: yes',
   'React Native Gradle plugin: 0.86.0',
   'Latest Android toolchain target blocked: yes',
   'Blockers: 3',
@@ -44,6 +46,12 @@ assertAccepted('Valid Android toolchain target fixture', validSummary);
 assertRejected('Bad header fixture', validSummary.replace('Android toolchain target audit', 'Bad header'), 'summary header');
 assertRejected('Bad current AGP fixture', validSummary.replace('Current Android Gradle Plugin: 8.13.2', 'Current Android Gradle Plugin: 9.2.1'), '8.13.2');
 assertRejected('Bad Gradle fixture', validSummary.replace('Current Gradle wrapper: 8.13', 'Current Gradle wrapper: 9.4.1'), '8.13');
+assertRejected('Prerelease Kotlin target fixture', validSummary.replace('Latest Kotlin Gradle Plugin: 2.4.0', 'Latest Kotlin Gradle Plugin: 2.4.20-Beta1'), 'latest stable target');
+assertRejected(
+  'Missing Kotlin metadata release fixture',
+  validSummary.replace('Latest Kotlin metadata release: 2.4.20-Beta1', 'Latest Kotlin metadata release: missing'),
+  'Latest Kotlin metadata release',
+);
 assertRejected('Unblocked target fixture', validSummary.replace('Latest Android toolchain target blocked: yes', 'Latest Android toolchain target blocked: no'), 'must stay blocked');
 assertRejected('Bad blocker count fixture', validSummary.replace('Blockers: 3', 'Blockers: 2'), 'Blockers count');
 assertRejected(
