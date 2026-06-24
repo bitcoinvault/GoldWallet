@@ -19,9 +19,13 @@ const requiredLabels = [
   'SSL handshake exception lines',
   'Certificate expired exception lines',
   'TCP socket exception lines',
+  'Dev/testnet Electrum endpoint',
   'Certificate expired at',
+  'Certificate compared at sample',
   'No-network UI proof ready',
   'Expired certificate evidence ready',
+  'Reduced no-network smoke is full release proof',
+  'Release services gate remains blocked',
   'Release blocker outcome',
   'Secret values printed',
   'Required action',
@@ -53,6 +57,8 @@ export const getAndroidReleaseNetworkBlockerSummaryErrors = summary => {
     ['Release log present', 'yes'],
     ['No-network UI proof ready', 'yes'],
     ['Expired certificate evidence ready', 'yes'],
+    ['Reduced no-network smoke is full release proof', 'no'],
+    ['Release services gate remains blocked', 'yes'],
     ['Release blocker outcome', 'blocked-by-electrum-certificate-expired'],
     ['Secret values printed', 'no'],
   ].forEach(([label, expectedValue]) => {
@@ -69,6 +75,19 @@ export const getAndroidReleaseNetworkBlockerSummaryErrors = summary => {
 
   if (!/\bGMT\b/.test(getLineValue(summary, 'Certificate expired at'))) {
     errors.push('Certificate expired at must include the parsed GMT timestamp from logcat');
+  }
+
+  if (!/\bGMT\b/.test(getLineValue(summary, 'Certificate compared at sample'))) {
+    errors.push('Certificate compared at sample must include the parsed GMT timestamp from logcat');
+  }
+
+  const electrumEndpoint = getLineValue(summary, 'Dev/testnet Electrum endpoint');
+  if (!/^electrumx\.testnet\.btcv\.stage\.rnd\.land:443 tls$/.test(electrumEndpoint)) {
+    errors.push(
+      `Dev/testnet Electrum endpoint must be electrumx.testnet.btcv.stage.rnd.land:443 tls. Received: ${
+        electrumEndpoint || 'missing'
+      }`,
+    );
   }
 
   ['Release log bytes', 'SSL handshake exception lines', 'Certificate expired exception lines', 'TCP socket exception lines'].forEach(
@@ -88,9 +107,12 @@ export const getAndroidReleaseNetworkBlockerSummaryErrors = summary => {
   if (
     !/renew|replace|fix/i.test(requiredAction) ||
     !/dev\/testnet Electrum TLS certificate/.test(requiredAction) ||
+    !/electrumx\.testnet\.btcv\.stage\.rnd\.land:443 tls/.test(requiredAction) ||
     !/rerun/i.test(requiredAction)
   ) {
-    errors.push('Required action must mention fixing the dev/testnet Electrum TLS certificate and rerunning validation');
+    errors.push(
+      'Required action must mention fixing the dev/testnet Electrum TLS certificate endpoint and rerunning validation',
+    );
   }
 
   if (!summary.includes('Blocker evidence lines:')) {

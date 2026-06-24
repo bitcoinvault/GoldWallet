@@ -12,9 +12,14 @@ const outputPath = path.join(localDocsDir, 'android-release-network-blocker-summ
 const fullSmokeSummaryPath = path.join(localDocsDir, 'android-smoke-dev-release-summary.txt');
 const noNetworkSmokeSummaryPath = path.join(localDocsDir, 'android-smoke-dev-release-no-network-summary.txt');
 const releaseLogPath = path.join(localDocsDir, 'android-smoke-dev-release.log');
+const devTestnetEnvPath = path.join(root, '.env.dev.testnet');
 
 const readIfPresent = filePath => (existsSync(filePath) ? readFileSync(filePath, 'utf8') : '');
 const fileSha256 = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
+const parseEnvValue = (envContent, key) => {
+  const match = envContent.match(new RegExp(`^${key}=(.*)$`, 'm'));
+  return match?.[1]?.trim() || '<missing>';
+};
 
 const sanitizeLine = line =>
   line
@@ -49,7 +54,12 @@ const renderSummary = () => {
   const fullSmokeSummary = readIfPresent(fullSmokeSummaryPath);
   const noNetworkSmokeSummary = readIfPresent(noNetworkSmokeSummaryPath);
   const releaseLog = readIfPresent(releaseLogPath);
+  const devTestnetEnv = readIfPresent(devTestnetEnvPath);
   const parsedLog = parseReleaseLog(releaseLog);
+  const electrumHost = parseEnvValue(devTestnetEnv, 'HOSTS');
+  const electrumPort = parseEnvValue(devTestnetEnv, 'PORT');
+  const electrumProtocol = parseEnvValue(devTestnetEnv, 'PROTOCOL');
+  const electrumEndpoint = `${electrumHost}:${electrumPort} ${electrumProtocol}`;
   const noNetworkErrors = noNetworkSmokeSummary
     ? getAndroidNoNetworkSmokeSummaryErrors(
         noNetworkSmokeSummary,
@@ -87,13 +97,16 @@ const renderSummary = () => {
     `SSL handshake exception lines: ${parsedLog.sslHandshakeLines.length}`,
     `Certificate expired exception lines: ${parsedLog.certificateExpiredLines.length}`,
     `TCP socket exception lines: ${parsedLog.tcpSocketExceptionLines.length}`,
+    `Dev/testnet Electrum endpoint: ${electrumEndpoint}`,
     `Certificate expired at: ${parsedLog.certificateExpiredAt}`,
     `Certificate compared at sample: ${parsedLog.certificateComparedAt}`,
     `No-network UI proof ready: ${noNetworkReady ? 'yes' : 'no'}`,
     `Expired certificate evidence ready: ${expiredCertificateReady ? 'yes' : 'no'}`,
+    'Reduced no-network smoke is full release proof: no',
+    'Release services gate remains blocked: yes',
     `Release blocker outcome: ${outcome}`,
     'Secret values printed: no',
-    'Required action: renew or fix the dev/testnet Electrum TLS certificate, then rerun Android devRelease smoke and release create-wallet validation.',
+    `Required action: renew or fix the dev/testnet Electrum TLS certificate for ${electrumEndpoint}, then rerun Android devRelease smoke and release create-wallet validation.`,
     '',
     'Blocker evidence lines:',
     ...(evidenceLines.length > 0 ? evidenceLines : ['<none>']),
