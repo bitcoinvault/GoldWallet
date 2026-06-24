@@ -5,6 +5,7 @@ import net from 'net';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { formatAdbFailureReason, runAdbProcessWithRetry } from './androidAdbRetry.mjs';
+import { getAndroidDataStoragePreflight, renderAndroidDataStorageFailure } from './androidDataStoragePreflight.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -34,6 +35,7 @@ const compilePackage = process.env.ANDROID_SMOKE_COMPILE_PACKAGE !== 'false';
 const compilePackageTimeoutMs = Number(
   process.env.ANDROID_SMOKE_COMPILE_TIMEOUT_MS || Math.max(adbCommandTimeoutMs, 180000),
 );
+const dataStorageMultiplier = Number(process.env.ANDROID_SMOKE_DATA_STORAGE_MULTIPLIER || 3);
 const metroHost = process.env.ANDROID_SMOKE_METRO_HOST || '127.0.0.1';
 const metroPort = Number(process.env.ANDROID_SMOKE_METRO_PORT || 8081);
 const metroTimeoutMs = Number(process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS || 3000);
@@ -80,6 +82,9 @@ let validatedEmptyDashboardCtaFlow = false;
 let validatedEmptyTabNavigation = false;
 let validatedQrScannerScreen = false;
 let validatedSettingsTermsWebView = false;
+let dataStoragePreflight = 'not run';
+let dataStorageAvailableKilobytes = 0;
+let dataStorageRequiredKilobytes = 0;
 
 mkdirSync(outputDir, { recursive: true });
 
@@ -171,6 +176,10 @@ const writeSummary = exitCode => {
     `Source APK path: ${sourceApkEvidence.path}`,
     `Source APK bytes: ${sourceApkEvidence.bytes}`,
     `Source APK sha256: ${sourceApkEvidence.sha256}`,
+    `Data storage preflight: ${dataStoragePreflight}`,
+    `Data storage available KiB: ${dataStorageAvailableKilobytes}`,
+    `Data storage required KiB: ${dataStorageRequiredKilobytes}`,
+    `Data storage multiplier: ${dataStorageMultiplier}`,
     `Metro required: ${metroRequired ? 'yes' : 'no'}`,
     `Metro endpoint: ${metroHost}:${metroPort}`,
     `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
@@ -375,6 +384,35 @@ const grantPermissionIfPossible = permission => {
   } catch (permissionError) {
     append(`grant ${permission} skipped: ${permissionError.message}`);
   }
+};
+
+const verifyDataStorageBeforeInstall = () => {
+  const apkEvidence = fileEvidence(apkPath);
+  const dfOutput = run('check Android data storage', ['shell', 'df', '-k', '/data'], {
+    printOutput: false,
+    recordOutput: true,
+  });
+  const storage = getAndroidDataStoragePreflight({
+    dfOutput,
+    apkBytes: apkEvidence.bytes,
+    multiplier: dataStorageMultiplier,
+  });
+
+  dataStorageAvailableKilobytes = storage.availableKilobytes;
+  dataStorageRequiredKilobytes = storage.requiredKilobytes;
+  dataStoragePreflight = storage.passed ? 'passed' : 'failed';
+
+  if (!storage.passed) {
+    throw new Error(
+      renderAndroidDataStorageFailure({
+        ...storage,
+        apkBytes: apkEvidence.bytes,
+        multiplier: dataStorageMultiplier,
+      }),
+    );
+  }
+
+  append(`Android data storage preflight passed: ${storage.availableLabel} free, ${storage.requiredLabel} required.`);
 };
 
 const validateEmptyDashboardCtaFlowIfEnabled = dashboardHierarchy => {
@@ -919,6 +957,12 @@ try {
     );
   }
 
+  if (!Number.isFinite(dataStorageMultiplier) || dataStorageMultiplier <= 0) {
+    throw new Error(
+      `ANDROID_SMOKE_DATA_STORAGE_MULTIPLIER must be a positive number. Received: ${process.env.ANDROID_SMOKE_DATA_STORAGE_MULTIPLIER}`,
+    );
+  }
+
   if (!existsSync(apkPath)) {
     throw new Error(
       `APK not found: ${apkPath}. Run corepack yarn android:dev:verify to rebuild and smoke-test the dev APK.`,
@@ -939,6 +983,7 @@ try {
   if (compilePackage) {
     append(`Using package compile timeout: ${compilePackageTimeoutMs}ms`);
   }
+  append(`Using data storage multiplier: ${dataStorageMultiplier}`);
   append(`Using Metro required: ${metroRequired ? 'yes' : 'no'}`);
   append(`Using Metro endpoint: ${metroHost}:${metroPort}`);
   append(`Using Metro check timeout: ${metroTimeoutMs}ms`);
@@ -992,6 +1037,7 @@ try {
   selectedAndroidSerial = androidSerial || deviceSerials[0];
   append(`Using Android serial: ${selectedAndroidSerial}`);
 
+  verifyDataStorageBeforeInstall();
   run('install APK', ['install', '-r', apkPath]);
   if (compilePackage) {
     run('compile installed package', ['shell', 'cmd', 'package', 'compile', '-m', 'speed', '-f', packageName], {
