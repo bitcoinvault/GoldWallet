@@ -67,6 +67,10 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
   const bundlePodAvailable = getLineValue(evidence.macValidationPrereqSummary, 'bundle exec pod available') || 'no';
   const runtimeValidation = getLineValue(evidence.macValidationPrereqSummary, 'iOS runtime delivery validation') || 'not claimed';
   const guardedSchemes = Object.keys(iosMacValidationSchemes).length;
+  const macHandoffCommand = 'corepack yarn ios:mac-validation:handoff --all-schemes';
+  const macHandoffDryRunCommand = 'corepack yarn ios:mac-validation:handoff:dry-run --all-schemes';
+  const macHandoffSchemeCoverage = 'all shared schemes';
+  const macHandoffSdk = 'iphonesimulator';
   const blockers = [];
 
   if (!releaseSummaryValid) {
@@ -127,8 +131,8 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
       : 'no';
   const requiredAction =
     podfileLockRefreshRequired === 'yes'
-      ? 'refresh ios/Podfile.lock with pod install on macOS, then run iOS archive/simulator validation before claiming iOS runtime delivery.'
-      : 'run iOS archive/simulator validation on macOS before claiming iOS runtime delivery.';
+      ? `refresh ios/Podfile.lock with pod install on macOS, then run \`${macHandoffCommand}\` before claiming iOS runtime delivery.`
+      : `run \`${macHandoffCommand}\` on macOS before claiming iOS runtime delivery.`;
 
   return [
     'iOS validation handoff summary',
@@ -147,6 +151,11 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `pod available: ${yesNo(podAvailable)}`,
     `bundle exec pod available: ${yesNo(bundlePodAvailable)}`,
     `Guarded iOS schemes: ${guardedSchemes}`,
+    `Mac handoff command: ${macHandoffCommand}`,
+    `Mac handoff dry-run command: ${macHandoffDryRunCommand}`,
+    `Mac handoff scheme coverage: ${macHandoffSchemeCoverage}`,
+    `Mac handoff scheme count: ${guardedSchemes}`,
+    `Mac handoff SDK: ${macHandoffSdk}`,
     `iOS runtime delivery validation: ${runtimeValidation}`,
     `Implementation ready: ${implementationReady}`,
     `Blockers: ${blockers.length}`,

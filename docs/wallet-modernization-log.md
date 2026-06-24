@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.800 - iOS all-schemes handoff command guard
+
+- Branch: `feature/bem-37-800-ios-handoff-command-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Strengthen the generated iOS validation handoff summary so it names the exact macOS command required before claiming iOS runtime delivery.
+- Require the all-schemes command `corepack yarn ios:mac-validation:handoff --all-schemes`, the matching dry-run command, `8` shared schemes, and `iphonesimulator` SDK in the summary guard.
+- Keep Windows-side iOS work static-only: no `ios/Podfile.lock`, Xcode project, package, runtime, or CocoaPods output changes.
+
+Findings:
+
+- The current Windows summary remains not implementation-ready: static iOS release files are valid, but macOS/Xcode/CocoaPods are unavailable and `ios/Podfile.lock` still has `12` drift issues.
+- The handoff is now auditable as one Mac-side command covering all shared schemes instead of a generic "run iOS validation" instruction.
+- iOS runtime delivery remains `not claimed` until the all-schemes handoff runs on macOS with Xcode `16.1+`, refreshes pods, and passes post-build readiness checks.
+
+Validation:
+
+- `node --check scripts/runIosValidationHandoffSummary.mjs`
+- `node --check scripts/iosValidationHandoffSummaryGuard.mjs`
+- `node --check scripts/checkIosValidationHandoffSummaryGuard.mjs`
+- `corepack yarn node:runtime:yarn check:ios-validation-handoff-summary-guard`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:audit`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn node:runtime:yarn ios:validation:handoff-summary`
+- `corepack yarn node:runtime:yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.799 - Electrum certificate blocker guard
 
 - Branch: `feature/bem-37-799-electrum-cert-blocker-guard`

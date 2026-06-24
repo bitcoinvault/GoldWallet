@@ -43,6 +43,11 @@ export const getIosValidationHandoffSummaryErrors = summary => {
   const podAvailable = getLineValue(summary, 'pod available');
   const bundlePodAvailable = getLineValue(summary, 'bundle exec pod available');
   const guardedSchemes = getLineValue(summary, 'Guarded iOS schemes');
+  const macHandoffCommand = getLineValue(summary, 'Mac handoff command');
+  const macHandoffDryRunCommand = getLineValue(summary, 'Mac handoff dry-run command');
+  const macHandoffSchemeCoverage = getLineValue(summary, 'Mac handoff scheme coverage');
+  const macHandoffSchemeCount = getLineValue(summary, 'Mac handoff scheme count');
+  const macHandoffSdk = getLineValue(summary, 'Mac handoff SDK');
   const runtimeValidation = getLineValue(summary, 'iOS runtime delivery validation');
   const implementationReady = getLineValue(summary, 'Implementation ready');
   const blockerCount = getLineValue(summary, 'Blockers');
@@ -84,6 +89,7 @@ export const getIosValidationHandoffSummaryErrors = summary => {
     ['Release Podfile.lock drift issues', releasePodfileLockDriftIssues],
     ['Prereq Podfile.lock drift issues', prereqPodfileLockDriftIssues],
     ['Guarded iOS schemes', guardedSchemes],
+    ['Mac handoff scheme count', macHandoffSchemeCount],
     ['Blockers', blockerCount],
   ].forEach(([label, value]) => {
     if (!isNonNegativeInteger(value)) {
@@ -109,6 +115,28 @@ export const getIosValidationHandoffSummaryErrors = summary => {
 
   if (guardedSchemes !== '8') {
     errors.push(`Guarded iOS schemes must remain 8. Received: ${guardedSchemes || 'missing'}`);
+  }
+
+  if (macHandoffCommand !== 'corepack yarn ios:mac-validation:handoff --all-schemes') {
+    errors.push(`Mac handoff command must run all shared schemes. Received: ${macHandoffCommand || 'missing'}`);
+  }
+
+  if (macHandoffDryRunCommand !== 'corepack yarn ios:mac-validation:handoff:dry-run --all-schemes') {
+    errors.push(
+      `Mac handoff dry-run command must render all shared schemes. Received: ${macHandoffDryRunCommand || 'missing'}`,
+    );
+  }
+
+  if (macHandoffSchemeCoverage !== 'all shared schemes') {
+    errors.push(`Mac handoff scheme coverage must be all shared schemes. Received: ${macHandoffSchemeCoverage || 'missing'}`);
+  }
+
+  if (macHandoffSchemeCount !== guardedSchemes) {
+    errors.push('Mac handoff scheme count must match guarded iOS schemes');
+  }
+
+  if (macHandoffSdk !== 'iphonesimulator') {
+    errors.push(`Mac handoff SDK must be iphonesimulator. Received: ${macHandoffSdk || 'missing'}`);
   }
 
   if (runtimeValidation !== 'not claimed') {
@@ -169,8 +197,8 @@ export const getIosValidationHandoffSummaryErrors = summary => {
     errors.push('Podfile.lock drift handoff must require pod install');
   }
 
-  if (!requiredAction.includes('archive/simulator validation')) {
-    errors.push('Required action must name archive/simulator validation');
+  if (!requiredAction.includes('corepack yarn ios:mac-validation:handoff --all-schemes')) {
+    errors.push('Required action must name the all-schemes macOS validation handoff command');
   }
 
   return errors;
