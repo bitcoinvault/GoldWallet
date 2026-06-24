@@ -12,6 +12,9 @@ const yesNoLabels = [
   'Android release smoke summary valid',
   'Android release create-wallet smoke summary present',
   'Android release create-wallet smoke summary valid',
+  'Controlled network blocker accepted',
+  'Android dev smoke secure-storage steps completed',
+  'Full Android runtime proof ready',
   'Keychain primary write',
   'Legacy fallback reads active',
   'Legacy writes disabled',
@@ -44,12 +47,22 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
   const androidReleaseCreateWalletSmokeValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
   const androidReleaseCreateWalletSmokeArtifactBase = getLineValue(summary, 'Android release create-wallet smoke artifact base');
   const androidReleaseCreateWalletSmokeOutcome = getLineValue(summary, 'Android release create-wallet smoke outcome');
+  const controlledNetworkBlockerOutcome = getLineValue(summary, 'Controlled network blocker outcome');
+  const controlledNetworkBlockerAccepted = getLineValue(summary, 'Controlled network blocker accepted');
+  const androidDevSmokeStorageStepsCompleted = getLineValue(summary, 'Android dev smoke secure-storage steps completed');
+  const fullAndroidRuntimeProofReady = getLineValue(summary, 'Full Android runtime proof ready');
   const migrationErrors = getLineValue(summary, 'Migration summary errors');
   const removalErrors = getLineValue(summary, 'Removal readiness summary errors');
   const androidSmokeErrors = getLineValue(summary, 'Android dev smoke summary errors');
   const androidReleaseSmokeErrors = getLineValue(summary, 'Android release smoke summary errors');
   const androidReleaseCreateWalletSmokeErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
+  const androidReleaseNetworkBlockerErrors = getLineValue(summary, 'Android release network blocker summary errors');
   const requiredAction = getLineValue(summary, 'Required action');
+  const controlledBlockerValid =
+    controlledNetworkBlockerOutcome === 'blocked-by-electrum-certificate-expired' &&
+    controlledNetworkBlockerAccepted === 'yes' &&
+    androidDevSmokeStorageStepsCompleted === 'yes' &&
+    androidReleaseNetworkBlockerErrors === '0';
 
   if (!summary.startsWith('Secure-storage release validation summary')) {
     errors.push('summary header is missing or invalid');
@@ -80,6 +93,7 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     ['Android dev smoke summary errors', androidSmokeErrors],
     ['Android release smoke summary errors', androidReleaseSmokeErrors],
     ['Android release create-wallet smoke summary errors', androidReleaseCreateWalletSmokeErrors],
+    ['Android release network blocker summary errors', androidReleaseNetworkBlockerErrors],
   ].forEach(([label, value]) => {
     if (!isNonNegativeInteger(value)) {
       errors.push(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
@@ -94,12 +108,34 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     errors.push(`Android smoke artifact base must be android-smoke-dev. Received: ${androidSmokeArtifactBase || 'missing'}`);
   }
 
-  if (androidSmokeOutcome !== 'passed') {
+  if (androidSmokeOutcome !== 'passed' && !controlledBlockerValid) {
     errors.push(`Android smoke outcome must be passed for release-validation evidence. Received: ${androidSmokeOutcome || 'missing'}`);
   }
 
+  if (controlledNetworkBlockerAccepted === 'yes') {
+    if (controlledNetworkBlockerOutcome !== 'blocked-by-electrum-certificate-expired') {
+      errors.push('Controlled network blocker accepted requires blocked-by-electrum-certificate-expired outcome');
+    }
+
+    if (androidDevSmokeStorageStepsCompleted !== 'yes') {
+      errors.push('Controlled network blocker accepted requires completed Android dev secure-storage steps');
+    }
+
+    if (androidReleaseNetworkBlockerErrors !== '0') {
+      errors.push('Controlled network blocker accepted requires 0 Android release network blocker summary errors');
+    }
+
+    if (fullAndroidRuntimeProofReady !== 'no') {
+      errors.push('Full Android runtime proof must remain no while controlled network blocker is accepted');
+    }
+
+    if (!requiredAction.includes('fix the dev/testnet Electrum TLS certificate') || !requiredAction.includes('rerun full Android dev and release smoke')) {
+      errors.push('Required action must mention fixing the dev/testnet Electrum TLS certificate and rerunning full Android dev and release smoke');
+    }
+  }
+
   if (androidReleaseSmokePresent === 'yes') {
-    if (androidReleaseSmokeValid !== 'yes' || androidReleaseSmokeErrors !== '0') {
+    if ((androidReleaseSmokeValid !== 'yes' || androidReleaseSmokeErrors !== '0') && !controlledBlockerValid) {
       errors.push('Android release smoke summary must be valid when present');
     }
 
@@ -107,7 +143,7 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
       errors.push(`Android release smoke artifact base must be android-smoke-dev-release. Received: ${androidReleaseSmokeArtifactBase || 'missing'}`);
     }
 
-    if (androidReleaseSmokeOutcome !== 'passed') {
+    if (androidReleaseSmokeOutcome !== 'passed' && !controlledBlockerValid) {
       errors.push(`Android release smoke outcome must be passed when present. Received: ${androidReleaseSmokeOutcome || 'missing'}`);
     }
   } else if (androidReleaseSmokeValid === 'yes') {
@@ -115,7 +151,7 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
   }
 
   if (androidReleaseCreateWalletSmokePresent === 'yes') {
-    if (androidReleaseCreateWalletSmokeValid !== 'yes' || androidReleaseCreateWalletSmokeErrors !== '0') {
+    if ((androidReleaseCreateWalletSmokeValid !== 'yes' || androidReleaseCreateWalletSmokeErrors !== '0') && !controlledBlockerValid) {
       errors.push('Android release create-wallet smoke summary must be valid when present');
     }
 
@@ -127,7 +163,7 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
       );
     }
 
-    if (androidReleaseCreateWalletSmokeOutcome !== 'passed') {
+    if (androidReleaseCreateWalletSmokeOutcome !== 'passed' && !controlledBlockerValid) {
       errors.push(`Android release create-wallet smoke outcome must be passed when present. Received: ${androidReleaseCreateWalletSmokeOutcome || 'missing'}`);
     }
   } else if (androidReleaseCreateWalletSmokeValid === 'yes') {
@@ -165,7 +201,7 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     errors.push('Android dev smoke summary must be present before secure-storage release validation can be tracked');
   }
 
-  if (getLineValue(summary, 'Android dev smoke summary valid') !== 'yes') {
+  if (getLineValue(summary, 'Android dev smoke summary valid') !== 'yes' && !controlledBlockerValid) {
     errors.push('Android dev smoke summary must be valid before secure-storage release validation can be tracked');
   }
 
