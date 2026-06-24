@@ -12,6 +12,23 @@ const sentryCliPackageInstanceFixture = [
   'Sentry CLI release build path uses direct package: yes',
 ];
 
+const missingNetworkBlockerFixture = [
+  'Android release network blocker summary present: no',
+  'Android release network blocker summary valid: no',
+  'Android release network blocker outcome: <missing>',
+  'Android release network blocker summary errors: 1',
+  '- Android release network blocker summary artifact is missing',
+  'Sentry release network blocker classified: no',
+];
+
+const classifiedNetworkBlockerFixture = [
+  'Android release network blocker summary present: yes',
+  'Android release network blocker summary valid: yes',
+  'Android release network blocker outcome: blocked-by-electrum-certificate-expired',
+  'Android release network blocker summary errors: 0',
+  'Sentry release network blocker classified: yes',
+];
+
 const notReadySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
@@ -52,6 +69,7 @@ const notReadySummary = [
   'Android release no-network smoke summary errors: 1',
   '- Android release no-network smoke summary artifact is missing',
   'Sentry release no-network blocker evidence ready: no',
+  ...missingNetworkBlockerFixture,
   'Android release create-wallet smoke summary present: yes',
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
@@ -132,6 +150,7 @@ const readySummary = [
   'Android release no-network smoke summary errors: 1',
   '- Android release no-network smoke summary artifact is missing',
   'Sentry release no-network blocker evidence ready: no',
+  ...missingNetworkBlockerFixture,
   'Android release create-wallet smoke summary present: yes',
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
@@ -170,6 +189,59 @@ const readySummary = [
   '',
 ].join('\n');
 
+const notReadyNoNetworkSummary = notReadySummary
+  .replace(
+    [
+      'Android release smoke summary valid: yes',
+      'Android release smoke summary errors: 0',
+      'Sentry release smoke evidence ready: yes',
+    ].join('\n'),
+    [
+      'Android release smoke summary valid: no',
+      'Android release smoke summary errors: 8',
+      '- Expected line not found: Android smoke outcome: passed',
+      '- Expected line not found: Android smoke exit code: 0',
+      '- Expected line not found: Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
+      '- Closed first-run success must be yes. Received: no',
+      '- Validated empty-dashboard CTA flow must be yes. Received: no',
+      '- Validated empty-tab navigation must be yes. Received: no',
+      '- Validated QR scanner screen must be yes. Received: no',
+      '- Validated settings Terms WebView must be yes. Received: no',
+      'Sentry release smoke evidence ready: no',
+    ].join('\n'),
+  )
+  .replace(
+    [
+      'Android release no-network smoke summary present: no',
+      'Android release no-network smoke summary valid: no',
+      'Android release no-network smoke summary errors: 1',
+      '- Android release no-network smoke summary artifact is missing',
+      'Sentry release no-network blocker evidence ready: no',
+      ...missingNetworkBlockerFixture,
+    ].join('\n'),
+    [
+      'Android release no-network smoke summary present: yes',
+      'Android release no-network smoke summary valid: yes',
+      'Android release no-network smoke summary errors: 0',
+      'Sentry release no-network blocker evidence ready: yes',
+      ...classifiedNetworkBlockerFixture,
+    ].join('\n'),
+  )
+  .replace(
+    [
+      'Android release create-wallet smoke summary valid: yes',
+      'Android release create-wallet smoke summary errors: 0',
+      'Sentry release create-wallet evidence ready: yes',
+    ].join('\n'),
+    [
+      'Android release create-wallet smoke summary valid: no',
+      'Android release create-wallet smoke summary errors: 2',
+      '- Source APK bytes does not match the current file size for D:\\GoldWallet\\local-docs\\android-smoke-dev-release-signed.apk',
+      '- Source APK sha256 does not match the current file digest for D:\\GoldWallet\\local-docs\\android-smoke-dev-release-signed.apk',
+      'Sentry release create-wallet evidence ready: no',
+    ].join('\n'),
+  );
+
 const assertAccepted = (label, summary) => {
   const errors = getSentryReleasePrereqSummaryErrors(summary);
 
@@ -191,6 +263,7 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid not-ready Sentry release prerequisite summary fixture', notReadySummary);
+assertAccepted('Valid not-ready no-network Sentry release prerequisite summary fixture', notReadyNoNetworkSummary);
 assertAccepted('Valid ready Sentry release prerequisite summary fixture', readySummary);
 assertRejected('Missing header fixture', notReadySummary.replace('Sentry release prerequisite audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', notReadySummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
@@ -351,6 +424,11 @@ assertRejected(
   'Missing Sentry release smoke evidence fixture',
   readySummary.replace('Sentry release smoke evidence ready: yes', 'Sentry release smoke evidence ready: no'),
   'release smoke evidence',
+);
+assertRejected(
+  'No-network fallback without classified release blocker fixture',
+  notReadyNoNetworkSummary.replace('Sentry release network blocker classified: yes', 'Sentry release network blocker classified: no'),
+  'classified Android release network blocker summary',
 );
 assertRejected(
   'Missing Android release create-wallet smoke fixture',

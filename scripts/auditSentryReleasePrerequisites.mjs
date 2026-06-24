@@ -11,6 +11,7 @@ import {
 } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getAndroidNoNetworkSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidReleaseNetworkBlockerSummaryErrors } from './androidReleaseNetworkBlockerSummaryGuard.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { collectIosReleaseReadiness } from './auditIosReleaseReadiness.mjs';
 import { collectIosMacValidationPrereqs } from './auditIosMacValidationPrereqs.mjs';
@@ -24,6 +25,11 @@ const androidReleaseNoNetworkSmokeSummaryPath = path.join(
   root,
   'local-docs',
   'android-smoke-dev-release-no-network-summary.txt',
+);
+const androidReleaseNetworkBlockerSummaryPath = path.join(
+  root,
+  'local-docs',
+  'android-release-network-blocker-summary.txt',
 );
 const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
 const androidReleaseSignedSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
@@ -251,6 +257,15 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
         getAndroidReleaseNoNetworkSmokeEvidenceOptions(root),
       )
     : ['Android release no-network smoke summary artifact is missing'];
+  const hasAndroidReleaseNetworkBlockerSummary = existsSync(androidReleaseNetworkBlockerSummaryPath);
+  const androidReleaseNetworkBlockerSummary = hasAndroidReleaseNetworkBlockerSummary
+    ? readFileSync(androidReleaseNetworkBlockerSummaryPath, 'utf8')
+    : '';
+  const androidReleaseNetworkBlockerSummaryErrors = hasAndroidReleaseNetworkBlockerSummary
+    ? getAndroidReleaseNetworkBlockerSummaryErrors(androidReleaseNetworkBlockerSummary)
+    : ['Android release network blocker summary artifact is missing'];
+  const androidReleaseNetworkBlockerOutcome =
+    getSummaryLineValue(androidReleaseNetworkBlockerSummary, 'Release blocker outcome') || '<missing>';
   const hasAndroidReleaseCreateWalletSmokeSummary = existsSync(androidReleaseCreateWalletSmokeSummaryPath);
   const androidReleaseCreateWalletSmokeSummary = hasAndroidReleaseCreateWalletSmokeSummary
     ? readFileSync(androidReleaseCreateWalletSmokeSummaryPath, 'utf8')
@@ -302,6 +317,10 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const androidReleaseSmokeEvidenceReady = hasAndroidReleaseSmokeSummary && androidReleaseSmokeSummaryErrors.length === 0;
   const androidReleaseNoNetworkSmokeEvidenceReady =
     hasAndroidReleaseNoNetworkSmokeSummary && androidReleaseNoNetworkSmokeSummaryErrors.length === 0;
+  const androidReleaseNetworkBlockerEvidenceReady =
+    hasAndroidReleaseNetworkBlockerSummary &&
+    androidReleaseNetworkBlockerSummaryErrors.length === 0 &&
+    androidReleaseNetworkBlockerOutcome === 'blocked-by-electrum-certificate-expired';
   const androidReleaseCreateWalletSmokeEvidenceReady =
     hasAndroidReleaseCreateWalletSmokeSummary && androidReleaseCreateWalletSmokeSummaryErrors.length === 0;
   const ready =
@@ -351,6 +370,10 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     hasAndroidReleaseNoNetworkSmokeSummary,
     androidReleaseNoNetworkSmokeSummaryErrors,
     androidReleaseNoNetworkSmokeEvidenceReady,
+    hasAndroidReleaseNetworkBlockerSummary,
+    androidReleaseNetworkBlockerSummaryErrors,
+    androidReleaseNetworkBlockerOutcome,
+    androidReleaseNetworkBlockerEvidenceReady,
     hasAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseCreateWalletSmokeSummaryErrors,
     androidReleaseCreateWalletSmokeEvidenceReady,
@@ -474,6 +497,16 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
       audit.androidReleaseNoNetworkSmokeEvidenceReady ? 'yes' : 'no'
     }`,
   );
+  lines.push(`Android release network blocker summary present: ${audit.hasAndroidReleaseNetworkBlockerSummary ? 'yes' : 'no'}`);
+  lines.push(
+    `Android release network blocker summary valid: ${
+      audit.androidReleaseNetworkBlockerSummaryErrors.length === 0 ? 'yes' : 'no'
+    }`,
+  );
+  lines.push(`Android release network blocker outcome: ${audit.androidReleaseNetworkBlockerOutcome}`);
+  lines.push(`Android release network blocker summary errors: ${audit.androidReleaseNetworkBlockerSummaryErrors.length}`);
+  audit.androidReleaseNetworkBlockerSummaryErrors.forEach(error => lines.push(`- ${error}`));
+  lines.push(`Sentry release network blocker classified: ${audit.androidReleaseNetworkBlockerEvidenceReady ? 'yes' : 'no'}`);
   lines.push(`Android release create-wallet smoke summary present: ${audit.hasAndroidReleaseCreateWalletSmokeSummary ? 'yes' : 'no'}`);
   lines.push(
     `Android release create-wallet smoke summary valid: ${
@@ -609,6 +642,16 @@ const printReport = audit => {
       audit.androidReleaseNoNetworkSmokeEvidenceReady ? 'yes' : 'no'
     }`,
   );
+  console.log(`Android release network blocker summary present: ${audit.hasAndroidReleaseNetworkBlockerSummary ? 'yes' : 'no'}`);
+  console.log(
+    `Android release network blocker summary valid: ${
+      audit.androidReleaseNetworkBlockerSummaryErrors.length === 0 ? 'yes' : 'no'
+    }`,
+  );
+  console.log(`Android release network blocker outcome: ${audit.androidReleaseNetworkBlockerOutcome}`);
+  console.log(`Android release network blocker summary errors: ${audit.androidReleaseNetworkBlockerSummaryErrors.length}`);
+  audit.androidReleaseNetworkBlockerSummaryErrors.forEach(error => console.log(`- ${error}`));
+  console.log(`Sentry release network blocker classified: ${audit.androidReleaseNetworkBlockerEvidenceReady ? 'yes' : 'no'}`);
   console.log(`Android release create-wallet smoke summary present: ${audit.hasAndroidReleaseCreateWalletSmokeSummary ? 'yes' : 'no'}`);
   console.log(
     `Android release create-wallet smoke summary valid: ${
