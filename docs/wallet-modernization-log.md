@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.813 - Secure-storage blocker summary
+
+- Branch: `feature/bem-37-813-secure-storage-blocker-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep secure-storage release validation honest under the current dev/testnet Electrum TLS certificate blocker.
+- Accept secure-storage release validation summary only when migration/removal summaries are valid, Android dev smoke completed storage-critical onboarding steps, and the release network blocker summary is valid.
+- Continue to report full Android runtime proof as not ready and keep legacy secure-storage package removal unclaimed.
+
+Findings:
+
+- Current Android dev smoke is blocked before dashboard validation, but it did complete first-run terms, PIN, transaction password, and email-skip steps that exercise the secure-storage migration surface.
+- The summary now records `Controlled network blocker accepted: yes`, `Android dev smoke secure-storage steps completed: yes`, and `Full Android runtime proof ready: no`.
+- Full `rn:baseline:preflight` with Node `24.16.0` and JDK `17` now gets past secure-storage release validation and stops later at the global Android dev smoke summary gate.
+- Legacy `react-native-secure-key-store` removal remains blocked; fallback reads and instrumentation stay required until full Android validation can be rerun after the Electrum certificate is fixed.
+- This branch changes release tooling guards only. It does not change runtime app code, native code, package versions, lockfiles, Metro config, or APK contents, so Android emulator smoke is not required.
+
+Validation:
+
+- `node --check scripts/runSecureStorageReleaseValidationSummary.mjs`
+- `node --check scripts/secureStorageReleaseValidationSummaryGuard.mjs`
+- `node --check scripts/checkSecureStorageReleaseValidationSummaryGuard.mjs`
+- `corepack yarn check:secure-storage-release-validation-summary-guard`
+- `corepack yarn secure-storage:release-validation:summary`
+- `corepack yarn secure-storage:release-validation:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.812 - Release-services blocker aggregate
 
 - Branch: `feature/bem-37-812-release-services-blocker-aggregate`

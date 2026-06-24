@@ -19,6 +19,10 @@ const validSummary = [
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke artifact base: android-create-wallet-smoke-dev-release',
   'Android release create-wallet smoke outcome: passed',
+  'Controlled network blocker outcome: <none>',
+  'Controlled network blocker accepted: no',
+  'Android dev smoke secure-storage steps completed: yes',
+  'Full Android runtime proof ready: yes',
   'Focused validation script: test:storage-network:focused',
   'Keychain primary write: yes',
   'Legacy fallback reads active: yes',
@@ -33,6 +37,7 @@ const validSummary = [
   'Android dev smoke summary errors: 0',
   'Android release smoke summary errors: 0',
   'Android release create-wallet smoke summary errors: 0',
+  'Android release network blocker summary errors: 0',
   'Secure-storage release validation evidence ready: yes',
   'Android release evidence ready: yes',
   'Secret values printed: no',
@@ -57,7 +62,27 @@ const releaseEvidenceMissingSummary = validSummary
     'Android release create-wallet smoke summary errors: 0',
     'Android release create-wallet smoke summary errors: 1\n- missing Android release create-wallet smoke summary',
   )
+  .replace('Full Android runtime proof ready: yes', 'Full Android runtime proof ready: no')
   .replace('Android release evidence ready: yes', 'Android release evidence ready: no');
+
+const controlledBlockerSummary = validSummary
+  .replace('Android dev smoke summary valid: yes', 'Android dev smoke summary valid: no')
+  .replace('Android smoke outcome: passed', 'Android smoke outcome: failed')
+  .replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no')
+  .replace('Android release smoke outcome: passed', 'Android release smoke outcome: failed')
+  .replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no')
+  .replace('Android release create-wallet smoke outcome: passed', 'Android release create-wallet smoke outcome: failed')
+  .replace('Controlled network blocker outcome: <none>', 'Controlled network blocker outcome: blocked-by-electrum-certificate-expired')
+  .replace('Controlled network blocker accepted: no', 'Controlled network blocker accepted: yes')
+  .replace('Full Android runtime proof ready: yes', 'Full Android runtime proof ready: no')
+  .replace('Android dev smoke summary errors: 0', 'Android dev smoke summary errors: 8')
+  .replace('Android release smoke summary errors: 0', 'Android release smoke summary errors: 8')
+  .replace('Android release create-wallet smoke summary errors: 0', 'Android release create-wallet smoke summary errors: 2')
+  .replace('Android release evidence ready: yes', 'Android release evidence ready: no')
+  .replace(
+    'Required action: keep react-native-secure-key-store installed until fallback-free validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.',
+    'Required action: keep react-native-secure-key-store installed, fix the dev/testnet Electrum TLS certificate, then rerun full Android dev and release smoke before claiming fallback-free validation for migrated PIN, transaction-password, and encrypted wallet data.',
+  );
 
 const assertAccepted = (label, summary) => {
   const errors = getSecureStorageReleaseValidationSummaryErrors(summary);
@@ -81,6 +106,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid secure-storage release validation summary fixture', validSummary);
 assertAccepted('Secure-storage release validation summary without optional release evidence fixture', releaseEvidenceMissingSummary);
+assertAccepted('Secure-storage controlled Electrum blocker fixture', controlledBlockerSummary);
 assertRejected('Missing header fixture', validSummary.replace('Secure-storage release validation summary', 'Bad summary'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-11T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Bad current package fixture', validSummary.replace('react-native-keychain@10.0.0', 'react-native-keychain@9.0.0'), 'Current secure-storage package');
@@ -102,6 +128,16 @@ assertRejected(
   'Inconsistent release evidence fixture',
   validSummary.replace('Android release evidence ready: yes', 'Android release evidence ready: no'),
   'Android release evidence ready must be yes',
+);
+assertRejected(
+  'Controlled blocker without storage steps fixture',
+  controlledBlockerSummary.replace('Android dev smoke secure-storage steps completed: yes', 'Android dev smoke secure-storage steps completed: no'),
+  'Controlled network blocker accepted requires completed Android dev secure-storage steps',
+);
+assertRejected(
+  'Controlled blocker with full proof fixture',
+  controlledBlockerSummary.replace('Full Android runtime proof ready: no', 'Full Android runtime proof ready: yes'),
+  'Full Android runtime proof must remain no',
 );
 assertRejected('No fallback fixture', validSummary.replace('Legacy fallback reads active: yes', 'Legacy fallback reads active: no'), 'Legacy fallback reads must remain active');
 assertRejected(
