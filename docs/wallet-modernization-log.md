@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.788 - Babel 8 blocker live probe refresh
+
+- Branch: `feature/bem-37-788-babel8-blocker-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a generated Babel 8 migration probe summary to the online foundation target refresh.
+- Keep Babel 8 classified as a known RN/Metro/Babel blocker instead of a review-required direct dependency drift item.
+- Wire the generated summary into `foundation:target:check-summaries` so future online target refreshes prove the blocker from live npm metadata and an isolated transform probe.
+- Update React Native upgrade-path and dependency strategy docs so the foundation refresh command stays auditable.
+
+Findings:
+
+- Live npm metadata on 2026-06-24 still reports the direct Babel target as the `8.0.x` line: `@babel/core@8.0.1`, `@babel/plugin-transform-runtime@8.0.1`, `@babel/preset-env@8.0.2`, `@babel/preset-react@8.0.1`, `@babel/preset-typescript@8.0.1`, `@babel/plugin-transform-flow-strip-types@8.0.1`, `@babel/runtime@8.0.0`, and `@babel/traverse@8.0.0`.
+- The Babel 8 engine range is `^22.18.0 || >=24.11.0`; the repo Node `24.16.0` satisfies it, so this is not a Node runtime blocker.
+- The isolated `@babel/core@8.0.1` plus `@react-native/babel-preset@0.86.0` transform probe still fails with `BABEL_VERSION_UNSUPPORTED`: `Requires Babel "^7.0.0-0", but was loaded with "8.0.1"`.
+- The first failing plugin remains `@babel/plugin-transform-flow-strip-types`, confirming that the blocker is the current React Native Babel preset plugin stack, not direct app code.
+- The full online foundation refresh initially caught a current RN target snapshot drift because npm `nightly` moved from `0.87.0-nightly-20260623-dc4d5e8ad` to `0.87.0-nightly-20260624-5c197fb30`; npm `latest` remains `0.86.0`, so the default wallet target did not change.
+- `foundation:target:refresh-online` now runs `babel8:migration-probe:audit`, validates `local-docs/babel-8-migration-probe-summary.txt`, and then runs the existing static Babel 8 evidence check before moving to the rest of the foundation snapshots.
+- No app runtime package version, native project, Metro config, or lockfile changed in this branch; Android emulator smoke is not claimed for this documentation/tooling-only milestone.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn babel8:migration-probe:audit`
+- `corepack yarn node:runtime:yarn babel8:migration-probe:check-summary`
+- `corepack yarn node:runtime:yarn babel8:migration-probe:check`
+- `corepack yarn node:runtime:yarn check:foundation-target-summary-guard`
+- `corepack yarn node:runtime:yarn check:rn-target-snapshot-guard`
+- `corepack yarn node:runtime:yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn foundation:target:refresh-online`
+- `corepack yarn node:runtime:yarn rn:upgrade-path:audit`
+- `corepack yarn node:runtime:yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn node:runtime:yarn android:dev:check-light-docs`
+- `corepack yarn node:runtime:yarn check:node-runtime-version`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.787 - iOS/Firebase guard handoff refresh
 
 - Branch: `feature/bem-37-787-ios-handoff-refresh`

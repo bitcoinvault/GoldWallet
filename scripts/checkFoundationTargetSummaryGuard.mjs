@@ -18,11 +18,14 @@ const requiredCheckerSnippets = [
   "import { getToolingLatestSnapshotSummaryErrors } from './toolingLatestSnapshotSummaryGuard.mjs';",
   "import { getAndroidToolchainTargetSummaryErrors } from './androidToolchainTargetSummaryGuard.mjs';",
   "import { getBlResolutionSummaryErrors } from './blResolutionSummaryGuard.mjs';",
+  "import { getBabel8MigrationProbeSummaryErrors } from './babel8MigrationProbeSummaryGuard.mjs';",
   "import { getNodeFetchResolutionSummaryErrors } from './nodeFetchResolutionSummaryGuard.mjs';",
   "label: 'React Native live target snapshot'",
   "relativePath: 'local-docs/rn-target-snapshot-current-summary.txt'",
   "label: 'direct outdated snapshot'",
   "relativePath: 'local-docs/direct-outdated-snapshot.txt'",
+  "label: 'Babel 8 migration probe'",
+  "relativePath: 'local-docs/babel-8-migration-probe-summary.txt'",
   "label: 'git dependency snapshot'",
   "relativePath: 'local-docs/git-dependency-snapshot.txt'",
   "label: 'wallet crypto latest snapshot'",
@@ -45,7 +48,7 @@ const requiredCheckerSnippets = [
 
 const requiredPackageScripts = {
   'foundation:target:refresh-online':
-    'yarn check:node-runtime-version && yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn direct-outdated:snapshot:audit && yarn direct-outdated:snapshot:check-summary && yarn babel8:migration-probe:check && yarn git-deps:snapshot:audit && yarn git-deps:snapshot:check-summary && yarn wallet:crypto-latest-snapshot:audit && yarn wallet:crypto-latest-snapshot:check-summary && yarn storage-network:latest-snapshot:audit && yarn storage-network:latest-snapshot:check-summary && yarn tooling:latest-snapshot:audit && yarn tooling:latest-snapshot:check-summary && yarn android:toolchain-target:audit && yarn android:toolchain-target:check-summary && yarn bl:resolution:audit && yarn bl:resolution:check-summary && yarn node-fetch:resolution:audit && yarn node-fetch:resolution:check-summary && yarn foundation:target:check-summaries',
+    'yarn check:node-runtime-version && yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn direct-outdated:snapshot:audit && yarn direct-outdated:snapshot:check-summary && yarn babel8:migration-probe:audit && yarn babel8:migration-probe:check-summary && yarn babel8:migration-probe:check && yarn git-deps:snapshot:audit && yarn git-deps:snapshot:check-summary && yarn wallet:crypto-latest-snapshot:audit && yarn wallet:crypto-latest-snapshot:check-summary && yarn storage-network:latest-snapshot:audit && yarn storage-network:latest-snapshot:check-summary && yarn tooling:latest-snapshot:audit && yarn tooling:latest-snapshot:check-summary && yarn android:toolchain-target:audit && yarn android:toolchain-target:check-summary && yarn bl:resolution:audit && yarn bl:resolution:check-summary && yarn node-fetch:resolution:audit && yarn node-fetch:resolution:check-summary && yarn foundation:target:check-summaries',
   'foundation:target:check-summaries': 'node scripts/checkFoundationTargetSummaryArtifacts.mjs',
   'check:foundation-target-summary-guard': 'node scripts/checkFoundationTargetSummaryGuard.mjs',
 };
