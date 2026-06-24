@@ -31,6 +31,11 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const readiness = getLineValue(summary, 'Release source-map prerequisites');
   const sentryReactNativeVersion = getLineValue(summary, '@sentry/react-native version');
   const sentryReactNativeLatest = getLineValue(summary, '@sentry/react-native latest');
+  const sentryReactNativeHighestPublished = getLineValue(summary, '@sentry/react-native highest published');
+  const sentryReactNativePublished = getLineValue(summary, '@sentry/react-native published version present');
+  const sentryReactNativeMatchesLatestDistTag = getLineValue(summary, '@sentry/react-native matches latest dist-tag');
+  const sentryReactNativeAtOrAboveLatestDistTag = getLineValue(summary, '@sentry/react-native at or above latest dist-tag');
+  const sentryReactNativeNpmPosture = getLineValue(summary, '@sentry/react-native npm posture');
   const sentryReactNativeCurrent = getLineValue(summary, '@sentry/react-native current');
   const sentryCliPackageVersion = getLineValue(summary, '@sentry/cli package version');
   const sentryCliLatest = getLineValue(summary, '@sentry/cli latest');
@@ -156,10 +161,45 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push(`@sentry/react-native latest must be present. Received: ${sentryReactNativeLatest || 'missing'}`);
   }
 
+  if (!/^\d+\.\d+\.\d+/.test(sentryReactNativeHighestPublished)) {
+    errors.push(`@sentry/react-native highest published must be present. Received: ${sentryReactNativeHighestPublished || 'missing'}`);
+  }
+
+  [
+    ['@sentry/react-native published version present', sentryReactNativePublished],
+    ['@sentry/react-native matches latest dist-tag', sentryReactNativeMatchesLatestDistTag],
+    ['@sentry/react-native at or above latest dist-tag', sentryReactNativeAtOrAboveLatestDistTag],
+  ].forEach(([label, value]) => {
+    if (!['yes', 'no'].includes(value)) {
+      errors.push(`${label} must be yes or no. Received: ${value || 'missing'}`);
+    }
+  });
+
+  if (!['matches-latest-dist-tag', 'published-above-latest-dist-tag', 'behind-latest-dist-tag'].includes(sentryReactNativeNpmPosture)) {
+    errors.push(`@sentry/react-native npm posture is invalid. Received: ${sentryReactNativeNpmPosture || 'missing'}`);
+  }
+
   if (!['yes', 'no'].includes(sentryReactNativeCurrent)) {
     errors.push(`@sentry/react-native current must be yes or no. Received: ${sentryReactNativeCurrent || 'missing'}`);
-  } else if (sentryReactNativeCurrent === 'yes' && sentryReactNativeVersion !== sentryReactNativeLatest) {
-    errors.push('@sentry/react-native current cannot be yes when installed version differs from latest');
+  } else if (sentryReactNativeCurrent === 'yes' && (sentryReactNativePublished !== 'yes' || sentryReactNativeAtOrAboveLatestDistTag !== 'yes')) {
+    errors.push('@sentry/react-native current requires a published installed version at or above the latest dist-tag');
+  } else if (sentryReactNativeCurrent === 'no' && sentryReactNativeNpmPosture !== 'behind-latest-dist-tag') {
+    errors.push('@sentry/react-native current can only be no for behind-latest-dist-tag posture');
+  }
+
+  if (sentryReactNativeMatchesLatestDistTag === 'yes' && sentryReactNativeVersion !== sentryReactNativeLatest) {
+    errors.push('@sentry/react-native matches latest dist-tag cannot be yes when installed version differs from latest');
+  }
+
+  if (sentryReactNativeNpmPosture === 'matches-latest-dist-tag' && sentryReactNativeMatchesLatestDistTag !== 'yes') {
+    errors.push('@sentry/react-native matches-latest-dist-tag posture requires a matching latest dist-tag');
+  }
+
+  if (
+    sentryReactNativeNpmPosture === 'published-above-latest-dist-tag' &&
+    (sentryReactNativePublished !== 'yes' || sentryReactNativeAtOrAboveLatestDistTag !== 'yes' || sentryReactNativeMatchesLatestDistTag !== 'no')
+  ) {
+    errors.push('@sentry/react-native published-above-latest-dist-tag posture requires a published installed version above the latest dist-tag');
   }
 
   if (!/^\d+\.\d+\.\d+/.test(sentryCliPackageVersion)) {
