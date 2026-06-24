@@ -40,7 +40,8 @@ export const collectAndroidToolchainTargetAudit = async () => {
   const gradleCurrent = JSON.parse(await fetchText('https://services.gradle.org/versions/current'));
   const kotlinMetadata = await fetchText('https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml');
   const latestStableAgp = last(extractXmlVersions(agpMetadata).filter(isStableVersion));
-  const latestKotlin = kotlinMetadata.match(/<release>([^<]+)<\/release>/)?.[1] || last(extractXmlVersions(kotlinMetadata).filter(isStableVersion));
+  const kotlinMetadataRelease = kotlinMetadata.match(/<release>([^<]+)<\/release>/)?.[1] || '';
+  const latestKotlin = last(extractXmlVersions(kotlinMetadata).filter(isStableVersion));
   const latestGradle = gradleCurrent.version || '';
   const minimumAgp9Gradle = '9.4.1';
   const rnGradlePlugin =
@@ -54,6 +55,8 @@ export const collectAndroidToolchainTargetAudit = async () => {
     minimumAgp9Gradle,
     currentKotlin: getQuotedGradleValue(androidBuildGradle, 'kotlinVersion'),
     latestKotlin,
+    kotlinMetadataRelease,
+    kotlinMetadataReleasePrerelease: kotlinMetadataRelease && !isStableVersion(kotlinMetadataRelease) ? 'yes' : 'no',
     rnGradlePlugin,
     blocked: true,
     blockers: [
@@ -77,6 +80,8 @@ export const formatAndroidToolchainTargetSummary = (audit, generatedAt = new Dat
     `AGP 9 minimum Gradle wrapper: ${audit.minimumAgp9Gradle}`,
     `Current Kotlin Gradle Plugin: ${audit.currentKotlin}`,
     `Latest Kotlin Gradle Plugin: ${audit.latestKotlin}`,
+    `Latest Kotlin metadata release: ${audit.kotlinMetadataRelease}`,
+    `Latest Kotlin metadata release prerelease: ${audit.kotlinMetadataReleasePrerelease}`,
     `React Native Gradle plugin: ${audit.rnGradlePlugin}`,
     `Latest Android toolchain target blocked: ${audit.blocked ? 'yes' : 'no'}`,
     `Blockers: ${audit.blockers.length}`,

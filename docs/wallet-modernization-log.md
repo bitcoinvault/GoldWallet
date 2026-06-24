@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.789 - Android Kotlin target classification
+
+- Branch: `feature/bem-37-789-android-kotlin-target-classification`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep the Android toolchain target audit from treating a Kotlin prerelease metadata tag as the latest stable Kotlin Gradle Plugin target.
+- Add explicit Kotlin metadata release fields to the generated Android toolchain target summary.
+- Keep AGP 9 / Gradle 9 blocked for the current RN `0.86.0` baseline without suggesting Kotlin `2.4.20-Beta1` as a stable wallet target.
+
+Findings:
+
+- Live metadata on 2026-06-24 reports latest stable Android Gradle Plugin `9.2.1`, Gradle current `9.6.0`, stable Kotlin Gradle Plugin `2.4.0`, and Kotlin metadata release `2.4.20-Beta1`.
+- The Kotlin metadata `<release>` value is prerelease-only, so the audit now reports it separately as `Latest Kotlin metadata release` with `Latest Kotlin metadata release prerelease: yes`.
+- The validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- The latest Android toolchain path remains blocked because AGP `9.2.1` requires Gradle `9.4.1+`, and Gradle `9.4.1` / `9.6.0` still hit the React Native Gradle plugin `0.86.0` Kotlin metadata compile path.
+- No Android project files, package versions, native runtime code, Metro config, or lockfile changed in this branch; Android emulator smoke is not claimed for this tooling/evidence-only milestone.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn android:toolchain-target:audit`
+- `corepack yarn node:runtime:yarn android:toolchain-target:check-summary`
+- `corepack yarn node:runtime:yarn check:android-toolchain-target-summary-guard`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn check:foundation-target-summary-guard`
+- `corepack yarn node:runtime:yarn android:dev:check-light-docs`
+- `corepack yarn node:runtime:yarn check:node-runtime-version`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.788 - Babel 8 blocker live probe refresh
 
 - Branch: `feature/bem-37-788-babel8-blocker-refresh`
