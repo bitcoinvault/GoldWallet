@@ -2,7 +2,7 @@
 
 Scope: `BEM-37.336`, explorer and env alignment preparation.
 
-Checked on 2026-06-17 after the rebranding release-config readiness audit. This document records the non-secret explorer and network configuration surface that must be validated before changing BTCV/ELCASH explorer routing, Electrum hosts, app IDs, or environment naming.
+Checked on 2026-06-24 after the rebranding release-config readiness audit. This document records the non-secret explorer and network configuration surface that must be validated before changing BTCV/ELCASH explorer routing, Electrum hosts, app IDs, or environment naming.
 
 Do not print env values in readiness logs or docs. Env files can carry release-service identifiers and deployment keys, so this audit records key presence and coordination rules only.
 
@@ -11,6 +11,7 @@ Refresh evidence:
 - `check:explorer-env-config-readiness-guard` passes and keeps the fixture coverage valid.
 - `check:explorer-env-config-readiness` reports documented and guarded coverage for 7 env files.
 - Rebranding release-config readiness and store metadata readiness were refreshed from the same baseline, so explorer changes remain linked to app identity and store metadata decisions.
+- Android startup smoke currently detects an expired dev testnet Electrum TLS certificate. Repo-side env/readiness checks remain valid, but runtime explorer/Electrum validation must be rerun after the endpoint certificate is renewed or the endpoint is changed.
 
 ## Current Env Files
 

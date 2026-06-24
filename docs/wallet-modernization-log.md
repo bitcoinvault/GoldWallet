@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.781 - Rebranding/env/store metadata readiness refresh
+
+- Branch: `feature/bem-37-781-rebranding-env-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh repo-side readiness evidence for the rebranding, explorer/env, and store metadata surfaces on the current RN `0.86.0` modernization baseline.
+- Keep app runtime code, native project files, package versions, lockfiles, env values, and committed store assets unchanged.
+- Keep release/store validation boundaries explicit: repo checks can validate tracked metadata/config structure, but they cannot claim live Play Console, App Store Connect, screenshot, legal-owner, or runtime Electrum/explorer readiness.
+
+Findings:
+
+- Explorer/env readiness remains documented and guarded for `7` env files without printing secret or env values.
+- Store metadata readiness remains documented and guarded for `8` iOS locales and `1` Android locale.
+- Rebranding release-config readiness remains guarded for `13` Android snippets, `13` iOS snippets, and `8` iOS schemes.
+- Store metadata release handoff dry-run reports `Store metadata readiness valid: yes`, `External store validation: not claimed`, and `Secret values printed: no`.
+- The docs now record that runtime Electrum/explorer validation is blocked until the dev testnet Electrum TLS certificate is renewed or the endpoint is changed.
+- No Android runtime validation is required for this branch because it changes only docs/readiness evidence and does not alter runtime code, native config, env values, package versions, lockfiles, Metro config, or build files.
+- iOS runtime validation remains not claimed on this Windows host.
+
+Validation:
+
+- `corepack yarn check:explorer-env-config-readiness-guard`
+- `corepack yarn check:explorer-env-config-readiness`
+- `corepack yarn check:store-metadata-readiness-guard`
+- `corepack yarn check:store-metadata-readiness`
+- `corepack yarn check:store-metadata-release-handoff-guard`
+- `corepack yarn store-metadata:release-handoff:dry-run`
+- `corepack yarn check:rebranding-release-config-readiness-guard`
+- `corepack yarn check:rebranding-release-config-readiness`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.779 - Foundation latest snapshot refresh
 
 - Branch: `feature/bem-37-779-foundation-latest-refresh`
