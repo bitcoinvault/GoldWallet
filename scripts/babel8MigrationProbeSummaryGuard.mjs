@@ -13,6 +13,7 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
   const reactNativeVersion = getLineValue(summary, 'React Native version');
   const rnBabelPresetVersion = getLineValue(summary, 'React Native Babel preset version');
   const repoNodeVersion = getLineValue(summary, 'Repo Node version');
+  const expectedNodeVersion = getLineValue(summary, 'Expected Node version');
   const repoBabelCore = getLineValue(summary, 'Repo @babel/core');
   const repoBabelRuntime = getLineValue(summary, 'Repo @babel/runtime');
   const latestBabelCore = getLineValue(summary, 'Latest @babel/core');
@@ -49,8 +50,16 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
     );
   }
 
-  if (repoNodeVersion !== 'v24.16.0') {
-    errors.push(`Repo Node version must be v24.16.0. Received: ${repoNodeVersion || 'missing'}`);
+  if (!/^v\d+\.\d+\.\d+/.test(repoNodeVersion)) {
+    errors.push(`Repo Node version must be recorded. Received: ${repoNodeVersion || 'missing'}`);
+  }
+
+  if (!/^v\d+\.\d+\.\d+/.test(expectedNodeVersion)) {
+    errors.push(`Expected Node version must be recorded. Received: ${expectedNodeVersion || 'missing'}`);
+  } else if (repoNodeVersion !== expectedNodeVersion) {
+    errors.push(
+      `Repo Node version must match the repo .nvmrc baseline. Received: ${repoNodeVersion || 'missing'}, expected: ${expectedNodeVersion}`,
+    );
   }
 
   [

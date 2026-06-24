@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.802 - Babel 8 Node baseline guard
+
+- Branch: `feature/bem-37-802-babel8-node-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the generated Babel 8 migration probe summary record the expected Node runtime from `.nvmrc`.
+- Validate the probe's actual Node runtime against the repo baseline instead of hardcoding one patch version in the guard.
+- Keep Babel 8 blocked on RN `0.86.0` until a dedicated RN/Metro/Babel branch proves transform, Jest, Metro bundle, Android build, and emulator smoke paths.
+
+Findings:
+
+- The 2026-06-24 online target refresh still proves Babel 8 is blocked by the React Native Babel preset plugin stack, not by the repo Node runtime.
+- The previous guard would fail on a legitimate repo Node baseline refresh because it required `Repo Node version: v24.16.0` literally.
+- The updated summary keeps the current strict blocker evidence while making the Node runtime requirement derive from `.nvmrc`.
+- Android runtime validation is not required for this branch because it changes only guard scripts and documentation; it does not change runtime code, native files, Metro config, package versions, or lockfiles.
+
+Validation:
+
+- `node --check scripts/auditBabel8MigrationProbe.mjs`
+- `node --check scripts/babel8MigrationProbeSummaryGuard.mjs`
+- `node --check scripts/checkBabel8MigrationProbeSummary.mjs`
+- `corepack yarn node:runtime:yarn babel8:migration-probe:audit`
+- `corepack yarn node:runtime:yarn babel8:migration-probe:check-summary`
+- `corepack yarn node:runtime:yarn babel8:migration-probe:check`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn check:foundation-target-summary-guard`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.801 - Release-services blocked-state handoff guard
 
 - Branch: `feature/bem-37-801-release-services-blocked-state-guard`
