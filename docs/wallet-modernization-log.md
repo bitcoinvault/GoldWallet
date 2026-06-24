@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.806 - Android smoke storage preflight
+
+- Branch: `feature/bem-37-806-android-smoke-storage-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add an emulator `/data` free-space preflight before Android smoke installs the large debug/release APK.
+- Record data-storage preflight fields in Android smoke summaries so install failures are easier to distinguish from app runtime regressions.
+- Add a guard fixture for Android `df -k /data` parsing and the insufficient-storage remediation message.
+
+Findings:
+
+- `android:dev:smoke:no-network:embedded` initially failed with `INSTALL_FAILED_INSUFFICIENT_STORAGE` while `/data` had about `1.1G` free and both `io.goldwallet.wallet.dev` and `io.goldwallet.wallet` were installed.
+- After uninstalling only those test packages from the emulator, `/data` had about `2.1G` free and the same no-network smoke passed.
+- The smoke helper now checks free space before `install APK` and reports how much space is available versus required for the current APK size.
+
+Validation:
+
+- `node --check scripts/androidDataStoragePreflight.mjs`
+- `node --check scripts/checkAndroidSmokeStoragePreflightGuard.mjs`
+- `node --check scripts/androidSmokeDev.mjs`
+- `corepack yarn node:runtime:yarn check:android-smoke-storage-preflight-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% corepack yarn node:runtime:yarn android:dev:check-light`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.805 - Android dev network-blocker summary
 
 - Branch: `feature/bem-37-805-android-dev-network-blocker-summary`
