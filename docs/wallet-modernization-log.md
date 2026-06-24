@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.797 - Android toolchain target proof guard
+
+- Branch: `feature/bem-37-797-android-toolchain-target-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Strengthen the generated Android toolchain target summary so the AGP 9 / Gradle 9 blocker is tied to direct probe evidence, not only live metadata labels.
+- Record the direct AGP `9.2.1` / Gradle `9.6.0` / Kotlin `2.4.0` / JDK `17` probe tuple, failing Gradle task, failing RN Gradle plugin source, Kotlin metadata mismatch, and committed BEM-37.774 evidence marker.
+- Make the guard fail when live latest AGP, Gradle, or Kotlin targets move beyond the last direct probe, forcing a new probe before the summary can be refreshed.
+
+Findings:
+
+- The current live latest Android toolchain target is still AGP `9.2.1`, Gradle `9.6.0`, and Kotlin `2.4.0`, matching the last direct probe recorded in BEM-37.774.
+- The recorded blocker remains `:gradle-plugin:settings-plugin:compileKotlin` while compiling `node_modules/@react-native/gradle-plugin/settings-plugin/src/main/kotlin/com/facebook/react/ReactSettingsExtension.kt`.
+- The failure evidence remains Kotlin runtime metadata `2.3.0` loaded from the Gradle `9.6.0` path versus the React Native Gradle plugin `0.86.0` compiler path reading up to metadata `2.2.0`.
+- The committed baseline therefore remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17` until a newer RN Gradle plugin baseline clears AGP 9 / Gradle 9.
+- Android runtime validation is not required for this branch because it changes only audit scripts, summary guards, and documentation; it does not change app runtime, native Android files, Metro config, package versions, or lockfiles.
+
+Validation:
+
+- `node --check scripts/auditAndroidToolchainTarget.mjs`
+- `node --check scripts/androidToolchainTargetSummaryGuard.mjs`
+- `node --check scripts/checkAndroidToolchainTargetSummaryGuard.mjs`
+- `corepack yarn node:runtime:yarn check:android-toolchain-target-summary-guard`
+- `corepack yarn node:runtime:yarn android:toolchain-target:audit`
+- `corepack yarn node:runtime:yarn android:toolchain-target:check-summary`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.796 - React patch renderer probe
 
 - Branch: `feature/bem-37-796-react-patch-renderer-probe`

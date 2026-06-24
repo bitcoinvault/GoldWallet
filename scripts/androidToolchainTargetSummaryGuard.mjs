@@ -36,6 +36,16 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
   const kotlinMetadataRelease = getLineValue(summary, 'Latest Kotlin metadata release');
   const kotlinMetadataReleasePrerelease = getLineValue(summary, 'Latest Kotlin metadata release prerelease');
   const rnGradlePlugin = getLineValue(summary, 'React Native Gradle plugin');
+  const directProbeAgp = getLineValue(summary, 'Direct AGP 9 probe Android Gradle Plugin');
+  const directProbeGradle = getLineValue(summary, 'Direct AGP 9 probe Gradle wrapper');
+  const directProbeKotlin = getLineValue(summary, 'Direct AGP 9 probe Kotlin Gradle Plugin');
+  const directProbeJdk = getLineValue(summary, 'Direct AGP 9 probe JDK');
+  const directProbeStatus = getLineValue(summary, 'Direct AGP 9 probe status');
+  const directProbeTask = getLineValue(summary, 'Direct AGP 9 probe task');
+  const directProbeSource = getLineValue(summary, 'Direct AGP 9 probe source');
+  const directProbeKotlinRuntimeMetadata = getLineValue(summary, 'Direct AGP 9 probe Kotlin runtime metadata');
+  const rnKotlinMetadataCeiling = getLineValue(summary, 'React Native Gradle plugin Kotlin metadata ceiling');
+  const directProbeEvidence = getLineValue(summary, 'Direct AGP 9 probe evidence');
   const targetBlocked = getLineValue(summary, 'Latest Android toolchain target blocked');
   const blockerCount = getLineValue(summary, 'Blockers');
   const blockerLines = getBulletLinesAfter(summary, 'Blockers');
@@ -58,6 +68,9 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     ['Current Kotlin Gradle Plugin', currentKotlin],
     ['Latest Kotlin Gradle Plugin', latestKotlin],
     ['React Native Gradle plugin', rnGradlePlugin],
+    ['Direct AGP 9 probe Android Gradle Plugin', directProbeAgp],
+    ['Direct AGP 9 probe Gradle wrapper', directProbeGradle],
+    ['Direct AGP 9 probe Kotlin Gradle Plugin', directProbeKotlin],
   ].forEach(([label, value]) => {
     if (!/^\d+\.\d+(?:\.\d+)?/.test(value)) {
       errors.push(`${label} must be a semver-like version. Received: ${value || 'missing'}`);
@@ -92,6 +105,46 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     errors.push(`React Native Gradle plugin must match the RN 0.86.0 baseline. Received: ${rnGradlePlugin || 'missing'}`);
   }
 
+  if (directProbeAgp !== latestStableAgp) {
+    errors.push(`Direct AGP 9 probe must cover the latest stable AGP value. Expected ${latestStableAgp || 'missing'}, received ${directProbeAgp || 'missing'}`);
+  }
+
+  if (directProbeGradle !== latestGradle) {
+    errors.push(`Direct AGP 9 probe must cover the current latest Gradle value. Expected ${latestGradle || 'missing'}, received ${directProbeGradle || 'missing'}`);
+  }
+
+  if (directProbeKotlin !== latestKotlin) {
+    errors.push(`Direct AGP 9 probe must cover the latest stable Kotlin target. Expected ${latestKotlin || 'missing'}, received ${directProbeKotlin || 'missing'}`);
+  }
+
+  if (directProbeJdk !== '17') {
+    errors.push(`Direct AGP 9 probe must use JDK 17. Received: ${directProbeJdk || 'missing'}`);
+  }
+
+  if (directProbeStatus !== 'blocked') {
+    errors.push(`Direct AGP 9 probe status must be blocked. Received: ${directProbeStatus || 'missing'}`);
+  }
+
+  if (!directProbeTask.includes(':gradle-plugin:settings-plugin:compileKotlin')) {
+    errors.push(`Direct AGP 9 probe task must identify the RN Gradle plugin compileKotlin failure. Received: ${directProbeTask || 'missing'}`);
+  }
+
+  if (!directProbeSource.includes('@react-native/gradle-plugin') || !directProbeSource.endsWith('ReactSettingsExtension.kt')) {
+    errors.push(`Direct AGP 9 probe source must identify ReactSettingsExtension.kt in the RN Gradle plugin. Received: ${directProbeSource || 'missing'}`);
+  }
+
+  if (!/^\d+\.\d+(?:\.\d+)?/.test(directProbeKotlinRuntimeMetadata)) {
+    errors.push(`Direct AGP 9 probe Kotlin runtime metadata must be a semver-like version. Received: ${directProbeKotlinRuntimeMetadata || 'missing'}`);
+  }
+
+  if (!/^\d+\.\d+(?:\.\d+)?/.test(rnKotlinMetadataCeiling)) {
+    errors.push(`React Native Gradle plugin Kotlin metadata ceiling must be a semver-like version. Received: ${rnKotlinMetadataCeiling || 'missing'}`);
+  }
+
+  if (!directProbeEvidence.includes('docs/wallet-modernization-log.md') || !directProbeEvidence.includes('BEM-37.774')) {
+    errors.push(`Direct AGP 9 probe evidence must point to the committed BEM-37.774 log entry. Received: ${directProbeEvidence || 'missing'}`);
+  }
+
   if (targetBlocked !== 'yes') {
     errors.push(`Latest Android toolchain target must stay blocked for this RN 0.86.0 baseline. Received: ${targetBlocked || 'missing'}`);
   }
@@ -106,7 +159,7 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     errors.push('Blockers must mention the React Native Gradle plugin Kotlin metadata incompatibility');
   }
 
-  if (!blockerLines.some(line => line.includes(`AGP ${latestStableAgp}`) && line.includes(`Gradle ${minimumAgp9Gradle}`))) {
+  if (!blockerLines.some(line => line.startsWith(`AGP ${latestStableAgp} requires Gradle ${minimumAgp9Gradle}`))) {
     errors.push('Blockers must tie the latest stable AGP value to the AGP 9 minimum Gradle wrapper');
   }
 
@@ -114,7 +167,7 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     !blockerLines.some(
       line =>
         line.includes(`Gradle ${minimumAgp9Gradle}`) &&
-        line.includes(latestGradle) &&
+        line.includes(directProbeGradle) &&
         line.includes(`React Native Gradle plugin ${rnGradlePlugin}`),
     )
   ) {
@@ -123,6 +176,18 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
 
   if (!blockerLines.some(line => line.includes(`AGP ${currentAgp}`) && line.includes(`Gradle ${currentGradle}`) && line.includes(`Kotlin ${currentKotlin}`))) {
     errors.push('Blockers must state the validated current AGP, Gradle, and Kotlin baseline');
+  }
+
+  if (
+    !blockerLines.some(
+      line =>
+        line.includes(directProbeTask) &&
+        line.includes(directProbeSource) &&
+        line.includes(`metadata ${directProbeKotlinRuntimeMetadata}`) &&
+        line.includes(`metadata ${rnKotlinMetadataCeiling}`),
+    )
+  ) {
+    errors.push('Blockers must include the direct AGP 9 probe failure task, source, and Kotlin metadata evidence');
   }
 
   if (!requiredAction.includes('React Native Gradle plugin') || !requiredAction.includes('AGP 9')) {
