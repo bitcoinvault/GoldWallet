@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.786 - Release-services evidence refresh
+
+- Branch: `feature/bem-37-786-release-services-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release build evidence after the React Navigation, i18next, and Firebase package changes.
+- Re-check the aggregate release-services gate before claiming any release-service readiness.
+- Separate current release APK/build validity from the external Electrum TLS blocker that prevents full dashboard/create-wallet release smoke in the dev/testnet flavor.
+- Keep Sentry package posture unchanged after confirming the installed release tooling is still current.
+
+Findings:
+
+- Live npm metadata on 2026-06-24 reports `@sentry/react-native@8.15.1` and `@sentry/cli@3.5.1` as latest, matching the installed release SDK/CLI.
+- `android:dev:release:verify-local` refreshed `dev`, `stage`, `prod`, and `beta` release APK, JS bundle, source-map, and manifest evidence with JDK 17, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and release-input fingerprint `1495c7e166f978506bf8a007c8b9645efc5546a89d9ab04c129e5f4ef6307a74` across `508` files.
+- The first release validation attempt hit the known transient Windows RN settings/autolinking `cmd` exit before Gradle completed; the rerun completed with all four release variants at exit code `0`.
+- Standard `android:dev:release:smoke:embedded` installed and launched the locally signed `devRelease` APK without Metro, completed first-run terms, PIN, transaction-password setup, and email skip, then failed dashboard assertions because the app reached `No network`.
+- Release smoke logcat shows repeated Electrum TLS failures from the environment: `SSLHandshakeException: Chain validation failed` caused by `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- A reduced release smoke on `emulator-5554` passes against the expected `No network` UI from a cleared app state: install, compile, launch, first-run flow, foreground check, `No network` detection, and no fatal/runtime logcat findings. This proves the current release APK starts under the external network blocker, but it does not prove the empty-dashboard CTA flow, tab navigation, QR scanner, Settings Terms WebView, or create-wallet release flow.
+- `release-services:check-summaries` remains intentionally red because its contract requires full release smoke and release create-wallet smoke, not a reduced `No network` proof. The release create-wallet summary also remains stale against the newly signed local release-smoke APK until the Electrum certificate is fixed or the dev/testnet endpoint is replaced.
+- Sentry source-map upload validation remains not claimed because `SENTRY_AUTH_TOKEN` and `sentry.properties` are absent.
+- iOS runtime validation remains not claimed on this Windows host; macOS/Xcode/CocoaPods validation is still required before any iOS simulator/archive claim.
+
+Validation:
+
+- `npm view @sentry/react-native version time repository.url dist-tags peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version time repository.url dist-tags peerDependencies dependencies engines --json`
+- `corepack yarn node:runtime:yarn release-services:check-summaries` failed as expected before refresh because release-smoke and release create-wallet summaries no longer matched the current release artifacts.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:release:smoke:embedded` failed at dashboard assertions after reaching `No network` with the expired Electrum certificate.
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SMOKE_APK=D:\GoldWallet\local-docs\android-smoke-dev-release-signed.apk ANDROID_SMOKE_SOURCE_APK=D:\GoldWallet\android\app\build\outputs\apk\dev\release\app-dev-release-unsigned.apk ANDROID_SMOKE_PACKAGE=io.goldwallet.wallet.dev ANDROID_SMOKE_ACTIVITY=io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release-no-network ANDROID_SMOKE_REQUIRE_METRO=false ANDROID_SMOKE_WAIT_MS=45000 ANDROID_SMOKE_CLEAR_APP_DATA=true ANDROID_SMOKE_EXPECT_TEXTS="No network" ANDROID_SMOKE_EXPECT_RESOURCE_IDS="" ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS=false ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION=false ANDROID_SMOKE_VALIDATE_QR_SCANNER=false ANDROID_SMOKE_VALIDATE_SETTINGS_TERMS_WEBVIEW=false npm exec --yes --package node@24.16.0 -- node scripts/androidSmokeDev.mjs`
+- `corepack yarn node:runtime:yarn release-services:check-summaries` remains red by design until full release smoke and release create-wallet smoke can be regenerated after the external Electrum TLS blocker is fixed.
+
 ### BEM-37.785 - React Navigation/i18next patch refresh
 
 - Branch: `feature/bem-37-785-navigation-i18n-patch-refresh`
