@@ -38,7 +38,7 @@ Current Android template/toolchain baseline compiles and targets SDK 36 on AGP 8
 - Keep target SDK changes tied to the React Native/toolchain path that owns Android template and debug receiver behavior.
 - Run emulator smoke for every runtime, dependency, native, or Metro-affecting branch.
 - Re-check the latest stable React Native release during the actual RN baseline branch instead of hardcoding it in this document.
-- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.86.x` line. As of the 2026-06-23 live probe, npm `latest` is `0.86.0`; `0.86.0-rc.3` remains a prerelease planning signal and `0.87.0-nightly-20260623-dc4d5e8ad` remains a nightly signal rather than the default wallet upgrade target.
+- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.86.x` line. As of the 2026-06-24 live probe, npm `latest` is `0.86.0`; `0.86.0-rc.3` remains a prerelease planning signal and `0.87.0-nightly-20260624-5c197fb30` remains a nightly signal rather than the default wallet upgrade target.
 
 ## Required Work Before The Next RN Step
 
@@ -92,7 +92,7 @@ The online preflight runs `foundation:target:refresh-online` and then the normal
 corepack yarn foundation:target:check-summaries
 ```
 
-This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, Babel 8 blocker evidence, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, Android toolchain blockers, BL resolution, and node-fetch resolution.
+This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, generated Babel 8 blocker evidence, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, Android toolchain blockers, BL resolution, and node-fetch resolution.
 
 For foundation milestone branches, also keep the legacy-named foundation plan audit green:
 

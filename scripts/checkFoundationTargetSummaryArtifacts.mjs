@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { getAndroidToolchainTargetSummaryErrors } from './androidToolchainTargetSummaryGuard.mjs';
 import { getBlResolutionSummaryErrors } from './blResolutionSummaryGuard.mjs';
+import { getBabel8MigrationProbeSummaryErrors } from './babel8MigrationProbeSummaryGuard.mjs';
 import { getDirectOutdatedSnapshotSummaryErrors } from './directOutdatedSnapshotSummaryGuard.mjs';
 import { getGitDependencySnapshotSummaryErrors } from './gitDependencySnapshotSummaryGuard.mjs';
 import { getNodeFetchResolutionSummaryErrors } from './nodeFetchResolutionSummaryGuard.mjs';
@@ -25,6 +26,11 @@ const summaries = [
     label: 'direct outdated snapshot',
     relativePath: 'local-docs/direct-outdated-snapshot.txt',
     getErrors: getDirectOutdatedSnapshotSummaryErrors,
+  },
+  {
+    label: 'Babel 8 migration probe',
+    relativePath: 'local-docs/babel-8-migration-probe-summary.txt',
+    getErrors: getBabel8MigrationProbeSummaryErrors,
   },
   {
     label: 'git dependency snapshot',

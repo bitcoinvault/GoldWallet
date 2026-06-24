@@ -12,7 +12,7 @@ This document records the current Babel 8 blocker for the React Native `0.86.0` 
 
 ## Current Latest Target
 
-Live npm metadata checked on 2026-06-23 reports the current Babel 8 target as a mixed `8.0.x` line:
+Live npm metadata checked on 2026-06-24 reports the current Babel 8 target as a mixed `8.0.x` line:
 
 - `@babel/cli@8.0.1`
 - `@babel/core@8.0.1`
@@ -42,12 +42,12 @@ The isolated probe attempted the current npm latest Babel `8.0.x` line for direc
 
 ## Result
 
-The package install completed, but the runtime transform path is not compatible with the current React Native preset. A 2026-06-23 isolated prefix probe with `@babel/core@8.0.1` and `@react-native/babel-preset@0.86.0` still fails in the same RN-owned path. The first failing plugin path is owned by `@react-native/babel-preset@0.86.0`, which still depends on the Babel 7 plugin stack. The concrete failure appears when Babel 8 loads `@babel/plugin-transform-flow-strip-types` from the RN preset:
+The package install completed, but the runtime transform path is not compatible with the current React Native preset. A 2026-06-24 generated audit with `@babel/core@8.0.1` and `@react-native/babel-preset@0.86.0` still fails in the same RN-owned path. The first failing plugin path is owned by `@react-native/babel-preset@0.86.0`, which still depends on the Babel 7 plugin stack. The concrete failure appears when Babel 8 loads `@babel/plugin-transform-flow-strip-types` from the RN preset:
 
 ```text
 BABEL_VERSION_UNSUPPORTED
 Requires Babel "^7.0.0-0", but was loaded with "8.0.1"
-While processing: "@react-native/babel-preset/src/index.js.overrides[0]$0"
+While processing: "base$0.overrides[0]$0"
 First plugin path: @babel/plugin-transform-flow-strip-types
 ```
 
@@ -56,6 +56,7 @@ First plugin path: @babel/plugin-transform-flow-strip-types
 Metadata:
 
 ```powershell
+corepack yarn babel8:migration-probe:audit
 npm view @babel/cli version engines dependencies --json
 npm view @babel/core version engines peerDependencies dependencies --json
 npm view @babel/runtime version engines dependencies --json
@@ -68,6 +69,12 @@ npm view @babel/traverse version engines dependencies --json
 npm view babel-plugin-polyfill-regenerator version engines dependencies --json
 npm view @react-native/babel-preset@0.86.0 version dependencies peerDependencies engines --json
 npm view babel-jest@30.4.1 version dependencies peerDependencies engines --json
+```
+
+The generated audit writes `local-docs/babel-8-migration-probe-summary.txt`; validate it with:
+
+```powershell
+corepack yarn babel8:migration-probe:check-summary
 ```
 
 Install probe:
@@ -113,7 +120,7 @@ $node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()
 
 ## Decision
 
-Keep Babel 8 blocked on the current RN `0.86.0` baseline. The 2026-06-23 latest-target refresh keeps this as a React Native preset/plugin-stack blocker, not a Node engine blocker. It should only be retried in a dedicated RN/Metro/Babel branch after a React Native preset line supports Babel 8 plugins, or after a controlled migration replaces the RN preset/plugin stack and proves:
+Keep Babel 8 blocked on the current RN `0.86.0` baseline. The 2026-06-24 latest-target refresh keeps this as a React Native preset/plugin-stack blocker, not a Node engine blocker. It should only be retried in a dedicated RN/Metro/Babel branch after a React Native preset line supports Babel 8 plugins, or after a controlled migration replaces the RN preset/plugin stack and proves:
 
 - direct Babel transform,
 - Jest focused tests,
