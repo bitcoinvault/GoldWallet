@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.795 - Foundation latest target refresh
+
+- Branch: `feature/bem-37-795-foundation-latest-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh live latest-target evidence for the RN foundation, direct outdated dependencies, React patch blocker, Babel 8 blocker, git-pinned wallet dependencies, wallet crypto, storage/network, tooling, Android toolchain target, `bl`, and `node-fetch`.
+- Keep the branch evidence-only: no package, lockfile, native project, runtime, Metro, or build script changes.
+- Preserve the latest-first decision record before the next dependency/runtime branch.
+
+Findings:
+
+- Live npm metadata still reports `react-native@0.86.0` as latest, `react-native@0.86.0-rc.3` as next, and `react-native@0.87.0-nightly-20260624-5c197fb30` as nightly.
+- React patch packages have moved to `react@19.2.7` and `react-test-renderer@19.2.7`, but package-only bump remains blocked by the RN renderer exact-version baseline, which expects React `19.2.3`.
+- Babel 8 remains blocked: the isolated transform probe fails with `BABEL_VERSION_UNSUPPORTED` because the RN `0.86.0` Babel preset plugin stack still requires Babel `^7.0.0-0`.
+- Wallet-critical git pins are current against their remotes: `bitcoinjs-lib`, `electrum-client`, `react-native-prompt-android`, and `rn-nodeify`.
+- Wallet crypto, storage/network, and tooling snapshots report current latest packages for their tracked npm entries; direct outdated review remains limited to known blocked/exotic entries.
+- Android latest toolchain remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, and Gradle `9.4.1`/`9.6.0` hit the RN Gradle plugin `0.86.0` Kotlin metadata blocker. The validated Android baseline stays AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`.
+- `bl@7.0.4` remains blocked by ESM/export-map behavior for CommonJS/transitive consumers; `node-fetch@3.3.2` remains current and compatible through the existing dynamic-import path.
+- No Android emulator smoke is required for this branch because it changes only committed documentation and local ignored evidence artifacts.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn foundation:target:refresh-online`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.794 - iOS release-config documentation guard
 
 - Branch: `feature/bem-37-794-ios-release-config-doc-guard`
