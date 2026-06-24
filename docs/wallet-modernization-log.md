@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.799 - Electrum certificate blocker guard
+
+- Branch: `feature/bem-37-799-electrum-cert-blocker-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Strengthen the Android release network-blocker summary so it records the configured `.env.dev.testnet` Electrum endpoint that currently blocks release-smoke validation.
+- Require the parsed certificate comparison timestamp from logcat, the exact `electrumx.testnet.btcv.stage.rnd.land:443 tls` endpoint, and an explicit statement that reduced `No network` smoke is not full release proof.
+- Keep full release-services readiness blocked until standard dashboard and release create-wallet smoke can run after the dev/testnet Electrum TLS certificate is renewed or replaced.
+
+Findings:
+
+- The active dev/testnet endpoint is `electrumx.testnet.btcv.stage.rnd.land:443 tls` from `.env.dev.testnet`.
+- The refreshed network-blocker summary still classifies the current blocker as `blocked-by-electrum-certificate-expired`.
+- Reduced no-network smoke remains useful only as external-blocker proof; it does not prove empty-dashboard CTA flow, tab navigation, QR scanner, Settings Terms WebView, or release create-wallet behavior.
+- Android runtime validation is not required for this branch because it changes only audit scripts, summary guards, and documentation; it does not change app runtime, native Android files, Metro config, package versions, or lockfiles.
+
+Validation:
+
+- `node --check scripts/auditAndroidReleaseNetworkBlocker.mjs`
+- `node --check scripts/androidReleaseNetworkBlockerSummaryGuard.mjs`
+- `node --check scripts/checkAndroidReleaseNetworkBlockerSummaryGuard.mjs`
+- `corepack yarn node:runtime:yarn check:android-release-network-blocker-summary-guard`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-audit`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.797 - Android toolchain target proof guard
 
 - Branch: `feature/bem-37-797-android-toolchain-target-proof`

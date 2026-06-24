@@ -29,13 +29,16 @@ const validSummary = [
   'SSL handshake exception lines: 4',
   'Certificate expired exception lines: 4',
   'TCP socket exception lines: 4',
+  'Dev/testnet Electrum endpoint: electrumx.testnet.btcv.stage.rnd.land:443 tls',
   'Certificate expired at: Tue Jun 23 16:52:40 GMT 2026',
   'Certificate compared at sample: Wed Jun 24 13:48:29 GMT 2026',
   'No-network UI proof ready: yes',
   'Expired certificate evidence ready: yes',
+  'Reduced no-network smoke is full release proof: no',
+  'Release services gate remains blocked: yes',
   'Release blocker outcome: blocked-by-electrum-certificate-expired',
   'Secret values printed: no',
-  'Required action: renew or fix the dev/testnet Electrum TLS certificate, then rerun Android devRelease smoke and release create-wallet validation.',
+  'Required action: renew or fix the dev/testnet Electrum TLS certificate for electrumx.testnet.btcv.stage.rnd.land:443 tls, then rerun Android devRelease smoke and release create-wallet validation.',
   '',
   'Blocker evidence lines:',
   '06-24 13:48:29.391 E TcpSockets: javax.net.ssl.SSLHandshakeException: Chain validation failed',
@@ -61,6 +64,28 @@ const missingCertificateEvidenceErrors = getAndroidReleaseNetworkBlockerSummaryE
 assert(
   missingCertificateEvidenceErrors.some(error => error.includes('Release blocker outcome must be')),
   'summary without expired-certificate blocker outcome should fail',
+);
+
+const missingEndpoint = validSummary.replace(
+  'Dev/testnet Electrum endpoint: electrumx.testnet.btcv.stage.rnd.land:443 tls',
+  'Dev/testnet Electrum endpoint: <missing>:<missing> <missing>',
+);
+const missingEndpointErrors = getAndroidReleaseNetworkBlockerSummaryErrors(missingEndpoint);
+assert(
+  missingEndpointErrors.some(error => error.includes('Dev/testnet Electrum endpoint must be')),
+  'summary without the configured Electrum endpoint should fail',
+);
+
+const incorrectlyClaimedFullProof = validSummary.replace(
+  'Reduced no-network smoke is full release proof: no',
+  'Reduced no-network smoke is full release proof: yes',
+);
+const incorrectlyClaimedFullProofErrors = getAndroidReleaseNetworkBlockerSummaryErrors(incorrectlyClaimedFullProof);
+assert(
+  incorrectlyClaimedFullProofErrors.some(error =>
+    error.includes('Reduced no-network smoke is full release proof must be no'),
+  ),
+  'summary that treats reduced no-network smoke as full release proof should fail',
 );
 
 const missingEvidenceLines = validSummary.replace('SSLHandshakeException', 'TcpSocketException');
