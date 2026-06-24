@@ -3,12 +3,12 @@ import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServic
 const validSummary = [
   'Firebase release-services audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
-  'React Native Firebase package version set: 24.1.1',
-  'React Native Firebase latest version: 24.1.1',
-  'React Native Firebase latest published at: 2026-06-10T02:35:38.524Z',
+  'React Native Firebase package version set: 25.0.1',
+  'React Native Firebase latest version: 25.0.1',
+  'React Native Firebase latest published at: 2026-06-23T18:03:05.274Z',
   'React Native Firebase npm repository: git+https://github.com/invertase/react-native-firebase.git#main',
-  'React Native Firebase Messaging latest version: 24.1.1',
-  'React Native Firebase Messaging peer app version: 24.1.1',
+  'React Native Firebase Messaging latest version: 25.0.1',
+  'React Native Firebase Messaging peer app version: 25.0.1',
   'React Native Firebase package current: yes',
   'Android Google Services Gradle plugin: 4.4.4',
   'Android Firebase Crashlytics Gradle plugin: 3.0.7',
@@ -32,12 +32,12 @@ const validSummary = [
 const invalidSummary = [
   'Firebase release-services audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
-  'React Native Firebase package version set: 24.1.1',
-  'React Native Firebase latest version: 24.1.1',
-  'React Native Firebase latest published at: 2026-06-10T02:35:38.524Z',
+  'React Native Firebase package version set: 25.0.1',
+  'React Native Firebase latest version: 25.0.1',
+  'React Native Firebase latest published at: 2026-06-23T18:03:05.274Z',
   'React Native Firebase npm repository: git+https://github.com/invertase/react-native-firebase.git#main',
-  'React Native Firebase Messaging latest version: 24.1.1',
-  'React Native Firebase Messaging peer app version: 24.1.1',
+  'React Native Firebase Messaging latest version: 25.0.1',
+  'React Native Firebase Messaging peer app version: 25.0.1',
   'React Native Firebase package current: yes',
   'Android Google Services Gradle plugin: 4.4.4',
   'Android Firebase Crashlytics Gradle plugin: 3.0.7',
@@ -83,10 +83,10 @@ assertAccepted('Valid Firebase release-services summary fixture', validSummary);
 assertAccepted('Invalid-wiring Firebase release-services summary fixture', invalidSummary);
 assertRejected('Missing header fixture', validSummary.replace('Firebase release-services audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
-assertRejected('Missing latest Firebase fixture', validSummary.replace('React Native Firebase latest version: 24.1.1', 'React Native Firebase latest version: missing'), 'latest version');
+assertRejected('Missing latest Firebase fixture', validSummary.replace('React Native Firebase latest version: 25.0.1', 'React Native Firebase latest version: missing'), 'latest version');
 assertRejected(
   'Missing latest publish timestamp fixture',
-  validSummary.replace('React Native Firebase latest published at: 2026-06-10T02:35:38.524Z', 'React Native Firebase latest published at: missing'),
+  validSummary.replace('React Native Firebase latest published at: 2026-06-23T18:03:05.274Z', 'React Native Firebase latest published at: missing'),
   'published timestamp',
 );
 assertRejected(
@@ -99,12 +99,12 @@ assertRejected(
 );
 assertRejected(
   'Messaging latest mismatch fixture',
-  validSummary.replace('React Native Firebase Messaging latest version: 24.1.1', 'React Native Firebase Messaging latest version: 23.0.0'),
+  validSummary.replace('React Native Firebase Messaging latest version: 25.0.1', 'React Native Firebase Messaging latest version: 23.0.0'),
   'Messaging latest version',
 );
 assertRejected(
   'Messaging peer mismatch fixture',
-  validSummary.replace('React Native Firebase Messaging peer app version: 24.1.1', 'React Native Firebase Messaging peer app version: 23.0.0'),
+  validSummary.replace('React Native Firebase Messaging peer app version: 25.0.1', 'React Native Firebase Messaging peer app version: 23.0.0'),
   'Messaging peer app version',
 );
 assertRejected('Firebase package not current fixture', validSummary.replace('React Native Firebase package current: yes', 'React Native Firebase package current: no'), 'package current');

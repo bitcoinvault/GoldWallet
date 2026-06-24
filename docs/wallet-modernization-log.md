@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.787 - iOS/Firebase guard handoff refresh
+
+- Branch: `feature/bem-37-787-ios-handoff-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Windows-safe iOS validation handoff after the Firebase `25.0.1` package-family upgrade.
+- Fix stale guard fixtures that still expected React Native Firebase `24.1.1` after the package move.
+- Keep the native module inventory and native-module upgrade plan aligned with the current `25.0.1` Firebase package family.
+- Re-run iOS static readiness, macOS prerequisite, Podfile refresh-plan, Firebase release-services, and native-module inventory guards.
+
+Findings:
+
+- Initial `ios:mac-validation:handoff:preflight` failed because the iOS release readiness summary guard expected `RNFBApp 12.7.5` drift against `@react-native-firebase/app 24.1.1`, while the current package baseline is `25.0.1`.
+- Firebase release-services guard fixtures, Firebase runtime-delivery handoff guard fixtures, iOS release-readiness drift fixtures, native-module inventory expectations, and `docs/native-module-upgrade-plan.md` now all use the current React Native Firebase `25.0.1` family.
+- Live npm metadata confirms `@react-native-firebase/app@25.0.1` and `@react-native-firebase/messaging@25.0.1` as latest/current; the app package was published at `2026-06-23T18:03:05.274Z`, and Messaging peers on `@react-native-firebase/app@25.0.1`.
+- `firebase:release-services:audit` now reports package version set `25.0.1`, latest `25.0.1`, Messaging latest `25.0.1`, peer app `25.0.1`, current package `yes`, Android release summary current inputs covered `yes`, and Firebase runtime delivery `not claimed`.
+- iOS static release files remain valid: React Native `0.86.0`, minimum iOS `15.1`, minimum Xcode `16.1`, `8` guarded iOS schemes, `4` Sentry bundle/source-map phases, `3` Sentry dSYM phases, `0` CodePush plist placeholders, and `4` remote-notification plists.
+- iOS runtime validation remains not claimed on this Windows host. The current blockers are Windows platform, missing `xcodebuild`, missing CocoaPods, and `12` active `ios/Podfile.lock` drift issues, including `RNFBApp 12.7.5` versus `@react-native-firebase/app 25.0.1`.
+
+Validation:
+
+- `npm view @react-native-firebase/app@25.0.1 version repository.url dist-tags --json`
+- `npm view @react-native-firebase/messaging@25.0.1 version peerDependencies.@react-native-firebase/app --json`
+- `npm view @react-native-firebase/app time --json`
+- `corepack yarn node:runtime:yarn check:ios-mac-validation-handoff-guard`
+- `corepack yarn node:runtime:yarn check:ios-release-readiness-audit-guard`
+- `corepack yarn node:runtime:yarn check:ios-mac-validation-prereq-summary-guard`
+- `corepack yarn node:runtime:yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn check:firebase-release-services-summary-guard`
+- `corepack yarn node:runtime:yarn firebase:release-services:audit`
+- `corepack yarn node:runtime:yarn firebase:release-services:check-summary`
+- `corepack yarn node:runtime:yarn check:firebase-runtime-delivery-handoff-guard`
+- `corepack yarn node:runtime:yarn check:native-module-inventory-guard`
+- `corepack yarn node:runtime:yarn check:native-module-inventory`
+- `corepack yarn node:runtime:yarn ios:mac-validation:handoff:preflight`
+- `corepack yarn node:runtime:yarn check:node-runtime-version`
+- `corepack yarn node:runtime:yarn android:dev:check-light-docs`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.786 - Release-services evidence refresh
 
 - Branch: `feature/bem-37-786-release-services-evidence-refresh`
