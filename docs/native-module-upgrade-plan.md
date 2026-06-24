@@ -125,10 +125,10 @@ Branch shape:
 
 ### Group D - Notifications And Release Services
 
-- `@react-native-firebase/app` -> `24.1.1`
-- `@react-native-firebase/analytics` -> `24.1.1`
-- `@react-native-firebase/crashlytics` -> `24.1.1`
-- `@react-native-firebase/messaging` -> `24.1.1`
+- `@react-native-firebase/app` -> `25.0.1`
+- `@react-native-firebase/analytics` -> `25.0.1`
+- `@react-native-firebase/crashlytics` -> `25.0.1`
+- `@react-native-firebase/messaging` -> `25.0.1`
 - `@react-native-community/push-notification-ios` -> `1.12.0`
 - `react-native-code-push` -> removed; latest historical npm release checked `9.0.1`
 - `@sentry/react-native` -> `8.15.1`
@@ -141,7 +141,7 @@ Branch shape:
 
 - Do not do blind release-service upgrades inside generic cleanup.
 - Keep remaining Sentry release/source-map validation in a dedicated branch when credentials and release build access are available.
-- Keep Firebase grouped by package family; after `BEM-37.466` the current family is `24.1.1`, with Android debug build, release evidence, and embedded smoke validation required before merge.
+- Keep Firebase grouped by package family; after `BEM-37.784` the current family is `25.0.1`, with Android debug build, release evidence, and embedded smoke validation required before merge.
 - `corepack yarn firebase:release-services:audit` checks current Firebase package family alignment, Android config, iOS plist files, and Messaging runtime wiring before a Firebase family upgrade.
 - `docs/release-services-native-compatibility-audit.md` records the current Firebase, push, removed CodePush, and Sentry package snapshot, native build surface, and release validation path.
 - `react-native-code-push` was removed after `BEM-37.583`; keep it removed unless a maintained OTA replacement is explicitly selected and validated as a separate release capability. Latest historical npm metadata remains `9.0.1`, App Center CodePush was retired on 2025-03-31, and the Microsoft upstream is archived. OTA update validation remains unclaimed, and stale `CODEPUSH_*` env cleanup remains a secrets-safe follow-up that must not expose historical deployment-key values in review. `corepack yarn codepush:migration:readiness-audit` records the current posture as removed and keeps the long-term remove-or-replace decision guarded.
