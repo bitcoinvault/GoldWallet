@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getCodePushDecisionHandoffErrors } from './codePushDecisionHandoffGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -63,5 +64,65 @@ if (errors.length > 0) {
   errors.forEach(error => console.error(`- Missing or invalid plan item: ${error}`));
   process.exit(1);
 }
+
+const removedDecisionWithBlockedReleaseProof = [
+  'CodePush decision handoff',
+  'Generated at: 2026-06-24T00:00:00.000Z',
+  'Decision: remove',
+  'Implementation ready: yes',
+  'CodePush removed: yes',
+  'Replacement target: none',
+  'Beta deployment-key strategy: beta has no OTA',
+  'Release path summary valid: yes',
+  'Migration readiness summary valid: yes',
+  'Removal readiness summary valid: yes',
+  'CodePush migration required: no',
+  'CodePush update validation: not claimed',
+  'CodePush runtime gated off by default: yes',
+  'CodePush release build evidence ready: yes',
+  'CodePush release smoke evidence ready: no',
+  'CodePush release create-wallet evidence ready: no',
+  'iOS runtime validation: not claimed on this Windows host; run macOS/Xcode/CocoaPods validation before claiming iOS delivery.',
+  'Release path summary errors: 0',
+  'Migration readiness summary errors: 0',
+  'Removal readiness summary errors: 0',
+  'Secret values printed: no',
+  'Required action: keep CodePush removed from runtime and native integration; do not claim OTA update validation until deployment keys and a real delivery test are available.',
+  '',
+].join('\n');
+
+const assertDecisionAccepted = (label, summary) => {
+  const decisionErrors = getCodePushDecisionHandoffErrors(summary);
+
+  if (decisionErrors.length > 0) {
+    console.error(`${label} should be accepted, but produced errors:`);
+    decisionErrors.forEach(error => console.error(`- ${error}`));
+    process.exit(1);
+  }
+};
+
+const assertDecisionRejected = (label, summary, expectedError) => {
+  const decisionErrors = getCodePushDecisionHandoffErrors(summary);
+
+  if (!decisionErrors.some(error => error.includes(expectedError))) {
+    console.error(`${label} should reject with "${expectedError}", but produced:`);
+    decisionErrors.forEach(error => console.error(`- ${error}`));
+    process.exit(1);
+  }
+};
+
+assertDecisionAccepted('Removed CodePush decision with blocked release smoke proof fixture', removedDecisionWithBlockedReleaseProof);
+assertDecisionRejected(
+  'Removed CodePush decision without release build proof fixture',
+  removedDecisionWithBlockedReleaseProof.replace('CodePush release build evidence ready: yes', 'CodePush release build evidence ready: no'),
+  'release build evidence',
+);
+assertDecisionRejected(
+  'Not-yet-removed CodePush decision without release smoke proof fixture',
+  removedDecisionWithBlockedReleaseProof
+    .replace('CodePush removed: yes', 'CodePush removed: no')
+    .replace('CodePush migration required: no', 'CodePush migration required: yes'),
+  'before changing CodePush state',
+);
 
 console.log('CodePush decision handoff guard checks are valid.');

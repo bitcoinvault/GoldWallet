@@ -56,6 +56,65 @@ const validSummary = [
   '',
 ].join('\n');
 
+const removedBlockedByReleaseSummary = validSummary
+  .replace('CodePush package installed: yes', 'CodePush package installed: no')
+  .replace('CodePush removed: no', 'CodePush removed: yes')
+  .replace('CodePush migration required: yes', 'CodePush migration required: no')
+  .replace(
+    [
+      'Android release smoke summary valid: yes',
+      'Android release smoke summary errors: 0',
+      'CodePush release smoke evidence ready: yes',
+      'Android release create-wallet smoke summary valid: yes',
+      'Android release create-wallet smoke summary errors: 0',
+      'CodePush release create-wallet evidence ready: yes',
+    ].join('\n'),
+    [
+      'Android release smoke summary valid: no',
+      'Android release smoke summary errors: 8',
+      '- Expected line not found: Android smoke outcome: passed',
+      '- Expected line not found: Android smoke exit code: 0',
+      '- Expected line not found: Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
+      '- Closed first-run success must be yes. Received: no',
+      '- Validated empty-dashboard CTA flow must be yes. Received: no',
+      '- Validated empty-tab navigation must be yes. Received: no',
+      '- Validated QR scanner screen must be yes. Received: no',
+      '- Validated settings Terms WebView must be yes. Received: no',
+      'CodePush release smoke evidence ready: no',
+      'Android release create-wallet smoke summary valid: no',
+      'Android release create-wallet smoke summary errors: 2',
+      '- Source APK bytes does not match the current file size for D:\\GoldWallet\\local-docs\\android-smoke-dev-release-signed.apk',
+      '- Source APK sha256 does not match the current file digest for D:\\GoldWallet\\local-docs\\android-smoke-dev-release-signed.apk',
+      'CodePush release create-wallet evidence ready: no',
+    ].join('\n'),
+  )
+  .replace('Runtime usage files: 1\n- App.tsx', 'Runtime usage files: 0')
+  .replace(
+    [
+      'Native integration files: 8',
+      '- android/app/build.gradle',
+      '- android/app/src/main/java/io/goldwallet/wallet/MainApplication.java',
+      '- android/app/src/main/res/values/strings.xml',
+      '- android/settings.gradle',
+      '- ios/GoldWallet/AppDelegate.m',
+      '- ios/GoldWallet/Info.plist',
+      '- ios/GoldWalletDev-Info.plist',
+      '- ios/GoldWalletStage-Info.plist',
+    ].join('\n'),
+    'Native integration files: 0',
+  )
+  .replace('Env files carrying CodePush keys: 5\n- .env.dev.testnet\n- .env.stage.mainnet\n- .env.prod.mainnet\n- .env.beta.testnet\n- .env.beta.mainnet', 'Env files carrying CodePush keys: 0')
+  .replace('iOS plist placeholders: 3', 'iOS plist placeholders: 0')
+  .replace('Android native integration present: yes', 'Android native integration present: no')
+  .replace('iOS native integration present: yes', 'iOS native integration present: no')
+  .replace('Decision: pending', 'Decision: remove')
+  .replace('Beta deployment-key strategy: unconfirmed', 'Beta deployment-key strategy: beta has no OTA')
+  .replace('Removal decision available: no', 'Removal decision available: yes')
+  .replace(
+    'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
+    'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.',
+  );
+
 const assertAccepted = (label, summary) => {
   const errors = getCodePushRemovalReadinessSummaryErrors(summary);
 
@@ -77,6 +136,7 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid CodePush removal readiness summary fixture', validSummary);
+assertAccepted('Valid removed CodePush readiness summary with blocked release proof fixture', removedBlockedByReleaseSummary);
 assertAccepted(
   'Valid CodePush remove decision readiness summary fixture',
   validSummary

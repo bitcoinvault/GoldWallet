@@ -84,8 +84,13 @@ export const getCodePushDecisionHandoffErrors = summary => {
     errors.push('Decision handoff requires valid CodePush release, migration, and removal summaries');
   }
 
-  if (releaseBuildEvidenceReady !== 'yes' || releaseSmokeEvidenceReady !== 'yes' || releaseCreateWalletEvidenceReady !== 'yes') {
-    errors.push('Decision handoff requires current Android release build, release-smoke, and release create-wallet evidence');
+  if (releaseBuildEvidenceReady !== 'yes') {
+    errors.push('Decision handoff requires current Android release build evidence');
+  }
+
+  const codePushAlreadyRemoved = codePushRemoved === 'yes' && decision === 'remove';
+  if (!codePushAlreadyRemoved && (releaseSmokeEvidenceReady !== 'yes' || releaseCreateWalletEvidenceReady !== 'yes')) {
+    errors.push('Decision handoff requires current Android release-smoke and release create-wallet evidence before changing CodePush state');
   }
 
   if (decision === 'replace' && (!replacementTarget || replacementTarget === 'none')) {

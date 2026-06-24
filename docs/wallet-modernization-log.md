@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.809 - CodePush removed-state proof sync
+
+- Branch: `feature/bem-37-809-codepush-decision-proof-sync`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep CodePush decision, migration, and removal readiness aligned with the current removed-state posture.
+- Allow `CodePush removed: yes` readiness summaries to remain valid while Android release smoke and release create-wallet proof are blocked by the external dev/testnet Electrum certificate.
+- Keep full release smoke/create-wallet evidence required before changing CodePush state when CodePush is not already removed.
+- Prevent the decision handoff from claiming release smoke/create-wallet proof when the current summaries say that proof is not ready.
+
+Findings:
+
+- Fresh CodePush migration/removal audits reported `CodePush removed: yes`, `CodePush migration required: no`, release build evidence ready, and release smoke/create-wallet evidence not ready.
+- A stale/racing decision dry-run could print `CodePush release smoke evidence ready: yes` and `CodePush release create-wallet evidence ready: yes` while the refreshed summaries said `no`.
+- After the guard change, `codepush:decision:handoff:dry-run` reports `Implementation ready: yes` for the already-removed CodePush state, while still reporting release smoke/create-wallet evidence as `no`.
+- `CodePush update validation` remains `not claimed`; no deployment-key or OTA delivery proof was added.
+- This branch changes validation semantics only. It does not change app runtime, native integration, package versions, lockfiles, Metro config, or release APK contents.
+
+Validation:
+
+- `node --check scripts/codePushMigrationReadinessSummaryGuard.mjs`
+- `node --check scripts/codePushRemovalReadinessSummaryGuard.mjs`
+- `node --check scripts/codePushDecisionHandoffGuard.mjs`
+- `node --check scripts/checkCodePushMigrationReadinessSummaryGuard.mjs`
+- `node --check scripts/checkCodePushRemovalReadinessSummaryGuard.mjs`
+- `node --check scripts/checkCodePushDecisionHandoffGuard.mjs`
+- `corepack yarn node:runtime:yarn check:codepush-decision-handoff-guard`
+- `corepack yarn node:runtime:yarn codepush:release:path-audit`
+- `corepack yarn node:runtime:yarn codepush:release:path-check-summary`
+- `corepack yarn node:runtime:yarn codepush:migration:readiness-audit`
+- `corepack yarn node:runtime:yarn codepush:migration:readiness-check-summary`
+- `corepack yarn node:runtime:yarn codepush:removal-readiness:audit`
+- `corepack yarn node:runtime:yarn codepush:removal-readiness:check-summary`
+- `corepack yarn node:runtime:yarn codepush:decision:handoff`
+- `corepack yarn node:runtime:yarn codepush:decision:handoff:dry-run`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.808 - Android release summary refresh
 
 - Branch: `feature/bem-37-808-release-summary-refresh`

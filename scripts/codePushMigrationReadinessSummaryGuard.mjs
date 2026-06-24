@@ -167,20 +167,23 @@ export const getCodePushMigrationReadinessSummaryErrors = summary => {
     errors.push('CodePush release build evidence must be ready before migration readiness is useful');
   }
 
-  if (androidReleaseSmokeSummaryValid !== 'yes' || androidReleaseSmokeSummaryErrors !== '0') {
-    errors.push('CodePush migration readiness requires a valid Android release smoke summary');
-  }
+  const codePushAlreadyRemoved = codePushRemoved === 'yes' && migrationRequired === 'no' && currentPosture === 'removed';
+  if (!codePushAlreadyRemoved) {
+    if (androidReleaseSmokeSummaryValid !== 'yes' || androidReleaseSmokeSummaryErrors !== '0') {
+      errors.push('CodePush migration readiness requires a valid Android release smoke summary');
+    }
 
-  if (releaseSmokeEvidenceReady !== 'yes') {
-    errors.push('CodePush release smoke evidence must be ready before migration readiness is useful');
-  }
+    if (releaseSmokeEvidenceReady !== 'yes') {
+      errors.push('CodePush release smoke evidence must be ready before migration readiness is useful');
+    }
 
-  if (androidReleaseCreateWalletSmokeSummaryValid !== 'yes' || androidReleaseCreateWalletSmokeSummaryErrors !== '0') {
-    errors.push('CodePush migration readiness requires a valid Android release create-wallet smoke summary');
-  }
+    if (androidReleaseCreateWalletSmokeSummaryValid !== 'yes' || androidReleaseCreateWalletSmokeSummaryErrors !== '0') {
+      errors.push('CodePush migration readiness requires a valid Android release create-wallet smoke summary');
+    }
 
-  if (releaseCreateWalletEvidenceReady !== 'yes') {
-    errors.push('CodePush release create-wallet evidence must be ready before migration readiness is useful');
+    if (releaseCreateWalletEvidenceReady !== 'yes') {
+      errors.push('CodePush release create-wallet evidence must be ready before migration readiness is useful');
+    }
   }
 
   [
