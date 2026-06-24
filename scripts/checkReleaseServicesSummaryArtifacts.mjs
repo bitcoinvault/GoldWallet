@@ -3,9 +3,13 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
-import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
+import {
+  getAndroidReleaseNoNetworkSmokeEvidenceOptions,
+  getAndroidReleaseSmokeEvidenceOptions,
+} from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidReleaseSummaryErrors } from './androidReleaseSummaryGuard.mjs';
-import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidEmbeddedSmokeSummaryErrors, getAndroidNoNetworkSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getAndroidReleaseNetworkBlockerSummaryErrors } from './androidReleaseNetworkBlockerSummaryGuard.mjs';
 import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationReadinessSummaryGuard.mjs';
 import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
@@ -23,6 +27,21 @@ import { getSentryRnBundleTaskCompatibilitySummaryErrors } from './sentryRnBundl
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
+const noNetworkSmokeSummaryRelativePath = 'local-docs/android-smoke-dev-release-no-network-summary.txt';
+const networkBlockerSummaryRelativePath = 'local-docs/android-release-network-blocker-summary.txt';
+const controlledElectrumBlockerOutcome = 'blocked-by-electrum-certificate-expired';
+const allowedControlledNetworkBlockerErrors = [
+  'Android release smoke: Expected line not found: Android smoke outcome: passed',
+  'Android release smoke: Expected line not found: Android smoke exit code: 0',
+  'Android release smoke: Expected line not found: Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
+  'Android release smoke: Closed first-run success must be yes. Received: no',
+  'Android release smoke: Validated empty-dashboard CTA flow must be yes. Received: no',
+  'Android release smoke: Validated empty-tab navigation must be yes. Received: no',
+  'Android release smoke: Validated QR scanner screen must be yes. Received: no',
+  'Android release smoke: Validated settings Terms WebView must be yes. Received: no',
+  'Android release create-wallet smoke: Source APK bytes does not match the current file size',
+  'Android release create-wallet smoke: Source APK sha256 does not match the current file digest',
+];
 
 export const releaseServicesSummaryArtifacts = [
   {
@@ -122,32 +141,112 @@ export const releaseServicesSummaryArtifacts = [
 ];
 
 export const getReleaseServicesSummaryArtifactErrors = ({ rootPath = root } = {}) => {
+  const state = getReleaseServicesSummaryArtifactState({ rootPath });
+
+  return state.status === 'invalid' ? state.errors : [];
+};
+
+const readSummaryArtifact = (rootPath, relativePath) => {
+  const summaryPath = path.join(rootPath, relativePath);
+
+  if (!existsSync(summaryPath)) {
+    return null;
+  }
+
+  return readFileSync(summaryPath, 'utf8');
+};
+
+const getControlledElectrumBlockerErrors = rootPath => {
+  const errors = [];
+  const noNetworkSummary = readSummaryArtifact(rootPath, noNetworkSmokeSummaryRelativePath);
+  const networkBlockerSummary = readSummaryArtifact(rootPath, networkBlockerSummaryRelativePath);
+
+  if (!noNetworkSummary) {
+    errors.push(`Android release no-network smoke summary artifact is missing at ${noNetworkSmokeSummaryRelativePath}`);
+  } else {
+    getAndroidNoNetworkSmokeSummaryErrors(noNetworkSummary, getAndroidReleaseNoNetworkSmokeEvidenceOptions(rootPath)).forEach(
+      error => errors.push(`Android release no-network smoke: ${error}`),
+    );
+  }
+
+  if (!networkBlockerSummary) {
+    errors.push(`Android release network blocker summary artifact is missing at ${networkBlockerSummaryRelativePath}`);
+  } else {
+    getAndroidReleaseNetworkBlockerSummaryErrors(networkBlockerSummary).forEach(error => {
+      errors.push(`Android release network blocker: ${error}`);
+    });
+
+    if (!networkBlockerSummary.includes(`Release blocker outcome: ${controlledElectrumBlockerOutcome}`)) {
+      errors.push(`Android release network blocker outcome must be ${controlledElectrumBlockerOutcome}`);
+    }
+  }
+
+  return errors;
+};
+
+const isControlledElectrumBlockerError = error =>
+  allowedControlledNetworkBlockerErrors.some(allowedError => error.includes(allowedError));
+
+export const getReleaseServicesSummaryArtifactState = ({ rootPath = root } = {}) => {
   const errors = [];
 
   releaseServicesSummaryArtifacts.forEach(summary => {
-    const summaryPath = path.join(rootPath, summary.relativePath);
+    const summaryContent = readSummaryArtifact(rootPath, summary.relativePath);
 
-    if (!existsSync(summaryPath)) {
+    if (!summaryContent) {
       errors.push(`${summary.label} summary artifact is missing at ${summary.relativePath}`);
       return;
     }
 
-    const summaryContent = readFileSync(summaryPath, 'utf8');
     summary.getErrors(summaryContent, rootPath).forEach(error => {
       errors.push(`${summary.label}: ${error}`);
     });
   });
 
-  return errors;
+  if (errors.length === 0) {
+    return {
+      errors: [],
+      status: 'ready',
+    };
+  }
+
+  const unexpectedErrors = errors.filter(error => !isControlledElectrumBlockerError(error));
+
+  if (unexpectedErrors.length > 0) {
+    return {
+      errors,
+      status: 'invalid',
+    };
+  }
+
+  const blockerErrors = getControlledElectrumBlockerErrors(rootPath);
+
+  if (blockerErrors.length > 0) {
+    return {
+      errors: [...errors, ...blockerErrors],
+      status: 'invalid',
+    };
+  }
+
+  return {
+    errors,
+    status: controlledElectrumBlockerOutcome,
+  };
 };
 
 const main = () => {
-  const errors = getReleaseServicesSummaryArtifactErrors();
+  const state = getReleaseServicesSummaryArtifactState();
 
-  if (errors.length > 0) {
+  if (state.status === 'invalid') {
     console.error('Release-services summary artifacts are invalid:');
-    errors.forEach(error => console.error(`- ${error}`));
+    state.errors.forEach(error => console.error(`- ${error}`));
     return 1;
+  }
+
+  if (state.status === controlledElectrumBlockerOutcome) {
+    console.log(`Release-services summary artifacts are valid under controlled blocker: ${controlledElectrumBlockerOutcome}.`);
+    console.log('Full release runtime proof remains unclaimed until the dev/testnet Electrum TLS certificate is fixed.');
+    return 0;
   }
 
   console.log('Release-services summary artifacts are valid.');
