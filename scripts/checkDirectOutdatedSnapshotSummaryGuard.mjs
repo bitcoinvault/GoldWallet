@@ -95,6 +95,14 @@ assertRejected(
   'dedicated RN/Metro/Babel branch',
 );
 assertRejected(
+  'Missing polyfill-regenerator blocker fixture',
+  validSummary.replace(
+    'polyfill plugin major drift belongs with a dedicated RN/Metro/Babel branch so Babel runtime and bundle transforms stay aligned',
+    'polyfill plugin major drift can be updated independently',
+  ),
+  'babel-plugin-polyfill-regenerator drift',
+);
+assertRejected(
   'Review required fixture',
   validSummary.replace('Review-required entries: 0', 'Review-required entries: 1'),
   'review-required entries',

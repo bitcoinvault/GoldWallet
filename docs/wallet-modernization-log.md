@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.803 - Direct outdated Babel polyfill guard
+
+- Branch: `feature/bem-37-803-direct-outdated-polyfill-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Tighten the direct outdated snapshot guard for `babel-plugin-polyfill-regenerator`.
+- Require that this Babel-adjacent major drift stays tied to the dedicated RN/Metro/Babel branch decision, including Babel runtime and bundle-transform proof.
+- Add a fixture that rejects a generic independent-upgrade explanation for the polyfill plugin.
+
+Findings:
+
+- The current direct outdated snapshot lists `babel-plugin-polyfill-regenerator@1.0.0` next to the Babel 8 package set.
+- The existing fixture had the right decision text, but the guard's Babel drift check only covered package names starting with `@babel/`.
+- This branch closes that gap without changing package versions, runtime code, native files, Metro config, or lockfiles.
+- Android runtime validation is not required for this branch because it changes only guard scripts and documentation.
+
+Validation:
+
+- `node --check scripts/directOutdatedSnapshotSummaryGuard.mjs`
+- `node --check scripts/checkDirectOutdatedSnapshotSummaryGuard.mjs`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.802 - Babel 8 Node baseline guard
 
 - Branch: `feature/bem-37-802-babel8-node-guard`
