@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.790 - React patch blocker live summary
+
+- Branch: `feature/bem-37-790-react-patch-blocker-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a generated React patch blocker summary to the online foundation target refresh.
+- Keep `react@19.2.7` and `react-test-renderer@19.2.7` classified as known RN renderer-coupling blockers instead of untriaged patch drift.
+- Wire the generated summary into `foundation:target:check-summaries` so future online target refreshes prove the blocker from live npm metadata and the bundled RN renderer version.
+
+Findings:
+
+- Live npm metadata on 2026-06-24 still reports `react@19.2.7` and `react-test-renderer@19.2.7` as latest patch targets, with `react-test-renderer` peering on React `^19.2.7`.
+- The repo remains correctly pinned to `react@19.2.3`, `react-test-renderer@19.2.3`, and `@types/react@19.2.17`.
+- The bundled React Native renderer implementation for RN `0.86.0` still reports renderer version `19.2.3`; package-only React patch movement is therefore unsafe without a matching React Native renderer baseline branch.
+- `foundation:target:refresh-online` now runs `react:patch-blocker:audit` and validates `local-docs/react-patch-blocker-summary.txt` before the Babel 8 blocker probe and the rest of the foundation snapshots.
+- No app runtime package version, native project file, Metro config, or lockfile changed in this branch; Android emulator smoke is not claimed for this tooling/evidence-only milestone.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn react:patch-blocker:audit`
+- `corepack yarn node:runtime:yarn react:patch-blocker:check-summary`
+- `corepack yarn node:runtime:yarn react:package-coupling:audit`
+- `corepack yarn node:runtime:yarn react:renderer-version:audit`
+- `corepack yarn node:runtime:yarn check:react-package-coupling-guard`
+- `corepack yarn node:runtime:yarn check:react-renderer-version-guard`
+- `corepack yarn node:runtime:yarn check:foundation-target-summary-guard`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `corepack yarn node:runtime:yarn foundation:target:refresh-online`
+- `corepack yarn node:runtime:yarn rn:upgrade-path:audit`
+- `corepack yarn node:runtime:yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn node:runtime:yarn android:dev:check-light-docs`
+- `corepack yarn node:runtime:yarn check:node-runtime-version`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.789 - Android Kotlin target classification
 
 - Branch: `feature/bem-37-789-android-kotlin-target-classification`

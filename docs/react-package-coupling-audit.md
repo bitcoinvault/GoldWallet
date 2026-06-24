@@ -7,13 +7,14 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 ## Current Baseline
 
 - Current React: `19.2.3`
-- Latest React patch checked on 2026-06-23: `19.2.7`
+- Latest React patch checked on 2026-06-24: `19.2.7`
 - Current React types: `19.2.17`
 - Current React Native types: bundled with `react-native@0.86.0`
 - Current react-test-renderer: `19.2.3`
 - Current bundled React Native renderer: `19.2.3`
 - Target React peer from RN target snapshot: `^19.2.3`
 - React `19.2.7` remains blocked on this RN `0.86.0` baseline because `react-native-renderer` is exact-version sensitive at `19.2.3`.
+- The generated live blocker summary is written to `local-docs/react-patch-blocker-summary.txt`; it records live npm metadata for `react`, `react-test-renderer`, and `@types/react`, then ties the latest React patch blocker to the current bundled React Native renderer version.
 
 ## Coupling Rules
 
@@ -27,6 +28,8 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 ## Validation
 
 ```powershell
+corepack yarn react:patch-blocker:audit
+corepack yarn react:patch-blocker:check-summary
 corepack yarn react:package-coupling:audit
 corepack yarn react:renderer-version:audit
 ```
