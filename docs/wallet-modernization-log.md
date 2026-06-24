@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.808 - Android release summary refresh
+
+- Branch: `feature/bem-37-808-release-summary-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release build evidence after smoke APK re-signing and the smoke-storage summary guard changes.
+- Re-check Sentry release prerequisites against the refreshed release build summary.
+- Record the remaining release blockers without changing runtime, native, Metro, dependency, or lockfile state.
+
+Findings:
+
+- The first full `android:dev:release:validate-local` refresh exposed an incomplete `devRelease` source-map artifact: `dev`, `stage`, `prod`, and `beta` APKs existed, but `devRelease` lacked `android\app\build\generated\sourcemaps\react\devRelease\index.android.bundle.map`.
+- A focused `dev` rerun regenerated the missing source map and passed.
+- The follow-up full release validation passed for `dev`, `stage`, `prod`, and `beta`; all variants produced APK, JS bundle, and release source-map evidence.
+- The refreshed release input fingerprint is `8c5165f7b9359ac1637a1915156785738e9d1cc0b26c89a12bf22e83e6121d1f` across `508` input files.
+- Sentry release prerequisites now report Android release summary valid and current, with APK manifest evidence valid.
+- Remaining Sentry/release blockers are unchanged: full release smoke and release create-wallet smoke are blocked by the dev/testnet Electrum certificate issue, Sentry properties/token are missing locally, and iOS archive/source-map validation requires macOS/Xcode/CocoaPods.
+- This branch is documentation-only; refreshed evidence remains in ignored `local-docs/`.
+
+Validation:
+
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true ANDROID_RELEASE_VARIANTS=dev corepack yarn node:runtime:yarn android:dev:release:validate-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn node:runtime:yarn android:dev:release:validate-local`
+- `corepack yarn node:runtime:yarn android:dev:release:check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-audit`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-check-summary`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.807 - Android smoke storage summary guard
 
 - Branch: `feature/bem-37-807-smoke-storage-summary-guard`
