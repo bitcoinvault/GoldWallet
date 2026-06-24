@@ -4,6 +4,26 @@ const getLineValue = (content, label) => {
   return line ? line.slice(label.length + 2).trim() : '';
 };
 
+const getBulletLinesAfter = (content, label) => {
+  const lines = content.split(/\r?\n/);
+  const startIndex = lines.findIndex(line => line.startsWith(`${label}: `));
+  const bulletLines = [];
+
+  if (startIndex === -1) {
+    return bulletLines;
+  }
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    if (!lines[index].startsWith('- ')) {
+      break;
+    }
+
+    bulletLines.push(lines[index].slice(2));
+  }
+
+  return bulletLines;
+};
+
 const isSemver = value => /^\d+\.\d+\.\d+$/.test(value);
 const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value);
 
@@ -23,6 +43,11 @@ export const getReactPatchBlockerSummaryErrors = summary => {
   const rendererVersions = getLineValue(summary, 'Renderer versions');
   const rendererExactCheckVersions = getLineValue(summary, 'Renderer exact-check versions');
   const expectedReactFromRenderer = getLineValue(summary, 'Expected React from renderer');
+  const candidateReact = getLineValue(summary, 'Candidate react patch');
+  const candidateReactTestRenderer = getLineValue(summary, 'Candidate react-test-renderer patch');
+  const candidateReactTypes = getLineValue(summary, 'Candidate @types/react patch');
+  const candidateRendererCompatibilityErrors = getLineValue(summary, 'Candidate renderer compatibility errors');
+  const candidateRendererCompatibilityErrorLines = getBulletLinesAfter(summary, 'Candidate renderer compatibility errors');
   const packageOnlyPatchSafe = getLineValue(summary, 'Package-only latest React patch safe');
   const blockerClassification = getLineValue(summary, 'Blocker classification');
   const requiredAction = getLineValue(summary, 'Required action');
@@ -86,8 +111,43 @@ export const getReactPatchBlockerSummaryErrors = summary => {
     errors.push(`Renderer exact-check versions must be missing or 19.2.3. Received: ${rendererExactCheckVersions || 'missing'}`);
   }
 
+  if (candidateReact !== latestReact) {
+    errors.push(`Candidate react patch must match latest react. Received: ${candidateReact || 'missing'} vs ${latestReact || 'missing'}`);
+  }
+
+  if (candidateReactTestRenderer !== latestReactTestRenderer) {
+    errors.push(
+      `Candidate react-test-renderer patch must match latest react-test-renderer. Received: ${
+        candidateReactTestRenderer || 'missing'
+      } vs ${latestReactTestRenderer || 'missing'}`,
+    );
+  }
+
+  if (candidateReactTypes !== latestReactTypes) {
+    errors.push(`Candidate @types/react patch must match latest @types/react. Received: ${candidateReactTypes || 'missing'} vs ${latestReactTypes || 'missing'}`);
+  }
+
+  if (!/^\d+$/.test(candidateRendererCompatibilityErrors)) {
+    errors.push(`Candidate renderer compatibility errors must be a non-negative integer. Received: ${candidateRendererCompatibilityErrors || 'missing'}`);
+  } else if (Number(candidateRendererCompatibilityErrors) !== candidateRendererCompatibilityErrorLines.length) {
+    errors.push(
+      `Candidate renderer compatibility errors count is ${candidateRendererCompatibilityErrors}, but listed ${candidateRendererCompatibilityErrorLines.length}`,
+    );
+  }
+
   if (packageOnlyPatchSafe !== 'no') {
     errors.push(`Package-only latest React patch safe must be no. Received: ${packageOnlyPatchSafe || 'missing'}`);
+  }
+
+  if (packageOnlyPatchSafe === 'no' && Number(candidateRendererCompatibilityErrors) === 0) {
+    errors.push('Blocked package-only React patch summary must list at least one candidate renderer compatibility error');
+  }
+
+  if (
+    packageOnlyPatchSafe === 'no' &&
+    !candidateRendererCompatibilityErrorLines.some(line => line.includes(`React package version ${latestReact}`) && line.includes('React Native renderer exact version 19.2.3'))
+  ) {
+    errors.push('Candidate renderer compatibility errors must include the latest React versus RN renderer exact-version mismatch');
   }
 
   if (blockerClassification !== 'React Native renderer exact-version blocker') {
