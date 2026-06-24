@@ -8,7 +8,7 @@ This document records the current Babel 8 blocker for the React Native `0.86.0` 
 - `@react-native/babel-preset`: `0.86.0`
 - Direct Babel tooling: `7.29.7`
 - Babel resolutions: `@babel/core@7.29.7`, `@babel/traverse@7.29.7`
-- Node runtime used for the probe: `24.16.0`
+- Node runtime used for the probe: repo `.nvmrc` baseline `24.16.0`
 
 ## Current Latest Target
 
@@ -25,7 +25,7 @@ Live npm metadata checked on 2026-06-24 reports the current Babel 8 target as a 
 - `@babel/traverse@8.0.0`
 - `babel-plugin-polyfill-regenerator@1.0.0`
 
-The current Babel 8 line requires Node `^22.18.0 || >=24.11.0`. The repo's active Node `24.16.0` baseline satisfies that engine range, so the blocker below is not a Node-runtime blocker.
+The current Babel 8 line requires Node `^22.18.0 || >=24.11.0`. The repo's active `.nvmrc` baseline `24.16.0` satisfies that engine range, so the blocker below is not a Node-runtime blocker.
 
 ## Probe Target
 

@@ -10,6 +10,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'babel-8-migration-probe-summary.txt');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+const expectedNodeVersion = `v${readFileSync(path.join(root, '.nvmrc'), 'utf8').trim().replace(/^v/, '')}`;
 const rnBabelPreset = require('@react-native/babel-preset/package.json');
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
@@ -143,6 +144,7 @@ export const collectBabel8MigrationProbe = () => {
     reactNativeVersion: packageJson.dependencies?.['react-native'] || packageJson.devDependencies?.['react-native'] || '<missing>',
     rnBabelPresetVersion: rnBabelPreset.version,
     repoNodeVersion: process.version,
+    expectedNodeVersion,
     repoBabelCore: packageJson.devDependencies?.['@babel/core'] || '<missing>',
     repoBabelRuntime: packageJson.devDependencies?.['@babel/runtime'] || '<missing>',
     latest,
@@ -162,6 +164,7 @@ export const formatBabel8MigrationProbeSummary = (audit, generatedAt = new Date(
     `React Native version: ${audit.reactNativeVersion}`,
     `React Native Babel preset version: ${audit.rnBabelPresetVersion}`,
     `Repo Node version: ${audit.repoNodeVersion}`,
+    `Expected Node version: ${audit.expectedNodeVersion}`,
     `Repo @babel/core: ${audit.repoBabelCore}`,
     `Repo @babel/runtime: ${audit.repoBabelRuntime}`,
     `Latest @babel/cli: ${audit.latest.cli.version || '<missing>'}`,
