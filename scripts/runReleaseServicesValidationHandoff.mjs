@@ -1,7 +1,10 @@
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { getReleaseServicesSummaryArtifactErrors } from './checkReleaseServicesSummaryArtifacts.mjs';
+import {
+  getReleaseServicesSummaryArtifactErrors,
+  getReleaseServicesSummaryArtifactState,
+} from './checkReleaseServicesSummaryArtifacts.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -256,6 +259,15 @@ const main = () => {
     console.error('\nRelease-services validation handoff artifacts are blocked:');
     readinessErrors.forEach(error => console.error(`- ${error}`));
     return 1;
+  }
+
+  const releaseServicesState = getReleaseServicesSummaryArtifactState();
+
+  if (releaseServicesState.status === 'blocked-by-electrum-certificate-expired') {
+    console.log(
+      '\nRelease-services validation handoff completed with controlled Electrum certificate blocker evidence. Full release runtime proof remains unclaimed until the dev/testnet Electrum TLS certificate is fixed.',
+    );
+    return 0;
   }
 
   console.log('\nRelease-services validation handoff completed.');

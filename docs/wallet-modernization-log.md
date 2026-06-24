@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.812 - Release-services blocker aggregate
+
+- Branch: `feature/bem-37-812-release-services-blocker-aggregate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Teach the release-services aggregate checker to distinguish full release readiness from the current controlled dev/testnet Electrum TLS certificate blocker.
+- Validate `android-smoke-dev-release-no-network-summary.txt` and `android-release-network-blocker-summary.txt` before accepting blocker-only release evidence.
+- Keep full release runtime proof explicitly unclaimed until the Electrum certificate blocker is fixed and full release smoke/create-wallet evidence is refreshed.
+
+Findings:
+
+- Before this branch, `release-services:check-summaries` failed on the known Android full release smoke and create-wallet smoke errors even when the controlled no-network blocker evidence was valid.
+- After this branch, the aggregate checker returns `blocked-by-electrum-certificate-expired` only when the unexpected error set is limited to the known full-smoke/create-wallet blocker symptoms and the no-network/network-blocker summaries are valid.
+- `runReleaseServicesValidationHandoff.mjs` now reports the controlled blocker state instead of printing a generic completed message that could be misread as full release proof.
+- A full `rn:baseline:preflight` rerun with Node `24.16.0` and JDK `17` now gets past the release-services aggregate and stops later at secure-storage release validation, which still requires full Android smoke/release smoke evidence.
+- Full release runtime validation is still blocked by the dev/testnet Electrum TLS certificate; this branch only fixes release-services evidence aggregation semantics.
+- This branch changes release tooling guards only. It does not change runtime app code, native code, package versions, lockfiles, Metro config, or APK contents, so Android emulator smoke is not required.
+
+Validation:
+
+- `node --check scripts/checkReleaseServicesSummaryArtifacts.mjs`
+- `node --check scripts/runReleaseServicesValidationHandoff.mjs`
+- `node --check scripts/checkReleaseServicesSummaryGuard.mjs`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:release-services-validation-handoff-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.811 - Sentry properties input guard
 
 - Branch: `feature/bem-37-811-sentry-properties-input-guard`
