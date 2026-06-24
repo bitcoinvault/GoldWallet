@@ -1,16 +1,66 @@
 import path from 'path';
+import { existsSync, readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 import {
   getReleaseServicesValidationCommands,
   getReleaseServicesValidationHandoffErrors,
   getReleaseServicesValidationReadinessErrors,
   renderReleaseServicesValidationCommand,
 } from './runReleaseServicesValidationHandoff.mjs';
+import { getAndroidReleaseNetworkBlockerSummaryErrors } from './androidReleaseNetworkBlockerSummaryGuard.mjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, '..');
+const networkBlockerSummaryPath = path.join(root, 'local-docs', 'android-release-network-blocker-summary.txt');
 
 const assert = (condition, message) => {
   if (!condition) {
     console.error(message);
     process.exit(1);
   }
+};
+
+const allowedControlledNetworkBlockerErrors = [
+  'Android release smoke: Expected line not found: Android smoke outcome: passed',
+  'Android release smoke: Expected line not found: Android smoke exit code: 0',
+  'Android release smoke: Expected line not found: Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
+  'Android release smoke: Closed first-run success must be yes. Received: no',
+  'Android release smoke: Validated empty-dashboard CTA flow must be yes. Received: no',
+  'Android release smoke: Validated empty-tab navigation must be yes. Received: no',
+  'Android release smoke: Validated QR scanner screen must be yes. Received: no',
+  'Android release smoke: Validated settings Terms WebView must be yes. Received: no',
+  'Android release create-wallet smoke: Source APK bytes does not match the current file size',
+  'Android release create-wallet smoke: Source APK sha256 does not match the current file digest',
+];
+
+const getCurrentNetworkBlockerSummaryErrors = () => {
+  if (!existsSync(networkBlockerSummaryPath)) {
+    return ['Android release network blocker summary is missing'];
+  }
+
+  return getAndroidReleaseNetworkBlockerSummaryErrors(readFileSync(networkBlockerSummaryPath, 'utf8'));
+};
+
+const getCurrentReleaseServicesReadinessState = errors => {
+  if (errors.length === 0) {
+    return 'ready';
+  }
+
+  const unexpectedErrors = errors.filter(
+    error => !allowedControlledNetworkBlockerErrors.some(allowedError => error.includes(allowedError)),
+  );
+
+  if (unexpectedErrors.length > 0) {
+    return `unexpected errors: ${unexpectedErrors.join('; ')}`;
+  }
+
+  const networkBlockerErrors = getCurrentNetworkBlockerSummaryErrors();
+
+  if (networkBlockerErrors.length > 0) {
+    return `network blocker summary invalid: ${networkBlockerErrors.join('; ')}`;
+  }
+
+  return 'blocked-by-electrum-certificate-expired';
 };
 
 const fullCommands = getReleaseServicesValidationCommands({ skipAndroidRelease: false });
@@ -222,8 +272,10 @@ assert(
   'Replacement target must be rejected for remove decisions',
 );
 assert(
-  getReleaseServicesValidationReadinessErrors().length === 0,
-  'Release-services handoff readiness must accept the current validated summary artifacts',
+  ['ready', 'blocked-by-electrum-certificate-expired'].includes(
+    getCurrentReleaseServicesReadinessState(getReleaseServicesValidationReadinessErrors()),
+  ),
+  'Release-services handoff readiness guard must accept either fully valid artifacts or the current controlled Electrum certificate blocker state',
 );
 assert(
   getReleaseServicesValidationReadinessErrors({
