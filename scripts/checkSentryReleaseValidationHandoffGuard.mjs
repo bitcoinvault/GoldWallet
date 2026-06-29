@@ -1,6 +1,7 @@
 import { createHash } from 'crypto';
 import { readFileSync, statSync } from 'fs';
 import path from 'path';
+import { requiredSentryPropertiesFiles } from './auditSentryReleasePrerequisites.mjs';
 import {
   getSentryReleaseValidationCommands,
   getSentryReleaseValidationHandoffErrors,
@@ -13,6 +14,10 @@ const assert = (condition, message) => {
     console.error(message);
     process.exit(1);
   }
+};
+
+const assertNoErrors = (errors, message) => {
+  assert(errors.length === 0, `${message}: ${errors.join('; ')}`);
 };
 
 const fullCommands = getSentryReleaseValidationCommands({ skipAndroidRelease: false });
@@ -37,6 +42,37 @@ const createWalletEvidenceOptions = {
   expectedApkPath: fixtureApkPath,
   expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
 };
+const readyDataStoragePreflightLines = [
+  'Data storage preflight: passed',
+  'Data storage available KiB: 4096',
+  'Data storage required KiB: 1024',
+  'Data storage multiplier: 2',
+];
+const sentryCliPackageInstanceFixture = [
+  '@sentry/cli installed package instances: 3',
+  '- node_modules/@sentry/cli/package.json: 3.5.1 (direct)',
+  '- node_modules/@sentry/expo-upload-sourcemaps/node_modules/@sentry/cli/package.json: 3.5.0 (nested)',
+  '- node_modules/@sentry/react-native/node_modules/@sentry/cli/package.json: 3.5.0 (nested)',
+  '@sentry/cli installed package versions: 3.5.1, 3.5.0',
+  '@sentry/cli nested package versions: 3.5.0',
+  '@sentry/cli direct package installed: yes',
+  'Sentry CLI release build path uses direct package: yes',
+];
+const missingNetworkBlockerFixture = [
+  'Android release network blocker summary present: no',
+  'Android release network blocker summary valid: no',
+  'Android release network blocker outcome: <missing>',
+  'Android release network blocker summary errors: 1',
+  '- Android release network blocker summary artifact is missing',
+  'Sentry release network blocker classified: no',
+];
+const classifiedNetworkBlockerFixture = [
+  'Android release network blocker summary present: yes',
+  'Android release network blocker summary valid: yes',
+  'Android release network blocker outcome: blocked-by-electrum-certificate-expired',
+  'Android release network blocker summary errors: 0',
+  'Sentry release network blocker classified: yes',
+];
 
 [
   'corepack yarn check:sentry-properties-generator',
@@ -152,6 +188,7 @@ const readyAndroidReleaseSmokeSummary = [
   'Metro endpoint: 127.0.0.1:8081',
   'Metro reachable: no',
   'Cleared app data: yes',
+  ...readyDataStoragePreflightLines,
   'Expected UI texts: Wallets, No wallets, Create new wallet, Import wallet',
   'Expected resource IDs: dashboard-header, no-wallets-icon, create-wallet-button, import-wallet-button, navigation-tab-0',
   'App PID: 1234',
@@ -217,6 +254,7 @@ const readyAndroidReleaseNoNetworkSmokeSummary = [
   'Metro endpoint: 127.0.0.1:8081',
   'Metro reachable: no',
   'Cleared app data: yes',
+  ...readyDataStoragePreflightLines,
   'Expected UI texts: No network',
   'Expected resource IDs: none',
   'App PID: 1234',
@@ -242,18 +280,16 @@ const readySentryReleasePrereqSummary = [
   'Release source-map prerequisites: ready',
   '@sentry/react-native version: 8.15.1',
   '@sentry/react-native latest: 8.15.1',
+  '@sentry/react-native highest published: 8.15.1',
+  '@sentry/react-native published version present: yes',
+  '@sentry/react-native matches latest dist-tag: yes',
+  '@sentry/react-native at or above latest dist-tag: yes',
+  '@sentry/react-native npm posture: matches-latest-dist-tag',
   '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.5.1',
   '@sentry/cli latest: 3.5.1',
   '@sentry/cli current: yes',
-  '@sentry/cli installed package instances: 3',
-  '- node_modules/@sentry/cli/package.json: 3.5.1 (direct)',
-  '- node_modules/@sentry/expo-upload-sourcemaps/node_modules/@sentry/cli/package.json: 3.5.0 (nested)',
-  '- node_modules/@sentry/react-native/node_modules/@sentry/cli/package.json: 3.5.0 (nested)',
-  '@sentry/cli installed package versions: 3.5.1, 3.5.0',
-  '@sentry/cli nested package versions: 3.5.0',
-  '@sentry/cli direct package installed: yes',
-  'Sentry CLI release build path uses direct package: yes',
+  ...sentryCliPackageInstanceFixture,
   'Sentry CLI binary present: yes',
   'Sentry CLI version output: sentry-cli 3.5.1',
   'Sentry CLI executable: yes',
@@ -262,11 +298,9 @@ const readySentryReleasePrereqSummary = [
   'sentry.properties files present: yes',
   'Missing files: 0',
   'Invalid files: 0',
-  'Properties file readiness entries: 3',
-  '- sentry.properties: ready',
-  '- android/sentry.properties: ready',
-  '- ios/sentry.properties: ready',
-  'Ready properties files: 3',
+  `Properties file readiness entries: ${requiredSentryPropertiesFiles.length}`,
+  ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}: ready`),
+  `Ready properties files: ${requiredSentryPropertiesFiles.length}`,
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod, beta',
   'Android release summary required variants covered: yes',
@@ -284,6 +318,7 @@ const readySentryReleasePrereqSummary = [
   'Android release no-network smoke summary errors: 1',
   '- Android release no-network smoke summary artifact is missing',
   'Sentry release no-network blocker evidence ready: no',
+  ...missingNetworkBlockerFixture,
   'Android release create-wallet smoke summary present: yes',
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
@@ -326,34 +361,28 @@ const notReadySentryReleasePrereqSummary = [
   'Generated at: 2026-06-10T00:00:00.000Z',
   'Release source-map prerequisites: not ready',
   '@sentry/react-native version: 8.15.1',
-  '@sentry/react-native latest: 8.15.1',
+  '@sentry/react-native latest: 8.14.1',
+  '@sentry/react-native highest published: 8.15.1',
+  '@sentry/react-native published version present: yes',
+  '@sentry/react-native matches latest dist-tag: no',
+  '@sentry/react-native at or above latest dist-tag: yes',
+  '@sentry/react-native npm posture: published-above-latest-dist-tag',
   '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.5.1',
   '@sentry/cli latest: 3.5.1',
   '@sentry/cli current: yes',
-  '@sentry/cli installed package instances: 3',
-  '- node_modules/@sentry/cli/package.json: 3.5.1 (direct)',
-  '- node_modules/@sentry/expo-upload-sourcemaps/node_modules/@sentry/cli/package.json: 3.5.0 (nested)',
-  '- node_modules/@sentry/react-native/node_modules/@sentry/cli/package.json: 3.5.0 (nested)',
-  '@sentry/cli installed package versions: 3.5.1, 3.5.0',
-  '@sentry/cli nested package versions: 3.5.0',
-  '@sentry/cli direct package installed: yes',
-  'Sentry CLI release build path uses direct package: yes',
+  ...sentryCliPackageInstanceFixture,
   'Sentry CLI binary present: yes',
   'Sentry CLI version output: sentry-cli 3.5.1',
   'Sentry CLI executable: yes',
   'Sentry release integration wired: yes',
   'Sentry release integration errors: 0',
   'sentry.properties files present: no',
-  'Missing files: 3',
-  '- sentry.properties',
-  '- android/sentry.properties',
-  '- ios/sentry.properties',
+  `Missing files: ${requiredSentryPropertiesFiles.length}`,
+  ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}`),
   'Invalid files: 0',
-  'Properties file readiness entries: 3',
-  '- sentry.properties: missing',
-  '- android/sentry.properties: missing',
-  '- ios/sentry.properties: missing',
+  `Properties file readiness entries: ${requiredSentryPropertiesFiles.length}`,
+  ...requiredSentryPropertiesFiles.map(relativePath => `- ${relativePath}: missing`),
   'Ready properties files: 0',
   'Android release summary present: yes',
   'Android release summary variants: dev, stage, prod, beta',
@@ -372,6 +401,7 @@ const notReadySentryReleasePrereqSummary = [
   'Android release no-network smoke summary errors: 1',
   '- Android release no-network smoke summary artifact is missing',
   'Sentry release no-network blocker evidence ready: no',
+  ...missingNetworkBlockerFixture,
   'Android release create-wallet smoke summary present: yes',
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
@@ -419,7 +449,7 @@ const partialSentryReleasePrereqSummary = [
   'Sentry release integration wired: yes',
 ].join('\n');
 
-assert(
+assertNoErrors(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseNoNetworkSmokeSummaryText: '',
@@ -427,7 +457,7 @@ assert(
     sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
     createWalletEvidenceOptions,
     smokeEvidenceOptions,
-  }).length === 0,
+  }),
   'Ready Sentry release handoff smoke fixture must pass readiness checks',
 );
 assert(
@@ -441,7 +471,7 @@ assert(
   }).some(error => error.includes('Sentry release prerequisite summary is not ready')),
   'Full Sentry release handoff readiness must reject not-ready prerequisite summaries',
 );
-assert(
+assertNoErrors(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseNoNetworkSmokeSummaryText: '',
@@ -450,7 +480,7 @@ assert(
     sentryReleasePrereqSummaryText: notReadySentryReleasePrereqSummary,
     createWalletEvidenceOptions,
     smokeEvidenceOptions,
-  }).length === 0,
+  }),
   'Preflight-only Sentry release handoff readiness must accept structurally valid not-ready prerequisite summaries',
 );
 assert(
@@ -523,7 +553,7 @@ assert(
   'Sentry release readiness check must reject invalid Android release create-wallet smoke evidence',
 );
 
-assert(
+assertNoErrors(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary.replace(
       'Standard wallet created: yes',
@@ -546,6 +576,7 @@ assert(
         'Android release no-network smoke summary errors: 0',
       )
       .replace('Sentry release no-network blocker evidence ready: no', 'Sentry release no-network blocker evidence ready: yes')
+      .replace(missingNetworkBlockerFixture.join('\n'), classifiedNetworkBlockerFixture.join('\n'))
       .replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no')
       .replace('Sentry release create-wallet evidence ready: yes', 'Sentry release create-wallet evidence ready: no'),
     createWalletEvidenceOptions,
@@ -557,7 +588,7 @@ assert(
       expectedSourceApkPath: fixtureApkPath,
     },
     smokeEvidenceOptions,
-  }).length === 0,
+  }),
   'Preflight-only Sentry release handoff readiness must accept controlled no-network blocker evidence without claiming full runtime proof',
 );
 

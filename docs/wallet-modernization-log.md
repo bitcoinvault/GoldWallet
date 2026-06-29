@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.815 - Sentry handoff fixture refresh
+
+- Branch: `feature/bem-37-815-sentry-handoff-data-storage-fixture`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep `check:sentry-release-validation-handoff-guard` aligned with the current Sentry prerequisite summary contract.
+- Refresh the ready/not-ready handoff fixtures for Sentry SDK npm posture fields, Android release network blocker fields, and release smoke data-storage preflight fields.
+- Keep guard diagnostics actionable by printing readiness errors when positive fixtures unexpectedly fail.
+
+Findings:
+
+- Full `rn:baseline:preflight` now gets past the controlled Android dev smoke blocker check and stops at the Sentry release validation handoff guard.
+- The Sentry handoff fixture was older than `sentryReleasePrereqSummaryGuard.mjs`; it missed `@sentry/react-native` published/latest posture fields and Android release network blocker summary fields.
+- The ready and not-ready fixtures now use shared Sentry CLI, Sentry properties, data-storage preflight, and network-blocker fixture blocks, reducing future drift between guards.
+- Full `rn:baseline:preflight` now gets past the Sentry release validation handoff guard and stops later at Firebase release-services because live npm metadata reports React Native Firebase `25.1.0` while the repo is on `25.0.1`.
+- Release-services remain valid only under the controlled `blocked-by-electrum-certificate-expired` blocker, and iOS runtime delivery remains not claimed on Windows.
+- This branch changes validation tooling only. It does not change runtime app code, native code, package versions, lockfiles, Metro config, or APK contents, so Android emulator smoke is not required.
+
+Validation:
+
+- `node --check scripts/checkSentryReleaseValidationHandoffGuard.mjs`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
+Observed follow-up blocker:
+
+- `corepack yarn rn:baseline:preflight` stops at `checkFirebaseReleaseServicesSummary.mjs` because React Native Firebase latest is `25.1.0` and the local package family is still `25.0.1`.
+
 ### BEM-37.814 - Android dev smoke blocker check
 
 - Branch: `feature/bem-37-814-android-dev-smoke-blocker-check`
