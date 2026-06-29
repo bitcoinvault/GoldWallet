@@ -37,7 +37,7 @@ const requiredSnippets = [
   'export const getReleaseServicesSummaryArtifactErrors =',
   "status: 'ready'",
   'blocked-by-electrum-certificate-expired',
-  'Full release runtime proof remains unclaimed until the dev/testnet Electrum TLS certificate is fixed.',
+  'Full release and release create-wallet runtime proof remain unclaimed until the dev/testnet Electrum TLS certificate is fixed.',
   "label: 'Android release summary'",
   "relativePath: 'local-docs/android-release-dev-summary.txt'",
   'getAndroidReleaseSummaryErrors(summary, rootPath)',
