@@ -2747,31 +2747,31 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-5.2.0.tgz#c154ac4ec10537160462d7a9f3e2e43098257302"
   integrity sha512-484sH8aWEaSjxaZ7HT3YZ8CKDcNes2synko1vdEz5DFEdvKAduxKJTj22L/qBMD7rtIkfbX69DMzWDAGbOAV6w==
 
-"@react-native-firebase/analytics@25.0.1":
-  version "25.0.1"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/analytics/-/analytics-25.0.1.tgz#a3763f0fb17a7b399888b5ad4e402565467074f8"
-  integrity sha512-Rw2Y1rHTqLnU/PaOzYJ2SzTVwpJqUapnZChbJoZm5DVjVx/sz1QznvIQ3rR1mRPPCr0oni4qLVyqWXnMhWY3TQ==
+"@react-native-firebase/analytics@25.1.0":
+  version "25.1.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/analytics/-/analytics-25.1.0.tgz#86403866033d53b4353f70028dc9aaac811f27cf"
+  integrity sha512-H8IrrJ5Hn0PvFzRWkvriUtQCTLqJcdpgEURDJxrEnc+hRtI9VHDH8HKDVawcBlJS34Oj6pppdlzxJl2QOWlq5A==
   dependencies:
     superstruct "^2.0.2"
 
-"@react-native-firebase/app@25.0.1":
-  version "25.0.1"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-25.0.1.tgz#afb158d0959a1467a866258eec5965a6d7a71dad"
-  integrity sha512-IJQ4aJeqZryvfG2jThJiwln3pR/Q6fkr3lnGmQ9bkWANWNIoEjNhcTs99cjCLVzN65d77HEtktIGCou/tEdjGA==
+"@react-native-firebase/app@25.1.0":
+  version "25.1.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-25.1.0.tgz#7260d6f8b48078b9f651ca07804b140e9787397a"
+  integrity sha512-IRBM0Uwrs1O+SkUF8D9g7FgC8WI5b/3xEbt3JzFTTsHWvQyXxvTflKd4rNFNegV+2mFrM53XC9cS1BNVjWSSSg==
   dependencies:
     firebase "12.15.0"
 
-"@react-native-firebase/crashlytics@25.0.1":
-  version "25.0.1"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/crashlytics/-/crashlytics-25.0.1.tgz#9edc8f66a2c8cc2e86a0b832fe6794b1d1d83e06"
-  integrity sha512-1pATsr5smb6Ov7xeJqKs5MUXZLpsDzHolL0RlR3GfglAOeDH5se+m/xIJAIyHCCgWDqv3HQ4qo3Ax6Q2tZEiKA==
+"@react-native-firebase/crashlytics@25.1.0":
+  version "25.1.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/crashlytics/-/crashlytics-25.1.0.tgz#a291e0516040daa532516ac300e72a81ab366651"
+  integrity sha512-blzIOgOnQvqS3050ETY7N246UaYs76S7hRwPh9/NpActOsirLIR55j0C2l2zxncTzyWTnNn8FoMXvIdmdeC0XA==
   dependencies:
     stacktrace-js "^2.0.2"
 
-"@react-native-firebase/messaging@25.0.1":
-  version "25.0.1"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-25.0.1.tgz#41042b92c2caa28f9a404d70eac3aa68eb76343f"
-  integrity sha512-8k9X/WJSItSa/xXRO8qATDs6W/etCNiEHcPKzxwky2BhC3kcVoTnR3fT/Bri0MmRW2V70ZhlD8okSDVjCDABbQ==
+"@react-native-firebase/messaging@25.1.0":
+  version "25.1.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-25.1.0.tgz#21d46ba446a728c44e7c5bc3622099ba355f915c"
+  integrity sha512-YVhGWr6uthySTNHqnXsDh6DX4WtK4AittU9oDeKaBSjN4uoMDOe2X74TYnBFEUdcCQxOAsUavFNAexQx/o8dsw==
 
 "@react-native/assets-registry@0.86.0":
   version "0.86.0"

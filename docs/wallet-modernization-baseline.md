@@ -113,7 +113,7 @@ adb reverse tcp:8081 tcp:8081
 
 High-risk native dependencies:
 
-- `@react-native-firebase/*` is now on the checked latest `25.0.1` package family; Firebase release delivery remains a runtime validation item, not a package-version blocker.
+- `@react-native-firebase/*` is now on the checked latest `25.1.0` package family; Firebase release delivery remains a runtime validation item, not a package-version blocker.
 - `react-native-camera` was replaced by `react-native-camera-kit@18.0.0` in the dedicated QR scanner migration stream.
 - Navigation/layout packages are on the RN `0.86.0` checkpoint versions: `@react-navigation/native@7.3.4`, `@react-navigation/stack@7.10.6`, `@react-navigation/bottom-tabs@7.18.3`, `@react-navigation/devtools@7.1.2`, `react-native-gesture-handler@3.0.2`, `react-native-screens@4.25.2`, and `react-native-safe-area-context@5.8.0`; future bumps should stay tied to navigation smoke validation.
 - `react-native-svg@15.15.5` is paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4`; future SVG/QR changes need the guarded QR render-screen validation.

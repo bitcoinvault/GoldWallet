@@ -10,10 +10,10 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 
 | Package | Current package.json | Latest npm checked | Notes |
 | --- | --- | --- | --- |
-| `@react-native-firebase/app` | `25.0.1` | `25.0.1` on 2026-06-24 | Current package pulls `firebase@12.15.0`. |
-| `@react-native-firebase/analytics` | `25.0.1` | `25.0.1` on 2026-06-24 | Peer requires matching `@react-native-firebase/app@25.0.1`. |
-| `@react-native-firebase/crashlytics` | `25.0.1` | `25.0.1` on 2026-06-24 | Peer requires matching `@react-native-firebase/app@25.0.1`. |
-| `@react-native-firebase/messaging` | `25.0.1` | `25.0.1` on 2026-06-24 | Peer requires matching `@react-native-firebase/app@25.0.1`. |
+| `@react-native-firebase/app` | `25.1.0` | `25.1.0` on 2026-06-29 | Current package pulls `firebase@12.15.0`. |
+| `@react-native-firebase/analytics` | `25.1.0` | `25.1.0` on 2026-06-29 | Peer requires matching `@react-native-firebase/app@25.1.0`. |
+| `@react-native-firebase/crashlytics` | `25.1.0` | `25.1.0` on 2026-06-29 | Peer requires matching `@react-native-firebase/app@25.1.0`. |
+| `@react-native-firebase/messaging` | `25.1.0` | `25.1.0` on 2026-06-29 | Peer requires matching `@react-native-firebase/app@25.1.0`. |
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | removed | `9.0.1` on 2026-06-24 | Removed in `BEM-37.583`; App Center CodePush was retired on 2025-03-31, the Microsoft `react-native-code-push` repository was archived on 2025-05-20, and upstream does not support New Architecture on React Native `>=0.76`. |
 | `@sentry/react-native` | `8.15.1` | `8.15.1` on 2026-06-24 | Latest checked SDK line; source-map and dSYM behavior must still be proven with local credentials. |
@@ -125,6 +125,8 @@ This optionally refreshes Android release APK evidence with `SENTRY_DISABLE_AUTO
 
 The 2026-06-24 Firebase package refresh upgrades `@react-native-firebase/app`, `analytics`, `crashlytics`, and `messaging` to the live npm latest `25.0.1`; `@react-native-community/push-notification-ios` remains current at `1.12.0`. Android release build and manifest evidence are current for the new package/lockfile inputs, and a `prodDebug` embedded smoke on `.env.prod.mainnet` passes first-run, dashboard, Create/Import CTA, QR scanner, tab navigation, and Terms WebView checks. The default dev/testnet release handoff remains blocked by the external Electrum TLS certificate expiry (`Certificate expired at Tue Jun 23 16:52:40 GMT 2026`), so real FCM token/notification delivery, Crashlytics upload, Analytics behavior, APNs registration, badge behavior, and tap-through behavior remain explicitly `not claimed`.
 
+The 2026-06-29 Firebase package refresh upgrades the same React Native Firebase package family to the live npm latest `25.1.0`; `@react-native-community/push-notification-ios` remains current at `1.12.0`. Android release evidence must be refreshed after the package/lockfile input change before Firebase release-services can again report current release inputs.
+
 ## Current Release Readiness Snapshot
 
 Checked on 2026-06-17 after the RN `0.86.0` foundation, Android release build evidence refresh, Android `devRelease` embedded smoke, and release-services aggregate refresh:
@@ -158,7 +160,7 @@ Results:
 - Android release compilation no longer depends on beta or non-beta env files defining CodePush deployment keys.
 - CodePush release-path audit now records whether the latest local Android release summary artifact is present, valid, covers the current release inputs, covers `dev`, `stage`, `prod`, and `beta` release APK evidence, and has valid release APK manifest proof; it emits a dedicated `CodePush release build evidence ready` line so APK/bundle/manifest evidence is separate from still-unclaimed update validation.
 - `corepack yarn codepush:env-cleanup:plan` writes a local review-safe cleanup plan that lists only env file paths, CodePush key names, blank/non-empty state, and whether secure env regeneration is required; it does not print deployment-key values.
-- Firebase release-services wiring is valid for the current `25.0.1` package family, Android config, iOS plist files, and Messaging runtime paths.
+- Firebase release-services wiring is valid for the current `25.1.0` package family, Android config, iOS plist files, and Messaging runtime paths.
 - Firebase release-services audit now records whether the latest local Android release summary artifact is present, valid, covers the current release inputs, covers `dev`, `stage`, `prod`, and `beta` release APK evidence, and has valid release APK manifest proof, so APK/bundle/manifest evidence is separate from unclaimed FCM/Crashlytics/Analytics runtime delivery validation.
 - The 2026-06-24 Firebase release-services refresh reports React Native Firebase package current `yes`, Firebase release-services wiring valid `yes`, Android release summary present/valid/current, Android release APK manifest valid, and Firebase runtime delivery validation `not claimed`.
 - Firebase `25.0.1` Android `devDebug` and `prodDebug` build after removing legacy manual `firebase-core:16.0.3`, Firebase BoM `28.2.0`, and unused `firebaseVersion`/`googlePlayServicesVersion` Gradle ext values.
@@ -201,7 +203,7 @@ Android:
 
 - `android/build.gradle` uses Google Services Gradle plugin `4.4.4`, Crashlytics Gradle plugin `3.0.7`, and strict version matcher plugin `1.2.4`.
 - `android/app/build.gradle` applies `com.google.firebase.crashlytics`, Sentry Gradle script, and `com.google.gms.google-services`.
-- Android Firebase package versions are now supplied by React Native Firebase `25.0.1`; the old manual `firebase-core:16.0.3` and app-level Firebase BoM `28.2.0` entries were removed to avoid duplicate measurement classes.
+- Android Firebase package versions are now supplied by React Native Firebase `25.1.0`; the old manual `firebase-core:16.0.3` and app-level Firebase BoM `28.2.0` entries were removed to avoid duplicate measurement classes.
 - Android Firebase config files exist under flavor-specific `android/app/src/*/google-services.json`.
 - `MainApplication.java` no longer resolves JS bundles through CodePush.
 - `android/app/src/main/res/values/strings.xml` no longer has the native `CodePushDeploymentKey` placeholder.
@@ -222,7 +224,7 @@ Shared env/config:
 
 ## Upgrade Risk
 
-- Firebase RN `25.0.1` is the current package family and must stay aligned across app, analytics, Crashlytics, and messaging.
+- Firebase RN `25.1.0` is the current package family and must stay aligned across app, analytics, Crashlytics, and messaging.
 - Android Firebase build plugins are on the latest checked Google Maven metadata as of 2026-06-05: Google Services Gradle plugin `4.4.4` and Firebase Crashlytics Gradle plugin `3.0.7`; strict version matcher remains current at `1.2.4`.
 - Firebase changes can still affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
 - `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, Messaging runtime wiring, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, and unclaimed runtime-delivery status before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.

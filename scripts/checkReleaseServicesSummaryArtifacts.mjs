@@ -41,6 +41,15 @@ const allowedControlledNetworkBlockerErrors = [
   'Android release smoke: Validated settings Terms WebView must be yes. Received: no',
   'Android release create-wallet smoke: Source APK bytes does not match the current file size',
   'Android release create-wallet smoke: Source APK sha256 does not match the current file digest',
+  'Android release create-wallet smoke: Expected line not found: Android create-wallet smoke outcome: passed',
+  'Android release create-wallet smoke: Expected line not found: Android create-wallet smoke exit code: 0',
+  'Android release create-wallet smoke: Expected line not found: Standard wallet created: yes',
+  'Android release create-wallet smoke: Expected line not found: Standard mnemonic screen reached: yes',
+  'Android release create-wallet smoke: Expected line not found: Vault next-step reached: yes',
+  'Android release create-wallet smoke: Expected line not found: No create-wallet error UI: yes',
+  'Android release create-wallet smoke: Expected line not found: Fatal/runtime logcat findings: no',
+  'Android release create-wallet smoke: App PID must be a positive integer',
+  'Android release create-wallet smoke: Captured logcat lines must be a positive integer',
 ];
 
 export const releaseServicesSummaryArtifacts = [
@@ -245,7 +254,7 @@ const main = () => {
 
   if (state.status === controlledElectrumBlockerOutcome) {
     console.log(`Release-services summary artifacts are valid under controlled blocker: ${controlledElectrumBlockerOutcome}.`);
-    console.log('Full release runtime proof remains unclaimed until the dev/testnet Electrum TLS certificate is fixed.');
+    console.log('Full release and release create-wallet runtime proof remain unclaimed until the dev/testnet Electrum TLS certificate is fixed.');
     return 0;
   }
 

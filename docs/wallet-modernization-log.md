@@ -10,6 +10,69 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.816 - Firebase 25.1.0 refresh
+
+- Branch: `feature/bem-37-816-firebase-25-1-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the React Native Firebase package family from `25.0.1` to `25.1.0` after live npm metadata reported `25.1.0` as the current release.
+- Refresh Firebase release-services, runtime-delivery handoff, native-module inventory, and iOS release-readiness guards so the baseline checks track the current package set.
+- Regenerate Android devRelease evidence and keep release-services validation explicit about the current dev/testnet Electrum TLS certificate blocker instead of claiming full release runtime proof.
+
+Findings:
+
+- npm reports `@react-native-firebase/app`, `analytics`, `crashlytics`, and `messaging` at `25.1.0`, published `2026-06-25T00:33:41.407Z`; the package family now aligns on `25.1.0`.
+- `@react-native-firebase/app@25.1.0` still depends on `firebase@12.15.0`, and the sibling packages keep their peer dependency aligned to `@react-native-firebase/app@25.1.0`.
+- Android devRelease validation rebuilt dev, stage, prod, and beta release APKs successfully with JDK 17.
+- Full Android devRelease smoke reaches the expected external blocker: `electrumx.testnet.btcv.stage.rnd.land:443 tls` has an expired certificate dated `Tue Jun 23 16:52:40 GMT 2026`, so dashboard, QR, settings, and release create-wallet runtime proof remain unclaimed.
+- The reduced no-network release smoke and release network-blocker audit are fresh and valid, so `release-services:check-summaries` can pass only as `blocked-by-electrum-certificate-expired`.
+- iOS runtime validation remains blocked on Windows; static iOS readiness still reports stale `ios/Podfile.lock` entries, including `RNFBApp 12.7.5` versus package `@react-native-firebase/app 25.1.0`.
+- Firebase runtime delivery is not claimed in this branch; FCM token delivery, push notification delivery, Crashlytics upload, and Analytics backend verification still need real service credentials/device validation.
+
+Validation:
+
+- `npm view @react-native-firebase/app version`
+- `npm view @react-native-firebase/messaging version`
+- `npm view @react-native-firebase/app@25.1.0 version peerDependencies dependencies engines --json`
+- `npm view @react-native-firebase/analytics@25.1.0 version peerDependencies --json`
+- `npm view @react-native-firebase/crashlytics@25.1.0 version peerDependencies --json`
+- `npm view @react-native-firebase/messaging@25.1.0 version peerDependencies --json`
+- `corepack yarn add @react-native-firebase/app@25.1.0 @react-native-firebase/analytics@25.1.0 @react-native-firebase/crashlytics@25.1.0 @react-native-firebase/messaging@25.1.0`
+- `corepack yarn check:firebase-release-services-summary-guard`
+- `corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn android:dev:release:check-apk-manifest`
+- `node scripts\androidSmokeDevReleaseEmbedded.mjs`
+- `node scripts\androidSmokeDevNoNetworkEmbedded.mjs`
+- `corepack yarn android:dev:release:network-blocker:audit`
+- `corepack yarn android:dev:release:network-blocker:check-summary`
+- `node scripts\androidCreateWalletSmoke.mjs`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `node scripts\androidSmokeDevEmbedded.mjs`
+- `node scripts\androidSmokeDevNoNetworkEmbedded.mjs`
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+- `corepack yarn android:dev:check-smoke-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:baseline:preflight`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.815 - Sentry handoff fixture refresh
 
 - Branch: `feature/bem-37-815-sentry-handoff-data-storage-fixture`
