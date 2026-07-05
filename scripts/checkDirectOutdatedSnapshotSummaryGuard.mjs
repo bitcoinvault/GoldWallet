@@ -84,42 +84,6 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
-    name: '@react-navigation/bottom-tabs',
-    current: '7.18.3',
-    wanted: '7.18.3',
-    latest: '7.18.7',
-    type: 'dependencies',
-    decision:
-      'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
-  },
-  {
-    name: '@react-navigation/devtools',
-    current: '7.1.2',
-    wanted: '7.1.2',
-    latest: '7.1.5',
-    type: 'dependencies',
-    decision:
-      'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
-  },
-  {
-    name: '@react-navigation/native',
-    current: '7.3.4',
-    wanted: '7.3.4',
-    latest: '7.3.7',
-    type: 'dependencies',
-    decision:
-      'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
-  },
-  {
-    name: '@react-navigation/stack',
-    current: '7.10.6',
-    wanted: '7.10.6',
-    latest: '7.10.10',
-    type: 'dependencies',
-    decision:
-      'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
-  },
-  {
     name: 'babel-plugin-polyfill-regenerator',
     current: '0.6.8',
     wanted: '0.6.8',
@@ -239,7 +203,7 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 23', 'Entries: 22'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 19', 'Entries: 18'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
   validSummary.replace('Entries: 31', 'Entries: 32').replace(
@@ -260,11 +224,6 @@ assertRejected(
   'Missing Babel blocker fixture',
   validSummary.replace('Babel 8 is a major Metro/RN transform migration', 'generic Babel major update'),
   'dedicated RN/Metro/Babel branch',
-);
-assertRejected(
-  'Missing navigation blocker fixture',
-  validSummary.replace('dedicated navigation smoke branch with tab navigation', 'generic navigation patch branch'),
-  'dedicated navigation smoke branch',
 );
 assertRejected(
   'Missing caniuse-lite blocker fixture',

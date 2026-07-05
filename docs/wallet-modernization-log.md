@@ -10,6 +10,73 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.822 - React Navigation patch refresh
+
+- Branch: `feature/bem-37-822-navigation-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the React Navigation v7 package family to the live npm latest patch targets:
+  `@react-navigation/native` `7.3.4` -> `7.3.7`,
+  `@react-navigation/stack` `7.10.6` -> `7.10.10`,
+  `@react-navigation/bottom-tabs` `7.18.3` -> `7.18.7`,
+  and `@react-navigation/devtools` `7.1.2` -> `7.1.5`.
+- Keep the native navigation peer set unchanged because `react-native-screens@4.25.2`,
+  `react-native-safe-area-context@5.8.0`, and `react-native-gesture-handler@3.0.2`
+  were already current latest packages at branch time.
+- Refresh the direct-outdated snapshot guards and documentation so the React Navigation family is treated as the checked navigation baseline again.
+- Rebuild the Android dev bundle with `--rerun-tasks` because the first successful assemble reused an up-to-date `createBundleDevDebugJsAndAssets` task from the previous milestone.
+
+Findings:
+
+- npm metadata on `2026-07-05` reports the selected React Navigation package versions as current latest targets.
+- React Navigation stack and bottom-tabs still peer on `@react-navigation/native ^7.3.7`,
+  `react-native-screens >=4.0.0`, `react-native-safe-area-context >=4.0.0`, and
+  `react-native-gesture-handler >=2.0.0`, which are satisfied by the current package set.
+- `npx @react-native-community/cli config` and `corepack yarn node:runtime:yarn react-native config` both emit a valid React Native config after the update.
+- Android `devDebug` assemble passed with JDK 17 after Gradle regenerated its React Native CLI config cache.
+- A forced Android rebuild ran `:app:createBundleDevDebugJsAndAssets` and produced fresh APK SHA-256 `7407a2878d4398423e3470a63330ca9b66cb4d4ff397622cf18f005da63b0809`.
+- Full Android embedded smoke installed and launched the fresh APK, completed first-run setup, then hit the known external dev/testnet Electrum blocker instead of the empty dashboard: `electrumx.testnet.btcv.stage.rnd.land:443 tls` has an expired certificate dated `Tue Jun 23 16:52:40 GMT 2026`.
+- Reduced Android no-network embedded smoke passed on emulator `emulator-5554` with expected UI text `No network`.
+- Android no-network Metro smoke passed on emulator `emulator-5554` with Metro required and reachable at `127.0.0.1:8081`.
+- Direct outdated snapshot now reports `19` entries: `15` blocked decisions, `4` exotic wallet forks, and `0` review-required entries.
+- Full tab/dashboard navigation proof is not claimed until the dev/testnet Electrum certificate is fixed and the normal Android dev smoke can reach the dashboard again.
+- iOS runtime validation remains blocked on Windows; static iOS checks still pass, while `ios/Podfile.lock` still needs a macOS/CocoaPods refresh before iOS archive proof can be claimed.
+
+Validation:
+
+- `npm view @react-navigation/native version peerDependencies dependencies --json`
+- `npm view @react-navigation/stack version peerDependencies dependencies --json`
+- `npm view @react-navigation/bottom-tabs version peerDependencies dependencies --json`
+- `npm view @react-navigation/devtools version peerDependencies dependencies --json`
+- `npm view react-native-screens version peerDependencies dependencies --json`
+- `npm view react-native-safe-area-context version peerDependencies dependencies --json`
+- `npm view react-native-gesture-handler version peerDependencies dependencies --json`
+- `corepack yarn node:runtime:yarn add @react-navigation/native@7.3.7 @react-navigation/stack@7.10.10 @react-navigation/bottom-tabs@7.18.7 @react-navigation/devtools@7.1.5`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn metro:dev-runtime:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:audit`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:plan`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:check-plan`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn node scripts\runAndroidGradle.mjs :app:assembleDevDebug -x lint --rerun-tasks`
+- `corepack yarn node:runtime:yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn node:runtime:yarn android:dev:smoke:embedded` produced the expected external-network blocker, not a successful full dashboard proof.
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:audit`
+- `corepack yarn node:runtime:yarn start:metro:no-multipart --reset-cache --port 8081`
+- `corepack yarn node:runtime:yarn android:dev:smoke:no-network:metro`
+
 ### BEM-37.821 - React Native CLI 20.2 tooling refresh
 
 - Branch: `feature/bem-37-821-rn-cli-20-2-refresh`
