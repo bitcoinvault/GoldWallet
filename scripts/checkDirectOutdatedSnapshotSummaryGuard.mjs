@@ -145,22 +145,6 @@ const validEntries = [
       'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
   },
   {
-    name: '@typescript-eslint/eslint-plugin',
-    current: '8.62.0',
-    wanted: '8.62.0',
-    latest: '8.62.1',
-    type: 'devDependencies',
-    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
-  },
-  {
-    name: '@typescript-eslint/parser',
-    current: '8.62.0',
-    wanted: '8.62.0',
-    latest: '8.62.1',
-    type: 'devDependencies',
-    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
-  },
-  {
     name: 'babel-plugin-polyfill-regenerator',
     current: '0.6.8',
     wanted: '0.6.8',
@@ -201,28 +185,12 @@ const validEntries = [
     decision: 'exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
   },
   {
-    name: 'eslint',
-    current: '10.5.0',
-    wanted: '10.5.0',
-    latest: '10.6.0',
-    type: 'devDependencies',
-    decision: 'blocked - ESLint patch drift requires a dedicated lint/tooling branch with lint-staged, precommit, TypeScript, and baseline audit proof',
-  },
-  {
     name: 'i18next',
     current: '26.3.2',
     wanted: '26.3.2',
     latest: '26.3.4',
     type: 'dependencies',
     decision: 'blocked - i18next patch drift requires a dedicated localization runtime branch with TypeScript, translation checks, app-start smoke, and react-i18next compatibility proof',
-  },
-  {
-    name: 'prettier',
-    current: '3.8.4',
-    wanted: '3.8.4',
-    latest: '3.9.4',
-    type: 'devDependencies',
-    decision: 'blocked - Prettier patch drift requires a dedicated formatting/tooling branch with no broad formatting churn, precommit, TypeScript, and baseline audit proof',
   },
   {
     name: 'react',
@@ -296,7 +264,7 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 30', 'Entries: 29'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 26', 'Entries: 25'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
   validSummary.replace('Entries: 31', 'Entries: 32').replace(
@@ -334,19 +302,9 @@ assertRejected(
   'dedicated tooling/resolution branch',
 );
 assertRejected(
-  'Missing ESLint blocker fixture',
-  validSummary.replace('ESLint patch drift requires a dedicated lint/tooling branch', 'ESLint patch drift is safe'),
-  'ESLint drift',
-);
-assertRejected(
   'Missing i18next blocker fixture',
   validSummary.replace('dedicated localization runtime branch with TypeScript', 'generic i18next patch branch'),
   'dedicated localization runtime branch',
-);
-assertRejected(
-  'Missing Prettier blocker fixture',
-  validSummary.replace('no broad formatting churn', 'format all files'),
-  'without broad formatting churn',
 );
 assertRejected(
   'Review required fixture',
