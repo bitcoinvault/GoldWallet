@@ -21,22 +21,22 @@ const requireRuleValue = (ruleName, expectedValue) => {
   }
 };
 
-if (devDependencies['@typescript-eslint/eslint-plugin'] !== '8.61.1') {
+if (devDependencies['@typescript-eslint/eslint-plugin'] !== '8.62.1') {
   errors.push(
-    `@typescript-eslint/eslint-plugin must stay on 8.61.1 for this compatibility guard. Found ${
+    `@typescript-eslint/eslint-plugin must stay on 8.62.1 for this compatibility guard. Found ${
       devDependencies['@typescript-eslint/eslint-plugin'] || '<missing>'
     }`,
   );
 }
 
-if (devDependencies['@typescript-eslint/parser'] !== '8.61.1') {
+if (devDependencies['@typescript-eslint/parser'] !== '8.62.1') {
   errors.push(
-    `@typescript-eslint/parser must stay on 8.61.1 for this compatibility guard. Found ${devDependencies['@typescript-eslint/parser'] || '<missing>'}`,
+    `@typescript-eslint/parser must stay on 8.62.1 for this compatibility guard. Found ${devDependencies['@typescript-eslint/parser'] || '<missing>'}`,
   );
 }
 
-if (devDependencies.eslint !== '10.5.0') {
-  errors.push(`eslint must stay on 10.5.0 for the flat-config bridge. Found ${devDependencies.eslint || '<missing>'}`);
+if (devDependencies.eslint !== '10.6.0') {
+  errors.push(`eslint must stay on 10.6.0 for the flat-config bridge. Found ${devDependencies.eslint || '<missing>'}`);
 }
 
 if (devDependencies['@eslint/js'] !== '10.0.1') {

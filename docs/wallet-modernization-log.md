@@ -10,6 +10,56 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.820 - Tooling patch baseline refresh
+
+- Branch: `feature/bem-37-820-tooling-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the lint/formatting tooling patch cohort to live npm latest targets:
+  `@typescript-eslint/eslint-plugin` `8.62.0` -> `8.62.1`,
+  `@typescript-eslint/parser` `8.62.0` -> `8.62.1`,
+  `eslint` `10.5.0` -> `10.6.0`,
+  and `prettier` `3.8.4` -> `3.9.4`.
+- Keep this branch dev-tooling only: no app runtime source, native Android/iOS project, Metro config, runtime dependency, or APK behavior is changed.
+- Refresh ESLint compatibility, Prettier tooling, tooling latest snapshot, direct-outdated snapshot, and dependency strategy documentation for the new baseline.
+- Preserve the existing lint debt baseline instead of formatting or lint-fixing the repo broadly.
+
+Findings:
+
+- npm metadata on `2026-07-05` reports `@typescript-eslint/eslint-plugin@8.62.1`, `@typescript-eslint/parser@8.62.1`, `eslint@10.6.0`, and `prettier@3.9.4` as current latest targets.
+- The TypeScript ESLint `8.62.1` peer range still supports ESLint `^8.57.0 || ^9.0.0 || ^10.0.0` and TypeScript `>=4.8.4 <6.1.0`, matching the current ESLint 10 and TypeScript 6 baseline.
+- ESLint `10.6.0` still requires Node `^20.19.0 || ^22.13.0 || >=24`; repo Node `v24.16.0` satisfies it.
+- Prettier `3.9.4` keeps the existing `.prettierrc.js` resolution and does not require a mass formatting pass.
+- `corepack yarn` from the shell still sees global Node `v22.18.0`; `lint-staged@17.0.8` correctly rejects that runtime. Tooling validation and package installation use `corepack yarn node:runtime:yarn ...`, which runs the repo `.nvmrc` Node `v24.16.0`.
+- Tooling latest snapshot now reports all `24` tracked tooling entries current, including ESLint `10.6.0`, TypeScript ESLint `8.62.1`, Prettier `3.9.4`, lint-staged `17.0.8`, Husky `9.1.7`, and Detox `20.51.4`.
+- Direct outdated snapshot drops the tooling drift and now reports `26` entries: `22` blocked decisions, `4` exotic wallet forks, and `0` review-required entries.
+- Android emulator smoke is not claimed for this branch because the branch changes only dev tooling packages, guard fixtures, and documentation; runtime/native/Metro branches still require Android build and emulator proof.
+
+Validation:
+
+- `npm view @typescript-eslint/eslint-plugin version engines peerDependencies dependencies --json`
+- `npm view @typescript-eslint/parser version engines peerDependencies dependencies --json`
+- `npm view eslint version engines peerDependencies dependencies --json`
+- `npm view prettier version engines peerDependencies dependencies --json`
+- `corepack yarn node:runtime:yarn add --dev --exact @typescript-eslint/eslint-plugin@8.62.1 @typescript-eslint/parser@8.62.1 eslint@10.6.0 prettier@3.9.4`
+- `corepack yarn check:eslint-config-compatibility`
+- `corepack yarn prettier:tooling:audit`
+- `corepack yarn node:runtime:yarn lint-staged:tooling:audit`
+- `corepack yarn node:runtime:yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn tooling:latest-snapshot:audit`
+- `corepack yarn node:runtime:yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `corepack yarn node:runtime:yarn foundation:target:check-summaries`
+- `git diff --check`
+
 ### BEM-37.819 - Sentry 8.17.1 release package refresh
 
 - Branch: `feature/bem-37-819-sentry-8-17-refresh`
