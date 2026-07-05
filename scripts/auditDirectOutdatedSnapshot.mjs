@@ -50,6 +50,38 @@ const knownDecisions = new Map([
     'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
+    '@react-native-community/cli',
+    'blocked - React Native CLI patch drift requires a dedicated RN CLI/tooling branch with Android assemble, Metro startup, and emulator smoke proof',
+  ],
+  [
+    '@react-native-community/cli-platform-android',
+    'blocked - React Native CLI Android platform patch drift requires a dedicated RN CLI/tooling branch with Android assemble, Metro startup, and emulator smoke proof',
+  ],
+  [
+    '@react-native-community/cli-platform-ios',
+    'blocked - React Native CLI iOS platform patch drift requires a dedicated RN CLI/tooling branch with Android assemble, iOS static readiness, and macOS handoff proof',
+  ],
+  [
+    '@react-navigation/bottom-tabs',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
+  ],
+  [
+    '@react-navigation/devtools',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
+  ],
+  [
+    '@react-navigation/native',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
+  ],
+  [
+    '@react-navigation/stack',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
+  ],
+  [
+    '@sentry/react-native',
+    'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Android debug/release validation, Sentry prerequisite summaries, and no source-map upload claim without credentials',
+  ],
+  [
     '@typescript-eslint/eslint-plugin',
     'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
   ],
@@ -106,8 +138,24 @@ const knownDecisions = new Map([
     'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   ],
   [
+    'caniuse-lite',
+    'blocked - Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof',
+  ],
+  [
     'semver',
     'blocked - semver patch drift must move in a dedicated tooling/runtime branch because it is both a direct dependency and enforced resolution',
+  ],
+  [
+    'eslint',
+    'blocked - ESLint patch drift requires a dedicated lint/tooling branch with lint-staged, precommit, TypeScript, and baseline audit proof',
+  ],
+  [
+    'i18next',
+    'blocked - i18next patch drift requires a dedicated localization runtime branch with TypeScript, translation checks, app-start smoke, and react-i18next compatibility proof',
+  ],
+  [
+    'prettier',
+    'blocked - Prettier patch drift requires a dedicated formatting/tooling branch with no broad formatting churn, precommit, TypeScript, and baseline audit proof',
   ],
   [
     'uuid',

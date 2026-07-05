@@ -15,10 +15,24 @@ const requiredKnownEntries = [
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
   ['@babel/traverse', 'resolutionDependencies'],
+  ['@react-native-community/cli', 'devDependencies'],
+  ['@react-native-community/cli-platform-android', 'devDependencies'],
+  ['@react-native-community/cli-platform-ios', 'devDependencies'],
+  ['@react-navigation/bottom-tabs', 'dependencies'],
+  ['@react-navigation/devtools', 'dependencies'],
+  ['@react-navigation/native', 'dependencies'],
+  ['@react-navigation/stack', 'dependencies'],
+  ['@sentry/react-native', 'dependencies'],
+  ['@typescript-eslint/eslint-plugin', 'devDependencies'],
+  ['@typescript-eslint/parser', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
+  ['caniuse-lite', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
+  ['eslint', 'devDependencies'],
+  ['i18next', 'dependencies'],
+  ['prettier', 'devDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
@@ -189,6 +203,55 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     !entryLines.every(line => !line.startsWith('- @typescript-eslint/') || (line.includes('dedicated lint/tooling branch') && line.includes('precommit') && line.includes('baseline audit proof')))
   ) {
     errors.push('TypeScript ESLint drift must remain tied to a dedicated lint/tooling branch decision with precommit and baseline audit proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- @react-native-community/cli')) &&
+    !entryLines.every(line => !line.startsWith('- @react-native-community/cli') || (line.includes('dedicated RN CLI/tooling branch') && line.includes('Android assemble')))
+  ) {
+    errors.push('React Native CLI drift must remain tied to a dedicated RN CLI/tooling branch decision with Android assemble proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- @react-navigation/')) &&
+    !entryLines.every(line => !line.startsWith('- @react-navigation/') || (line.includes('dedicated navigation smoke branch') && line.includes('tab navigation') && line.includes('Android emulator proof')))
+  ) {
+    errors.push('React Navigation drift must remain tied to a dedicated navigation smoke branch decision with Android emulator proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- @sentry/react-native: ')) &&
+    !entryLines.some(line => line.startsWith('- @sentry/react-native: ') && line.includes('dedicated release-services branch') && line.includes('Sentry prerequisite summaries') && line.includes('no source-map upload claim without credentials'))
+  ) {
+    errors.push('Sentry SDK drift must remain tied to a dedicated release-services branch decision without claiming credentialed upload');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- caniuse-lite: ')) &&
+    !entryLines.some(line => line.startsWith('- caniuse-lite: ') && line.includes('dedicated tooling/resolution branch') && line.includes('lockfile') && line.includes('bundle-transform proof'))
+  ) {
+    errors.push('caniuse-lite drift must remain tied to a dedicated tooling/resolution branch decision with lockfile and bundle-transform proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- eslint: ')) &&
+    !entryLines.some(line => line.startsWith('- eslint: ') && line.includes('dedicated lint/tooling branch') && line.includes('lint-staged') && line.includes('baseline audit proof'))
+  ) {
+    errors.push('ESLint drift must remain tied to a dedicated lint/tooling branch decision with lint-staged and baseline audit proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- i18next: ')) &&
+    !entryLines.some(line => line.startsWith('- i18next: ') && line.includes('dedicated localization runtime branch') && line.includes('translation checks') && line.includes('react-i18next compatibility proof'))
+  ) {
+    errors.push('i18next drift must remain tied to a dedicated localization runtime branch decision with translation and react-i18next proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- prettier: ')) &&
+    !entryLines.some(line => line.startsWith('- prettier: ') && line.includes('dedicated formatting/tooling branch') && line.includes('no broad formatting churn') && line.includes('precommit'))
+  ) {
+    errors.push('Prettier drift must remain tied to a dedicated formatting/tooling branch decision without broad formatting churn');
   }
 
   if (

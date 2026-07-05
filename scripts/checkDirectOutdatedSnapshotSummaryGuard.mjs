@@ -1,35 +1,273 @@
+import { formatDirectOutdatedSnapshotSummary } from './auditDirectOutdatedSnapshot.mjs';
 import { getDirectOutdatedSnapshotSummaryErrors } from './directOutdatedSnapshotSummaryGuard.mjs';
 
-const validSummary = [
-  'Direct dependency outdated snapshot audit',
-  'Generated at: 2026-06-05T00:00:00.000Z',
-  'Node version: v24.16.0',
-  'Expected Node version: v24.16.0',
-  'Entries: 17',
-  '- @babel/cli: current 7.29.7, wanted 7.29.7, latest 8.0.1, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  '- @babel/core: current 7.29.7, wanted 7.29.7, latest 8.0.1, type resolutionDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  '- @babel/core: current 7.29.7, wanted 7.29.7, latest 8.0.1, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  '- @babel/plugin-transform-runtime: current 7.29.7, wanted 7.29.7, latest 8.0.1, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  '- @babel/preset-env: current 7.29.7, wanted 7.29.7, latest 8.0.2, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  '- @babel/preset-react: current 7.29.7, wanted 7.29.7, latest 8.0.1, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  '- @babel/preset-typescript: current 7.29.7, wanted 7.29.7, latest 8.0.1, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  '- @babel/runtime: current 7.29.7, wanted 7.29.7, latest 8.0.0, type devDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  '- @babel/traverse: current 7.29.7, wanted 7.29.7, latest 8.0.0, type resolutionDependencies, decision blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  '- babel-plugin-polyfill-regenerator: current 0.6.8, wanted 0.6.8, latest 1.0.0, type devDependencies, decision blocked - polyfill plugin major drift belongs with a dedicated RN/Metro/Babel branch so Babel runtime and bundle transforms stay aligned',
-  '- bitcoinjs-lib: current 5.1.6, wanted exotic, latest exotic, type dependencies, decision exotic - BitcoinVault fork is tracked by git dependency snapshot; do not replace with upstream npm without wallet compatibility proof',
-  '- bl: current 6.1.6, wanted 6.1.6, latest 7.0.4, type resolutionDependencies, decision blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
-  '- electrum-client: current 2.0.0, wanted exotic, latest exotic, type dependencies, decision exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
-  '- react: current 19.2.3, wanted 19.2.3, latest 19.2.7, type dependencies, decision blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
-  '- react-native-prompt-android: current 0.3.6, wanted exotic, latest exotic, type dependencies, decision exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
-  '- react-test-renderer: current 19.2.3, wanted 19.2.3, latest 19.2.7, type devDependencies, decision blocked - React Native renderer exact-version coupling requires test renderer to stay aligned with React and RN',
-  '- rn-nodeify: current 10.3.0, wanted exotic, latest exotic, type devDependencies, decision exotic - GitHub pin is guarded by rn-nodeify shim checks and git dependency snapshot',
-  'Known blocked entries: 13',
-  'Exotic entries: 4',
-  'Review-required entries: 0',
-  'Secret values printed: no',
-  'Required action: do not blindly bump direct outdated entries; use the recorded decision and open a dedicated compatibility branch for each blocker or new review-required package.',
-  '',
-].join('\n');
+const validEntries = [
+  {
+    name: '@babel/cli',
+    current: '7.29.7',
+    wanted: '7.29.7',
+    latest: '8.0.1',
+    type: 'devDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
+    name: '@babel/core',
+    current: '7.29.7',
+    wanted: '7.29.7',
+    latest: '8.0.1',
+    type: 'resolutionDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
+    name: '@babel/core',
+    current: '7.29.7',
+    wanted: '7.29.7',
+    latest: '8.0.1',
+    type: 'devDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
+    name: '@babel/plugin-transform-runtime',
+    current: '7.29.7',
+    wanted: '7.29.7',
+    latest: '8.0.1',
+    type: 'devDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
+    name: '@babel/preset-env',
+    current: '7.29.7',
+    wanted: '7.29.7',
+    latest: '8.0.2',
+    type: 'devDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
+    name: '@babel/preset-react',
+    current: '7.29.7',
+    wanted: '7.29.7',
+    latest: '8.0.1',
+    type: 'devDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
+    name: '@babel/preset-typescript',
+    current: '7.29.7',
+    wanted: '7.29.7',
+    latest: '8.0.1',
+    type: 'devDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
+    name: '@babel/runtime',
+    current: '7.29.7',
+    wanted: '7.29.7',
+    latest: '8.0.0',
+    type: 'devDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
+    name: '@babel/traverse',
+    current: '7.29.7',
+    wanted: '7.29.7',
+    latest: '8.0.0',
+    type: 'resolutionDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
+    name: '@react-native-community/cli',
+    current: '20.1.3',
+    wanted: '20.1.3',
+    latest: '20.2.0',
+    type: 'devDependencies',
+    decision: 'blocked - React Native CLI patch drift requires a dedicated RN CLI/tooling branch with Android assemble, Metro startup, and emulator smoke proof',
+  },
+  {
+    name: '@react-native-community/cli-platform-android',
+    current: '20.1.3',
+    wanted: '20.1.3',
+    latest: '20.2.0',
+    type: 'devDependencies',
+    decision:
+      'blocked - React Native CLI Android platform patch drift requires a dedicated RN CLI/tooling branch with Android assemble, Metro startup, and emulator smoke proof',
+  },
+  {
+    name: '@react-native-community/cli-platform-ios',
+    current: '20.1.3',
+    wanted: '20.1.3',
+    latest: '20.2.0',
+    type: 'devDependencies',
+    decision: 'blocked - React Native CLI iOS platform patch drift requires a dedicated RN CLI/tooling branch with Android assemble, iOS static readiness, and macOS handoff proof',
+  },
+  {
+    name: '@react-navigation/bottom-tabs',
+    current: '7.18.3',
+    wanted: '7.18.3',
+    latest: '7.18.7',
+    type: 'dependencies',
+    decision:
+      'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
+  },
+  {
+    name: '@react-navigation/devtools',
+    current: '7.1.2',
+    wanted: '7.1.2',
+    latest: '7.1.5',
+    type: 'dependencies',
+    decision:
+      'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
+  },
+  {
+    name: '@react-navigation/native',
+    current: '7.3.4',
+    wanted: '7.3.4',
+    latest: '7.3.7',
+    type: 'dependencies',
+    decision:
+      'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
+  },
+  {
+    name: '@react-navigation/stack',
+    current: '7.10.6',
+    wanted: '7.10.6',
+    latest: '7.10.10',
+    type: 'dependencies',
+    decision:
+      'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
+  },
+  {
+    name: '@sentry/react-native',
+    current: '8.16.0',
+    wanted: '8.16.0',
+    latest: '8.17.1',
+    type: 'dependencies',
+    decision:
+      'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Android debug/release validation, Sentry prerequisite summaries, and no source-map upload claim without credentials',
+  },
+  {
+    name: '@typescript-eslint/eslint-plugin',
+    current: '8.62.0',
+    wanted: '8.62.0',
+    latest: '8.62.1',
+    type: 'devDependencies',
+    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
+  },
+  {
+    name: '@typescript-eslint/parser',
+    current: '8.62.0',
+    wanted: '8.62.0',
+    latest: '8.62.1',
+    type: 'devDependencies',
+    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
+  },
+  {
+    name: 'babel-plugin-polyfill-regenerator',
+    current: '0.6.8',
+    wanted: '0.6.8',
+    latest: '1.0.0',
+    type: 'devDependencies',
+    decision: 'blocked - polyfill plugin major drift belongs with a dedicated RN/Metro/Babel branch so Babel runtime and bundle transforms stay aligned',
+  },
+  {
+    name: 'bitcoinjs-lib',
+    current: '5.1.6',
+    wanted: 'exotic',
+    latest: 'exotic',
+    type: 'dependencies',
+    decision: 'exotic - BitcoinVault fork is tracked by git dependency snapshot; do not replace with upstream npm without wallet compatibility proof',
+  },
+  {
+    name: 'bl',
+    current: '6.1.6',
+    wanted: '6.1.6',
+    latest: '7.0.6',
+    type: 'resolutionDependencies',
+    decision: 'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
+  },
+  {
+    name: 'caniuse-lite',
+    current: '1.0.30001799',
+    wanted: '1.0.30001799',
+    latest: '1.0.30001800',
+    type: 'resolutionDependencies',
+    decision: 'blocked - Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof',
+  },
+  {
+    name: 'electrum-client',
+    current: '2.0.0',
+    wanted: 'exotic',
+    latest: 'exotic',
+    type: 'dependencies',
+    decision: 'exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
+  },
+  {
+    name: 'eslint',
+    current: '10.5.0',
+    wanted: '10.5.0',
+    latest: '10.6.0',
+    type: 'devDependencies',
+    decision: 'blocked - ESLint patch drift requires a dedicated lint/tooling branch with lint-staged, precommit, TypeScript, and baseline audit proof',
+  },
+  {
+    name: 'i18next',
+    current: '26.3.2',
+    wanted: '26.3.2',
+    latest: '26.3.4',
+    type: 'dependencies',
+    decision: 'blocked - i18next patch drift requires a dedicated localization runtime branch with TypeScript, translation checks, app-start smoke, and react-i18next compatibility proof',
+  },
+  {
+    name: 'prettier',
+    current: '3.8.4',
+    wanted: '3.8.4',
+    latest: '3.9.4',
+    type: 'devDependencies',
+    decision: 'blocked - Prettier patch drift requires a dedicated formatting/tooling branch with no broad formatting churn, precommit, TypeScript, and baseline audit proof',
+  },
+  {
+    name: 'react',
+    current: '19.2.3',
+    wanted: '19.2.3',
+    latest: '19.2.7',
+    type: 'dependencies',
+    decision: 'blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
+  },
+  {
+    name: 'react-native-prompt-android',
+    current: '0.3.6',
+    wanted: 'exotic',
+    latest: 'exotic',
+    type: 'dependencies',
+    decision: 'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
+  },
+  {
+    name: 'react-test-renderer',
+    current: '19.2.3',
+    wanted: '19.2.3',
+    latest: '19.2.7',
+    type: 'devDependencies',
+    decision: 'blocked - React Native renderer exact-version coupling requires test renderer to stay aligned with React and RN',
+  },
+  {
+    name: 'rn-nodeify',
+    current: '10.3.0',
+    wanted: 'exotic',
+    latest: 'exotic',
+    type: 'devDependencies',
+    decision: 'exotic - GitHub pin is guarded by rn-nodeify shim checks and git dependency snapshot',
+  },
+];
+
+const validSummary = formatDirectOutdatedSnapshotSummary(validEntries, '2026-07-05T00:00:00.000Z');
 
 const assertAccepted = (label, summary) => {
   const errors = getDirectOutdatedSnapshotSummaryErrors(summary);
@@ -59,23 +297,18 @@ assertRejected(
 );
 assertRejected(
   'Bad timestamp fixture',
-  validSummary.replace('Generated at: 2026-06-05T00:00:00.000Z', 'Generated at: now'),
+  validSummary.replace('Generated at: 2026-07-05T00:00:00.000Z', 'Generated at: now'),
   'ISO timestamp',
 );
 assertRejected(
-  'Missing expected Node fixture',
-  validSummary.replace('Expected Node version: v24.16.0', 'Expected Node version: '),
-  'Expected Node version',
-);
-assertRejected(
   'Wrong Node fixture',
-  validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'),
+  validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 17', 'Entries: 16'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 31', 'Entries: 30'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 17', 'Entries: 18').replace(
+  validSummary.replace('Entries: 31', 'Entries: 32').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -95,12 +328,39 @@ assertRejected(
   'dedicated RN/Metro/Babel branch',
 );
 assertRejected(
-  'Missing polyfill-regenerator blocker fixture',
-  validSummary.replace(
-    'polyfill plugin major drift belongs with a dedicated RN/Metro/Babel branch so Babel runtime and bundle transforms stay aligned',
-    'polyfill plugin major drift can be updated independently',
-  ),
-  'babel-plugin-polyfill-regenerator drift',
+  'Missing RN CLI blocker fixture',
+  validSummary.replace('dedicated RN CLI/tooling branch with Android assemble', 'generic RN CLI patch branch'),
+  'dedicated RN CLI/tooling branch',
+);
+assertRejected(
+  'Missing navigation blocker fixture',
+  validSummary.replace('dedicated navigation smoke branch with tab navigation', 'generic navigation patch branch'),
+  'dedicated navigation smoke branch',
+);
+assertRejected(
+  'Missing Sentry blocker fixture',
+  validSummary.replace('no source-map upload claim without credentials', 'source-map upload can be claimed later'),
+  'without claiming credentialed upload',
+);
+assertRejected(
+  'Missing caniuse-lite blocker fixture',
+  validSummary.replace('dedicated tooling/resolution branch with lockfile', 'generic caniuse patch branch'),
+  'dedicated tooling/resolution branch',
+);
+assertRejected(
+  'Missing ESLint blocker fixture',
+  validSummary.replace('ESLint patch drift requires a dedicated lint/tooling branch', 'ESLint patch drift is safe'),
+  'ESLint drift',
+);
+assertRejected(
+  'Missing i18next blocker fixture',
+  validSummary.replace('dedicated localization runtime branch with TypeScript', 'generic i18next patch branch'),
+  'dedicated localization runtime branch',
+);
+assertRejected(
+  'Missing Prettier blocker fixture',
+  validSummary.replace('no broad formatting churn', 'format all files'),
+  'without broad formatting churn',
 );
 assertRejected(
   'Review required fixture',
@@ -111,72 +371,6 @@ assertRejected(
   'Missing React renderer blocker fixture',
   validSummary.replace('React Native renderer exact-version coupling', 'generic patch update'),
   'React Native renderer exact-version coupling',
-);
-assertRejected(
-  'Missing gesture-handler blocker fixture',
-  validSummary
-    .replace('Entries: 17', 'Entries: 18')
-    .replace('Known blocked entries: 13', 'Known blocked entries: 14')
-    .replace(
-      'Secret values printed: no',
-      '- react-native-gesture-handler: current 3.0.2, wanted 3.0.2, latest 3.0.3, type dependencies, decision blocked - gesture runtime patch drift requires generic patch update before bumping\nSecret values printed: no',
-    ),
-  'dedicated navigation/gesture smoke branch',
-);
-assertRejected(
-  'Missing axios blocker fixture',
-  validSummary
-    .replace('Entries: 17', 'Entries: 18')
-    .replace('Known blocked entries: 13', 'Known blocked entries: 14')
-    .replace(
-      'Secret values printed: no',
-      '- axios: current 1.18.1, wanted 1.18.1, latest 1.18.2, type dependencies, decision blocked - network client patch drift requires generic runtime proof\nSecret values printed: no',
-    ),
-  'dedicated storage/network branch',
-);
-assertRejected(
-  'Missing semver blocker fixture',
-  validSummary
-    .replace('Entries: 17', 'Entries: 19')
-    .replace('Known blocked entries: 13', 'Known blocked entries: 15')
-    .replace(
-      'Secret values printed: no',
-      '- semver: current 7.8.5, wanted 7.8.5, latest 7.8.6, type resolutionDependencies, decision blocked - semver patch drift requires generic tooling proof\n- semver: current 7.8.5, wanted 7.8.5, latest 7.8.6, type dependencies, decision blocked - semver patch drift requires generic tooling proof\nSecret values printed: no',
-    ),
-  'dedicated tooling/runtime branch',
-);
-assertRejected(
-  'Missing TypeScript ESLint blocker fixture',
-  validSummary
-    .replace('Entries: 17', 'Entries: 18')
-    .replace('Known blocked entries: 13', 'Known blocked entries: 14')
-    .replace(
-      'Secret values printed: no',
-      '- @typescript-eslint/parser: current 8.62.0, wanted 8.62.0, latest 8.62.1, type devDependencies, decision blocked - parser patch drift requires generic lint proof\nSecret values printed: no',
-    ),
-  'dedicated lint/tooling branch',
-);
-assertRejected(
-  'Missing lint-staged blocker fixture',
-  validSummary
-    .replace('Entries: 17', 'Entries: 18')
-    .replace('Known blocked entries: 13', 'Known blocked entries: 14')
-    .replace(
-      'Secret values printed: no',
-      '- lint-staged: current 17.0.8, wanted 17.0.8, latest 17.0.9, type devDependencies, decision blocked - hook patch drift requires generic proof\nSecret values printed: no',
-    ),
-  'dedicated hook/tooling branch',
-);
-assertRejected(
-  'Missing uuid blocker fixture',
-  validSummary
-    .replace('Entries: 17', 'Entries: 18')
-    .replace('Known blocked entries: 13', 'Known blocked entries: 14')
-    .replace(
-      'Secret values printed: no',
-      '- uuid: current 14.0.1, wanted 14.0.1, latest 14.0.2, type dependencies, decision blocked - uuid patch drift requires generic runtime proof\nSecret values printed: no',
-    ),
-  'dedicated runtime compatibility branch',
 );
 assertRejected(
   'Missing bl blocker fixture',
