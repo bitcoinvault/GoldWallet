@@ -1,5 +1,5 @@
-process.env.ANDROID_SMOKE_REQUIRE_METRO ??= 'false';
-process.env.ANDROID_SMOKE_OUTPUT_BASENAME ??= 'android-smoke-dev-no-network';
+process.env.ANDROID_SMOKE_REQUIRE_METRO ??= 'true';
+process.env.ANDROID_SMOKE_OUTPUT_BASENAME ??= 'android-smoke-dev-metro-no-network';
 process.env.ANDROID_SMOKE_EXPECT_TEXTS ??= 'No network';
 process.env.ANDROID_SMOKE_EXPECT_RESOURCE_IDS ??= '';
 process.env.ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS ??= 'false';
@@ -11,4 +11,3 @@ process.env.ANDROID_SMOKE_WAIT_MS ??= '45000';
 process.env.ANDROID_SMOKE_CLEAR_APP_DATA ??= 'true';
 
 await import('./androidSmokeDev.mjs');
-

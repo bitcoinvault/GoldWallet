@@ -84,31 +84,6 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
-    name: '@react-native-community/cli',
-    current: '20.1.3',
-    wanted: '20.1.3',
-    latest: '20.2.0',
-    type: 'devDependencies',
-    decision: 'blocked - React Native CLI patch drift requires a dedicated RN CLI/tooling branch with Android assemble, Metro startup, and emulator smoke proof',
-  },
-  {
-    name: '@react-native-community/cli-platform-android',
-    current: '20.1.3',
-    wanted: '20.1.3',
-    latest: '20.2.0',
-    type: 'devDependencies',
-    decision:
-      'blocked - React Native CLI Android platform patch drift requires a dedicated RN CLI/tooling branch with Android assemble, Metro startup, and emulator smoke proof',
-  },
-  {
-    name: '@react-native-community/cli-platform-ios',
-    current: '20.1.3',
-    wanted: '20.1.3',
-    latest: '20.2.0',
-    type: 'devDependencies',
-    decision: 'blocked - React Native CLI iOS platform patch drift requires a dedicated RN CLI/tooling branch with Android assemble, iOS static readiness, and macOS handoff proof',
-  },
-  {
     name: '@react-navigation/bottom-tabs',
     current: '7.18.3',
     wanted: '7.18.3',
@@ -264,7 +239,7 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 26', 'Entries: 25'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 23', 'Entries: 22'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
   validSummary.replace('Entries: 31', 'Entries: 32').replace(
@@ -285,11 +260,6 @@ assertRejected(
   'Missing Babel blocker fixture',
   validSummary.replace('Babel 8 is a major Metro/RN transform migration', 'generic Babel major update'),
   'dedicated RN/Metro/Babel branch',
-);
-assertRejected(
-  'Missing RN CLI blocker fixture',
-  validSummary.replace('dedicated RN CLI/tooling branch with Android assemble', 'generic RN CLI patch branch'),
-  'dedicated RN CLI/tooling branch',
 );
 assertRejected(
   'Missing navigation blocker fixture',

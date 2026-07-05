@@ -50,18 +50,6 @@ const knownDecisions = new Map([
     'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
-    '@react-native-community/cli',
-    'blocked - React Native CLI patch drift requires a dedicated RN CLI/tooling branch with Android assemble, Metro startup, and emulator smoke proof',
-  ],
-  [
-    '@react-native-community/cli-platform-android',
-    'blocked - React Native CLI Android platform patch drift requires a dedicated RN CLI/tooling branch with Android assemble, Metro startup, and emulator smoke proof',
-  ],
-  [
-    '@react-native-community/cli-platform-ios',
-    'blocked - React Native CLI iOS platform patch drift requires a dedicated RN CLI/tooling branch with Android assemble, iOS static readiness, and macOS handoff proof',
-  ],
-  [
     '@react-navigation/bottom-tabs',
     'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
   ],
