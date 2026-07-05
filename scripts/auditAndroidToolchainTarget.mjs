@@ -46,7 +46,7 @@ export const collectAndroidToolchainTargetAudit = async () => {
   const minimumAgp9Gradle = '9.4.1';
   const directAgp9Probe = {
     agp: '9.2.1',
-    gradle: '9.6.0',
+    gradle: '9.6.1',
     kotlin: '2.4.0',
     jdk: '17',
     status: 'blocked',
@@ -54,7 +54,7 @@ export const collectAndroidToolchainTargetAudit = async () => {
     source: 'node_modules/@react-native/gradle-plugin/settings-plugin/src/main/kotlin/com/facebook/react/ReactSettingsExtension.kt',
     kotlinRuntimeMetadata: '2.3.0',
     rnKotlinMetadataCeiling: '2.2.0',
-    evidence: 'docs/wallet-modernization-log.md BEM-37.774',
+    evidence: 'docs/wallet-modernization-log.md BEM-37.818',
   };
   const rnGradlePlugin =
     packageJson.dependencies?.['@react-native/gradle-plugin'] || packageJson.devDependencies?.['@react-native/gradle-plugin'] || '';

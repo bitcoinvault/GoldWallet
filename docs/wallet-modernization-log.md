@@ -10,6 +10,56 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.818 - Foundation target metadata refresh
+
+- Branch: `feature/bem-37-818-rn-target-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh React Native target snapshot metadata after live npm checks on `2026-07-05`.
+- Refresh the direct outdated dependency decision snapshot from `17` to `31` entries and assign explicit future branch decisions for newly observed drift.
+- Refresh Android toolchain target evidence against current AGP, Gradle, and Kotlin metadata while keeping the stable Android baseline unchanged.
+- Keep runtime package, native Android, and Gradle wrapper versions unchanged in this branch; this milestone updates guards, documentation, and probe evidence only.
+
+Findings:
+
+- React Native latest stable remains `0.86.0`; `0.86.0-rc.3` is still a prerelease target and `0.87.0-nightly-20260705-e04ff69ab` is planning-only nightly metadata.
+- The foundation outdated snapshot now tracks `31` entries: `27` blocked decisions, `4` exotic wallet forks, and `0` review-required entries.
+- Newly explicit future branches cover React Native CLI `20.2.0`, React Navigation patch drift, Sentry `8.17.1`, TypeScript ESLint `8.62.1`, ESLint `10.6.0`, Prettier `3.9.4`, `i18next 26.3.4`, and `caniuse-lite 1.0.30001800`.
+- A temporary latest-first Android toolchain probe with AGP `9.2.1`, Gradle `9.6.1`, Kotlin `2.4.0`, and JDK 17 still fails in `:gradle-plugin:settings-plugin:compileKotlin`.
+- The Android probe blocker is Kotlin metadata compatibility in the React Native Gradle plugin path: Gradle `9.6.1` jars expose Kotlin metadata `2.3.0`, while the compiler path accepts up to `2.2.0`.
+- Stable Android baseline remains AGP `8.13.2`, Gradle `8.13`, and Kotlin `2.1.20`.
+- No final runtime package, native, or Metro change is included in this branch, so Android emulator smoke is not claimed for this metadata-only milestone.
+- iOS runtime validation remains blocked on this Windows machine; macOS/Xcode/CocoaPods validation is still required before claiming iOS runtime readiness.
+
+Validation:
+
+- `corepack yarn foundation:target:refresh-online`
+- `corepack yarn check:rn-target-snapshot-guard`
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `node --check scripts/auditDirectOutdatedSnapshot.mjs`
+- `node --check scripts/directOutdatedSnapshotSummaryGuard.mjs`
+- `node --check scripts/checkDirectOutdatedSnapshotSummaryGuard.mjs`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node scripts/runAndroidGradle.mjs :gradle-plugin:settings-plugin:compileKotlin --stacktrace` with temporary AGP `9.2.1`, Gradle `9.6.1`, and Kotlin `2.4.0`; expected blocker reproduced and temporary files restored.
+- `corepack yarn check:android-toolchain-target-summary-guard`
+- `corepack yarn android:toolchain-target:audit`
+- `corepack yarn android:toolchain-target:check-summary`
+- `corepack yarn check:foundation-target-summary-guard`
+- `corepack yarn foundation:target:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `git diff --check`
+
 ### BEM-37.817 - Sentry 8.16.0 release package refresh
 
 - Branch: `feature/bem-37-817-sentry-8-16-refresh`
