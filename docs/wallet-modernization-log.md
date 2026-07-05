@@ -10,6 +10,72 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.819 - Sentry 8.17.1 release package refresh
+
+- Branch: `feature/bem-37-819-sentry-8-17-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the Sentry React Native package from `8.16.0` to the live npm latest `8.17.1`.
+- Keep direct release tooling on `@sentry/cli@3.6.0`, which remains the live npm latest and the package used by the release build path.
+- Refresh Sentry Android warning, RN bundle-task compatibility, release prerequisite, credential-plan, native-module inventory, iOS static-readiness, direct-outdated, and release-services documentation for the new package baseline.
+- Rebuild and smoke Android debug/release evidence while keeping source-map upload, full release dashboard proof, release create-wallet proof, and iOS runtime validation explicitly unclaimed where external blockers remain.
+
+Findings:
+
+- npm metadata on `2026-07-05` reported `@sentry/react-native@8.17.1` and `@sentry/cli@3.6.0` as current latest targets.
+- `@sentry/react-native@8.17.1` pulls Sentry JS packages `10.63.0` and uses `@sentry/cli@3.6.0`; the Sentry prerequisite audit reports one direct CLI instance and no nested CLI versions.
+- Direct outdated snapshot dropped the Sentry drift after the bump and now reports `30` entries: `26` blocked decisions, `4` exotic wallet forks, and `0` review-required entries.
+- Sentry Android warning wiring remains valid on RN `0.86.0`; no active Sentry `execResult` warning is reported.
+- Sentry RN bundle-task compatibility remains ready through the repo-owned legacy args shim for RN `0.86.0` release bundle tasks.
+- Android dev debug build and Android release build/manifest validation pass with JDK 17 and `SENTRY_DISABLE_AUTO_UPLOAD=true`; release validation covers `dev`, `stage`, `prod`, and `beta`.
+- Full Android debug and signed `devRelease` smokes launch and complete onboarding steps, then stop at the controlled external blocker: `electrumx.testnet.btcv.stage.rnd.land:443 tls` has an expired certificate dated `Tue Jun 23 16:52:40 GMT 2026`.
+- Reduced no-network smokes pass for debug and signed `devRelease`, and blocker summaries classify the state as `blocked-by-electrum-certificate-expired`.
+- Sentry source-map upload remains not claimed because `SENTRY_AUTH_TOKEN`, root `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` are unavailable locally.
+- iOS runtime validation remains blocked on Windows; static readiness stays valid, but `ios/Podfile.lock` still has `12` active drift issues, including `RNSentry 3.1.0` versus package `@sentry/react-native 8.17.1`.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines --json`
+- `npm view @sentry/cli version peerDependencies dependencies engines --json`
+- `corepack yarn add @sentry/react-native@8.17.1 @sentry/cli@3.6.0`
+- `corepack yarn check:sentry-android-warning-summary-guard`
+- `corepack yarn check:sentry-rn-bundle-task-compat-summary-guard`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn check:sentry-credential-handoff-guard`
+- `corepack yarn check:sentry-release-credential-plan-guard`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn sentry:rn-bundle-task-compat:audit`
+- `corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn sentry:release:credential-plan`
+- `corepack yarn sentry:release:credential-plan:check`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded` produced the expected external-network blocker, not a successful full dashboard proof.
+- `corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn android:dev:release:smoke:embedded` produced the expected external-network blocker, not a successful full release proof.
+- `ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release-no-network ANDROID_SMOKE_EXPECT_TEXTS="No network" ANDROID_SMOKE_EXPECT_RESOURCE_IDS="," ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS=false ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION=false ANDROID_SMOKE_VALIDATE_QR_SCANNER=false ANDROID_SMOKE_VALIDATE_SETTINGS_TERMS_WEBVIEW=false ANDROID_SMOKE_LOGCAT_LINES=120 node scripts/androidSmokeDevReleaseEmbedded.mjs`
+- `corepack yarn android:dev:release:network-blocker:audit`
+- `corepack yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn release-services:check-summaries`
+
 ### BEM-37.818 - Foundation target metadata refresh
 
 - Branch: `feature/bem-37-818-rn-target-snapshot-refresh`

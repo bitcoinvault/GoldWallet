@@ -22,7 +22,6 @@ const requiredKnownEntries = [
   ['@react-navigation/devtools', 'dependencies'],
   ['@react-navigation/native', 'dependencies'],
   ['@react-navigation/stack', 'dependencies'],
-  ['@sentry/react-native', 'dependencies'],
   ['@typescript-eslint/eslint-plugin', 'devDependencies'],
   ['@typescript-eslint/parser', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],

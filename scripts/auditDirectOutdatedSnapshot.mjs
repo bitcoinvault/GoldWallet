@@ -78,10 +78,6 @@ const knownDecisions = new Map([
     'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
   ],
   [
-    '@sentry/react-native',
-    'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Android debug/release validation, Sentry prerequisite summaries, and no source-map upload claim without credentials',
-  ],
-  [
     '@typescript-eslint/eslint-plugin',
     'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
   ],

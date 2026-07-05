@@ -145,15 +145,6 @@ const validEntries = [
       'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation, stack navigation, TypeScript, and Android emulator proof',
   },
   {
-    name: '@sentry/react-native',
-    current: '8.16.0',
-    wanted: '8.16.0',
-    latest: '8.17.1',
-    type: 'dependencies',
-    decision:
-      'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Android debug/release validation, Sentry prerequisite summaries, and no source-map upload claim without credentials',
-  },
-  {
     name: '@typescript-eslint/eslint-plugin',
     current: '8.62.0',
     wanted: '8.62.0',
@@ -305,7 +296,7 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 31', 'Entries: 30'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 30', 'Entries: 29'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
   validSummary.replace('Entries: 31', 'Entries: 32').replace(
@@ -336,11 +327,6 @@ assertRejected(
   'Missing navigation blocker fixture',
   validSummary.replace('dedicated navigation smoke branch with tab navigation', 'generic navigation patch branch'),
   'dedicated navigation smoke branch',
-);
-assertRejected(
-  'Missing Sentry blocker fixture',
-  validSummary.replace('no source-map upload claim without credentials', 'source-map upload can be claimed later'),
-  'without claiming credentialed upload',
 );
 assertRejected(
   'Missing caniuse-lite blocker fixture',

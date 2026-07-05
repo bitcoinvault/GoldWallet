@@ -11,7 +11,7 @@ const currentPodfileLockDriftLines = [
   '- ios/Podfile.lock has RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.0.2',
   '- ios/Podfile.lock has RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
   '- ios/Podfile.lock has RNScreens 3.6.0; package.json has react-native-screens 4.25.2',
-  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.16.0',
+  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.17.1',
   '- ios/Podfile.lock has RNVectorIcons 6.6.0; package.json has react-native-vector-icons 10.3.0',
 ];
 
@@ -152,7 +152,7 @@ assertRejected(
 );
 assertRejected(
   'Missing Sentry pod drift fixture',
-  removeDriftLine('- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.16.0'),
+  removeDriftLine('- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.17.1'),
   'RNSentry 3.1.0',
 );
 assertRejected(
