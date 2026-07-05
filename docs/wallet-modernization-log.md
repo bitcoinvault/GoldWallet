@@ -10,6 +10,63 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.821 - React Native CLI 20.2 tooling refresh
+
+- Branch: `feature/bem-37-821-rn-cli-20-2-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the direct React Native CLI tooling cohort to the live npm latest target:
+  `@react-native-community/cli` `20.1.3` -> `20.2.0`,
+  `@react-native-community/cli-platform-android` `20.1.3` -> `20.2.0`,
+  and `@react-native-community/cli-platform-ios` `20.1.3` -> `20.2.0`.
+- Refresh the direct-outdated snapshot guards and dependency strategy documentation so the RN CLI packages are treated as current baseline packages again.
+- Add a repeatable Android Metro no-network smoke entrypoint for cases where the external dev/testnet Electrum endpoint blocks the normal empty-dashboard proof.
+- Keep the no-network logcat allow-list narrow: it applies only when explicitly enabled and only filters the known Electrum `bad connection` / `ElectrumXConnectionError` lines while preserving crash and runtime-error detection by default.
+
+Findings:
+
+- npm metadata on `2026-07-05` reports `@react-native-community/cli@20.2.0`, `@react-native-community/cli-platform-android@20.2.0`, and `@react-native-community/cli-platform-ios@20.2.0` as current latest targets.
+- The CLI package requires Node `>=20.19.4`; repo validation uses `.nvmrc` Node `v24.16.0` through `corepack yarn node:runtime:yarn ...`.
+- `npx @react-native-community/cli config` and `corepack yarn node:runtime:yarn react-native config` both emit a valid React Native config for this repo after the bump.
+- Android `devDebug` assemble passes with JDK 17 after Gradle autolinking regenerates its RN CLI config cache.
+- Full Android embedded smoke installs and launches the APK, completes first-run setup, then reaches the known external blocker instead of the empty dashboard: `electrumx.testnet.btcv.stage.rnd.land:443 tls` has an expired certificate dated `Tue Jun 23 16:52:40 GMT 2026`.
+- Reduced Android no-network embedded smoke passes on emulator `emulator-5554` with expected UI text `No network`.
+- Metro no-network smoke passes on emulator `emulator-5554` with Metro required and reachable at `127.0.0.1:8081`; Metro reports React Native `0.86` and Metro `0.84.4`.
+- Direct outdated snapshot drops the RN CLI drift and now reports `23` entries: `19` blocked decisions, `4` exotic wallet forks, and `0` review-required entries.
+- iOS runtime validation remains blocked on Windows; static iOS checks still pass, while `ios/Podfile.lock` still needs a macOS/CocoaPods refresh before iOS archive proof can be claimed.
+
+Validation:
+
+- `npm view @react-native-community/cli version engines peerDependencies dependencies --json`
+- `npm view @react-native-community/cli-platform-android version engines peerDependencies dependencies --json`
+- `npm view @react-native-community/cli-platform-ios version engines peerDependencies dependencies --json`
+- `npm view react-native@0.86.0 dependencies peerDependencies engines --json`
+- `corepack yarn node:runtime:yarn add --dev --exact @react-native-community/cli@20.2.0 @react-native-community/cli-platform-android@20.2.0 @react-native-community/cli-platform-ios@20.2.0`
+- `corepack yarn node:runtime:yarn react-native config`
+- `npx @react-native-community/cli config`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn metro:dev-runtime:audit`
+- `corepack yarn node:runtime:yarn rn:upgrade-path:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:audit`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:plan`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:check-plan`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble`
+- `corepack yarn node:runtime:yarn android:dev:smoke:embedded` produced the expected external-network blocker, not a successful full dashboard proof.
+- `corepack yarn node:runtime:yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:check-summary`
+- `corepack yarn node:runtime:yarn start:metro:no-multipart --reset-cache --port 8081`
+- `corepack yarn node:runtime:yarn android:dev:smoke:no-network:metro`
+
 ### BEM-37.820 - Tooling patch baseline refresh
 
 - Branch: `feature/bem-37-820-tooling-patch-refresh`

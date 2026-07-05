@@ -45,6 +45,7 @@ const validateEmptyDashboardCtas = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_DASH
 const validateEmptyTabNavigation = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION === 'true';
 const validateQrScannerScreen = process.env.ANDROID_SMOKE_VALIDATE_QR_SCANNER === 'true';
 const validateSettingsTermsWebView = process.env.ANDROID_SMOKE_VALIDATE_SETTINGS_TERMS_WEBVIEW === 'true';
+const allowNetworkLogcatFailures = process.env.ANDROID_SMOKE_ALLOW_NETWORK_LOGCAT_FAILURES === 'true';
 const firstRunTransactionPassword = process.env.ANDROID_SMOKE_TRANSACTION_PASSWORD || 'testpass123';
 const expectedTexts = (process.env.ANDROID_SMOKE_EXPECT_TEXTS ?? 'Wallets,E2EWalletTypeTest,Send,Receive')
   .split(',')
@@ -184,6 +185,7 @@ const writeSummary = exitCode => {
     `Metro endpoint: ${metroHost}:${metroPort}`,
     `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
     `Cleared app data: ${clearAppData ? 'yes' : 'no'}`,
+    `Allowed network logcat failures: ${allowNetworkLogcatFailures ? 'yes' : 'no'}`,
     `Expected UI texts: ${expectedTexts.length > 0 ? expectedTexts.join(', ') : 'none'}`,
     `Expected resource IDs: ${expectedResourceIds.length > 0 ? expectedResourceIds.join(', ') : 'none'}`,
     `App PID: ${appPid || 'not available'}`,
@@ -1002,6 +1004,7 @@ try {
   append(`Using empty-tab navigation validation: ${validateEmptyTabNavigation ? 'yes' : 'no'}`);
   append(`Using QR scanner screen validation: ${validateQrScannerScreen ? 'yes' : 'no'}`);
   append(`Using settings Terms WebView validation: ${validateSettingsTermsWebView ? 'yes' : 'no'}`);
+  append(`Using allowed network logcat failures: ${allowNetworkLogcatFailures ? 'yes' : 'no'}`);
   if (androidSerial) {
     append(`Requested Android serial: ${androidSerial}`);
   }
@@ -1086,6 +1089,15 @@ try {
     .split(/\r?\n/)
     .filter(line =>
       /AndroidRuntime|FATAL EXCEPTION|ReactNativeJS.*(Error|TypeError|ReferenceError)|E ReactNative/.test(line),
+    )
+    .filter(
+      line =>
+        !(
+          allowNetworkLogcatFailures &&
+          /ReactNativeJS/.test(line) &&
+          ((/bad connection:/.test(line) && /electrumx\.testnet\.btcv\.stage\.rnd\.land/.test(line)) ||
+            /ElectrumXConnectionError/.test(line))
+        ),
     );
 
   if (failingLines.length > 0) {
