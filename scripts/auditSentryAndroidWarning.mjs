@@ -12,7 +12,7 @@ const dependencies = packageJson.dependencies || {};
 const scripts = packageJson.scripts || {};
 const sentryGradlePath = 'node_modules/@sentry/react-native/sentry.gradle';
 const sentryGradleKtsPath = 'node_modules/@sentry/react-native/sentry.gradle.kts';
-const expectedSentryReactNativeVersion = '8.16.0';
+const expectedSentryReactNativeVersion = '8.17.1';
 
 const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {
