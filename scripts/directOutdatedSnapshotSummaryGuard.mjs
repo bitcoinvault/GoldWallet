@@ -15,16 +15,25 @@ const requiredKnownEntries = [
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
   ['@babel/traverse', 'resolutionDependencies'],
+  ['@react-navigation/bottom-tabs', 'dependencies'],
+  ['@react-navigation/native', 'dependencies'],
+  ['@react-navigation/stack', 'dependencies'],
+  ['@sentry/react-native', 'dependencies'],
+  ['@typescript-eslint/eslint-plugin', 'devDependencies'],
+  ['@typescript-eslint/parser', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
+  ['bignumber.js', 'dependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
   ['caniuse-lite', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
-  ['i18next', 'dependencies'],
+  ['prettier', 'devDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
+  ['react-native-toast-message', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
+  ['typescript', 'devDependencies'],
 ];
 const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
 
@@ -229,17 +238,31 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
   }
 
   if (
-    entryLines.some(line => line.startsWith('- i18next: ')) &&
-    !entryLines.some(line => line.startsWith('- i18next: ') && line.includes('dedicated localization runtime branch') && line.includes('translation checks') && line.includes('react-i18next compatibility proof'))
-  ) {
-    errors.push('i18next drift must remain tied to a dedicated localization runtime branch decision with translation and react-i18next proof');
-  }
-
-  if (
     entryLines.some(line => line.startsWith('- prettier: ')) &&
     !entryLines.some(line => line.startsWith('- prettier: ') && line.includes('dedicated formatting/tooling branch') && line.includes('no broad formatting churn') && line.includes('precommit'))
   ) {
     errors.push('Prettier drift must remain tied to a dedicated formatting/tooling branch decision without broad formatting churn');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- bignumber.js: ')) &&
+    !entryLines.some(line => line.startsWith('- bignumber.js: ') && line.includes('dedicated wallet amount branch') && line.includes('transaction fixtures') && line.includes('Android emulator proof'))
+  ) {
+    errors.push('bignumber.js drift must remain tied to a dedicated wallet amount branch with transaction fixtures and Android emulator proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- react-native-toast-message: ')) &&
+    !entryLines.some(line => line.startsWith('- react-native-toast-message: ') && line.includes('dedicated notification UI branch') && line.includes('Android emulator proof'))
+  ) {
+    errors.push('react-native-toast-message drift must remain tied to a dedicated notification UI branch with Android emulator proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- typescript: ')) &&
+    !entryLines.some(line => line.startsWith('- typescript: ') && line.includes('TypeScript 7 major drift') && line.includes('dedicated compiler branch') && line.includes('RN/Metro proof'))
+  ) {
+    errors.push('TypeScript major drift must remain tied to a dedicated compiler branch with RN/Metro proof');
   }
 
   if (

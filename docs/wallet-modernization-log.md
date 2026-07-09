@@ -10,6 +10,63 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.823 - i18next/react-i18next runtime refresh
+
+- Branch: `feature/bem-37-823-i18next-runtime-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the localization runtime pair to the live npm latest targets checked on `2026-07-10`:
+  `i18next` `26.3.2` -> `26.3.6` and `react-i18next` `17.0.8` -> `17.0.9`.
+- Keep the localization change isolated from navigation, Sentry, TypeScript, numeric, toast, and tooling drifts that appeared in the live direct-outdated snapshot.
+- Refresh the direct-outdated snapshot guard and docs so newly detected non-i18n drift has explicit dedicated-branch decisions instead of `review-required` placeholders.
+- Rebuild the Android dev bundle with a forced `:app:createBundleDevDebugJsAndAssets --rerun-tasks` before repackaging the APK.
+
+Findings:
+
+- npm metadata on `2026-07-10` reports `i18next@26.3.6` and `react-i18next@17.0.9` as current latest targets.
+- `react-i18next@17.0.9` peers on `i18next >= 26.2.0`, `react >= 16.8.0`, and `typescript ^5 || ^6 || ^7`; the current app package set satisfies that runtime peer surface.
+- Translation validation passes; the generated `scripts/missing-translations/*_to-improve.js` files were restored after validation because they are generated check output, not branch scope.
+- Direct outdated snapshot now reports `28` entries: `24` blocked decisions, `4` exotic wallet forks, and `0` review-required entries.
+- New live drifts for React Navigation, Sentry, TypeScript ESLint, Prettier, TypeScript 7, `bignumber.js`, and `react-native-toast-message` are recorded as follow-up dedicated-branch decisions, not mixed into this localization branch.
+- Android `devDebug` assemble passes with JDK 17 after regenerating React Native CLI/autolinking config.
+- Forced Android bundle rebuild writes `android/app/build/generated/assets/react/devDebug/index.android.bundle`; the repackaged APK SHA-256 is `cdbca062dc284f9bead9a6f02ac4f3664c0d52f8062c3d42ba95f86c6092320e`.
+- Reduced Android no-network embedded smoke passes on emulator `emulator-5554` with expected UI text `No network`, first-run terms/PIN/transaction-password setup, and no fatal/runtime logcat findings.
+- Full Android embedded smoke installs and launches the same APK, completes first-run setup, then reaches the known external dev/testnet Electrum blocker instead of the empty dashboard.
+- The current blocker is still `electrumx.testnet.btcv.stage.rnd.land:443 tls`; its TLS certificate expired on `Tue Jun 23 16:52:40 GMT 2026`, with fresh logcat evidence from `2026-07-09T22:48:32Z`.
+- iOS runtime validation remains blocked on Windows; static iOS checks pass, while `ios/Podfile.lock` still has `12` drift issues and needs macOS/Xcode/CocoaPods refresh before archive proof can be claimed.
+
+Validation:
+
+- `npm view i18next version peerDependencies dependencies engines dist-tags --json`
+- `npm view react-i18next version peerDependencies dependencies engines dist-tags --json`
+- `corepack yarn node:runtime:yarn add --exact i18next@26.3.6 react-i18next@17.0.9`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn translate:check-missing`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:audit`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:plan`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:check-plan`
+- `corepack yarn node:runtime:yarn metro:dev-runtime:audit`
+- `corepack yarn node:runtime:yarn react-native config`
+- `npx @react-native-community/cli config`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn node scripts\runAndroidGradle.mjs :app:createBundleDevDebugJsAndAssets --rerun-tasks`
+- `corepack yarn node:runtime:yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn node:runtime:yarn android:dev:smoke:embedded` produced the expected external-network blocker, not a successful full dashboard proof.
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:check-summary`
+
 ### BEM-37.822 - React Navigation patch refresh
 
 - Branch: `feature/bem-37-822-navigation-patch-refresh`
