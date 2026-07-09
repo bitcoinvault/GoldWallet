@@ -50,6 +50,22 @@ const knownDecisions = new Map([
     'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
+    '@react-navigation/bottom-tabs',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  ],
+  [
+    '@react-navigation/native',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  ],
+  [
+    '@react-navigation/stack',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  ],
+  [
+    '@sentry/react-native',
+    'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Sentry prerequisite summaries and no source-map upload claim without credentials',
+  ],
+  [
     '@typescript-eslint/eslint-plugin',
     'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
   ],
@@ -60,6 +76,10 @@ const knownDecisions = new Map([
   [
     'axios',
     'blocked - network client patch drift requires a dedicated storage/network branch with API, Electrum, focused tests, and emulator smoke proof',
+  ],
+  [
+    'bignumber.js',
+    'blocked - numeric runtime patch drift requires a dedicated wallet amount branch with unit tests, transaction fixtures, and Android emulator proof',
   ],
   [
     'bitcoinjs-lib',
@@ -102,6 +122,14 @@ const knownDecisions = new Map([
     'blocked - React Native renderer exact-version coupling requires test renderer to stay aligned with React and RN',
   ],
   [
+    'react-native-toast-message',
+    'blocked - toast UI runtime drift requires a dedicated notification UI branch with Android emulator proof',
+  ],
+  [
+    'typescript',
+    'blocked - TypeScript 7 major drift requires a dedicated compiler branch with TypeScript check, Jest, lint baseline, and RN/Metro proof',
+  ],
+  [
     'bl',
     'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   ],
@@ -116,10 +144,6 @@ const knownDecisions = new Map([
   [
     'eslint',
     'blocked - ESLint patch drift requires a dedicated lint/tooling branch with lint-staged, precommit, TypeScript, and baseline audit proof',
-  ],
-  [
-    'i18next',
-    'blocked - i18next patch drift requires a dedicated localization runtime branch with TypeScript, translation checks, app-start smoke, and react-i18next compatibility proof',
   ],
   [
     'prettier',
