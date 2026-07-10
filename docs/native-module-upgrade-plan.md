@@ -71,7 +71,7 @@ Branch shape:
 - `@react-native-community/slider` is on checked `5.2.0` after `BEM-37.108`; the app has no source imports for Slider, and the package no longer contributes Android `jcenter()` warnings on the RN `0.86.0` baseline.
 - `react-native-vector-icons` is on checked latest `10.3.0` after `BEM-37.110`; the package no longer requires `@react-native-community/toolbar-android` and no longer contributes an Android `jcenter()` warning. Future icon work should focus on the package's per-icon-family migration guidance and iOS font validation rather than another warning-only cleanup.
 - `react-native-gesture-handler` is on latest checked `3.0.2` after `BEM-37.762`; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces on the current RN `0.86.0` New Architecture baseline.
-- `@react-native-community/masked-view` was removed after moving the navigation proof to React Navigation 7; the current `@react-navigation/stack@7.10.5` package no longer requires the old community masked-view runtime path.
+- `@react-native-community/masked-view` was removed after moving the navigation proof to React Navigation 7; the current `@react-navigation/stack@7.10.11` package no longer requires the old community masked-view runtime path.
 - `corepack yarn masked-view:migration:audit` now guards the completed removal state and keeps the warning baseline at one remaining targeted source.
 
 ### Group C - Device, Storage, Network, And Runtime Integrations

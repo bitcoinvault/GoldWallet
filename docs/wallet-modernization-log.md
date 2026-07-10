@@ -10,6 +10,62 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.828 - React Navigation patch refresh
+
+- Branch: `feature/bem-37-828-navigation-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the React Navigation runtime package family checked on `2026-07-10`:
+  `@react-navigation/native` `7.3.7` -> `7.3.8`,
+  `@react-navigation/stack` `7.10.10` -> `7.10.11`,
+  and `@react-navigation/bottom-tabs` `7.18.7` -> `7.18.8`.
+- Keep `@react-navigation/devtools@7.1.5` unchanged because npm metadata reports it as current latest.
+- Keep the branch isolated from native peer bumps, Babel/Metro, React renderer, TypeScript, toast UI, and wallet fork drift.
+- Refresh direct-outdated, navigation/native, masked-view, baseline, and dependency strategy docs/guards so the React Navigation patch family is no longer a known outdated entry.
+
+Findings:
+
+- npm metadata on `2026-07-10` reports `@react-navigation/native@7.3.8`, `@react-navigation/stack@7.10.11`, and `@react-navigation/bottom-tabs@7.18.8` as latest; `@react-navigation/devtools@7.1.5` remains current latest.
+- `@react-navigation/stack@7.10.11` and `@react-navigation/bottom-tabs@7.18.8` peer on `@react-navigation/native ^7.3.8`, `react-native-screens >=4.0.0`, and the current native navigation peers already satisfy those ranges.
+- Masked-view migration remains complete: `@react-native-community/masked-view` is absent, replacement package is not required, and `@react-navigation/stack@7.10.11` does not require the community masked-view path.
+- Direct outdated snapshot now reports `19` entries: `15` known blocked entries, `4` exotic wallet forks, and `0` review-required entries.
+- Android `devDebug` assemble passes with JDK 17 after a forced Metro bundle rebuild.
+- Android no-network embedded smoke passes on emulator `emulator-5554`: APK install, first-run terms/PIN/transaction-password flow, expected `No network` UI, screenshot capture, and no fatal/runtime logcat findings.
+- Full Android embedded smoke installs and launches the APK, completes first-run setup, then reaches the known external dev/testnet Electrum blocker instead of the dashboard/tab validation. Fresh blocker evidence points to `electrumx.testnet.btcv.stage.rnd.land:443 tls`; its TLS certificate expired on `Tue Jun 23 16:52:40 GMT 2026`, compared during this run to `Fri Jul 10 12:06:21 GMT 2026`.
+- iOS runtime validation remains blocked on Windows; static iOS release readiness passes with `0` errors, while `ios/Podfile.lock` still has `12` drift issues and needs macOS/Xcode/CocoaPods refresh before archive proof can be claimed.
+
+Validation:
+
+- `npm view @react-navigation/native version peerDependencies engines --json`
+- `npm view @react-navigation/stack version peerDependencies engines --json`
+- `npm view @react-navigation/bottom-tabs version peerDependencies engines --json`
+- `npm view @react-navigation/devtools version peerDependencies --json`
+- `corepack yarn node:runtime:yarn add --exact @react-navigation/native@7.3.8 @react-navigation/stack@7.10.11 @react-navigation/bottom-tabs@7.18.8`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn masked-view:migration:audit`
+- `corepack yarn masked-view:migration:check-summary`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn react-native config`
+- `npx @react-native-community/cli config`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 node scripts\runAndroidGradle.mjs :app:createBundleDevDebugJsAndAssets --rerun-tasks --stacktrace`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn android:dev:smoke:embedded` produced the expected external Electrum certificate blocker, not successful dashboard/tab proof.
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+
 ### BEM-37.827 - BigNumber runtime patch refresh
 
 - Branch: `feature/bem-37-827-bignumber-runtime-refresh`
