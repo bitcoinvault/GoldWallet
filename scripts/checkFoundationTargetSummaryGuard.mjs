@@ -16,6 +16,7 @@ const requiredCheckerSnippets = [
   "import { getWalletCryptoLatestSnapshotSummaryErrors } from './walletCryptoLatestSnapshotSummaryGuard.mjs';",
   "import { getStorageNetworkLatestSnapshotSummaryErrors } from './storageNetworkLatestSnapshotSummaryGuard.mjs';",
   "import { getToolingLatestSnapshotSummaryErrors } from './toolingLatestSnapshotSummaryGuard.mjs';",
+  "import { getTypescript7CompatibilityProbeSummaryErrors } from './typescript7CompatibilityProbeSummaryGuard.mjs';",
   "import { getAndroidToolchainTargetSummaryErrors } from './androidToolchainTargetSummaryGuard.mjs';",
   "import { getBlResolutionSummaryErrors } from './blResolutionSummaryGuard.mjs';",
   "import { getBabel8MigrationProbeSummaryErrors } from './babel8MigrationProbeSummaryGuard.mjs';",
@@ -37,6 +38,8 @@ const requiredCheckerSnippets = [
   "relativePath: 'local-docs/storage-network-latest-snapshot.txt'",
   "label: 'tooling latest snapshot'",
   "relativePath: 'local-docs/tooling-latest-snapshot.txt'",
+  "label: 'TypeScript 7 compatibility probe'",
+  "relativePath: 'local-docs/typescript7-compatibility-probe-summary.txt'",
   "label: 'Android toolchain target'",
   "relativePath: 'local-docs/android-toolchain-target-summary.txt'",
   "label: 'BL resolution readiness'",
@@ -51,9 +54,12 @@ const requiredCheckerSnippets = [
 
 const requiredPackageScripts = {
   'foundation:target:refresh-online':
-    'yarn check:node-runtime-version && yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn direct-outdated:snapshot:audit && yarn direct-outdated:snapshot:check-summary && yarn react:patch-blocker:audit && yarn react:patch-blocker:check-summary && yarn babel8:migration-probe:audit && yarn babel8:migration-probe:check-summary && yarn babel8:migration-probe:check && yarn git-deps:snapshot:audit && yarn git-deps:snapshot:check-summary && yarn wallet:crypto-latest-snapshot:audit && yarn wallet:crypto-latest-snapshot:check-summary && yarn storage-network:latest-snapshot:audit && yarn storage-network:latest-snapshot:check-summary && yarn tooling:latest-snapshot:audit && yarn tooling:latest-snapshot:check-summary && yarn android:toolchain-target:audit && yarn android:toolchain-target:check-summary && yarn bl:resolution:audit && yarn bl:resolution:check-summary && yarn node-fetch:resolution:audit && yarn node-fetch:resolution:check-summary && yarn foundation:target:check-summaries',
+    'yarn check:node-runtime-version && yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn direct-outdated:snapshot:audit && yarn direct-outdated:snapshot:check-summary && yarn react:patch-blocker:audit && yarn react:patch-blocker:check-summary && yarn babel8:migration-probe:audit && yarn babel8:migration-probe:check-summary && yarn babel8:migration-probe:check && yarn git-deps:snapshot:audit && yarn git-deps:snapshot:check-summary && yarn wallet:crypto-latest-snapshot:audit && yarn wallet:crypto-latest-snapshot:check-summary && yarn storage-network:latest-snapshot:audit && yarn storage-network:latest-snapshot:check-summary && yarn tooling:latest-snapshot:audit && yarn tooling:latest-snapshot:check-summary && yarn typescript7:compatibility-probe:audit && yarn typescript7:compatibility-probe:check-summary && yarn android:toolchain-target:audit && yarn android:toolchain-target:check-summary && yarn bl:resolution:audit && yarn bl:resolution:check-summary && yarn node-fetch:resolution:audit && yarn node-fetch:resolution:check-summary && yarn foundation:target:check-summaries',
   'foundation:target:check-summaries': 'node scripts/checkFoundationTargetSummaryArtifacts.mjs',
   'check:foundation-target-summary-guard': 'node scripts/checkFoundationTargetSummaryGuard.mjs',
+  'typescript7:compatibility-probe:audit': 'node scripts/auditTypescript7CompatibilityProbe.mjs',
+  'typescript7:compatibility-probe:check-summary': 'node scripts/checkTypescript7CompatibilityProbeSummary.mjs',
+  'check:typescript7-compatibility-probe-guard': 'node scripts/checkTypescript7CompatibilityProbeGuard.mjs',
 };
 
 const errors = [];

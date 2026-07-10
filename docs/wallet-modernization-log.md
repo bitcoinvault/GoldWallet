@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.831 - TypeScript 7 compatibility probe
+
+- Branch: `feature/bem-37-831-typescript7-compat-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a live TypeScript 7 compatibility probe that checks `typescript@latest` against the current lint and Jest transform peer ranges.
+- Wire the generated summary into `foundation:target:refresh-online` and `foundation:target:check-summaries` so future foundation target refreshes prove the TypeScript 7 blocker from live npm metadata.
+- Keep `typescript` pinned to the validated `6.0.3` baseline because this branch proves blockers instead of committing a broken peer state.
+
+Findings:
+
+- Live npm metadata on `2026-07-10` reports `typescript@latest` as `7.0.2`, with Node engine `>=16.20.0`, satisfied by the repo Node `v24.16.0`.
+- `@typescript-eslint/parser@8.63.0` and `@typescript-eslint/eslint-plugin@8.63.0` peer on `typescript >=4.8.4 <6.1.0`, so they do not accept TypeScript `7.0.2`.
+- `ts-jest@29.4.11` peers on `typescript >=4.3 <7`, so it also does not accept TypeScript `7.0.2`.
+- The generated TypeScript 7 summary reports `TypeScript 7 package bump allowed: no` and `Blocker classification: tooling-peer-range-blocker`.
+- No dependency versions, runtime code, native code, lockfile, or Metro behavior changed in this branch, so Android emulator smoke is not required for this audit/guard wiring branch.
+
+Validation:
+
+- `npm view typescript version engines --json`
+- `npm view @typescript-eslint/parser version peerDependencies engines --json`
+- `npm view @typescript-eslint/eslint-plugin version peerDependencies engines --json`
+- `npm view ts-jest version peerDependencies engines --json`
+- `corepack yarn check:typescript7-compatibility-probe-guard`
+- `corepack yarn check:foundation-target-summary-guard`
+- `corepack yarn check:rn-upgrade-path-audit-guard`
+- `corepack yarn typescript7:compatibility-probe:audit`
+- `corepack yarn typescript7:compatibility-probe:check-summary`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn foundation:target:check-summaries`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn foundation:target:refresh-online`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.830 - React Native target snapshot refresh
 
 - Branch: `feature/bem-37-830-rn-target-snapshot-refresh`

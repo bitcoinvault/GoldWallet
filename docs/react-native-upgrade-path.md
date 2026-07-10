@@ -13,6 +13,7 @@ React package coupling audit is tracked in `docs/react-package-coupling-audit.md
 React Native renderer exact-version audit is tracked in `docs/react-package-coupling-audit.md`.
 
 Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
+TypeScript 7 compatibility probe is tracked by `corepack yarn typescript7:compatibility-probe:audit`.
 
 ## Current Baseline
 
@@ -92,7 +93,7 @@ The online preflight runs `foundation:target:refresh-online` and then the normal
 corepack yarn foundation:target:check-summaries
 ```
 
-This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, generated React patch blocker evidence, generated Babel 8 blocker evidence, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, Android toolchain blockers, BL resolution, and node-fetch resolution.
+This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, generated React patch blocker evidence, generated Babel 8 blocker evidence, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, the TypeScript 7 peer-range compatibility probe, Android toolchain blockers, BL resolution, and node-fetch resolution.
 
 For foundation milestone branches, also keep the legacy-named foundation plan audit green:
 
