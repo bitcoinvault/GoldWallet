@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.835 - Sentry release prerequisite refresh
+
+- Branch: `feature/bem-37-835-sentry-release-prereq-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the non-secret Sentry release prerequisite evidence after the latest Android release build, controlled release no-network blocker, and iOS static validation evidence changed.
+- Re-run Sentry Android warning, RN bundle-task compatibility, and release prerequisite checks against the current package/toolchain baseline.
+- Keep Sentry source-map upload explicitly unclaimed because local credentials/properties and macOS iOS archive validation are still unavailable.
+
+Findings:
+
+- `sentry:release:validation:preflight` refreshed `local-docs/sentry-android-warning-summary.txt`, `local-docs/sentry-rn-bundle-task-compatibility-summary.txt`, and `local-docs/sentry-release-prereq-summary.txt` without generating or committing Sentry credential files.
+- `@sentry/react-native@8.18.0` and direct `@sentry/cli@3.6.0` remain current latest checked targets; the direct CLI binary is present, executable, and the release integration remains wired.
+- Android warning wiring remains valid with `0` readiness issues, and Sentry/RN bundle-task compatibility remains ready through the repo-owned legacy args shim for RN `0.86.0`.
+- Android release build and APK manifest evidence is current for `dev`, `stage`, `prod`, and `beta`, while full release smoke and release create-wallet proof remain not ready because the dev/testnet release app is blocked by the classified Electrum TLS certificate expiry.
+- The controlled signed `devRelease` no-network smoke evidence is valid and tied to `blocked-by-electrum-certificate-expired`, so Sentry preflight can pass only as a controlled `not ready` state.
+- iOS static readiness remains valid, but macOS archive validation is still not ready on Windows; `ios/Podfile.lock` still has `12` drift issues including `RNScreens 3.6.0` versus package `4.26.0`.
+- `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are still unavailable, so `Sentry release upload validation: not claimed` remains the correct state.
+
+Validation:
+
+- `corepack yarn sentry:release:validation:preflight`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.834 - iOS static validation refresh
 
 - Branch: `feature/bem-37-834-ios-static-validation-refresh`
