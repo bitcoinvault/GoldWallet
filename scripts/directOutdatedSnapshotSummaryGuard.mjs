@@ -18,7 +18,6 @@ const requiredKnownEntries = [
   ['@react-navigation/bottom-tabs', 'dependencies'],
   ['@react-navigation/native', 'dependencies'],
   ['@react-navigation/stack', 'dependencies'],
-  ['@sentry/react-native', 'dependencies'],
   ['@typescript-eslint/eslint-plugin', 'devDependencies'],
   ['@typescript-eslint/parser', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
@@ -30,6 +29,7 @@ const requiredKnownEntries = [
   ['prettier', 'devDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
+  ['react-native-screens', 'dependencies'],
   ['react-native-toast-message', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
@@ -214,6 +214,19 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     !entryLines.every(line => !line.startsWith('- @react-navigation/') || (line.includes('dedicated navigation smoke branch') && line.includes('tab navigation') && line.includes('Android emulator proof')))
   ) {
     errors.push('React Navigation drift must remain tied to a dedicated navigation smoke branch decision with Android emulator proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- react-native-screens: ')) &&
+    !entryLines.some(
+      line =>
+        line.startsWith('- react-native-screens: ') &&
+        line.includes('dedicated navigation/native-screens branch') &&
+        line.includes('stack/tab navigation') &&
+        line.includes('Android emulator proof'),
+    )
+  ) {
+    errors.push('react-native-screens drift must remain tied to a dedicated navigation/native-screens branch decision with Android emulator proof');
   }
 
   if (

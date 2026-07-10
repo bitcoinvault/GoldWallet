@@ -10,6 +10,74 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.824 - Sentry release-services patch refresh
+
+- Branch: `feature/bem-37-824-sentry-release-services-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@sentry/react-native` from `8.17.1` to the live npm latest `8.18.0` checked on `2026-07-10`.
+- Keep the Sentry patch isolated from navigation, TypeScript tooling, numeric, toast, and other direct-outdated drift that remains assigned to separate modernization branches.
+- Refresh Sentry release-prerequisite, Android warning, RN bundle-task compatibility, direct-outdated, native inventory, iOS static readiness, and release-services docs/guards so the checked baseline is `8.18.0`.
+- Rebuild Android release artifacts for `dev`, `stage`, `prod`, and `beta` with Sentry auto-upload disabled before claiming release-services readiness.
+
+Findings:
+
+- npm metadata on `2026-07-10` reports `@sentry/react-native@8.18.0` as latest; its React Native peer remains compatible with the current RN `0.86.0` baseline.
+- Direct `@sentry/cli@3.6.0` remains current and installed from the root package; nested Sentry-owned CLI package versions are absent.
+- The direct-outdated snapshot now reports `28` entries after removing Sentry from the outstanding drift list and classifying the new `react-native-screens@4.26.0` patch drift as a separate navigation/native-screens branch; remaining entries stay classified as known blocked or exotic, with `0` review-required entries.
+- Sentry Android warning evidence is stable: the current SDK routes through `sentry.gradle.kts`, no active Sentry `execResult` warning is reported, and RN bundle-task compatibility remains ready through the repo-owned legacy args shim.
+- Android release validation passes for `dev`, `stage`, `prod`, and `beta` with `SENTRY_DISABLE_AUTO_UPLOAD=true`; credentialed Sentry upload is not claimed.
+- The first fresh Sentry native release build hit a transient Windows/NDK CMake failure in `:sentry_react-native:buildCMakeRelWithDebInfo[arm64-v8a]`; the isolated task rerun passed, and the full Android release validation passed afterward.
+- Android release no-network smoke passes on emulator `emulator-5554`; the full release smoke and create-wallet proof remain blocked by the external dev/testnet Electrum TLS certificate expiry, not by the Sentry package refresh.
+- The current external blocker is still `electrumx.testnet.btcv.stage.rnd.land:443 tls`; release-services aggregate validation accepts only the classified `blocked-by-electrum-certificate-expired` state.
+- Sentry source-map and dSYM upload validation remains blocked locally because `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are unavailable.
+- iOS runtime/archive validation remains blocked on this Windows host; static iOS checks pass, while `ios/Podfile.lock` still reports `12` drift issues and needs macOS/Xcode/CocoaPods refresh before archive proof can be claimed.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies dependencies engines dist-tags --json`
+- `corepack yarn node:runtime:yarn add --exact @sentry/react-native@8.18.0`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn node:runtime:yarn sentry:android-warning:audit`
+- `corepack yarn node:runtime:yarn sentry:android-warning:check-summary`
+- `corepack yarn node:runtime:yarn check:sentry-android-warning-summary-guard`
+- `corepack yarn node:runtime:yarn sentry:rn-bundle-task-compat:audit`
+- `corepack yarn node:runtime:yarn sentry:rn-bundle-task-compat:check-summary`
+- `corepack yarn node:runtime:yarn check:sentry-rn-bundle-task-compat-summary-guard`
+- `corepack yarn node:runtime:yarn sentry:release:credential-plan`
+- `corepack yarn node:runtime:yarn sentry:release:credential-plan:check`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-audit`
+- `corepack yarn node:runtime:yarn sentry:release:prereq-check-summary`
+- `corepack yarn node:runtime:yarn sentry:release:validation:handoff:dry-run`
+- `corepack yarn node:runtime:yarn release-services:check-summaries`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `corepack yarn node:runtime:yarn android:dev:release:smoke:embedded` produced the expected external-network blocker, not a successful full dashboard proof.
+- `ANDROID_SMOKE_EXPECT_UI_TEXTS=No network ANDROID_SMOKE_EXPECT_RESOURCE_IDS=" " ANDROID_SMOKE_ALLOW_NETWORK_LOGCAT_FAILURES=true corepack yarn node:runtime:yarn android:dev:release:smoke:embedded`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn node:runtime:yarn check:rn-nodeify-shims`
+- `corepack yarn node:runtime:yarn typescript:check`
+- `corepack yarn node:runtime:yarn test:unit --runInBand`
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn lint:baseline:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:check-summary`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:audit`
+- `corepack yarn node:runtime:yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:plan`
+- `corepack yarn node:runtime:yarn ios:podfile-refresh:check-plan`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble`
+- `corepack yarn node:runtime:yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn node:runtime:yarn android:dev:smoke:embedded` produced the expected external-network blocker, not a successful full dashboard proof.
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:audit`
+- `corepack yarn node:runtime:yarn android:dev:network-blocker:check-summary`
+- `corepack yarn node:runtime:yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.823 - i18next/react-i18next runtime refresh
 
 - Branch: `feature/bem-37-823-i18next-runtime-refresh`

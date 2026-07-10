@@ -108,15 +108,6 @@ const validEntries = [
     decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
   },
   {
-    name: '@sentry/react-native',
-    current: '8.17.1',
-    wanted: '8.17.1',
-    latest: '8.18.0',
-    type: 'dependencies',
-    decision:
-      'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Sentry prerequisite summaries and no source-map upload claim without credentials',
-  },
-  {
     name: '@typescript-eslint/eslint-plugin',
     current: '8.62.1',
     wanted: '8.62.1',
@@ -203,6 +194,14 @@ const validEntries = [
     latest: 'exotic',
     type: 'dependencies',
     decision: 'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
+  },
+  {
+    name: 'react-native-screens',
+    current: '4.25.2',
+    wanted: '4.25.2',
+    latest: '4.26.0',
+    type: 'dependencies',
+    decision: 'blocked - native screens patch drift requires a dedicated navigation/native-screens branch with stack/tab navigation and Android emulator proof',
   },
   {
     name: 'react-native-toast-message',
@@ -309,9 +308,9 @@ assertRejected(
   'dedicated navigation smoke branch',
 );
 assertRejected(
-  'Missing Sentry blocker fixture',
-  validSummary.replace('Sentry prerequisite summaries', 'generic sentry patch branch'),
-  'dedicated release-services branch',
+  'Missing native screens blocker fixture',
+  validSummary.replace('dedicated navigation/native-screens branch', 'generic screens patch branch'),
+  'dedicated navigation/native-screens branch',
 );
 assertRejected(
   'Missing bignumber blocker fixture',
