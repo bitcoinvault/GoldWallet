@@ -158,6 +158,8 @@ Passing:
 - `corepack yarn android:dev:assemble` on JDK 17
 - `corepack yarn android:dev:verify` on a connected Android emulator
 - `android:dev:verify` runs the embedded dev smoke path after rebuilding the APK, so the default verification flow validates the bundled APK without requiring Metro.
+- `corepack yarn android:dev:release:verify-local` currently rebuilds and validates `dev`, `stage`, `prod`, and `beta` release APK, JS bundle, source-map, and manifest evidence with JDK 17, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, target SDK `36`, and Sentry auto-upload disabled.
+- Latest local Android release build evidence on `2026-07-10` recorded release-input fingerprint `38811a1fc5979952bd4b67318360de3cc9960b75aa91a91f93dc62e28578d859` across `508` files; it proves release package generation only and does not claim Sentry upload, release runtime smoke, or release create-wallet validation.
 - Android smoke helper validates app PID logcat, foreground focus, dashboard UI text, UI hierarchy artifact, and startup screenshot
 - Android smoke helper polls UI readiness after startup so clean Metro-cache runs do not fail on a transient bootsplash hierarchy
 - Android smoke helper writes `local-docs/android-smoke-dev-summary.txt` with generated timestamp, outcome, exit code, selected serial, Metro endpoint/reachability, app PID, logcat count, UI attempts, UI hierarchy path, screenshot path, and screenshot byte count
