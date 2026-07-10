@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.832 - Android release build evidence refresh
+
+- Branch: `feature/bem-37-832-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh local Android release APK, JS bundle, source-map, and manifest evidence for the current RN `0.86.0` / AGP `8.13.2` / SDK `36` baseline after the latest foundation snapshot and guard wiring branches.
+- Keep this as a build-evidence branch only: no dependency versions, native source, runtime app code, Metro behavior, or lockfile entries are changed.
+- Record the refreshed release-input fingerprint in tracked docs while keeping generated APKs, source maps, manifests, and validation summaries under ignored `local-docs/` and Android build output paths.
+
+Findings:
+
+- `android:dev:release:verify-local` rebuilt `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin Gradle Plugin `2.1.20`, compile SDK `36`, and target SDK `36`.
+- All four release variants exited with code `0` on the first Gradle attempt; no transient retry was needed.
+- The refreshed release-input fingerprint is `38811a1fc5979952bd4b67318360de3cc9960b75aa91a91f93dc62e28578d859` across `508` input files.
+- Unsigned release APK SHA-256 values: `dev` `cd7223b6ccb9cb45ad7f5f7fe22a705ca63f4932edc16f1653c1fcaf6d5589df`, `stage` `58fd3543f89eb93166164eb9fb8a31721609b6d51a5f4be264abd2533a4447ef`, `prod` `f732e52a0d4a6d36768be34d2d86f734866548661182f2bf502237e500921602`, `beta` `91e59f3465abcb346a77ff0daf4b688a63fd7769d6d628c71b5b445dab84202e`.
+- The generated release JS bundle SHA-256 is `1bf05aa12f4211fef14cf8bbb790aaf47e8146420e3a867b6f32582138303fe5` for every release variant; the generated release source-map SHA-256 is `adf9437a78ba85d5a782d5a04a1d6fec63835f23db0519c8a5efe4787e6711a8` for every release variant.
+- Sentry auto-upload stayed disabled for the local release build, so Sentry source-map upload remains explicitly not claimed until `SENTRY_AUTH_TOKEN` and root/Android/iOS `sentry.properties` are available.
+- This branch does not refresh release runtime smoke or release create-wallet evidence; it proves release package generation and manifest contents only.
+
+Validation:
+
+- `corepack yarn android:dev:release:verify-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn android:dev:release:check-apk-manifest`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.831 - TypeScript 7 compatibility probe
 
 - Branch: `feature/bem-37-831-typescript7-compat-probe`
