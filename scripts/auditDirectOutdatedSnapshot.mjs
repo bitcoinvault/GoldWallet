@@ -94,6 +94,10 @@ const knownDecisions = new Map([
     'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
   ],
   [
+    'react-native-screens',
+    'blocked - native screens patch drift requires a dedicated navigation/native-screens branch with stack/tab navigation and Android emulator proof',
+  ],
+  [
     'rn-nodeify',
     'exotic - GitHub pin is guarded by rn-nodeify shim checks and git dependency snapshot',
   ],
