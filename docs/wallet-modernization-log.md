@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.837 - Camera/QR candidate metadata refresh
+
+- Branch: `feature/bem-37-837-camera-qr-readiness-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Camera/QR candidate metadata after live npm moved the latest VisionCamera line from `react-native-vision-camera@5.0.11` to `react-native-vision-camera@5.1.0`.
+- Keep `react-native-camera-kit@18.0.0` as the installed scanner baseline and avoid runtime/native/package changes in this branch.
+- Update Camera/QR guards and planning docs so future scanner work fails on real metadata drift instead of stale expected versions.
+
+Findings:
+
+- The first `camera:qr-validation:handoff` run failed because live npm metadata now reports `react-native-vision-camera@5.1.0` while the guard still expected `5.0.11`.
+- `react-native-vision-camera@5.1.0` still requires the Nitro native peer stack through `react-native-nitro-modules` and `react-native-nitro-image`, so VisionCamera remains deferred to a larger native/RN milestone.
+- `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` still match live npm latest metadata and remain the current Camera/QR baseline.
+- QR scanner usage remains scoped to `src/screens/ScanQrCodeScreen.tsx`; the scanner caller inventory still reports `8` callers and the QR render inventory still reports `5` screens.
+- Focused QR scanner and QR render unit tests passed during the handoff run.
+- Removed camera pods remain absent from `ios/Podfile.lock`, but the broader iOS lockfile still has `12` drift issues and needs macOS `pod install` plus scanner runtime validation before any iOS claim.
+- `camera:qr-validation:summary` is valid for candidate/migration evidence, but Android dev/release validation evidence remains not ready because current smoke summaries are failed, no-network, or stale. No runtime/native/package change was made here, so this branch does not claim new emulator smoke validation.
+
+Validation:
+
+- `corepack yarn camera:qr-validation:handoff`
+- `corepack yarn check:camera-candidate-summary-guard`
+- `corepack yarn check:camera-qr-validation-handoff-guard`
+- `corepack yarn camera:qr-validation:summary`
+- `corepack yarn camera:qr-validation:check-summary`
+- `corepack yarn check:camera-qr-validation-summary-guard`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.836 - Foundation target online refresh
 
 - Branch: `feature/bem-37-836-rn-target-snapshot-refresh`

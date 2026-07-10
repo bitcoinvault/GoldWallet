@@ -10,12 +10,12 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
-export const cameraCandidateMetadataCheckedOn = '2026-06-17';
+export const cameraCandidateMetadataCheckedOn = '2026-07-10';
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 const expectedCameraMetadata = {
   legacyCameraLatest: 'react-native-camera@4.2.1',
-  visionCameraLatest: 'react-native-vision-camera@5.0.11',
+  visionCameraLatest: 'react-native-vision-camera@5.1.0',
   visionCameraRequiredPeers: ['react-native-nitro-modules', 'react-native-nitro-image'],
   visionCameraPeerRanges: {
     react: '*',
@@ -141,7 +141,7 @@ export const collectCameraCandidateAudit = () => {
   }
 
   [
-    'react-native-vision-camera@5.0.11',
+    'react-native-vision-camera@5.1.0',
     'react-native-nitro-modules',
     'react-native-nitro-image',
     'react-native-camera-kit@18.0.0',
