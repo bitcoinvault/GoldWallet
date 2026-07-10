@@ -116,14 +116,6 @@ const validEntries = [
     decision: 'blocked - polyfill plugin major drift belongs with a dedicated RN/Metro/Babel branch so Babel runtime and bundle transforms stay aligned',
   },
   {
-    name: 'bignumber.js',
-    current: '11.1.4',
-    wanted: '11.1.4',
-    latest: '11.1.5',
-    type: 'dependencies',
-    decision: 'blocked - numeric runtime patch drift requires a dedicated wallet amount branch with unit tests, transaction fixtures, and Android emulator proof',
-  },
-  {
     name: 'bitcoinjs-lib',
     current: '5.1.6',
     wanted: 'exotic',
@@ -235,10 +227,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 23', 'Entries: 22'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 22', 'Entries: 21'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 23', 'Entries: 24').replace(
+  validSummary.replace('Entries: 22', 'Entries: 23').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -261,11 +253,6 @@ assertRejected(
   'Missing React Navigation blocker fixture',
   validSummary.replace('dedicated navigation smoke branch with tab navigation', 'generic navigation patch branch'),
   'dedicated navigation smoke branch',
-);
-assertRejected(
-  'Missing bignumber blocker fixture',
-  validSummary.replace('dedicated wallet amount branch with unit tests', 'generic numeric patch branch'),
-  'dedicated wallet amount branch',
 );
 assertRejected(
   'Missing toast blocker fixture',
