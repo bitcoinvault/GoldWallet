@@ -75,6 +75,17 @@
 - `sentry:release:validation:preflight` passes in the current not-ready state only after `android:dev:release:network-blocker:check-summary` and the Sentry prerequisite summary both classify the release blocker as `blocked-by-electrum-certificate-expired`.
 - `release-services:check-summaries` remains intentionally stricter than Sentry preflight and should stay red until full release-smoke and release create-wallet evidence can be regenerated.
 
+## 2026-07-10 Preflight Refresh
+
+- `sentry:release:validation:preflight` was rerun after the latest Android release build evidence, controlled Android release no-network blocker evidence, and iOS static validation evidence changed.
+- The Sentry release prerequisite summary reports `@sentry/react-native@8.18.0` and direct `@sentry/cli@3.6.0` as current latest checked targets, with the direct CLI binary present and executable.
+- `sentry:android-warning:audit` reports Sentry Android warning wiring valid, `0` readiness issues, and no active Sentry `execResult` warning on the RN `0.86.0` baseline.
+- `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim for RN `0.86.0`.
+- Android release build and APK manifest evidence is current for `dev`, `stage`, `prod`, and `beta`, but Sentry release smoke evidence remains not ready because the full dashboard and release create-wallet proofs are blocked by the dev/testnet `No network` state.
+- The reduced signed `devRelease` no-network smoke proof is valid and the network blocker summary is classified as `blocked-by-electrum-certificate-expired`, so the Sentry preflight may pass only as a controlled `not ready` state.
+- iOS static readiness remains valid, but iOS macOS archive validation is not ready on this Windows host; `ios/Podfile.lock` still has 12 active drift issues, including `RNScreens 3.6.0` versus package `4.26.0`.
+- `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are missing, so source-map/dSYM upload validation remains explicitly not claimed.
+
 ## Credential Handoff Gate
 
 Credential owner input required before claiming release source-map validation:

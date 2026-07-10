@@ -8,7 +8,7 @@ Updated on `upgrade/wallet-modernization` after the Android SDK/toolchain, warni
 
 - Integration branch: `upgrade/wallet-modernization`
 - Current task branch model: focused feature branches merged locally into `upgrade/wallet-modernization`.
-- Latest completed stream: Android SDK/toolchain modernization, Android warning audit hardening, Android smoke helper hardening, lightweight validation guard/self-check hardening, current camera/Sentry warning-source audits, modernization log ID guard, and React Native baseline preflight evidence.
+- Latest completed stream: Android SDK/toolchain modernization, Android warning audit hardening, Android smoke helper hardening, lightweight validation guard/self-check hardening, current camera/Sentry warning-source audits, release-services evidence refreshes, modernization log ID guard, and React Native baseline preflight evidence.
 
 All modernization work should be developed on focused task branches and merged into `upgrade/wallet-modernization`. The integration branch should be merged back to the main development line only after a tested modernization milestone.
 
