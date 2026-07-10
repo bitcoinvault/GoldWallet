@@ -78,10 +78,6 @@ const knownDecisions = new Map([
     'blocked - network client patch drift requires a dedicated storage/network branch with API, Electrum, focused tests, and emulator smoke proof',
   ],
   [
-    'bignumber.js',
-    'blocked - numeric runtime patch drift requires a dedicated wallet amount branch with unit tests, transaction fixtures, and Android emulator proof',
-  ],
-  [
     'bitcoinjs-lib',
     'exotic - BitcoinVault fork is tracked by git dependency snapshot; do not replace with upstream npm without wallet compatibility proof',
   ],

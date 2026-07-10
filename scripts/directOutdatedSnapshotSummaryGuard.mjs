@@ -19,7 +19,6 @@ const requiredKnownEntries = [
   ['@react-navigation/native', 'dependencies'],
   ['@react-navigation/stack', 'dependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
-  ['bignumber.js', 'dependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],

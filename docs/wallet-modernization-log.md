@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.827 - BigNumber runtime patch refresh
+
+- Branch: `feature/bem-37-827-bignumber-runtime-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade wallet amount arithmetic dependency `bignumber.js` from `11.1.4` to live npm latest `11.1.5`.
+- Keep numeric runtime drift isolated from React renderer, Babel/Metro, TypeScript, navigation, toast UI, and wallet fork drift.
+- Refresh direct-outdated and dependency strategy docs/guards so `bignumber.js` is no longer a known outdated entry after the wallet amount branch.
+
+Findings:
+
+- npm metadata on `2026-07-10` reports `bignumber.js@11.1.5` as latest.
+- Pre/post Node money-math probes keep the same outputs for one-satoshi division, satoshi conversion, fee-rate division, amount-plus-fee arithmetic, and minimum-satoshi comparison.
+- Direct outdated snapshot now reports `22` entries: `18` known blocked entries, `4` exotic wallet forks, and `0` review-required entries.
+- Android no-network embedded smoke passes on emulator `emulator-5554`: APK install, first-run terms/PIN/transaction-password flow, expected `No network` UI, screenshot capture, and no fatal/runtime logcat findings. The first smoke attempt hit the emulator storage preflight; uninstalling the stale dev package and running Android cache trim restored the standard `3x` storage threshold before the passing run.
+
+Validation:
+
+- `npm view bignumber.js version --json`
+- `corepack yarn node:runtime:yarn add --exact bignumber.js@11.1.5`
+- `node -e "<money-math BigNumber probe>"`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn wallet:crypto-runtime:audit`
+- `corepack yarn check:transaction-details-amount-labels`
+- `corepack yarn test:wallet-crypto:offline`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn upgrade:strategy:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn check:diff-whitespace`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:no-network:embedded`
+- `git diff --check`
+
 ### BEM-37.826 - Tooling patch refresh
 
 - Branch: `feature/bem-37-826-tooling-patch-refresh`
