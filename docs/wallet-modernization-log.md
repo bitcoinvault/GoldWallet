@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.830 - React Native target snapshot refresh
+
+- Branch: `feature/bem-37-830-rn-target-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded React Native target snapshot after live npm checks on `2026-07-10`.
+- Keep the branch as foundation evidence only: no React Native, React, Metro, Android, or lockfile runtime packages are changed.
+- Refresh current baseline and foundation target matrix wording so future RN work starts from current stable/latest evidence instead of stale RC/nightly metadata.
+
+Findings:
+
+- Live npm metadata reports `react-native@latest` as `0.86.0`, matching the current repo baseline.
+- npm `next` moved from `0.86.0-rc.3` to `0.87.0-rc.0`; it is still classified as a prerelease channel and remains planning evidence, not the default wallet target.
+- npm `nightly` moved from `0.87.0-nightly-20260705-e04ff69ab` to `0.88.0-nightly-20260710-102fde7b6`; it remains planning evidence only.
+- `react-native@0.86.0` still peers React as `^19.2.3` and still declares Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- Full foundation target refresh passes with current evidence: direct outdated reports `18` entries (`14` known blocked, `4` exotic, `0` review-required), React patch drift remains blocked by renderer exact-version coupling, Babel 8 remains blocked by the RN `0.86.0` Babel preset plugin stack, AGP 9 remains blocked by RN Gradle plugin/Kotlin metadata compatibility, and `bl@7.0.6` remains blocked for CommonJS consumers.
+
+Validation:
+
+- `corepack yarn check:rn-target-snapshot-guard`
+- `corepack yarn check:rn-target-snapshot-current-guard`
+- `corepack yarn check:rn-target-snapshot-summary-guard`
+- `corepack yarn rn:target-snapshot:audit`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn foundation:target:refresh-online`
+- `corepack yarn foundation:target:check-summaries`
+- `corepack yarn rn:upgrade-path:audit`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.829 - Toast message runtime refresh
 
 - Branch: `feature/bem-37-829-toast-message-refresh`
