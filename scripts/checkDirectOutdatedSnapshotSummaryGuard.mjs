@@ -196,14 +196,6 @@ const validEntries = [
     decision: 'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
   },
   {
-    name: 'react-native-screens',
-    current: '4.25.2',
-    wanted: '4.25.2',
-    latest: '4.26.0',
-    type: 'dependencies',
-    decision: 'blocked - native screens patch drift requires a dedicated navigation/native-screens branch with stack/tab navigation and Android emulator proof',
-  },
-  {
     name: 'react-native-toast-message',
     current: '2.3.3',
     wanted: '2.3.3',
@@ -275,10 +267,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 28', 'Entries: 27'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 27', 'Entries: 26'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 28', 'Entries: 29').replace(
+  validSummary.replace('Entries: 27', 'Entries: 28').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -306,11 +298,6 @@ assertRejected(
   'Missing React Navigation blocker fixture',
   validSummary.replace('dedicated navigation smoke branch with tab navigation', 'generic navigation patch branch'),
   'dedicated navigation smoke branch',
-);
-assertRejected(
-  'Missing native screens blocker fixture',
-  validSummary.replace('dedicated navigation/native-screens branch', 'generic screens patch branch'),
-  'dedicated navigation/native-screens branch',
 );
 assertRejected(
   'Missing bignumber blocker fixture',

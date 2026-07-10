@@ -10,7 +10,7 @@ const currentPodfileLockDriftLines = [
   '- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 25.1.0',
   '- ios/Podfile.lock has RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.0.2',
   '- ios/Podfile.lock has RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
-  '- ios/Podfile.lock has RNScreens 3.6.0; package.json has react-native-screens 4.25.2',
+  '- ios/Podfile.lock has RNScreens 3.6.0; package.json has react-native-screens 4.26.0',
   '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.18.0',
   '- ios/Podfile.lock has RNVectorIcons 6.6.0; package.json has react-native-vector-icons 10.3.0',
 ];

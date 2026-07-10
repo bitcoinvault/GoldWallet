@@ -10,6 +10,58 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.825 - Native screens patch refresh
+
+- Branch: `feature/bem-37-825-native-screens-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-screens` from `4.25.2` to the live npm latest `4.26.0` checked on `2026-07-10`.
+- Keep the native screens patch isolated from React Navigation, Babel/Metro, TypeScript, numeric, toast, and other direct-outdated drift that remains assigned to separate modernization branches.
+- Refresh direct-outdated, native module inventory, navigation/native compatibility, iOS static readiness, and upgrade-plan docs/guards so the checked baseline is `react-native-screens@4.26.0`.
+
+Findings:
+
+- npm metadata on `2026-07-10` reports `react-native-screens@4.26.0` as latest, with peer dependency `react-native >=0.84.0`; the current RN `0.86.0` baseline satisfies that peer.
+- Direct outdated snapshot now reports `27` entries: `23` known blocked entries, `4` exotic wallet forks, and `0` review-required entries; `react-native-screens` is no longer outstanding drift.
+- Native module inventory remains stable at `33` dependencies after the screens patch.
+- Android `devDebug` assemble passes with JDK 17; `react-native-screens` CMake debug tasks compile for `arm64-v8a`, `armeabi-v7a`, `x86`, and `x86_64`.
+- Android no-network embedded smoke passes on emulator `emulator-5554`: APK install, first-run terms/PIN/transaction-password flow, expected `No network` UI, screenshot capture, and no fatal/runtime logcat findings.
+- Full Android embedded smoke installs and launches the same APK, completes first-run setup, then remains blocked before empty-dashboard proof by the external dev/testnet Electrum TLS certificate expiry.
+- The current external blocker is `electrumx.testnet.btcv.stage.rnd.land:443 tls`; logcat shows `CertificateExpiredException`, certificate expired at `Tue Jun 23 16:52:40 GMT 2026`, compared against `Fri Jul 10 10:58:48 GMT 2026`.
+- iOS runtime/archive validation remains blocked on this Windows host; static iOS checks pass, while `ios/Podfile.lock` still has `12` drift issues including `RNScreens 3.6.0` versus package `4.26.0` and needs macOS/Xcode/CocoaPods refresh before archive proof can be claimed.
+
+Validation:
+
+- `npm view react-native-screens version peerDependencies --json`
+- `corepack yarn node:runtime:yarn add --exact react-native-screens@4.26.0`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:ios-podfile-refresh-plan-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:podfile-refresh:plan`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn ios:podfile-refresh:check-plan`
+- `corepack yarn ios:mac-validation-prereq:audit`
+- `corepack yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn android:dev:smoke:embedded` produced the expected external-network blocker, not a successful full dashboard proof.
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.824 - Sentry release-services patch refresh
 
 - Branch: `feature/bem-37-824-sentry-release-services-refresh`

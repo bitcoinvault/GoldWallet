@@ -29,7 +29,6 @@ const requiredKnownEntries = [
   ['prettier', 'devDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
-  ['react-native-screens', 'dependencies'],
   ['react-native-toast-message', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
