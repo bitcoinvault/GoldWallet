@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.834 - iOS static validation refresh
+
+- Branch: `feature/bem-37-834-ios-static-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Windows-safe iOS release/static validation evidence after the latest Android release and release-services evidence branches.
+- Re-run the all-schemes iOS macOS validation preflight so the handoff summary, Podfile.lock refresh plan, and macOS dry-run command sequence are current.
+- Keep iOS runtime/archive validation explicitly unclaimed on this Windows host.
+
+Findings:
+
+- `ios:mac-validation:handoff:preflight --all-schemes` refreshed static iOS release readiness, macOS prerequisite, Podfile.lock refresh plan, validation handoff summary, and all-scheme macOS dry-run evidence.
+- Static iOS release files remain valid for React Native `0.86.0`, minimum iOS `15.1`, minimum Xcode `16.1`, Podfile platform `15.1`, Xcode deployment targets `15.1`, `8` guarded shared schemes, `4` Sentry bundle/source-map phases, `3` Sentry dSYM upload phases, `0` CodePush plist placeholders, and `4` remote-notification plists.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh and reports `12` active drift issues against the current package baseline: React-Core, RNBootSplash, react-native-config, RNCAsyncStorage, RNDeviceInfo, RNFastImage, RNFBApp, RNGestureHandler, RNLocalize, RNScreens, RNSentry, and RNVectorIcons.
+- Removed Podfile.lock pod references remain `0`, so the stale lockfile drift is the broader RN/native package refresh issue, not a removed-camera/CodePush leftover.
+- The refreshed iOS validation handoff summary reports platform `win32`, unavailable `xcodebuild`, unavailable `pod` and `bundle exec pod`, `8` guarded schemes, `iphonesimulator` SDK, `Implementation ready: no`, `Secret values printed: no`, and `iOS runtime delivery validation: not claimed`.
+- Required next action remains macOS-only: refresh `ios/Podfile.lock` with `pod install`, then run `corepack yarn ios:mac-validation:handoff --all-schemes` before claiming iOS simulator/archive readiness.
+
+Validation:
+
+- `corepack yarn ios:mac-validation:handoff:preflight --all-schemes`
+- `corepack yarn ios:release:readiness:check-summary`
+- `corepack yarn ios:mac-validation-prereq:check-summary`
+- `corepack yarn ios:podfile-refresh:check-plan`
+- `corepack yarn check:ios-validation-handoff-summary-guard`
+- `corepack yarn ios:mac-validation:handoff:dry-run --all-schemes`
+- `corepack yarn check:ios-release-config-doc-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.833 - Release-services controlled blocker evidence refresh
 
 - Branch: `feature/bem-37-833-release-services-evidence-refresh`
