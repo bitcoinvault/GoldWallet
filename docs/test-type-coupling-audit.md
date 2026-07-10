@@ -17,6 +17,7 @@ Test/type coupling audit for the staged React/RN baseline path.
 ## Coupling Rules
 
 - TypeScript `6.0.3` is owned by the dedicated TypeScript compiler probe after removing the deleted `suppressImplicitAnyIndexErrors` option and preserving current module/path behavior with `ignoreDeprecations: "6.0"`.
+- TypeScript 7 remains blocked on the current tooling baseline because `@typescript-eslint@8.63.0` peers `typescript >=4.8.4 <6.1.0` and `ts-jest@29.4.11` peers `typescript >=4.3 <7`; refresh that evidence with `corepack yarn typescript7:compatibility-probe:audit`.
 - Move TypeScript/Jest/React/RN baseline pieces only from dedicated branches that own type/runtime behavior and focused validation.
 - Keep `jest-environment-node` on the Jest 30 line because `@react-native/jest-preset@0.85.3` still declares a Jest 29 environment internally.
 - Keep `react-test-renderer` aligned with React package changes.
@@ -33,4 +34,6 @@ Test/type coupling audit for the staged React/RN baseline path.
 
 ```powershell
 corepack yarn test:type-coupling:audit
+corepack yarn typescript7:compatibility-probe:audit
+corepack yarn typescript7:compatibility-probe:check-summary
 ```

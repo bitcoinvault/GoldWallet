@@ -86,7 +86,7 @@ Why:
 Every foundation milestone needs:
 
 - Live `corepack yarn rn:target-snapshot:current` evidence when network access is available.
-- Aggregate `corepack yarn foundation:target:check-summaries` evidence after live RN, direct-outdated, git-dependency, wallet/crypto, tooling, Android-toolchain, BL, and node-fetch summaries have been refreshed.
+- Aggregate `corepack yarn foundation:target:check-summaries` evidence after live RN, direct-outdated, git-dependency, wallet/crypto, tooling, TypeScript 7 compatibility, Android-toolchain, BL, and node-fetch summaries have been refreshed.
 - `corepack yarn rn:baseline:preflight` before package changes.
 - Package install and postinstall shim verification.
 - TypeScript check.

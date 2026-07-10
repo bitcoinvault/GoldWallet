@@ -11,6 +11,7 @@ import { getReactPatchBlockerSummaryErrors } from './reactPatchBlockerSummaryGua
 import { getReactNativeTargetSnapshotSummaryErrors } from './reactNativeTargetSnapshotSummaryGuard.mjs';
 import { getStorageNetworkLatestSnapshotSummaryErrors } from './storageNetworkLatestSnapshotSummaryGuard.mjs';
 import { getToolingLatestSnapshotSummaryErrors } from './toolingLatestSnapshotSummaryGuard.mjs';
+import { getTypescript7CompatibilityProbeSummaryErrors } from './typescript7CompatibilityProbeSummaryGuard.mjs';
 import { getWalletCryptoLatestSnapshotSummaryErrors } from './walletCryptoLatestSnapshotSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -57,6 +58,11 @@ const summaries = [
     label: 'tooling latest snapshot',
     relativePath: 'local-docs/tooling-latest-snapshot.txt',
     getErrors: getToolingLatestSnapshotSummaryErrors,
+  },
+  {
+    label: 'TypeScript 7 compatibility probe',
+    relativePath: 'local-docs/typescript7-compatibility-probe-summary.txt',
+    getErrors: getTypescript7CompatibilityProbeSummaryErrors,
   },
   {
     label: 'Android toolchain target',
