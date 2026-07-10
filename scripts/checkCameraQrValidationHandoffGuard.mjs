@@ -106,9 +106,9 @@ assert(
 const candidateSummary = [
   'Camera candidate audit',
   'Generated at: 2026-06-12T00:00:00.000Z',
-  'Metadata checked on: 2026-06-17',
+  'Metadata checked on: 2026-07-10',
   'Legacy camera latest: react-native-camera@4.2.1',
-  'VisionCamera latest: react-native-vision-camera@5.0.11',
+  'VisionCamera latest: react-native-vision-camera@5.1.0',
   'VisionCamera Nitro peers: yes',
   'VisionCamera required peer packages: react-native-nitro-modules, react-native-nitro-image',
   'VisionCamera peer dependency ranges: react@*, react-native@*, react-native-nitro-image@*, react-native-nitro-modules@*',

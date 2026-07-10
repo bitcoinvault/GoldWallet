@@ -3,9 +3,9 @@ import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.m
 const validSummary = [
   'Camera candidate audit',
   'Generated at: 2026-06-17T00:00:00.000Z',
-  'Metadata checked on: 2026-06-17',
+  'Metadata checked on: 2026-07-10',
   'Legacy camera latest: react-native-camera@4.2.1',
-  'VisionCamera latest: react-native-vision-camera@5.0.11',
+  'VisionCamera latest: react-native-vision-camera@5.1.0',
   'VisionCamera Nitro peers: yes',
   'VisionCamera required peer packages: react-native-nitro-modules, react-native-nitro-image',
   'VisionCamera peer dependency ranges: react@*, react-native@*, react-native-nitro-image@*, react-native-nitro-modules@*',
@@ -30,7 +30,7 @@ const validSummary = [
 const invalidSummary = validSummary
   .replace('VisionCamera Nitro peers: yes', 'VisionCamera Nitro peers: no')
   .replace('Live npm metadata: matched', 'Live npm metadata: stale')
-  .replace('Live npm metadata issues: 0', 'Live npm metadata issues: 1\n- VisionCamera latest live npm metadata is react-native-vision-camera@5.1.0; expected react-native-vision-camera@5.0.11')
+  .replace('Live npm metadata issues: 0', 'Live npm metadata issues: 1\n- VisionCamera latest live npm metadata is react-native-vision-camera@5.2.0; expected react-native-vision-camera@5.1.0')
   .replace('Camera candidate baseline stable: yes', 'Camera candidate baseline stable: no')
   .replace(
     'Required action: none; CameraKit scanner baseline is stable after the dedicated proof branch.',
@@ -59,7 +59,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid camera candidate summary fixture', validSummary);
 assertRejected('Invalid VisionCamera Nitro peer fixture', invalidSummary, 'VisionCamera Nitro peers');
-assertRejected('Missing metadata date fixture', validSummary.replace('Metadata checked on: 2026-06-17', 'Metadata checked on: 2026-06-05'), 'Metadata checked on');
+assertRejected('Missing metadata date fixture', validSummary.replace('Metadata checked on: 2026-07-10', 'Metadata checked on: 2026-06-17'), 'Metadata checked on');
 assertRejected(
   'Stable stale metadata fixture',
   validSummary.replace('Live npm metadata: matched', 'Live npm metadata: stale'),
