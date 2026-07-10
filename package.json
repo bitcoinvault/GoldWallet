@@ -31,8 +31,8 @@
     "@types/pbkdf2": "3.1.2",
     "@types/react": "19.2.17",
     "@types/react-native-background-timer": "2.0.2",
-    "@typescript-eslint/eslint-plugin": "8.62.1",
-    "@typescript-eslint/parser": "8.62.1",
+    "@typescript-eslint/eslint-plugin": "8.63.0",
+    "@typescript-eslint/parser": "8.63.0",
     "assert": "2.1.0",
     "babel-jest": "30.4.1",
     "babel-plugin-istanbul": "8.0.0",
@@ -64,7 +64,7 @@
     "lint-staged": "17.0.8",
     "mailosaur": "11.1.1",
     "patch-package": "8.0.1",
-    "prettier": "3.9.4",
+    "prettier": "3.9.5",
     "promise-poller": "^1.9.1",
     "react-native-config-node": "^0.0.3",
     "react-native-default-preference": "1.4.4",
@@ -523,7 +523,7 @@
     "@react-native/jest-preset/jest-mock": "30.4.1",
     "semver": "7.8.5",
     "qrcode": "1.5.4",
-    "caniuse-lite": "1.0.30001799"
+    "caniuse-lite": "1.0.30001803"
   },
   "react-native": {
     "path": "path-browserify",

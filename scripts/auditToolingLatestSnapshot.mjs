@@ -189,6 +189,10 @@ const getDecision = ({ name, installed, latest, decision }) => {
     return 'blocked - precommit tooling patch drift requires a dedicated hook/tooling branch with lint-staged, precommit, and TypeScript proof';
   }
 
+  if (name === 'typescript') {
+    return 'blocked - TypeScript 7 major drift requires a dedicated compiler branch with TypeScript check, Jest, lint baseline, and RN/Metro proof';
+  }
+
   return 'blocked - tooling patch drift requires a dedicated tooling dependency branch before updating the baseline snapshot';
 };
 

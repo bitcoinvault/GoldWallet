@@ -10,6 +10,62 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.826 - Tooling patch refresh
+
+- Branch: `feature/bem-37-826-tooling-patch-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the isolated lint/formatting/tooling patch cohort checked on `2026-07-10`:
+  `@typescript-eslint/eslint-plugin` `8.62.1` -> `8.63.0`,
+  `@typescript-eslint/parser` `8.62.1` -> `8.63.0`,
+  `prettier` `3.9.4` -> `3.9.5`,
+  and the `caniuse-lite` resolution `1.0.30001799` -> `1.0.30001803`.
+- Keep the tooling patch separate from TypeScript 7, Babel 8, React renderer, navigation, numeric, toast, and wallet-fork drift.
+- Refresh direct-outdated, tooling latest snapshot, Prettier tooling, ESLint config compatibility, and dependency strategy docs/guards to the new baseline.
+
+Findings:
+
+- npm metadata on `2026-07-10` reports `@typescript-eslint/eslint-plugin@8.63.0`, `@typescript-eslint/parser@8.63.0`, `prettier@3.9.5`, and `caniuse-lite@1.0.30001803` as latest.
+- `@typescript-eslint@8.63.0` supports the current `eslint@10.6.0` and `typescript@6.0.3` baseline through peers `eslint ^8.57.0 || ^9.0.0 || ^10.0.0` and `typescript >=4.8.4 <6.1.0`.
+- Direct outdated snapshot now reports `23` entries: `19` known blocked entries, `4` exotic wallet forks, and `0` review-required entries.
+- Tooling latest snapshot confirms the updated `@typescript-eslint` pair and `prettier` as current, while `typescript@7.0.2` remains a separate compiler/RN/Metro blocker.
+- `caniuse-lite` resolution was refreshed without adding a direct dependency; Android dev assemble passes as bundle/build proof.
+- `yarn install --ignore-scripts` temporarily removed rn-nodeify shim markers in `node_modules`; running `corepack yarn postinstall` restored them and `check:rn-nodeify-shims` passes.
+- Android no-network embedded smoke passes on emulator `emulator-5554`: APK install, first-run terms/PIN/transaction-password flow, expected `No network` UI, screenshot capture, and no fatal/runtime logcat findings.
+
+Validation:
+
+- `npm view @typescript-eslint/eslint-plugin version peerDependencies engines --json`
+- `npm view @typescript-eslint/parser version peerDependencies engines --json`
+- `npm view prettier version engines --json`
+- `npm view caniuse-lite version --json`
+- `corepack yarn node:runtime:yarn add --dev --exact @typescript-eslint/eslint-plugin@8.63.0 @typescript-eslint/parser@8.63.0 prettier@3.9.5`
+- `corepack yarn node:runtime:yarn install --ignore-scripts`
+- `corepack yarn postinstall`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn check:eslint-config-compatibility`
+- `corepack yarn prettier:tooling:audit`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn upgrade:strategy:audit`
+- `corepack yarn check:node-runtime-version`
+- `corepack yarn lint-staged:tooling:audit`
+- `corepack yarn husky:tooling:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.825 - Native screens patch refresh
 
 - Branch: `feature/bem-37-825-native-screens-patch-refresh`

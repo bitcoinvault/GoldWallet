@@ -108,22 +108,6 @@ const validEntries = [
     decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
   },
   {
-    name: '@typescript-eslint/eslint-plugin',
-    current: '8.62.1',
-    wanted: '8.62.1',
-    latest: '8.63.0',
-    type: 'devDependencies',
-    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
-  },
-  {
-    name: '@typescript-eslint/parser',
-    current: '8.62.1',
-    wanted: '8.62.1',
-    latest: '8.63.0',
-    type: 'devDependencies',
-    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
-  },
-  {
     name: 'babel-plugin-polyfill-regenerator',
     current: '0.6.8',
     wanted: '0.6.8',
@@ -156,28 +140,12 @@ const validEntries = [
     decision: 'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   },
   {
-    name: 'caniuse-lite',
-    current: '1.0.30001799',
-    wanted: '1.0.30001799',
-    latest: '1.0.30001803',
-    type: 'resolutionDependencies',
-    decision: 'blocked - Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof',
-  },
-  {
     name: 'electrum-client',
     current: '2.0.0',
     wanted: 'exotic',
     latest: 'exotic',
     type: 'dependencies',
     decision: 'exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
-  },
-  {
-    name: 'prettier',
-    current: '3.9.4',
-    wanted: '3.9.4',
-    latest: '3.9.5',
-    type: 'devDependencies',
-    decision: 'blocked - Prettier patch drift requires a dedicated formatting/tooling branch with no broad formatting churn, precommit, TypeScript, and baseline audit proof',
   },
   {
     name: 'react',
@@ -267,10 +235,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 27', 'Entries: 26'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 23', 'Entries: 22'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 27', 'Entries: 28').replace(
+  validSummary.replace('Entries: 23', 'Entries: 24').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -288,11 +256,6 @@ assertRejected(
   'Missing Babel blocker fixture',
   validSummary.replace('Babel 8 is a major Metro/RN transform migration', 'generic Babel major update'),
   'dedicated RN/Metro/Babel branch',
-);
-assertRejected(
-  'Missing caniuse-lite blocker fixture',
-  validSummary.replace('dedicated tooling/resolution branch with lockfile', 'generic caniuse patch branch'),
-  'dedicated tooling/resolution branch',
 );
 assertRejected(
   'Missing React Navigation blocker fixture',
