@@ -37,7 +37,7 @@ Reason: the first foundation checkpoint is complete, but recent proof branches s
 After each foundation checkpoint is stable, upgrade native modules in groups with similar risk:
 
 - Navigation and screen stack: `@react-navigation/*`, `react-native-screens`, `react-native-safe-area-context`, `react-native-gesture-handler`, masked view.
-- React Navigation is on checked latest v7 patch baselines after `BEM-37.822`: `@react-navigation/native@7.3.7`, `@react-navigation/stack@7.10.10`, `@react-navigation/bottom-tabs@7.18.7`, and `@react-navigation/devtools@7.1.5`. `react-native-screens@4.26.0` is the checked native screens baseline after `BEM-37.825`; `react-native-safe-area-context@5.8.0` and `react-native-gesture-handler@3.0.2` remain the current native navigation peers. Future navigation drift should stay in a dedicated navigation/smoke branch.
+- React Navigation is on checked latest v7 patch baselines after `BEM-37.828`: `@react-navigation/native@7.3.8`, `@react-navigation/stack@7.10.11`, `@react-navigation/bottom-tabs@7.18.8`, and `@react-navigation/devtools@7.1.5`. `react-native-screens@4.26.0` is the checked native screens baseline after `BEM-37.825`; `react-native-safe-area-context@5.8.0` and `react-native-gesture-handler@3.0.2` remain the current native navigation peers. Future navigation drift should stay in a dedicated navigation/smoke branch.
 - Device/platform services: Firebase, Sentry, CodePush, push notifications, device info, config, localize, webview.
 - Media and UI native modules: camera/scanner replacement, SVG, vector icons, fast image, share, slider, blur.
 

@@ -2,13 +2,13 @@
 
 This audit supports staged navigation and layout-native dependency work after the RN `0.86.0` baseline proof.
 
-Checked on: 2026-06-24
+Checked on: 2026-07-10
 
 ## Current State
 
 - React Native baseline: `0.86.0`.
 - React baseline: `19.2.3`.
-- Active navigation packages: `@react-navigation/native@7.3.4`, `@react-navigation/stack@7.10.6`, `@react-navigation/bottom-tabs@7.18.3`, and `@react-navigation/devtools@7.1.2`.
+- Active navigation packages: `@react-navigation/native@7.3.8`, `@react-navigation/stack@7.10.11`, `@react-navigation/bottom-tabs@7.18.8`, and `@react-navigation/devtools@7.1.5`.
 - `@react-native-community/masked-view` is removed; React Navigation 7 no longer needs the old community masked-view runtime path.
 - `react-native-gesture-handler@3.0.2` is the latest checked stable line validated with the RN `0.86.0` New Architecture baseline. The earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces after the RN foundation.
 - `react-native-screens@4.26.0` is the latest checked stable screens baseline. Its npm metadata points at RN `>=0.84.0`, which is satisfied by the current RN `0.86.0` checkpoint.
@@ -29,8 +29,8 @@ Checked on: 2026-06-24
 ## Findings
 
 - Navigation 7 plus masked-view removal is validated on Android through the RN `0.86.0` proof branch and emulator smoke.
-- Live npm metadata on 2026-06-24 reports the installed React Navigation 7 package family as latest/current: native `7.3.4`, stack `7.10.6`, bottom-tabs `7.18.3`, and devtools `7.1.2`.
-- React Navigation stack and bottom-tabs peer on `@react-navigation/native ^7.3.4`, `react-native-screens >=4.0.0`, and `react-native-safe-area-context >=4.0.0`, which are satisfied by the current package set.
+- Live npm metadata on 2026-07-10 reports the installed React Navigation 7 package family as latest/current: native `7.3.8`, stack `7.10.11`, bottom-tabs `7.18.8`, and devtools `7.1.5`.
+- React Navigation stack and bottom-tabs peer on `@react-navigation/native ^7.3.8`, `react-native-screens >=4.0.0`, and `react-native-safe-area-context >=4.0.0`, which are satisfied by the current package set.
 - The previous `react-native-screens@4.25.x` blocker is cleared by the RN `0.86.0` checkpoint; future navigation-native dependency jumps should stay tied to Android navigation smoke validation.
 - `react-native-bootsplash@7.3.2` is the live npm latest checked on 2026-06-23; the package bump is scoped to startup/splash validation and still requires iOS Podfile refresh on macOS before any iOS runtime claim.
 - `react-native-gesture-handler@3.0.2` is the live npm latest checked on 2026-06-23; the package bump is scoped to navigation/gesture validation and still requires iOS Podfile refresh on macOS before any iOS runtime claim.

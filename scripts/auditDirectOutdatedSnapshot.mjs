@@ -50,18 +50,6 @@ const knownDecisions = new Map([
     'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
-    '@react-navigation/bottom-tabs',
-    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
-  ],
-  [
-    '@react-navigation/native',
-    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
-  ],
-  [
-    '@react-navigation/stack',
-    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
-  ],
-  [
     '@sentry/react-native',
     'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Sentry prerequisite summaries and no source-map upload claim without credentials',
   ],
