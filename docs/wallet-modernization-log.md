@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.836 - Foundation target online refresh
+
+- Branch: `feature/bem-37-836-rn-target-snapshot-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the online foundation target evidence after the Sentry release prerequisite refresh.
+- Re-check the current React Native stable target, direct outdated package decisions, React patch blocker, Babel 8 blocker, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, TypeScript 7 blocker, Android toolchain target, `bl`, and `node-fetch`.
+- Keep package versions unchanged; this branch records current latest-target evidence and blockers before the next foundation/package branch.
+
+Findings:
+
+- `foundation:target:refresh-online` passed with Node `v24.16.0` and JDK 17 in the shell.
+- React Native npm `latest` still matches the repo baseline at `0.86.0`; npm `next` remains `0.87.0-rc.0`, npm `nightly` remains `0.88.0-nightly-20260710-102fde7b6`, and the live RN target snapshot reports `Mismatches: 0`.
+- Direct outdated snapshot reports `18` entries: `14` known blocked entries, `4` exotic/git-pinned entries, and `0` review-required entries.
+- React `19.2.7` and `react-test-renderer 19.2.7` remain blocked as package-only patches because the RN `0.86.0` renderer exact-version baseline expects React `19.2.3`.
+- Babel 8 remains blocked by the RN `0.86.0` Babel preset/plugin stack; the isolated transform probe fails with `BABEL_VERSION_UNSUPPORTED`.
+- Wallet/crypto latest snapshot reports `15` tracked entries, with the BitcoinVault `bitcoinjs-lib` fork intentionally pinned and the rest of the npm wallet/crypto packages current.
+- Storage/network latest snapshot reports `10` tracked native/runtime entries and all are current.
+- Tooling latest snapshot reports `24` tracked tooling entries; only TypeScript 7 remains blocked for a dedicated compiler/RN/Metro branch.
+- TypeScript 7 target `7.0.2` remains blocked by `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, and `ts-jest` peer ranges.
+- Android latest target remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, the direct AGP `9.2.1` / Gradle `9.6.1` / Kotlin `2.4.0` probe still fails in the React Native Gradle plugin `:gradle-plugin:settings-plugin:compileKotlin` path, and the validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- `bl@7.0.6` remains blocked because the latest package is ESM/export-map only while `levelup` and `ora` still use the validated CommonJS-compatible `bl@6.1.6` path; `node-fetch@3.3.2` remains current and compatible through the current dynamic import path.
+
+Validation:
+
+- `corepack yarn foundation:target:refresh-online`
+- `corepack yarn foundation:target:check-summaries`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn wallet:crypto-latest-snapshot:check-summary`
+- `corepack yarn storage-network:latest-snapshot:check-summary`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn typescript7:compatibility-probe:check-summary`
+- `corepack yarn android:toolchain-target:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.835 - Sentry release prerequisite refresh
 
 - Branch: `feature/bem-37-835-sentry-release-prereq-refresh`
