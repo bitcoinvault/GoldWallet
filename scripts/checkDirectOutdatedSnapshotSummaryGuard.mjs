@@ -132,14 +132,6 @@ const validEntries = [
     decision: 'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
   },
   {
-    name: 'react-native-toast-message',
-    current: '2.3.3',
-    wanted: '2.3.3',
-    latest: '2.4.0',
-    type: 'dependencies',
-    decision: 'blocked - toast UI runtime drift requires a dedicated notification UI branch with Android emulator proof',
-  },
-  {
     name: 'react-test-renderer',
     current: '19.2.3',
     wanted: '19.2.3',
@@ -203,10 +195,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 19', 'Entries: 18'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 18', 'Entries: 17'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 19', 'Entries: 20').replace(
+  validSummary.replace('Entries: 18', 'Entries: 19').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -224,11 +216,6 @@ assertRejected(
   'Missing Babel blocker fixture',
   validSummary.replace('Babel 8 is a major Metro/RN transform migration', 'generic Babel major update'),
   'dedicated RN/Metro/Babel branch',
-);
-assertRejected(
-  'Missing toast blocker fixture',
-  validSummary.replace('dedicated notification UI branch', 'generic toast patch branch'),
-  'dedicated notification UI branch',
 );
 assertRejected(
   'Missing TypeScript blocker fixture',

@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.829 - Toast message runtime refresh
+
+- Branch: `feature/bem-37-829-toast-message-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-toast-message` from `2.3.3` to live npm latest stable `2.4.0`.
+- Keep the branch isolated from Babel/Metro, React renderer, TypeScript, navigation, Sentry, wallet forks, and native-module drift.
+- Refresh direct-outdated docs/guards so `react-native-toast-message` is no longer a known outdated entry after this dedicated notification UI branch.
+
+Findings:
+
+- npm metadata on `2026-07-10` reports `react-native-toast-message@2.4.0` as `latest`; `3.0.0-beta.1` remains on the `beta` dist-tag and is not used for this stable maintenance branch.
+- `react-native-toast-message@2.4.0` declares broad `react` and `react-native` peer compatibility.
+- Current direct source usage is narrow: `src/screens/Settings/DeveloperScreen.tsx` imports `react-native-toast-message` and calls `Toast.show(...)`; the main authenticated app toasts remain owned by the existing Redux/custom toast container path.
+- Direct outdated snapshot now reports `18` entries: `14` known blocked entries, `4` exotic wallet forks, and `0` review-required entries.
+- Android `devDebug` assemble passes with JDK 17 after a forced Metro bundle rebuild.
+- Android no-network embedded smoke passes on emulator `emulator-5554`: APK install, first-run terms/PIN/transaction-password flow, expected `No network` UI, screenshot capture, and no fatal/runtime logcat findings.
+- Full Android embedded smoke installs and launches the APK, completes first-run terms/PIN/transaction-password/email-skip flow, then reaches the known external dev/testnet Electrum blocker instead of the dashboard/tab validation. Fresh blocker evidence points to `electrumx.testnet.btcv.stage.rnd.land:443 tls`; its TLS certificate expired on `Tue Jun 23 16:52:40 GMT 2026`, compared during this run to `Fri Jul 10 12:40:52 GMT 2026`.
+
+Validation:
+
+- `npm view react-native-toast-message version dist-tags peerDependencies --json`
+- `node -e "<react-native-toast-message package metadata probe>"`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 node scripts\runAndroidGradle.mjs :app:createBundleDevDebugJsAndAssets --rerun-tasks --stacktrace`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn android:dev:smoke:embedded` produced the expected external Electrum certificate blocker, not successful dashboard/tab proof.
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+
 ### BEM-37.828 - React Navigation patch refresh
 
 - Branch: `feature/bem-37-828-navigation-patch-refresh`

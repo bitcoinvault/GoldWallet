@@ -110,10 +110,6 @@ const knownDecisions = new Map([
     'blocked - React Native renderer exact-version coupling requires test renderer to stay aligned with React and RN',
   ],
   [
-    'react-native-toast-message',
-    'blocked - toast UI runtime drift requires a dedicated notification UI branch with Android emulator proof',
-  ],
-  [
     'typescript',
     'blocked - TypeScript 7 major drift requires a dedicated compiler branch with TypeScript check, Jest, lint baseline, and RN/Metro proof',
   ],
