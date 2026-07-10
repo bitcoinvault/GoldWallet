@@ -272,6 +272,10 @@ export const getCodePushReleasePathSummaryErrors = summary => {
     errors.push(`CodePush update validation must be not claimed. Received: ${codePushUpdateValidation || 'missing'}`);
   }
 
+  if (codePushRemoved === 'yes' && ready !== 'no') {
+    errors.push('Removed CodePush release path cannot be ready for update validation');
+  }
+
   if (!/^\d+$/.test(readyEnvironmentCount)) {
     errors.push(`Ready environments must be a non-negative integer. Received: ${readyEnvironmentCount || 'missing'}`);
   } else {

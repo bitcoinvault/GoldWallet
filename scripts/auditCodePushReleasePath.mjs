@@ -310,6 +310,7 @@ export const collectCodePushReleasePathAudit = () => {
       androidReleaseSummaryErrors.length === 0 &&
       androidReleaseApkManifestErrors.length === 0,
     ready:
+      !codePushRemoved &&
       errors.length === 0 &&
       readinessIssues.length === 0 &&
       androidReleaseSummaryPresent &&
@@ -377,7 +378,7 @@ export const formatCodePushReleasePathSummary = (audit, generatedAt = new Date()
   lines.push('Secret values printed: no');
   lines.push(
     audit.codePushRemoved
-      ? 'Required action: keep CodePush removed; do not claim OTA update validation, and remove stale CODEPUSH_* env values only in a secrets-safe cleanup.'
+      ? 'Required action: keep CodePush removed; do not claim OTA update validation, and do not reintroduce CODEPUSH_* env keys without a maintained replacement.'
       : audit.ready
         ? 'Required action: migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.'
         : 'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation; migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',

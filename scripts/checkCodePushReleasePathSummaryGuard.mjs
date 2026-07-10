@@ -108,6 +108,57 @@ const readySummary = [
   '',
 ].join('\n');
 
+const removedSummary = [
+  'CodePush release path audit',
+  'Generated at: 2026-07-10T00:00:00.000Z',
+  'Release path wiring valid: yes',
+  'Release path ready for update validation: no',
+  'CodePush removed: yes',
+  'Ready environments: 0',
+  'Environment readiness entries: 5',
+  '- .env.dev.testnet: removed',
+  '- .env.stage.mainnet: removed',
+  '- .env.prod.mainnet: removed',
+  '- .env.beta.testnet: removed',
+  '- .env.beta.mainnet: removed',
+  'CodePush package dependency version: removed',
+  'CodePush package installed version: removed',
+  'CodePush package latest version: 9.0.1',
+  'CodePush package latest published at: 2024-12-19T14:31:05.513Z',
+  'CodePush package current: yes',
+  'CodePush package versions aligned: no',
+  'CodePush runtime gate present: yes',
+  'CodePush runtime HOC lazy gated: yes',
+  'CodePush native bundle gate present: yes',
+  'CodePush runtime enabled by default: no',
+  'CodePush upstream repository: https://github.com/microsoft/react-native-code-push',
+  'CodePush npm repository: git+https://github.com/microsoft/react-native-code-push.git',
+  'App Center CodePush retirement date: 2025-03-31',
+  'CodePush upstream retired: yes',
+  'CodePush upstream archived: yes',
+  'CodePush upstream archived date: 2025-05-20',
+  'CodePush upstream New Architecture support: no',
+  'CodePush upstream New Architecture unsupported RN range: >=0.76',
+  'Android New Architecture enabled: yes',
+  'CodePush migration required: no',
+  'CodePush release build evidence ready: yes',
+  'Android release summary present: yes',
+  'Android release summary variants: dev, stage, prod, beta',
+  'Android release summary required variants covered: yes',
+  'Android release summary valid: yes',
+  'Android release summary current inputs covered: yes',
+  'Android release summary errors: 0',
+  'Android release APK manifest valid: yes',
+  'Android release APK manifest errors: 0',
+  'CodePush update validation: not claimed',
+  'Warnings: 0',
+  'Readiness issues: 0',
+  'Wiring errors: 0',
+  'Secret values printed: no',
+  'Required action: keep CodePush removed; do not claim OTA update validation, and do not reintroduce CODEPUSH_* env keys without a maintained replacement.',
+  '',
+].join('\n');
+
 const assertAccepted = (label, summary) => {
   const errors = getCodePushReleasePathSummaryErrors(summary);
 
@@ -130,6 +181,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid not-ready CodePush release path summary fixture', notReadySummary);
 assertAccepted('Valid ready CodePush release path summary fixture', readySummary);
+assertAccepted('Valid removed CodePush release path summary fixture', removedSummary);
 assertRejected('Missing header fixture', notReadySummary.replace('CodePush release path audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', notReadySummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Bad env readiness count fixture', notReadySummary.replace('Environment readiness entries: 5', 'Environment readiness entries: 4'), 'Environment readiness entries count');
@@ -255,6 +307,11 @@ assertRejected(
     'Required action: provide non-empty blocked CodePush deployment keys before claiming full release update validation; confirm beta deployment-key strategy before beta validation.',
   ),
   'retired App Center CodePush migration',
+);
+assertRejected(
+  'Removed CodePush ready fixture',
+  removedSummary.replace('Release path ready for update validation: no', 'Release path ready for update validation: yes'),
+  'Removed CodePush release path cannot be ready',
 );
 
 console.log('CodePush release path summary guard checks are valid.');
