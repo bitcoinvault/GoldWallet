@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.839 - Android dev smoke helper bounded no-network hardening
+
+- Branch: `feature/bem-37-839-android-dev-no-network-smoke-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the Android dev smoke helper for repeated emulator runs with the current large RN `devDebug` APK.
+- Add bounded UIAutomator dump timeouts and compressed-dump fallback so non-idle UI states fail with a usable summary instead of leaving long-running helper processes.
+- Clear repeated-run storage blockers by uninstalling the test package and trimming package caches before the storage preflight.
+- Use a dedicated APK install timeout so the large `devDebug` APK does not trip the shorter global ADB command timeout and restart the ADB server mid-install.
+- Keep the reduced no-network blocker proof separate from full dashboard smoke readiness while the dev/testnet Electrum certificate remains expired.
+
+Findings:
+
+- `android:dev:assemble` builds `devDebug` successfully on RN `0.86.0`, AGP `8.13.2`, and JDK 17.
+- The dev/testnet endpoint still throws TLS `SSLHandshakeException` / `CertificateExpiredException`; observed certificate expiry was `Tue Jun 23 16:52:40 GMT 2026`.
+- Before this branch, the smoke helper could spend minutes in UIAutomator dump attempts or leave helper processes after an outer timeout.
+- Repeated smoke runs on the same AVD could fail `/data` storage preflight because the previous `io.goldwallet.wallet.dev` install and package caches consumed space before the fresh install.
+- The reduced no-network wrappers now use a `2.5` data-storage reserve after uninstall/cache trim; the full dev smoke helper keeps the stricter default `3` multiplier.
+- The final no-network smoke summary recorded `Package cleanup before preflight: adb-uninstall`, `Data storage multiplier: 2.5`, and `Using APK install timeout: 180000ms`, proving the helper no longer restarts ADB during the large APK install.
+
+Validation:
+
+- `corepack yarn android:dev:assemble`
+- `corepack yarn check:android-smoke-storage-preflight-guard`
+- `corepack yarn check:android-smoke-ui-dump-timeout-guard`
+- `node --check scripts/androidSmokeDev.mjs`
+- `node --check scripts/androidSmokeDevNoNetworkEmbedded.mjs`
+- `node --check scripts/androidSmokeDevMetroNoNetwork.mjs`
+- `node --check scripts/checkAndroidSmokeStoragePreflightGuard.mjs`
+- `node --check scripts/checkAndroidSmokeUiDumpTimeoutGuard.mjs`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn android:dev:smoke:no-network:embedded` passed on `emulator-5554`: installed and launched `io.goldwallet.wallet.dev`, completed terms/PIN/transaction-password/email-skip, reached expected `No network`, wrote `local-docs/android-smoke-dev-no-network-summary.txt`, and reported no fatal/runtime logcat findings. APK SHA-256: `31c73c9483b3aa6832bf4a61d5e56129bec86b49b8bc5d4c5f506618fa3e5f5e`; storage multiplier: `2.5`.
+
 ### BEM-37.838 - CodePush removed-state readiness semantics
 
 - Branch: `feature/bem-37-838-codepush-removed-readiness-semantics`

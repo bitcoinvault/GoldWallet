@@ -30,6 +30,8 @@ const uiWaitMs = Number(process.env.ANDROID_SMOKE_UI_WAIT_MS || 90000);
 const uiPollIntervalMs = Number(process.env.ANDROID_SMOKE_UI_POLL_INTERVAL_MS || 1000);
 const logcatLineLimit = Number(process.env.ANDROID_SMOKE_LOGCAT_LINES || 400);
 const adbCommandTimeoutMs = Number(process.env.ANDROID_SMOKE_ADB_TIMEOUT_MS || 60000);
+const uiDumpTimeoutMs = Number(process.env.ANDROID_SMOKE_UI_DUMP_TIMEOUT_MS || Math.min(adbCommandTimeoutMs, 15000));
+const installTimeoutMs = Number(process.env.ANDROID_SMOKE_INSTALL_TIMEOUT_MS || Math.max(adbCommandTimeoutMs, 180000));
 const postInstallSettleMs = Number(process.env.ANDROID_SMOKE_POST_INSTALL_SETTLE_MS || 8000);
 const compilePackage = process.env.ANDROID_SMOKE_COMPILE_PACKAGE !== 'false';
 const compilePackageTimeoutMs = Number(
@@ -41,6 +43,9 @@ const metroPort = Number(process.env.ANDROID_SMOKE_METRO_PORT || 8081);
 const metroTimeoutMs = Number(process.env.ANDROID_SMOKE_METRO_TIMEOUT_MS || 3000);
 const metroRequired = process.env.ANDROID_SMOKE_REQUIRE_METRO !== 'false';
 const clearAppData = process.env.ANDROID_SMOKE_CLEAR_APP_DATA === 'true';
+const uninstallBeforeInstall = process.env.ANDROID_SMOKE_UNINSTALL_BEFORE_INSTALL !== 'false';
+const trimCachesBeforePreflight = process.env.ANDROID_SMOKE_TRIM_CACHES_BEFORE_PREFLIGHT !== 'false';
+const trimCachesBeforePreflightAmount = process.env.ANDROID_SMOKE_TRIM_CACHES_AMOUNT || '2G';
 const validateEmptyDashboardCtas = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_DASHBOARD_CTAS === 'true';
 const validateEmptyTabNavigation = process.env.ANDROID_SMOKE_VALIDATE_EMPTY_TAB_NAVIGATION === 'true';
 const validateQrScannerScreen = process.env.ANDROID_SMOKE_VALIDATE_QR_SCANNER === 'true';
@@ -83,6 +88,7 @@ let validatedEmptyDashboardCtaFlow = false;
 let validatedEmptyTabNavigation = false;
 let validatedQrScannerScreen = false;
 let validatedSettingsTermsWebView = false;
+let packageCleanupBeforePreflight = uninstallBeforeInstall ? 'pending' : 'disabled';
 let dataStoragePreflight = 'not run';
 let dataStorageAvailableKilobytes = 0;
 let dataStorageRequiredKilobytes = 0;
@@ -118,16 +124,24 @@ const fileEvidence = filePath => {
 
 const run = (label, args, options = {}) => {
   append(`\n> ${label}`);
-  const { allowDumpSuccessOutput = false, printOutput = true, recordOutput = true, useSelectedDevice = true, ...spawnOptions } =
-    options;
+  const {
+    allowDumpSuccessOutput = false,
+    printOutput = true,
+    recordOutput = true,
+    maxRetries = 1,
+    timeoutMs = adbCommandTimeoutMs,
+    useSelectedDevice = true,
+    ...spawnOptions
+  } = options;
   const result = runAdbProcessWithRetry({
     adbCommand,
     args,
     root,
     selectedAndroidSerial,
     useSelectedDevice,
-    timeoutMs: adbCommandTimeoutMs,
+    timeoutMs,
     spawnOptions,
+    maxRetries,
     append,
   });
 
@@ -185,6 +199,10 @@ const writeSummary = exitCode => {
     `Metro endpoint: ${metroHost}:${metroPort}`,
     `Metro reachable: ${metroReachable ? 'yes' : 'no'}`,
     `Cleared app data: ${clearAppData ? 'yes' : 'no'}`,
+    `Uninstalled before install: ${uninstallBeforeInstall ? 'yes' : 'no'}`,
+    `Package cleanup before preflight: ${packageCleanupBeforePreflight}`,
+    `Trimmed caches before preflight: ${trimCachesBeforePreflight ? 'yes' : 'no'}`,
+    `Trim caches amount: ${trimCachesBeforePreflightAmount}`,
     `Allowed network logcat failures: ${allowNetworkLogcatFailures ? 'yes' : 'no'}`,
     `Expected UI texts: ${expectedTexts.length > 0 ? expectedTexts.join(', ') : 'none'}`,
     `Expected resource IDs: ${expectedResourceIds.length > 0 ? expectedResourceIds.join(', ') : 'none'}`,
@@ -264,13 +282,21 @@ const readUiHierarchy = label => {
       printOutput: false,
       recordOutput: false,
     });
-    const dumpOutput = run(
-      `dump UI hierarchy ${label}${attempt > 1 ? ` retry ${attempt}` : ''}`,
-      ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml'],
-      {
-        allowDumpSuccessOutput: true,
-      },
-    );
+    let dumpOutput = '';
+
+    try {
+      dumpOutput = run(
+        `dump UI hierarchy ${label}${attempt > 1 ? ` retry ${attempt}` : ''}`,
+        ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-window.xml'],
+        {
+          allowDumpSuccessOutput: true,
+          maxRetries: 0,
+          timeoutMs: uiDumpTimeoutMs,
+        },
+      );
+    } catch (dumpError) {
+      append(`UI hierarchy dump ${label} failed: ${dumpError.message}`);
+    }
 
     if (/UI hier\S* dumped to:/i.test(dumpOutput || '')) {
       return run(`read UI hierarchy ${label}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], {
@@ -280,13 +306,21 @@ const readUiHierarchy = label => {
     }
 
     append(`UI hierarchy dump ${label} did not report a fresh hierarchy; retrying with compressed dump.`);
-    const compressedDumpOutput = run(
-      `dump compressed UI hierarchy ${label}${attempt > 1 ? ` retry ${attempt}` : ''}`,
-      ['shell', 'uiautomator', 'dump', '--compressed', '/sdcard/goldwallet-window.xml'],
-      {
-        allowDumpSuccessOutput: true,
-      },
-    );
+    let compressedDumpOutput = '';
+
+    try {
+      compressedDumpOutput = run(
+        `dump compressed UI hierarchy ${label}${attempt > 1 ? ` retry ${attempt}` : ''}`,
+        ['shell', 'uiautomator', 'dump', '--compressed', '/sdcard/goldwallet-window.xml'],
+        {
+          allowDumpSuccessOutput: true,
+          maxRetries: 0,
+          timeoutMs: uiDumpTimeoutMs,
+        },
+      );
+    } catch (compressedDumpError) {
+      append(`Compressed UI hierarchy dump ${label} failed: ${compressedDumpError.message}`);
+    }
 
     if (/UI hier\S* dumped to:/i.test(compressedDumpOutput || '')) {
       return run(`read compressed UI hierarchy ${label}`, ['exec-out', 'cat', '/sdcard/goldwallet-window.xml'], {
@@ -415,6 +449,50 @@ const verifyDataStorageBeforeInstall = () => {
   }
 
   append(`Android data storage preflight passed: ${storage.availableLabel} free, ${storage.requiredLabel} required.`);
+};
+
+const cleanupPackageBeforeStoragePreflight = () => {
+  if (!uninstallBeforeInstall) {
+    packageCleanupBeforePreflight = 'disabled';
+    return;
+  }
+
+  try {
+    run('force-stop existing package before storage preflight', ['shell', 'am', 'force-stop', packageName]);
+  } catch (forceStopError) {
+    append(`force-stop existing package before storage preflight skipped: ${forceStopError.message}`);
+  }
+
+  try {
+    run('uninstall existing package before storage preflight', ['uninstall', packageName]);
+    packageCleanupBeforePreflight = 'adb-uninstall';
+    return;
+  } catch (uninstallError) {
+    append(`uninstall existing package before storage preflight failed: ${uninstallError.message}`);
+  }
+
+  try {
+    run('user-uninstall existing package before storage preflight', [
+      'shell',
+      'pm',
+      'uninstall',
+      '--user',
+      '0',
+      packageName,
+    ]);
+    packageCleanupBeforePreflight = 'pm-uninstall-user-0';
+    return;
+  } catch (userUninstallError) {
+    append(`user-uninstall existing package before storage preflight failed: ${userUninstallError.message}`);
+  }
+
+  try {
+    run('clear existing package data before storage preflight', ['shell', 'pm', 'clear', packageName]);
+    packageCleanupBeforePreflight = 'pm-clear';
+  } catch (clearError) {
+    packageCleanupBeforePreflight = 'failed';
+    append(`clear existing package data before storage preflight skipped: ${clearError.message}`);
+  }
 };
 
 const validateEmptyDashboardCtaFlowIfEnabled = dashboardHierarchy => {
@@ -947,6 +1025,18 @@ try {
     );
   }
 
+  if (!Number.isInteger(uiDumpTimeoutMs) || uiDumpTimeoutMs <= 0) {
+    throw new Error(
+      `ANDROID_SMOKE_UI_DUMP_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_SMOKE_UI_DUMP_TIMEOUT_MS}`,
+    );
+  }
+
+  if (!Number.isInteger(installTimeoutMs) || installTimeoutMs <= 0) {
+    throw new Error(
+      `ANDROID_SMOKE_INSTALL_TIMEOUT_MS must be a positive integer. Received: ${process.env.ANDROID_SMOKE_INSTALL_TIMEOUT_MS}`,
+    );
+  }
+
   if (!Number.isInteger(metroPort) || metroPort <= 0 || metroPort > 65535) {
     throw new Error(
       `ANDROID_SMOKE_METRO_PORT must be an integer between 1 and 65535. Received: ${process.env.ANDROID_SMOKE_METRO_PORT}`,
@@ -980,6 +1070,8 @@ try {
   append(`Using UI poll interval: ${uiPollIntervalMs}ms`);
   append(`Using logcat line limit: ${logcatLineLimit}`);
   append(`Using adb command timeout: ${adbCommandTimeoutMs}ms`);
+  append(`Using UI dump timeout: ${uiDumpTimeoutMs}ms`);
+  append(`Using APK install timeout: ${installTimeoutMs}ms`);
   append(`Using post-install settle: ${postInstallSettleMs}ms`);
   append(`Using package compile: ${compilePackage ? 'yes' : 'no'}`);
   if (compilePackage) {
@@ -990,6 +1082,11 @@ try {
   append(`Using Metro endpoint: ${metroHost}:${metroPort}`);
   append(`Using Metro check timeout: ${metroTimeoutMs}ms`);
   append(`Using app-data clear: ${clearAppData ? 'yes' : 'no'}`);
+  append(`Using uninstall before install: ${uninstallBeforeInstall ? 'yes' : 'no'}`);
+  append(`Using trim caches before preflight: ${trimCachesBeforePreflight ? 'yes' : 'no'}`);
+  if (trimCachesBeforePreflight) {
+    append(`Using trim caches amount: ${trimCachesBeforePreflightAmount}`);
+  }
   append(
     expectedTexts.length > 0
       ? `Using expected UI text(s): ${expectedTexts.join(', ')}`
@@ -1040,8 +1137,23 @@ try {
   selectedAndroidSerial = androidSerial || deviceSerials[0];
   append(`Using Android serial: ${selectedAndroidSerial}`);
 
+  cleanupPackageBeforeStoragePreflight();
+  if (trimCachesBeforePreflight) {
+    try {
+      run('trim Android package caches before storage preflight', [
+        'shell',
+        'pm',
+        'trim-caches',
+        trimCachesBeforePreflightAmount,
+      ]);
+    } catch (trimError) {
+      append(`trim Android package caches before storage preflight skipped: ${trimError.message}`);
+    }
+  }
   verifyDataStorageBeforeInstall();
-  run('install APK', ['install', '-r', apkPath]);
+  run('install APK', ['install', '-r', apkPath], {
+    timeoutMs: installTimeoutMs,
+  });
   if (compilePackage) {
     run('compile installed package', ['shell', 'cmd', 'package', 'compile', '-m', 'speed', '-f', packageName], {
       timeout: compilePackageTimeoutMs,
