@@ -126,6 +126,10 @@ export const getCodePushUpdateValidationReadinessErrors = ({
 
     const codePushRemoved = releasePathSummaryText.includes('CodePush removed: yes');
 
+    if (codePushRemoved) {
+      errors.push('CodePush is removed; OTA update validation requires a maintained replacement before a real delivery test can be claimed');
+    }
+
     if (!codePushRemoved && !releasePathSummaryText.includes('Release path ready for update validation: yes')) {
       errors.push(
         'CodePush release path is not ready for update validation; provide non-empty blocked deployment keys and confirm the beta strategy before claiming update validation',
@@ -267,7 +271,7 @@ const main = () => {
       console.log(`${index + 1}. ${step.label}`);
       console.log(`   ${renderCodePushUpdateValidationCommand(step)}`);
     });
-    console.log('Dry run complete. Run without --dry-run after deployment keys and beta strategy are available.');
+    console.log('Dry run complete. Run without --dry-run only for a maintained replacement path; removed CodePush cannot claim OTA delivery.');
     return 0;
   }
 

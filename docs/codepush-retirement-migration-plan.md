@@ -59,6 +59,7 @@ Expected summary claims after `BEM-37.583`:
 - npm latest version, latest published timestamp, npm repository, and upstream repository are recorded in the migration-readiness summary so the remove-or-replace decision carries package/upstream evidence directly;
 - CodePush runtime gate, runtime HOC, native bundle gate, plist placeholders, package dependency, and installed package are recorded as removed;
 - Android release build evidence is recorded separately from CodePush update validation;
+- in the removed state, `Release path ready for update validation` is recorded as `no` because no OTA update path exists without a maintained replacement;
 - local Android release evidence currently covers `dev`, `stage`, `prod`, and `beta` release variants;
 - release build evidence readiness is recorded separately from OTA update validation;
 - stale CodePush env-key presence is not treated as a release blocker and no deployment-key values are printed;
@@ -71,12 +72,12 @@ Expected summary claims after `BEM-37.583`:
 - the removal-readiness summary also records the CodePush package latest version, latest published timestamp, npm repository, upstream repository, archived state, archive date, New Architecture support, unsupported React Native range, Android New Architecture enabled state, migration-required state, and Android release evidence readiness before any removal is planned;
 - the removal-readiness summary records `Safe to remove now: no` after removal because there is no remaining CodePush integration to remove;
 - the release-services handoff now defaults to `--codepush-decision remove --codepush-beta-strategy beta-has-no-ota` so the selected post-removal decision is preserved through the full release-services validation sequence instead of being reset to `pending`;
-- the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence;
+- the update-validation handoff keeps Android release evidence, CodePush readiness summaries, aggregate release-service summaries, and the current blocked update-validation state in one guarded sequence; after removal it must remain blocked until a maintained replacement is selected and delivery-tested;
 - no deployment key values are printed.
 - the env cleanup plan lists only file paths, key names, blank/non-empty state, and the required secrets-safe action; it never prints key values.
 - after `BEM-37.688`, the env cleanup plan reports `Files needing cleanup: 0`, `CodePush env key entries: 0`, and `Non-empty deployment key entries: 0`.
 - the env cleanup readiness summary guard is run before release-services handoff refreshes CodePush env cleanup readiness, so stale cleanup evidence cannot silently drift.
-- the 2026-06-24 posture refresh confirmed `react-native-code-push@9.0.1` is still latest, both Microsoft CodePush repositories remain archived, `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, `Current posture: removed`, `Long-term options: removed`, `Beta deployment-key strategy: beta has no OTA`, `Secret values printed: no`, and `CodePush update validation: not claimed` through the dedicated CodePush release-path, migration-readiness, removal-readiness, and decision handoff evidence.
+- the 2026-07-10 posture refresh confirmed `react-native-code-push@9.0.1` is still latest, both Microsoft CodePush repositories remain archived, `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, `Release path ready for update validation: no`, `Current posture: removed`, `Long-term options: removed`, `Beta deployment-key strategy: beta has no OTA`, `Secret values printed: no`, and `CodePush update validation: not claimed` through the dedicated CodePush release-path, migration-readiness, removal-readiness, and decision handoff evidence.
 
 ## Decision Needed
 

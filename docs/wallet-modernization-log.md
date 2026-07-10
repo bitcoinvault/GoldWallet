@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.838 - CodePush removed-state readiness semantics
+
+- Branch: `feature/bem-37-838-codepush-removed-readiness-semantics`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Separate CodePush release build evidence from OTA update-validation readiness after the CodePush runtime/native integration has been removed.
+- Keep CodePush removed, keep OTA validation explicitly unclaimed, and avoid any runtime, native, package, lockfile, or env-key changes.
+- Tighten the CodePush release-path and update-validation handoff guards so a removed CodePush path cannot be reported as update-validation ready.
+
+Findings:
+
+- The current post-removal CodePush audit correctly reports `CodePush removed: yes`, `CodePush migration required: no`, `CodePush release build evidence ready: yes`, and `CodePush update validation: not claimed`.
+- Before this branch, the release-path summary could still report `Release path ready for update validation: yes` in the removed state, which was too strong because no OTA client path exists without a maintained replacement.
+- The release-path summary now reports `Release path ready for update validation: no` when CodePush is removed, while keeping release build evidence separately ready.
+- `codepush:update:validation:handoff --skip-android-release` now fails for the intended reason when CodePush is removed: `CodePush is removed; OTA update validation requires a maintained replacement before a real delivery test can be claimed`.
+- The same expected-fail run still reports the current release-smoke and release create-wallet evidence as not ready under the existing controlled external-network blocker; this branch does not claim release runtime proof.
+- Tracked `.env.*` files still carry `0` `CODEPUSH_*` entries, runtime/native usage remains `0`, and iOS plist placeholders remain `0`.
+
+Validation:
+
+- `corepack yarn check:codepush-release-path-summary-guard`
+- `corepack yarn check:codepush-update-validation-handoff-guard`
+- `corepack yarn codepush:release:path-audit`
+- `corepack yarn codepush:release:path-check-summary`
+- `corepack yarn codepush:migration:readiness-audit`
+- `corepack yarn codepush:migration:readiness-check-summary`
+- `corepack yarn codepush:removal-readiness:audit`
+- `corepack yarn codepush:removal-readiness:check-summary`
+- `corepack yarn codepush:env-cleanup:audit`
+- `corepack yarn codepush:env-cleanup:check-summary`
+- `corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota`
+- `corepack yarn check:codepush-decision-handoff-summary-guard`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn codepush:update:validation:handoff:dry-run`
+- `corepack yarn codepush:update:validation:handoff --skip-android-release` expected fail: CodePush removed and release runtime evidence not ready.
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.837 - Camera/QR candidate metadata refresh
 
 - Branch: `feature/bem-37-837-camera-qr-readiness-refresh`

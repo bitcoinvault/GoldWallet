@@ -133,6 +133,24 @@ const readySummary = [
 
 const blockedSummary = readySummary.replace('Release path ready for update validation: yes', 'Release path ready for update validation: no');
 
+const removedReleasePathSummary = readySummary
+  .replace('Release path ready for update validation: yes', 'Release path ready for update validation: no')
+  .replace('CodePush removed: no', 'CodePush removed: yes')
+  .replace('Ready environments: 5', 'Ready environments: 0')
+  .replace('- .env.dev.testnet: ready', '- .env.dev.testnet: removed')
+  .replace('- .env.stage.mainnet: ready', '- .env.stage.mainnet: removed')
+  .replace('- .env.prod.mainnet: ready', '- .env.prod.mainnet: removed')
+  .replace('- .env.beta.testnet: ready', '- .env.beta.testnet: removed')
+  .replace('- .env.beta.mainnet: ready', '- .env.beta.mainnet: removed')
+  .replace('CodePush package dependency version: 9.0.1', 'CodePush package dependency version: removed')
+  .replace('CodePush package installed version: 9.0.1', 'CodePush package installed version: removed')
+  .replace('CodePush package versions aligned: yes', 'CodePush package versions aligned: no')
+  .replace('CodePush migration required: yes', 'CodePush migration required: no')
+  .replace(
+    'Required action: migrate or replace retired App Center CodePush before treating OTA updates as a supported release capability.',
+    'Required action: keep CodePush removed; do not claim OTA update validation, and do not reintroduce CODEPUSH_* env keys without a maintained replacement.',
+  );
+
 const partialMigrationReadinessSummary = [
   'CodePush migration readiness audit',
   'CodePush package current: yes',
@@ -319,6 +337,66 @@ assert(
     smokeEvidenceOptions,
   }).length === 0,
   'Ready CodePush handoff summary fixture must pass readiness checks',
+);
+assert(
+  getCodePushUpdateValidationReadinessErrors({
+    releasePathSummaryText: removedReleasePathSummary,
+    migrationReadinessSummaryText: migrationReadinessSummary
+      .replace('CodePush removed: no', 'CodePush removed: yes')
+      .replace('CodePush migration required: yes', 'CodePush migration required: no')
+      .replace('Current posture: temporary legacy compatibility', 'Current posture: removed')
+      .replace('Long-term options: remove or replace', 'Long-term options: removed')
+      .replace('Beta CodePush strategy confirmed: no', 'Beta CodePush strategy confirmed: yes')
+      .replace(
+        'Required action: choose remove or replace before treating OTA updates as a supported release capability.',
+        'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.',
+      ),
+    removalReadinessSummaryText: removalReadinessSummary
+      .replace('CodePush package installed: yes', 'CodePush package installed: no')
+      .replace('CodePush removed: no', 'CodePush removed: yes')
+      .replace('CodePush migration required: yes', 'CodePush migration required: no')
+      .replace('Runtime usage files: 1\n- App.tsx', 'Runtime usage files: 0')
+      .replace(
+        [
+          'Native integration files: 8',
+          '- android/app/build.gradle',
+          '- android/app/src/main/java/io/goldwallet/wallet/MainApplication.java',
+          '- android/app/src/main/res/values/strings.xml',
+          '- android/settings.gradle',
+          '- ios/GoldWallet/AppDelegate.m',
+          '- ios/GoldWallet/Info.plist',
+          '- ios/GoldWalletDev-Info.plist',
+          '- ios/GoldWalletStage-Info.plist',
+        ].join('\n'),
+        'Native integration files: 0',
+      )
+      .replace(
+        [
+          'Env files carrying CodePush keys: 5',
+          '- .env.dev.testnet',
+          '- .env.stage.mainnet',
+          '- .env.prod.mainnet',
+          '- .env.beta.testnet',
+          '- .env.beta.mainnet',
+        ].join('\n'),
+        'Env files carrying CodePush keys: 0',
+      )
+      .replace('iOS plist placeholders: 3', 'iOS plist placeholders: 0')
+      .replace('Android native integration present: yes', 'Android native integration present: no')
+      .replace('iOS native integration present: yes', 'iOS native integration present: no')
+      .replace('Decision: pending', 'Decision: remove')
+      .replace('Beta deployment-key strategy: unconfirmed', 'Beta deployment-key strategy: beta has no OTA')
+      .replace('Removal decision available: no', 'Removal decision available: yes')
+      .replace(
+        'Required action: choose remove or replace before deleting CodePush runtime, native integration, plist placeholders, and env keys.',
+        'Required action: keep CodePush removed; do not claim OTA update validation, and clean stale env keys only without exposing values.',
+      ),
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    createWalletEvidenceOptions,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('CodePush is removed')),
+  'Removed CodePush handoff fixture must block OTA update validation',
 );
 assert(
   getCodePushUpdateValidationReadinessErrors({
