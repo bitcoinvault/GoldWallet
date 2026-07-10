@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.833 - Release-services controlled blocker evidence refresh
+
+- Branch: `feature/bem-37-833-release-services-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android `devRelease` runtime blocker evidence after the current release APK evidence changed in `BEM-37.832`.
+- Re-run release smoke on the current locally signed `devRelease` APK so release-services validation no longer points at stale APK size/SHA evidence.
+- Keep Sentry upload, Firebase runtime delivery, CodePush OTA update validation, and full release create-wallet proof explicitly unclaimed.
+
+Findings:
+
+- Full `android:dev:release:smoke:embedded` installed and launched the current signed `devRelease` APK on `emulator-5554`, completed first-run terms, PIN, transaction password, and email skip, then failed the expected dashboard proof because the app reached the external dev/testnet `No network` state instead of the empty-wallet dashboard.
+- The full release-smoke summary now references the current unsigned `devRelease` APK SHA-256 `cd7223b6ccb9cb45ad7f5f7fe22a705ca63f4932edc16f1653c1fcaf6d5589df` and the current locally signed release-smoke APK SHA-256 `81b6dc3431eba50f64cd901aa9a97fc7d4668c8411a73d62d3f776034f6d51b5`.
+- A controlled no-network release smoke passed against the same signed APK with expected UI text `No network`, no expected resource IDs, network logcat failures allowed, and no fatal/runtime logcat findings.
+- The refreshed network blocker audit classified the blocker as `blocked-by-electrum-certificate-expired` for `.env.dev.testnet` endpoint `electrumx.testnet.btcv.stage.rnd.land:443 tls`; evidence again shows `SSLHandshakeException` caused by `CertificateExpiredException`, expired at `Tue Jun 23 16:52:40 GMT 2026`, compared during this run at `Fri Jul 10 13:32:14 GMT 2026`.
+- `release-services:check-summaries` now passes in the controlled blocker state and prints that full release and release create-wallet runtime proof remain unclaimed until the dev/testnet Electrum TLS certificate is fixed.
+- This branch changes tracked documentation only; the smoke, screenshots, logs, APKs, and summaries stay in ignored `local-docs/` and Android build output paths.
+
+Validation:
+
+- `corepack yarn android:dev:release:smoke:embedded` expected fail: current release APK launches and reaches `No network`, not the dashboard proof.
+- `node scripts/androidSmokeDevReleaseEmbedded.mjs` with `ANDROID_SMOKE_OUTPUT_BASENAME=android-smoke-dev-release-no-network`, `ANDROID_SMOKE_EXPECT_TEXTS=No network`, `ANDROID_SMOKE_EXPECT_RESOURCE_IDS=,`, dashboard/tab/QR/Terms validations disabled, and `ANDROID_SMOKE_ALLOW_NETWORK_LOGCAT_FAILURES=true`
+- `corepack yarn android:dev:release:network-blocker:audit`
+- `corepack yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn android:dev:release:check-apk-manifest`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.832 - Android release build evidence refresh
 
 - Branch: `feature/bem-37-832-android-release-evidence-refresh`
