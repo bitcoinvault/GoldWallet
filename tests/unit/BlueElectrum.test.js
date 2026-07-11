@@ -4,9 +4,11 @@ describe('BlueElectrum reconnect handling', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.useFakeTimers();
+    process.env.BLUEELECTRUM_AUTO_CONNECT = 'true';
   });
 
   afterEach(() => {
+    delete process.env.BLUEELECTRUM_AUTO_CONNECT;
     jest.useRealTimers();
     jest.clearAllMocks();
   });
@@ -56,7 +58,7 @@ describe('BlueElectrum reconnect handling', () => {
     expect(ElectrumClient).toHaveBeenCalledTimes(1);
     expect(initElectrum).toHaveBeenCalledTimes(1);
 
-    jest.advanceTimersByTime(50);
+    jest.advanceTimersByTime(1000);
     await flushPromises();
 
     expect(ElectrumClient).toHaveBeenCalledTimes(2);

@@ -21,6 +21,13 @@ const hardcodedPeers = [
 let mainClient = false;
 let mainConnected = false;
 let currentHost = '';
+const shouldAutoConnect = process.env.NODE_ENV !== 'test' || process.env.BLUEELECTRUM_AUTO_CONNECT === 'true';
+const reconnectBaseDelayMs = 1000;
+const reconnectMaxDelayMs = 30000;
+let reconnectAttempts = 0;
+
+const getReconnectDelayMs = () =>
+  Math.min(reconnectMaxDelayMs, reconnectBaseDelayMs * 2 ** Math.min(reconnectAttempts, 5));
 
 const getHost = () => {
   const hosts = config.hosts;
@@ -91,6 +98,7 @@ async function connectMain() {
         category: 'BlueElectrum',
       });
       mainConnected = true;
+      reconnectAttempts = 0;
     }
   } catch (e) {
     mainConnected = false;
@@ -101,7 +109,10 @@ async function connectMain() {
   }
 
   if (!mainConnected) {
-    await wait(50);
+    const reconnectDelayMs = getReconnectDelayMs();
+
+    reconnectAttempts += 1;
+    await wait(reconnectDelayMs);
     await connectMain();
   }
 }
@@ -132,7 +143,9 @@ module.exports.subscribeToOnClose = function (handler) {
   };
 };
 
-connectMain();
+if (shouldAutoConnect) {
+  connectMain();
+}
 
 /**
  *
@@ -554,7 +567,12 @@ module.exports.testConnection = async function (host, tcpPort) {
 };
 
 module.exports.forceDisconnect = () => {
-  mainClient.close();
+  mainConnected = false;
+  reconnectAttempts = 0;
+
+  if (mainClient && typeof mainClient.close === 'function') {
+    mainClient.close();
+  }
 };
 
 module.exports.hardcodedPeers = hardcodedPeers;

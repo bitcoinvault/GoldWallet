@@ -1,16 +1,17 @@
 /* eslint-disable no-console */
 
-import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyP2PKHWallet } from '../../class';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import config from '../../src/config';
-
 const assert = require('assert');
 const bitcoin = require('bitcoinjs-lib');
 
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+global.net = require('net');
+// needed by Electrum client. For RN it is proviced in shim.js
+process.env.BLUEELECTRUM_AUTO_CONNECT = 'true';
 const BlueElectrum = require('../../BlueElectrum');
+const { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyP2PKHWallet } = require('../../class');
+const { BitcoinUnit } = require('../../models/bitcoinUnits');
+const config = require('../../src/config').default;
 // so it connects ASAP
 
 jest.setTimeout(300000);
@@ -47,7 +48,7 @@ it('can convert witness to address', () => {
   assert.strictEqual(address, 'royale1qf46hgcx6tl90snxz9uuy0742zpuwsnm2ldam6n');
 });
 
-xit('can create a Segwit HD (BIP49)', async function() {
+xit('can create a Segwit HD (BIP49)', async function () {
   const mnemonic =
     'fiber quiz produce chuckle sort crisp price direct speak recipe adult layer thumb lift tape start peace wave jungle fluid green interest cave learn';
   const hd = new HDSegwitP2SHWallet();
@@ -73,7 +74,7 @@ xit('can create a Segwit HD (BIP49)', async function() {
   );
 });
 
-xit('HD (BIP49) can work with a gap', async function() {
+xit('HD (BIP49) can work with a gap', async function () {
   jest.setTimeout(300000);
   const hd = new HDSegwitP2SHWallet();
 
@@ -92,7 +93,7 @@ xit('HD (BIP49) can work with a gap', async function() {
   assert.ok(hd.transactions.length >= 3);
 });
 
-it.skip('Segwit HD (BIP49) can batch fetch many txs', async function() {
+it.skip('Segwit HD (BIP49) can batch fetch many txs', async function () {
   jest.setTimeout(300000);
   const hd = new HDSegwitP2SHWallet();
 
@@ -103,7 +104,7 @@ it.skip('Segwit HD (BIP49) can batch fetch many txs', async function() {
   assert.ok(hd.getTransactions().length === 153);
 });
 
-it.skip('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
+it.skip('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function () {
   jest.setTimeout(300000);
   const hd = new HDSegwitP2SHWallet();
 
@@ -116,7 +117,7 @@ it.skip('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are
   assert.strictEqual(hd.getTransactions().length, 153);
 });
 
-xit('Segwit HD (BIP49) can generate addressess only via ypub', function() {
+xit('Segwit HD (BIP49) can generate addressess only via ypub', function () {
   const ypub =
     'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp';
   const hd = new HDSegwitP2SHWallet();
@@ -228,7 +229,7 @@ it('HD (BIP49) can create TX', async () => {
   assert.strictEqual(tx.outs[0].value, 75000);
 });
 
-xit('Segwit HD (BIP49) can fetch UTXO', async function() {
+xit('Segwit HD (BIP49) can fetch UTXO', async function () {
   const hd = new HDSegwitP2SHWallet();
 
   hd._address = ['YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba', 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT']; // hacking internals
@@ -245,7 +246,7 @@ xit('Segwit HD (BIP49) can fetch UTXO', async function() {
   );
 });
 
-it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function() {
+it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function () {
   if (!process.env.HD_MNEMONIC_BIP49_MANY_TX) {
     console.error('process.env.HD_MNEMONIC_BIP49_MANY_TX not set, skipped');
     return;
@@ -301,7 +302,7 @@ it('can work with malformed mnemonic', async () => {
   assert.ok(hd.validateMnemonic());
 });
 
-it('can create a Legacy HD (BIP44)', async function() {
+it('can create a Legacy HD (BIP44)', async function () {
   if (!process.env.HD_MNEMONIC_BREAD) {
     console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
     return;
@@ -344,7 +345,7 @@ it('can create a Legacy HD (BIP44)', async function() {
   assert.strictEqual(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
 });
 
-it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
+it('Legacy HD (BIP44) can generate addressess based on xpub', async function () {
   const xpub =
     'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
   const hd = new HDLegacyP2PKHWallet();
@@ -398,7 +399,7 @@ it('Legacy HD (BIP44) can create TX', async () => {
   assert.strictEqual(tx.outs[0].value, 99800);
 });
 
-xit('Legacy HD (BIP44) can fetch UTXO', async function() {
+xit('Legacy HD (BIP44) can fetch UTXO', async function () {
   const hd = new HDLegacyP2PKHWallet();
 
   hd._address = ['YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba', 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT']; // hacking internals

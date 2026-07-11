@@ -126,6 +126,7 @@ describe('Terms WebView screens', () => {
     );
     const webView = getWebView(tree);
 
+    expect(webView.props.javaScriptEnabled).toBe(false);
     expect(webView.props.onShouldStartLoadWithRequest({ url: 'about:blank' })).toBe(true);
     expect(webView.props.onShouldStartLoadWithRequest({ url: 'https://www.btcv.com' })).toBe(false);
     expect(Linking.openURL).toHaveBeenCalledWith('https://www.btcv.com');

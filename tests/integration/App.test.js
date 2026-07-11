@@ -1,10 +1,11 @@
-import { LegacyWallet, SegwitP2SHWallet } from '../../class';
-
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 const assert = require('assert');
 
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+global.net = require('net');
+// needed by Electrum client. For RN it is proviced in shim.js
+process.env.BLUEELECTRUM_AUTO_CONNECT = 'true';
 const BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
+const { LegacyWallet, SegwitP2SHWallet } = require('../../class');
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -22,7 +23,7 @@ beforeEach(() => {
   jest.setTimeout(30000);
 });
 
-describe('unit - LegacyWallet', function() {
+describe('unit - LegacyWallet', function () {
   it('serialize and unserialize work correctly', () => {
     const a = new LegacyWallet();
 
