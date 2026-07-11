@@ -10,6 +10,66 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.867 - base-x wallet crypto security compatibility
+
+- Branch: `feature/bem-37-867-wallet-crypto-security-compatibility`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Continue the security audit reduction after `BEM-37.866` inside the wallet-crypto dependency area.
+- Move the legacy `base-x@^3.0.2` lockfile range from vulnerable `3.0.8` to patched compatible `3.0.11`.
+- Keep `wif@5.0.0` on its existing nested `base-x@5.0.1` line and avoid a global `base-x` resolution that would cross major-version boundaries.
+- Leave `tiny-secp256k1@1.1.6` unchanged because it is owned by the pinned BitcoinVault `bitcoinjs-lib` fork and nested legacy `bip32`; forcing `tiny-secp256k1@2.x` remains a separate BTCV fork/RN bundling compatibility risk.
+- Extend `check:security-resolution-baselines` so the lockfile cannot drift back to vulnerable `base-x@3.0.8`.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `base-x@5.0.1` as latest and `base-x@3.0.11` as the patched compatible v3 line.
+- Live npm metadata on `2026-07-12` reports `bs58check@4.0.0` and `bs58@6.0.0` as latest, but the vulnerable path is inside the pinned BTCV `bitcoinjs-lib` fork and its legacy `bip32` dependency, both of which require the older `bs58check@2.x` / `bs58@4.x` stack.
+- `corepack yarn why base-x` now reports `base-x@3.0.11` for legacy `bs58@4` consumers and `base-x@5.0.1` under direct `wif@5.0.0`.
+- `corepack yarn audit --json --level high` now reports `0` critical, `4` high, `64` moderate, and `17` low findings, down from `0` critical, `7` high, `64` moderate, and `17` low after `BEM-37.866`.
+- Remaining high findings are only `tiny-secp256k1` advisories from the BTCV fork path.
+- The existing log already records that a blind `tiny-secp256k1@2.x` move previously passed Node/Jest but failed Android bundling because Metro hit WASM/Node `crypto` paths; this branch keeps that risk isolated instead of hiding it with an unsafe override.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view tiny-secp256k1 version dist-tags engines dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view base-x version dist-tags engines dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view bs58check version dist-tags engines dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view bs58 version dist-tags engines dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view base-x@3.0.11 version dependencies dist.integrity dist.shasum --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why tiny-secp256k1`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why base-x`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why bs58check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why bs58`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn list --pattern base-x`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level high` (current summary: `0` critical, `4` high, `64` moderate, `17` low)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` (blocked by expired dev/testnet Electrum TLS certificate before dashboard proof)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
+Android runtime note:
+
+- The no-network Android smoke installed and launched `app-dev-debug.apk`, completed first-run Terms/PIN/transaction-password/email-skip flow, found the expected `No network` UI, and reported no fatal/runtime logcat findings.
+- Full dashboard smoke remains externally blocked by `electrumx.testnet.btcv.stage.rnd.land:443 tls`; `android:dev:network-blocker:audit` captured `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- iOS runtime validation is not claimed on this Windows machine; `ios:static:verify` still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
 ### BEM-37.866 - non-crypto high security range consolidation
 
 - Branch: `feature/bem-37-866-noncrypto-security-ranges`

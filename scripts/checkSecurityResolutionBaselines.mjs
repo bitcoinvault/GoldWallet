@@ -28,6 +28,7 @@ const vulnerableLockEntries = [
   ['ansi-regex', '3.0.0'],
   ['ansi-regex', '4.1.0'],
   ['ansi-regex', '5.0.0'],
+  ['base-x', '3.0.8'],
   ['braces', '3.0.2'],
   ['cipher-base', '1.0.4'],
   ['elliptic', '6.5.4'],
@@ -51,6 +52,7 @@ const vulnerableLockEntries = [
 
 const expectedLockVersions = new Map([
   ['ansi-regex', ['3.0.1', '4.1.1', '5.0.1', '6.2.2']],
+  ['base-x', ['3.0.11', '5.0.1']],
   ['braces', ['3.0.3']],
   ['cipher-base', ['1.0.7']],
   ['elliptic', ['6.6.1']],
