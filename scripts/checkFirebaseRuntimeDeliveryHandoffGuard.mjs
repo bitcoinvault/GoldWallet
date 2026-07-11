@@ -92,7 +92,7 @@ const readyFirebaseSummary = [
   'React Native Firebase Messaging latest version: 25.1.0',
   'React Native Firebase Messaging peer app version: 25.1.0',
   'React Native Firebase package current: yes',
-  'Android Google Services Gradle plugin: 4.4.4',
+  'Android Google Services Gradle plugin: 4.5.0',
   'Android Firebase Crashlytics Gradle plugin: 3.0.7',
   'Android strict version matcher plugin: 1.2.4',
   'Firebase release-services wiring valid: yes',

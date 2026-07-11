@@ -33,7 +33,7 @@ export const requiredFirebaseIosFiles = [
   'ios/GoogleService-Info.plist',
 ];
 export const firebaseAndroidGradlePluginTargets = {
-  googleServices: '4.4.4',
+  googleServices: '4.5.0',
   crashlytics: '3.0.7',
   strictVersionMatcher: '1.2.4',
 };

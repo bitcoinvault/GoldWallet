@@ -10,7 +10,7 @@ const validSummary = [
   'React Native Firebase Messaging latest version: 25.1.0',
   'React Native Firebase Messaging peer app version: 25.1.0',
   'React Native Firebase package current: yes',
-  'Android Google Services Gradle plugin: 4.4.4',
+  'Android Google Services Gradle plugin: 4.5.0',
   'Android Firebase Crashlytics Gradle plugin: 3.0.7',
   'Android strict version matcher plugin: 1.2.4',
   'Firebase release-services wiring valid: yes',
@@ -39,7 +39,7 @@ const invalidSummary = [
   'React Native Firebase Messaging latest version: 25.1.0',
   'React Native Firebase Messaging peer app version: 25.1.0',
   'React Native Firebase package current: yes',
-  'Android Google Services Gradle plugin: 4.4.4',
+  'Android Google Services Gradle plugin: 4.5.0',
   'Android Firebase Crashlytics Gradle plugin: 3.0.7',
   'Android strict version matcher plugin: 1.2.4',
   'Firebase release-services wiring valid: no',
@@ -110,7 +110,7 @@ assertRejected(
 assertRejected('Firebase package not current fixture', validSummary.replace('React Native Firebase package current: yes', 'React Native Firebase package current: no'), 'package current');
 assertRejected(
   'Old Google Services Gradle plugin fixture',
-  validSummary.replace('Android Google Services Gradle plugin: 4.4.4', 'Android Google Services Gradle plugin: 4.3.15'),
+  validSummary.replace('Android Google Services Gradle plugin: 4.5.0', 'Android Google Services Gradle plugin: 4.3.15'),
   'Google Services Gradle plugin',
 );
 assertRejected(
