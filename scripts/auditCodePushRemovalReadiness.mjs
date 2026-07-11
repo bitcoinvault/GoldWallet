@@ -9,6 +9,7 @@ import { codePushEnvFiles, codePushIosInfoPlists, collectCodePushReleasePathAudi
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { getCodePushDecisionHandoffErrors } from './codePushDecisionHandoffGuard.mjs';
+import { collectCodePushControlledReleaseBlocker } from './codePushControlledReleaseBlocker.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -61,6 +62,7 @@ const collectDecisionHandoff = () => {
 export const collectCodePushRemovalReadinessAudit = () => {
   const packageJson = JSON.parse(read('package.json'));
   const releasePathAudit = collectCodePushReleasePathAudit();
+  const controlledReleaseBlocker = collectCodePushControlledReleaseBlocker(root);
   const decisionHandoff = collectDecisionHandoff();
   let androidReleaseSmokeSummaryValid = false;
   let androidReleaseSmokeSummaryErrors = ['missing Android release smoke summary'];
@@ -133,6 +135,16 @@ export const collectCodePushRemovalReadinessAudit = () => {
     androidReleaseCreateWalletSmokeSummaryValid,
     androidReleaseCreateWalletSmokeSummaryErrors,
     releaseCreateWalletEvidenceReady: androidReleaseCreateWalletSmokeSummaryValid,
+    controlledReleaseBlockerPresent: controlledReleaseBlocker.present,
+    controlledReleaseBlockerValid: controlledReleaseBlocker.valid,
+    controlledReleaseBlockerOutcome: controlledReleaseBlocker.outcome,
+    controlledReleaseBlockerErrors: controlledReleaseBlocker.errors,
+    releaseRuntimeProofState:
+      androidReleaseSmokeSummaryValid && androidReleaseCreateWalletSmokeSummaryValid
+        ? 'ready'
+        : controlledReleaseBlocker.valid
+        ? controlledReleaseBlocker.outcome
+        : 'not ready',
     runtimeUsageFiles: [...expectedCodePushRuntimeUsageFiles],
     nativeIntegrationFiles: [...expectedCodePushNativeUsageFiles],
     envFilesCarryingCodePushKeys,
@@ -182,6 +194,12 @@ export const formatCodePushRemovalReadinessSummary = (audit, generatedAt = new D
     `Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`,
     ...audit.androidReleaseCreateWalletSmokeSummaryErrors.map(error => `- ${error}`),
     `CodePush release create-wallet evidence ready: ${audit.releaseCreateWalletEvidenceReady ? 'yes' : 'no'}`,
+    `Controlled release blocker summary present: ${audit.controlledReleaseBlockerPresent ? 'yes' : 'no'}`,
+    `Controlled release blocker valid: ${audit.controlledReleaseBlockerValid ? 'yes' : 'no'}`,
+    `Controlled release blocker outcome: ${audit.controlledReleaseBlockerOutcome}`,
+    `Controlled release blocker errors: ${audit.controlledReleaseBlockerErrors.length}`,
+    ...audit.controlledReleaseBlockerErrors.map(error => `- ${error}`),
+    `CodePush release runtime proof state: ${audit.releaseRuntimeProofState}`,
     `Runtime usage files: ${audit.runtimeUsageFiles.length}`,
     ...audit.runtimeUsageFiles.map(filePath => `- ${filePath}`),
     `Native integration files: ${audit.nativeIntegrationFiles.length}`,
@@ -229,6 +247,8 @@ const printReport = audit => {
   console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
   console.log(`CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`);
   console.log(`CodePush release create-wallet evidence ready: ${audit.releaseCreateWalletEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`Controlled release blocker valid: ${audit.controlledReleaseBlockerValid ? 'yes' : 'no'}`);
+  console.log(`CodePush release runtime proof state: ${audit.releaseRuntimeProofState}`);
   console.log(`Runtime usage files: ${audit.runtimeUsageFiles.length}`);
   console.log(`Native integration files: ${audit.nativeIntegrationFiles.length}`);
   console.log(`Env files carrying CodePush keys: ${audit.envFilesCarryingCodePushKeys.length}`);

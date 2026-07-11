@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.854 - CodePush controlled release blocker readiness
+
+- Branch: `feature/bem-37-854-codepush-controlled-blocker-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a shared CodePush helper that consumes `local-docs/android-release-network-blocker-summary.txt` without committing local smoke artifacts.
+- Extend CodePush migration-readiness and removal-readiness audits with controlled release blocker fields and a single `CodePush release runtime proof state`.
+- Harden both CodePush readiness summary guards so blocked release proof is accepted only when the controlled Electrum certificate blocker summary is valid.
+- Keep CodePush OTA update validation, full release dashboard proof, and release create-wallet proof explicitly unclaimed until the dev/testnet Electrum TLS certificate is renewed and the release smoke flows are rerun.
+
+Findings:
+
+- CodePush remains removed from runtime/native/env integration; this branch does not reintroduce `react-native-code-push`, deployment keys, runtime gates, Android native wiring, iOS plist placeholders, or OTA behavior.
+- Current Android release build evidence is ready from `BEM-37.853`, but full release smoke and release create-wallet evidence are not ready because the app reaches the controlled `No network` path after onboarding.
+- The CodePush migration/removal summaries now record `Controlled release blocker valid: yes`, `Controlled release blocker outcome: blocked-by-electrum-certificate-expired`, and `CodePush release runtime proof state: blocked-by-electrum-certificate-expired` when the current `android-release-network-blocker-summary.txt` is valid.
+- The summary guards reject a blocked runtime proof unless the blocker outcome is exactly `blocked-by-electrum-certificate-expired` with `0` blocker-summary errors.
+- The summary guards also reject `CodePush release runtime proof state: ready` unless both full release smoke and release create-wallet evidence are ready, so the no-network fallback cannot be mistaken for real release runtime proof.
+- No runtime code, native project files, package versions, Metro config, or APK inputs changed in this branch; emulator smoke was not rerun for this static guard/docs milestone.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-migration-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-removal-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/codePushControlledReleaseBlocker.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:release:path-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:env-cleanup:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:env-cleanup:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.853 - Google Services Gradle plugin 4.5.0 refresh
 
 - Branch: `feature/bem-37-853-google-services-4-5-0`
