@@ -79,6 +79,7 @@ Expected summary claims after `BEM-37.583`:
 - the env cleanup readiness summary guard is run before release-services handoff refreshes CodePush env cleanup readiness, so stale cleanup evidence cannot silently drift.
 - the 2026-07-10 posture refresh confirmed `react-native-code-push@9.0.1` is still latest, both Microsoft CodePush repositories remain archived, `Decision: remove`, `Implementation ready: yes`, `CodePush removed: yes`, `Release path ready for update validation: no`, `Current posture: removed`, `Long-term options: removed`, `Beta deployment-key strategy: beta has no OTA`, `Secret values printed: no`, and `CodePush update validation: not claimed` through the dedicated CodePush release-path, migration-readiness, removal-readiness, and decision handoff evidence.
 - after `BEM-37.854`, the migration-readiness and removal-readiness summaries also record the controlled Android release network blocker fields and `CodePush release runtime proof state`; when full release smoke/create-wallet proof is blocked by the classified Electrum certificate expiry, the summaries report `blocked-by-electrum-certificate-expired` instead of treating the runtime proof as ready.
+- after `BEM-37.859`, the CodePush update-validation handoff guard fixture also includes those controlled release blocker fields, so the self-check and real migration/removal summary contract stay aligned.
 
 ## Decision Needed
 

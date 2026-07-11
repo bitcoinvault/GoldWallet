@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.859 - Release-services aggregate handoff refresh
+
+- Branch: `feature/bem-37-859-release-services-handoff-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the aggregate release-services handoff after the latest Android release validation and iOS static handoff evidence.
+- Re-run the guarded Sentry, Firebase, CodePush, push-notification, iOS release readiness, iOS macOS prerequisite, Podfile refresh-plan, and all-scheme iOS handoff dry-run sequence.
+- Keep Sentry upload, Firebase runtime delivery, CodePush OTA delivery, and iOS runtime/archive validation explicitly unclaimed because the required secrets, external Electrum fix, and macOS/Xcode/CocoaPods runtime environment are not available here.
+- Align the CodePush update-validation handoff guard fixture with the current controlled release blocker fields emitted by the migration/removal readiness summaries.
+
+Findings:
+
+- `release-services:validation:handoff --skip-android-release` passed with Node `v24.16.0` and JDK `17.0.19`, using the fresh Android release evidence from `BEM-37.857` instead of rebuilding release APKs again.
+- The first handoff attempt exposed a stale self-check fixture in `check:codepush-update-validation-handoff-guard`; the fixture now includes `Controlled release blocker summary present`, `Controlled release blocker valid`, `Controlled release blocker outcome`, `Controlled release blocker errors`, and `CodePush release runtime proof state` so it matches the guarded summary contract.
+- Sentry release prerequisites remain `not ready`: `@sentry/react-native@8.18.0` and direct `@sentry/cli@3.6.0` are current, but `SENTRY_AUTH_TOKEN`, `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, full Android release runtime proof, and macOS iOS validation are still required before upload validation can be claimed.
+- Firebase release-services wiring remains current for the `25.1.0` package family, Android release evidence, iOS plist files, and Messaging runtime paths; real FCM token/notification delivery, Crashlytics upload, and Analytics behavior remain not claimed.
+- CodePush remains removed from runtime and native integration: release path ready for OTA update validation is `no`, migration required is `no`, decision is `remove`, beta strategy is `beta has no OTA`, and update validation remains not claimed until a maintained replacement is selected and delivery-tested.
+- The aggregate release-services checker passes only under controlled blocker `blocked-by-electrum-certificate-expired`; full dashboard, release create-wallet, CodePush OTA, Firebase delivery, and Sentry upload proof remain unclaimed until the dev/testnet Electrum TLS certificate is renewed and the full release validation is rerun.
+- No runtime application code, native project files, dependency versions, Metro config, or APK inputs changed in this branch, so Android emulator smoke was not rerun for this guard/aggregate handoff refresh.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\checkCodePushUpdateValidationHandoffGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.858 - iOS static release handoff refresh
 
 - Branch: `feature/bem-37-858-ios-static-handoff-refresh`
