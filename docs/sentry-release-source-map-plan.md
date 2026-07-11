@@ -30,7 +30,7 @@
 - `corepack yarn sentry:rn-bundle-task-compat:audit` records the static compatibility status between Sentry `8.18.0` bundle-task extraction and the RN `0.86.0` `BundleHermesCTask` property model.
 - `corepack yarn sentry:rn-bundle-task-compat:check-summary` validates the generated local compatibility summary.
 - The active RN `0.86.0` Android warning audit no longer reports Sentry `execResult`; Sentry still needs release/source-map validation with local credentials before claiming the SDK/tooling change complete for release artifacts.
-- The latest npm releases checked for the Sentry release path on 2026-07-10 are `@sentry/react-native@8.18.0` and direct `@sentry/cli@3.6.0`. The SDK is current on the RN `0.86.0` baseline, and the release CLI is pinned explicitly as dev tooling.
+- The latest npm releases checked for the Sentry release path on 2026-07-11 are `@sentry/react-native@8.18.0` and direct `@sentry/cli@3.6.0`. The SDK is current on the RN `0.86.0` baseline, and the release CLI is pinned explicitly as dev tooling.
 - The Sentry prerequisite audit now records live latest metadata for both packages and fails stale "current" claims when installed and latest versions differ.
 - `@sentry/react-native@8.18.0` declares `react-native >=0.65.0`, but release artifact behavior still has to be proven instead of patching `node_modules` or disabling source-map upload.
 - Android release APK generation has now been proven locally for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled; Sentry source-map upload remains explicitly not claimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available.
@@ -85,6 +85,17 @@
 - The reduced signed `devRelease` no-network smoke proof is valid and the network blocker summary is classified as `blocked-by-electrum-certificate-expired`, so the Sentry preflight may pass only as a controlled `not ready` state.
 - iOS static readiness remains valid, but iOS macOS archive validation is not ready on this Windows host; `ios/Podfile.lock` still has 12 active drift issues, including `RNScreens 3.6.0` versus package `4.26.0`.
 - `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are missing, so source-map/dSYM upload validation remains explicitly not claimed.
+
+## 2026-07-11 Preflight Refresh
+
+- `sentry:release:validation:preflight` was rerun after the latest Android release validation refresh and iOS static handoff refresh.
+- The Sentry release prerequisite summary reports `@sentry/react-native@8.18.0` and direct `@sentry/cli@3.6.0` as current latest checked targets, with a single direct `@sentry/cli` package instance and no nested Sentry-owned CLI versions.
+- `sentry:android-warning:audit` reports Sentry Android warning wiring valid, `0` readiness issues, `0` wiring errors, and no active Sentry `execResult` warning on the RN `0.86.0` baseline.
+- `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim for RN `0.86.0`.
+- Android release build and APK manifest evidence remains current for `dev`, `stage`, `prod`, and `beta`, but full release smoke and release create-wallet proof remain not ready because the dev/testnet release app is blocked by the classified Electrum TLS certificate expiry.
+- The reduced signed `devRelease` no-network smoke proof is valid and the network blocker summary is classified as `blocked-by-electrum-certificate-expired`, so the Sentry preflight may pass only as a controlled `not ready` state.
+- iOS static readiness remains valid, but iOS macOS archive validation is not ready on this Windows host; `ios/Podfile.lock` still has 12 active drift issues, including `RNSentry 3.1.0` versus `@sentry/react-native 8.18.0`.
+- `sentry:release:credential-plan` reports `SENTRY_AUTH_TOKEN available in current shell: no`, `Missing properties files: 3`, and `Sentry release upload validation: not claimed`; source-map/dSYM upload remains explicitly unclaimed until the token, root/Android/iOS properties files, full release runtime proof, and macOS iOS validation are available.
 
 ## Credential Handoff Gate
 
