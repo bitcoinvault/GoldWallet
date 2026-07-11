@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.851 - iOS static release handoff refresh
+
+- Branch: `feature/bem-37-851-ios-static-release-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the Windows-safe iOS static release and macOS handoff evidence after the latest foundation target refresh.
+- Re-run the aggregate `ios:static:verify` gate so release readiness, macOS prerequisites, Podfile refresh plan, and all-schemes handoff summary stay current.
+- Keep iOS runtime/archive delivery explicitly unclaimed on this Windows workstation.
+- Keep this branch scoped to iOS validation evidence and documentation; do not change iOS native project files, dependencies, or runtime code.
+
+Findings:
+
+- `ios:static:verify` passed on `2026-07-11` with Node `v24.16.0` and refreshed the local iOS release readiness, macOS prerequisite, Podfile refresh plan, and handoff summary artifacts.
+- Static iOS release files remain valid for React Native `0.86.0`: iOS deployment target `15.1`, minimum Xcode `16.1`, `8` guarded shared schemes, `4` Sentry bundle/source-map phases, `3` Sentry dSYM upload phases, `4` remote-notification plists, and `0` CodePush plist placeholders.
+- This Windows host still cannot claim iOS runtime/archive validation: platform is `win32`, `xcodebuild` is unavailable, `pod` and `bundle exec pod` are unavailable, and iOS runtime delivery remains `not claimed`.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh and has `12` active drift issues: `React-Core`, `RNBootSplash`, `react-native-config`, `RNCAsyncStorage`, `RNDeviceInfo`, `RNFastImage`, `RNFBApp`, `RNGestureHandler`, `RNLocalize`, `RNScreens`, `RNSentry`, and `RNVectorIcons`.
+- Removed Podfile.lock pod references remain `0`; the current blocker is stale active native pod versions, not stale removed-camera, removed-masked-view, or removed-CodePush pods.
+- Required macOS action remains unchanged: run `pod install`, review and commit the refreshed `ios/Podfile.lock`, then run `corepack yarn ios:mac-validation:handoff --all-schemes` on macOS with Xcode `16.1+` before claiming iOS simulator/archive readiness.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn ios:static:verify`
+
 ### BEM-37.850 - Foundation target live refresh
 
 - Branch: `feature/bem-37-850-foundation-target-refresh`
