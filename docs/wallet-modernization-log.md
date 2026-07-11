@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.843 - iOS static release validation refresh
+
+- Branch: `feature/bem-37-843-ios-static-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh iOS static release readiness evidence for the current RN `0.86.0` baseline.
+- Keep iOS runtime/archive delivery explicitly unclaimed on this Windows workstation.
+- Add a single `ios:static:verify` script for the repeatable Windows-safe iOS readiness path.
+- Guard the static iOS script so it cannot silently skip release readiness, macOS prerequisite, Podfile refresh, or all-scheme handoff checks.
+
+Findings:
+
+- Static iOS release files are valid: 8 shared schemes are guarded, deployment target is `15.1`, Sentry bundle/source-map and dSYM phases remain present, and remote-notification plist coverage is present for 4 plists.
+- React Native `0.86.0` requires iOS `15.1` and Xcode `16.1+`; this Windows workstation has no `xcodebuild`.
+- CocoaPods is unavailable here, so `ios/Podfile.lock` cannot be refreshed on this machine.
+- `ios/Podfile.lock` has 12 active drift issues after the RN/dependency refresh, including `React-Core 0.65.3` vs `react-native 0.86.0` and `RNSentry 3.1.0` vs `@sentry/react-native 8.18.0`.
+- Required macOS handoff remains: run `pod install`, then `corepack yarn ios:mac-validation:handoff --all-schemes` on macOS with Xcode `16.1+`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-static-validation-script-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation-prereq:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:podfile-refresh:check-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-validation-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.842 - Android release validation refresh
 
 - Branch: `feature/bem-37-842-android-release-validation-refresh`
