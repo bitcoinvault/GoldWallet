@@ -33,6 +33,12 @@ const validSummary = [
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
   'CodePush release create-wallet evidence ready: yes',
+  'Controlled release blocker summary present: no',
+  'Controlled release blocker valid: no',
+  'Controlled release blocker outcome: missing',
+  'Controlled release blocker errors: 1',
+  '- missing Android release network blocker summary',
+  'CodePush release runtime proof state: ready',
   'Ready CodePush environments: 2',
   'Blocked CodePush environments: 1',
   'Unconfirmed CodePush environments: 2',
@@ -73,6 +79,11 @@ const removedBlockedByReleaseSummary = validSummary
       '- Source APK bytes does not match the current file size for D:\\GoldWallet\\local-docs\\android-smoke-dev-release-signed.apk',
       '- Source APK sha256 does not match the current file digest for D:\\GoldWallet\\local-docs\\android-smoke-dev-release-signed.apk',
       'CodePush release create-wallet evidence ready: no',
+      'Controlled release blocker summary present: yes',
+      'Controlled release blocker valid: yes',
+      'Controlled release blocker outcome: blocked-by-electrum-certificate-expired',
+      'Controlled release blocker errors: 0',
+      'CodePush release runtime proof state: blocked-by-electrum-certificate-expired',
     ].join('\n'),
   )
   .replace('Beta CodePush strategy confirmed: no', 'Beta CodePush strategy confirmed: yes')
@@ -165,6 +176,16 @@ assertRejected(
   'Missing release create-wallet evidence fixture',
   validSummary.replace('CodePush release create-wallet evidence ready: yes', 'CodePush release create-wallet evidence ready: no'),
   'release create-wallet evidence',
+);
+assertRejected(
+  'Ready runtime proof without release evidence fixture',
+  validSummary.replace('CodePush release smoke evidence ready: yes', 'CodePush release smoke evidence ready: no'),
+  'release smoke evidence',
+);
+assertRejected(
+  'Controlled blocker runtime proof without blocker fixture',
+  validSummary.replace('CodePush release runtime proof state: ready', 'CodePush release runtime proof state: blocked-by-electrum-certificate-expired'),
+  'valid controlled release blocker summary',
 );
 assertRejected(
   'Bad environment count fixture',

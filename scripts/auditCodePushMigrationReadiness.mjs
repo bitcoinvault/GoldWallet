@@ -5,6 +5,7 @@ import { collectCodePushReleasePathAudit } from './auditCodePushReleasePath.mjs'
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
+import { collectCodePushControlledReleaseBlocker } from './codePushControlledReleaseBlocker.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -30,6 +31,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 export const collectCodePushMigrationReadinessAudit = () => {
   const releasePathAudit = collectCodePushReleasePathAudit();
+  const controlledReleaseBlocker = collectCodePushControlledReleaseBlocker(root);
   const decisionDocumentPresent = existsSync(decisionDocPath);
   const decisionDocument = decisionDocumentPresent ? read('docs/codepush-retirement-migration-plan.md') : '';
   let releasePathSummaryValid = false;
@@ -96,6 +98,16 @@ export const collectCodePushMigrationReadinessAudit = () => {
     androidReleaseCreateWalletSmokeSummaryValid,
     androidReleaseCreateWalletSmokeSummaryErrors,
     releaseCreateWalletEvidenceReady: androidReleaseCreateWalletSmokeSummaryValid,
+    controlledReleaseBlockerPresent: controlledReleaseBlocker.present,
+    controlledReleaseBlockerValid: controlledReleaseBlocker.valid,
+    controlledReleaseBlockerOutcome: controlledReleaseBlocker.outcome,
+    controlledReleaseBlockerErrors: controlledReleaseBlocker.errors,
+    releaseRuntimeProofState:
+      androidReleaseSmokeSummaryValid && androidReleaseCreateWalletSmokeSummaryValid
+        ? 'ready'
+        : controlledReleaseBlocker.valid
+        ? controlledReleaseBlocker.outcome
+        : 'not ready',
     readyEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'ready').length,
     blockedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'blocked').length,
     unconfirmedEnvironmentCount: releasePathAudit.envReadiness.filter(entry => entry.status === 'unconfirmed').length,
@@ -143,6 +155,12 @@ export const formatCodePushMigrationReadinessSummary = (audit, generatedAt = new
     `Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`,
     ...audit.androidReleaseCreateWalletSmokeSummaryErrors.map(error => `- ${error}`),
     `CodePush release create-wallet evidence ready: ${audit.releaseCreateWalletEvidenceReady ? 'yes' : 'no'}`,
+    `Controlled release blocker summary present: ${audit.controlledReleaseBlockerPresent ? 'yes' : 'no'}`,
+    `Controlled release blocker valid: ${audit.controlledReleaseBlockerValid ? 'yes' : 'no'}`,
+    `Controlled release blocker outcome: ${audit.controlledReleaseBlockerOutcome}`,
+    `Controlled release blocker errors: ${audit.controlledReleaseBlockerErrors.length}`,
+    ...audit.controlledReleaseBlockerErrors.map(error => `- ${error}`),
+    `CodePush release runtime proof state: ${audit.releaseRuntimeProofState}`,
     `Ready CodePush environments: ${audit.readyEnvironmentCount}`,
     `Blocked CodePush environments: ${audit.blockedEnvironmentCount}`,
     `Unconfirmed CodePush environments: ${audit.unconfirmedEnvironmentCount}`,
@@ -178,6 +196,8 @@ const printReport = audit => {
   console.log(`CodePush release build evidence ready: ${audit.releaseBuildEvidenceReady ? 'yes' : 'no'}`);
   console.log(`CodePush release smoke evidence ready: ${audit.releaseSmokeEvidenceReady ? 'yes' : 'no'}`);
   console.log(`CodePush release create-wallet evidence ready: ${audit.releaseCreateWalletEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`Controlled release blocker valid: ${audit.controlledReleaseBlockerValid ? 'yes' : 'no'}`);
+  console.log(`CodePush release runtime proof state: ${audit.releaseRuntimeProofState}`);
   console.log(`Ready CodePush environments: ${audit.readyEnvironmentCount}`);
   console.log(`Blocked CodePush environments: ${audit.blockedEnvironmentCount}`);
   console.log(`Unconfirmed CodePush environments: ${audit.unconfirmedEnvironmentCount}`);

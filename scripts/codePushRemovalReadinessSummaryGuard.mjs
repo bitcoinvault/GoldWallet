@@ -35,6 +35,8 @@ const yesNoLabels = [
   'CodePush release smoke evidence ready',
   'Android release create-wallet smoke summary valid',
   'CodePush release create-wallet evidence ready',
+  'Controlled release blocker summary present',
+  'Controlled release blocker valid',
   'Android native integration present',
   'iOS native integration present',
   'CodePush runtime gated off by default',
@@ -70,6 +72,10 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
   const androidReleaseCreateWalletSmokeSummaryValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
   const androidReleaseCreateWalletSmokeSummaryErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
   const releaseCreateWalletEvidenceReady = getLineValue(summary, 'CodePush release create-wallet evidence ready');
+  const controlledReleaseBlockerValid = getLineValue(summary, 'Controlled release blocker valid');
+  const controlledReleaseBlockerOutcome = getLineValue(summary, 'Controlled release blocker outcome');
+  const controlledReleaseBlockerErrors = getLineValue(summary, 'Controlled release blocker errors');
+  const releaseRuntimeProofState = getLineValue(summary, 'CodePush release runtime proof state');
   const runtimeUsageCount = getLineValue(summary, 'Runtime usage files');
   const nativeIntegrationCount = getLineValue(summary, 'Native integration files');
   const envFileCount = getLineValue(summary, 'Env files carrying CodePush keys');
@@ -177,6 +183,29 @@ export const getCodePushRemovalReadinessSummaryErrors = summary => {
         `CodePush release create-wallet evidence must be ready before removal planning. Received: ${releaseCreateWalletEvidenceReady || 'missing'}`,
       );
     }
+  } else if ((releaseSmokeEvidenceReady !== 'yes' || releaseCreateWalletEvidenceReady !== 'yes') && !(
+    controlledReleaseBlockerValid === 'yes' &&
+    controlledReleaseBlockerOutcome === 'blocked-by-electrum-certificate-expired' &&
+    controlledReleaseBlockerErrors === '0' &&
+    releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired'
+  )) {
+    errors.push('Removed CodePush summaries with blocked release proof require a valid controlled Electrum release blocker');
+  }
+
+  if (releaseRuntimeProofState === 'ready') {
+    if (releaseSmokeEvidenceReady !== 'yes' || releaseCreateWalletEvidenceReady !== 'yes') {
+      errors.push('CodePush release runtime proof state ready requires both release smoke and release create-wallet evidence');
+    }
+  } else if (releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired') {
+    if (
+      controlledReleaseBlockerValid !== 'yes' ||
+      controlledReleaseBlockerOutcome !== 'blocked-by-electrum-certificate-expired' ||
+      controlledReleaseBlockerErrors !== '0'
+    ) {
+      errors.push('CodePush release runtime proof state blocked-by-electrum-certificate-expired requires a valid controlled release blocker summary');
+    }
+  } else if (releaseRuntimeProofState !== 'not ready') {
+    errors.push(`CodePush release runtime proof state must be ready, blocked-by-electrum-certificate-expired, or not ready. Received: ${releaseRuntimeProofState || 'missing'}`);
   }
 
   [
