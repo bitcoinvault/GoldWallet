@@ -10,6 +10,63 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.853 - Google Services Gradle plugin 4.5.0 refresh
+
+- Branch: `feature/bem-37-853-google-services-4-5-0`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the Android Google Services Gradle plugin from `4.4.4` to the current Google Maven metadata target `4.5.0`.
+- Keep React Native Firebase packages aligned on `25.1.0`, Firebase Crashlytics Gradle plugin on `3.0.7`, and strict version matcher on `1.2.4`.
+- Update Firebase release-services guards, baseline docs, and release-services compatibility docs so the exact Android Firebase build-plugin baseline cannot drift silently.
+- Refresh Android release build evidence and Firebase/push release-services summaries after the buildscript input changed.
+- Keep real FCM token/notification delivery, Crashlytics upload, Analytics behavior, Sentry upload, and full release dashboard/create-wallet validation explicitly unclaimed.
+
+Findings:
+
+- Live npm metadata on `2026-07-11` still reports `@react-native-firebase/app`, `analytics`, `crashlytics`, and `messaging` `25.1.0` as the current aligned package family; Messaging peers `@react-native-firebase/app@25.1.0`.
+- Google Maven metadata on `2026-07-11` reports `com.google.gms:google-services@4.5.0` as latest; `com.google.firebase:firebase-crashlytics-gradle@3.0.7` remains latest.
+- `android:dev:release:verify-local` rebuilt `dev`, `stage`, `prod`, and `beta` release APK evidence under JDK 17 with release-input fingerprint `832f636af0cc3421672d0d6e0ce64793e2a5fed86ef466ff1e41cebcc307fd32`.
+- The refreshed `devRelease` unsigned APK SHA-256 is `9b970c8aa35ad98d603c5a7c21dc75a28f1a4a398b35faafe9707087c28b9798`; the locally signed release-smoke APK SHA-256 is `06a808671c0ec31d2a8c999c5bc212033d1e6733db9bbd3b0f52e248bead286a`.
+- Full release smoke and dev debug smoke both installed and launched the app on `emulator-5554`, completed terms/PIN/transaction-password/email-skip onboarding, then stopped before the dashboard because the dev/testnet Electrum endpoint still presents an expired TLS certificate.
+- The reduced release no-network smoke and dev debug no-network smoke both passed with expected `No network` UI and no fatal/runtime logcat findings.
+- `android:dev:release:network-blocker:audit` reclassified the current APK evidence as `blocked-by-electrum-certificate-expired` for `electrumx.testnet.btcv.stage.rnd.land:443 tls`; the certificate expired `Tue Jun 23 16:52:40 GMT 2026` and was compared during this run at `Sat Jul 11 17:33:50 GMT 2026`.
+- `release-services:check-summaries` passes only under that controlled blocker; full dashboard, tab navigation, QR scanner, Settings Terms WebView, release create-wallet, Firebase delivery, CodePush OTA, and Sentry upload validation remain blocked until the dev/testnet Electrum TLS certificate is fixed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/app version time.modified peerDependencies dependencies repository.url --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/messaging version peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/analytics version peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-firebase/crashlytics version peerDependencies --json`
+- `Invoke-RestMethod https://dl.google.com/dl/android/maven2/com/google/gms/google-services/maven-metadata.xml`
+- `Invoke-RestMethod https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-crashlytics-gradle/maven-metadata.xml`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:release-services:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn push-notification:bridge-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn firebase:runtime:delivery:handoff:dry-run --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded` failed in the known controlled `No network` path after onboarding; see `android-release-network-blocker-summary.txt`.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` failed in the known controlled `No network` path after onboarding; see `android-smoke-dev-no-network-summary.txt`.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.852 - Sentry release prerequisite refresh
 
 - Branch: `feature/bem-37-852-sentry-release-prereq-refresh`

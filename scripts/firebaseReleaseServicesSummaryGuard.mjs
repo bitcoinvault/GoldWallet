@@ -90,8 +90,8 @@ export const getFirebaseReleaseServicesSummaryErrors = summary => {
     errors.push(`React Native Firebase package current must be yes. Received: ${packageCurrent || 'missing'}`);
   }
 
-  if (googleServicesGradlePlugin !== '4.4.4') {
-    errors.push(`Android Google Services Gradle plugin must be 4.4.4. Received: ${googleServicesGradlePlugin || 'missing'}`);
+  if (googleServicesGradlePlugin !== '4.5.0') {
+    errors.push(`Android Google Services Gradle plugin must be 4.5.0. Received: ${googleServicesGradlePlugin || 'missing'}`);
   }
 
   if (crashlyticsGradlePlugin !== '3.0.7') {

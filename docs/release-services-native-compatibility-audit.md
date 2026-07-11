@@ -201,7 +201,7 @@ This verifies the current shared Xcode scheme pre-action matrix for dev, stage, 
 
 Android:
 
-- `android/build.gradle` uses Google Services Gradle plugin `4.4.4`, Crashlytics Gradle plugin `3.0.7`, and strict version matcher plugin `1.2.4`.
+- `android/build.gradle` uses Google Services Gradle plugin `4.5.0`, Crashlytics Gradle plugin `3.0.7`, and strict version matcher plugin `1.2.4`.
 - `android/app/build.gradle` applies `com.google.firebase.crashlytics`, Sentry Gradle script, and `com.google.gms.google-services`.
 - Android Firebase package versions are now supplied by React Native Firebase `25.1.0`; the old manual `firebase-core:16.0.3` and app-level Firebase BoM `28.2.0` entries were removed to avoid duplicate measurement classes.
 - Android Firebase config files exist under flavor-specific `android/app/src/*/google-services.json`.
@@ -225,7 +225,7 @@ Shared env/config:
 ## Upgrade Risk
 
 - Firebase RN `25.1.0` is the current package family and must stay aligned across app, analytics, Crashlytics, and messaging.
-- Android Firebase build plugins are on the latest checked Google Maven metadata as of 2026-06-05: Google Services Gradle plugin `4.4.4` and Firebase Crashlytics Gradle plugin `3.0.7`; strict version matcher remains current at `1.2.4`.
+- Android Firebase build plugins are on the latest checked Google Maven metadata as of 2026-07-11: Google Services Gradle plugin `4.5.0` and Firebase Crashlytics Gradle plugin `3.0.7`; strict version matcher remains current at `1.2.4`.
 - Firebase changes can still affect Android Gradle plugins, Firebase BoM, google-services files, iOS pods, plist selection, analytics, Crashlytics, messaging permissions, and token registration.
 - `corepack yarn firebase:release-services:audit` verifies current Firebase package family alignment, Android Gradle/config files, iOS plist files, Messaging runtime wiring, latest local Android `dev`/`stage`/`prod`/`beta` release summary evidence, current release-input coverage, and unclaimed runtime-delivery status before a Firebase family upgrade. It writes `local-docs/firebase-release-services-summary.txt`.
 - `corepack yarn firebase:release-services:check-summary` validates the generated local Firebase release-services summary.
