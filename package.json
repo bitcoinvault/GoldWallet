@@ -366,6 +366,7 @@
     "android:dev:release:check-summary": "node scripts/checkAndroidReleaseSummary.mjs",
     "android:dev:release:check-apk-manifest": "node scripts/checkAndroidReleaseApkManifest.mjs",
     "android:dev:release:smoke:embedded": "node scripts/androidSmokeDevReleaseEmbedded.mjs",
+    "android:dev:release:smoke:no-network:embedded": "node scripts/androidSmokeDevReleaseNoNetworkEmbedded.mjs",
     "android:dev:release:check-smoke-summary": "node scripts/checkAndroidReleaseSmokeSummary.mjs",
     "android:dev:release:create-wallet-smoke:embedded": "node scripts/androidCreateWalletSmokeDevReleaseEmbedded.mjs",
     "android:dev:release:check-create-wallet-smoke-summary": "node scripts/checkAndroidReleaseCreateWalletSmokeSummary.mjs",

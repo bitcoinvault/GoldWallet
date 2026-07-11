@@ -60,6 +60,10 @@ assert(message.includes('uninstall old test packages'), 'failure message should 
 const smokeHelper = readFileSync(path.join(root, 'scripts', 'androidSmokeDev.mjs'), 'utf8');
 const noNetworkEmbeddedWrapper = readFileSync(path.join(root, 'scripts', 'androidSmokeDevNoNetworkEmbedded.mjs'), 'utf8');
 const noNetworkMetroWrapper = readFileSync(path.join(root, 'scripts', 'androidSmokeDevMetroNoNetwork.mjs'), 'utf8');
+const releaseNoNetworkEmbeddedWrapper = readFileSync(
+  path.join(root, 'scripts', 'androidSmokeDevReleaseNoNetworkEmbedded.mjs'),
+  'utf8',
+);
 
 assert(
   smokeHelper.includes('ANDROID_SMOKE_UNINSTALL_BEFORE_INSTALL'),
@@ -138,6 +142,22 @@ assert(
 assert(
   noNetworkMetroWrapper.includes("ANDROID_SMOKE_DATA_STORAGE_MULTIPLIER ??= '2.5'"),
   'Metro no-network smoke wrapper should use a reduced storage reserve for blocker proof',
+);
+assert(
+  releaseNoNetworkEmbeddedWrapper.includes("ANDROID_SMOKE_OUTPUT_BASENAME ??= 'android-smoke-dev-release-no-network'"),
+  'release no-network smoke wrapper should write the guarded release no-network artifact basename',
+);
+assert(
+  releaseNoNetworkEmbeddedWrapper.includes("ANDROID_SMOKE_DATA_STORAGE_MULTIPLIER ??= '2.5'"),
+  'release no-network smoke wrapper should use a reduced storage reserve for blocker proof',
+);
+assert(
+  releaseNoNetworkEmbeddedWrapper.includes("ANDROID_SMOKE_ALLOW_NETWORK_LOGCAT_FAILURES ??= 'true'"),
+  'release no-network smoke wrapper should allow known network logcat failures for blocker proof',
+);
+assert(
+  releaseNoNetworkEmbeddedWrapper.includes("await import('./androidSmokeDevReleaseEmbedded.mjs');"),
+  'release no-network smoke wrapper should reuse the signed devRelease smoke helper',
 );
 
 console.log('Android smoke storage preflight guard checks are valid.');

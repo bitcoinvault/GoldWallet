@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.842 - Android release validation refresh
+
+- Branch: `feature/bem-37-842-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release validation for the current RN `0.86.0` / AGP `8.13.2` baseline.
+- Build dev, stage, prod, and beta release APKs locally with Sentry auto-upload disabled.
+- Verify release APK manifest metadata for package names, SDK levels, version metadata, and Android 13 notification permission.
+- Add a dedicated devRelease no-network smoke wrapper so the controlled Electrum blocker evidence can be refreshed without manual env plumbing.
+- Keep full Android release runtime proof unclaimed while the dev/testnet Electrum TLS certificate is expired.
+
+Findings:
+
+- npm registry checks show `react-native`, `@react-native/gradle-plugin`, `@react-native/babel-preset`, and `@react-native/metro-config` are already at current stable `0.86.0`; this branch does not need a React Native version bump.
+- `android:dev:release:verify-local` rebuilt all four release variants and produced release APKs, JS bundles, and source maps under JDK 17.
+- The full devRelease smoke installed the locally signed release APK and completed first-run Terms, PIN, transaction password, and email-skip flow, then remained blocked on the `No network` screen instead of reaching dashboard texts.
+- The reduced devRelease no-network smoke now has a first-class wrapper and is only blocker evidence; it is not treated as full release runtime proof.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native/gradle-plugin version --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded` refreshed the controlled full release smoke blocker artifact
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries` passed under the controlled `blocked-by-electrum-certificate-expired` blocker
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.841 - Pre-push Node runtime pinning
 
 - Branch: `feature/bem-37-841-prepush-node-runtime`
