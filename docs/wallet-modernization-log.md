@@ -10,6 +10,60 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.869 - moderate security compatible ranges
+
+- Branch: `feature/bem-37-869-moderate-security-compatible-ranges`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Continue transitive security audit reduction after `BEM-37.868` by moving compatible current-line owner paths for `joi`, `launch-editor`, `micromatch`, `protobufjs`, and `word-wrap`.
+- Keep this branch limited to same-major or owner-path compatible ranges: `joi@17.13.4`, `launch-editor@2.14.1`, `micromatch@4.0.8`, `protobufjs@7.6.5`, and `word-wrap@1.2.5`.
+- Leave `brace-expansion`, `js-yaml`, `yaml`, and `uuid` out of this branch because the lockfile contains mixed major lines or owner paths that need separate compatibility review.
+- Extend `check:security-resolution-baselines` so the lockfile cannot drift back to vulnerable `joi@17.13.3`, `launch-editor@2.14.0`, `micromatch@4.0.4`, `protobufjs@7.6.1`/`7.6.2`, or `word-wrap@1.2.3`.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `launch-editor@2.14.1`, `micromatch@4.0.8`, and `word-wrap@1.2.5` as latest.
+- Live npm metadata on `2026-07-12` reports `joi@18.2.3` as latest and `latest-17` as `17.13.4`; the RN CLI owner path remains on the `17.x` line in this branch.
+- Live npm metadata on `2026-07-12` reports `protobufjs@8.7.0` as latest and `latest-7` as `7.6.5`; the Firebase/Firestore owner path remains on the `7.x` line in this branch.
+- Lockfile versions after install are exactly `joi@17.13.4`, `launch-editor@2.14.1`, `micromatch@4.0.8`, `protobufjs@7.6.5`, and `word-wrap@1.2.5`.
+- `corepack yarn audit --json --level moderate` now reports `0` critical, `0` high, `43` moderate, and `0` low findings, down from `0` critical, `0` high, `61` moderate, and `15` low after `BEM-37.868`.
+- Remaining moderate findings are isolated to `brace-expansion`, `js-yaml`, `yaml`, and `uuid`; handle those in dedicated owner-path branches instead of hiding cross-major risk in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view joi version dist-tags engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view launch-editor version dist-tags engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view micromatch version dist-tags engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view protobufjs version dist-tags engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view word-wrap version dist-tags engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- lockfile version parser for `joi`, `launch-editor`, `micromatch`, `protobufjs`, and `word-wrap`
+- parsed `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level moderate` (current summary: `0` critical, `0` high, `43` moderate, `0` low)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` (blocked by expired dev/testnet Electrum TLS certificate before dashboard proof)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
+Android runtime note:
+
+- The no-network Android smoke installed and launched `app-dev-debug.apk`, completed first-run Terms/PIN/transaction-password/email-skip flow, found the expected `No network` UI, and reported no fatal/runtime logcat findings.
+- Full dashboard smoke remains externally blocked by `electrumx.testnet.btcv.stage.rnd.land:443 tls`; `android:dev:network-blocker:audit` captured `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- iOS runtime validation is not claimed on this Windows machine; `ios:static:verify` still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
 ### BEM-37.868 - tiny-secp256k1 wallet crypto compatibility
 
 - Branch: `feature/bem-37-868-tiny-secp256k1-compatibility`
