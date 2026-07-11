@@ -95,7 +95,7 @@
 - `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim for RN `0.86.0`.
 - Android release build and APK manifest evidence remains current for `dev`, `stage`, `prod`, and `beta`, but full release smoke and release create-wallet proof remain not ready because the dev/testnet release app is blocked by the classified Electrum TLS certificate expiry.
 - The reduced signed `devRelease` no-network smoke proof is valid and the network blocker summary is classified as `blocked-by-electrum-certificate-expired`, so the Sentry preflight may pass only as a controlled `not ready` state.
-- iOS static readiness remains valid, but iOS macOS archive validation is not ready on this Windows host; `ios/Podfile.lock` still has 12 active drift issues, including `RNSentry 3.1.0` versus `@sentry/react-native 8.18.0`.
+- iOS static readiness was refreshed in `BEM-37.858` and remains valid, but iOS macOS archive validation is not ready on this Windows host; `ios/Podfile.lock` still has 12 active drift issues, including `RNSentry 3.1.0` versus `@sentry/react-native 8.18.0`.
 - `sentry:release:credential-plan` reports `SENTRY_AUTH_TOKEN available in current shell: no`, `Missing properties files: 3`, and `Sentry release upload validation: not claimed`; source-map/dSYM upload remains explicitly unclaimed until the token, root/Android/iOS properties files, full release runtime proof, and macOS iOS validation are available.
 
 ## Credential Handoff Gate
