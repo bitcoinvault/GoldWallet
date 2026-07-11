@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.852 - Sentry release prerequisite refresh
+
+- Branch: `feature/bem-37-852-sentry-release-prereq-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the non-secret Sentry release prerequisite evidence after the latest Android release validation and iOS static handoff refreshes.
+- Re-run Sentry Android warning, RN bundle-task compatibility, source-map prerequisite, preflight, and credential-plan checks against the current RN `0.86.0` / Sentry `8.18.0` baseline.
+- Keep Sentry source-map and dSYM upload explicitly unclaimed because local credentials/properties, full release runtime proof, and macOS iOS archive validation are still unavailable.
+- Keep this branch scoped to release-readiness evidence and documentation; do not change Sentry package versions, native project files, env values, runtime code, or generated credential files.
+
+Findings:
+
+- `sentry:release:validation:preflight` passed on `2026-07-11` without printing or generating secret values and refreshed `local-docs/sentry-android-warning-summary.txt`, `local-docs/sentry-rn-bundle-task-compatibility-summary.txt`, and `local-docs/sentry-release-prereq-summary.txt`.
+- `@sentry/react-native@8.18.0` and direct `@sentry/cli@3.6.0` remain current latest checked targets; the direct CLI binary is present, executable, and used by the release build path.
+- Sentry Android warning wiring remains valid with `0` readiness issues and `0` wiring errors; the active RN `0.86.0` warning audit does not report an active Sentry `execResult` warning.
+- Sentry RN bundle task compatibility remains ready through the repo-owned legacy args shim for RN `0.86.0`; Sentry expects `jsIntermediateSourceMapsDir` as a `Directory`, while RN exposes it as `RegularFileProperty` and does not expose the fallback `args` property directly.
+- Android release build and APK manifest evidence is current for `dev`, `stage`, `prod`, and `beta`; full release smoke and release create-wallet proof remain not ready because the current dev/testnet release app is blocked by the classified Electrum TLS certificate expiry.
+- The controlled signed `devRelease` no-network smoke evidence remains valid and tied to `blocked-by-electrum-certificate-expired`, so Sentry preflight passes only as a controlled `not ready` state.
+- iOS static readiness remains valid, but macOS archive validation is still not ready on Windows; `ios/Podfile.lock` still has `12` active drift issues including `RNSentry 3.1.0` versus `@sentry/react-native 8.18.0`.
+- `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are still unavailable; `sentry:release:credential-plan` reports `Missing properties files: 3`, `SENTRY_AUTH_TOKEN available in current shell: no`, and `Sentry release upload validation: not claimed`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn sentry:release:validation:preflight`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:credential-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:preflight:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-prereq-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-rn-bundle-task-compat-summary-guard`
+
 ### BEM-37.851 - iOS static release handoff refresh
 
 - Branch: `feature/bem-37-851-ios-static-release-refresh`
