@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.861 - Foundation target live refresh
+
+- Branch: `feature/bem-37-861-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the online foundation target refresh after the Electrum endpoint preflight branch.
+- Keep the current RN target tied to npm `latest` while treating `next` and nightly as planning signals only.
+- Refresh direct outdated package decisions, React patch blocker, Babel 8 blocker, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, TypeScript 7 blocker, Android toolchain target, `bl`, and `node-fetch`.
+- Do not change package versions, lockfiles, runtime code, native project files, or Metro config in this branch.
+
+Findings:
+
+- The first `foundation:target:refresh-online` run correctly failed because live npm metadata reported a fresh `caniuse-lite@1.0.30001805` drift against the pinned `1.0.30001803` resolution, while the direct-outdated summary guard still expected `18` entries.
+- The direct-outdated policy already had a `caniuse-lite` decision; this branch aligns the required summary entry set and guard fixture so the online baseline reports it as a known tooling/resolution blocker instead of an unexpected package.
+- The RN target check still matches current npm metadata: `react-native@0.86.0` is `latest`, `0.87.0-rc.0` is `next` prerelease, and `0.88.0-nightly-20260711-042833e69` is nightly planning metadata.
+- `caniuse-lite` remains pinned to `1.0.30001803`; moving it to `1.0.30001805` still requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof.
+- No Android emulator smoke is required for this branch because it changes only guard policy and documentation; it does not change app runtime, native files, Metro config, package versions, or lockfiles.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn foundation:target:refresh-online` expected fail before patch: unexpected `caniuse-lite` direct-outdated entry.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view caniuse-lite version engines time.modified --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn foundation:target:refresh-online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:foundation-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.860 - Electrum endpoint readiness preflight
 
 - Branch: `feature/bem-37-860-electrum-endpoint-readiness`
