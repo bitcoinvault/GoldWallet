@@ -2,7 +2,7 @@ import { getTypescript7CompatibilityProbeSummaryErrors } from './typescript7Comp
 
 const validSummary = [
   'TypeScript 7 compatibility probe',
-  'Generated at: 2026-07-10T00:00:00.000Z',
+  'Generated at: 2026-07-11T00:00:00.000Z',
   'Node version: v24.16.0',
   'Expected Node version: v24.16.0',
   'Repo TypeScript: 6.0.3',
@@ -45,7 +45,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid TypeScript 7 compatibility probe summary fixture', validSummary);
 assertRejected('Bad header fixture', validSummary.replace('TypeScript 7 compatibility probe', 'Bad header'), 'summary header');
-assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-07-10T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
+assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-07-11T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Wrong Node fixture', validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'), 'repo .nvmrc baseline');
 assertRejected('Wrong repo TypeScript fixture', validSummary.replace('Repo TypeScript: 6.0.3', 'Repo TypeScript: 7.0.2'), 'must stay 6.0.3');
 assertRejected('Wrong target TypeScript fixture', validSummary.replace('Target TypeScript: 7.0.2', 'Target TypeScript: 6.0.3'), 'TypeScript 7 line');
