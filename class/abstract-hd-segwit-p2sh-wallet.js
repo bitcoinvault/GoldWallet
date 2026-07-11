@@ -6,6 +6,7 @@ import { AbstractHDWallet } from './abstract-hd-wallet';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import config from '../src/config';
 import { ELECTRUM_VAULT_SEED_PREFIXES } from '../src/consts';
+import { normalizeECPairSignatures } from '../utils/bitcoinjsKeyPair';
 import {
   electrumVaultMnemonicToSeed,
   getMasterPublicKeyPrefix,
@@ -56,12 +57,10 @@ export class AbstractHDSegwitP2SHWallet extends AbstractHDWallet {
   }
 
   setMnemonic(walletMnemonic) {
-    if (
-      !(
-        bip39.validateMnemonic(walletMnemonic) ||
-        isElectrumVaultMnemonic(walletMnemonic, ELECTRUM_VAULT_SEED_PREFIXES.SEED_PREFIX_SW)
-      )
-    ) {
+    if (!(
+      bip39.validateMnemonic(walletMnemonic) ||
+      isElectrumVaultMnemonic(walletMnemonic, ELECTRUM_VAULT_SEED_PREFIXES.SEED_PREFIX_SW)
+    )) {
       throw new Error(i18n.wallets.errors.invalidMnemonic);
     }
     this.secret = walletMnemonic
@@ -126,7 +125,9 @@ export class AbstractHDSegwitP2SHWallet extends AbstractHDWallet {
     const path = this._getPath(`/0/${index}`);
     const child = root.derivePath(path);
 
-    return bitcoin.ECPair.fromPrivateKey(Buffer.from(child.privateKey), { network: config.network }).toWIF();
+    return normalizeECPairSignatures(
+      bitcoin.ECPair.fromPrivateKey(Buffer.from(child.privateKey), { network: config.network }),
+    ).toWIF();
   }
 
   /**

@@ -2,7 +2,7 @@
 
 Scope: wallet-critical JavaScript and native-adjacent crypto/runtime dependencies used for BTCV key derivation, address handling, transaction building, signing, and persistence-adjacent wallet flows.
 
-Latest npm checked on 2026-06-23.
+Latest npm checked on 2026-07-12.
 
 ## Current Package State
 
@@ -11,7 +11,8 @@ Latest npm checked on 2026-06-23.
 | `bitcoinjs-lib` | `git+https://github.com/bitcoinvault/bitcoinjs-lib.git#0854f675114fada32348d51c80a6ccdb33afc360` | upstream npm `7.0.1`; BTCV fork `master` at `0854f675114fada32348d51c80a6ccdb33afc360` | Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib` without a dedicated compatibility branch. The fork exposes BTCV-specific `VaultTxType`, `alt_networks`, `ECPair`, `TransactionBuilder`, and recovery/alert transaction behavior used by the app. An isolated upstream `bitcoinjs-lib@7.0.1` probe on 2026-06-23 confirmed upstream does not expose `alt_networks`, `VaultTxType`, `ECPair`, or `TransactionBuilder`. The app pins the fork commit so fresh installs cannot drift silently. |
 | `bip39` | `3.1.0` | `3.1.0` | Current mnemonic package remains latest. |
 | `bip32` | `5.0.1` | `5.0.1` | Migrated through `utils/bip32.js`, which adapts the factory-based API to the wallet classes. |
-| `@bitcoinerlab/secp256k1` | `1.2.0` | `1.2.0` | Pure-JavaScript ECC backend for the latest `bip32` factory API; selected because `tiny-secp256k1@2.x` pulls WASM/Node crypto paths that do not bundle cleanly in React Native. |
+| `@bitcoinerlab/secp256k1` | `1.2.0` | `1.2.0` | Pure-JavaScript ECC backend for the latest `bip32` factory API and the React Native Metro shim for `tiny-secp256k1`. |
+| `tiny-secp256k1` | transitive resolution `2.2.4` | `2.2.4` | The BTCV `bitcoinjs-lib` fork and its nested legacy `bip32` owner paths are forced to the patched latest package. Android/RN resolves this module through `metro.config.js` to `utils/tinySecp256k1ReactNative.js`, because the upstream `2.2.4` browser entry imports `secp256k1.wasm`. |
 | `coinselect` | `3.1.13` | `3.1.13` | Current coin selection package remains latest. |
 | `bech32` | not direct | `2.0.0` | The app does not import the standalone package directly. BTCV Bech32 address behavior is owned by the pinned BitcoinVault `bitcoinjs-lib` fork, which resolves transitive `bech32@1.1.4`; keep the direct package absent unless a future branch introduces direct address-encoding code. |
 | `ecurve` | `1.0.6` | `1.0.6` | Legacy elliptic curve dependency used by `utils/crypto.ts`; pinned exactly because this is wallet-critical runtime code. |
@@ -30,6 +31,7 @@ Latest npm checked on 2026-06-23.
 - Direct `bech32` usage is intentionally absent; Bech32 encode/decode behavior is exercised through `bitcoinjs-lib` address/payment APIs and the offline BIP84 fixtures.
 - `crypto-js` is used for wallet-related hashing/encryption helpers and is guarded separately by `corepack yarn crypto-js:runtime:audit`.
 - `ecurve` and `bigi` are not treated as isolated low-risk package bumps because they are coupled to the old bitcoin stack and BTCV fork behavior.
+- `tiny-secp256k1@2.2.4` returns `Uint8Array` keys/signatures; the app normalizes BTCV `ECPair` key/signature values back to `Buffer` through `utils/bitcoinjsKeyPair.js` before passing them into the older BTCV `bitcoinjs-lib` PSBT/typeforce surface.
 - Direct `wif` is now latest `5.0.0`; the BitcoinVault `bitcoinjs-lib` fork keeps using nested `wif@2.0.6`, because its old stack still depends on the 2.x WIF line.
 - `react-native-get-random-values` is imported in `index.js` before app startup so RN runtime code has `crypto.getRandomValues`; the deprecated `react-native-randombytes` native bridge is intentionally absent.
 

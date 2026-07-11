@@ -8,8 +8,6 @@
  **/
 import * as bitcoinjs from 'bitcoinjs-lib';
 
-import config from '../src/config';
-import { btcToSatoshi } from '../utils/bitcoin';
 import {
   getUtxosWithMinimumRest,
   getUtxosFromMaxToMin,
@@ -18,6 +16,9 @@ import {
   getUtxosAmount,
   getFeeValue,
 } from './utils';
+import config from '../src/config';
+import { btcToSatoshi } from '../utils/bitcoin';
+import { normalizeECPairSignatures } from '../utils/bitcoinjsKeyPair';
 
 const BlueElectrum = require('../BlueElectrum');
 const i18n = require('../loc');
@@ -26,7 +27,7 @@ const _p2wpkh = bitcoinjs.payments.p2wpkh;
 const _p2sh = bitcoinjs.payments.p2sh;
 const _p2wsh = bitcoinjs.payments.p2wsh;
 
-exports.createHDTransaction = async function(utxos, toAddress, amount, fixedFee, changeAddress) {
+exports.createHDTransaction = async function (utxos, toAddress, amount, fixedFee, changeAddress) {
   const feeInSatoshis = btcToSatoshi(fixedFee, 0);
   const amountToOutputSatoshi = btcToSatoshi(amount - fixedFee, 0); // how much payee should get
   const txb = new bitcoinjs.TransactionBuilder(config.network);
@@ -45,7 +46,7 @@ exports.createHDTransaction = async function(utxos, toAddress, amount, fixedFee,
   for (const unspent of unspentUtxos) {
     txb.addInput(unspent.txid, unspent.vout);
     ourOutputs[outputNum] = ourOutputs[outputNum] || {};
-    ourOutputs[outputNum].keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif, config.network);
+    ourOutputs[outputNum].keyPair = normalizeECPairSignatures(bitcoinjs.ECPair.fromWIF(unspent.wif, config.network));
     unspentAmountSatoshi += unspent.value;
     if (unspentAmountSatoshi >= amountToOutputSatoshi + feeInSatoshis) {
       // found enough inputs to satisfy payee and pay fees
@@ -88,7 +89,7 @@ exports.createHDTransaction = async function(utxos, toAddress, amount, fixedFee,
   };
 };
 
-exports.createHDSegwitTransaction = async function(utxos, toAddress, amount, fixedFee, changeAddress) {
+exports.createHDSegwitTransaction = async function (utxos, toAddress, amount, fixedFee, changeAddress) {
   const feeInSatoshis = btcToSatoshi(fixedFee, 0);
   const amountToOutputSatoshi = btcToSatoshi(amount - fixedFee, 0); // how much payee should get
   const psbt = new bitcoinjs.Psbt({ network: config.network });
@@ -106,7 +107,7 @@ exports.createHDSegwitTransaction = async function(utxos, toAddress, amount, fix
   const utxosAmount = getUtxosAmount(unspentUtxos);
 
   for (const unspent of unspentUtxos) {
-    const keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif, config.network);
+    const keyPair = normalizeECPairSignatures(bitcoinjs.ECPair.fromWIF(unspent.wif, config.network));
 
     const p2wpkh = _p2wpkh({
       pubkey: keyPair.publicKey,
@@ -173,7 +174,7 @@ exports.createHDSegwitTransaction = async function(utxos, toAddress, amount, fix
   };
 };
 
-exports.createHDSegwitVaultTransaction = async function({
+exports.createHDSegwitVaultTransaction = async function ({
   utxos,
   address,
   amount,
@@ -209,7 +210,7 @@ exports.createHDSegwitVaultTransaction = async function({
   const utxosAmount = getUtxosAmount(unspentUtxos);
 
   for (const unspent of unspentUtxos) {
-    const keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif, config.network);
+    const keyPair = normalizeECPairSignatures(bitcoinjs.ECPair.fromWIF(unspent.wif, config.network));
 
     const p2Vault = paymentMethod({
       pubkeys: [keyPair.publicKey, ...pubKeys],
@@ -269,7 +270,7 @@ exports.createHDSegwitVaultTransaction = async function({
   }
 
   inputKeyPairs.forEach((keyPair, index) => {
-    [keyPair, ...keyPairs].forEach(kP => psbt.signInput(index, kP));
+    [keyPair, ...keyPairs].forEach(kP => psbt.signInput(index, normalizeECPairSignatures(kP)));
   });
 
   const tx = psbt.finalizeAllInputs(vaultTxType).extractTransaction();
@@ -280,7 +281,7 @@ exports.createHDSegwitVaultTransaction = async function({
   };
 };
 
-exports.createSegwitTransaction = async function(utxos, toAddress, amount, fixedFee, WIF, changeAddress, sequence) {
+exports.createSegwitTransaction = async function (utxos, toAddress, amount, fixedFee, WIF, changeAddress, sequence) {
   changeAddress = changeAddress || exports.WIF2segwitAddress(WIF);
 
   if (sequence === undefined) {
@@ -289,7 +290,7 @@ exports.createSegwitTransaction = async function(utxos, toAddress, amount, fixed
 
   const feeInSatoshis = btcToSatoshi(fixedFee, 0);
 
-  const keyPair = bitcoinjs.ECPair.fromWIF(WIF, config.network);
+  const keyPair = normalizeECPairSignatures(bitcoinjs.ECPair.fromWIF(WIF, config.network));
   const p2wpkh = _p2wpkh({
     pubkey: keyPair.publicKey,
     network: config.network,
@@ -359,8 +360,8 @@ exports.createSegwitTransaction = async function(utxos, toAddress, amount, fixed
   };
 };
 
-exports.generateNewSegwitAddress = function() {
-  const keyPair = bitcoinjs.ECPair.makeRandom({ network: config.network });
+exports.generateNewSegwitAddress = function () {
+  const keyPair = normalizeECPairSignatures(bitcoinjs.ECPair.makeRandom({ network: config.network }));
   const address = bitcoinjs.payments.p2sh({
     network: config.network,
     redeem: bitcoinjs.payments.p2wpkh({
@@ -375,7 +376,7 @@ exports.generateNewSegwitAddress = function() {
   };
 };
 
-exports.URI = function(paymentInfo) {
+exports.URI = function (paymentInfo) {
   let uri = 'bitcoin:';
 
   uri += paymentInfo.address;
@@ -391,8 +392,8 @@ exports.URI = function(paymentInfo) {
   return uri;
 };
 
-exports.WIF2segwitAddress = function(WIF) {
-  const keyPair = bitcoinjs.ECPair.fromWIF(WIF, config.network);
+exports.WIF2segwitAddress = function (WIF) {
+  const keyPair = normalizeECPairSignatures(bitcoinjs.ECPair.fromWIF(WIF, config.network));
 
   return bitcoinjs.payments.p2sh({
     network: config.network,
@@ -403,10 +404,10 @@ exports.WIF2segwitAddress = function(WIF) {
   }).address;
 };
 
-exports.createTransaction = async function(utxos, toAddress, _amount, _fixedFee, WIF, fromAddress) {
+exports.createTransaction = async function (utxos, toAddress, _amount, _fixedFee, WIF, fromAddress) {
   const fixedFee = btcToSatoshi(_fixedFee, 0);
   const amountToOutput = btcToSatoshi(_amount - _fixedFee, 0);
-  const pk = bitcoinjs.ECPair.fromWIF(WIF, config.network); // eslint-disable-line new-cap
+  const pk = normalizeECPairSignatures(bitcoinjs.ECPair.fromWIF(WIF, config.network)); // eslint-disable-line new-cap
   const txb = new bitcoinjs.TransactionBuilder(config.network);
 
   txb.setVersion(1);
@@ -451,13 +452,13 @@ exports.createTransaction = async function(utxos, toAddress, _amount, _fixedFee,
   };
 };
 
-exports.signAndFinalizePSBT = function(encodedPSBT, keyPairs, vaultTxType = bitcoinjs.VaultTxType.NonVault) {
+exports.signAndFinalizePSBT = function (encodedPSBT, keyPairs, vaultTxType = bitcoinjs.VaultTxType.NonVault) {
   const psbt = bitcoinjs.Psbt.fromBase64(encodedPSBT, {
     network: config.network,
   });
 
   keyPairs.forEach(keyPair => {
-    psbt.signAllInputs(keyPair);
+    psbt.signAllInputs(normalizeECPairSignatures(keyPair));
   });
 
   return {

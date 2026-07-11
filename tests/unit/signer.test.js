@@ -21,9 +21,22 @@ const suppressTransactionBuilderDeprecationWarning = () => {
   });
 };
 
-describe('unit - signer', function() {
-  describe('createSegwitTransaction()', function() {
-    it('should return valid tx hex for segwit transactions', async function() {
+describe('unit - signer', function () {
+  describe('normalizeECPairSignatures()', function () {
+    it('keeps tiny-secp256k1 signatures compatible with the BTCV bitcoinjs fork', function () {
+      const { normalizeECPairSignatures } = require('../../utils/bitcoinjsKeyPair');
+      const keyPair = normalizeECPairSignatures(
+        bitcoinjs.ECPair.fromPrivateKey(Buffer.alloc(32, 1), { network: config.network }),
+      );
+
+      assert(Buffer.isBuffer(keyPair.publicKey));
+      assert(Buffer.isBuffer(keyPair.privateKey));
+      assert(Buffer.isBuffer(keyPair.sign(Buffer.alloc(32, 2))));
+    });
+  });
+
+  describe('createSegwitTransaction()', function () {
+    it('should return valid tx hex for segwit transactions', async function () {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -53,7 +66,7 @@ describe('unit - signer', function() {
       );
     });
 
-    it('should return valid tx hex for RBF-able segwit transactions', async function() {
+    it('should return valid tx hex for RBF-able segwit transactions', async function () {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -98,7 +111,7 @@ describe('unit - signer', function() {
       assert.equal(tx.outs[1].value, 9900000); // 0.099 because 0.1 - 0.001
     });
 
-    it('should return valid tx hex for segwit transactions with multiple inputs', async function() {
+    it('should return valid tx hex for segwit transactions with multiple inputs', async function () {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -140,7 +153,7 @@ describe('unit - signer', function() {
       );
     });
 
-    it('should return valid tx hex for segwit transactions with change address', async function() {
+    it('should return valid tx hex for segwit transactions with change address', async function () {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -170,7 +183,7 @@ describe('unit - signer', function() {
       );
     });
 
-    it('should return valid tx hex for segwit transactions if change is too small so it causes @dust error', async function() {
+    it('should return valid tx hex for segwit transactions if change is too small so it causes @dust error', async function () {
       // checking that change amount is at least 3x of fee, otherwise screw the change, just add it to fee
       const signer = require('../../models/signer');
       const utxos = [
@@ -203,8 +216,8 @@ describe('unit - signer', function() {
     });
   });
 
-  describe('WIF2address()', function() {
-    it('should convert WIF to segwit P2SH address', function() {
+  describe('WIF2address()', function () {
+    it('should convert WIF to segwit P2SH address', function () {
       const signer = require('../../models/signer');
       const address = signer.WIF2segwitAddress('L55uHs7pyz7rP18K38kB7kqDVNJaeYFzJtZyC3ZjD2c684dzXQWs');
 
@@ -212,8 +225,8 @@ describe('unit - signer', function() {
     });
   });
 
-  describe('generateNewAddress()', function() {
-    it('should generate new address', function() {
+  describe('generateNewAddress()', function () {
+    it('should generate new address', function () {
       const signer = require('../../models/signer');
       const address = signer.generateNewSegwitAddress();
 
@@ -223,8 +236,8 @@ describe('unit - signer', function() {
     });
   });
 
-  describe('URI()', function() {
-    it('should form correct payment url', function() {
+  describe('URI()', function () {
+    it('should form correct payment url', function () {
       const signer = require('../../models/signer');
       let url = signer.URI({
         address: 'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26',

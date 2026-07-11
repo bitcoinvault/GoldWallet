@@ -4,6 +4,7 @@ import { findLast, difference } from 'lodash';
 import logger from '../logger';
 import { AbstractWallet } from './abstract-wallet';
 import config from '../src/config';
+import { normalizeECPairSignatures } from '../utils/bitcoinjsKeyPair';
 import { getRandomBytes } from '../utils/crypto';
 
 const BigNumber = require('bignumber.js');
@@ -49,7 +50,7 @@ export class LegacyWallet extends AbstractWallet {
     if (this._xpub) {
       return this._xpub;
     }
-    const keyPair = bitcoin.ECPair.fromWIF(this.secret, config.network);
+    const keyPair = normalizeECPairSignatures(bitcoin.ECPair.fromWIF(this.secret, config.network));
 
     this._xpub = b58.encode(keyPair.publicKey);
     return this._xpub;
@@ -60,7 +61,7 @@ export class LegacyWallet extends AbstractWallet {
     let address;
 
     try {
-      const keyPair = bitcoin.ECPair.fromWIF(this.secret, config.network);
+      const keyPair = normalizeECPairSignatures(bitcoin.ECPair.fromWIF(this.secret, config.network));
 
       address = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,

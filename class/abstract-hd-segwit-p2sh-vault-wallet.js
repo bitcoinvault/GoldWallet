@@ -1,9 +1,10 @@
 import { cloneDeep } from 'lodash';
 
+import { AbstractHDSegwitP2SHWallet } from './abstract-hd-segwit-p2sh-wallet';
 import signer from '../models/signer';
 import config from '../src/config';
+import { normalizeECPairSignatures } from '../utils/bitcoinjsKeyPair';
 import { mnemonicToKeyPair } from '../utils/crypto';
-import { AbstractHDSegwitP2SHWallet } from './abstract-hd-segwit-p2sh-wallet';
 
 const { payments, ECPair } = require('bitcoinjs-lib');
 
@@ -23,9 +24,11 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
     try {
       pubKeys = pubKeysHex.map(
         p =>
-          ECPair.fromPublicKey(Buffer.from(p, BUFFER_ENCODING), {
-            network: config.network,
-          }).publicKey,
+          normalizeECPairSignatures(
+            ECPair.fromPublicKey(Buffer.from(p, BUFFER_ENCODING), {
+              network: config.network,
+            }),
+          ).publicKey,
       );
     } catch (_) {
       throw new Error(i18n.wallets.errors.invalidPublicKey);
@@ -67,9 +70,11 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
     let publicKey;
 
     try {
-      publicKey = ECPair.fromPublicKey(Buffer.from(publicKeyHex, BUFFER_ENCODING), {
-        network: config.network,
-      }).publicKey;
+      publicKey = normalizeECPairSignatures(
+        ECPair.fromPublicKey(Buffer.from(publicKeyHex, BUFFER_ENCODING), {
+          network: config.network,
+        }),
+      ).publicKey;
     } catch (error) {
       throw new Error(i18n.wallets.errors.invalidPublicKey);
     }
@@ -121,9 +126,11 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
 
     try {
       keyPairsFromPrivateKeys = privateKeys.map(p =>
-        ECPair.fromPrivateKey(Buffer.from(p, BUFFER_ENCODING), {
-          network: config.network,
-        }),
+        normalizeECPairSignatures(
+          ECPair.fromPrivateKey(Buffer.from(p, BUFFER_ENCODING), {
+            network: config.network,
+          }),
+        ),
       );
     } catch (_) {
       throw new Error(i18n.wallets.errors.invalidPrivateKey);
