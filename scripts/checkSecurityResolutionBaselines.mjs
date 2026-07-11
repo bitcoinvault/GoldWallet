@@ -8,35 +8,54 @@ const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'ut
 const yarnLock = readFileSync(path.join(root, 'yarn.lock'), 'utf8');
 
 const requiredResolutions = new Map([
+  ['braces', '3.0.3'],
   ['cipher-base', '1.0.7'],
   ['elliptic', '6.6.1'],
+  ['form-data', '4.0.6'],
   ['minimist', '1.2.8'],
+  ['moment', '2.30.1'],
   ['plist', '3.1.1'],
+  ['qs', '6.15.3'],
   ['sha.js', '2.4.12'],
   ['shell-quote', '1.10.0'],
   ['simple-plist', '1.3.1'],
+  ['tmpl', '1.0.5'],
   ['@sentry/**/undici', '6.27.0'],
 ]);
 
 const vulnerableLockEntries = [
+  ['ansi-regex', '3.0.0'],
+  ['ansi-regex', '4.1.0'],
+  ['ansi-regex', '5.0.0'],
+  ['braces', '3.0.2'],
   ['cipher-base', '1.0.4'],
   ['elliptic', '6.5.4'],
+  ['form-data', '4.0.5'],
   ['minimist', '1.2.5'],
+  ['moment', '2.29.1'],
   ['plist', '3.0.4'],
+  ['qs', '6.10.1'],
   ['sha.js', '2.4.11'],
   ['shell-quote', '1.7.2'],
   ['simple-plist', '1.1.1'],
+  ['tmpl', '1.0.4'],
   ['undici', '6.26.0'],
 ];
 
 const expectedLockVersions = new Map([
+  ['ansi-regex', ['3.0.1', '4.1.1', '5.0.1', '6.2.2']],
+  ['braces', ['3.0.3']],
   ['cipher-base', ['1.0.7']],
   ['elliptic', ['6.6.1']],
+  ['form-data', ['4.0.6']],
   ['minimist', ['1.2.8']],
+  ['moment', ['2.30.1']],
   ['plist', ['3.1.1']],
+  ['qs', ['6.15.3']],
   ['sha.js', ['2.4.12']],
   ['shell-quote', ['1.10.0']],
   ['simple-plist', ['1.3.1']],
+  ['tmpl', ['1.0.5']],
   ['undici', ['6.27.0', '7.28.0']],
 ]);
 
