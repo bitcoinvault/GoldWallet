@@ -1,0 +1,118 @@
+import { readFileSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, '..');
+const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+const yarnLock = readFileSync(path.join(root, 'yarn.lock'), 'utf8');
+
+const requiredResolutions = new Map([
+  ['cipher-base', '1.0.7'],
+  ['elliptic', '6.6.1'],
+  ['minimist', '1.2.8'],
+  ['plist', '3.1.1'],
+  ['sha.js', '2.4.12'],
+  ['shell-quote', '1.10.0'],
+  ['simple-plist', '1.3.1'],
+  ['@sentry/**/undici', '6.27.0'],
+]);
+
+const vulnerableLockEntries = [
+  ['cipher-base', '1.0.4'],
+  ['elliptic', '6.5.4'],
+  ['minimist', '1.2.5'],
+  ['plist', '3.0.4'],
+  ['sha.js', '2.4.11'],
+  ['shell-quote', '1.7.2'],
+  ['simple-plist', '1.1.1'],
+  ['undici', '6.26.0'],
+];
+
+const expectedLockVersions = new Map([
+  ['cipher-base', ['1.0.7']],
+  ['elliptic', ['6.6.1']],
+  ['minimist', ['1.2.8']],
+  ['plist', ['3.1.1']],
+  ['sha.js', ['2.4.12']],
+  ['shell-quote', ['1.10.0']],
+  ['simple-plist', ['1.3.1']],
+  ['undici', ['6.27.0', '7.28.0']],
+]);
+
+const normalizeLockKey = key => key.replace(/^"|"$/g, '');
+
+const packageNameFromLockKey = key => {
+  const normalized = normalizeLockKey(key);
+  if (normalized.startsWith('@')) {
+    const parts = normalized.split('@');
+    return `@${parts[1]}`;
+  }
+
+  return normalized.split('@')[0];
+};
+
+const collectLockVersions = lockContent => {
+  const versionsByPackage = new Map();
+  let currentPackages = [];
+
+  for (const line of lockContent.split(/\r?\n/)) {
+    if (line && !line.startsWith(' ') && line.endsWith(':')) {
+      currentPackages = line
+        .slice(0, -1)
+        .split(/,\s*/)
+        .map(packageNameFromLockKey);
+      continue;
+    }
+
+    const versionMatch = line.match(/^\s+version "([^"]+)"/);
+    if (!versionMatch) {
+      continue;
+    }
+
+    for (const packageName of currentPackages) {
+      const versions = versionsByPackage.get(packageName) || new Set();
+      versions.add(versionMatch[1]);
+      versionsByPackage.set(packageName, versions);
+    }
+  }
+
+  return versionsByPackage;
+};
+
+const errors = [];
+const resolutions = packageJson.resolutions || {};
+const lockVersions = collectLockVersions(yarnLock);
+
+for (const [name, version] of requiredResolutions) {
+  if (resolutions[name] !== version) {
+    errors.push(`package.json resolutions.${name} must be ${version}`);
+  }
+}
+
+for (const [name, vulnerableVersion] of vulnerableLockEntries) {
+  if (lockVersions.get(name)?.has(vulnerableVersion)) {
+    errors.push(`yarn.lock still contains vulnerable ${name}@${vulnerableVersion}`);
+  }
+}
+
+for (const [name, allowedVersions] of expectedLockVersions) {
+  const actualVersions = [...(lockVersions.get(name) || [])].sort();
+  const unexpectedVersions = actualVersions.filter(version => !allowedVersions.includes(version));
+
+  if (actualVersions.length === 0) {
+    errors.push(`yarn.lock does not contain ${name}`);
+  }
+
+  if (unexpectedVersions.length > 0) {
+    errors.push(`${name} lock versions must stay within ${allowedVersions.join(', ')}; found ${actualVersions.join(', ')}`);
+  }
+}
+
+if (errors.length > 0) {
+  console.error('Security resolution baseline check failed:');
+  errors.forEach(error => console.error(`- ${error}`));
+  process.exit(1);
+}
+
+console.log('Security resolution baselines are pinned to patched versions.');
