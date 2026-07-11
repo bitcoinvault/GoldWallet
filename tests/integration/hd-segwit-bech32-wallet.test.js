@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
 
-import { HDSegwitBech32Wallet } from '../../class';
-
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 const assert = require('assert');
 
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+global.net = require('net');
+// needed by Electrum client. For RN it is proviced in shim.js
+process.env.BLUEELECTRUM_AUTO_CONNECT = 'true';
 const BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
+const { HDSegwitBech32Wallet } = require('../../class');
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -21,7 +22,7 @@ beforeAll(async () => {
 });
 
 describe('Bech32 Segwit HD (BIP84)', () => {
-  it('can create', async function() {
+  it('can create', async function () {
     jest.setTimeout(30000);
 
     const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
@@ -54,7 +55,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.ok(hd._lastBalanceFetch > 0);
   });
 
-  it('can fetch balance', async function() {
+  it('can fetch balance', async function () {
     jest.setTimeout(90000);
 
     if (!process.env.HD_MNEMONIC) {
@@ -93,7 +94,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.next_free_change_address_index, 2);
   });
 
-  it('can fetch transactions', async function() {
+  it('can fetch transactions', async function () {
     jest.setTimeout(90000);
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
@@ -144,7 +145,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.ok(utxo[0].address);
   });
 
-  xit('can generate addresses only via zpub', function() {
+  xit('can generate addresses only via zpub', function () {
     const zpub =
       'zpub6qV8gC8H2NR4zcdP5rvnTpY7xZw3H3Samf8XuoeJdKDvF4UCJzeaj7DjwSYdj5A6wdmt6qVHqbnonjQXZA56Ecs1QTe4ug6gPRBwYnMiW2s';
     const hd = new HDSegwitBech32Wallet();

@@ -1,13 +1,14 @@
 /* eslint-disable no-console */
 
-import config from '../../src/config';
-
 const assert = require('assert');
 const bitcoin = require('bitcoinjs-lib');
 
 global.net = require('net');
 
+process.env.BLUEELECTRUM_AUTO_CONNECT = 'true';
+
 const BlueElectrum = require('../../BlueElectrum');
+const config = require('../../src/config').default;
 
 const stopReconnect = () => undefined;
 
@@ -78,7 +79,7 @@ describe('Electrum', () => {
     }
   });
 
-  it('BlueElectrum can do getBalanceByAddress()', async function() {
+  it('BlueElectrum can do getBalanceByAddress()', async function () {
     const address = 'RAvAthYyPGVEUMWRHBwod63XSKYcx6aF28';
     const balance = await BlueElectrum.getBalanceByAddress(address);
 
@@ -87,7 +88,7 @@ describe('Electrum', () => {
     assert.strictEqual(balance.addr, address);
   });
 
-  xit('BlueElectrum can do getTransactionsByAddress()', async function() {
+  xit('BlueElectrum can do getTransactionsByAddress()', async function () {
     const txs = await BlueElectrum.getTransactionsByAddress('royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u');
 
     assert.strictEqual(txs.length, 1);
@@ -95,7 +96,7 @@ describe('Electrum', () => {
     assert.strictEqual(txs[0].height, 24100);
   });
 
-  xit('BlueElectrum can do getTransactionsFullByAddress()', async function() {
+  xit('BlueElectrum can do getTransactionsFullByAddress()', async function () {
     const txs = await BlueElectrum.getTransactionsFullByAddress('royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u');
 
     for (const tx of txs) {
@@ -113,7 +114,7 @@ describe('Electrum', () => {
     }
   });
 
-  xit('BlueElectrum can do multiGetBalanceByAddress()', async function() {
+  xit('BlueElectrum can do multiGetBalanceByAddress()', async function () {
     const balances = await BlueElectrum.multiGetBalanceByAddress([
       'royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u',
       'royale1qc7vp7vftj7fnld6ctqk4njyw5j3j7h3lwjfzwy',

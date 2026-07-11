@@ -1,7 +1,9 @@
 import {
   aggregateStorageNetworkValidationScript,
   getStorageNetworkValidationFileErrors,
+  getStorageNetworkValidationRuntimeGuardErrors,
   getStorageNetworkValidationScriptErrors,
+  onlineElectrumIntegrationTests,
   requiredStorageNetworkValidationScripts,
 } from './storageNetworkValidationScriptsGuard.mjs';
 
@@ -101,6 +103,75 @@ if (getStorageNetworkValidationFileErrors(fileExists(missingFilesFixture)).lengt
 
 if (requiredStorageNetworkValidationScripts.size !== 6) {
   console.error(`Expected 6 storage/network validation scripts, got ${requiredStorageNetworkValidationScripts.size}.`);
+  process.exit(1);
+}
+
+const validRuntimeFiles = new Map([
+  [
+    'BlueElectrum.js',
+    [
+      "const shouldAutoConnect = process.env.NODE_ENV !== 'test' || process.env.BLUEELECTRUM_AUTO_CONNECT === 'true';",
+      'const reconnectBaseDelayMs = 1000;',
+      'const reconnectMaxDelayMs = 30000;',
+      'const getReconnectDelayMs = () =>',
+      'Math.min(reconnectMaxDelayMs',
+      'if (shouldAutoConnect) {',
+      'connectMain();',
+      'reconnectAttempts += 1;',
+      'await wait(reconnectDelayMs);',
+      'mainConnected = false;',
+      'reconnectAttempts = 0;',
+      "typeof mainClient.close === 'function'",
+    ].join('\n'),
+  ],
+  [
+    'tests/unit/BlueElectrum.test.js',
+    [
+      "process.env.BLUEELECTRUM_AUTO_CONNECT = 'true';",
+      'delete process.env.BLUEELECTRUM_AUTO_CONNECT;',
+    ].join('\n'),
+  ],
+  [
+    'tests/setup.js',
+    [
+      "jest.mock('@sentry/react-native', () => ({",
+      'addBreadcrumb: jest.fn(),',
+      'captureException: jest.fn(),',
+    ].join('\n'),
+  ],
+  ...onlineElectrumIntegrationTests.map(filePath => [
+    filePath,
+    "process.env.BLUEELECTRUM_AUTO_CONNECT = 'true';\nconst BlueElectrum = require('../../BlueElectrum');",
+  ]),
+]);
+const readRuntimeFixture = filePath => validRuntimeFiles.get(filePath) || '';
+
+if (getStorageNetworkValidationRuntimeGuardErrors(readRuntimeFixture).length > 0) {
+  console.error('Complete storage/network runtime guard fixture should be accepted.');
+  process.exit(1);
+}
+
+const missingBlueElectrumGuardFiles = new Map(validRuntimeFiles);
+missingBlueElectrumGuardFiles.set('BlueElectrum.js', 'connectMain();');
+
+if (getStorageNetworkValidationRuntimeGuardErrors(filePath => missingBlueElectrumGuardFiles.get(filePath) || '').length === 0) {
+  console.error('Missing BlueElectrum auto-connect guard fixture should be rejected.');
+  process.exit(1);
+}
+
+const legacyReconnectLoopFiles = new Map(validRuntimeFiles);
+legacyReconnectLoopFiles.set('BlueElectrum.js', `${validRuntimeFiles.get('BlueElectrum.js')}\nawait wait(50);`);
+
+if (getStorageNetworkValidationRuntimeGuardErrors(filePath => legacyReconnectLoopFiles.get(filePath) || '').length === 0) {
+  console.error('Legacy BlueElectrum 50ms reconnect loop fixture should be rejected.');
+  process.exit(1);
+}
+
+const missingSentryMockFiles = new Map(validRuntimeFiles);
+missingSentryMockFiles.set('tests/setup.js', '');
+
+if (getStorageNetworkValidationRuntimeGuardErrors(filePath => missingSentryMockFiles.get(filePath) || '').length === 0) {
+  console.error('Missing Sentry Jest mock fixture should be rejected.');
   process.exit(1);
 }
 

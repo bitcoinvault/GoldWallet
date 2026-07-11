@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import {
   aggregateStorageNetworkValidationScript,
   getStorageNetworkValidationFileErrors,
+  getStorageNetworkValidationRuntimeGuardErrors,
   getStorageNetworkValidationScriptErrors,
   requiredStorageNetworkValidationScripts,
 } from './storageNetworkValidationScriptsGuard.mjs';
@@ -15,6 +16,7 @@ const fileExists = (filePath, baseDir) => existsSync(path.join(baseDir, filePath
 const errors = [
   ...getStorageNetworkValidationScriptErrors(packageJson.scripts),
   ...getStorageNetworkValidationFileErrors(fileExists, root),
+  ...getStorageNetworkValidationRuntimeGuardErrors(filePath => readFileSync(path.join(root, filePath), 'utf8')),
 ];
 
 if (errors.length > 0) {

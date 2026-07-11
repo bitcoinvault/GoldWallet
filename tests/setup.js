@@ -16,3 +16,10 @@ jest.mock('react-native-localize', () => {
 });
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
+
+jest.mock('@sentry/react-native', () => ({
+  addBreadcrumb: jest.fn(),
+  captureException: jest.fn(),
+  init: jest.fn(),
+  wrap: jest.fn(component => component),
+}));

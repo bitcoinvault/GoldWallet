@@ -169,6 +169,7 @@ export class TermsConditionsScreen extends React.PureComponent<Props, State> {
           source={{ html: this.termsHtml }}
           style={styles.text}
           originWhitelist={['*']}
+          javaScriptEnabled={false}
           bounces={false}
           scrollEnabled
           automaticallyAdjustContentInsets={true}

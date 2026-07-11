@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.840 - Electrum test isolation and no-network smoke hardening
+
+- Branch: `feature/bem-37-840-electrum-jest-teardown-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Prevent unit tests from starting real Electrum sockets through import side effects.
+- Keep online Electrum integration tests explicit by requiring `BLUEELECTRUM_AUTO_CONNECT=true`.
+- Mock Sentry in Jest setup so logger imports do not leave SDK timers/open handles in unit tests.
+- Replace the legacy 50ms Electrum reconnect loop with bounded reconnect backoff while preserving normal runtime auto-connect outside Jest.
+- Keep onboarding Terms WebView JavaScript disabled so first-run smoke can complete the Terms flow without a WebView-driven startup ANR on the current Android emulator baseline.
+- Guard the storage/network validation path so future edits cannot silently reintroduce accidental Electrum auto-connect, Sentry Jest handles, or the legacy reconnect loop.
+
+Findings:
+
+- `BlueElectrum.js` previously called `connectMain()` at module import time, so screen unit tests that transitively import wallet classes could start real Electrum connections.
+- `TermsWebViewScreens.test.tsx` and `QrRenderScreens.test.tsx` previously passed assertions but could exit with post-test BlueElectrum logs / socket teardown noise.
+- `@sentry/react-native` created a Jest open-handle timer through `logger/index.ts`; the Jest setup mock keeps unit tests isolated while runtime Sentry usage remains guarded elsewhere.
+- The dev/testnet Electrum endpoint still reports an expired TLS certificate, so the runtime reconnect path must avoid tight retry storms while external infra is unhealthy.
+- During emulator validation, the first-run Terms WebView could trigger an Android ANR dialog before onboarding completed; disabling JavaScript for the onboarding Terms WebView keeps the static HTML terms screen responsive. The settings Terms WebView remains unchanged.
+- The final no-network smoke on a restarted `Medium_Phone_API_36.0` AVD installed and compiled the embedded dev APK, accepted first-run Terms, created PIN and transaction password, skipped email, reached the `No network` UI, and completed without fatal/runtime logcat findings.
+- The standard full dev smoke was refreshed against the same APK and remains blocked by the external dev/testnet Electrum TLS certificate. The refreshed blocker audit records `blocked-by-electrum-certificate-expired` with 12 SSL handshake lines and 6 certificate-expired lines, down from the previous tight reconnect storm.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules\jest\bin\jest.js tests\unit\BlueElectrum.test.js --runInBand --detectOpenHandles`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules\jest\bin\jest.js tests\unit\TermsWebViewScreens.test.tsx --runInBand --detectOpenHandles`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules\jest\bin\jest.js tests\unit\QrRenderScreens.test.tsx --runInBand --detectOpenHandles`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-validation-scripts-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:storage-network-validation-scripts`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SMOKE_COMPILE_PACKAGE=true ANDROID_SMOKE_ADB_TIMEOUT_MS=600000 ANDROID_SMOKE_COMPILE_TIMEOUT_MS=600000 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SMOKE_COMPILE_PACKAGE=true ANDROID_SMOKE_ADB_TIMEOUT_MS=600000 ANDROID_SMOKE_COMPILE_TIMEOUT_MS=600000 corepack yarn android:dev:smoke:embedded` refreshed the controlled full-smoke blocker artifact
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary` passed under the controlled `blocked-by-electrum-certificate-expired` blocker
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.839 - Android dev smoke helper bounded no-network hardening
 
 - Branch: `feature/bem-37-839-android-dev-no-network-smoke-refresh`
