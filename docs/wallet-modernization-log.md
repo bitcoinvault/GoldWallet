@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.849 - Android release validation refresh
+
+- Branch: `feature/bem-37-849-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release package evidence for the current RN `0.86.0` / AGP `8.13.2` / SDK `36` baseline.
+- Rebuild and validate `dev`, `stage`, `prod`, and `beta` release APKs, release JS bundles, source maps, and APK manifests under JDK 17 with Sentry auto-upload disabled.
+- Run a real `devRelease` APK smoke on `emulator-5554` without Metro, then classify the current no-network runtime blocker without claiming full release dashboard/create-wallet readiness.
+- Keep this branch scoped to Android release validation evidence and committed documentation; do not change package versions or runtime code.
+
+Findings:
+
+- `android:dev:release:verify-local` passed on `2026-07-11` and recorded release-input fingerprint `780b3b1e445deb523294515ef41944c85daef30642ec3b19c3aff5466a26ce8e` across `508` files.
+- All four release variants built on the first Gradle attempt with exit code `0`.
+- Unsigned release APK SHA-256 values: `dev` `4678ee6495ee8d9c8cf07e915e90233de0c99736de9519bf226ef70428fa2972`, `stage` `d7149b26a5e247e2fab2d393848710a0d463059addbbd30ff2728fe975fdc743`, `prod` `4e56cd2f9695375080bb905c31ecee3c719eeb23cf5ece7dd1ee625a73209b36`, `beta` `b1ca35b14f01c00abed42af80a83b42cec26f271bf1c611fe6a62a38b1bdd0c4`.
+- Every variant generated release JS bundle SHA-256 `3f23fa25e44a2ba19f8b1cb004ed17a36d809eac892412388fc90192d174b9fd` and release source-map SHA-256 `dd08a0b5807a58510606be442a5b24fd3f868539b624830e2729d494cb2a0397`.
+- Full `devRelease` smoke installed and launched the signed APK and completed first-run terms, PIN, transaction password, and email skip, but failed the dashboard expectation because the UI reached the external `No network` state instead of `Wallets`, `No wallets`, `Create new wallet`, and `Import wallet`.
+- The controlled no-network release smoke passed on `emulator-5554` with expected UI text `No network`, no Metro requirement, no fatal/runtime logcat findings, signed smoke APK SHA-256 `4adb014c9791b3746ccc4310cfde132998f0536244a63c816665d10784f4f42e`, and source unsigned `devRelease` APK SHA-256 `4678ee6495ee8d9c8cf07e915e90233de0c99736de9519bf226ef70428fa2972`.
+- The release network blocker audit remains classified as `blocked-by-electrum-certificate-expired` for `.env.dev.testnet` endpoint `electrumx.testnet.btcv.stage.rnd.land:443 tls`; evidence includes `12` SSL handshake exception lines, `6` certificate-expired lines, certificate expiry `Tue Jun 23 16:52:40 GMT 2026`, and comparison sample `Sat Jul 11 16:33:32 GMT 2026`.
+- `release-services:check-summaries` passes only under that controlled blocker, so full release dashboard, tab navigation, QR scanner, Settings Terms WebView, release create-wallet, Firebase delivery, CodePush OTA, and Sentry upload validation remain unclaimed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded` expected fail: dashboard UI missing because release runtime reached the external `No network` state.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:check-summaries`
+
 ### BEM-37.848 - TypeScript 7 compatibility probe refresh
 
 - Branch: `feature/bem-37-848-typescript7-probe-refresh`
