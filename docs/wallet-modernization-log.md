@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.856 - Foundation target live refresh
+
+- Branch: `feature/bem-37-856-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-run the online foundation target refresh after the latest release-service and Camera/QR blocker-classification branches.
+- Re-check the current React Native stable target, direct outdated package decisions, React patch blocker, Babel 8 blocker, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, TypeScript 7 blocker, Android toolchain target, `bl`, and `node-fetch`.
+- Refresh tracked foundation docs where the live evidence exposed stale wording, without changing package versions or runtime code.
+- Keep the next RN/foundation move tied to npm `latest`, not to prerelease `next` or nightly channels.
+
+Findings:
+
+- `foundation:target:refresh-online` passed with Node `v24.16.0` and JDK 17 in the shell.
+- The live RN target check matched with `Mismatches: 0`: `react-native@0.86.0` remains npm `latest`, `0.87.0-rc.0` remains a prerelease `next` planning signal, and nightly remains `0.88.0-nightly-20260711-042833e69`.
+- React `19.2.7` and `react-test-renderer 19.2.7` remain blocked as package-only patches because the RN `0.86.0` renderer exact-version baseline expects React `19.2.3`.
+- Direct outdated snapshot still reports `18` entries: `14` known blocked entries, `4` exotic wallet/runtime forks, and `0` review-required entries.
+- Babel 8 remains blocked by the RN `0.86.0` Babel preset/plugin stack; the isolated transform probe still fails with `BABEL_VERSION_UNSUPPORTED` in the `@babel/plugin-transform-flow-strip-types` path.
+- Git dependency snapshot reports `0` mismatches for the BitcoinVault `bitcoinjs-lib` fork, BitcoinVault Electrum fork, Android prompt fork, and `rn-nodeify`.
+- Wallet/crypto latest snapshot reports `15` tracked entries with only the BitcoinVault `bitcoinjs-lib` fork intentionally pinned; storage/network latest snapshot reports `10` current entries and `0` deferred entries.
+- Tooling latest snapshot reports `24` tracked entries: `eslint@10.7.0`, `@eslint/js@10.0.1`, `@eslint/eslintrc@3.3.6`, `@eslint/compat@2.1.0`, and `jiti@2.7.0` are current; TypeScript 7 remains the only tracked tooling blocker.
+- TypeScript 7 target `7.0.2` remains blocked by `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, and `ts-jest` peer ranges.
+- Android latest target remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, and the direct AGP `9.2.1` / Gradle `9.6.1` / Kotlin `2.4.0` probe still fails in the React Native Gradle plugin `:gradle-plugin:settings-plugin:compileKotlin` path.
+- `bl@7.0.6` remains blocked because the latest package is ESM/export-map only while `levelup` and `ora` still use the validated CommonJS-compatible `bl@6.1.6` path; `node-fetch@3.3.2` remains current and compatible through the current dynamic import path.
+- No runtime code, native project files, package versions, Metro config, or APK inputs changed in this branch; emulator smoke was not rerun for this static foundation evidence refresh.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn foundation:target:refresh-online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.855 - Camera/QR controlled release blocker readiness
 
 - Branch: `feature/bem-37-855-camera-qr-controlled-blocker-readiness`
