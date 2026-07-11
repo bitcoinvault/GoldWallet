@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.857 - Android release validation refresh
+
+- Branch: `feature/bem-37-857-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android release build and emulator evidence after the latest foundation target refresh.
+- Rebuild and validate `dev`, `stage`, `prod`, and `beta` release APKs, release JS bundles, source maps, and APK manifests under JDK 17 with Sentry auto-upload disabled.
+- Run the signed `devRelease` APK on `emulator-5554` without Metro, then classify the current runtime blocker instead of treating the reduced no-network proof as full release readiness.
+- Keep package versions, runtime application code, native project files, env values, Gradle toolchain versions, and release upload behavior unchanged.
+
+Findings:
+
+- `android:dev:release:verify-local` passed with Node `v24.16.0`, JDK `17.0.19`, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, target SDK `36`, and Sentry auto-upload disabled for the local release build.
+- The refreshed release summary covers `dev`, `stage`, `prod`, and `beta`, records release-input fingerprint `832f636af0cc3421672d0d6e0ce64793e2a5fed86ef466ff1e41cebcc307fd32` across `508` files, and validates release APK, JS bundle, source-map, and APK manifest generation.
+- Unsigned release APK SHA-256 values are `dev` `9b970c8aa35ad98d603c5a7c21dc75a28f1a4a398b35faafe9707087c28b9798`, `stage` `0c66b71229400d3f6c78a1dc849696265210a2da393e08569b2929a5702a801b`, `prod` `7b4819d02313508e6d6b0ac307c5a0c5ad7d93da7ad6ba79bc4b43dcc97e9ce7`, and `beta` `b023f23ecc6c791176f86f93f5a86d67fb9867b4614260b9e6ab49f9dbbcae7d`.
+- Each release variant generated release JS bundle SHA-256 `3f23fa25e44a2ba19f8b1cb004ed17a36d809eac892412388fc90192d174b9fd` and release source-map SHA-256 `dd08a0b5807a58510606be442a5b24fd3f868539b624830e2729d494cb2a0397`.
+- Full `android:dev:release:smoke:embedded` installed and launched the locally signed `devRelease` APK, completed terms, PIN, transaction password, and email skip, then failed before dashboard proof because the app reached the external `No network` path.
+- The reduced no-network release smoke passed on `emulator-5554` with signed APK SHA-256 `06a808671c0ec31d2a8c999c5bc212033d1e6733db9bbd3b0f52e248bead286a`, expected `No network` UI, no fatal/runtime logcat findings, and Metro not required.
+- `android:dev:release:network-blocker:audit` classified the blocker as `blocked-by-electrum-certificate-expired` for `electrumx.testnet.btcv.stage.rnd.land:443 tls`; the certificate expired at `Tue Jun 23 16:52:40 GMT 2026` and was compared during this run at `Sat Jul 11 18:42:25 GMT 2026`.
+- `release-services:check-summaries` passes only under that controlled blocker. Full dashboard, tab navigation, QR scanner, Settings Terms WebView, release create-wallet, Firebase delivery, CodePush OTA, and Sentry upload validation remain unclaimed until the dev/testnet Electrum TLS certificate is fixed and the full release smoke/create-wallet flows are rerun.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:embedded` expected fail at the controlled `No network` blocker after onboarding
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn sentry:release:validation:preflight`
+
 ### BEM-37.856 - Foundation target live refresh
 
 - Branch: `feature/bem-37-856-foundation-target-refresh`

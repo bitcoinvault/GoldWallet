@@ -89,6 +89,7 @@
 ## 2026-07-11 Preflight Refresh
 
 - `sentry:release:validation:preflight` was rerun after the latest Android release validation refresh and iOS static handoff refresh.
+- Latest Android release prerequisite evidence comes from `BEM-37.857`: `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` build/manifest/source-map evidence is current, and the signed `devRelease` no-network proof is classified as `blocked-by-electrum-certificate-expired`.
 - The Sentry release prerequisite summary reports `@sentry/react-native@8.18.0` and direct `@sentry/cli@3.6.0` as current latest checked targets, with a single direct `@sentry/cli` package instance and no nested Sentry-owned CLI versions.
 - `sentry:android-warning:audit` reports Sentry Android warning wiring valid, `0` readiness issues, `0` wiring errors, and no active Sentry `execResult` warning on the RN `0.86.0` baseline.
 - `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim for RN `0.86.0`.
