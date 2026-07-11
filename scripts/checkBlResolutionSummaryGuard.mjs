@@ -6,7 +6,7 @@ const validSummary = [
   'package.json resolution: 6.1.6',
   'Installed bl version: 6.1.6',
   "require('bl') type: function",
-  'Latest bl version: 7.0.3',
+  'Latest bl version: 7.0.6',
   'Latest bl node engine: >=20',
   'Latest bl package type: module',
   'Latest bl CommonJS require export: no',
@@ -52,7 +52,7 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid BL resolution readiness fixture', validSummary);
 assertRejected('Missing header fixture', validSummary.replace('BL resolution readiness audit', 'Bad header'), 'summary header');
-assertRejected('Wrong resolution fixture', validSummary.replace('package.json resolution: 6.1.6', 'package.json resolution: 7.0.3'), '6.1.6');
+assertRejected('Wrong resolution fixture', validSummary.replace('package.json resolution: 6.1.6', 'package.json resolution: 7.0.6'), '6.1.6');
 assertRejected('Wrong require type fixture', validSummary.replace("require('bl') type: function", "require('bl') type: object"), 'must return a function');
 assertRejected('Wrong latest package type fixture', validSummary.replace('Latest bl package type: module', 'Latest bl package type: commonjs'), 'ESM-only line');
 assertRejected('Require export fixture', validSummary.replace('Latest bl CommonJS require export: no', 'Latest bl CommonJS require export: yes'), 'CommonJS require export');

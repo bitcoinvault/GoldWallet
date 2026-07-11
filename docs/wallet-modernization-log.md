@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.846 - BL 7 blocker evidence refresh
+
+- Branch: `feature/bem-37-846-bl-7-blocker-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the direct `bl` resolution blocker against live `bl@latest` metadata for the current RN `0.86.0` foundation.
+- Keep the validated `bl@6.1.6` resolution unchanged; do not commit a broken `bl@7` runtime state.
+- Update the direct-outdated snapshot documentation and BL summary guard fixture so the current `bl@7.0.6` target is represented.
+- Keep this branch scoped to blocker proof and guard freshness, not a transitive CommonJS consumer migration.
+
+Findings:
+
+- Live npm metadata on `2026-07-11` reports `bl@7.0.6` with Node engine `>=20` and package `type: module`.
+- The isolated latest-package probe confirms `bl@7.0.6` supports bare ESM import and exposes `BufferList`, `BufferListStream`, `default`, and `isBufferList`.
+- Bare CommonJS `require('bl')` still fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`, and `bl/package.json` subpath access is still not exported.
+- Current CommonJS/transitive consumers `levelup` and `ora` still require successfully against the validated `bl@6.1.6` resolution.
+- The highest-compatible state remains the pinned `bl@6.1.6` resolution until the `bl@7` export map adds a CommonJS-compatible path or guarded consumers are migrated.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn bl:resolution:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn bl:resolution:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:bl-resolution-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.845 - Babel 8 live blocker refresh
 
 - Branch: `feature/bem-37-845-babel8-live-blocker-refresh`
