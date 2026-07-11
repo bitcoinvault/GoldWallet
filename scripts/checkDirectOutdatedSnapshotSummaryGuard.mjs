@@ -108,15 +108,6 @@ const validEntries = [
     decision: 'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   },
   {
-    name: 'caniuse-lite',
-    current: '1.0.30001803',
-    wanted: '1.0.30001803',
-    latest: '1.0.30001805',
-    type: 'resolutionDependencies',
-    decision:
-      'blocked - Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof',
-  },
-  {
     name: 'electrum-client',
     current: '2.0.0',
     wanted: 'exotic',
@@ -204,10 +195,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 19', 'Entries: 18'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 18', 'Entries: 17'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 19', 'Entries: 20').replace(
+  validSummary.replace('Entries: 18', 'Entries: 19').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -248,7 +239,10 @@ assertRejected(
 );
 assertRejected(
   'Missing caniuse-lite resolution blocker fixture',
-  validSummary.replace('dedicated tooling/resolution branch', 'generic data branch'),
+  validSummary.replace('Entries: 18', 'Entries: 19').replace(
+    'Secret values printed: no',
+    '- caniuse-lite: current 1.0.30001805, wanted 1.0.30001805, latest 1.0.30001806, type resolutionDependencies, decision blocked - generic data branch required\nSecret values printed: no',
+  ),
   'caniuse-lite drift',
 );
 assertRejected(

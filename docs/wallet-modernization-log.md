@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.862 - caniuse-lite resolution refresh
+
+- Branch: `feature/bem-37-862-caniuse-lite-resolution-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the Browserslist data resolution from `caniuse-lite@1.0.30001803` to the live npm latest `1.0.30001805` detected by `BEM-37.861`.
+- Refresh `yarn.lock` through Yarn instead of editing lockfile entries manually.
+- Return the direct-outdated guard to the post-update state where `caniuse-lite` is not required as an active outdated blocker, while still validating future caniuse-lite drift if it appears again.
+- Keep this branch scoped to the tooling/resolution update; do not change app runtime code, native project files, Metro config, React Native, Android toolchain, or release-service behavior.
+
+Findings:
+
+- Live npm metadata on `2026-07-11` reports `caniuse-lite@1.0.30001805` as latest, with `time.modified=2026-07-11T18:36:18.093Z`.
+- `corepack yarn why caniuse-lite` resolves the hoisted Browserslist data package to `caniuse-lite@1.0.30001805`, used through `@babel/helper-compilation-targets -> browserslist`.
+- After the update, `direct-outdated:snapshot:audit` returns to `18` entries: `14` known blockers, `4` exotic/git-pinned entries, and `0` review-required entries.
+- `foundation:target:refresh-online` still reports `react-native@0.86.0` as npm `latest`; `0.87.0-rc.0` remains a prerelease `next` signal and `0.88.0-nightly-20260711-042833e69` remains nightly planning metadata.
+- Android emulator smoke is required for this branch because a dependency resolution and lockfile changed, even though app runtime source did not.
+- Full `android:dev:smoke:embedded` reached the app after onboarding but stopped on the known external `No network` screen. Logcat shows `SSLHandshakeException` / `CertificateExpiredException` for `electrumx.testnet.btcv.stage.rnd.land:443 tls`, certificate expired `Tue Jun 23 16:52:40 GMT 2026`.
+- The controlled no-network smoke passed on `emulator-5554`: APK install, app launch, first-run onboarding, expected `No network` UI, screenshot capture, and no fatal/runtime logcat findings. Full dashboard runtime proof remains unclaimed until the dev/testnet Electrum TLS certificate is renewed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view caniuse-lite version engines dependencies time.modified --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why caniuse-lite`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn foundation:target:refresh-online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` blocked by known dev/testnet Electrum TLS certificate expiry after app launch and onboarding.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;D:\tmp\jdks\temurin17\jdk-17.0.19+10\bin;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.861 - Foundation target live refresh
 
 - Branch: `feature/bem-37-861-foundation-target-refresh`

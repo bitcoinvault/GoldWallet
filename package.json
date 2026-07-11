@@ -533,7 +533,7 @@
     "@react-native/jest-preset/jest-mock": "30.4.1",
     "semver": "7.8.5",
     "qrcode": "1.5.4",
-    "caniuse-lite": "1.0.30001803"
+    "caniuse-lite": "1.0.30001805"
   },
   "react-native": {
     "path": "path-browserify",
