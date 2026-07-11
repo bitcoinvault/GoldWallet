@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.848 - TypeScript 7 compatibility probe refresh
+
+- Branch: `feature/bem-37-848-typescript7-probe-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh TypeScript 7 blocker evidence against live npm metadata for the current RN `0.86.0` / Jest `30` tooling baseline.
+- Keep `typescript` pinned to the validated `6.0.3` baseline; do not commit a broken TypeScript 7 package state.
+- Update TypeScript/test coupling documentation and the TypeScript 7 summary guard fixture so the current `2026-07-11` probe is represented.
+- Keep this branch scoped to compiler/tooling peer-range evidence, not a compiler migration.
+
+Findings:
+
+- Live npm metadata on `2026-07-11` reports `typescript@7.0.2` with Node engine `>=16.20.0`; repo Node `v24.16.0` satisfies it, so Node is not the blocker.
+- `@typescript-eslint/parser@8.63.0` and `@typescript-eslint/eslint-plugin@8.63.0` remain current latest but peer on `typescript >=4.8.4 <6.1.0`.
+- `ts-jest@29.4.11` remains current latest and peers on `typescript >=4.3 <7`.
+- The generated TypeScript 7 summary reports `Compatibility blockers: 3`, `TypeScript 7 package bump allowed: no`, and `Blocker classification: tooling-peer-range-blocker`.
+- TypeScript 7 remains blocked until a dedicated compiler/RN/Metro branch moves TypeScript, `@typescript-eslint`, and Jest transform tooling together and proves TypeScript check, Jest, lint baseline, Android build, and emulator smoke.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view typescript version engines time.modified --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @typescript-eslint/parser version peerDependencies engines time.modified --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @typescript-eslint/eslint-plugin version peerDependencies engines time.modified --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view ts-jest version peerDependencies engines time.modified --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript7:compatibility-probe:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript7:compatibility-probe:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:typescript7-compatibility-probe-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:type-coupling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:test-type-coupling-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.847 - React renderer patch blocker refresh
 
 - Branch: `feature/bem-37-847-react-renderer-patch-blocker-refresh`
