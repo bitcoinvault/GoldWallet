@@ -34,6 +34,8 @@ const yesNoLabels = [
   'Android release QR scanner validated',
   'Android release create-wallet smoke summary present',
   'Android release create-wallet smoke summary valid',
+  'Controlled release blocker summary present',
+  'Controlled release blocker valid',
   'iOS camera Podfile.lock cleanup complete',
   'iOS broader Podfile.lock refresh required',
   'iOS runtime validation claimed',
@@ -62,6 +64,10 @@ export const getCameraQrValidationSummaryErrors = summary => {
   const androidReleaseCreateWalletValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
   const androidReleaseCreateWalletArtifactBase = getLineValue(summary, 'Android release create-wallet smoke artifact base');
   const androidReleaseCreateWalletOutcome = getLineValue(summary, 'Android release create-wallet smoke outcome');
+  const controlledReleaseBlockerValid = getLineValue(summary, 'Controlled release blocker valid');
+  const controlledReleaseBlockerOutcome = getLineValue(summary, 'Controlled release blocker outcome');
+  const controlledReleaseBlockerErrors = getLineValue(summary, 'Controlled release blocker errors');
+  const releaseRuntimeProofState = getLineValue(summary, 'Camera/QR release runtime proof state');
   const iosBroaderRefreshRequired = getLineValue(summary, 'iOS broader Podfile.lock refresh required');
   const iosBroaderDriftIssues = getLineValue(summary, 'iOS broader Podfile.lock drift issues');
   const candidateErrors = getLineValue(summary, 'Camera candidate summary errors');
@@ -113,6 +119,7 @@ export const getCameraQrValidationSummaryErrors = summary => {
       androidReleaseCreateWalletErrors,
       getBulletLinesAfter(summary, 'Android release create-wallet smoke summary errors').length,
     ],
+    ['Controlled release blocker errors', controlledReleaseBlockerErrors, getBulletLinesAfter(summary, 'Controlled release blocker errors').length],
   ].forEach(([label, value, listedCount]) => {
     if (!isNonNegativeInteger(value)) {
       errors.push(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
@@ -207,6 +214,23 @@ export const getCameraQrValidationSummaryErrors = summary => {
     errors.push(`Android release evidence ready must be ${expectedAndroidReleaseEvidenceReady} for the reported release evidence`);
   }
 
+  const controlledReleaseBlockerReady =
+    controlledReleaseBlockerValid === 'yes' &&
+    controlledReleaseBlockerOutcome === 'blocked-by-electrum-certificate-expired' &&
+    controlledReleaseBlockerErrors === '0';
+
+  if (releaseRuntimeProofState === 'ready') {
+    if (androidReleaseEvidenceReady !== 'yes') {
+      errors.push('Camera/QR release runtime proof state ready requires Android release evidence ready');
+    }
+  } else if (releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired') {
+    if (!controlledReleaseBlockerReady) {
+      errors.push('Camera/QR release runtime proof state blocked-by-electrum-certificate-expired requires a valid controlled release blocker summary');
+    }
+  } else if (releaseRuntimeProofState !== 'not ready') {
+    errors.push(`Camera/QR release runtime proof state must be ready, blocked-by-electrum-certificate-expired, or not ready. Received: ${releaseRuntimeProofState || 'missing'}`);
+  }
+
   if (getLineValue(summary, 'Camera candidate summary valid') !== 'yes') {
     errors.push('Camera candidate summary must be valid before Camera/QR validation evidence can be tracked');
   }
@@ -248,6 +272,10 @@ export const getCameraQrValidationSummaryErrors = summary => {
 
   if (!requiredAction.includes('rerun Android dev and release Camera/QR smoke')) {
     errors.push('Required action must mention rerunning Android dev and release Camera/QR smoke before claiming Android validation');
+  }
+
+  if (!requiredAction.includes('Electrum TLS certificate')) {
+    errors.push('Required action must mention the Electrum TLS certificate blocker before claiming full release Camera/QR proof');
   }
 
   if (!requiredAction.includes('pod install on macOS')) {
