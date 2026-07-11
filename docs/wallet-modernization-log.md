@@ -10,6 +10,62 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.868 - tiny-secp256k1 wallet crypto compatibility
+
+- Branch: `feature/bem-37-868-tiny-secp256k1-compatibility`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Finish the remaining high-severity wallet-crypto audit item by moving the BTCV `bitcoinjs-lib` / nested legacy `bip32` owner paths from `tiny-secp256k1@1.1.6` to checked latest `tiny-secp256k1@2.2.4`.
+- Keep the pinned BitcoinVault `bitcoinjs-lib` fork in place; do not replace it with upstream `bitcoinjs-lib` because the app still depends on BTCV `alt_networks`, `VaultTxType`, `ECPair`, and `TransactionBuilder`.
+- Add a small BTCV fork compatibility shim so `ECPair.publicKey`, `ECPair.privateKey`, and `ECPair.sign()` stay as `Buffer` values for the older `bitcoinjs-lib` PSBT/typeforce surface while `tiny-secp256k1@2.x` returns `Uint8Array`.
+- Add a Metro-only `tiny-secp256k1` alias to a local React Native shim backed by existing `@bitcoinerlab/secp256k1`, because the upstream `tiny-secp256k1@2.2.4` browser entry imports `secp256k1.wasm` and Metro/RN cannot use that loader safely.
+- Extend `check:security-resolution-baselines` so the lockfile cannot drift back to vulnerable `tiny-secp256k1@1.1.6`.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `tiny-secp256k1@2.2.4` as latest, with Node engine `>=14.0.0`, package type `module`, CJS `main` at `./lib/cjs/index.cjs`, and browser/default export at `./lib/index.js`.
+- A direct forced resolution initially passed package install and Node API probing but broke wallet signing fixtures because `ECPair.sign()` and `ECPair.publicKey` values became `Uint8Array` while the BTCV fork expects `Buffer`.
+- The wallet compatibility shim fixes those Node/Jest signing and address paths without changing transaction construction logic.
+- A production Android bundle without the Metro alias fails on `node_modules\tiny-secp256k1\lib\wasm_loader.browser.js` because it imports `./secp256k1.wasm`.
+- The Metro alias keeps Android/RN away from that WASM browser entry while preserving the audited lockfile package version for Node/package resolution.
+- `corepack yarn audit --json --level high` now reports `0` critical and `0` high findings, down from `0` critical and `4` high after `BEM-37.867`; remaining findings are `61` moderate and `15` low.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view tiny-secp256k1 version dist-tags engines dependencies type main module exports --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why tiny-secp256k1`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output local-docs\tiny-secp-bundle\index.android.bundle --assets-dest local-docs\tiny-secp-bundle\assets`
+- `rg -n "wasm_loader|secp256k1\.wasm|@bitcoinerlab/secp256k1|tinySecp256k1ReactNative" local-docs\tiny-secp-bundle\index.android.bundle` (no matches for the WASM loader after the Metro alias)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:signer`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level high` (current summary: `0` critical, `0` high, `61` moderate, `15` low; command exits nonzero because lower-severity findings remain)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` (blocked by expired dev/testnet Electrum TLS certificate before dashboard proof)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
+Android runtime note:
+
+- The Android dev build produced `app-dev-debug.apk` and its Gradle bundle task completed without the previous `tiny-secp256k1` WASM resolution failure.
+- The no-network Android smoke installed and launched `app-dev-debug.apk`, completed first-run Terms/PIN/transaction-password/email-skip flow, found the expected `No network` UI, and reported no fatal/runtime logcat findings.
+- Full dashboard smoke remains externally blocked by `electrumx.testnet.btcv.stage.rnd.land:443 tls`; `android:dev:network-blocker:audit` captured `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- iOS runtime validation is not claimed on this Windows machine; `ios:static:verify` still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
 ### BEM-37.867 - base-x wallet crypto security compatibility
 
 - Branch: `feature/bem-37-867-wallet-crypto-security-compatibility`

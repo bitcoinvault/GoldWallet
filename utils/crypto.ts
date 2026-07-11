@@ -9,6 +9,7 @@ import { NativeModules } from 'react-native';
 
 const { RNRandomBytes } = NativeModules;
 
+import { normalizeECPairSignatures } from './bitcoinjsKeyPair';
 import { bytesToBits, bitsToBytes } from './buffer';
 import config from '../src/config';
 import { ELECTRUM_VAULT_SEED_KEY, MasterPublicKey } from '../src/consts';
@@ -98,9 +99,11 @@ export const mnemonicToEntropy = (mnemonic: string) => {
 };
 
 export const privateKeyToKeyPair = (privateKey: string) =>
-  ECPair.fromPrivateKey(Buffer.from(privateKey, ENCODING), {
-    network: config.network,
-  });
+  normalizeECPairSignatures(
+    ECPair.fromPrivateKey(Buffer.from(privateKey, ENCODING), {
+      network: config.network,
+    }),
+  );
 
 // convert mnemonic generated in https://keygenerator.cloudbestenv.com/
 export const mnemonicToKeyPair = async (mnemonic: string) => {
@@ -128,9 +131,11 @@ export const mnemonicToKeyPair = async (mnemonic: string) => {
     password: generatedBytes,
   });
 
-  return ECPair.fromPrivateKey(privateKey, {
-    network: config.network,
-  });
+  return normalizeECPairSignatures(
+    ECPair.fromPrivateKey(privateKey, {
+      network: config.network,
+    }),
+  );
 };
 
 export const isElectrumVaultMnemonic = (mnemonic: string, prefix: string): boolean => {

@@ -4,6 +4,7 @@ import b58 from 'bs58check';
 
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import config from '../src/config';
+import { normalizeECPairSignatures } from '../utils/bitcoinjsKeyPair';
 import { electrumVaultMnemonicToSeed, getMasterPublicKeyPrefix, getRandomBytes } from '../utils/crypto';
 
 const coinSelectAccumulative = require('coinselect/accumulative');
@@ -226,7 +227,9 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       if (!skipSigning) {
         // skiping signing related stuff
 
-        keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address), config.network);
+        keyPair = normalizeECPairSignatures(
+          bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address), config.network),
+        );
         keypairs[c] = keyPair;
       }
       values[c] = input.value;

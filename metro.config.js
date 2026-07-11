@@ -1,7 +1,9 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const path = require('path');
 
 const defaultConfig = getDefaultConfig(__dirname);
 const defaultSourceExts = defaultConfig.resolver.sourceExts;
+const tinySecp256k1ReactNativeShim = path.resolve(__dirname, 'utils/tinySecp256k1ReactNative.js');
 
 module.exports = mergeConfig(defaultConfig, {
   server: {
@@ -18,6 +20,16 @@ module.exports = mergeConfig(defaultConfig, {
     },
   },
   resolver: {
+    resolveRequest: (context, moduleName, platform) => {
+      if (moduleName === 'tiny-secp256k1') {
+        return {
+          type: 'sourceFile',
+          filePath: tinySecp256k1ReactNativeShim,
+        };
+      }
+
+      return context.resolveRequest(context, moduleName, platform);
+    },
     sourceExts: process.env.RN_SRC_EXT
       ? process.env.RN_SRC_EXT.split(',').concat(defaultSourceExts)
       : defaultSourceExts,

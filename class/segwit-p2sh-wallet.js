@@ -1,6 +1,7 @@
+import { LegacyWallet } from './legacy-wallet';
 import config from '../src/config';
 import { addressToScriptHash } from '../utils/bitcoin';
-import { LegacyWallet } from './legacy-wallet';
+import { normalizeECPairSignatures } from '../utils/bitcoinjsKeyPair';
 
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
@@ -75,7 +76,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
     let address;
 
     try {
-      const keyPair = bitcoin.ECPair.fromWIF(this.secret, config.network);
+      const keyPair = normalizeECPairSignatures(bitcoin.ECPair.fromWIF(this.secret, config.network));
       const pubKey = keyPair.publicKey;
 
       if (!keyPair.compressed) {
