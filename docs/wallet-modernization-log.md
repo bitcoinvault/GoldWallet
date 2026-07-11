@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.845 - Babel 8 live blocker refresh
+
+- Branch: `feature/bem-37-845-babel8-live-blocker-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Babel 8 blocker evidence against live npm metadata for the current RN `0.86.0` baseline.
+- Keep direct Babel packages pinned to the validated Babel `7.29.7` baseline; do not commit a broken Babel 8 package state.
+- Update the Babel 8 migration probe document and self-check fixtures so current `@babel/cli@8.0.4` and `@babel/traverse@8.0.4` metadata are represented.
+- Keep this branch scoped to blocker proof and guard freshness, not a Metro/RN transform migration.
+
+Findings:
+
+- Live npm metadata on `2026-07-11` reports the current Babel 8 line as `@babel/cli@8.0.4`, `@babel/core@8.0.1`, `@babel/plugin-transform-runtime@8.0.1`, `@babel/preset-env@8.0.2`, `@babel/preset-react@8.0.1`, `@babel/preset-typescript@8.0.1`, `@babel/plugin-transform-flow-strip-types@8.0.1`, `@babel/runtime@8.0.0`, `@babel/traverse@8.0.4`, and `babel-plugin-polyfill-regenerator@1.0.0`.
+- Babel 8 requires Node `^22.18.0 || >=24.11.0`; repo Node `v24.16.0` satisfies it, so this is not a Node runtime blocker.
+- The isolated transform probe installs `@babel/core@8.0.1` with `@react-native/babel-preset@0.86.0`, but transform still fails with `BABEL_VERSION_UNSUPPORTED`.
+- The first failing plugin path remains `@babel/plugin-transform-flow-strip-types`; `@react-native/babel-preset@0.86.0` still depends on the Babel 7 plugin range `^7.25.2`.
+- Babel 8 remains blocked until a dedicated RN/Metro/Babel branch proves transform, Jest, Metro bundle, Android build, and emulator smoke paths together.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn babel8:migration-probe:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn babel8:migration-probe:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn babel8:migration-probe:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.844 - ESLint 10.7 patch tooling refresh
 
 - Branch: `feature/bem-37-844-eslint-10-7-refresh`

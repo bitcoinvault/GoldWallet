@@ -6,7 +6,7 @@ const validEntries = [
     name: '@babel/cli',
     current: '7.29.7',
     wanted: '7.29.7',
-    latest: '8.0.1',
+    latest: '8.0.4',
     type: 'devDependencies',
     decision:
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',

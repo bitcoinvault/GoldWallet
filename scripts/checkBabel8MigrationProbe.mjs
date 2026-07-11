@@ -57,9 +57,11 @@ if (!existsSync(probeDocPath)) {
   [
     'BABEL_VERSION_UNSUPPORTED',
     'Requires Babel "^7.0.0-0"',
+    '@babel/cli@8.0.4',
     '@babel/core@8.0.1',
     '@babel/plugin-transform-runtime@8.0.1',
     '@babel/plugin-transform-flow-strip-types@8.0.1',
+    '@babel/traverse@8.0.4',
     'Node `^22.18.0 || >=24.11.0`',
     'not a Node-runtime blocker',
     '@react-native/babel-preset',
