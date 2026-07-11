@@ -17,9 +17,16 @@ const expectedPreCommit = [
   'node_version="$(tr -d \'\\r\\n\' < .nvmrc)"',
   'npx -y -p "node@$node_version" -p yarn@1.22.22 yarn precommit',
 ].join('\n');
+const expectedPrePush = [
+  '#!/usr/bin/env sh',
+  'set -e',
+  '',
+  'node_version="$(tr -d \'\\r\\n\' < .nvmrc)"',
+  'npx -y -p "node@$node_version" -p yarn@1.22.22 yarn prepush',
+].join('\n');
 const expectedHooks = {
   '.husky/pre-commit': expectedPreCommit,
-  '.husky/pre-push': 'yarn prepush',
+  '.husky/pre-push': expectedPrePush,
 };
 const errors = [];
 
@@ -59,7 +66,7 @@ for (const [relativePath, expectedCommand] of Object.entries(expectedHooks)) {
   }
 
   if (read(relativePath) !== expectedCommand) {
-    errors.push(`${relativePath} must contain exactly "${expectedCommand}"`);
+    errors.push(`${relativePath} must match the guarded Node/Yarn hook template`);
   }
 }
 
