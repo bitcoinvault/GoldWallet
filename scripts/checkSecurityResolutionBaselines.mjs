@@ -20,6 +20,7 @@ const requiredResolutions = new Map([
   ['shell-quote', '1.10.0'],
   ['simple-plist', '1.3.1'],
   ['tmpl', '1.0.5'],
+  ['tmp', '0.2.7'],
   ['@sentry/**/undici', '6.27.0'],
 ]);
 
@@ -31,6 +32,8 @@ const vulnerableLockEntries = [
   ['cipher-base', '1.0.4'],
   ['elliptic', '6.5.4'],
   ['form-data', '4.0.5'],
+  ['jws', '4.0.0'],
+  ['lodash', '4.17.21'],
   ['minimist', '1.2.5'],
   ['minimatch', '3.0.4'],
   ['moment', '2.29.1'],
@@ -41,7 +44,9 @@ const vulnerableLockEntries = [
   ['shell-quote', '1.7.2'],
   ['simple-plist', '1.1.1'],
   ['tmpl', '1.0.4'],
+  ['tmp', '0.0.33'],
   ['undici', '6.26.0'],
+  ['ws', '7.5.4'],
 ];
 
 const expectedLockVersions = new Map([
@@ -50,6 +55,8 @@ const expectedLockVersions = new Map([
   ['cipher-base', ['1.0.7']],
   ['elliptic', ['6.6.1']],
   ['form-data', ['4.0.6']],
+  ['jws', ['4.0.1']],
+  ['lodash', ['4.18.1']],
   ['minimist', ['1.2.8']],
   ['minimatch', ['3.1.5', '5.1.9', '8.0.7', '9.0.9', '10.2.5']],
   ['moment', ['2.30.1']],
@@ -60,7 +67,9 @@ const expectedLockVersions = new Map([
   ['shell-quote', ['1.10.0']],
   ['simple-plist', ['1.3.1']],
   ['tmpl', ['1.0.5']],
+  ['tmp', ['0.2.7']],
   ['undici', ['6.27.0', '7.28.0']],
+  ['ws', ['6.2.4', '7.5.11']],
 ]);
 
 const normalizeLockKey = key => key.replace(/^"|"$/g, '');
