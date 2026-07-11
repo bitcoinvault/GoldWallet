@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.841 - Pre-push Node runtime pinning
+
+- Branch: `feature/bem-37-841-prepush-node-runtime`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Run the Husky `pre-push` hook through the same `.nvmrc`-pinned Node/Yarn bootstrap already used by `pre-commit`.
+- Keep the repository hook audit strict so `pre-push` cannot silently fall back to whatever global Node is first on `PATH`.
+
+Findings:
+
+- A validated push was initially blocked because `.husky/pre-push` ran `yarn prepush` directly and picked up global Node `v22.18.0` instead of the repo `.nvmrc` runtime `v24.16.0`.
+- `.husky/pre-commit` already avoided this drift by using `npx -p node@$(.nvmrc) -p yarn@1.22.22`; the `pre-push` hook now uses the same pattern.
+- This keeps local developer pushes aligned with the RN `0.86.0` / Metro Node 24 baseline without hardcoding a private machine path.
+
+Validation:
+
+- `corepack yarn husky:tooling:audit`
+- `corepack yarn check:node-runtime-yarn-runner-guard`
+- `corepack yarn check:node-runtime-version-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.840 - Electrum test isolation and no-network smoke hardening
 
 - Branch: `feature/bem-37-840-electrum-jest-teardown-hardening`
