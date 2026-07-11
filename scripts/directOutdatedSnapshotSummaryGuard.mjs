@@ -18,6 +18,7 @@ const requiredKnownEntries = [
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
+  ['caniuse-lite', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
