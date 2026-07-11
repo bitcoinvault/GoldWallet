@@ -10,6 +10,59 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.855 - Camera/QR controlled release blocker readiness
+
+- Branch: `feature/bem-37-855-camera-qr-controlled-blocker-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Re-check live Camera/QR package metadata before choosing the branch target.
+- Add a shared Android controlled release blocker helper for consumers of `local-docs/android-release-network-blocker-summary.txt`.
+- Keep the new CodePush controlled blocker helper as a thin compatibility wrapper around the shared Android blocker helper.
+- Extend Camera/QR validation summaries and guards with controlled release blocker fields plus `Camera/QR release runtime proof state`.
+- Keep CameraKit, QR renderer, SVG renderer, runtime code, native files, and package versions unchanged because the installed Camera/QR stack still matches live npm latest metadata.
+
+Findings:
+
+- Live npm metadata on 2026-07-11 reports `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` as current latest targets.
+- Live npm metadata also reports `react-native-vision-camera@5.1.0`, but the latest line still peers on `react-native-nitro-modules` and `react-native-nitro-image`, so VisionCamera remains deferred to a future native-stack branch rather than a blind scanner package swap.
+- The Camera candidate audit and Camera QR migration audit remain valid: CameraKit is installed, legacy `react-native-camera` is absent, QR renderer/native/encoder targets are aligned, removed camera pods are absent from `ios/Podfile.lock`, and broader iOS Podfile.lock drift remains a separate macOS blocker.
+- Current Android dev and release Camera/QR runtime proof remains not ready because the app reaches the known external `No network` path before the QR scanner screen can be validated.
+- Camera/QR validation summary now records `Controlled release blocker valid: yes`, `Controlled release blocker outcome: blocked-by-electrum-certificate-expired`, and `Camera/QR release runtime proof state: blocked-by-electrum-certificate-expired` when the current Android release network blocker summary is valid.
+- The Camera/QR summary guard rejects `ready` release proof unless Android release smoke and release create-wallet evidence are ready, and rejects the blocked release state unless the controlled Electrum certificate blocker summary is valid.
+- No runtime code, native project files, package versions, Metro config, or APK inputs changed in this branch; emulator smoke was not rerun for this static guard/docs milestone.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-camera-kit version dist-tags peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-vision-camera version dist-tags peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-qrcode-svg version dist-tags peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-svg version dist-tags peerDependencies dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view qrcode version dist-tags dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:candidate:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-migration-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-removal-readiness-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:migration:readiness-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:removal-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/androidControlledReleaseBlocker.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts/codePushControlledReleaseBlocker.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing ESLint baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `git diff --check`
+
 ### BEM-37.854 - CodePush controlled release blocker readiness
 
 - Branch: `feature/bem-37-854-codepush-controlled-blocker-readiness`

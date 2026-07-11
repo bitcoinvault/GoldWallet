@@ -7,6 +7,7 @@ import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard
 import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.mjs';
 import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';
 import { getCameraQrValidationSummaryErrors } from './cameraQrValidationSummaryGuard.mjs';
+import { collectControlledAndroidReleaseBlocker } from './androidControlledReleaseBlocker.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -59,6 +60,7 @@ const collectEvidence = () => {
   const androidSmokeSummary = readSummary(androidSmokeSummaryPath);
   const androidReleaseSmokeSummary = readSummary(androidReleaseSmokeSummaryPath);
   const androidReleaseCreateWalletSmokeSummary = readSummary(androidReleaseCreateWalletSmokeSummaryPath);
+  const controlledReleaseBlocker = collectControlledAndroidReleaseBlocker(root);
   const candidateErrors = candidateSummary ? getCameraCandidateSummaryErrors(candidateSummary) : ['missing Camera candidate summary'];
   const migrationErrors = migrationSummary ? getCameraQrMigrationSummaryErrors(migrationSummary) : ['missing Camera QR migration summary'];
   const androidSmokeErrors = androidSmokeSummary
@@ -80,6 +82,7 @@ const collectEvidence = () => {
     androidSmokeSummary,
     androidReleaseSmokeSummary,
     androidReleaseCreateWalletSmokeSummary,
+    controlledReleaseBlocker,
     candidateErrors,
     migrationErrors,
     androidSmokeErrors,
@@ -107,6 +110,11 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     androidReleaseQrScannerValidated === 'yes' &&
     androidReleaseCreateWalletPresent &&
     androidReleaseCreateWalletValid;
+  const releaseRuntimeProofState = androidReleaseEvidenceReady
+    ? 'ready'
+    : evidence.controlledReleaseBlocker.valid
+    ? evidence.controlledReleaseBlocker.outcome
+    : 'not ready';
 
   return [
     'Camera/QR validation summary',
@@ -133,6 +141,12 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Android release create-wallet smoke outcome: ${
       getLineValue(evidence.androidReleaseCreateWalletSmokeSummary, 'Android create-wallet smoke outcome') || '<missing>'
     }`,
+    `Controlled release blocker summary present: ${evidence.controlledReleaseBlocker.present ? 'yes' : 'no'}`,
+    `Controlled release blocker valid: ${evidence.controlledReleaseBlocker.valid ? 'yes' : 'no'}`,
+    `Controlled release blocker outcome: ${evidence.controlledReleaseBlocker.outcome}`,
+    `Controlled release blocker errors: ${evidence.controlledReleaseBlocker.errors.length}`,
+    ...evidence.controlledReleaseBlocker.errors.map(error => `- ${error}`),
+    `Camera/QR release runtime proof state: ${releaseRuntimeProofState}`,
     `iOS camera Podfile.lock cleanup complete: ${yesNo(getLineValue(evidence.migrationSummary, 'iOS camera Podfile.lock cleanup complete'))}`,
     `iOS broader Podfile.lock refresh required: ${yesNo(getLineValue(evidence.migrationSummary, 'iOS broader Podfile.lock refresh required'))}`,
     `iOS broader Podfile.lock drift issues: ${getLineValue(evidence.migrationSummary, 'iOS broader Podfile.lock drift issues') || '0'}`,
@@ -151,7 +165,7 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Camera/QR Android validation evidence ready: ${androidValidationReady ? 'yes' : 'no'}`,
     `Android release evidence ready: ${androidReleaseEvidenceReady ? 'yes' : 'no'}`,
     'Secret values printed: no',
-    'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; rerun Android dev and release Camera/QR smoke before claiming Android validation; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
+    'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; rerun Android dev and release Camera/QR smoke before claiming Android validation; renew the dev/testnet Electrum TLS certificate before relying on full release Camera/QR proof; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
     '',
   ].join('\n');
 };
