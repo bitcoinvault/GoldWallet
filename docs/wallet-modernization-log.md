@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.850 - Foundation target live refresh
+
+- Branch: `feature/bem-37-850-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the network-backed foundation target evidence after the Android release validation refresh.
+- Update the recorded React Native target snapshot after npm `nightly` moved while stable `latest` stayed on the validated RN `0.86.0` line.
+- Re-check the direct outdated package decisions, React patch blocker, Babel 8 blocker, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, TypeScript 7 blocker, Android toolchain target, `bl`, and `node-fetch`.
+- Keep this branch scoped to live target evidence and documentation; do not change package versions or runtime code.
+
+Findings:
+
+- The first `foundation:target:refresh-online` run correctly failed because the recorded RN target snapshot still expected nightly `0.88.0-nightly-20260710-102fde7b6` while live npm reported `0.88.0-nightly-20260711-042833e69`.
+- After refreshing the snapshot, the live RN target check matched with `Mismatches: 0`: `react-native@0.86.0` remains npm `latest`, `0.87.0-rc.0` remains a prerelease `next` planning signal, and nightly is `0.88.0-nightly-20260711-042833e69`.
+- `foundation:target:refresh-online` passed with Node `v24.16.0` and JDK 17 in the shell.
+- Direct outdated snapshot reports `18` entries: `14` known blocked entries, `4` exotic/git-pinned entries, and `0` review-required entries.
+- React `19.2.7` and `react-test-renderer 19.2.7` remain blocked as package-only patches because the RN `0.86.0` renderer exact-version baseline expects React `19.2.3`.
+- Babel 8 remains blocked by the RN `0.86.0` Babel preset/plugin stack; the isolated transform probe still fails with `BABEL_VERSION_UNSUPPORTED`.
+- Git dependency pins remain current for the BitcoinVault `bitcoinjs-lib` fork, BitcoinVault Electrum fork, Android prompt fork, and `rn-nodeify`.
+- Wallet/crypto latest snapshot reports `15` tracked entries with only the BitcoinVault `bitcoinjs-lib` fork intentionally pinned; direct `bech32` remains absent.
+- Storage/network latest snapshot reports `10` current native entries and `0` deferred entries.
+- Tooling latest snapshot reports `24` tracked entries; only TypeScript 7 remains blocked for a dedicated compiler/RN/Metro branch.
+- TypeScript 7 target `7.0.2` remains blocked by `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, and `ts-jest` peer ranges.
+- Android latest target remains blocked: AGP `9.2.1` requires Gradle `9.4.1+`, the direct AGP `9.2.1` / Gradle `9.6.1` / Kotlin `2.4.0` probe still fails in the React Native Gradle plugin `:gradle-plugin:settings-plugin:compileKotlin` path, and the validated Android baseline remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`.
+- `bl@7.0.6` remains blocked because the latest package is ESM/export-map only while `levelup` and `ora` still use the validated CommonJS-compatible `bl@6.1.6` path; `node-fetch@3.3.2` remains current and compatible through the current dynamic import path.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn foundation:target:refresh-online` expected fail before patch: RN target snapshot stale against live nightly `0.88.0-nightly-20260711-042833e69`.
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:target-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn check:rn-target-snapshot-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn check:rn-target-snapshot-current-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn check:rn-target-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn foundation:target:refresh-online`
+
 ### BEM-37.849 - Android release validation refresh
 
 - Branch: `feature/bem-37-849-android-release-validation-refresh`
