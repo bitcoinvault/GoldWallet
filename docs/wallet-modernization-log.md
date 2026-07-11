@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.844 - ESLint 10.7 patch tooling refresh
+
+- Branch: `feature/bem-37-844-eslint-10-7-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the ESLint flat-config bridge patch baseline after live npm metadata moved from `eslint@10.6.0` to `eslint@10.7.0`.
+- Update `@eslint/eslintrc` from `3.3.5` to `3.3.6` so `FlatCompat` remains current with the ESLint 10 tooling baseline.
+- Keep the change limited to lint/tooling packages, compatibility guards, lockfile metadata, and this modernization log.
+- Avoid broad formatting churn; the existing lint baseline remains an audited baseline rather than a mass-fix branch.
+
+Findings:
+
+- Live npm metadata on `2026-07-11` reports `eslint@10.7.0` and `@eslint/eslintrc@3.3.6` as the current patch targets.
+- `@typescript-eslint/eslint-plugin@8.63.0` and `@typescript-eslint/parser@8.63.0` remain compatible with the ESLint 10 baseline through their `^8.57.0 || ^9.0.0 || ^10.0.0` peer range.
+- `tooling:latest-snapshot:audit` now reports all `24` tracked tooling entries current except the intentional TypeScript 7 blocker.
+- `direct-outdated:snapshot:audit` dropped the ESLint review-required entries and returned to `18` tracked entries: `14` known blockers, `4` exotic wallet/runtime forks, and `0` review-required entries.
+- `lint:baseline:audit` still reports the existing repo lint baseline, but the command exits successfully and no mass formatting was applied in this branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn add --dev --exact eslint@10.7.0 @eslint/eslintrc@3.3.6`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:eslint-config-compatibility`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.843 - iOS static release validation refresh
 
 - Branch: `feature/bem-37-843-ios-static-release-validation-refresh`

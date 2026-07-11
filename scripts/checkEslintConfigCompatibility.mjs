@@ -35,8 +35,8 @@ if (devDependencies['@typescript-eslint/parser'] !== '8.63.0') {
   );
 }
 
-if (devDependencies.eslint !== '10.6.0') {
-  errors.push(`eslint must stay on 10.6.0 for the flat-config bridge. Found ${devDependencies.eslint || '<missing>'}`);
+if (devDependencies.eslint !== '10.7.0') {
+  errors.push(`eslint must stay on 10.7.0 for the flat-config bridge. Found ${devDependencies.eslint || '<missing>'}`);
 }
 
 if (devDependencies['@eslint/js'] !== '10.0.1') {
@@ -45,9 +45,9 @@ if (devDependencies['@eslint/js'] !== '10.0.1') {
   );
 }
 
-if (devDependencies['@eslint/eslintrc'] !== '3.3.5') {
+if (devDependencies['@eslint/eslintrc'] !== '3.3.6') {
   errors.push(
-    `@eslint/eslintrc must stay on 3.3.5 for the ESLint 10 flat-config bridge. Found ${devDependencies['@eslint/eslintrc'] || '<missing>'}`,
+    `@eslint/eslintrc must stay on 3.3.6 for the ESLint 10 flat-config bridge. Found ${devDependencies['@eslint/eslintrc'] || '<missing>'}`,
   );
 }
 
