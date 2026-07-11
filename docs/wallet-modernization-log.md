@@ -10,6 +10,32 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.858 - iOS static release handoff refresh
+
+- Branch: `feature/bem-37-858-ios-static-handoff-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Windows-safe iOS static release readiness and macOS validation handoff evidence after the latest Android release validation refresh.
+- Re-run the guarded iOS static verification flow for release files, shared schemes, Sentry phases, remote-notification plists, Podfile.lock drift, macOS prerequisites, Podfile refresh plan, and all-scheme handoff dry-run.
+- Keep iOS runtime/archive validation explicitly unclaimed because this machine is Windows and does not have Xcode or CocoaPods.
+- Keep package versions, runtime application code, iOS native project files, Podfile.lock, env values, release-service secrets, and Android artifacts unchanged.
+
+Findings:
+
+- `ios:static:verify` passed with Node `v24.16.0`.
+- Static iOS release files remain valid for React Native `0.86.0`: minimum iOS `15.1`, Podfile platform `15.1`, Xcode deployment targets `15.1`, minimum Xcode `16.1`, `8` guarded shared schemes, `4` Sentry bundle/source-map phases, `3` Sentry dSYM upload phases, `4` remote-notification plists, and `0` CodePush plist placeholders.
+- `ios/Podfile.lock` still requires a macOS `pod install` refresh and has `12` active drift issues: `React-Core`, `RNBootSplash`, `react-native-config`, `RNCAsyncStorage`, `RNDeviceInfo`, `RNFastImage`, `RNFBApp`, `RNGestureHandler`, `RNLocalize`, `RNScreens`, `RNSentry`, and `RNVectorIcons`.
+- Removed Podfile.lock pod references remain `0`; the current iOS blocker is stale active native pod versions, not stale removed-camera, removed-CodePush, or removed-masked-view pods.
+- The macOS prerequisite summary still reports platform `win32`, missing `xcodebuild`, missing `pod`/`bundle exec pod`, and `Ready for macOS pod/archive validation: no`.
+- The combined handoff summary keeps `iOS runtime delivery validation: not claimed`, `Implementation ready: no`, all `8` shared schemes, `iphonesimulator`, and the required macOS command `corepack yarn ios:mac-validation:handoff --all-schemes`.
+- Required macOS action remains unchanged: refresh `ios/Podfile.lock` with `pod install`, review and commit that lockfile refresh, then run `corepack yarn ios:mac-validation:handoff --all-schemes` on macOS with Xcode `16.1+` before claiming simulator/archive readiness.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+
 ### BEM-37.857 - Android release validation refresh
 
 - Branch: `feature/bem-37-857-android-release-validation-refresh`
