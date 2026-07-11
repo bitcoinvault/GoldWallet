@@ -10,6 +10,65 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.866 - non-crypto high security range consolidation
+
+- Branch: `feature/bem-37-866-noncrypto-security-ranges`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Continue high-severity audit reduction after `BEM-37.865` by consolidating remaining non-crypto vulnerable ranges for `lodash`, `ws`, `tmp`, and `jws`.
+- Keep wallet-critical `tiny-secp256k1` and `base-x` out of this branch because they affect address/key/signature compatibility and need a dedicated crypto compatibility milestone.
+- Extend `check:security-resolution-baselines` so the lockfile cannot drift back to vulnerable `lodash@4.17.21`, `ws@7.5.4`, `tmp@0.0.33`, or `jws@4.0.0`.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `lodash@4.18.1`, `ws@8.21.0`, `tmp@0.2.7`, and `jws@4.0.1` as latest.
+- Existing `ws@^7` consumers are consolidated to the patched compatible `ws@7.5.11`; this branch does not force a cross-major `ws@8` override into Detox/React DevTools paths.
+- Existing `jws@^4.0.0` consumers are consolidated to `jws@4.0.1`, with the related `jwa` lockfile refresh kept in the same owner path.
+- Existing full-package `lodash` ranges are consolidated to `lodash@4.18.1`; no `lodash@4.17.21` lockfile entry remains.
+- The legacy `tmp@^0.0.33` owner path comes from tooling-only `cz-conventional-changelog > commitizen > inquirer > external-editor`; Yarn requires an explicit `tmp@0.2.7` resolution for that path and warns that it is outside the original `^0.0.33` range.
+- A runtime sanity probe confirmed `tmp.fileSync()` and `external-editor` still load after the `tmp@0.2.7` resolution.
+- `corepack yarn audit --json --level high` now reports `0` critical, `7` high, `64` moderate, and `17` low findings, down from `0` critical, `28` high, `90` moderate, and `19` low after `BEM-37.865`.
+- Remaining high findings are `tiny-secp256k1` and `base-x`, both wallet-critical and reserved for a dedicated crypto compatibility branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view lodash version`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view ws version`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view tmp version`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view jws version`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why lodash`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why ws`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why tmp`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why jws`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn list --pattern lodash`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn list --pattern ws`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn list --pattern tmp`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn list --pattern jws`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node -e "const tmp=require('tmp'); const f=tmp.fileSync(); console.log(Boolean(f.name)); f.removeCallback(); const externalEditor=require('external-editor'); console.log(typeof externalEditor.edit, typeof externalEditor.editAsync);"`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level high` (current summary: `0` critical, `7` high, `64` moderate, `17` low)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` (blocked by expired dev/testnet Electrum TLS certificate before dashboard proof)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
+Android runtime note:
+
+- The no-network Android smoke installed and launched `app-dev-debug.apk`, completed first-run Terms/PIN/transaction-password/email-skip flow, found the expected `No network` UI, and reported no fatal/runtime logcat findings.
+- Full dashboard smoke remains externally blocked by `electrumx.testnet.btcv.stage.rnd.land:443 tls`; `android:dev:network-blocker:audit` captured `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- iOS runtime validation is not claimed on this Windows machine; `ios:static:verify` still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
 ### BEM-37.865 - minimatch and picomatch lockfile security consolidation
 
 - Branch: `feature/bem-37-865-minimatch-picomatch-security`
