@@ -10,6 +10,56 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.865 - minimatch and picomatch lockfile security consolidation
+
+- Branch: `feature/bem-37-865-minimatch-picomatch-security`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Continue high-severity audit reduction after `BEM-37.864` by consolidating old `minimatch@3.0.4` and `picomatch@2.3.0` lockfile ranges to the highest compatible patched lines.
+- Avoid global `minimatch`/`picomatch` overrides because the repo also uses current `minimatch@10.2.5` and `picomatch@4.0.4` for ESLint, Jest 30, React Native, and tooling paths.
+- Extend `check:security-resolution-baselines` so the lockfile cannot drift back to vulnerable `minimatch@3.0.4` or `picomatch@2.3.0`.
+
+Findings:
+
+- Live npm metadata on `2026-07-11` reports `minimatch@10.2.5` as latest and `3.1.5` as `legacy-v3`; the repo keeps `3.1.5` for legacy v3 consumers and does not downgrade modern `minimatch@10.2.5`.
+- Live npm metadata on `2026-07-11` reports `picomatch@4.0.5` as latest; legacy v2 consumers are consolidated to patched `picomatch@2.3.2` while Jest 30/tooling paths remain on `picomatch@4.0.4`.
+- Yarn v1 rejected descriptor-style `minimatch@^3.0.4` resolutions and owner-path package resolutions did not move the lockfile, so this branch uses semver-compatible lockfile consolidation plus a guard instead of dead `package.json` entries.
+- `corepack yarn list --pattern minimatch` now reports `minimatch@3.1.5`, `5.1.9`, `8.0.7`, `9.0.9`, and `10.2.5`; no `minimatch@3.0.4` remains.
+- `corepack yarn list --pattern picomatch` now reports `picomatch@2.3.2` and `4.0.4`; no `picomatch@2.3.0` remains.
+- `corepack yarn audit --json --level high` now reports `0` critical, `28` high, `90` moderate, and `19` low findings, down from `0` critical, `106` high, `112` moderate, and `27` low after `BEM-37.864`.
+- Remaining high findings are `lodash`, `ws`, `tiny-secp256k1`, `base-x`, `tmp`, and `jws`. Wallet-critical `tiny-secp256k1` and `base-x` remain isolated for a dedicated crypto compatibility branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view minimatch version dist-tags versions engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view picomatch version dist-tags versions engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why minimatch`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why picomatch`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn list --pattern minimatch`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn list --pattern picomatch`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level high` (current summary: `0` critical, `28` high, `90` moderate, `19` low)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` (blocked by expired dev/testnet Electrum TLS certificate before dashboard proof)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
+Android runtime note:
+
+- The no-network Android smoke installed and launched `app-dev-debug.apk`, completed first-run Terms/PIN/transaction-password/email-skip flow, found the expected `No network` UI, and reported no fatal/runtime logcat findings.
+- Full dashboard smoke remains externally blocked by `electrumx.testnet.btcv.stage.rnd.land:443 tls`; `android:dev:network-blocker:audit` captured `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- iOS runtime validation is not claimed on this Windows machine; `ios:static:verify` still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
 ### BEM-37.864 - compatible high security resolutions
 
 - Branch: `feature/bem-37-864-security-high-compatible-resolutions`
