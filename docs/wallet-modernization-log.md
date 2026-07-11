@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.847 - React renderer patch blocker refresh
+
+- Branch: `feature/bem-37-847-react-renderer-patch-blocker-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh React package patch blocker evidence against live npm metadata for the current RN `0.86.0` foundation.
+- Keep `react` and `react-test-renderer` pinned to the validated `19.2.3` renderer baseline; do not commit a broken package-only `19.2.7` state.
+- Update the React package coupling audit document and guard snippets so the current `2026-07-11` blocker proof is represented.
+- Keep this branch scoped to React/RN renderer coupling evidence, not a React Native renderer baseline migration.
+
+Findings:
+
+- Live npm metadata on `2026-07-11` reports `react@19.2.7` and `react-test-renderer@19.2.7`; `react-test-renderer` peers `react: ^19.2.7`.
+- `react-native@0.86.0` still peers React `^19.2.3`, and the bundled React Native renderer implementation remains exact-version aligned to `19.2.3`.
+- The generated package-only candidate keeps `@types/react@19.2.17` current but rejects `react@19.2.7` because `React package version 19.2.7 does not match React Native renderer exact version 19.2.3`.
+- React package patches therefore remain blocked until a dedicated React Native renderer baseline branch moves the renderer and proves TypeScript, unit tests, Android build, and emulator smoke.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react version peerDependencies engines time.modified --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-test-renderer version peerDependencies engines time.modified --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native@0.86.0 version peerDependencies dependencies engines time.modified --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:patch-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:patch-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:package-coupling:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:react-package-coupling-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react:renderer-version:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:react-renderer-version-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.846 - BL 7 blocker evidence refresh
 
 - Branch: `feature/bem-37-846-bl-7-blocker-refresh`

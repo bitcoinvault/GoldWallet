@@ -26,7 +26,7 @@ export const requiredReactPackageCouplingDocs = [
 export const requiredReactPackageCouplingSnippets = [
   ['docs/react-package-coupling-audit.md', 'React package coupling audit'],
   ['docs/react-package-coupling-audit.md', 'Current React: `19.2.3`'],
-  ['docs/react-package-coupling-audit.md', 'Latest React patch checked on 2026-06-24: `19.2.7`'],
+  ['docs/react-package-coupling-audit.md', 'Latest React patch checked on 2026-07-11: `19.2.7`'],
   ['docs/react-package-coupling-audit.md', 'React `19.2.7` remains blocked on this RN `0.86.0` baseline because `react-native-renderer` is exact-version sensitive at `19.2.3`.'],
   ['docs/react-package-coupling-audit.md', 'Current React types: `19.2.17`'],
   ['docs/react-package-coupling-audit.md', 'Current React Native types: bundled with `react-native@0.86.0`'],
