@@ -10,6 +10,71 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.863 - security resolution baseline
+
+- Branch: `feature/bem-37-863-security-audit-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Reduce high-confidence transitive security audit findings without broad runtime refactors.
+- Add guarded `resolutions` for patched transitive packages used by wallet crypto, release tooling, and build tooling.
+- Keep `tiny-secp256k1@2.x`, `ansi-regex`, `tmp`, and other remaining high findings out of this branch because they need separate compatibility work or more specific package-path overrides.
+
+Findings:
+
+- `corepack yarn audit --json --level high` before this branch reported `22` critical, `148` high, `118` moderate, and `46` low findings across the full Yarn dependency tree.
+- The first resolution set moved `elliptic` to `6.6.1`, Sentry CLI `undici` to `6.27.0`, and `minimist` to `1.2.8`, reducing the audit to `14` critical, `142` high, `113` moderate, and `28` low findings.
+- The second resolution set moved `cipher-base` to `1.0.7`, `sha.js` to `2.4.12`, and `shell-quote` to `1.10.0`, reducing critical findings to `2`.
+- The final build-tooling resolution set moved `simple-plist` to `1.3.1` and `plist` to `3.1.1`, reducing the high-level audit to `0` critical, `142` high, `113` moderate, and `28` low findings.
+- Remaining high findings include `tiny-secp256k1`, `ansi-regex`, `tmp`, `ws`, `minimatch`, `moment`, `lodash`, `qs`, and related transitive tooling/runtime packages; those remain follow-up branches because the safe target depends on the owning dependency path.
+- `check:security-resolution-baselines` now guards the patched resolution versions and rejects the known vulnerable lockfile versions that this branch removed.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level high`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view elliptic version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view undici version dist-tags engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view minimist version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view cipher-base version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view sha.js version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view shell-quote version engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view simple-plist version engines dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view plist@3 version engines dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why elliptic`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why undici`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why minimist`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why plist`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why simple-plist`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `git diff --check`
+
+Android smoke notes:
+
+- `android:dev:assemble` passed for `devDebug`.
+- Full `android:dev:smoke:embedded` installed and launched the app, completed first-run terms/PIN/transaction-password setup, then stopped on the `No network` screen instead of dashboard.
+- `android:dev:smoke:no-network:embedded` passed with expected `No network` UI and no fatal/runtime logcat findings.
+- `android:dev:network-blocker:audit` classified the full smoke blocker as `blocked-by-electrum-certificate-expired` for `electrumx.testnet.btcv.stage.rnd.land:443 tls`; the certificate expired at `Tue Jun 23 16:52:40 GMT 2026`.
+
 ### BEM-37.862 - caniuse-lite resolution refresh
 
 - Branch: `feature/bem-37-862-caniuse-lite-resolution-refresh`
