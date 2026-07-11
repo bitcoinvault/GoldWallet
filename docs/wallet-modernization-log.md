@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.860 - Electrum endpoint readiness preflight
+
+- Branch: `feature/bem-37-860-electrum-endpoint-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a guarded Electrum endpoint readiness preflight before release-smoke work blocked by external Electrum connectivity.
+- Scan `.env.dev.testnet`, `.env.stage.mainnet`, `.env.prod.mainnet`, `.env.beta.testnet`, and `.env.beta.mainnet` without printing secret-looking values.
+- Write live endpoint evidence to ignored `local-docs/electrum-endpoint-readiness-summary.txt`, while keeping offline parser/policy fixtures in `android:dev:check-light`.
+- Document how the live audit complements the existing Android runtime Electrum observation and controlled release no-network blocker summaries.
+
+Findings:
+
+- The live audit found `5` env files, `8` endpoint entries, and `3` unique endpoints.
+- Mainnet entries are ready: `.env.stage.mainnet`, `.env.prod.mainnet`, and `.env.beta.mainnet` use `electrumx-mainnet1.bitcoinvault.global:443` and `electrumx-mainnet2.bitcoinvault.global:443` with authorized TLS certificates valid to `Aug 7 14:28:14 2026 GMT`.
+- Testnet entries remain blocked: `.env.dev.testnet` and `.env.beta.testnet` use `electrumx.testnet.btcv.stage.rnd.land:443 tls` with `CERT_HAS_EXPIRED`, certificate `valid_to=Jun 23 16:52:40 2026 GMT`, and `expires_in_days=-19`.
+- The required external action is unchanged: renew or fix the dev/testnet Electrum TLS certificate, then rerun Android dev/release smoke validation.
+- No runtime application code, native project files, dependency versions, Metro config, or APK inputs changed in this branch, so Android emulator smoke was not rerun for this script/documentation guard milestone.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\auditElectrumEndpointReadiness.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\electrumEndpointReadinessSummaryGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\checkElectrumEndpointReadinessSummary.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --check scripts\checkElectrumEndpointReadinessGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:electrum-endpoint-readiness-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn electrum:endpoint-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn electrum:endpoint-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.859 - Release-services aggregate handoff refresh
 
 - Branch: `feature/bem-37-859-release-services-handoff-refresh`
