@@ -10,6 +10,69 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.864 - compatible high security resolutions
+
+- Branch: `feature/bem-37-864-security-high-compatible-resolutions`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Continue security audit reduction after `BEM-37.863` without touching wallet-critical BitcoinVault crypto forks.
+- Apply compatible patched transitive baselines for high-severity findings where Yarn can stay in the same safe runtime/tooling line.
+- Guard the new lockfile baselines through `check:security-resolution-baselines`.
+
+Findings:
+
+- `corepack yarn audit --json --level high` after `BEM-37.863` reported `0` critical, `142` high, `113` moderate, and `28` low findings.
+- Live npm metadata on `2026-07-11` reports patched/latest compatible targets: `braces@3.0.3`, `form-data@4.0.6`, `moment@2.30.1`, `qs@6.15.3`, and `tmpl@1.0.5`.
+- Lockfile refresh also moved vulnerable `ansi-regex` ranges to patched compatible lines: `3.0.1`, `4.1.1`, `5.0.1`, and kept `6.2.2` for ESM-aware consumers without forcing a global downgrade.
+- The first attempted global `ansi-regex@5.0.1` override was rejected because Yarn warned it would conflict with consumers requiring `ansi-regex@^6.2.2`; the final branch keeps `ansi-regex` as a lockfile-compatible refresh instead of a global resolution.
+- Scoped `minimatch` and `picomatch` resolution attempts were removed because they did not move the remaining vulnerable `minimatch@3.0.4` and `picomatch@2.3.0` owner paths. Those remain follow-up owner-path work.
+- After the branch changes, `corepack yarn audit --json --level high` reports `0` critical, `106` high, `112` moderate, and `27` low findings.
+- Remaining high findings are concentrated in `minimatch`, `picomatch`, `lodash`, `ws`, `tiny-secp256k1`, `base-x`, `tmp`, and `jws`; wallet-critical `tiny-secp256k1` and `base-x` still need a dedicated crypto compatibility branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level high`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view ansi-regex version dist-tags engines type --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view braces version dist-tags engines type --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view picomatch version dist-tags engines type --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view tmpl version dist-tags engines type --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view moment version dist-tags engines type --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view qs version dist-tags engines type --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view ws version dist-tags engines type --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view tmp version dist-tags engines type --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view form-data version versions --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why minimatch`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why picomatch`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why braces`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why tmpl`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why moment`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why qs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why form-data`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why ansi-regex`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level high` (current summary: `0` critical, `106` high, `112` moderate, `27` low)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:wallet-crypto:offline`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` (blocked by expired dev/testnet Electrum TLS certificate before dashboard proof)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
+Android runtime note:
+
+- The no-network Android smoke installed and launched `app-dev-debug.apk`, completed first-run Terms/PIN/transaction-password/email-skip flow, found the expected `No network` UI, and reported no fatal/runtime logcat findings.
+- Full dashboard smoke remains externally blocked by `electrumx.testnet.btcv.stage.rnd.land:443 tls`; `android:dev:network-blocker:audit` captured `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- iOS runtime validation is not claimed on this Windows machine; `ios:static:verify` still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
 ### BEM-37.863 - security resolution baseline
 
 - Branch: `feature/bem-37-863-security-audit-readiness`
