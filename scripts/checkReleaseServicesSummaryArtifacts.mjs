@@ -15,6 +15,7 @@ import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadi
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
 import { getCodePushEnvCleanupReadinessSummaryErrors } from './codePushEnvCleanupReadinessSummaryGuard.mjs';
 import { getCodePushDecisionHandoffErrors } from './codePushDecisionHandoffGuard.mjs';
+import { getCodePushUpdateValidationHandoffSummaryErrors } from './codePushUpdateValidationHandoffSummaryGuard.mjs';
 import { getFirebaseReleaseServicesSummaryErrors } from './firebaseReleaseServicesSummaryGuard.mjs';
 import { getIosMacValidationPrereqSummaryErrors } from './iosMacValidationPrereqSummaryGuard.mjs';
 import { getIosPodfileRefreshPlanErrors } from './iosPodfileRefreshPlanGuard.mjs';
@@ -127,6 +128,11 @@ export const releaseServicesSummaryArtifacts = [
     label: 'CodePush decision handoff',
     relativePath: 'local-docs/codepush-decision-handoff.txt',
     getErrors: getCodePushDecisionHandoffErrors,
+  },
+  {
+    label: 'CodePush update validation handoff',
+    relativePath: 'local-docs/codepush-update-validation-handoff-summary.txt',
+    getErrors: getCodePushUpdateValidationHandoffSummaryErrors,
   },
   {
     label: 'push notification bridge',

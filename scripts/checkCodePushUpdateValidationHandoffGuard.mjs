@@ -73,6 +73,12 @@ assert(
   ),
   'Invalid skipAndroidRelease option must be rejected',
 );
+assert(
+  getCodePushUpdateValidationHandoffErrors({ skipAndroidRelease: true, summaryOnly: 'true' }).some(error =>
+    error.includes('summaryOnly must be a boolean'),
+  ),
+  'Invalid summaryOnly option must be rejected',
+);
 
 const partialReadySummary = [
   'Release path ready for update validation: yes',

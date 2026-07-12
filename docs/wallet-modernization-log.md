@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.888 - CodePush update-validation handoff summary
+
+- Branch: `feature/bem-37-888-codepush-update-handoff-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a generated `local-docs/codepush-update-validation-handoff-summary.txt` artifact for the CodePush update-validation handoff.
+- Keep OTA delivery validation explicitly `not claimed` while CodePush is removed and no maintained replacement delivery test has run.
+- Wire the summary guard/check into `rn:baseline:preflight`, the release-services validation handoff, and the aggregate `release-services:check-summaries` gate.
+- Keep app runtime code, native files, dependency versions, lockfiles, and Metro configuration unchanged in this branch.
+
+Findings:
+
+- The release-services aggregate already validated CodePush release path, migration readiness, removal readiness, env cleanup, and decision handoff summaries, but it did not preserve a dedicated generated artifact for the update-validation handoff itself.
+- The new summary records the current post-removal posture as `Handoff outcome: blocked`, `Handoff blocker type: codepush-removed`, `CodePush removed: yes`, and `CodePush update validation: not claimed`.
+- After `package.json` changed to add the new scripts, Android release evidence had to be refreshed so the release-input fingerprint matched current tracked inputs before aggregate release-services validation could pass.
+- The final aggregate still passes only under the controlled `blocked-by-electrum-certificate-expired` release runtime blocker; full release smoke, release create-wallet proof, and real OTA delivery validation remain unclaimed.
+- No emulator smoke is claimed for this branch because it changes only release-services/CodePush orchestration scripts and docs and does not move runtime dependencies, native files, Metro config, or app code.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:codepush-update-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff-summary --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn codepush:update:validation:handoff-summary:check`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.887 - Release-services Sentry credential plan aggregate gate
 
 - Branch: `feature/bem-37-887-release-services-sentry-credential-plan`

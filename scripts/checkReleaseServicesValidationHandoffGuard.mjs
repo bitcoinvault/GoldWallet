@@ -100,6 +100,9 @@ const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesV
   'corepack yarn codepush:env-cleanup:check-summary',
   'corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota',
   'corepack yarn check:codepush-decision-handoff-summary-guard',
+  'corepack yarn check:codepush-update-validation-handoff-summary-guard',
+  'corepack yarn codepush:update:validation:handoff-summary --skip-android-release',
+  'corepack yarn codepush:update:validation:handoff-summary:check',
   'corepack yarn push-notification:bridge-audit',
   'corepack yarn push-notification:bridge-check-summary',
   'corepack yarn ios:release:readiness:audit',
@@ -209,8 +212,28 @@ assert(
 );
 assert(
   skippedCommands.findIndex(step => step.args.includes('check:codepush-decision-handoff-summary-guard')) <
-    skippedCommands.findIndex(step => step.args.includes('push-notification:bridge-audit')),
+    skippedCommands.findIndex(step => step.args.includes('check:codepush-update-validation-handoff-summary-guard')),
   'CodePush decision handoff must be validated before leaving the CodePush release-service block',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('check:codepush-update-validation-handoff-summary-guard')) >
+    skippedCommands.findIndex(step => step.args.includes('check:codepush-decision-handoff-summary-guard')),
+  'CodePush update-validation handoff summary guard must run after the decision handoff guard',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('codepush:update:validation:handoff-summary')) >
+    skippedCommands.findIndex(step => step.args.includes('check:codepush-update-validation-handoff-summary-guard')),
+  'CodePush update-validation handoff summary must run after its guard self-check',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('codepush:update:validation:handoff-summary:check')) >
+    skippedCommands.findIndex(step => step.args.includes('codepush:update:validation:handoff-summary')),
+  'CodePush update-validation handoff summary must be checked after it is generated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('codepush:update:validation:handoff-summary:check')) <
+    skippedCommands.findIndex(step => step.args.includes('push-notification:bridge-audit')),
+  'CodePush update-validation handoff summary must be checked before leaving the CodePush release-service block',
 );
 assert(
   removeDecisionRendered.includes('corepack yarn codepush:decision:handoff --decision remove --beta-strategy beta-has-no-ota'),
