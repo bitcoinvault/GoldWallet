@@ -10,6 +10,71 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.879 - Sentry undici major probe
+
+- Branch: `feature/bem-37-879-sentry-undici-major-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the remaining Sentry CLI `undici` direct-outdated resolution owner path after `BEM-37.878`.
+- Move the guarded `@sentry/**/undici` owner path from `6.27.0` to latest `8.7.0`.
+- Keep the branch scoped to Sentry CLI install/download compatibility, security/direct-outdated guards, release-service prerequisite summaries, and lockfile evidence.
+- Do not change the Sentry SDK package, Sentry CLI package, release upload credentials, React Native, wallet runtime, or native app code in this branch.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `undici@8.7.0` as latest with Node engine `>=22.19.0`, covered by the repo Node `24.16.0` baseline.
+- `@sentry/cli@3.6.0` is current/latest and still declares `undici@^6.22.0`, so the `8.7.0` resolution remains a deliberate major owner-path override and must stay guarded.
+- `@sentry/cli/scripts/install.js` imports only `ProxyAgent` and `fetch` from `undici`; the repo CJS probe confirms `fetch`, `ProxyAgent`, `request`, and `@sentry/cli/js/helper.getFallbackBinaryPath` are functions with `undici@8.7.0`.
+- `node node_modules/@sentry/cli/bin/sentry-cli --version` and `--help` pass with `sentry-cli 3.6.0`.
+- `corepack yarn why undici` resolves the Sentry CLI owner path to `undici@8.7.0`, while `jsdom#undici@7.28.0` remains separate and unchanged.
+- `corepack yarn audit --level low` remains at `0 vulnerabilities found`.
+- Direct outdated now reports `19` entries: `15` blocked decisions, `4` exotic/git-pinned entries, and `0` review-required entries. `undici` is no longer a direct-outdated blocker.
+- Android release validation for `dev`, `stage`, `prod`, and `beta` passed with `SENTRY_DISABLE_AUTO_UPLOAD=true`; this proves release APK/source-map task generation only and does not claim source-map upload.
+- Sentry release prerequisite summaries stay controlled but not release-ready: `SENTRY_AUTH_TOKEN`, `sentry.properties`, full release runtime proof, release create-wallet proof, and macOS iOS archive validation are still missing before upload can be claimed.
+- Android no-network release smoke passed after this dependency resolution change, and the release-services aggregate still passes only under controlled blocker `blocked-by-electrum-certificate-expired`.
+- Full Android dashboard smoke remains externally blocked by the expired dev/testnet Electrum TLS certificate for `electrumx.testnet.btcv.stage.rnd.land:443`; the network blocker audit classifies it as `blocked-by-electrum-certificate-expired`.
+- iOS runtime validation is not claimed from this Windows workstation; the static iOS guard passed and runtime/archive validation still needs macOS/Xcode/CocoaPods.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view undici version dependencies engines type exports --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @sentry/cli version dependencies optionalDependencies engines type exports bin --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why undici`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node -e "const undici=require('undici'); const pkg=require('undici/package.json'); const sentryPkg=require('@sentry/cli/package.json'); const helper=require('@sentry/cli/js/helper'); console.log(pkg.version, sentryPkg.version, typeof undici.fetch, typeof undici.ProxyAgent, typeof undici.request, typeof helper.getFallbackBinaryPath);"`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules/@sentry/cli/bin/sentry-cli --version`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules/@sentry/cli/bin/sentry-cli --help`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --level low`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded` (expected external blocker: expired dev/testnet Electrum TLS certificate)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:smoke:embedded` (expected external blocker: expired dev/testnet Electrum TLS certificate)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:network-blocker:check-summary`
+- `git diff --check`
+
 ### BEM-37.878 - Firebase protobufjs major probe
 
 - Branch: `feature/bem-37-878-firebase-protobufjs-major-probe`
