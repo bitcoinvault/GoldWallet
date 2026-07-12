@@ -10,6 +10,50 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.881 - plist major compatibility probe
+
+- Branch: `feature/bem-37-881-plist-major-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the remaining `plist` direct-outdated/security-resolution owner path after `BEM-37.879`.
+- Keep `plist@3.1.1` and `simple-plist@1.3.1` unchanged unless latest `plist@5` is proven compatible with the current iOS config owner path.
+- Add executable audit and summary guards for the `react-native-bootsplash > @expo/config-plugins > xcode > simple-plist > plist` owner path.
+- Wire the new plist compatibility summary into `foundation:target:refresh-online` and `foundation:target:check-summaries`.
+- Do not change React Native, iOS native files, Android native files, wallet runtime, app runtime dependencies, or `yarn.lock` in this branch.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `plist@5.0.0` as latest with Node engine `>=18`, package type `module`, and an import-only export map.
+- The current installed owner path remains CommonJS-compatible: `plist@3.1.1`, `simple-plist@1.3.1`, and `xcode@3.0.1` can parse `ios/GoldWallet/Info.plist` and `ios/GoldWallet.xcodeproj/project.pbxproj`.
+- An isolated Yarn-resolution probe that forces `plist@5.0.0` under `simple-plist@1.3.1` and `xcode@3.0.1` installs, but CommonJS `require('simple-plist')`, `require('xcode')`, and `require('plist')` all fail with `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+- `import('plist')` works against the latest line and exposes `parse` / `build`, so the blocker is scoped to the current CommonJS owner path rather than the plist parser itself.
+- Decision: keep `plist@3.1.1` and `simple-plist@1.3.1` until the `xcode` / `simple-plist` owner path supports `plist@5` ESM/import-only exports or is replaced by an ESM-aware parser path.
+- iOS runtime/archive validation is not claimed from this Windows workstation; this branch validates Windows-safe iOS plist/xcode static compatibility only.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view plist version dependencies engines type exports --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view simple-plist version dependencies engines type exports main --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view xcode version dependencies engines type exports main --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node -e "const plist=require('plist'); const simple=require('simple-plist'); const xcode=require('xcode'); const fs=require('fs'); const parsed=plist.parse(fs.readFileSync('ios/GoldWallet/Info.plist','utf8')); const simpleParsed=simple.readFileSync('ios/GoldWallet/Info.plist'); xcode.project('ios/GoldWallet.xcodeproj/project.pbxproj').parseSync(); console.log(JSON.stringify({plist:require('plist/package.json').version,simple:require('simple-plist/package.json').version,xcode:require('xcode/package.json').version,plistParse:typeof plist.parse,plistBuild:typeof plist.build,simpleRead:typeof simple.readFileSync,xcodeProject:typeof xcode.project,display:parsed.CFBundleDisplayName,simpleDisplay:simpleParsed.CFBundleDisplayName}));"`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn plist:major-compatibility:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn plist:major-compatibility:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:plist-major-compatibility-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:foundation-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.879 - Sentry undici major probe
 
 - Branch: `feature/bem-37-879-sentry-undici-major-probe`
