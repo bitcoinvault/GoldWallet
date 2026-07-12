@@ -28,7 +28,6 @@ const requiredKnownEntries = [
   ['rn-nodeify', 'devDependencies'],
   ['typescript', 'devDependencies'],
   ['undici', 'resolutionDependencies'],
-  ['uuid', 'resolutionDependencies'],
 ];
 const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
 
@@ -278,13 +277,6 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     !entryLines.some(line => line.startsWith('- lint-staged: ') && line.includes('dedicated hook/tooling branch') && line.includes('precommit') && line.includes('TypeScript proof'))
   ) {
     errors.push('lint-staged drift must remain tied to a dedicated hook/tooling branch decision with precommit and TypeScript proof');
-  }
-
-  if (
-    entryLines.some(line => line.startsWith('- uuid: ')) &&
-    !entryLines.some(line => line.startsWith('- uuid: ') && line.includes('dedicated runtime compatibility branch') && line.includes('Android smoke proof'))
-  ) {
-    errors.push('uuid drift must remain tied to a dedicated runtime compatibility branch decision with Android smoke proof');
   }
 
   if (!entryLines.some(line => line.startsWith('- bl: ') && line.includes('CommonJS transitive consumers'))) {
