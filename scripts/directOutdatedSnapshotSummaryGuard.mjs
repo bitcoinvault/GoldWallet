@@ -19,11 +19,18 @@ const requiredKnownEntries = [
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
+  ['joi', 'resolutionDependencies'],
+  ['plist', 'resolutionDependencies'],
+  ['protobufjs', 'resolutionDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
+  ['send', 'resolutionDependencies'],
+  ['serve-static', 'resolutionDependencies'],
   ['typescript', 'devDependencies'],
+  ['undici', 'resolutionDependencies'],
+  ['uuid', 'resolutionDependencies'],
 ];
 const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
 

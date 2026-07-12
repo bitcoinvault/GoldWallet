@@ -7,18 +7,18 @@ Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.
 
 ## Snapshot
 
-- NPM snapshot date: `2026-07-11`
+- NPM snapshot date: `2026-07-12`
 - Current repo React Native: `0.86.0`
 - Current repo React: `19.2.3`
 - Current repo Metro/dev Node runtime: `24.16.0`
 - npm `latest`: `0.86.0`
 - npm `next`: `0.87.0-rc.0`
-- npm `nightly`: `0.88.0-nightly-20260711-042833e69`
+- npm `nightly`: `0.88.0-nightly-20260712-1790c61ac`
 - npm `next` channel classification: `prerelease`
 - Default upgrade channel: `latest`
 - React peer for `react-native@0.86.0`: `^19.2.3`
 - Node engine for `react-native@0.86.0`: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
-- Latest live verification: `2026-07-11T18:24:31.507Z`
+- Latest live verification: `2026-07-12T17:43:30.469Z`
 - Live check outcome: `matched`
 - Live check mismatches: `0`
 

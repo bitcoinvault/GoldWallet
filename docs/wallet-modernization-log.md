@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.874 - foundation target snapshot refresh
+
+- Branch: `feature/bem-37-874-foundation-target-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the live React Native target snapshot after the security baseline branches.
+- Keep `react-native@0.86.0` as the default stable target because npm `latest` still points to `0.86.0`.
+- Reclassify new direct-outdated `resolutionDependencies` introduced by the security baseline work so foundation target refresh has explicit owner-path decisions instead of `review-required` placeholders.
+- Keep this branch to docs/guard evidence; do not change package versions or runtime code.
+
+Findings:
+
+- The first `foundation:target:refresh-online` run correctly failed because the recorded RN target snapshot still expected nightly `0.88.0-nightly-20260711-042833e69` while live npm reported `0.88.0-nightly-20260712-1790c61ac`.
+- After refreshing the snapshot, live npm metadata on `2026-07-12` reports `react-native@latest` as `0.86.0`, `react-native@next` as prerelease `0.87.0-rc.0`, and `react-native@nightly` as `0.88.0-nightly-20260712-1790c61ac`.
+- Direct outdated now reports `25` entries: `21` blocked decisions, `4` exotic/git-pinned entries, and `0` review-required entries.
+- The new blocked resolution owner paths are `joi@18`, `plist@5`, `protobufjs@8`, `send@1`, `serve-static@2`, and `undici@8`; each requires a dedicated owner-path branch instead of a blind major override.
+- Wallet/crypto latest snapshot remains clean: `15` tracked entries, with only the BitcoinVault `bitcoinjs-lib` fork intentionally pinned.
+- Storage/network latest snapshot remains clean: `10` current native entries.
+- Tooling latest snapshot remains clean except TypeScript 7, which is still blocked by `@typescript-eslint` and `ts-jest` peer ranges.
+- React `19.2.7` and `react-test-renderer@19.2.7` remain blocked by React Native renderer exact-version coupling on RN `0.86.0`.
+- Babel 8 remains blocked by the RN `0.86.0` Babel preset plugin stack.
+- AGP `9.2.1` / Gradle `9.6.1` remains blocked by the React Native Gradle plugin `0.86.0` Kotlin metadata path; the validated Android baseline stays AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:current`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:target-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn foundation:target:refresh-online`
+
+Runtime note:
+
+- This branch changes target snapshot docs and guard logic only. No runtime dependency, native, or Metro package version changed, so Android smoke was not rerun for this docs/guard refresh branch.
+- The existing full dashboard smoke blocker remains the expired dev/testnet Electrum TLS certificate for `electrumx.testnet.btcv.stage.rnd.land:443 tls`.
+
 ### BEM-37.873 - RN CLI low security resolutions
 
 - Branch: `feature/bem-37-873-rn-cli-low-security-resolutions`

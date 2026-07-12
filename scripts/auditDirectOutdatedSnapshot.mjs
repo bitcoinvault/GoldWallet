@@ -118,6 +118,30 @@ const knownDecisions = new Map([
     'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   ],
   [
+    'joi',
+    'blocked - joi major drift belongs in a dedicated RN CLI/security owner-path branch; the current patched 17.x line preserves the existing CLI compatibility boundary',
+  ],
+  [
+    'plist',
+    'blocked - plist major drift belongs in a dedicated iOS/config tooling owner-path branch with xcode/config-plugin compatibility proof',
+  ],
+  [
+    'protobufjs',
+    'blocked - protobufjs major drift belongs in a dedicated Firebase/storage-network branch with focused tests, Android build, and emulator smoke proof',
+  ],
+  [
+    'send',
+    'blocked - send major drift belongs in a dedicated RN CLI/Metro dev-server branch with Metro startup and Android emulator smoke proof',
+  ],
+  [
+    'serve-static',
+    'blocked - serve-static major drift belongs in a dedicated RN CLI/Metro dev-server branch with Metro startup and Android emulator smoke proof',
+  ],
+  [
+    'undici',
+    'blocked - undici major drift belongs in a dedicated Sentry/tooling branch with release-service prerequisite summaries and no credentialed upload claim',
+  ],
+  [
     'caniuse-lite',
     'blocked - Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof',
   ],
