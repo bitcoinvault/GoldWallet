@@ -10,6 +10,63 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.877 - RN CLI Joi major probe
+
+- Branch: `feature/bem-37-877-rn-cli-joi-major-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the remaining `joi` direct-outdated resolution owner path after `BEM-37.876`.
+- Move the guarded RN CLI `joi` owner path from `17.13.4` to latest `18.2.3`.
+- Keep the branch scoped to RN CLI config/type validation, security/direct-outdated guards, and lockfile evidence.
+- Do not change React Native, Babel, Metro, Firebase, Sentry, wallet runtime, or native app code in this branch.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `joi@18.2.3` as latest with Node engine `>= 20`, which is covered by the repo Node `24.16.0` baseline.
+- `@react-native-community/cli-config@20.2.0` and `@react-native-community/cli-types@20.2.0` still declare `joi@^17.2.1`, so the `18.2.3` resolution remains a deliberate major owner-path override and must stay guarded.
+- `require('joi')` exposes the expected CommonJS API on Node `24.16.0`, including `object`, `func`, and `object().pattern`.
+- `@react-native-community/cli-config` loads the real GoldWallet config with `joi@18.2.3`: 161 dependencies, 9 commands, and both `android` and `ios` platforms were present.
+- `corepack yarn react-native config` completed with `joi@18.2.3`, proving the RN CLI schema validation path still works on this repo.
+- A latest-first `plist@5.0.0` probe was rejected for a future branch: it is ESM-only and a Yarn-resolution simulation against `simple-plist@1.3.1` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`, so `plist@3.1.1` remains the compatible owner-path baseline.
+- `corepack yarn audit --level low` remains at `0 vulnerabilities found`.
+- Direct outdated now reports `21` entries: `17` blocked decisions, `4` exotic/git-pinned entries, and `0` review-required entries. `joi` is no longer a direct-outdated blocker.
+- Android no-network embedded smoke passed after this dependency resolution change: the APK installed, launched, completed the first-run flow, reached the expected `No network` UI, and logcat contained no fatal or React Native runtime error.
+- Full Android dashboard smoke is still externally blocked by the expired dev/testnet Electrum TLS certificate for `electrumx.testnet.btcv.stage.rnd.land:443`; `android:dev:network-blocker:audit` classifies it as `blocked-by-electrum-certificate-expired`.
+- iOS runtime validation is not claimed from this Windows workstation; the static iOS guard passed and runtime/archive validation still needs macOS/Xcode/CocoaPods.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view joi version dependencies engines type exports --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-community/cli-config@20.2.0 dependencies engines peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @react-native-community/cli-types@20.2.0 dependencies engines peerDependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view plist version dependencies engines type exports --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why joi`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node -e "const Joi=require('joi'); const cfg=require('@react-native-community/cli-config'); const c=cfg.default(process.cwd()); console.log(Joi.version, Object.keys(c.dependencies||{}).length);"`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn react-native config`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --level low`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded` (expected external blocker: expired dev/testnet Electrum TLS certificate)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `git diff --check`
+
 ### BEM-37.876 - xcode uuid latest resolution probe
 
 - Branch: `feature/bem-37-876-xcode-uuid-latest-probe`
