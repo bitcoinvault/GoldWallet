@@ -116,15 +116,6 @@ const validEntries = [
     decision: 'exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
   },
   {
-    name: 'joi',
-    current: '17.13.4',
-    wanted: '17.13.4',
-    latest: '18.2.3',
-    type: 'resolutionDependencies',
-    decision:
-      'blocked - joi major drift belongs in a dedicated RN CLI/security owner-path branch; the current patched 17.x line preserves the existing CLI compatibility boundary',
-  },
-  {
     name: 'plist',
     current: '3.1.1',
     wanted: '3.1.1',
@@ -228,10 +219,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 22', 'Entries: 21'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 21', 'Entries: 20'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 22', 'Entries: 23').replace(
+  validSummary.replace('Entries: 21', 'Entries: 22').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -272,7 +263,7 @@ assertRejected(
 );
 assertRejected(
   'Missing caniuse-lite resolution blocker fixture',
-  validSummary.replace('Entries: 22', 'Entries: 23').replace(
+  validSummary.replace('Entries: 21', 'Entries: 22').replace(
     'Secret values printed: no',
     '- caniuse-lite: current 1.0.30001805, wanted 1.0.30001805, latest 1.0.30001806, type resolutionDependencies, decision blocked - generic data branch required\nSecret values printed: no',
   ),

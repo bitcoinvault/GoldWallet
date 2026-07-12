@@ -19,7 +19,6 @@ const requiredKnownEntries = [
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
-  ['joi', 'resolutionDependencies'],
   ['plist', 'resolutionDependencies'],
   ['protobufjs', 'resolutionDependencies'],
   ['react', 'dependencies'],
