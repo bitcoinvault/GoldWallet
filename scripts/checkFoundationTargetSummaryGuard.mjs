@@ -20,6 +20,7 @@ const requiredCheckerSnippets = [
   "import { getAndroidToolchainTargetSummaryErrors } from './androidToolchainTargetSummaryGuard.mjs';",
   "import { getBlResolutionSummaryErrors } from './blResolutionSummaryGuard.mjs';",
   "import { getBabel8MigrationProbeSummaryErrors } from './babel8MigrationProbeSummaryGuard.mjs';",
+  "import { getPlistMajorCompatibilitySummaryErrors } from './plistMajorCompatibilitySummaryGuard.mjs';",
   "import { getNodeFetchResolutionSummaryErrors } from './nodeFetchResolutionSummaryGuard.mjs';",
   "import { getReactPatchBlockerSummaryErrors } from './reactPatchBlockerSummaryGuard.mjs';",
   "label: 'React Native live target snapshot'",
@@ -44,6 +45,8 @@ const requiredCheckerSnippets = [
   "relativePath: 'local-docs/android-toolchain-target-summary.txt'",
   "label: 'BL resolution readiness'",
   "relativePath: 'local-docs/bl-resolution-readiness-summary.txt'",
+  "label: 'plist major compatibility'",
+  "relativePath: 'local-docs/plist-major-compatibility-summary.txt'",
   "label: 'node-fetch resolution'",
   "relativePath: 'local-docs/node-fetch-resolution-summary.txt'",
   'Live check outcome: matched',
@@ -54,12 +57,15 @@ const requiredCheckerSnippets = [
 
 const requiredPackageScripts = {
   'foundation:target:refresh-online':
-    'yarn check:node-runtime-version && yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn direct-outdated:snapshot:audit && yarn direct-outdated:snapshot:check-summary && yarn react:patch-blocker:audit && yarn react:patch-blocker:check-summary && yarn babel8:migration-probe:audit && yarn babel8:migration-probe:check-summary && yarn babel8:migration-probe:check && yarn git-deps:snapshot:audit && yarn git-deps:snapshot:check-summary && yarn wallet:crypto-latest-snapshot:audit && yarn wallet:crypto-latest-snapshot:check-summary && yarn storage-network:latest-snapshot:audit && yarn storage-network:latest-snapshot:check-summary && yarn tooling:latest-snapshot:audit && yarn tooling:latest-snapshot:check-summary && yarn typescript7:compatibility-probe:audit && yarn typescript7:compatibility-probe:check-summary && yarn android:toolchain-target:audit && yarn android:toolchain-target:check-summary && yarn bl:resolution:audit && yarn bl:resolution:check-summary && yarn node-fetch:resolution:audit && yarn node-fetch:resolution:check-summary && yarn foundation:target:check-summaries',
+    'yarn check:node-runtime-version && yarn rn:target-snapshot:current && yarn rn:target-snapshot:check-summary && yarn direct-outdated:snapshot:audit && yarn direct-outdated:snapshot:check-summary && yarn react:patch-blocker:audit && yarn react:patch-blocker:check-summary && yarn babel8:migration-probe:audit && yarn babel8:migration-probe:check-summary && yarn babel8:migration-probe:check && yarn git-deps:snapshot:audit && yarn git-deps:snapshot:check-summary && yarn wallet:crypto-latest-snapshot:audit && yarn wallet:crypto-latest-snapshot:check-summary && yarn storage-network:latest-snapshot:audit && yarn storage-network:latest-snapshot:check-summary && yarn tooling:latest-snapshot:audit && yarn tooling:latest-snapshot:check-summary && yarn typescript7:compatibility-probe:audit && yarn typescript7:compatibility-probe:check-summary && yarn android:toolchain-target:audit && yarn android:toolchain-target:check-summary && yarn bl:resolution:audit && yarn bl:resolution:check-summary && yarn plist:major-compatibility:audit && yarn plist:major-compatibility:check-summary && yarn node-fetch:resolution:audit && yarn node-fetch:resolution:check-summary && yarn foundation:target:check-summaries',
   'foundation:target:check-summaries': 'node scripts/checkFoundationTargetSummaryArtifacts.mjs',
   'check:foundation-target-summary-guard': 'node scripts/checkFoundationTargetSummaryGuard.mjs',
   'typescript7:compatibility-probe:audit': 'node scripts/auditTypescript7CompatibilityProbe.mjs',
   'typescript7:compatibility-probe:check-summary': 'node scripts/checkTypescript7CompatibilityProbeSummary.mjs',
   'check:typescript7-compatibility-probe-guard': 'node scripts/checkTypescript7CompatibilityProbeGuard.mjs',
+  'plist:major-compatibility:audit': 'node scripts/auditPlistMajorCompatibility.mjs',
+  'plist:major-compatibility:check-summary': 'node scripts/checkPlistMajorCompatibilitySummary.mjs',
+  'check:plist-major-compatibility-summary-guard': 'node scripts/checkPlistMajorCompatibilitySummaryGuard.mjs',
 };
 
 const errors = [];

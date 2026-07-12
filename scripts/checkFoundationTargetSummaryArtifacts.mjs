@@ -7,6 +7,7 @@ import { getBabel8MigrationProbeSummaryErrors } from './babel8MigrationProbeSumm
 import { getDirectOutdatedSnapshotSummaryErrors } from './directOutdatedSnapshotSummaryGuard.mjs';
 import { getGitDependencySnapshotSummaryErrors } from './gitDependencySnapshotSummaryGuard.mjs';
 import { getNodeFetchResolutionSummaryErrors } from './nodeFetchResolutionSummaryGuard.mjs';
+import { getPlistMajorCompatibilitySummaryErrors } from './plistMajorCompatibilitySummaryGuard.mjs';
 import { getReactPatchBlockerSummaryErrors } from './reactPatchBlockerSummaryGuard.mjs';
 import { getReactNativeTargetSnapshotSummaryErrors } from './reactNativeTargetSnapshotSummaryGuard.mjs';
 import { getStorageNetworkLatestSnapshotSummaryErrors } from './storageNetworkLatestSnapshotSummaryGuard.mjs';
@@ -73,6 +74,11 @@ const summaries = [
     label: 'BL resolution readiness',
     relativePath: 'local-docs/bl-resolution-readiness-summary.txt',
     getErrors: getBlResolutionSummaryErrors,
+  },
+  {
+    label: 'plist major compatibility',
+    relativePath: 'local-docs/plist-major-compatibility-summary.txt',
+    getErrors: getPlistMajorCompatibilitySummaryErrors,
   },
   {
     label: 'node-fetch resolution',
