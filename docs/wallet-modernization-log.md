@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.889 - Camera/QR validation summary preflight
+
+- Branch: `feature/bem-37-889-camera-qr-validation-summary-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire the existing Camera/QR validation summary guard, generator, and checker into the Camera/QR validation handoff sequence.
+- Add the same Camera/QR validation summary refresh to `rn:baseline:preflight` immediately after the Camera/QR handoff dry-run.
+- Synchronize the React Native upgrade-path audit expected preflight string and update Camera/QR workflow documentation.
+- Keep app runtime code, native project files, dependency versions, lockfiles, Metro configuration, release credentials, and local app state unchanged in this branch.
+
+Findings:
+
+- The Camera/QR candidate and migration summaries were already generated and checked in the RN baseline, and the handoff dry-run was already guarded.
+- The aggregate Camera/QR validation summary could still drift unless a developer remembered to run `camera:qr-validation:summary` and `camera:qr-validation:check-summary` separately.
+- The handoff now writes the validation summary after focused scanner/render tests and after optional Android dev or release smoke steps, so scanner-affecting branches capture the freshest available evidence.
+- No emulator smoke is claimed for this branch because it changes only validation orchestration scripts and docs. Runtime/native/dependency Camera/QR branches must still run the handoff with Android smoke on a connected emulator.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:camera-qr-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run --include-android-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff:dry-run --include-android-release-smoke`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn camera:qr-validation:handoff`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.888 - CodePush update-validation handoff summary
 
 - Branch: `feature/bem-37-888-codepush-update-handoff-summary`
