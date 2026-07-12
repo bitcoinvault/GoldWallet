@@ -62,6 +62,7 @@ if (!existsSync(probeDocPath)) {
     '@babel/plugin-transform-runtime@8.0.1',
     '@babel/plugin-transform-flow-strip-types@8.0.1',
     '@babel/traverse@8.0.4',
+    'full latest Babel 8 cohort',
     'Node `^22.18.0 || >=24.11.0`',
     'not a Node-runtime blocker',
     '@react-native/babel-preset',

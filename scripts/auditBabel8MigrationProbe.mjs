@@ -14,6 +14,18 @@ const expectedNodeVersion = `v${readFileSync(path.join(root, '.nvmrc'), 'utf8').
 const rnBabelPreset = require('@react-native/babel-preset/package.json');
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
+const babel8CohortPackages = [
+  ['@babel/cli', 'cli'],
+  ['@babel/core', 'core'],
+  ['@babel/runtime', 'runtime'],
+  ['@babel/plugin-transform-runtime', 'transformRuntime'],
+  ['@babel/preset-env', 'presetEnv'],
+  ['@babel/preset-react', 'presetReact'],
+  ['@babel/preset-typescript', 'presetTypescript'],
+  ['@babel/plugin-transform-flow-strip-types', 'flowStripTypes'],
+  ['@babel/traverse', 'traverse'],
+  ['babel-plugin-polyfill-regenerator', 'polyfillRegenerator'],
+];
 
 const npmViewJson = args =>
   JSON.parse(
@@ -35,10 +47,14 @@ const npmViewPackage = packageSpec => {
   return metadata;
 };
 
-const installAndRunTransformProbe = ({ babelCoreVersion, rnPresetVersion }) => {
+const readInstalledPackage = (tempDir, packageName) =>
+  JSON.parse(readFileSync(path.join(tempDir, 'node_modules', packageName, 'package.json'), 'utf8'));
+
+const installAndRunTransformProbe = ({ latest, rnPresetVersion }) => {
   const tempDir = mkdtempSync(path.join(tmpdir(), 'goldwallet-babel8-probe-'));
   const result = {
     isolatedInstallCompleted: 'no',
+    isolatedCohortPackages: [],
     transformProbeOutcome: 'not run',
     transformErrorCode: 'none',
     transformErrorMessage: 'none',
@@ -54,7 +70,7 @@ const installAndRunTransformProbe = ({ babelCoreVersion, rnPresetVersion }) => {
         '--ignore-scripts',
         '--no-audit',
         '--no-fund',
-        `@babel/core@${babelCoreVersion}`,
+        ...babel8CohortPackages.map(([packageName, key]) => `${packageName}@${latest[key].version}`),
         `@react-native/babel-preset@${rnPresetVersion}`,
       ]),
       {
@@ -66,6 +82,17 @@ const installAndRunTransformProbe = ({ babelCoreVersion, rnPresetVersion }) => {
     );
 
     result.isolatedInstallCompleted = 'yes';
+    result.isolatedCohortPackages = babel8CohortPackages.map(([packageName, key]) => {
+      const installed = readInstalledPackage(tempDir, packageName).version;
+      const expected = latest[key].version;
+
+      return {
+        name: packageName,
+        installed,
+        expected,
+        matches: installed === expected ? 'yes' : 'no',
+      };
+    });
 
     const probePath = path.join(tempDir, 'probe-babel8.cjs');
     writeFileSync(
@@ -127,7 +154,7 @@ export const collectBabel8MigrationProbe = () => {
     polyfillRegenerator: npmViewPackage('babel-plugin-polyfill-regenerator@latest'),
   };
   const transformProbe = installAndRunTransformProbe({
-    babelCoreVersion: latest.core.version,
+    latest,
     rnPresetVersion: rnBabelPreset.version,
   });
   const flowStripTypesRange = rnBabelPreset.dependencies?.['@babel/plugin-transform-flow-strip-types'] || '<missing>';
@@ -181,6 +208,10 @@ export const formatBabel8MigrationProbeSummary = (audit, generatedAt = new Date(
     `Node engine satisfied: ${audit.nodeEngineSatisfied}`,
     `RN preset flow-strip-types dependency range: ${audit.flowStripTypesRange}`,
     `Isolated install completed: ${audit.isolatedInstallCompleted}`,
+    `Isolated Babel 8 cohort packages: ${audit.isolatedCohortPackages.length}`,
+    ...audit.isolatedCohortPackages.map(
+      entry => `- ${entry.name}: installed ${entry.installed}, expected ${entry.expected}, matches ${entry.matches}`,
+    ),
     `Transform probe outcome: ${audit.transformProbeOutcome}`,
     `Transform error code: ${audit.transformErrorCode}`,
     `Transform error message: ${audit.transformErrorMessage}`,
