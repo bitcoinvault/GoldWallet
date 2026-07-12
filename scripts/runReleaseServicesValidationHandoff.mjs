@@ -106,6 +106,11 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
     yarnStep('Validate CodePush env cleanup readiness summary', 'codepush:env-cleanup:check-summary'),
     yarnStep('Refresh CodePush decision handoff', 'codepush:decision:handoff', codePushDecisionArgs),
     yarnStep('Validate CodePush decision handoff summary guard', 'check:codepush-decision-handoff-summary-guard'),
+    yarnStep('Validate CodePush update-validation handoff summary guard', 'check:codepush-update-validation-handoff-summary-guard'),
+    yarnStep('Refresh CodePush update-validation handoff summary', 'codepush:update:validation:handoff-summary', [
+      '--skip-android-release',
+    ]),
+    yarnStep('Validate CodePush update-validation handoff summary', 'codepush:update:validation:handoff-summary:check'),
     yarnStep('Audit push notification bridge readiness', 'push-notification:bridge-audit'),
     yarnStep('Validate push notification bridge summary', 'push-notification:bridge-check-summary'),
     yarnStep('Audit static iOS release readiness', 'ios:release:readiness:audit'),

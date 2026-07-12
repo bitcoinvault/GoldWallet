@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -8,26 +8,30 @@ import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard
 import { getCodePushReleasePathSummaryErrors } from './codePushReleasePathSummaryGuard.mjs';
 import { getCodePushMigrationReadinessSummaryErrors } from './codePushMigrationReadinessSummaryGuard.mjs';
 import { getCodePushRemovalReadinessSummaryErrors } from './codePushRemovalReadinessSummaryGuard.mjs';
+import { getCodePushUpdateValidationHandoffSummaryErrors } from './codePushUpdateValidationHandoffSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const releasePathSummaryPath = path.join(root, 'local-docs', 'codepush-release-path-summary.txt');
 const migrationReadinessSummaryPath = path.join(root, 'local-docs', 'codepush-migration-readiness-summary.txt');
 const removalReadinessSummaryPath = path.join(root, 'local-docs', 'codepush-removal-readiness-summary.txt');
+const updateValidationHandoffSummaryPath = path.join(root, 'local-docs', 'codepush-update-validation-handoff-summary.txt');
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
 const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
 const androidReleaseSignedSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 
 const defaultOptions = {
   dryRun: false,
+  summaryOnly: false,
   skipAndroidRelease: false,
 };
 
 const usage = [
-  'Usage: node scripts/runCodePushUpdateValidationHandoff.mjs [--dry-run] [--skip-android-release]',
+  'Usage: node scripts/runCodePushUpdateValidationHandoff.mjs [--dry-run] [--summary-only] [--skip-android-release]',
   '',
   'Examples:',
   '  node scripts/runCodePushUpdateValidationHandoff.mjs --dry-run',
+  '  node scripts/runCodePushUpdateValidationHandoff.mjs --summary-only --skip-android-release',
   '  node scripts/runCodePushUpdateValidationHandoff.mjs --skip-android-release',
 ].join('\n');
 
@@ -63,6 +67,13 @@ const yarnStep = (label, script, extra = {}) => ({
   ...extra,
 });
 
+const getLineValue = (content, label) => {
+  const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
+  return line ? line.slice(label.length + 2).trim() : '';
+};
+
+const yesNoFromLine = value => (['yes', 'no'].includes(value) ? value : 'no');
+
 export const getCodePushUpdateValidationCommands = (options = defaultOptions) => {
   const steps = [];
 
@@ -90,13 +101,126 @@ export const getCodePushUpdateValidationCommands = (options = defaultOptions) =>
 };
 
 export const getCodePushUpdateValidationHandoffErrors = options => {
+  options = { ...defaultOptions, ...options };
   const errors = [];
 
   if (typeof options.skipAndroidRelease !== 'boolean') {
     errors.push('skipAndroidRelease must be a boolean');
   }
 
+  if (typeof options.summaryOnly !== 'boolean') {
+    errors.push('summaryOnly must be a boolean');
+  }
+
   return errors;
+};
+
+export const getCodePushUpdateValidationHandoffSummary = ({
+  options = defaultOptions,
+  generatedAt = new Date().toISOString(),
+  releasePathSummaryText,
+  migrationReadinessSummaryText,
+  removalReadinessSummaryText,
+}) => {
+  const releasePathErrors = releasePathSummaryText ? getCodePushReleasePathSummaryErrors(releasePathSummaryText) : ['missing release path summary'];
+  const migrationReadinessErrors = migrationReadinessSummaryText
+    ? getCodePushMigrationReadinessSummaryErrors(migrationReadinessSummaryText)
+    : ['missing migration readiness summary'];
+  const removalReadinessErrors = removalReadinessSummaryText
+    ? getCodePushRemovalReadinessSummaryErrors(removalReadinessSummaryText)
+    : ['missing removal readiness summary'];
+  const releasePathSummaryValid = releasePathErrors.length === 0;
+  const migrationReadinessSummaryValid = migrationReadinessErrors.length === 0;
+  const removalReadinessSummaryValid = removalReadinessErrors.length === 0;
+  const releasePathReady = yesNoFromLine(getLineValue(releasePathSummaryText || '', 'Release path ready for update validation'));
+  const codePushRemoved = yesNoFromLine(
+    getLineValue(migrationReadinessSummaryText || '', 'CodePush removed') || getLineValue(releasePathSummaryText || '', 'CodePush removed'),
+  );
+  const migrationRequired = yesNoFromLine(
+    getLineValue(migrationReadinessSummaryText || '', 'CodePush migration required') ||
+      getLineValue(releasePathSummaryText || '', 'CodePush migration required'),
+  );
+  const releaseBuildReady = yesNoFromLine(
+    getLineValue(migrationReadinessSummaryText || '', 'CodePush release build evidence ready') ||
+      getLineValue(releasePathSummaryText || '', 'CodePush release build evidence ready'),
+  );
+  const releaseSmokeReady = yesNoFromLine(getLineValue(migrationReadinessSummaryText || '', 'CodePush release smoke evidence ready'));
+  const releaseCreateWalletReady = yesNoFromLine(
+    getLineValue(migrationReadinessSummaryText || '', 'CodePush release create-wallet evidence ready'),
+  );
+  const controlledBlockerOutcome = getLineValue(migrationReadinessSummaryText || '', 'Controlled release blocker outcome') || 'not-applicable';
+  const releaseRuntimeProofState = getLineValue(migrationReadinessSummaryText || '', 'CodePush release runtime proof state') || 'not ready';
+  const readinessErrors = [];
+
+  if (!releasePathSummaryValid) {
+    readinessErrors.push(`CodePush release path summary invalid: ${releasePathErrors.length} error(s)`);
+  }
+
+  if (!migrationReadinessSummaryValid) {
+    readinessErrors.push(`CodePush migration readiness summary invalid: ${migrationReadinessErrors.length} error(s)`);
+  }
+
+  if (!removalReadinessSummaryValid) {
+    readinessErrors.push(`CodePush removal readiness summary invalid: ${removalReadinessErrors.length} error(s)`);
+  }
+
+  if (codePushRemoved === 'yes') {
+    readinessErrors.push('CodePush is removed; OTA update validation requires a maintained replacement before a real delivery test can be claimed.');
+  } else if (releasePathReady !== 'yes') {
+    readinessErrors.push('CodePush release path is not ready for update validation.');
+  }
+
+  if (codePushRemoved !== 'yes' && releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired') {
+    readinessErrors.push('Full Android release runtime proof is blocked by the controlled dev/testnet Electrum certificate issue.');
+  } else if (codePushRemoved !== 'yes' && (releaseSmokeReady !== 'yes' || releaseCreateWalletReady !== 'yes')) {
+    readinessErrors.push('Full Android release smoke and release create-wallet evidence must pass before a real OTA delivery test.');
+  }
+
+  const handoffOutcome = readinessErrors.length === 0 ? 'ready-for-real-ota-test' : 'blocked';
+  const blockerType =
+    handoffOutcome === 'ready-for-real-ota-test'
+      ? 'none'
+      : releasePathErrors.length > 0 || migrationReadinessErrors.length > 0 || removalReadinessErrors.length > 0
+        ? 'summary-invalid'
+        : codePushRemoved === 'yes'
+          ? 'codepush-removed'
+          : releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired'
+            ? 'blocked-by-electrum-certificate-expired'
+            : 'release-evidence-not-ready';
+  const requiredAction =
+    blockerType === 'codepush-removed'
+      ? 'keep CodePush removed; do not claim OTA update validation until a maintained replacement and real delivery test are available.'
+      : blockerType === 'blocked-by-electrum-certificate-expired'
+        ? 'renew the dev/testnet Electrum TLS certificate, rerun full release smoke/create-wallet validation, and do not claim OTA update validation until a real delivery test passes.'
+        : handoffOutcome === 'ready-for-real-ota-test'
+          ? 'run a real OTA delivery test with deployment keys in a maintained replacement path; do not claim OTA update validation before that test passes.'
+          : 'refresh CodePush release-path, migration, removal, and Android release evidence; do not claim OTA update validation until a real delivery test passes.';
+
+  return [
+    'CodePush update validation handoff summary',
+    `Generated at: ${generatedAt}`,
+    `Android release evidence refresh skipped: ${options.skipAndroidRelease ? 'yes' : 'no'}`,
+    `Release path summary valid: ${releasePathSummaryValid ? 'yes' : 'no'}`,
+    `Migration readiness summary valid: ${migrationReadinessSummaryValid ? 'yes' : 'no'}`,
+    `Removal readiness summary valid: ${removalReadinessSummaryValid ? 'yes' : 'no'}`,
+    `Release path ready for update validation: ${releasePathReady}`,
+    `CodePush removed: ${codePushRemoved}`,
+    `CodePush migration required: ${migrationRequired}`,
+    'CodePush update validation: not claimed',
+    `CodePush release build evidence ready: ${releaseBuildReady}`,
+    `CodePush release smoke evidence ready: ${releaseSmokeReady}`,
+    `CodePush release create-wallet evidence ready: ${releaseCreateWalletReady}`,
+    `Controlled release blocker outcome: ${controlledBlockerOutcome}`,
+    `CodePush release runtime proof state: ${releaseRuntimeProofState}`,
+    `Handoff outcome: ${handoffOutcome}`,
+    `Handoff blocker type: ${blockerType}`,
+    'iOS runtime validation: not claimed on this Windows host; run macOS/Xcode/CocoaPods validation before claiming iOS delivery.',
+    `Readiness errors: ${readinessErrors.length}`,
+    ...readinessErrors.map(error => `- ${error}`),
+    'Secret values printed: no',
+    `Required action: ${requiredAction}`,
+    '',
+  ].join('\n');
 };
 
 export const getCodePushUpdateValidationReadinessErrors = ({
@@ -195,6 +319,30 @@ const readSummary = summaryPath => {
   return readFileSync(summaryPath, 'utf8');
 };
 
+const buildSummaryFromCurrentArtifacts = options =>
+  getCodePushUpdateValidationHandoffSummary({
+    options,
+    releasePathSummaryText: readSummary(releasePathSummaryPath),
+    migrationReadinessSummaryText: readSummary(migrationReadinessSummaryPath),
+    removalReadinessSummaryText: readSummary(removalReadinessSummaryPath),
+  });
+
+const writeSummaryArtifact = summary => {
+  const errors = getCodePushUpdateValidationHandoffSummaryErrors(summary);
+
+  if (errors.length > 0) {
+    console.error('CodePush update-validation handoff summary is invalid:');
+    errors.forEach(error => console.error(`- ${error}`));
+    return 1;
+  }
+
+  mkdirSync(path.dirname(updateValidationHandoffSummaryPath), { recursive: true });
+  writeFileSync(updateValidationHandoffSummaryPath, summary);
+  console.log(summary.trim());
+  console.log(`CodePush update-validation handoff summary written to ${path.relative(root, updateValidationHandoffSummaryPath)}`);
+  return 0;
+};
+
 const parseArgs = argv => {
   const options = { ...defaultOptions };
 
@@ -203,6 +351,8 @@ const parseArgs = argv => {
 
     if (arg === '--dry-run') {
       options.dryRun = true;
+    } else if (arg === '--summary-only') {
+      options.summaryOnly = true;
     } else if (arg === '--skip-android-release') {
       options.skipAndroidRelease = true;
     } else if (arg === '--') {
@@ -261,6 +411,10 @@ const main = () => {
     return 1;
   }
 
+  if (options.summaryOnly) {
+    return writeSummaryArtifact(buildSummaryFromCurrentArtifacts(options));
+  }
+
   const commands = getCodePushUpdateValidationCommands(options);
 
   if (options.dryRun) {
@@ -290,6 +444,11 @@ const main = () => {
     androidReleaseCreateWalletSmokeSummaryText: readSummary(androidReleaseCreateWalletSmokeSummaryPath),
     androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
   });
+  const summaryStatus = writeSummaryArtifact(buildSummaryFromCurrentArtifacts(options));
+
+  if (summaryStatus !== 0) {
+    return summaryStatus;
+  }
 
   if (readinessErrors.length > 0) {
     console.error('\nCodePush update validation handoff is blocked:');
