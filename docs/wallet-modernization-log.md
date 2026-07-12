@@ -10,6 +10,60 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.878 - Firebase protobufjs major probe
+
+- Branch: `feature/bem-37-878-firebase-protobufjs-major-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the remaining `protobufjs` direct-outdated resolution owner path after `BEM-37.877`.
+- Move the guarded Firebase/Firestore `@grpc/proto-loader` owner path from `7.6.5` to latest `8.7.0`.
+- Keep the branch scoped to Firebase/storage-network/proto-loader validation, security/direct-outdated guards, and lockfile evidence.
+- Do not change React Native, Babel, Metro, Sentry, wallet runtime, or native app code in this branch.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `protobufjs@8.7.0` as latest, CommonJS, Node engine `>=12.0.0`, and dependency surface limited to `long@^5.3.2`.
+- `@grpc/proto-loader@0.8.1` still declares `protobufjs@^7.5.5`, so the `8.7.0` resolution remains a deliberate major owner-path override and must stay guarded.
+- Repo and isolated Yarn probes confirmed that `require('protobufjs')` exposes `parse`, `load`, `Root`, `Type`, and `util.Long` on Node `24.16.0`.
+- Repo and isolated Yarn probes confirmed that `@grpc/proto-loader.loadSync` loads a test proto through `protobufjs@8.7.0` and returns the expected `gw.Ping` and `gw.S` definitions.
+- `corepack yarn why protobufjs` resolves the Firebase/Firestore/proto-loader owner path to `protobufjs@8.7.0`.
+- `corepack yarn audit --level low` remains at `0 vulnerabilities found`.
+- Direct outdated now reports `20` entries: `16` blocked decisions, `4` exotic/git-pinned entries, and `0` review-required entries. `protobufjs` is no longer a direct-outdated blocker.
+- Android no-network embedded smoke passed after this dependency resolution change: the APK installed, launched, completed the first-run flow, reached the expected `No network` UI, and logcat contained no fatal or React Native runtime error.
+- Full Android dashboard smoke is still externally blocked by the expired dev/testnet Electrum TLS certificate for `electrumx.testnet.btcv.stage.rnd.land:443`; `android:dev:network-blocker:audit` classifies it as `blocked-by-electrum-certificate-expired`.
+- iOS runtime validation is not claimed from this Windows workstation; the static iOS guard passed and runtime/archive validation still needs macOS/Xcode/CocoaPods.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view protobufjs version dependencies engines type exports bin --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @grpc/proto-loader version dependencies engines type exports --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why protobufjs`
+- isolated Yarn-resolution probe with `@grpc/proto-loader@0.8.1` and `resolutions.protobufjs=8.7.0`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node -e "const protobuf=require('protobufjs'); const protoLoader=require('@grpc/proto-loader'); console.log(typeof protobuf.parse, typeof protobuf.load, typeof protobuf.Root, typeof protobuf.Type, !!protobuf.util.Long, Object.keys(protoLoader.loadSync('local-docs/protobufjs-probe.proto')));"`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --level low`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded` (expected external blocker: expired dev/testnet Electrum TLS certificate)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `git diff --check`
+
 ### BEM-37.877 - RN CLI Joi major probe
 
 - Branch: `feature/bem-37-877-rn-cli-joi-major-probe`
