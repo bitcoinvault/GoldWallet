@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.886 - Sentry credential evidence plan guard
+
+- Branch: `feature/bem-37-886-sentry-credential-evidence-plan`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the Sentry release credential plan so it records the same decision-quality release evidence that gates the prerequisite summary.
+- Keep `@sentry/react-native`, `@sentry/cli`, Sentry credentials, Android/iOS native files, release build files, wallet runtime code, and package lockfiles unchanged in this branch.
+- Require the credential plan guard to validate Sentry package latest/current lines, Android release summary/current-input state, release APK manifest state, full release-smoke state, controlled no-network blocker classification, create-wallet smoke state, iOS macOS archive readiness, `ios/Podfile.lock` drift, and macOS validation blockers.
+- Keep Sentry source-map/dSYM upload explicitly `not claimed` unless the credentialed handoff and full release evidence are present.
+
+Findings:
+
+- The existing Sentry prerequisite audit already had detailed blocker evidence, but `local-docs/sentry-release-credential-plan.txt` reduced it to broad Android evidence booleans.
+- The credential plan now shows the concrete blockers a release owner needs before providing credentials or claiming upload validation: stale Android release-input fingerprint, missing full release smoke, missing release create-wallet proof, classified `blocked-by-electrum-certificate-expired` no-network fallback, missing `SENTRY_AUTH_TOKEN`, missing root/Android/iOS `sentry.properties`, Windows-only iOS blocker, and active `ios/Podfile.lock` drift.
+- The guard self-check now rejects stale plans that omit Sentry latest/current lines, mismatch release-evidence counts, claim no-network readiness without the Electrum certificate classification, omit iOS macOS blockers, or weaken the required action.
+- No emulator smoke is claimed for this branch because it changes only Sentry release credential planning scripts and docs and does not move runtime dependencies, native files, Metro config, or app code.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-credential-plan-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:credential-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:credential-plan:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:prereq-check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-credential-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.885 - Android toolchain direct-probe evidence guard
 
 - Branch: `feature/bem-37-885-android-toolchain-evidence-guard`

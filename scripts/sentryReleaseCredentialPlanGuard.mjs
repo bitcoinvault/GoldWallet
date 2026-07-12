@@ -12,6 +12,54 @@ const parseCount = (summary, label) => {
   return match ? Number(match[1]) : null;
 };
 
+const getLineValue = (summary, label) => {
+  const line = summary.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
+  return line ? line.slice(label.length + 2).trim() : '';
+};
+
+const getBulletLinesAfter = (summary, label) => {
+  const lines = summary.split(/\r?\n/);
+  const startIndex = lines.findIndex(line => line.startsWith(`${label}: `));
+  const bulletLines = [];
+
+  if (startIndex === -1) {
+    return bulletLines;
+  }
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    if (!lines[index].startsWith('- ')) {
+      break;
+    }
+
+    bulletLines.push(lines[index].slice(2));
+  }
+
+  return bulletLines;
+};
+
+const assertYesNo = (errors, summary, label) => {
+  const value = getLineValue(summary, label);
+
+  if (!['yes', 'no'].includes(value)) {
+    errors.push(`${label} must be yes or no.`);
+  }
+
+  return value;
+};
+
+const assertCountMatchesBullets = (errors, summary, label) => {
+  const count = parseCount(summary, label);
+  const bulletLines = getBulletLinesAfter(summary, label);
+
+  if (count === null) {
+    errors.push(`${label} count is missing.`);
+  } else if (count !== bulletLines.length) {
+    errors.push(`${label} count is ${count}, but ${bulletLines.length} entries were listed.`);
+  }
+
+  return { count, bulletLines };
+};
+
 export const getSentryReleaseCredentialPlanErrors = plan => {
   const errors = [];
   const lines = plan.split(/\r?\n/);
@@ -49,6 +97,27 @@ export const getSentryReleaseCredentialPlanErrors = plan => {
     }
   });
 
+  const releaseReadiness = getLineValue(plan, 'Release source-map prerequisites');
+  if (!['ready', 'not ready'].includes(releaseReadiness)) {
+    errors.push('Release source-map prerequisites must be ready or not ready.');
+  }
+
+  [
+    '@sentry/react-native version',
+    '@sentry/react-native latest',
+    '@sentry/cli package version',
+    '@sentry/cli latest',
+  ].forEach(label => {
+    const value = getLineValue(plan, label);
+
+    if (!/^\d+\.\d+\.\d+/.test(value)) {
+      errors.push(`${label} must be present as a semantic version.`);
+    }
+  });
+
+  const sentryReactNativeCurrent = assertYesNo(errors, plan, '@sentry/react-native current');
+  const sentryCliCurrent = assertYesNo(errors, plan, '@sentry/cli current');
+
   const missingFiles = parseCount(plan, 'Missing properties files');
   const listedMissingFiles = lines.filter(line => line.startsWith('- missing file: ')).length;
   if (missingFiles === null) {
@@ -65,6 +134,173 @@ export const getSentryReleaseCredentialPlanErrors = plan => {
     errors.push(`Invalid properties files count is ${invalidFiles}, but ${listedInvalidFiles} invalid files were listed.`);
   }
 
+  const androidReleaseSummaryPresent = assertYesNo(errors, plan, 'Android release summary present');
+  const androidReleaseSummaryVariants = getLineValue(plan, 'Android release summary variants');
+  const androidReleaseSummaryRequiredVariantsCovered = assertYesNo(
+    errors,
+    plan,
+    'Android release summary required variants covered',
+  );
+  const androidReleaseSummaryCurrentInputsCovered = assertYesNo(
+    errors,
+    plan,
+    'Android release summary current inputs covered',
+  );
+  const androidReleaseSummaryEvidence = assertCountMatchesBullets(errors, plan, 'Android release summary errors');
+  const androidReleaseApkManifestValid = assertYesNo(errors, plan, 'Android release APK manifest valid');
+  assertCountMatchesBullets(errors, plan, 'Android release APK manifest errors');
+  const androidReleaseEvidenceReady = assertYesNo(errors, plan, 'Android release evidence ready');
+  const androidReleaseSmokeSummaryPresent = assertYesNo(errors, plan, 'Android release smoke summary present');
+  const androidReleaseSmokeSummaryValid = assertYesNo(errors, plan, 'Android release smoke summary valid');
+  assertCountMatchesBullets(errors, plan, 'Android release smoke summary errors');
+  const androidReleaseSmokeEvidenceReady = assertYesNo(errors, plan, 'Android release smoke evidence ready');
+  const androidReleaseNoNetworkSmokeSummaryPresent = assertYesNo(
+    errors,
+    plan,
+    'Android release no-network smoke summary present',
+  );
+  const androidReleaseNoNetworkSmokeSummaryValid = assertYesNo(
+    errors,
+    plan,
+    'Android release no-network smoke summary valid',
+  );
+  const androidReleaseNoNetworkSmokeEvidence = assertCountMatchesBullets(
+    errors,
+    plan,
+    'Android release no-network smoke summary errors',
+  );
+  const sentryReleaseNoNetworkBlockerEvidenceReady = assertYesNo(
+    errors,
+    plan,
+    'Sentry release no-network blocker evidence ready',
+  );
+  const androidReleaseNetworkBlockerSummaryPresent = assertYesNo(
+    errors,
+    plan,
+    'Android release network blocker summary present',
+  );
+  const androidReleaseNetworkBlockerSummaryValid = assertYesNo(
+    errors,
+    plan,
+    'Android release network blocker summary valid',
+  );
+  const androidReleaseNetworkBlockerOutcome = getLineValue(plan, 'Android release network blocker outcome');
+  assertCountMatchesBullets(errors, plan, 'Android release network blocker summary errors');
+  const sentryReleaseNetworkBlockerClassified = assertYesNo(errors, plan, 'Sentry release network blocker classified');
+  const androidReleaseCreateWalletSmokeSummaryPresent = assertYesNo(
+    errors,
+    plan,
+    'Android release create-wallet smoke summary present',
+  );
+  const androidReleaseCreateWalletSmokeSummaryValid = assertYesNo(
+    errors,
+    plan,
+    'Android release create-wallet smoke summary valid',
+  );
+  assertCountMatchesBullets(errors, plan, 'Android release create-wallet smoke summary errors');
+  const sentryReleaseCreateWalletEvidenceReady = assertYesNo(errors, plan, 'Sentry release create-wallet evidence ready');
+  const iosReleaseStaticReadinessValid = assertYesNo(errors, plan, 'iOS release static readiness valid');
+  const iosMacArchiveValidationReady = assertYesNo(errors, plan, 'iOS macOS archive validation ready');
+
+  ['iOS Sentry bundle/source-map phases', 'iOS Sentry dSYM upload phases'].forEach(label => {
+    const value = parseCount(plan, label);
+
+    if (value === null || value <= 0) {
+      errors.push(`${label} must be a positive integer.`);
+    }
+  });
+
+  const iosPodfileLockRefreshRequired = assertYesNo(errors, plan, 'iOS Podfile.lock refresh required');
+  const iosPodfileLockDriftEvidence = assertCountMatchesBullets(errors, plan, 'iOS Podfile.lock drift issues');
+  const iosMacValidationPrerequisitesReady = assertYesNo(errors, plan, 'iOS macOS validation prerequisites ready');
+  const iosMacValidationBlockerEvidence = assertCountMatchesBullets(errors, plan, 'iOS macOS validation blockers');
+
+  if (androidReleaseSummaryPresent === 'yes') {
+    const variants = androidReleaseSummaryVariants
+      .split(',')
+      .map(variant => variant.trim())
+      .filter(Boolean);
+
+    ['dev', 'stage', 'prod', 'beta'].forEach(variant => {
+      if (!variants.includes(variant)) {
+        errors.push(`Android release summary must include ${variant} evidence.`);
+      }
+    });
+  }
+
+  if (
+    androidReleaseEvidenceReady === 'yes' &&
+    (androidReleaseSummaryPresent !== 'yes' ||
+      androidReleaseSummaryRequiredVariantsCovered !== 'yes' ||
+      androidReleaseSummaryCurrentInputsCovered !== 'yes' ||
+      androidReleaseSummaryEvidence.count !== 0 ||
+      androidReleaseApkManifestValid !== 'yes')
+  ) {
+    errors.push('Ready Android release evidence requires current summary inputs, all release variants, 0 summary errors, and a valid APK manifest.');
+  }
+
+  if (
+    androidReleaseSmokeEvidenceReady === 'yes' &&
+    (androidReleaseSmokeSummaryPresent !== 'yes' || androidReleaseSmokeSummaryValid !== 'yes')
+  ) {
+    errors.push('Ready Android release smoke evidence requires a present and valid release smoke summary.');
+  }
+
+  if (
+    sentryReleaseNoNetworkBlockerEvidenceReady === 'yes' &&
+    (androidReleaseNoNetworkSmokeSummaryPresent !== 'yes' ||
+      androidReleaseNoNetworkSmokeSummaryValid !== 'yes' ||
+      androidReleaseNoNetworkSmokeEvidence.count !== 0 ||
+      androidReleaseNetworkBlockerSummaryPresent !== 'yes' ||
+      androidReleaseNetworkBlockerSummaryValid !== 'yes' ||
+      androidReleaseNetworkBlockerOutcome !== 'blocked-by-electrum-certificate-expired' ||
+      sentryReleaseNetworkBlockerClassified !== 'yes')
+  ) {
+    errors.push('Ready Sentry no-network blocker evidence requires valid no-network smoke and classified Electrum certificate blocker evidence.');
+  }
+
+  if (
+    sentryReleaseCreateWalletEvidenceReady === 'yes' &&
+    (androidReleaseCreateWalletSmokeSummaryPresent !== 'yes' || androidReleaseCreateWalletSmokeSummaryValid !== 'yes')
+  ) {
+    errors.push('Ready Sentry create-wallet evidence requires a present and valid create-wallet smoke summary.');
+  }
+
+  if (iosPodfileLockRefreshRequired === 'yes' && iosPodfileLockDriftEvidence.count === 0) {
+    errors.push('iOS Podfile.lock refresh cannot be required without listed drift issues.');
+  }
+
+  if (iosPodfileLockRefreshRequired === 'no' && iosPodfileLockDriftEvidence.count !== 0) {
+    errors.push('iOS Podfile.lock drift issues require refresh required to be yes.');
+  }
+
+  if (iosMacValidationPrerequisitesReady === 'yes' && iosMacValidationBlockerEvidence.count !== 0) {
+    errors.push('Ready iOS macOS validation prerequisites must have 0 blockers.');
+  }
+
+  if (iosMacValidationPrerequisitesReady === 'no' && iosMacValidationBlockerEvidence.count === 0) {
+    errors.push('Not-ready iOS macOS validation prerequisites must list blockers.');
+  }
+
+  if (
+    releaseReadiness === 'ready' &&
+    (missingFiles !== 0 ||
+      invalidFiles !== 0 ||
+      sentryReactNativeCurrent !== 'yes' ||
+      sentryCliCurrent !== 'yes' ||
+      androidReleaseEvidenceReady !== 'yes' ||
+      androidReleaseSmokeEvidenceReady !== 'yes' ||
+      sentryReleaseCreateWalletEvidenceReady !== 'yes' ||
+      iosReleaseStaticReadinessValid !== 'yes' ||
+      iosMacArchiveValidationReady !== 'yes' ||
+      iosPodfileLockRefreshRequired !== 'no' ||
+      iosPodfileLockDriftEvidence.count !== 0 ||
+      iosMacValidationPrerequisitesReady !== 'yes' ||
+      iosMacValidationBlockerEvidence.count !== 0)
+  ) {
+    errors.push('Ready Sentry release credential plan requires credentials, current Sentry packages, Android release/full-smoke/create-wallet evidence, and macOS iOS validation readiness.');
+  }
+
   [
     '1. Set SENTRY_AUTH_TOKEN in the local shell or CI secret store.',
     '2. Optional: set SENTRY_ORG and SENTRY_PROJECT only when the target differs from cloudbest/goldwallet.',
@@ -78,7 +314,20 @@ export const getSentryReleaseCredentialPlanErrors = plan => {
     }
   });
 
-  if (!plan.includes('Required action: provide credentials and generate the three local-only Sentry properties files before claiming source-map upload validation.')) {
+  const requiredAction = getLineValue(plan, 'Required action');
+  const requiredActionSnippets = [
+    'SENTRY',
+    'sentry.properties',
+    'android/sentry.properties',
+    'ios/sentry.properties',
+    'Android release',
+    'create-wallet',
+    'ios/Podfile.lock',
+    'macOS',
+    'Xcode',
+  ];
+
+  if (!requiredActionSnippets.every(snippet => requiredAction.includes(snippet))) {
     errors.push('Plan must include the credential handoff required action.');
   }
 
