@@ -10,6 +10,64 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.872 - xcode uuid security resolution
+
+- Branch: `feature/bem-37-872-uuid-security-owner-paths`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Resolve the last remaining moderate transitive audit finding after `BEM-37.871`.
+- Keep direct app runtime `uuid@14.0.1` unchanged.
+- Add a scoped Yarn resolution for `**/xcode/uuid` to `11.1.1`, the patched legacy line that still exposes a CommonJS `require` entry for the `xcode` package.
+- Extend `check:security-resolution-baselines` so `uuid@7.0.3` cannot return through the `react-native-bootsplash > @expo/config-plugins > xcode` owner path.
+
+Findings:
+
+- `corepack yarn audit --json --level moderate` after `BEM-37.871` reported one remaining moderate finding: `uuid@7.0.3` via `react-native-bootsplash>@expo/config-plugins>xcode>uuid`.
+- Live npm metadata on `2026-07-12` reports `uuid@14.0.1` as latest and `legacy-11` at `11.1.1`; `uuid@11.1.1` is the patched CommonJS-compatible target for this transitive Node tooling path.
+- Live npm metadata on `2026-07-12` reports `xcode@3.0.1` as latest and still depending on `uuid@^7.0.3`.
+- Live npm metadata on `2026-07-12` reports `@expo/config-plugins@57.0.3` as latest and still depending on `xcode@^3.0.1`, so owner-package patching does not remove the vulnerable UUID path.
+- `xcode` uses `require('uuid').v4()` only; after the resolution, `require('xcode/node_modules/uuid').v4()` remains a function and returns a 36-character UUID.
+- `corepack yarn audit --json --level moderate` now reports `0` critical, `0` high, `0` moderate, and `0` low findings at the moderate threshold, down from `0` critical, `0` high, `1` moderate, and `0` low after `BEM-37.871`.
+- `corepack yarn audit --json --level low` now reports `0` critical, `0` high, `0` moderate, and `2` low findings. The remaining low findings are `serve-static@1.14.1` and `send@0.17.1` through `@react-native-community/cli>@react-native-community/cli-server-api`.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view uuid version versions dist-tags engines type exports main dependencies --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view uuid@11.1.1 version type exports main dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view xcode version versions dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @expo/config-plugins version versions dependencies peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native-bootsplash version dependencies peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why uuid`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node -e "const uuid=require('xcode/node_modules/uuid'); const pkg=require('xcode/node_modules/uuid/package.json'); const id=uuid.v4(); console.log(pkg.version, typeof uuid.v4, id.length);"`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- parsed `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level moderate` (current summary: `0` critical, `0` high, `0` moderate, `0` low)
+- parsed `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level low` (current summary: `0` critical, `0` high, `0` moderate, `2` low)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` (blocked by expired dev/testnet Electrum TLS certificate before dashboard proof)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
+Android runtime note:
+
+- The no-network Android smoke installed and launched `app-dev-debug.apk`, completed first-run Terms/PIN/transaction-password/email-skip flow, found the expected `No network` UI, and reported no fatal/runtime logcat findings.
+- Full dashboard smoke remains externally blocked by `electrumx.testnet.btcv.stage.rnd.land:443 tls`; `android:dev:network-blocker:audit` captured `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- iOS runtime validation is not claimed on this Windows machine; `ios:static:verify` still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
 ### BEM-37.871 - YAML config security ranges
 
 - Branch: `feature/bem-37-871-yaml-config-security-ranges`

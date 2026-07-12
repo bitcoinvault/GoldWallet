@@ -554,7 +554,8 @@
     "tmpl": "1.0.5",
     "tiny-secp256k1": "2.2.4",
     "tmp": "0.2.7",
-    "word-wrap": "1.2.5"
+    "word-wrap": "1.2.5",
+    "**/xcode/uuid": "11.1.1"
   },
   "react-native": {
     "path": "path-browserify",
