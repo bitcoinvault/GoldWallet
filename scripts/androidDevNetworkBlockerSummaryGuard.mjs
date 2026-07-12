@@ -71,8 +71,12 @@ export const getAndroidDevNetworkBlockerSummaryErrors = summary => {
     }
   });
 
-  if (!getLineValue(summary, 'Full dev smoke reason').includes('Wallets, No wallets, Create new wallet, Import wallet')) {
-    errors.push('Full dev smoke reason must name the missing dashboard texts');
+  const fullDevSmokeReason = getLineValue(summary, 'Full dev smoke reason');
+  const hasMissingDashboardTextReason = fullDevSmokeReason.includes('Wallets, No wallets, Create new wallet, Import wallet');
+  const hasStartupRuntimeBlockerReason = fullDevSmokeReason === 'not completed';
+
+  if (!hasMissingDashboardTextReason && !hasStartupRuntimeBlockerReason) {
+    errors.push('Full dev smoke reason must name the missing dashboard texts or show startup was not completed');
   }
 
   if (!getLineValue(summary, 'No-network dev smoke expected UI').includes('No network')) {

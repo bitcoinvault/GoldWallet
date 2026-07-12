@@ -10,6 +10,65 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.875 - RN CLI Metro major probe
+
+- Branch: `feature/bem-37-875-rn-cli-metro-major-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the latest RN CLI/Metro dev-server owner-path majors instead of keeping `send@1` and `serve-static@2` as direct-outdated blockers.
+- Move the guarded Yarn resolutions from `serve-static@1.16.3` / `send@0.19.2` to `serve-static@2.2.1` / `send@1.2.1`.
+- Update security and direct-outdated guards so the vulnerable `serve-static@1.14.1` / `send@0.17.1` lines cannot return, while the latest major lines no longer appear as blocked direct-outdated entries.
+- Keep the change scoped to RN CLI/Metro dev-server dependencies and validation tooling.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `serve-static@2.2.1` and `send@1.2.1` as latest; both require Node `>=18`, which is covered by the repo Node `24.16.0` baseline.
+- Yarn still reports the override as incompatible with the older declared `serve-static@^1.x` ranges from `@react-native-community/cli-server-api` and `@react-native/dev-middleware`, so runtime proof was required before accepting the branch.
+- `corepack yarn why serve-static` now resolves both the RN CLI server API path and RN dev middleware path to `serve-static@2.2.1`.
+- `corepack yarn why send` resolves the transitive sender path to `send@1.2.1`.
+- `corepack yarn audit --level low` still reports `0 vulnerabilities found`.
+- Direct outdated now reports `23` entries: `19` blocked decisions, `4` exotic/git-pinned entries, and `0` review-required entries. `send` and `serve-static` are no longer direct-outdated blockers.
+- The Android dev network blocker checker now accepts both observed full-smoke failure shapes for the same external Electrum certificate issue: missing dashboard UI after no-network fallback, or startup not completed because the full smoke stops on runtime Electrum/TLS logcat errors.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view serve-static version dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view send version dependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why serve-static`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why send`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --level low`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn start:metro:no-multipart --reset-cache --port 8081` plus `http://127.0.0.1:8081/status`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:no-network:metro`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded` (expected blocked by expired dev/testnet Electrum TLS certificate)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `git diff --check`
+
+Android runtime note:
+
+- Metro started on Node `24.16.0`; the status endpoint returned `packager-status:running`.
+- Metro no-network smoke installed and launched `app-dev-debug.apk`, completed first-run Terms/PIN/transaction-password/email-skip flow, found the expected `No network` UI, and reported no fatal/runtime logcat findings.
+- Embedded no-network smoke repeated the first-run proof without Metro and reported no fatal/runtime logcat findings.
+- Full dashboard smoke remains externally blocked by `electrumx.testnet.btcv.stage.rnd.land:443 tls`; the fresh network-blocker audit captured `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- iOS runtime validation is not claimed on this Windows machine; `ios:static:verify` still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
 ### BEM-37.874 - foundation target snapshot refresh
 
 - Branch: `feature/bem-37-874-foundation-target-refresh`

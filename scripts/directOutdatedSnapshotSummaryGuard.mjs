@@ -26,8 +26,6 @@ const requiredKnownEntries = [
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
-  ['send', 'resolutionDependencies'],
-  ['serve-static', 'resolutionDependencies'],
   ['typescript', 'devDependencies'],
   ['undici', 'resolutionDependencies'],
   ['uuid', 'resolutionDependencies'],
