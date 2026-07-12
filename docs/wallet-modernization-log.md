@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.890 - iOS validation handoff summary checker
+
+- Branch: `feature/bem-37-890-ios-validation-handoff-summary-check`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a standalone `ios:validation:handoff-summary:check` script for `local-docs/ios-validation-handoff-summary.txt`.
+- Wire the checker into `ios:static:verify`, iOS macOS validation preflight, `rn:baseline:preflight`, and the release-services validation handoff.
+- Update the iOS handoff self-guards so the summary guard runs before generation and the generated artifact is checked before macOS dry-run or aggregate release-services validation.
+- Keep app runtime code, native iOS project files, Android files, dependency versions, lockfiles, release credentials, and local runtime state unchanged in this branch.
+
+Findings:
+
+- The combined iOS validation handoff summary was already generated and validated indirectly by the release-services aggregate checker.
+- The standalone iOS static handoff path did not have a dedicated package script that re-read the generated local artifact and failed on drift, unlike the Camera/QR, CodePush, Sentry, and Firebase summary flows.
+- The new checker preserves the current Windows-safe posture: static iOS files can be audited, `ios/Podfile.lock` drift remains visible, and iOS runtime/archive validation stays explicitly `not claimed` until macOS with Xcode/CocoaPods runs the all-schemes handoff.
+- No iOS runtime validation is claimed for this branch because this Windows host cannot run Xcode simulator/archive validation.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-validation-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:validation:handoff-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:validation:handoff-summary:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-static-validation-script-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:ios-mac-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:mac-validation:handoff:preflight:dry-run --all-schemes`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.889 - Camera/QR validation summary preflight
 
 - Branch: `feature/bem-37-889-camera-qr-validation-summary-preflight`
