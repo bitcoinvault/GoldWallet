@@ -10,6 +10,57 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.876 - xcode uuid latest resolution probe
+
+- Branch: `feature/bem-37-876-xcode-uuid-latest-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the remaining `uuid` direct-outdated resolution owner path after `BEM-37.875`.
+- Move the scoped `**/xcode/uuid` resolution from `11.1.1` to latest `14.0.1`.
+- Keep the direct app `uuid` dependency unchanged at `14.0.1`; this branch only validates the nested `react-native-bootsplash > @expo/config-plugins > xcode > uuid` path.
+- Update security and direct-outdated guards so vulnerable `uuid@7.0.3` cannot return while latest `uuid@14.0.1` is accepted for the xcode owner path.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `uuid@14.0.1` as latest with `type: module` and conditional exports.
+- `xcode@3.0.1` imports `uuid` through CommonJS and uses `uuid.v4()` in `pbxProject.generateUuid()`.
+- On Node `24.16.0`, `require('uuid')` exposes `v4` for the current repo runtime, and `xcode.project('ios/GoldWallet.xcodeproj/project.pbxproj').parseSync(); project.generateUuid()` succeeds with `uuid@14.0.1`.
+- `corepack yarn why uuid` now reports `uuid@14.0.1` hoisted for both the direct dependency and `react-native-bootsplash > @expo/config-plugins > xcode > uuid`; the previous nested `xcode/node_modules/uuid` copy is gone.
+- `corepack yarn audit --level low` remains at `0 vulnerabilities found`.
+- Direct outdated now reports `22` entries: `18` blocked decisions, `4` exotic/git-pinned entries, and `0` review-required entries. `uuid` is no longer a direct-outdated blocker.
+- Android no-network embedded smoke passed after this dependency resolution change: the APK installed, launched, completed the first-run flow, reached the expected `No network` UI, and logcat contained no fatal or React Native runtime error.
+- Full Android dashboard smoke is still externally blocked by the expired dev/testnet Electrum TLS certificate for `electrumx.testnet.btcv.stage.rnd.land:443`; `android:dev:network-blocker:audit` classifies it as `blocked-by-electrum-certificate-expired`.
+- iOS runtime validation is not claimed from this Windows workstation; the static iOS guard passed and runtime/archive validation still needs macOS/Xcode/CocoaPods.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view uuid version dependencies engines type exports --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why uuid`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node -e "const xcode=require('xcode'); const project=xcode.project('ios/GoldWallet.xcodeproj/project.pbxproj'); project.parseSync(); const id=project.generateUuid(); console.log(id, id.length);"`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --level low`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded` (expected external blocker: expired dev/testnet Electrum TLS certificate)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `git diff --check`
+
 ### BEM-37.875 - RN CLI Metro major probe
 
 - Branch: `feature/bem-37-875-rn-cli-metro-major-probe`
