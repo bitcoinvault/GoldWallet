@@ -38,6 +38,14 @@ const parsePeerPackageLine = line => {
   return match?.groups || null;
 };
 
+const parseIsolatedPeerPackageLine = line => {
+  const match = /^(?<name>.+?): installed (?<installed>.*?), TypeScript peer (?<peerRange>.*?), target compatible (?<targetCompatible>yes|no)$/.exec(
+    line,
+  );
+
+  return match?.groups || null;
+};
+
 export const getTypescript7CompatibilityProbeSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
@@ -49,6 +57,15 @@ export const getTypescript7CompatibilityProbeSummaryErrors = summary => {
   const targetTypescriptNodeEngineSatisfied = getLineValue(summary, 'Target TypeScript Node engine satisfied');
   const checkedPeerPackages = getLineValue(summary, 'Checked peer packages');
   const peerPackageLines = getBulletLinesAfter(summary, 'Checked peer packages');
+  const isolatedLatestInstallStatus = getLineValue(summary, 'Isolated latest install status');
+  const isolatedLatestInstallError = getLineValue(summary, 'Isolated latest install error');
+  const isolatedLegacyPeerInstallStatus = getLineValue(summary, 'Isolated legacy-peer install status');
+  const isolatedLegacyPeerInstallError = getLineValue(summary, 'Isolated legacy-peer install error');
+  const isolatedInstalledTypescript = getLineValue(summary, 'Isolated installed TypeScript');
+  const isolatedCheckedPeerPackages = getLineValue(summary, 'Isolated checked peer packages');
+  const isolatedPeerPackageLines = getBulletLinesAfter(summary, 'Isolated checked peer packages');
+  const isolatedInstallBlockers = getLineValue(summary, 'Isolated install blockers');
+  const isolatedInstallBlockerLines = getBulletLinesAfter(summary, 'Isolated install blockers');
   const compatibilityBlockers = getLineValue(summary, 'Compatibility blockers');
   const compatibilityBlockerLines = getBulletLinesAfter(summary, 'Compatibility blockers');
   const packageBumpAllowed = getLineValue(summary, 'TypeScript 7 package bump allowed');
@@ -148,6 +165,90 @@ export const getTypescript7CompatibilityProbeSummaryErrors = summary => {
 
   if (!tsJestEntry?.peerRange.includes('<7')) {
     errors.push('ts-jest peer range must record the current <7 TypeScript ceiling');
+  }
+
+  if (isolatedLatestInstallStatus !== 'failed') {
+    errors.push(`Isolated latest install status must be failed on the current tooling baseline. Received: ${isolatedLatestInstallStatus || 'missing'}`);
+  }
+
+  if (isolatedLatestInstallError !== 'ERESOLVE') {
+    errors.push(`Isolated latest install error must record ERESOLVE. Received: ${isolatedLatestInstallError || 'missing'}`);
+  }
+
+  if (isolatedLegacyPeerInstallStatus !== 'ok') {
+    errors.push(`Isolated legacy-peer install status must be ok for metadata inspection. Received: ${isolatedLegacyPeerInstallStatus || 'missing'}`);
+  }
+
+  if (isolatedLegacyPeerInstallError !== 'none') {
+    errors.push(`Isolated legacy-peer install error must be none. Received: ${isolatedLegacyPeerInstallError || 'missing'}`);
+  }
+
+  if (isolatedInstalledTypescript !== targetTypescript) {
+    errors.push(
+      `Isolated installed TypeScript must match the target TypeScript. Received: ${isolatedInstalledTypescript || 'missing'}, expected: ${
+        targetTypescript || 'missing'
+      }`,
+    );
+  }
+
+  if (!isNonNegativeInteger(isolatedCheckedPeerPackages)) {
+    errors.push(`Isolated checked peer packages must be a non-negative integer. Received: ${isolatedCheckedPeerPackages || 'missing'}`);
+  } else if (Number(isolatedCheckedPeerPackages) !== isolatedPeerPackageLines.length) {
+    errors.push(`Isolated checked peer packages count is ${isolatedCheckedPeerPackages}, but listed ${isolatedPeerPackageLines.length}`);
+  } else if (Number(isolatedCheckedPeerPackages) !== requiredPeerPackages.length) {
+    errors.push(`Isolated checked peer packages must cover exactly ${requiredPeerPackages.length} packages. Received: ${isolatedCheckedPeerPackages}`);
+  }
+
+  const parsedIsolatedPeerPackages = isolatedPeerPackageLines.map(parseIsolatedPeerPackageLine);
+  parsedIsolatedPeerPackages.forEach((entry, index) => {
+    if (!entry) {
+      errors.push(`Isolated peer package line is invalid: ${isolatedPeerPackageLines[index]}`);
+    }
+  });
+
+  const isolatedPeerPackageNames = parsedIsolatedPeerPackages.filter(Boolean).map(entry => entry.name);
+  requiredPeerPackages.forEach(name => {
+    if (!isolatedPeerPackageNames.includes(name)) {
+      errors.push(`Missing isolated TypeScript 7 peer package entry for ${name}`);
+    }
+  });
+
+  parsedIsolatedPeerPackages.filter(Boolean).forEach(entry => {
+    if (!isSemver(entry.installed)) {
+      errors.push(`${entry.name} isolated installed version must be semver. Received: ${entry.installed || 'missing'}`);
+    }
+
+    if (entry.targetCompatible !== 'no') {
+      errors.push(`${entry.name} isolated install must remain incompatible with the TypeScript 7 target for this blocker probe`);
+    }
+  });
+
+  const isolatedParserEntry = parsedIsolatedPeerPackages.find(entry => entry?.name === '@typescript-eslint/parser');
+  const isolatedPluginEntry = parsedIsolatedPeerPackages.find(entry => entry?.name === '@typescript-eslint/eslint-plugin');
+  const isolatedTsJestEntry = parsedIsolatedPeerPackages.find(entry => entry?.name === 'ts-jest');
+
+  if (!isolatedParserEntry?.peerRange.includes('<6.1.0')) {
+    errors.push('isolated @typescript-eslint/parser peer range must record the current <6.1.0 TypeScript ceiling');
+  }
+
+  if (!isolatedPluginEntry?.peerRange.includes('<6.1.0')) {
+    errors.push('isolated @typescript-eslint/eslint-plugin peer range must record the current <6.1.0 TypeScript ceiling');
+  }
+
+  if (!isolatedTsJestEntry?.peerRange.includes('<7')) {
+    errors.push('isolated ts-jest peer range must record the current <7 TypeScript ceiling');
+  }
+
+  if (!isNonNegativeInteger(isolatedInstallBlockers)) {
+    errors.push(`Isolated install blockers must be a non-negative integer. Received: ${isolatedInstallBlockers || 'missing'}`);
+  } else if (Number(isolatedInstallBlockers) !== isolatedInstallBlockerLines.length) {
+    errors.push(`Isolated install blockers count is ${isolatedInstallBlockers}, but listed ${isolatedInstallBlockerLines.length}`);
+  } else if (Number(isolatedInstallBlockers) < 1) {
+    errors.push('TypeScript 7 compatibility probe must report an isolated npm install blocker on the current tooling baseline');
+  }
+
+  if (!isolatedInstallBlockerLines.some(line => line.includes('normal npm install') && line.includes('ERESOLVE'))) {
+    errors.push('Isolated install blockers must include the normal npm install ERESOLVE failure');
   }
 
   if (!isNonNegativeInteger(compatibilityBlockers)) {
