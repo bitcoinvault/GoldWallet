@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.882 - RN upgrade path plist summary wiring
+
+- Branch: `feature/bem-37-882-rn-upgrade-path-plist-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Fix the RN upgrade-path preflight after `BEM-37.881` added the plist major compatibility summary to `foundation:target:refresh-online`.
+- Update `scripts/auditReactNativeUpgradePath.mjs` so its expected online foundation refresh command includes `plist:major-compatibility:audit` and `plist:major-compatibility:check-summary`.
+- Extend the RN upgrade-path guard fixture to cover the plist compatibility package scripts.
+- Update the RN upgrade path and Android modernization workflow docs so the documented foundation evidence set includes plist major compatibility.
+- Do not change dependency versions, `yarn.lock`, Android native files, iOS native files, or app runtime code in this branch.
+
+Findings:
+
+- After `BEM-37.881`, `corepack yarn rn:upgrade-path:audit` failed because the RN upgrade path audit still expected the older `foundation:target:refresh-online` command without the plist compatibility probe.
+- `foundation:target:refresh-online` and `foundation:target:check-summaries` already included and validated the plist major compatibility artifact, so the failure was a stale RN upgrade-path guard expectation rather than a package or runtime failure.
+- The updated guard now requires `plist:major-compatibility:audit`, `plist:major-compatibility:check-summary`, and `check:plist-major-compatibility-summary-guard` scripts.
+- The real RN upgrade-path audit now passes and again matches the current staged RN `0.86.0` baseline.
+- No emulator smoke is claimed for this branch because it changes only docs/guard wiring and does not move runtime dependencies or native app code.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:foundation-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:plist-major-compatibility-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn plist:major-compatibility:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.881 - plist major compatibility probe
 
 - Branch: `feature/bem-37-881-plist-major-probe`

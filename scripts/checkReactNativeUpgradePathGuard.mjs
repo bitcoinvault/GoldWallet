@@ -60,6 +60,9 @@ const validEnvironment = {
     'typescript7:compatibility-probe:audit': 'node scripts/auditTypescript7CompatibilityProbe.mjs',
     'typescript7:compatibility-probe:check-summary': 'node scripts/checkTypescript7CompatibilityProbeSummary.mjs',
     'check:typescript7-compatibility-probe-guard': 'node scripts/checkTypescript7CompatibilityProbeGuard.mjs',
+    'plist:major-compatibility:audit': 'node scripts/auditPlistMajorCompatibility.mjs',
+    'plist:major-compatibility:check-summary': 'node scripts/checkPlistMajorCompatibilitySummary.mjs',
+    'check:plist-major-compatibility-summary-guard': 'node scripts/checkPlistMajorCompatibilitySummaryGuard.mjs',
     'foundation:target:refresh-online': expectedFoundationTargetOnlineRefresh,
     'foundation:target:check-summaries': 'node scripts/checkFoundationTargetSummaryArtifacts.mjs',
     'check:foundation-target-summary-guard': 'node scripts/checkFoundationTargetSummaryGuard.mjs',
@@ -126,6 +129,14 @@ assertRejected(
     scripts: { ...validEnvironment.scripts, 'foundation:target:refresh-online': 'yarn rn:target-snapshot:current' },
   },
   'foundation:target:refresh-online',
+);
+assertRejected(
+  'Missing plist major compatibility package script fixture',
+  {
+    ...validEnvironment,
+    scripts: { ...validEnvironment.scripts, 'plist:major-compatibility:audit': 'node scripts/missingPlistAudit.mjs' },
+  },
+  'plist:major-compatibility:audit',
 );
 assertRejected(
   'Missing RN baseline preflight package script fixture',
