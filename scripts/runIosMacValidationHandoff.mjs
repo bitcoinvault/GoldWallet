@@ -214,8 +214,9 @@ export const getIosMacValidationPreflightCommands = options => [
   yarnStep('Validate iOS Podfile refresh plan guard', 'check:ios-podfile-refresh-plan-guard'),
   yarnStep('Refresh iOS Podfile refresh plan', 'ios:podfile-refresh:plan'),
   yarnStep('Validate iOS Podfile refresh plan', 'ios:podfile-refresh:check-plan'),
-  yarnStep('Refresh iOS validation handoff summary', 'ios:validation:handoff-summary'),
   yarnStep('Validate iOS validation handoff summary guard', 'check:ios-validation-handoff-summary-guard'),
+  yarnStep('Refresh iOS validation handoff summary', 'ios:validation:handoff-summary'),
+  yarnStep('Validate iOS validation handoff summary artifact', 'ios:validation:handoff-summary:check'),
   yarnStep('Render macOS validation handoff dry run', 'ios:mac-validation:handoff:dry-run', getDryRunArgsForOptions(options)),
 ];
 

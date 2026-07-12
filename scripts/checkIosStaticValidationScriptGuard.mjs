@@ -19,9 +19,10 @@ const requiredParts = [
   'yarn ios:podfile-refresh:plan',
   'yarn ios:podfile-refresh:check-plan',
   'yarn check:ios-mac-validation-handoff-guard',
-  'yarn ios:mac-validation:handoff:preflight:dry-run --all-schemes',
-  'yarn ios:validation:handoff-summary',
   'yarn check:ios-validation-handoff-summary-guard',
+  'yarn ios:validation:handoff-summary',
+  'yarn ios:validation:handoff-summary:check',
+  'yarn ios:mac-validation:handoff:preflight:dry-run --all-schemes',
 ];
 
 const errors = [];
@@ -43,6 +44,20 @@ if (script.includes('xcodebuild') || script.includes(' pod install') || script.i
 if (!script.includes('--all-schemes')) {
   errors.push('ios:static:verify must render the macOS handoff for all shared schemes');
 }
+
+const assertOrder = (before, after) => {
+  const beforeIndex = script.indexOf(before);
+  const afterIndex = script.indexOf(after);
+
+  if (beforeIndex === -1 || afterIndex === -1 || beforeIndex >= afterIndex) {
+    errors.push(`ios:static:verify must run "${before}" before "${after}"`);
+  }
+};
+
+assertOrder('yarn ios:podfile-refresh:check-plan', 'yarn check:ios-validation-handoff-summary-guard');
+assertOrder('yarn check:ios-validation-handoff-summary-guard', 'yarn ios:validation:handoff-summary');
+assertOrder('yarn ios:validation:handoff-summary', 'yarn ios:validation:handoff-summary:check');
+assertOrder('yarn ios:validation:handoff-summary:check', 'yarn ios:mac-validation:handoff:preflight:dry-run --all-schemes');
 
 if (errors.length > 0) {
   console.error('iOS static validation script guard failed:');

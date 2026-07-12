@@ -152,8 +152,9 @@ const preflightRendered = preflightCommands.map(renderIosMacValidationCommand).j
   'corepack yarn check:ios-podfile-refresh-plan-guard',
   'corepack yarn ios:podfile-refresh:plan',
   'corepack yarn ios:podfile-refresh:check-plan',
-  'corepack yarn ios:validation:handoff-summary',
   'corepack yarn check:ios-validation-handoff-summary-guard',
+  'corepack yarn ios:validation:handoff-summary',
+  'corepack yarn ios:validation:handoff-summary:check',
   'corepack yarn ios:mac-validation:handoff:dry-run --scheme "GoldWallet (Release)" --configuration Release',
 ].forEach(expected => {
   assert(preflightRendered.includes(expected), `Expected preflight commands to include: ${expected}`);
@@ -165,6 +166,26 @@ assert(
 assert(
   !preflightCommands.some(step => step.command === 'pod' || step.args.join(' ') === 'exec pod install'),
   'iOS preflight handoff must not execute pod install',
+);
+assert(
+  preflightCommands.findIndex(step => step.args.includes('check:ios-validation-handoff-summary-guard')) >
+    preflightCommands.findIndex(step => step.args.includes('ios:podfile-refresh:check-plan')),
+  'iOS validation handoff summary guard must run after the Podfile refresh plan is validated',
+);
+assert(
+  preflightCommands.findIndex(step => step.args.includes('check:ios-validation-handoff-summary-guard')) <
+    preflightCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary')),
+  'iOS validation handoff summary guard must run before the summary is generated',
+);
+assert(
+  preflightCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary')) <
+    preflightCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary:check')),
+  'iOS validation handoff summary must be checked after it is generated',
+);
+assert(
+  preflightCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary:check')) <
+    preflightCommands.findIndex(step => step.args.includes('ios:mac-validation:handoff:dry-run')),
+  'iOS macOS handoff dry-run must render after the generated iOS validation handoff summary is checked',
 );
 
 const readyPrereqSummary = [

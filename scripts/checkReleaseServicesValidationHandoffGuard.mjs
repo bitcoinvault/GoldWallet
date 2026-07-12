@@ -112,8 +112,9 @@ const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesV
   'corepack yarn check:ios-podfile-refresh-plan-guard',
   'corepack yarn ios:podfile-refresh:plan',
   'corepack yarn ios:podfile-refresh:check-plan',
-  'corepack yarn ios:validation:handoff-summary',
   'corepack yarn check:ios-validation-handoff-summary-guard',
+  'corepack yarn ios:validation:handoff-summary',
+  'corepack yarn ios:validation:handoff-summary:check',
   'corepack yarn check:ios-mac-validation-handoff-guard',
   'corepack yarn ios:mac-validation:handoff:dry-run',
   'corepack yarn ios:mac-validation:handoff:dry-run --all-schemes',
@@ -175,6 +176,10 @@ assert(
 assert(
   skippedRendered.includes('corepack yarn check:ios-validation-handoff-summary-guard'),
   'Skipped release-services handoff must still validate the iOS validation handoff summary guard',
+);
+assert(
+  skippedRendered.includes('corepack yarn ios:validation:handoff-summary:check'),
+  'Skipped release-services handoff must still validate the generated iOS validation handoff summary artifact',
 );
 assert(
   skippedRendered.includes('corepack yarn check:codepush-update-validation-handoff-guard'),
@@ -270,13 +275,23 @@ assert(
 );
 assert(
   skippedCommands.findIndex(step => step.args.includes('check:ios-validation-handoff-summary-guard')) >
+    skippedCommands.findIndex(step => step.args.includes('ios:podfile-refresh:check-plan')),
+  'iOS validation handoff summary guard must run after the Podfile refresh plan is validated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('check:ios-validation-handoff-summary-guard')) <
     skippedCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary')),
-  'iOS validation handoff summary guard must run after the summary is refreshed',
+  'iOS validation handoff summary guard must run before the summary is refreshed',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary:check')) >
+    skippedCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary')),
+  'iOS validation handoff summary artifact must be checked after the summary is refreshed',
 );
 assert(
   skippedCommands.findIndex(step => step.args.includes('check:ios-mac-validation-handoff-guard')) >
-    skippedCommands.findIndex(step => step.args.includes('check:ios-validation-handoff-summary-guard')),
-  'iOS macOS validation handoff guard must run after the iOS validation handoff summary guard',
+    skippedCommands.findIndex(step => step.args.includes('ios:validation:handoff-summary:check')),
+  'iOS macOS validation handoff guard must run after the iOS validation handoff summary artifact check',
 );
 assert(
   skippedRendered.includes('corepack yarn ios:mac-validation:handoff:dry-run --all-schemes'),
