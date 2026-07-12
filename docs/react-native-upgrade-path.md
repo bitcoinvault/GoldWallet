@@ -94,7 +94,7 @@ The online preflight runs `foundation:target:refresh-online` and then the normal
 corepack yarn foundation:target:check-summaries
 ```
 
-This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, generated React patch blocker evidence, generated Babel 8 blocker evidence, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, the TypeScript 7 peer-range compatibility probe, Android toolchain blockers, BL resolution, plist major compatibility, and node-fetch resolution.
+This keeps the next RN/Android foundation branch tied to the full target evidence set: RN latest channel, direct outdated blockers, generated React patch blocker evidence, generated Babel 8 blocker evidence with isolated latest-cohort install and transform proof, git dependency pins, wallet/crypto latest state, storage/network latest state, tooling latest state, the TypeScript 7 peer-range compatibility probe, Android toolchain blockers, BL resolution, plist major compatibility, and node-fetch resolution.
 
 For foundation milestone branches, also keep the legacy-named foundation plan audit green:
 

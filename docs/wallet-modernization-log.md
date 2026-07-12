@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.884 - Babel 8 full cohort probe hardening
+
+- Branch: `feature/bem-37-884-babel8-cohort-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the Babel 8 migration probe so the isolated install covers the full live latest Babel 8 cohort, not only `@babel/core`.
+- Keep direct Babel packages and resolutions pinned to the validated Babel `7.29.7` baseline; do not change package versions, `yarn.lock`, native files, or app runtime code in this branch.
+- Update the Babel 8 summary guard so the generated artifact must list the installed latest-cohort package versions and prove they match the live latest metadata.
+- Refresh the Babel 8 migration docs and foundation docs that reference the blocker.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` still reports the mixed Babel 8 cohort: `@babel/cli@8.0.4`, `@babel/core@8.0.1`, `@babel/runtime@8.0.0`, `@babel/plugin-transform-runtime@8.0.1`, `@babel/preset-env@8.0.2`, `@babel/preset-react@8.0.1`, `@babel/preset-typescript@8.0.1`, `@babel/plugin-transform-flow-strip-types@8.0.1`, `@babel/traverse@8.0.4`, and `babel-plugin-polyfill-regenerator@1.0.0`.
+- The full latest Babel 8 cohort installs in an isolated temp prefix and all installed versions match the live latest metadata.
+- The React Native `0.86.0` Babel preset transform still fails with `BABEL_VERSION_UNSUPPORTED` in the `@babel/plugin-transform-flow-strip-types` path because the preset depends on Babel 7 plugin ranges.
+- Babel 8 remains blocked until a dedicated RN/Metro/Babel branch proves transform, Jest, Metro bundle, Android build, and emulator smoke together.
+- No emulator smoke is claimed for this branch because it changes only audit scripts and docs and does not move runtime dependencies, native code, Metro config, or app code.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn babel8:migration-probe:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn babel8:migration-probe:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn babel8:migration-probe:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:foundation-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.883 - TypeScript 7 compatibility probe hardening
 
 - Branch: `feature/bem-37-883-typescript7-probe-hardening`

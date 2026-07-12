@@ -4,8 +4,46 @@ const getLineValue = (content, label) => {
   return line ? line.slice(label.length + 2).trim() : '';
 };
 
+const getBulletLinesAfter = (content, label) => {
+  const lines = content.split(/\r?\n/);
+  const startIndex = lines.findIndex(line => line.startsWith(`${label}: `));
+  const bulletLines = [];
+
+  if (startIndex === -1) {
+    return bulletLines;
+  }
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    if (!lines[index].startsWith('- ')) {
+      break;
+    }
+
+    bulletLines.push(lines[index].slice(2));
+  }
+
+  return bulletLines;
+};
+
 const isSemver = value => /^\d+\.\d+\.\d+$/.test(value);
 const isIsoTimestamp = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value);
+const expectedBabel8CohortPackages = [
+  '@babel/cli',
+  '@babel/core',
+  '@babel/runtime',
+  '@babel/plugin-transform-runtime',
+  '@babel/preset-env',
+  '@babel/preset-react',
+  '@babel/preset-typescript',
+  '@babel/plugin-transform-flow-strip-types',
+  '@babel/traverse',
+  'babel-plugin-polyfill-regenerator',
+];
+
+const parseIsolatedCohortLine = line => {
+  const match = /^(?<name>.+?): installed (?<installed>.*?), expected (?<expected>.*?), matches (?<matches>yes|no)$/.exec(line);
+
+  return match?.groups || null;
+};
 
 export const getBabel8MigrationProbeSummaryErrors = summary => {
   const errors = [];
@@ -25,6 +63,8 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
   const nodeEngineSatisfied = getLineValue(summary, 'Node engine satisfied');
   const rnPresetFlowStripTypesRange = getLineValue(summary, 'RN preset flow-strip-types dependency range');
   const isolatedInstallCompleted = getLineValue(summary, 'Isolated install completed');
+  const isolatedBabel8CohortPackages = getLineValue(summary, 'Isolated Babel 8 cohort packages');
+  const isolatedBabel8CohortPackageLines = getBulletLinesAfter(summary, 'Isolated Babel 8 cohort packages');
   const transformProbeOutcome = getLineValue(summary, 'Transform probe outcome');
   const transformErrorCode = getLineValue(summary, 'Transform error code');
   const transformErrorMessage = getLineValue(summary, 'Transform error message');
@@ -110,6 +150,46 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
   if (isolatedInstallCompleted !== 'yes') {
     errors.push(`Isolated install completed must be yes. Received: ${isolatedInstallCompleted || 'missing'}`);
   }
+
+  if (!/^\d+$/.test(isolatedBabel8CohortPackages)) {
+    errors.push(`Isolated Babel 8 cohort packages must be a non-negative integer. Received: ${isolatedBabel8CohortPackages || 'missing'}`);
+  } else if (Number(isolatedBabel8CohortPackages) !== isolatedBabel8CohortPackageLines.length) {
+    errors.push(
+      `Isolated Babel 8 cohort packages count is ${isolatedBabel8CohortPackages}, but listed ${isolatedBabel8CohortPackageLines.length}`,
+    );
+  } else if (Number(isolatedBabel8CohortPackages) !== expectedBabel8CohortPackages.length) {
+    errors.push(
+      `Isolated Babel 8 cohort packages must cover exactly ${expectedBabel8CohortPackages.length} packages. Received: ${isolatedBabel8CohortPackages}`,
+    );
+  }
+
+  const parsedIsolatedCohortPackages = isolatedBabel8CohortPackageLines.map(parseIsolatedCohortLine);
+  parsedIsolatedCohortPackages.forEach((entry, index) => {
+    if (!entry) {
+      errors.push(`Isolated Babel 8 cohort package line is invalid: ${isolatedBabel8CohortPackageLines[index]}`);
+    }
+  });
+
+  const isolatedPackageNames = parsedIsolatedCohortPackages.filter(Boolean).map(entry => entry.name);
+  expectedBabel8CohortPackages.forEach(name => {
+    if (!isolatedPackageNames.includes(name)) {
+      errors.push(`Missing isolated Babel 8 cohort package entry for ${name}`);
+    }
+  });
+
+  parsedIsolatedCohortPackages.filter(Boolean).forEach(entry => {
+    if (!isSemver(entry.installed)) {
+      errors.push(`${entry.name} isolated installed version must be semver. Received: ${entry.installed || 'missing'}`);
+    }
+
+    if (!isSemver(entry.expected)) {
+      errors.push(`${entry.name} isolated expected version must be semver. Received: ${entry.expected || 'missing'}`);
+    }
+
+    if (entry.matches !== 'yes') {
+      errors.push(`${entry.name} isolated installed version must match the live latest target`);
+    }
+  });
 
   if (transformProbeOutcome !== 'failed') {
     errors.push(`Transform probe outcome must remain failed until Babel 8 is supported. Received: ${transformProbeOutcome || 'missing'}`);
