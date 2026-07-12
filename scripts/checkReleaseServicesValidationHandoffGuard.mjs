@@ -84,6 +84,8 @@ const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesV
   'corepack yarn sentry:rn-bundle-task-compat:check-summary',
   'corepack yarn sentry:release:prereq-audit',
   'corepack yarn sentry:release:prereq-check-summary',
+  'corepack yarn sentry:release:credential-plan',
+  'corepack yarn sentry:release:credential-plan:check',
   'corepack yarn firebase:release-services:audit',
   'corepack yarn firebase:release-services:check-summary',
   'corepack yarn check:codepush-update-validation-handoff-guard',
@@ -143,6 +145,21 @@ assert(
   skippedCommands.findIndex(step => step.args.includes('sentry:rn-bundle-task-compat:check-summary')) <
     skippedCommands.findIndex(step => step.args.includes('sentry:release:prereq-audit')),
   'Sentry release prerequisite audit must run after RN bundle task compatibility is validated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('sentry:release:prereq-check-summary')) <
+    skippedCommands.findIndex(step => step.args.includes('sentry:release:credential-plan')),
+  'Sentry release credential plan must run after prerequisite summary validation',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('sentry:release:credential-plan')) <
+    skippedCommands.findIndex(step => step.args.includes('sentry:release:credential-plan:check')),
+  'Sentry release credential plan must be checked after it is generated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('sentry:release:credential-plan:check')) <
+    skippedCommands.findIndex(step => step.args.includes('firebase:release-services:audit')),
+  'Sentry release credential plan must be validated before leaving the Sentry release-service block',
 );
 assert(
   skippedRendered.includes('corepack yarn check:ios-mac-validation-handoff-guard'),

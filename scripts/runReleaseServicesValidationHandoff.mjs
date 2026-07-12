@@ -90,6 +90,8 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
     yarnStep('Validate Sentry RN bundle task compatibility summary', 'sentry:rn-bundle-task-compat:check-summary'),
     yarnStep('Audit Sentry release prerequisites', 'sentry:release:prereq-audit'),
     yarnStep('Validate Sentry release prerequisite summary', 'sentry:release:prereq-check-summary'),
+    yarnStep('Plan Sentry release credential evidence', 'sentry:release:credential-plan'),
+    yarnStep('Validate Sentry release credential plan', 'sentry:release:credential-plan:check'),
     yarnStep('Audit Firebase release-services surface', 'firebase:release-services:audit'),
     yarnStep('Validate Firebase release-services summary', 'firebase:release-services:check-summary'),
     yarnStep('Validate CodePush update-validation handoff guard', 'check:codepush-update-validation-handoff-guard'),

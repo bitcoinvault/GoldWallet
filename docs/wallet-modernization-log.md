@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.887 - Release-services Sentry credential plan aggregate gate
+
+- Branch: `feature/bem-37-887-release-services-sentry-credential-plan`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Wire the Sentry release credential plan from `BEM-37.886` into the aggregate `release-services:check-summaries` gate.
+- Add `sentry:release:credential-plan` and `sentry:release:credential-plan:check` to the release-services validation handoff sequence so the aggregate gate validates freshly generated credential evidence.
+- Extend release-services guard self-checks so the Sentry credential plan artifact and handoff commands cannot be dropped silently.
+- Keep release services, Sentry packages, CodePush/Firebase packages, Android/iOS native files, app runtime code, and package lockfiles unchanged in this branch.
+
+Findings:
+
+- `BEM-37.886` hardened `local-docs/sentry-release-credential-plan.txt`, but the final release-services aggregate still validated only the Sentry prerequisite summary, Android warning summary, and RN bundle-task compatibility summary.
+- The aggregate release-services gate now validates the credential plan artifact with `getSentryReleaseCredentialPlanErrors`, so missing Android release freshness, full-smoke/create-wallet proof, controlled Electrum blocker classification, iOS macOS blockers, or unsafe secret output fail the release-services check.
+- The release-services handoff now regenerates and validates the Sentry credential plan immediately after prerequisite summary validation and before leaving the Sentry release-service block.
+- After adding the credential plan to the aggregate gate, the current Android release summary fingerprint had to be refreshed; `android:dev:release:verify-local` rebuilt and validated `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with `SENTRY_DISABLE_AUTO_UPLOAD=true`.
+- No emulator smoke is claimed for this branch because it changes only release-services orchestration scripts and docs and does not move runtime dependencies, native files, Metro config, or app code.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:credential-plan`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:credential-plan:check`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.886 - Sentry credential evidence plan guard
 
 - Branch: `feature/bem-37-886-sentry-credential-evidence-plan`

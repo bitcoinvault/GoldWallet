@@ -22,6 +22,7 @@ import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummar
 import { getIosValidationHandoffSummaryErrors } from './iosValidationHandoffSummaryGuard.mjs';
 import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridgeSummaryGuard.mjs';
 import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
+import { getSentryReleaseCredentialPlanErrors } from './sentryReleaseCredentialPlanGuard.mjs';
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
 import { getSentryRnBundleTaskCompatibilitySummaryErrors } from './sentryRnBundleTaskCompatibilitySummaryGuard.mjs';
 
@@ -81,6 +82,11 @@ export const releaseServicesSummaryArtifacts = [
     label: 'Sentry release prerequisite',
     relativePath: 'local-docs/sentry-release-prereq-summary.txt',
     getErrors: getSentryReleasePrereqSummaryErrors,
+  },
+  {
+    label: 'Sentry release credential plan',
+    relativePath: 'local-docs/sentry-release-credential-plan.txt',
+    getErrors: getSentryReleaseCredentialPlanErrors,
   },
   {
     label: 'Sentry Android warning',
