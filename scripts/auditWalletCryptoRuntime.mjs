@@ -31,7 +31,7 @@ const expectedDevDependencies = new Map([
 
 const requiredDocsSnippets = [
   ['docs/wallet-crypto-runtime-audit.md', 'bitcoinvault/bitcoinjs-lib'],
-  ['docs/wallet-crypto-runtime-audit.md', 'Latest npm checked on 2026-06-23'],
+  ['docs/wallet-crypto-runtime-audit.md', 'Latest npm checked on 2026-07-12'],
   ['docs/wallet-crypto-runtime-audit.md', 'upstream `bitcoinjs-lib@7.0.1` does not expose `alt_networks`, `VaultTxType`, `ECPair`, or `TransactionBuilder`'],
   ['docs/wallet-crypto-runtime-audit.md', 'Funded transaction flow remains blocked until a funded BTCV testnet wallet is available'],
   ['docs/wallet-crypto-runtime-audit.md', 'Do not replace the BitcoinVault fork with upstream `bitcoinjs-lib`'],
