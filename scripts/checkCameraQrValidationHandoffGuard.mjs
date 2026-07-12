@@ -40,6 +40,9 @@ const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath
   'corepack yarn check:qr-render-usage',
   'corepack yarn check:qr-render-validation-scripts',
   'corepack yarn test:qr-render:unit',
+  'corepack yarn check:camera-qr-validation-summary-guard',
+  'corepack yarn camera:qr-validation:summary',
+  'corepack yarn camera:qr-validation:check-summary',
 ].forEach(expected => {
   assert(rendered.includes(expected), `Expected Camera/QR handoff commands to include: ${expected}`);
 });
@@ -85,6 +88,31 @@ assert(
   releaseSmokeCommands.findIndex(step => step.args.includes('test:qr-render:unit')) <
     releaseSmokeCommands.findIndex(step => step.args.includes('android:dev:release:create-wallet-verify')),
   'Android Camera/QR release smoke must run after focused QR render unit validation',
+);
+assert(
+  commands.findIndex(step => step.args.includes('test:qr-render:unit')) <
+    commands.findIndex(step => step.args.includes('check:camera-qr-validation-summary-guard')),
+  'Camera/QR validation summary guard must run after focused QR render unit validation',
+);
+assert(
+  commands.findIndex(step => step.args.includes('check:camera-qr-validation-summary-guard')) <
+    commands.findIndex(step => step.args.includes('camera:qr-validation:summary')),
+  'Camera/QR validation summary guard must run before writing the summary',
+);
+assert(
+  commands.findIndex(step => step.args.includes('camera:qr-validation:summary')) <
+    commands.findIndex(step => step.args.includes('camera:qr-validation:check-summary')),
+  'Camera/QR validation summary must be checked after it is written',
+);
+assert(
+  smokeCommands.findIndex(step => step.args.includes('android:dev:check-smoke-summary')) <
+    smokeCommands.findIndex(step => step.args.includes('camera:qr-validation:summary')),
+  'Camera/QR validation summary must run after Android smoke summary validation when smoke is included',
+);
+assert(
+  releaseSmokeCommands.findIndex(step => step.args.includes('android:dev:release:create-wallet-verify')) <
+    releaseSmokeCommands.findIndex(step => step.args.includes('camera:qr-validation:summary')),
+  'Camera/QR validation summary must run after Android release smoke validation when release smoke is included',
 );
 assert(
   getCameraQrValidationHandoffErrors({ dryRun: 'false' }).some(error => error.includes('dryRun must be a boolean')),

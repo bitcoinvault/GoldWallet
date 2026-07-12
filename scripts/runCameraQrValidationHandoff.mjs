@@ -105,6 +105,12 @@ export const getCameraQrValidationCommands = (options = defaultOptions) => {
     );
   }
 
+  commands.push(
+    yarnStep('Validate Camera/QR validation summary guard fixtures', 'check:camera-qr-validation-summary-guard'),
+    yarnStep('Write Camera/QR validation summary', 'camera:qr-validation:summary'),
+    yarnStep('Validate Camera/QR validation summary', 'camera:qr-validation:check-summary'),
+  );
+
   return commands;
 };
 
