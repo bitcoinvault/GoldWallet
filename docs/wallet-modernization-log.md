@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.883 - TypeScript 7 compatibility probe hardening
+
+- Branch: `feature/bem-37-883-typescript7-probe-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the TypeScript 7 compatibility probe so it records an isolated latest TypeScript/tooling install result in addition to live npm metadata.
+- Keep `typescript@6.0.3` pinned; do not change package versions, `yarn.lock`, native files, or app runtime code in this branch.
+- Update the TypeScript 7 summary guard and guard self-check fixtures so stale summaries cannot omit the isolated install evidence.
+- Refresh modernization docs that reference the TypeScript 7 blocker.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` still reports `typescript@7.0.2` with Node engine `>=16.20.0`; repo Node `v24.16.0` satisfies it, so Node is not the blocker.
+- A normal isolated npm install of `typescript@latest`, `@typescript-eslint/parser@latest`, `@typescript-eslint/eslint-plugin@latest`, and `ts-jest@latest` fails with `ERESOLVE` before any repo lockfile change.
+- The `--legacy-peer-deps` isolated fallback installs only for inspection and confirms `@typescript-eslint/parser@8.63.0`, `@typescript-eslint/eslint-plugin@8.63.0`, and `ts-jest@29.4.11` still do not peer with `typescript@7.0.2`.
+- TypeScript 7 remains blocked until a dedicated compiler/RN/Metro branch moves TypeScript, `@typescript-eslint`, and Jest transform tooling together and proves TypeScript check, Jest, lint baseline, Android build, and emulator smoke.
+- No emulator smoke is claimed for this branch because it changes only audit scripts and docs and does not move runtime dependencies, native code, Metro config, or app code.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript7:compatibility-probe:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript7:compatibility-probe:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:typescript7-compatibility-probe-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:foundation-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-upgrade-path-audit-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.882 - RN upgrade path plist summary wiring
 
 - Branch: `feature/bem-37-882-rn-upgrade-path-plist-summary`

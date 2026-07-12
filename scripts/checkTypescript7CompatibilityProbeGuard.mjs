@@ -13,6 +13,17 @@ const validSummary = [
   '- @typescript-eslint/parser: package 8.63.0, latest 8.63.0, TypeScript peer >=4.8.4 <6.1.0, target compatible no',
   '- @typescript-eslint/eslint-plugin: package 8.63.0, latest 8.63.0, TypeScript peer >=4.8.4 <6.1.0, target compatible no',
   '- ts-jest: package 29.4.11, latest 29.4.11, TypeScript peer >=4.3 <7, target compatible no',
+  'Isolated latest install status: failed',
+  'Isolated latest install error: ERESOLVE',
+  'Isolated legacy-peer install status: ok',
+  'Isolated legacy-peer install error: none',
+  'Isolated installed TypeScript: 7.0.2',
+  'Isolated checked peer packages: 3',
+  '- @typescript-eslint/parser: installed 8.63.0, TypeScript peer >=4.8.4 <6.1.0, target compatible no',
+  '- @typescript-eslint/eslint-plugin: installed 8.63.0, TypeScript peer >=4.8.4 <6.1.0, target compatible no',
+  '- ts-jest: installed 29.4.11, TypeScript peer >=4.3 <7, target compatible no',
+  'Isolated install blockers: 1',
+  '- normal npm install of the latest TypeScript/tooling cohort fails with ERESOLVE',
   'Compatibility blockers: 3',
   '- @typescript-eslint/parser TypeScript peer >=4.8.4 <6.1.0 does not include TypeScript 7.0.2',
   '- @typescript-eslint/eslint-plugin TypeScript peer >=4.8.4 <6.1.0 does not include TypeScript 7.0.2',
@@ -54,6 +65,26 @@ assertRejected(
   'Missing parser peer ceiling fixture',
   validSummary.replace('TypeScript peer >=4.8.4 <6.1.0', 'TypeScript peer >=4.8.4'),
   '@typescript-eslint/parser peer range',
+);
+assertRejected(
+  'Successful isolated install fixture',
+  validSummary.replace('Isolated latest install status: failed', 'Isolated latest install status: ok'),
+  'Isolated latest install status',
+);
+assertRejected(
+  'Missing isolated ERESOLVE fixture',
+  validSummary.replace('Isolated latest install error: ERESOLVE', 'Isolated latest install error: none'),
+  'Isolated latest install error',
+);
+assertRejected(
+  'Bad isolated TypeScript fixture',
+  validSummary.replace('Isolated installed TypeScript: 7.0.2', 'Isolated installed TypeScript: 6.0.3'),
+  'Isolated installed TypeScript',
+);
+assertRejected(
+  'Missing isolated blocker fixture',
+  validSummary.replace('Isolated install blockers: 1', 'Isolated install blockers: 0'),
+  'Isolated install blockers count',
 );
 assertRejected(
   'Allowed package bump fixture',

@@ -13,7 +13,7 @@ React package coupling audit is tracked in `docs/react-package-coupling-audit.md
 React Native renderer exact-version audit is tracked in `docs/react-package-coupling-audit.md`.
 
 Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
-TypeScript 7 compatibility probe is tracked by `corepack yarn typescript7:compatibility-probe:audit`.
+TypeScript 7 compatibility probe is tracked by `corepack yarn typescript7:compatibility-probe:audit`. The probe now includes isolated latest-cohort npm install proof, so TypeScript 7 stays tied to real `@typescript-eslint` and `ts-jest` peer compatibility rather than an outdated-package label.
 Plist major compatibility is tracked by `corepack yarn plist:major-compatibility:audit`.
 
 ## Current Baseline
