@@ -23,6 +23,17 @@ const validSummary = [
   'Direct AGP 9 probe Kotlin runtime metadata: 2.3.0',
   'React Native Gradle plugin Kotlin metadata ceiling: 2.2.0',
   'Direct AGP 9 probe evidence: docs/wallet-modernization-log.md BEM-37.818',
+  'Direct AGP 9 probe evidence status: committed',
+  'Direct AGP 9 probe evidence required snippets: 8',
+  '- AGP `9.2.1`',
+  '- Gradle `9.6.1`',
+  '- Kotlin `2.4.0`',
+  '- JDK 17',
+  '- :gradle-plugin:settings-plugin:compileKotlin',
+  '- Kotlin metadata `2.3.0`',
+  '- up to `2.2.0`',
+  '- AGP `8.13.2`, Gradle `8.13`, and Kotlin `2.1.20`',
+  'Direct AGP 9 probe evidence missing snippets: 0',
   'Latest Android toolchain target blocked: yes',
   'Blockers: 3',
   '- AGP 9.2.1 requires Gradle 9.4.1 or newer.',
@@ -88,6 +99,21 @@ assertRejected(
   'Missing direct probe evidence fixture',
   validSummary.replace('Direct AGP 9 probe evidence: docs/wallet-modernization-log.md BEM-37.818', 'Direct AGP 9 probe evidence: local-only'),
   'committed BEM-37.818 log entry',
+);
+assertRejected(
+  'Missing committed evidence status fixture',
+  validSummary.replace('Direct AGP 9 probe evidence status: committed', 'Direct AGP 9 probe evidence status: missing-or-stale'),
+  'evidence status must be committed',
+);
+assertRejected(
+  'Missing evidence snippet fixture',
+  validSummary.replace('Direct AGP 9 probe evidence missing snippets: 0', 'Direct AGP 9 probe evidence missing snippets: 1\n- Gradle `9.6.1`'),
+  'must not have missing snippets',
+);
+assertRejected(
+  'Stale evidence required tuple fixture',
+  validSummary.replace('- Gradle `9.6.1`', '- Gradle `9.5.1`'),
+  'required snippets must include',
 );
 assertRejected(
   'Missing direct probe task fixture',

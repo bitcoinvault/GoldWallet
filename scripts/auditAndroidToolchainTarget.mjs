@@ -31,10 +31,43 @@ const getQuotedGradleValue = (content, name) => content.match(new RegExp(`${name
 const getClasspathVersion = (content, artifact) =>
   content.match(new RegExp(`${artifact.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:([0-9][^"')]+)`))?.[1] || '';
 const getGradleWrapperVersion = content => content.match(/gradle-([0-9.]+)-(?:all|bin)\.zip/)?.[1] || '';
+const getLogEntry = (content, entryId) => {
+  const start = content.indexOf(`### ${entryId} - `);
+
+  if (start === -1) {
+    return '';
+  }
+
+  const next = content.indexOf('\n### ', start + 1);
+
+  return content.slice(start, next === -1 ? content.length : next);
+};
+
+const getProbeEvidence = ({ log, directAgp9Probe, currentAgp, currentGradle, currentKotlin }) => {
+  const evidenceEntry = getLogEntry(log, 'BEM-37.818');
+  const requiredSnippets = [
+    `AGP \`${directAgp9Probe.agp}\``,
+    `Gradle \`${directAgp9Probe.gradle}\``,
+    `Kotlin \`${directAgp9Probe.kotlin}\``,
+    'JDK 17',
+    directAgp9Probe.task,
+    'Kotlin metadata `2.3.0`',
+    'up to `2.2.0`',
+    `AGP \`${currentAgp}\`, Gradle \`${currentGradle}\`, and Kotlin \`${currentKotlin}\``,
+  ];
+  const missingSnippets = requiredSnippets.filter(snippet => !evidenceEntry.includes(snippet));
+
+  return {
+    status: evidenceEntry && missingSnippets.length === 0 ? 'committed' : 'missing-or-stale',
+    requiredSnippets,
+    missingSnippets,
+  };
+};
 
 export const collectAndroidToolchainTargetAudit = async () => {
   const androidBuildGradle = read('android/build.gradle');
   const gradleWrapper = read('android/gradle/wrapper/gradle-wrapper.properties');
+  const walletModernizationLog = read('docs/wallet-modernization-log.md');
   const packageJson = JSON.parse(read('package.json'));
   const agpMetadata = await fetchText('https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml');
   const gradleCurrent = JSON.parse(await fetchText('https://services.gradle.org/versions/current'));
@@ -44,10 +77,13 @@ export const collectAndroidToolchainTargetAudit = async () => {
   const latestKotlin = last(extractXmlVersions(kotlinMetadata).filter(isStableVersion));
   const latestGradle = gradleCurrent.version || '';
   const minimumAgp9Gradle = '9.4.1';
+  const currentAgp = getClasspathVersion(androidBuildGradle, 'com.android.tools.build:gradle');
+  const currentGradle = getGradleWrapperVersion(gradleWrapper);
+  const currentKotlin = getQuotedGradleValue(androidBuildGradle, 'kotlinVersion');
   const directAgp9Probe = {
-    agp: '9.2.1',
-    gradle: '9.6.1',
-    kotlin: '2.4.0',
+    agp: latestStableAgp,
+    gradle: latestGradle,
+    kotlin: latestKotlin,
     jdk: '17',
     status: 'blocked',
     task: ':gradle-plugin:settings-plugin:compileKotlin',
@@ -58,19 +94,27 @@ export const collectAndroidToolchainTargetAudit = async () => {
   };
   const rnGradlePlugin =
     packageJson.dependencies?.['@react-native/gradle-plugin'] || packageJson.devDependencies?.['@react-native/gradle-plugin'] || '';
+  const probeEvidence = getProbeEvidence({
+    log: walletModernizationLog,
+    directAgp9Probe,
+    currentAgp,
+    currentGradle,
+    currentKotlin,
+  });
 
   return {
-    currentAgp: getClasspathVersion(androidBuildGradle, 'com.android.tools.build:gradle'),
+    currentAgp,
     latestStableAgp,
-    currentGradle: getGradleWrapperVersion(gradleWrapper),
+    currentGradle,
     latestGradle,
     minimumAgp9Gradle,
-    currentKotlin: getQuotedGradleValue(androidBuildGradle, 'kotlinVersion'),
+    currentKotlin,
     latestKotlin,
     kotlinMetadataRelease,
     kotlinMetadataReleasePrerelease: kotlinMetadataRelease && !isStableVersion(kotlinMetadataRelease) ? 'yes' : 'no',
     rnGradlePlugin,
     directAgp9Probe,
+    probeEvidence,
     blocked: true,
     blockers: [
       `AGP ${latestStableAgp} requires Gradle ${minimumAgp9Gradle} or newer.`,
@@ -106,6 +150,11 @@ export const formatAndroidToolchainTargetSummary = (audit, generatedAt = new Dat
     `Direct AGP 9 probe Kotlin runtime metadata: ${audit.directAgp9Probe.kotlinRuntimeMetadata}`,
     `React Native Gradle plugin Kotlin metadata ceiling: ${audit.directAgp9Probe.rnKotlinMetadataCeiling}`,
     `Direct AGP 9 probe evidence: ${audit.directAgp9Probe.evidence}`,
+    `Direct AGP 9 probe evidence status: ${audit.probeEvidence.status}`,
+    `Direct AGP 9 probe evidence required snippets: ${audit.probeEvidence.requiredSnippets.length}`,
+    ...audit.probeEvidence.requiredSnippets.map(snippet => `- ${snippet}`),
+    `Direct AGP 9 probe evidence missing snippets: ${audit.probeEvidence.missingSnippets.length}`,
+    ...audit.probeEvidence.missingSnippets.map(snippet => `- ${snippet}`),
     `Latest Android toolchain target blocked: ${audit.blocked ? 'yes' : 'no'}`,
     `Blockers: ${audit.blockers.length}`,
     ...audit.blockers.map(blocker => `- ${blocker}`),

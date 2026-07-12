@@ -46,6 +46,11 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
   const directProbeKotlinRuntimeMetadata = getLineValue(summary, 'Direct AGP 9 probe Kotlin runtime metadata');
   const rnKotlinMetadataCeiling = getLineValue(summary, 'React Native Gradle plugin Kotlin metadata ceiling');
   const directProbeEvidence = getLineValue(summary, 'Direct AGP 9 probe evidence');
+  const directProbeEvidenceStatus = getLineValue(summary, 'Direct AGP 9 probe evidence status');
+  const directProbeEvidenceRequiredSnippets = getLineValue(summary, 'Direct AGP 9 probe evidence required snippets');
+  const directProbeEvidenceRequiredSnippetLines = getBulletLinesAfter(summary, 'Direct AGP 9 probe evidence required snippets');
+  const directProbeEvidenceMissingSnippets = getLineValue(summary, 'Direct AGP 9 probe evidence missing snippets');
+  const directProbeEvidenceMissingSnippetLines = getBulletLinesAfter(summary, 'Direct AGP 9 probe evidence missing snippets');
   const targetBlocked = getLineValue(summary, 'Latest Android toolchain target blocked');
   const blockerCount = getLineValue(summary, 'Blockers');
   const blockerLines = getBulletLinesAfter(summary, 'Blockers');
@@ -144,6 +149,44 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
   if (!directProbeEvidence.includes('docs/wallet-modernization-log.md') || !directProbeEvidence.includes('BEM-37.818')) {
     errors.push(`Direct AGP 9 probe evidence must point to the committed BEM-37.818 log entry. Received: ${directProbeEvidence || 'missing'}`);
   }
+
+  if (directProbeEvidenceStatus !== 'committed') {
+    errors.push(`Direct AGP 9 probe evidence status must be committed. Received: ${directProbeEvidenceStatus || 'missing'}`);
+  }
+
+  if (!/^\d+$/.test(directProbeEvidenceRequiredSnippets)) {
+    errors.push(`Direct AGP 9 probe evidence required snippets must be a non-negative integer. Received: ${directProbeEvidenceRequiredSnippets || 'missing'}`);
+  } else if (Number(directProbeEvidenceRequiredSnippets) !== directProbeEvidenceRequiredSnippetLines.length) {
+    errors.push(
+      `Direct AGP 9 probe evidence required snippets count is ${directProbeEvidenceRequiredSnippets}, but listed ${directProbeEvidenceRequiredSnippetLines.length}`,
+    );
+  } else if (Number(directProbeEvidenceRequiredSnippets) < 8) {
+    errors.push('Direct AGP 9 probe evidence must require the live tuple, failure task, metadata mismatch, and current baseline snippets');
+  }
+
+  if (!/^\d+$/.test(directProbeEvidenceMissingSnippets)) {
+    errors.push(`Direct AGP 9 probe evidence missing snippets must be a non-negative integer. Received: ${directProbeEvidenceMissingSnippets || 'missing'}`);
+  } else if (Number(directProbeEvidenceMissingSnippets) !== directProbeEvidenceMissingSnippetLines.length) {
+    errors.push(
+      `Direct AGP 9 probe evidence missing snippets count is ${directProbeEvidenceMissingSnippets}, but listed ${directProbeEvidenceMissingSnippetLines.length}`,
+    );
+  } else if (Number(directProbeEvidenceMissingSnippets) !== 0) {
+    errors.push('Direct AGP 9 probe evidence must not have missing snippets');
+  }
+
+  [
+    `AGP \`${directProbeAgp}\``,
+    `Gradle \`${directProbeGradle}\``,
+    `Kotlin \`${directProbeKotlin}\``,
+    directProbeTask,
+    'Kotlin metadata `2.3.0`',
+    'up to `2.2.0`',
+    `AGP \`${currentAgp}\`, Gradle \`${currentGradle}\`, and Kotlin \`${currentKotlin}\``,
+  ].forEach(snippet => {
+    if (!directProbeEvidenceRequiredSnippetLines.includes(snippet)) {
+      errors.push(`Direct AGP 9 probe evidence required snippets must include "${snippet}"`);
+    }
+  });
 
   if (targetBlocked !== 'yes') {
     errors.push(`Latest Android toolchain target must stay blocked for this RN 0.86.0 baseline. Received: ${targetBlocked || 'missing'}`);

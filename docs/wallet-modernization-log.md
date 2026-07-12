@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.885 - Android toolchain direct-probe evidence guard
+
+- Branch: `feature/bem-37-885-android-toolchain-evidence-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Harden the Android toolchain latest-target audit so the direct AGP 9 probe tuple is derived from live AGP/Gradle/Kotlin metadata instead of a separately hardcoded tuple.
+- Validate that the committed `BEM-37.818` evidence entry still contains the live AGP/Gradle/Kotlin tuple, JDK, failing Gradle task, Kotlin metadata mismatch, and current AGP/Gradle/Kotlin baseline snippets.
+- Extend the Android toolchain target summary guard and guard self-check fixture so stale or missing committed direct-probe evidence fails validation.
+- Keep Android Gradle Plugin, Gradle wrapper, Kotlin, SDK, package versions, native files, app runtime code, and Metro config unchanged in this branch.
+
+Findings:
+
+- Live metadata on `2026-07-12` still reports latest stable Android Gradle Plugin `9.2.1`, Gradle current `9.6.1`, latest stable Kotlin Gradle Plugin `2.4.0`, and Kotlin metadata release `2.4.20-Beta1` as prerelease-only.
+- The direct AGP 9 probe tuple is now derived from those live values and validates against the committed `BEM-37.818` log evidence.
+- The committed evidence status is `committed` with `0` missing snippets for AGP `9.2.1`, Gradle `9.6.1`, Kotlin `2.4.0`, JDK 17, `:gradle-plugin:settings-plugin:compileKotlin`, Kotlin metadata `2.3.0`, metadata ceiling `2.2.0`, and the current AGP `8.13.2` / Gradle `8.13` / Kotlin `2.1.20` baseline.
+- The latest Android toolchain target remains blocked until a newer React Native Gradle plugin baseline can compile against AGP 9 / Gradle 9.
+- No emulator smoke is claimed for this branch because it changes only audit scripts and docs and does not move runtime dependencies, native toolchain files, Metro config, or app code.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:toolchain-target:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-toolchain-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:foundation-target-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.884 - Babel 8 full cohort probe hardening
 
 - Branch: `feature/bem-37-884-babel8-cohort-probe`
