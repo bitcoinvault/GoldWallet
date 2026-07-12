@@ -41,6 +41,8 @@ const vulnerableLockEntries = [
   ['elliptic', '6.5.4'],
   ['form-data', '4.0.5'],
   ['joi', '17.13.3'],
+  ['js-yaml', '3.14.1'],
+  ['js-yaml', '4.1.1'],
   ['jws', '4.0.0'],
   ['launch-editor', '2.14.0'],
   ['lodash', '4.17.21'],
@@ -62,6 +64,7 @@ const vulnerableLockEntries = [
   ['undici', '6.26.0'],
   ['word-wrap', '1.2.3'],
   ['ws', '7.5.4'],
+  ['yaml', '1.10.2'],
 ];
 
 const expectedLockVersions = new Map([
@@ -73,6 +76,7 @@ const expectedLockVersions = new Map([
   ['elliptic', ['6.6.1']],
   ['form-data', ['4.0.6']],
   ['joi', ['17.13.4']],
+  ['js-yaml', ['3.15.0', '4.3.0']],
   ['jws', ['4.0.1']],
   ['launch-editor', ['2.14.1']],
   ['lodash', ['4.18.1']],
@@ -93,6 +97,7 @@ const expectedLockVersions = new Map([
   ['undici', ['6.27.0', '7.28.0']],
   ['word-wrap', ['1.2.5']],
   ['ws', ['6.2.4', '7.5.11']],
+  ['yaml', ['1.10.3', '2.9.0']],
 ]);
 
 const normalizeLockKey = key => key.replace(/^"|"$/g, '');

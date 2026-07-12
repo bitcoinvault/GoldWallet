@@ -10,6 +10,65 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.871 - YAML config security ranges
+
+- Branch: `feature/bem-37-871-yaml-config-security-ranges`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Continue moderate transitive security reduction after `BEM-37.870` by refreshing the `js-yaml` and `yaml` lockfile owner paths.
+- Move the vulnerable `js-yaml@^3.13.1` lock entry from `3.14.1` to the current v3 legacy line `3.15.0`.
+- Move the vulnerable `js-yaml@^4.1.0` / `js-yaml@^4.1.1` owner paths to the current v4 legacy line `4.3.0`.
+- Move the stale `yaml@^1.10.0` owner path from `1.10.2` to the patched v1 line `1.10.3`, while keeping the existing compatible `yaml@2.9.0` line.
+- Extend `check:security-resolution-baselines` so the lockfile cannot drift back to vulnerable `js-yaml@3.14.1`, `js-yaml@4.1.1`, or `yaml@1.10.2`.
+
+Findings:
+
+- Live npm metadata on `2026-07-12` reports `js-yaml@5.2.1` as latest, with `v3-legacy` at `3.15.0` and `v4-legacy` at `4.3.0`; the repo still has owner paths that require those older compatible lines.
+- Live npm metadata on `2026-07-12` reports `yaml@2.9.0` as latest and keeps `yaml@1.10.3` available for the older `^1.10.0` owner path.
+- `@istanbuljs/load-nyc-config@1.1.0` still owns the `js-yaml@^3.13.1` path; `cosmiconfig` and `xmlbuilder2` own the `js-yaml@^4.x` paths.
+- The older `yaml@^1.10.0` owner path remains under `@commitlint/load` / `cosmiconfig`; forcing YAML v2 globally is deferred because it would cross a major owner-path boundary.
+- `corepack yarn install --frozen-lockfile` accepts the refreshed lockfile without changing `package.json` or adding direct dependencies.
+- Lockfile versions after install are exactly `js-yaml@3.15.0`, `js-yaml@4.3.0`, `yaml@1.10.3`, and `yaml@2.9.0`.
+- `corepack yarn audit --json --level moderate` now reports `0` critical, `0` high, `1` moderate, and `0` low finding, down from `0` critical, `0` high, `30` moderate, and `0` low after `BEM-37.870`.
+- The remaining moderate finding is isolated to `uuid`; handle it in a dedicated owner-path branch.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view js-yaml version dist-tags versions engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view js-yaml@3.15.0 version dependencies dist.integrity dist.shasum engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view js-yaml@4.3.0 version dependencies dist.integrity dist.shasum engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view yaml version dist-tags versions engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view yaml@1.10.3 version dependencies dist.integrity dist.shasum engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why js-yaml`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why yaml`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- lockfile version parser for `js-yaml` and `yaml`
+- parsed `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --json --level moderate` (current summary: `0` critical, `0` high, `1` moderate, `0` low)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:embedded` (blocked by expired dev/testnet Electrum TLS certificate before dashboard proof)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-smoke-summary`
+
+Android runtime note:
+
+- The no-network Android smoke installed and launched `app-dev-debug.apk`, completed first-run Terms/PIN/transaction-password/email-skip flow, found the expected `No network` UI, and reported no fatal/runtime logcat findings.
+- Full dashboard smoke remains externally blocked by `electrumx.testnet.btcv.stage.rnd.land:443 tls`; `android:dev:network-blocker:audit` captured `CertificateExpiredException: Certificate expired at Tue Jun 23 16:52:40 GMT 2026`.
+- iOS runtime validation is not claimed on this Windows machine; `ios:static:verify` still requires macOS/Xcode/CocoaPods and a refreshed `ios/Podfile.lock`.
+
 ### BEM-37.870 - brace-expansion security lockfile refresh
 
 - Branch: `feature/bem-37-870-brace-expansion-security-range`
