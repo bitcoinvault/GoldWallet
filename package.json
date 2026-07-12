@@ -548,7 +548,7 @@
     "shell-quote": "1.10.0",
     "serve-static": "2.2.1",
     "send": "1.2.1",
-    "@sentry/**/undici": "6.27.0",
+    "@sentry/**/undici": "8.7.0",
     "qrcode": "1.5.4",
     "caniuse-lite": "1.0.30001805",
     "plist": "3.1.1",
