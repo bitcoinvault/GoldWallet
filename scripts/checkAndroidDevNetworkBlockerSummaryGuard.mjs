@@ -49,6 +49,26 @@ const validSummary = [
 const validErrors = getAndroidDevNetworkBlockerSummaryErrors(validSummary);
 assert(validErrors.length === 0, `valid summary should pass, received: ${validErrors.join('; ')}`);
 
+const validStartupRuntimeBlockerSummary = validSummary.replace(
+  'Full dev smoke reason: UI hierarchy is missing expected text(s): Wallets, No wallets, Create new wallet, Import wallet',
+  'Full dev smoke reason: not completed',
+);
+const validStartupRuntimeBlockerErrors = getAndroidDevNetworkBlockerSummaryErrors(validStartupRuntimeBlockerSummary);
+assert(
+  validStartupRuntimeBlockerErrors.length === 0,
+  `startup runtime blocker summary should pass, received: ${validStartupRuntimeBlockerErrors.join('; ')}`,
+);
+
+const vagueFullSmokeReason = validSummary.replace(
+  'Full dev smoke reason: UI hierarchy is missing expected text(s): Wallets, No wallets, Create new wallet, Import wallet',
+  'Full dev smoke reason: failed',
+);
+const vagueFullSmokeReasonErrors = getAndroidDevNetworkBlockerSummaryErrors(vagueFullSmokeReason);
+assert(
+  vagueFullSmokeReasonErrors.some(error => error.includes('missing dashboard texts or show startup was not completed')),
+  'summary with a vague full-smoke reason should fail',
+);
+
 const passedFullSmoke = validSummary.replace('Full dev smoke outcome: failed', 'Full dev smoke outcome: passed');
 const passedFullSmokeErrors = getAndroidDevNetworkBlockerSummaryErrors(passedFullSmoke);
 assert(
