@@ -1,5 +1,9 @@
 import assert from 'assert';
+import { readFileSync } from 'fs';
+
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
+
+const smokeDriver = readFileSync('scripts/androidCreateWalletSmoke.mjs', 'utf8');
 
 const validSummary = [
   'Generated at: 2026-07-14T20:00:00.000Z',
@@ -50,5 +54,8 @@ assert.ok(
     error.includes('secret-bearing fields'),
   ),
 );
+
+assert.match(smokeDriver, /ANDROID_CREATE_WALLET_STANDARD_NAME must be a shell-safe wallet name without spaces/);
+assert.match(smokeDriver, /ANDROID_CREATE_WALLET_VAULT_NAME must be a shell-safe wallet name without spaces/);
 
 console.log('Android create-wallet smoke summary guard checks passed.');

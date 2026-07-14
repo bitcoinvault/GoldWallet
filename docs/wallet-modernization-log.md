@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.896 - Production created-wallet persistence after process restart
+
+- Branch: `feature/bem-37-896-production-created-wallet-persistence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the production create-wallet smoke beyond reaching the mnemonic backup screen by requiring the named standard wallet to survive a real Android process restart.
+- Verify that Android `FLAG_SECURE` is enabled while the generated mnemonic is visible and cleared after restart without reading, logging, or storing the mnemonic in test evidence.
+- Require a different post-restart PID, the production PIN overlay, rejection of an incorrect PIN, successful unlock with the configured test PIN, and the exact standard-wallet card before continuing the existing 3-key vault flow.
+
+Findings:
+
+- The existing create-wallet smoke already force-stopped the app after standard wallet creation, but it accepted any ready dashboard and therefore did not prove that the newly generated standard wallet was persisted.
+- The production wallet stores the standard wallet before presenting mnemonic backup, so a force-stop from that protected screen is a useful crash/restart durability boundary and does not require automating mnemonic confirmation or exposing generated secret words.
+- The final `prodRelease` run on `emulator-5554` proved the named standard wallet under a new PID after restart, rejected an incorrect PIN, accepted the configured PIN, retained Android screenshot protection on the mnemonic screen, cleared it on the dashboard, and continued to the default 3-key vault public-key integration screen without create-wallet error UI or fatal/runtime logcat findings.
+- Generated summaries and logs contain wallet names, APK evidence, boolean outcomes, and process IDs only. The summary checker rejects mnemonic, seed phrase, private key, WIF, or generic secret fields.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-create-wallet-smoke-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-release-smoke-variant-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:prod:release:check-create-wallet-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `git diff --check`
+
 ### BEM-37.895 - Production import persistence after process restart
 
 - Branch: `feature/bem-37-895-production-import-persistence-smoke`
