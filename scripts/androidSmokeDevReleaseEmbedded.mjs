@@ -2,23 +2,17 @@ import { existsSync, mkdirSync, rmSync, statSync } from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import {
+  getAndroidReleaseSmokeVariantConfig,
+  parseAndroidReleaseSmokeVariant,
+} from './androidReleaseSmokeVariant.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
-const unsignedReleaseApk = path.join(
-  root,
-  'android',
-  'app',
-  'build',
-  'outputs',
-  'apk',
-  'dev',
-  'release',
-  'app-dev-release-unsigned.apk',
-);
-const alignedReleaseApk = path.join(outputDir, 'android-smoke-dev-release-aligned.apk');
-const signedReleaseApk = path.join(outputDir, 'android-smoke-dev-release-signed.apk');
+const releaseVariant = parseAndroidReleaseSmokeVariant(process.argv.slice(2));
+const releaseSmokeConfig = getAndroidReleaseSmokeVariantConfig(root, releaseVariant);
+const { displayName, packageName, unsignedApkPath, alignedApkPath, signedApkPath, artifactBase } = releaseSmokeConfig;
 const buildToolsDir = [
   process.env.ANDROID_BUILD_TOOLS,
   process.env.ANDROID_HOME && path.join(process.env.ANDROID_HOME, 'build-tools', '36.0.0'),
@@ -48,8 +42,8 @@ const run = (label, command, args) => {
 };
 
 const prepareSignedReleaseSmokeApk = () => {
-  if (!existsSync(unsignedReleaseApk)) {
-    throw new Error(`Missing unsigned dev release APK: ${unsignedReleaseApk}. Run android:dev:release:verify-local first.`);
+  if (!existsSync(unsignedApkPath)) {
+    throw new Error(`Missing unsigned ${displayName} APK: ${unsignedApkPath}. Run android:dev:release:verify-local first.`);
   }
 
   if (!zipalignCommand || !existsSync(zipalignCommand)) {
@@ -65,12 +59,12 @@ const prepareSignedReleaseSmokeApk = () => {
   }
 
   mkdirSync(outputDir, { recursive: true });
-  rmSync(alignedReleaseApk, { force: true });
-  rmSync(signedReleaseApk, { force: true });
+  rmSync(alignedApkPath, { force: true });
+  rmSync(signedApkPath, { force: true });
 
-  console.log(`Preparing local signed release-smoke APK from ${path.relative(root, unsignedReleaseApk)}`);
-  run('zipalign dev release APK for smoke', zipalignCommand, ['-f', '-p', '4', unsignedReleaseApk, alignedReleaseApk]);
-  run('sign dev release APK for smoke', apksignerCommand, [
+  console.log(`Preparing local signed ${displayName} smoke APK from ${path.relative(root, unsignedApkPath)}`);
+  run(`zipalign ${displayName} APK for smoke`, zipalignCommand, ['-f', '-p', '4', unsignedApkPath, alignedApkPath]);
+  run(`sign ${displayName} APK for smoke`, apksignerCommand, [
     'sign',
     '--ks',
     debugKeystore,
@@ -81,13 +75,13 @@ const prepareSignedReleaseSmokeApk = () => {
     '--key-pass',
     'pass:android',
     '--out',
-    signedReleaseApk,
-    alignedReleaseApk,
+    signedApkPath,
+    alignedApkPath,
   ]);
-  run('verify signed dev release smoke APK', apksignerCommand, ['verify', '--verbose', signedReleaseApk]);
+  run(`verify signed ${displayName} smoke APK`, apksignerCommand, ['verify', '--verbose', signedApkPath]);
 
-  if (!existsSync(signedReleaseApk) || statSync(signedReleaseApk).size === 0) {
-    throw new Error(`Signed release-smoke APK was not created: ${signedReleaseApk}`);
+  if (!existsSync(signedApkPath) || statSync(signedApkPath).size === 0) {
+    throw new Error(`Signed release-smoke APK was not created: ${signedApkPath}`);
   }
 };
 
@@ -100,9 +94,11 @@ try {
   process.exit(1);
 }
 
-process.env.ANDROID_SMOKE_APK ??= signedReleaseApk;
-process.env.ANDROID_SMOKE_SOURCE_APK ??= unsignedReleaseApk;
-process.env.ANDROID_SMOKE_OUTPUT_BASENAME ??= 'android-smoke-dev-release';
+process.env.ANDROID_SMOKE_APK ??= signedApkPath;
+process.env.ANDROID_SMOKE_SOURCE_APK ??= unsignedApkPath;
+process.env.ANDROID_SMOKE_OUTPUT_BASENAME ??= artifactBase;
+process.env.ANDROID_SMOKE_PACKAGE ??= packageName;
+process.env.ANDROID_SMOKE_ACTIVITY ??= `${packageName}/io.goldwallet.wallet.MainActivity`;
 process.env.ANDROID_SMOKE_REQUIRE_METRO ??= 'false';
 process.env.ANDROID_SMOKE_EXPECT_TEXTS ??= 'Wallets,No wallets,Create new wallet,Import wallet';
 process.env.ANDROID_SMOKE_EXPECT_RESOURCE_IDS ??=
