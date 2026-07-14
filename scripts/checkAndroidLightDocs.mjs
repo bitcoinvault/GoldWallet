@@ -12,6 +12,7 @@ const requiredCheckLightScripts = [
   'android:dev:check-warning-guard',
   'android:dev:check-artifact-guard',
   'check:android-dev-env-audit-guard',
+  'check:android-release-smoke-variant-guard',
   'check:android-toolchain-current-guard',
   'check:android-toolchain-current',
   'check:metro-dev-runtime-audit-guard',
