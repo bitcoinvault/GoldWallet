@@ -25,6 +25,7 @@ import { getPushNotificationBridgeSummaryErrors } from './pushNotificationBridge
 import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
 import { getSentryReleaseCredentialPlanErrors } from './sentryReleaseCredentialPlanGuard.mjs';
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
+import { getSentryReleaseValidationHandoffSummaryErrors } from './sentryReleaseValidationHandoffSummaryGuard.mjs';
 import { getSentryRnBundleTaskCompatibilitySummaryErrors } from './sentryRnBundleTaskCompatibilitySummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -88,6 +89,11 @@ export const releaseServicesSummaryArtifacts = [
     label: 'Sentry release credential plan',
     relativePath: 'local-docs/sentry-release-credential-plan.txt',
     getErrors: getSentryReleaseCredentialPlanErrors,
+  },
+  {
+    label: 'Sentry release validation handoff',
+    relativePath: 'local-docs/sentry-release-validation-handoff-summary.txt',
+    getErrors: getSentryReleaseValidationHandoffSummaryErrors,
   },
   {
     label: 'Sentry Android warning',

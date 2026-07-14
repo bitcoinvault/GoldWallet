@@ -86,6 +86,9 @@ const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesV
   'corepack yarn sentry:release:prereq-check-summary',
   'corepack yarn sentry:release:credential-plan',
   'corepack yarn sentry:release:credential-plan:check',
+  'corepack yarn check:sentry-release-validation-handoff-summary-guard',
+  'corepack yarn sentry:release:validation:handoff-summary --skip-android-release',
+  'corepack yarn sentry:release:validation:handoff-summary:check',
   'corepack yarn firebase:release-services:audit',
   'corepack yarn firebase:release-services:check-summary',
   'corepack yarn check:codepush-update-validation-handoff-guard',
@@ -162,8 +165,23 @@ assert(
 );
 assert(
   skippedCommands.findIndex(step => step.args.includes('sentry:release:credential-plan:check')) <
+    skippedCommands.findIndex(step => step.args.includes('check:sentry-release-validation-handoff-summary-guard')),
+  'Sentry release validation handoff summary guard must run after the credential plan is checked',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('check:sentry-release-validation-handoff-summary-guard')) <
+    skippedCommands.findIndex(step => step.args.includes('sentry:release:validation:handoff-summary')),
+  'Sentry release validation handoff summary must run after its guard self-check',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('sentry:release:validation:handoff-summary')) <
+    skippedCommands.findIndex(step => step.args.includes('sentry:release:validation:handoff-summary:check')),
+  'Sentry release validation handoff summary must be checked after it is generated',
+);
+assert(
+  skippedCommands.findIndex(step => step.args.includes('sentry:release:validation:handoff-summary:check')) <
     skippedCommands.findIndex(step => step.args.includes('firebase:release-services:audit')),
-  'Sentry release credential plan must be validated before leaving the Sentry release-service block',
+  'Sentry release validation handoff summary must be checked before leaving the Sentry release-service block',
 );
 assert(
   skippedRendered.includes('corepack yarn check:ios-mac-validation-handoff-guard'),
