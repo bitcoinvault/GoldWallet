@@ -61,3 +61,13 @@ export const getAndroidReleaseSmokeVariantConfig = (root, variant) => {
     artifactBase,
   };
 };
+
+export const getAndroidReleaseCreateWalletSmokeVariantConfig = (root, variant) => {
+  const releaseSmokeConfig = getAndroidReleaseSmokeVariantConfig(root, variant);
+
+  return {
+    ...releaseSmokeConfig,
+    activityName: `${releaseSmokeConfig.packageName}/io.goldwallet.wallet.MainActivity`,
+    artifactBase: `android-create-wallet-smoke-${variant}-release`,
+  };
+};

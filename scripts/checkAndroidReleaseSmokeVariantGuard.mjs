@@ -1,6 +1,7 @@
 import assert from 'assert';
 import path from 'path';
 import {
+  getAndroidReleaseCreateWalletSmokeVariantConfig,
   getAndroidReleaseSmokeVariantConfig,
   parseAndroidReleaseSmokeVariant,
   supportedAndroidReleaseSmokeVariants,
@@ -40,5 +41,14 @@ const betaConfig = getAndroidReleaseSmokeVariantConfig(fixtureRoot, 'beta');
 assert.strictEqual(betaConfig.packageName, 'io.goldwallet.wallet.beta');
 assert.strictEqual(betaConfig.displayName, 'betaRelease');
 assert.strictEqual(betaConfig.artifactBase, 'android-smoke-beta-release');
+
+const prodCreateWalletConfig = getAndroidReleaseCreateWalletSmokeVariantConfig(fixtureRoot, 'prod');
+assert.strictEqual(prodCreateWalletConfig.packageName, 'io.goldwallet.wallet');
+assert.strictEqual(prodCreateWalletConfig.activityName, 'io.goldwallet.wallet/io.goldwallet.wallet.MainActivity');
+assert.strictEqual(
+  prodCreateWalletConfig.signedApkPath,
+  path.join(fixtureRoot, 'local-docs', 'android-smoke-prod-release-signed.apk'),
+);
+assert.strictEqual(prodCreateWalletConfig.artifactBase, 'android-create-wallet-smoke-prod-release');
 
 console.log('Android release smoke variant guard checks passed.');
