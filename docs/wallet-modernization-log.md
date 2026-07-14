@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.893 - Production release create-wallet validation
+
+- Branch: `feature/bem-37-893-production-create-wallet-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Generalize the release create-wallet wrapper and summary checker from hardcoded `devRelease` paths to the guarded `dev`, `stage`, `prod`, and `beta` variant configuration.
+- Add a repeatable `prodRelease` create-wallet verification command that rebuilds release artifacts, runs full production onboarding/navigation/QR smoke, creates a standard wallet, and enters the default 3-key vault integration flow.
+- Keep generated APKs, screenshots, UI hierarchies, logs, wallet names, and summaries under ignored `local-docs/`.
+
+Findings:
+
+- The shared create-wallet helper already supported package/APK overrides; only its release wrapper and release summary checker were hardcoded to `devRelease`.
+- A pre-implementation production proof passed on `emulator-5554`: the app unlocked with the smoke PIN, created a standard wallet through the mnemonic backup screen, then reached the public-key integration screen for a default 3-key vault.
+- The production create-wallet summary is valid against the current locally signed `prodRelease` APK and records no create-wallet error UI or fatal/runtime logcat findings.
+- The shared variant configuration and its create-wallet projection retain 100% line, branch, and function coverage under Node's test coverage runner.
+- This milestone validates empty local wallet creation only. It does not execute funded transactions, claim iOS runtime validation, or clear the separate expired dev/testnet Electrum certificate blocker.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --test --experimental-test-coverage scripts/checkAndroidReleaseSmokeVariantGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-release-smoke-variant-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:prod:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:prod:release:check-create-wallet-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.892 - Production release smoke validation
 
 - Branch: `feature/bem-37-892-production-release-smoke`
