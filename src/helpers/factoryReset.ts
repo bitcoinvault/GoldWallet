@@ -2,7 +2,7 @@ import RNExitApp from 'react-native-exit-app';
 
 import { CONST } from 'app/consts';
 import { BlueApp } from 'app/legacy';
-import { BiometricService, SecureStorageService, StoreService } from 'app/services';
+import { BiometricService, PinSessionVerifier, SecureStorageService, StoreService } from 'app/services';
 import { persistor, store } from 'app/state/store';
 
 export const factoryReset = () => {
@@ -17,6 +17,7 @@ export const factoryReset = () => {
     })
     .then(async () => {
       BiometricService.deleteBiometrics();
+      PinSessionVerifier.clear();
       StoreService.wipeStore();
       SecureStorageService.removeSecuredPassword(CONST.pin);
       SecureStorageService.removeSecuredPassword(CONST.transactionPassword);

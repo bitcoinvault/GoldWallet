@@ -96,6 +96,7 @@ interface State {
   isBetaVersionRiskAccepted: boolean;
   isEmulator: boolean;
   isChamberOfSecretsClosed: boolean;
+  isWalletStorageReady: boolean;
 }
 
 const normalizeNotificationDataValue = (value: string | object | undefined): string | undefined => {
@@ -115,16 +116,23 @@ class Navigator extends React.Component<Props, State> {
     isBetaVersionRiskAccepted: false,
     isEmulator: false,
     isChamberOfSecretsClosed: false,
+    isWalletStorageReady: false,
   };
 
   async componentDidMount() {
     const { checkCredentials, startElectrumXListeners, checkTc, checkConnection, checkUserVersion } = this.props;
 
+    await new Promise<void>(resolve => {
+      checkCredentials({
+        onSuccess: resolve,
+        onFailure: resolve,
+      });
+    });
     await BlueApp.startAndDecrypt();
+    this.setState({ isWalletStorageReady: true });
 
     checkUserVersion();
     checkTc();
-    checkCredentials();
     startElectrumXListeners();
     checkConnection();
     this.initLanguage();
@@ -268,7 +276,7 @@ class Navigator extends React.Component<Props, State> {
   renderRoutes = () => {
     const { isLoading, unlockKey, isAuthenticated, isTcAccepted, userVersion, isToast } = this.props;
 
-    if (isLoading) {
+    if (isLoading || !this.state.isWalletStorageReady) {
       return null;
     }
 

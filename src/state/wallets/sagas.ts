@@ -40,6 +40,10 @@ const BlueElectrum = require('../../../BlueElectrum');
 const i18n = require('../../../loc');
 
 export function* loadWalletsSaga() {
+  const cachedWallets = BlueApp.getWallets();
+
+  yield put(loadWalletsSuccess(cachedWallets));
+
   try {
     yield BlueElectrum.waitTillConnected();
 

@@ -41,6 +41,7 @@ interface State {
   pin: string;
   error: string;
   isCount: boolean;
+  isUnlocked: boolean;
 }
 
 class UnlockScreen extends PureComponent<Props, State> {
@@ -48,6 +49,7 @@ class UnlockScreen extends PureComponent<Props, State> {
     pin: '',
     error: '',
     isCount: true,
+    isUnlocked: false,
   };
 
   async componentDidMount() {
@@ -68,6 +70,7 @@ class UnlockScreen extends PureComponent<Props, State> {
 
       if (result) {
         setIsAuthenticated(true);
+        this.setState({ isUnlocked: true });
       }
     }
   };
@@ -106,20 +109,24 @@ class UnlockScreen extends PureComponent<Props, State> {
     if (this.state.pin.length < CONST.pinCodeLength) {
       this.setState({ pin: this.state.pin + pin }, async () => {
         if (this.state.pin.length === CONST.pinCodeLength) {
-          authenticate(this.state.pin, {
-            onSuccess: () => {
-              setFailedAttempts(0);
-              setFailedAttemptStep(0);
-            },
-            onFailure: () => {
-              const increasedFailedAttemptStep = this.props.timeCounter.failedAttemptStep + 1;
-              const failedTimesError = this.handleFailedAttempt(increasedFailedAttemptStep);
+          const onSuccess = () => {
+            setFailedAttempts(0);
+            setFailedAttemptStep(0);
+            this.setState({ isUnlocked: true, pin: '', error: '' });
+          };
+          const onFailure = () => {
+            const increasedFailedAttemptStep = this.props.timeCounter.failedAttemptStep + 1;
+            const failedTimesError = this.handleFailedAttempt(increasedFailedAttemptStep);
 
-              this.setState({
-                error: i18n.onboarding.pinDoesNotMatch + failedTimesError,
-                pin: '',
-              });
-            },
+            this.setState({
+              error: i18n.onboarding.pinDoesNotMatch + failedTimesError,
+              pin: '',
+            });
+          };
+
+          authenticate(this.state.pin, {
+            onSuccess,
+            onFailure,
           });
         }
       });
@@ -141,7 +148,11 @@ class UnlockScreen extends PureComponent<Props, State> {
   };
 
   render() {
-    const { error, pin } = this.state;
+    const { error, pin, isUnlocked } = this.state;
+
+    if (isUnlocked) {
+      return null;
+    }
 
     if (this.isTimeCounterVisible()) {
       return (
