@@ -32,9 +32,14 @@ const validSummary = [
   'Imported wallet name: ImportSmoke120000',
   'Import success screen reached: yes',
   'Imported wallet visible on dashboard: yes',
+  'App process restart completed: yes',
+  'Unlock screen reached after restart: yes',
+  'Imported wallet visible after restart: yes',
   'No import-wallet error UI: yes',
   'Secure window flag after import: no',
+  'Secure window flag after restart: no',
   'Fatal/runtime logcat findings: no',
+  'Pre-restart App PID: 1233',
   'App PID: 1234',
   'Captured logcat lines: 10',
   'UI hierarchy path: D:\\fixture\\ui.xml',
@@ -57,6 +62,22 @@ const failedSummary = validSummary
   .replace('Imported wallet visible on dashboard: yes', 'Imported wallet visible on dashboard: no');
 
 assert.ok(getAndroidImportWalletSmokeSummaryErrors(failedSummary, { requireArtifacts: false }).length >= 2);
+
+const missingRestartEvidenceSummary = validSummary.replace('App process restart completed: yes\n', '');
+
+assert.ok(
+  getAndroidImportWalletSmokeSummaryErrors(missingRestartEvidenceSummary, { requireArtifacts: false }).some(error =>
+    error.includes('App process restart completed: yes'),
+  ),
+);
+
+const unchangedProcessSummary = validSummary.replace('Pre-restart App PID: 1233', 'Pre-restart App PID: 1234');
+
+assert.ok(
+  getAndroidImportWalletSmokeSummaryErrors(unchangedProcessSummary, { requireArtifacts: false }).some(error =>
+    error.includes('must differ'),
+  ),
+);
 
 const secretLeakingSummary = `${validSummary}\nMnemonic: abandon abandon abandon\nPrivate key: L123`;
 
