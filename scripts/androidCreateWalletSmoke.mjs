@@ -46,8 +46,15 @@ const log = [];
 let smokeOutcome = 'failed';
 let smokeReason = 'not completed';
 let appPid = '';
+let preRestartAppPid = '';
 let standardWalletCreated = false;
 let standardMnemonicReached = false;
+let standardWalletPersistedAfterRestart = false;
+let appProcessRestartCompleted = false;
+let unlockScreenReachedAfterRestart = false;
+let incorrectPinRejectedAfterRestart = false;
+let secureWindowFlagOnMnemonicScreen = 'not checked';
+let secureWindowFlagAfterRestart = 'not checked';
 let vaultNextStepReached = false;
 let noErrorUi = false;
 let fatalRuntimeLogcatFindings = 'not checked';
@@ -174,10 +181,17 @@ const writeSummary = exitCode => {
     `Standard wallet name: ${standardWalletName}`,
     `Standard wallet created: ${standardWalletCreated ? 'yes' : 'no'}`,
     `Standard mnemonic screen reached: ${standardMnemonicReached ? 'yes' : 'no'}`,
+    `Standard wallet persisted after restart: ${standardWalletPersistedAfterRestart ? 'yes' : 'no'}`,
+    `App process restart completed: ${appProcessRestartCompleted ? 'yes' : 'no'}`,
+    `Unlock screen reached after restart: ${unlockScreenReachedAfterRestart ? 'yes' : 'no'}`,
+    `Incorrect PIN rejected after restart: ${incorrectPinRejectedAfterRestart ? 'yes' : 'no'}`,
+    `Secure window flag on mnemonic screen: ${secureWindowFlagOnMnemonicScreen}`,
+    `Secure window flag after restart: ${secureWindowFlagAfterRestart}`,
     `Vault wallet name: ${vaultWalletName}`,
     `Vault next-step reached: ${vaultNextStepReached ? 'yes' : 'no'}`,
     `No create-wallet error UI: ${noErrorUi ? 'yes' : 'no'}`,
     `Fatal/runtime logcat findings: ${fatalRuntimeLogcatFindings}`,
+    `Pre-restart App PID: ${preRestartAppPid || 'not available'}`,
     `App PID: ${appPid || 'not available'}`,
     `Captured logcat lines: ${capturedLogcatLines}`,
     `UI hierarchy path: ${uiOutputPath}`,
@@ -375,14 +389,46 @@ const assertUnlockDigit = digit => {
   }
 };
 
-const unlockIfNeeded = label => {
+const unlockIfNeeded = (label, { requireUnlock = false, verifyIncorrectPin = false } = {}) => {
   let hierarchy = readUiHierarchy(`${label} unlock check`);
 
   if (!hierarchy.includes('resource-id="unlock-screen-logo"')) {
+    if (requireUnlock) {
+      throw new Error(`${label}: unlock screen was not reached after restarting the app process.`);
+    }
     return hierarchy;
   }
 
-  append(`${label}: unlock screen detected; entering test PIN.`);
+  if (requireUnlock) {
+    unlockScreenReachedAfterRestart = true;
+  }
+
+  if (verifyIncorrectPin) {
+    const wrongFinalDigit = unlockPin.at(-1) === '9' ? '0' : String(Number(unlockPin.at(-1)) + 1);
+    const incorrectPin = `${unlockPin.slice(0, -1)}${wrongFinalDigit}`;
+
+    append(`${label}: unlock screen detected; verifying that an incorrect PIN is rejected.`);
+    for (const digit of incorrectPin) {
+      assertUnlockDigit(digit);
+      const digitNode = getNodeByContentDescription(hierarchy, digit);
+
+      if (!digitNode?.enabled) {
+        throw new Error(`${label}: unable to find enabled incorrect unlock PIN digit ${digit}.`);
+      }
+
+      tapNodeCenter(digitNode);
+      sleep(250);
+      hierarchy = readUiHierarchy(`${label} after incorrect unlock digit ${digit}`);
+    }
+    sleep(500);
+    hierarchy = readUiHierarchy(`${label} after incorrect unlock PIN`);
+    if (!hierarchy.includes('resource-id="unlock-screen-logo"')) {
+      throw new Error(`${label}: app left the unlock screen after an incorrect test PIN.`);
+    }
+    incorrectPinRejectedAfterRestart = true;
+  }
+
+  append(`${label}: entering the configured test PIN.`);
   for (const digit of unlockPin.split('')) {
     assertUnlockDigit(digit);
     const digitNode = getNodeByContentDescription(hierarchy, digit);
@@ -405,8 +451,8 @@ const unlockIfNeeded = label => {
   return hierarchy;
 };
 
-const assertReadyDashboard = label => {
-  let hierarchy = unlockIfNeeded(label);
+const assertReadyDashboard = (label, unlockOptions) => {
+  let hierarchy = unlockIfNeeded(label, unlockOptions);
   if (!hierarchy.includes('resource-id="dashboard-header"')) {
     hierarchy = waitForResourceIds(label, ['dashboard-header'], { failOnCreateWalletError: false });
   }
@@ -475,16 +521,78 @@ const createStandardWallet = dashboardHierarchy => {
   assertNoCreateWalletError(successScreen);
   standardWalletCreated = true;
   standardMnemonicReached = true;
+  assertSecureWindowFlag('mnemonic', true);
   append('Standard wallet reached mnemonic backup screen.');
 };
 
-const restartAppAndWaitForDashboard = label => {
+const readAppPid = label => {
+  const pid = run(label, ['shell', 'pidof', packageName], { printOutput: false }).trim().split(/\s+/)[0] || '';
+
+  if (!pid) {
+    throw new Error(`Unable to find running process for ${packageName}.`);
+  }
+
+  return pid;
+};
+
+const assertSecureWindowFlag = (phase, expectedSecure) => {
+  const windowState = run(`read Android window state on ${phase}`, ['shell', 'dumpsys', 'window', 'windows'], {
+    printOutput: false,
+  });
+  const activityIndex = windowState.indexOf(activityName);
+
+  if (activityIndex === -1) {
+    throw new Error(`Unable to find ${activityName} in Android window state on ${phase}.`);
+  }
+
+  const nextWindowIndex = windowState.indexOf('\n  Window #', activityIndex + activityName.length);
+  const activityWindow = windowState.slice(activityIndex, nextWindowIndex === -1 ? undefined : nextWindowIndex);
+  const isSecure = /\bSECURE\b/.test(activityWindow);
+
+  if (phase === 'mnemonic') {
+    secureWindowFlagOnMnemonicScreen = isSecure ? 'yes' : 'no';
+  } else {
+    secureWindowFlagAfterRestart = isSecure ? 'yes' : 'no';
+  }
+
+  if (isSecure !== expectedSecure) {
+    throw new Error(`Android FLAG_SECURE on ${phase} was ${isSecure ? 'enabled' : 'disabled'}; expected ${expectedSecure ? 'enabled' : 'disabled'}.`);
+  }
+};
+
+const restartAppAndWaitForDashboard = (label, { requirePersistedStandardWallet = false } = {}) => {
+  if (requirePersistedStandardWallet) {
+    preRestartAppPid = readAppPid('read pre-restart app pid');
+  }
   run(`${label}: force-stop app`, ['shell', 'am', 'force-stop', packageName]);
   sleep(1000);
   run(`${label}: launch app`, ['shell', 'am', 'start', '-W', '-n', activityName]);
   sleep(6000);
 
-  return assertReadyDashboard(label);
+  let dashboard = assertReadyDashboard(
+    label,
+    requirePersistedStandardWallet ? { requireUnlock: true, verifyIncorrectPin: true } : undefined,
+  );
+
+  if (!requirePersistedStandardWallet) {
+    return dashboard;
+  }
+
+  const walletCardResourceId = `wallet-${standardWalletName}-card`;
+  if (!dashboard.includes(`resource-id="${walletCardResourceId}"`)) {
+    dashboard = waitForResourceIds('persisted standard wallet after restart', ['dashboard-header', walletCardResourceId]);
+  }
+
+  appPid = readAppPid('read restarted app pid');
+  if (appPid === preRestartAppPid) {
+    throw new Error(`App PID did not change after force-stop: ${appPid}.`);
+  }
+
+  standardWalletPersistedAfterRestart = true;
+  appProcessRestartCompleted = true;
+  assertSecureWindowFlag('restart', false);
+
+  return dashboard;
 };
 
 const createVaultWallet = dashboardHierarchy => {
@@ -511,12 +619,7 @@ const createVaultWallet = dashboardHierarchy => {
 };
 
 const captureLogcatFindings = () => {
-  const pidOutput = run('read app pid', ['shell', 'pidof', packageName], { printOutput: false }).trim();
-
-  appPid = pidOutput.split(/\s+/).find(Boolean) || '';
-  if (!appPid) {
-    throw new Error(`Unable to find running process for ${packageName} after create-wallet flows.`);
-  }
+  appPid = readAppPid('read app pid');
 
   const logcat = run('read create-wallet logcat', ['logcat', '-d', '--pid', appPid, '-t', String(logcatLineLimit)], {
     printOutput: false,
@@ -579,6 +682,14 @@ try {
     );
   }
 
+  if (!/^[A-Za-z][A-Za-z0-9_-]{2,40}$/.test(standardWalletName)) {
+    throw new Error('ANDROID_CREATE_WALLET_STANDARD_NAME must be a shell-safe wallet name without spaces.');
+  }
+
+  if (!/^[A-Za-z][A-Za-z0-9_-]{2,40}$/.test(vaultWalletName)) {
+    throw new Error('ANDROID_CREATE_WALLET_VAULT_NAME must be a shell-safe wallet name without spaces.');
+  }
+
   if (!existsSync(apkPath)) {
     throw new Error(`APK not found: ${apkPath}. Run corepack yarn android:dev:assemble first.`);
   }
@@ -624,7 +735,9 @@ try {
   const initialDashboard = restartAppAndWaitForDashboard('initial create-wallet smoke launch');
 
   createStandardWallet(initialDashboard);
-  const dashboardAfterStandardWallet = restartAppAndWaitForDashboard('dashboard after standard wallet creation');
+  const dashboardAfterStandardWallet = restartAppAndWaitForDashboard('dashboard after standard wallet creation', {
+    requirePersistedStandardWallet: true,
+  });
 
   createVaultWallet(dashboardAfterStandardWallet);
   captureLogcatFindings();
@@ -632,7 +745,7 @@ try {
 
   noErrorUi = true;
   smokeOutcome = 'passed';
-  smokeReason = 'standard wallet and vault create flows reached expected screens without error UI or fatal/runtime logcat findings';
+  smokeReason = 'standard wallet persisted across restart and vault create flow reached the expected screen without secret leakage, error UI, or fatal/runtime logcat findings';
   append('\nAndroid create-wallet smoke helper completed.');
   finish(0);
 } catch (error) {
