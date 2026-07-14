@@ -1,5 +1,7 @@
 const path = require('path');
 
+const disableLegacySecureStorage = process.env.GOLDWALLET_DISABLE_LEGACY_SECURE_STORAGE === '1';
+
 module.exports = {
   dependencies: {
     'react-native-config': {
@@ -11,6 +13,15 @@ module.exports = {
         },
       },
     },
+    ...(disableLegacySecureStorage
+      ? {
+          'react-native-secure-key-store': {
+            platforms: {
+              android: null,
+            },
+          },
+        }
+      : {}),
   },
   project: {
     ios: {},

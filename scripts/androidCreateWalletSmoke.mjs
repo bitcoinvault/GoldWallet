@@ -3,12 +3,14 @@ import { createHash } from 'crypto';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
 import { formatAdbFailureReason, runAdbProcessWithRetry } from './androidAdbRetry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
-const requestedOutputBaseName = process.env.ANDROID_CREATE_WALLET_SMOKE_OUTPUT_BASENAME || 'android-create-wallet-smoke';
+const requestedOutputBaseName =
+  process.env.ANDROID_CREATE_WALLET_SMOKE_OUTPUT_BASENAME || 'android-create-wallet-smoke';
 const isSafeOutputBaseName = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(requestedOutputBaseName);
 const outputBaseName = isSafeOutputBaseName ? requestedOutputBaseName : 'android-create-wallet-smoke';
 const outputPath = path.join(outputDir, `${outputBaseName}.log`);
@@ -28,8 +30,11 @@ const uiWaitMs = Number(process.env.ANDROID_CREATE_WALLET_SMOKE_UI_WAIT_MS || 90
 const uiPollIntervalMs = Number(process.env.ANDROID_CREATE_WALLET_SMOKE_UI_POLL_INTERVAL_MS || 1000);
 const logcatLineLimit = Number(process.env.ANDROID_CREATE_WALLET_SMOKE_LOGCAT_LINES || 1200);
 const unlockPin = process.env.ANDROID_SMOKE_PIN || '1111';
-const standardWalletName = process.env.ANDROID_CREATE_WALLET_STANDARD_NAME || `Std${new Date().toISOString().replace(/\D/g, '').slice(8, 14)}`;
-const vaultWalletName = process.env.ANDROID_CREATE_WALLET_VAULT_NAME || `Vault${new Date().toISOString().replace(/\D/g, '').slice(8, 14)}`;
+const verifyExistingWalletOnly = process.env.ANDROID_CREATE_WALLET_VERIFY_EXISTING_ONLY === 'true';
+const standardWalletName =
+  process.env.ANDROID_CREATE_WALLET_STANDARD_NAME || `Std${new Date().toISOString().replace(/\D/g, '').slice(8, 14)}`;
+const vaultWalletName =
+  process.env.ANDROID_CREATE_WALLET_VAULT_NAME || `Vault${new Date().toISOString().replace(/\D/g, '').slice(8, 14)}`;
 
 const sdkRoots = [
   process.env.ANDROID_HOME,
@@ -46,13 +51,14 @@ const log = [];
 let smokeOutcome = 'failed';
 let smokeReason = 'not completed';
 let appPid = '';
-let preRestartAppPid = '';
+let preRestartAppPid = process.env.ANDROID_CREATE_WALLET_PRE_RESTART_PID || '';
 let standardWalletCreated = false;
 let standardMnemonicReached = false;
 let standardWalletPersistedAfterRestart = false;
 let appProcessRestartCompleted = false;
 let unlockScreenReachedAfterRestart = false;
 let incorrectPinRejectedAfterRestart = false;
+let correctPinAcceptedAfterRestart = false;
 let secureWindowFlagOnMnemonicScreen = 'not checked';
 let secureWindowFlagAfterRestart = 'not checked';
 let vaultNextStepReached = false;
@@ -96,8 +102,13 @@ const fileEvidence = filePath => {
 
 const run = (label, args, options = {}) => {
   append(`\n> ${label}`);
-  const { allowDumpSuccessOutput = false, printOutput = true, recordOutput = true, useSelectedDevice = true, ...spawnOptions } =
-    options;
+  const {
+    allowDumpSuccessOutput = false,
+    printOutput = true,
+    recordOutput = true,
+    useSelectedDevice = true,
+    ...spawnOptions
+  } = options;
   const result = runAdbProcessWithRetry({
     adbCommand,
     args,
@@ -185,6 +196,7 @@ const writeSummary = exitCode => {
     `App process restart completed: ${appProcessRestartCompleted ? 'yes' : 'no'}`,
     `Unlock screen reached after restart: ${unlockScreenReachedAfterRestart ? 'yes' : 'no'}`,
     `Incorrect PIN rejected after restart: ${incorrectPinRejectedAfterRestart ? 'yes' : 'no'}`,
+    `Correct PIN accepted after restart: ${correctPinAcceptedAfterRestart ? 'yes' : 'no'}`,
     `Secure window flag on mnemonic screen: ${secureWindowFlagOnMnemonicScreen}`,
     `Secure window flag after restart: ${secureWindowFlagAfterRestart}`,
     `Vault wallet name: ${vaultWalletName}`,
@@ -226,10 +238,15 @@ const readUiHierarchy = label => {
   run(`dump UI hierarchy ${label}`, ['shell', 'uiautomator', 'dump', '/sdcard/goldwallet-create-wallet-window.xml'], {
     allowDumpSuccessOutput: true,
   });
-  const hierarchy = run(`read UI hierarchy ${label}`, ['exec-out', 'cat', '/sdcard/goldwallet-create-wallet-window.xml'], {
-    printOutput: false,
-    recordOutput: false,
-  });
+  const hierarchy = run(
+    `read UI hierarchy ${label}`,
+    ['exec-out', 'cat', '/sdcard/goldwallet-create-wallet-window.xml'],
+    {
+      printOutput: false,
+      recordOutput: false,
+    },
+  );
+
   writeFileSync(uiOutputPath, hierarchy);
 
   return hierarchy;
@@ -448,11 +465,16 @@ const unlockIfNeeded = (label, { requireUnlock = false, verifyIncorrectPin = fal
     throw new Error(`${label}: unlock screen is still visible after entering the test PIN.`);
   }
 
+  if (requireUnlock) {
+    correctPinAcceptedAfterRestart = true;
+  }
+
   return hierarchy;
 };
 
 const assertReadyDashboard = (label, unlockOptions) => {
   let hierarchy = unlockIfNeeded(label, unlockOptions);
+
   if (!hierarchy.includes('resource-id="dashboard-header"')) {
     hierarchy = waitForResourceIds(label, ['dashboard-header'], { failOnCreateWalletError: false });
   }
@@ -556,13 +578,15 @@ const assertSecureWindowFlag = (phase, expectedSecure) => {
   }
 
   if (isSecure !== expectedSecure) {
-    throw new Error(`Android FLAG_SECURE on ${phase} was ${isSecure ? 'enabled' : 'disabled'}; expected ${expectedSecure ? 'enabled' : 'disabled'}.`);
+    throw new Error(
+      `Android FLAG_SECURE on ${phase} was ${isSecure ? 'enabled' : 'disabled'}; expected ${expectedSecure ? 'enabled' : 'disabled'}.`,
+    );
   }
 };
 
 const restartAppAndWaitForDashboard = (label, { requirePersistedStandardWallet = false } = {}) => {
   if (requirePersistedStandardWallet) {
-    preRestartAppPid = readAppPid('read pre-restart app pid');
+    preRestartAppPid ||= readAppPid('read pre-restart app pid');
   }
   run(`${label}: force-stop app`, ['shell', 'am', 'force-stop', packageName]);
   sleep(1000);
@@ -579,8 +603,12 @@ const restartAppAndWaitForDashboard = (label, { requirePersistedStandardWallet =
   }
 
   const walletCardResourceId = `wallet-${standardWalletName}-card`;
+
   if (!dashboard.includes(`resource-id="${walletCardResourceId}"`)) {
-    dashboard = waitForResourceIds('persisted standard wallet after restart', ['dashboard-header', walletCardResourceId]);
+    dashboard = waitForResourceIds('persisted standard wallet after restart', [
+      'dashboard-header',
+      walletCardResourceId,
+    ]);
   }
 
   appPid = readAppPid('read restarted app pid');
@@ -721,17 +749,36 @@ try {
   }
 
   if (androidSerial && !deviceSerials.includes(androidSerial)) {
-    throw new Error(`ANDROID_SERIAL=${androidSerial} is not connected. Connected device(s): ${deviceSerials.join(', ')}`);
+    throw new Error(
+      `ANDROID_SERIAL=${androidSerial} is not connected. Connected device(s): ${deviceSerials.join(', ')}`,
+    );
   }
 
   if (!androidSerial && deviceSerials.length > 1) {
-    throw new Error(`Multiple Android devices/emulators connected: ${deviceSerials.join(', ')}. Set ANDROID_SERIAL to choose one.`);
+    throw new Error(
+      `Multiple Android devices/emulators connected: ${deviceSerials.join(', ')}. Set ANDROID_SERIAL to choose one.`,
+    );
   }
 
   selectedAndroidSerial = androidSerial || deviceSerials[0];
   append(`Using Android serial: ${selectedAndroidSerial}`);
 
   run('clear logcat', ['logcat', '-c']);
+
+  if (verifyExistingWalletOnly) {
+    restartAppAndWaitForDashboard('upgrade-in-place persisted wallet launch', {
+      requirePersistedStandardWallet: true,
+    });
+    captureLogcatFindings();
+    runBinary('capture upgrade-in-place wallet screenshot', ['exec-out', 'screencap', '-p'], screenshotOutputPath);
+
+    noErrorUi = true;
+    smokeOutcome = 'passed';
+    smokeReason = 'persisted wallet unlocked after APK update without the legacy secure-storage native module';
+    append('\nAndroid existing-wallet upgrade smoke helper completed.');
+    finish(0);
+  }
+
   const initialDashboard = restartAppAndWaitForDashboard('initial create-wallet smoke launch');
 
   createStandardWallet(initialDashboard);
@@ -745,7 +792,8 @@ try {
 
   noErrorUi = true;
   smokeOutcome = 'passed';
-  smokeReason = 'standard wallet persisted across restart and vault create flow reached the expected screen without secret leakage, error UI, or fatal/runtime logcat findings';
+  smokeReason =
+    'standard wallet persisted across restart and vault create flow reached the expected screen without secret leakage, error UI, or fatal/runtime logcat findings';
   append('\nAndroid create-wallet smoke helper completed.');
   finish(0);
 } catch (error) {

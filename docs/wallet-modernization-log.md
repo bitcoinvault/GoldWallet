@@ -37,6 +37,48 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
 - `git diff --check`
 
+### BEM-37.897 - Secure-storage upgrade-in-place release proof
+
+- Branch: `feature/bem-37-897-secure-storage-upgrade-in-place-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a local-only Android release validation mode that excludes `react-native-secure-key-store` from generated Android autolinking while leaving normal builds unchanged.
+- Build and sign a normal `prodRelease`, create a PIN-protected wallet, then build and sign a fallback-disabled `prodRelease` candidate with the same local signing key.
+- Install the candidate over the baseline with `adb install -r` and verify the preserved Keychain-backed PIN and wallet data on a real emulator.
+- Add a secret-safe summary contract covering APK digests, native package linkage, update installation, PIN behavior, wallet persistence, process replacement, `FLAG_SECURE`, and fatal/runtime logcat findings.
+
+Findings:
+
+- The normal baseline linked `RNSecureKeyStorePackage`; the fallback-disabled candidate did not include it in generated `PackageList.java`.
+- React Native autolinking caches generated configuration independently of the validation environment flag, so the driver must remove only generated autolinking directories before each baseline/candidate build.
+- The driver also removes generated candidate autolinking after both success and failure so later normal builds cannot inherit the validation-only native-package exclusion.
+- The first local build attempt correctly exposed missing Sentry upload credentials; both evidence builds now set the existing repo-standard `SENTRY_DISABLE_AUTO_UPLOAD=true` and do not claim credentialed Sentry upload validation.
+- Baseline and candidate APK SHA-256 digests differ, and the candidate installed successfully with `adb install -r` without clearing application data.
+- On `emulator-5554`, the final single-command run proved that wallet `UpgradeFinal897` survived the APK update; the unlock screen appeared, an incorrect PIN was rejected, the correct PIN was accepted, the exact wallet card was visible, and the app PID changed from `29020` to `29614`.
+- The final screenshot shows the persisted HD P2SH wallet dashboard, `FLAG_SECURE` is disabled after unlock as expected, and 1,227 captured process logcat lines contain no fatal/runtime finding.
+- This proves upgrade-in-place behavior for current data already written to Keychain. It does not prove that every historical install has migrated legacy-only PIN, transaction-password, and encrypted-wallet values, so permanent package removal remains blocked.
+- A subsequent normal `devDebug` build restored `RNSecureKeyStorePackage` in generated `PackageList.java`, proving that the validation-only exclusion did not leak into the normal build path.
+- The normal dev smoke reached the known external testnet `No network` overlay after onboarding and could not claim dashboard/QR/Terms coverage. The controlled no-network smoke passed against the same APK with no fatal Android or React Native runtime findings.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-upgrade-in-place-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:legacy-android-autolink`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:secure-storage:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn secure-storage:upgrade-in-place:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 node scripts/runSecureStorageUpgradeInPlaceValidation.mjs --resume-candidate`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:upgrade-in-place:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `rg -n "RNSecureKeyStorePackage" android\app\build\generated\autolinking\src\main\java\com\facebook\react\PackageList.java`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:embedded` (expected external blocker: testnet `No network`, not a runtime crash)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn audit --groups dependencies --json`
+- `git diff --check`
+
 ### BEM-37.895 - Production import persistence after process restart
 
 - Branch: `feature/bem-37-895-production-import-persistence-smoke`

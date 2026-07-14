@@ -1,16 +1,15 @@
+import { spawnSync } from 'child_process';
 import { existsSync, mkdirSync, rmSync, statSync } from 'fs';
 import path from 'path';
-import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
-import {
-  getAndroidReleaseSmokeVariantConfig,
-  parseAndroidReleaseSmokeVariant,
-} from './androidReleaseSmokeVariant.mjs';
+
+import { getAndroidReleaseSmokeVariantConfig, parseAndroidReleaseSmokeVariant } from './androidReleaseSmokeVariant.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'local-docs');
 const releaseVariant = parseAndroidReleaseSmokeVariant(process.argv.slice(2));
+const prepareOnly = process.argv.includes('--prepare-only');
 const releaseSmokeConfig = getAndroidReleaseSmokeVariantConfig(root, releaseVariant);
 const { displayName, packageName, unsignedApkPath, alignedApkPath, signedApkPath, artifactBase } = releaseSmokeConfig;
 const buildToolsDir = [
@@ -19,8 +18,10 @@ const buildToolsDir = [
   process.env.ANDROID_SDK_ROOT && path.join(process.env.ANDROID_SDK_ROOT, 'build-tools', '36.0.0'),
   process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk', 'build-tools', '36.0.0'),
 ].find(candidate => candidate && existsSync(candidate));
-const zipalignCommand = buildToolsDir && path.join(buildToolsDir, process.platform === 'win32' ? 'zipalign.exe' : 'zipalign');
-const apksignerCommand = buildToolsDir && path.join(buildToolsDir, process.platform === 'win32' ? 'apksigner.bat' : 'apksigner');
+const zipalignCommand =
+  buildToolsDir && path.join(buildToolsDir, process.platform === 'win32' ? 'zipalign.exe' : 'zipalign');
+const apksignerCommand =
+  buildToolsDir && path.join(buildToolsDir, process.platform === 'win32' ? 'apksigner.bat' : 'apksigner');
 const debugKeystore =
   process.env.ANDROID_RELEASE_SMOKE_KEYSTORE ||
   (process.env.USERPROFILE && path.join(process.env.USERPROFILE, '.android', 'debug.keystore')) ||
@@ -37,13 +38,16 @@ const run = (label, command, args) => {
 
   if (result.error || result.status !== 0) {
     const reason = result.error?.message || `exit ${result.status}`;
+
     throw new Error(`${label} failed: ${reason}`);
   }
 };
 
 const prepareSignedReleaseSmokeApk = () => {
   if (!existsSync(unsignedApkPath)) {
-    throw new Error(`Missing unsigned ${displayName} APK: ${unsignedApkPath}. Run android:dev:release:verify-local first.`);
+    throw new Error(
+      `Missing unsigned ${displayName} APK: ${unsignedApkPath}. Run android:dev:release:verify-local first.`,
+    );
   }
 
   if (!zipalignCommand || !existsSync(zipalignCommand)) {
@@ -55,7 +59,9 @@ const prepareSignedReleaseSmokeApk = () => {
   }
 
   if (!debugKeystore || !existsSync(debugKeystore)) {
-    throw new Error('Debug keystore not found. Expected ANDROID_RELEASE_SMOKE_KEYSTORE or the default Android debug keystore.');
+    throw new Error(
+      'Debug keystore not found. Expected ANDROID_RELEASE_SMOKE_KEYSTORE or the default Android debug keystore.',
+    );
   }
 
   mkdirSync(outputDir, { recursive: true });
@@ -86,12 +92,17 @@ const prepareSignedReleaseSmokeApk = () => {
 };
 
 try {
-  if (!process.env.ANDROID_SMOKE_APK) {
+  if (!process.env.ANDROID_SMOKE_APK || prepareOnly) {
     prepareSignedReleaseSmokeApk();
   }
 } catch (error) {
   console.error(error.message);
   process.exit(1);
+}
+
+if (prepareOnly) {
+  console.log(`Prepared signed ${displayName} APK without installing it: ${signedApkPath}`);
+  process.exit(0);
 }
 
 process.env.ANDROID_SMOKE_APK ??= signedApkPath;
