@@ -123,7 +123,15 @@ export class ImportWalletScreen extends Component<Props, State> {
       buttonProps: {
         title: i18n.message.returnToDashboard,
         onPress: () => {
-          this.props.navigation.navigate(Route.MainTabStackNavigator, { screen: Route.Dashboard });
+          this.props.navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: Route.MainTabStackNavigator,
+                params: { screen: Route.Dashboard },
+              },
+            ],
+          });
         },
       },
     });

@@ -1,7 +1,8 @@
 import assert from 'assert';
 import path from 'path';
-import { getAndroidImportWalletSmokeSummaryErrors } from './checkAndroidImportWalletSmokeSummary.mjs';
+
 import { getAndroidReleaseImportWalletSmokeVariantConfig } from './androidReleaseSmokeVariant.mjs';
+import { getAndroidImportWalletSmokeSummaryErrors } from './checkAndroidImportWalletSmokeSummary.mjs';
 
 const fixtureRoot = path.resolve('D:/fixture/GoldWallet');
 const prodConfig = getAndroidReleaseImportWalletSmokeVariantConfig(fixtureRoot, 'prod');
@@ -27,11 +28,12 @@ const validSummary = [
   'Source APK bytes: 123',
   `Source APK sha256: ${'a'.repeat(64)}`,
   'Import fixture type: public-watch-only-address',
-  'Import fixture address: RAvAthYyPGVEUMWRHBwod63XSKYcx6aF28',
+  'Import fixture address: royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u',
   'Imported wallet name: ImportSmoke120000',
   'Import success screen reached: yes',
   'Imported wallet visible on dashboard: yes',
   'No import-wallet error UI: yes',
+  'Secure window flag after import: no',
   'Fatal/runtime logcat findings: no',
   'App PID: 1234',
   'Captured logcat lines: 10',
@@ -57,6 +59,7 @@ const failedSummary = validSummary
 assert.ok(getAndroidImportWalletSmokeSummaryErrors(failedSummary, { requireArtifacts: false }).length >= 2);
 
 const secretLeakingSummary = `${validSummary}\nMnemonic: abandon abandon abandon\nPrivate key: L123`;
+
 assert.ok(
   getAndroidImportWalletSmokeSummaryErrors(secretLeakingSummary, { requireArtifacts: false }).some(error =>
     error.includes('secret-bearing fields'),
