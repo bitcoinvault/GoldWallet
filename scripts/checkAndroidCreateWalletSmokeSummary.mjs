@@ -73,6 +73,7 @@ export const getAndroidCreateWalletSmokeSummaryErrors = (summary, options = {}) 
   const {
     expectedApkPath: expectedSourceApkPath = debugApkPath,
     expectedArtifactBase,
+    requireArtifacts = true,
   } = options;
 
   if (!isIsoTimestamp(getLineValue(summary, 'Generated at'))) {
@@ -84,6 +85,12 @@ export const getAndroidCreateWalletSmokeSummaryErrors = (summary, options = {}) 
     'Android create-wallet smoke exit code: 0',
     'Standard wallet created: yes',
     'Standard mnemonic screen reached: yes',
+    'Standard wallet persisted after restart: yes',
+    'App process restart completed: yes',
+    'Unlock screen reached after restart: yes',
+    'Incorrect PIN rejected after restart: yes',
+    'Secure window flag on mnemonic screen: yes',
+    'Secure window flag after restart: no',
     'Vault next-step reached: yes',
     'No create-wallet error UI: yes',
     'Fatal/runtime logcat findings: no',
@@ -105,25 +112,38 @@ export const getAndroidCreateWalletSmokeSummaryErrors = (summary, options = {}) 
     errors.push(`Artifact base must be ${expectedArtifactBase}. Received: ${getLineValue(summary, 'Artifact base') || 'missing'}`);
   }
 
-  ['App PID', 'Captured logcat lines', 'Screenshot bytes'].forEach(label => {
+  ['Pre-restart App PID', 'App PID', 'Captured logcat lines', 'Screenshot bytes'].forEach(label => {
     if (!isPositiveInteger(getLineValue(summary, label))) {
       errors.push(`${label} must be a positive integer`);
     }
   });
 
-  requireFileEvidence(
-    summary,
-    {
-      pathLabel: 'Source APK path',
-      bytesLabel: 'Source APK bytes',
-      shaLabel: 'Source APK sha256',
-      expectedPath: expectedSourceApkPath,
-    },
-    errors,
-  );
-  requireExistingFile(summary, 'UI hierarchy path', errors);
-  requireExistingFile(summary, 'Logcat path', errors);
-  requireExistingFile(summary, 'Screenshot path', errors);
+  const preRestartAppPid = getLineValue(summary, 'Pre-restart App PID');
+  const restartedAppPid = getLineValue(summary, 'App PID');
+
+  if (isPositiveInteger(preRestartAppPid) && preRestartAppPid === restartedAppPid) {
+    errors.push('Pre-restart App PID and App PID must differ after a process restart');
+  }
+
+  if (/^(Mnemonic|Seed phrase|Private key|WIF|Secret):/im.test(summary)) {
+    errors.push('Summary must not contain secret-bearing fields');
+  }
+
+  if (requireArtifacts) {
+    requireFileEvidence(
+      summary,
+      {
+        pathLabel: 'Source APK path',
+        bytesLabel: 'Source APK bytes',
+        shaLabel: 'Source APK sha256',
+        expectedPath: expectedSourceApkPath,
+      },
+      errors,
+    );
+    requireExistingFile(summary, 'UI hierarchy path', errors);
+    requireExistingFile(summary, 'Logcat path', errors);
+    requireExistingFile(summary, 'Screenshot path', errors);
+  }
 
   return errors;
 };
