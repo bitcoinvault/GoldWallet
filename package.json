@@ -301,6 +301,7 @@
     "check:android-smoke-storage-preflight-guard": "node scripts/checkAndroidSmokeStoragePreflightGuard.mjs",
     "check:android-smoke-ui-dump-timeout-guard": "node scripts/checkAndroidSmokeUiDumpTimeoutGuard.mjs",
     "check:android-release-smoke-variant-guard": "node scripts/checkAndroidReleaseSmokeVariantGuard.mjs",
+    "check:android-import-wallet-smoke-summary-guard": "node scripts/checkAndroidImportWalletSmokeSummaryGuard.mjs",
     "check:metro-dev-runtime-audit-guard": "node scripts/checkMetroDevRuntimeGuard.mjs",
     "check:rn-upgrade-path-audit-guard": "node scripts/checkReactNativeUpgradePathGuard.mjs",
     "android:dev:check-artifacts": "node scripts/checkAndroidValidationArtifacts.mjs",
