@@ -2,7 +2,7 @@ import logger from 'app/../logger';
 import { takeLatest, takeEvery, put, call } from 'redux-saga/effects';
 
 import { CONST, USER_VERSIONS } from 'app/consts';
-import { SecureStorageService, StoreService } from 'app/services';
+import { PinSessionVerifier, SecureStorageService, StoreService } from 'app/services';
 
 import {
   createTxPasswordSuccess,
@@ -35,16 +35,18 @@ export function* checkCredentialsSaga(action: CheckCredentialsAction | unknown) 
       isTxPasswordSet: !!transactionPassword,
     };
 
+    PinSessionVerifier.setPin(pin);
     yield put(checkCredentialsSuccess(credentials));
     if (meta?.onSuccess) {
       meta.onSuccess(credentials);
     }
   } catch (e) {
-    if (e instanceof Error) {
-      yield put(checkCredentialsFailure(e.message));
-      if (meta?.onFailure) {
-        meta.onFailure(e.message);
-      }
+    PinSessionVerifier.clear();
+    const errorMessage = e instanceof Error ? e.message : String(e);
+
+    yield put(checkCredentialsFailure(errorMessage));
+    if (meta?.onFailure) {
+      meta.onFailure(errorMessage);
     }
 
     logger.captureException(e);
@@ -55,9 +57,13 @@ export function* authenticateSaga(action: AuthenticateAction | unknown) {
   const { meta, payload } = action as AuthenticateAction;
 
   try {
-    const storedPin: string = yield call(SecureStorageService.getSecuredValue, CONST.pin);
+    if (!PinSessionVerifier.hasPin()) {
+      const storedPin: string = yield call(SecureStorageService.getSecuredValue, CONST.pin);
 
-    if (payload.pin !== storedPin) {
+      PinSessionVerifier.setPin(storedPin);
+    }
+
+    if (!PinSessionVerifier.matches(payload.pin)) {
       throw new Error('Wrong pin');
     }
     yield put(authenticateSuccess());
@@ -84,6 +90,7 @@ export function* createPinSaga(action: CreatePinAction | unknown) {
   try {
     yield call(SecureStorageService.setSecuredValue, CONST.pin, payload.pin);
 
+    PinSessionVerifier.setPin(payload.pin);
     yield put(createPinSuccess());
 
     if (meta?.onSuccess) {

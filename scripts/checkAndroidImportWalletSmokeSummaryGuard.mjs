@@ -34,6 +34,7 @@ const validSummary = [
   'Imported wallet visible on dashboard: yes',
   'App process restart completed: yes',
   'Unlock screen reached after restart: yes',
+  'Incorrect PIN rejected after restart: yes',
   'Imported wallet visible after restart: yes',
   'No import-wallet error UI: yes',
   'Secure window flag after import: no',

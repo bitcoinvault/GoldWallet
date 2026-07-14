@@ -91,8 +91,13 @@ export const getAndroidImportWalletSmokeSummaryErrors = (summary, options = {}) 
     'Import fixture type: public-watch-only-address',
     'Import success screen reached: yes',
     'Imported wallet visible on dashboard: yes',
+    'App process restart completed: yes',
+    'Unlock screen reached after restart: yes',
+    'Incorrect PIN rejected after restart: yes',
+    'Imported wallet visible after restart: yes',
     'No import-wallet error UI: yes',
     'Secure window flag after import: no',
+    'Secure window flag after restart: no',
     'Fatal/runtime logcat findings: no',
   ].forEach(expectedLine => {
     if (!hasLine(summary, expectedLine)) {
@@ -123,11 +128,18 @@ export const getAndroidImportWalletSmokeSummaryErrors = (summary, options = {}) 
     errors.push('Import fixture address must be a public BTCV address');
   }
 
-  ['App PID', 'Captured logcat lines', 'Screenshot bytes'].forEach(label => {
+  ['Pre-restart App PID', 'App PID', 'Captured logcat lines', 'Screenshot bytes'].forEach(label => {
     if (!isPositiveInteger(getLineValue(summary, label))) {
       errors.push(`${label} must be a positive integer`);
     }
   });
+
+  const preRestartAppPid = getLineValue(summary, 'Pre-restart App PID');
+  const restartedAppPid = getLineValue(summary, 'App PID');
+
+  if (isPositiveInteger(preRestartAppPid) && preRestartAppPid === restartedAppPid) {
+    errors.push('Pre-restart App PID and App PID must differ after a process restart');
+  }
 
   if (/^(Mnemonic|Seed phrase|Private key|WIF|Secret):/im.test(summary)) {
     errors.push('Summary must not contain secret-bearing fields');

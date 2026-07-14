@@ -49,10 +49,16 @@ const log = [];
 let smokeOutcome = 'failed';
 let smokeReason = 'not completed';
 let appPid = '';
+let preRestartAppPid = '';
 let importSuccessScreenReached = false;
 let importedWalletVisible = false;
+let appProcessRestartCompleted = false;
+let unlockScreenReachedAfterRestart = false;
+let incorrectPinRejectedAfterRestart = false;
+let importedWalletVisibleAfterRestart = false;
 let noErrorUi = false;
 let secureWindowFlagAfterImport = 'not checked';
+let secureWindowFlagAfterRestart = 'not checked';
 let fatalRuntimeLogcatFindings = 'not checked';
 let screenshotBytes = 0;
 let capturedLogcatLines = 0;
@@ -151,9 +157,15 @@ const writeSummary = exitCode => {
     `Imported wallet name: ${walletName}`,
     `Import success screen reached: ${importSuccessScreenReached ? 'yes' : 'no'}`,
     `Imported wallet visible on dashboard: ${importedWalletVisible ? 'yes' : 'no'}`,
+    `App process restart completed: ${appProcessRestartCompleted ? 'yes' : 'no'}`,
+    `Unlock screen reached after restart: ${unlockScreenReachedAfterRestart ? 'yes' : 'no'}`,
+    `Incorrect PIN rejected after restart: ${incorrectPinRejectedAfterRestart ? 'yes' : 'no'}`,
+    `Imported wallet visible after restart: ${importedWalletVisibleAfterRestart ? 'yes' : 'no'}`,
     `No import-wallet error UI: ${noErrorUi ? 'yes' : 'no'}`,
     `Secure window flag after import: ${secureWindowFlagAfterImport}`,
+    `Secure window flag after restart: ${secureWindowFlagAfterRestart}`,
     `Fatal/runtime logcat findings: ${fatalRuntimeLogcatFindings}`,
+    `Pre-restart App PID: ${preRestartAppPid || 'not available'}`,
     `App PID: ${appPid || 'not available'}`,
     `Captured logcat lines: ${capturedLogcatLines}`,
     `UI hierarchy path: ${uiOutputPath}`,
@@ -342,12 +354,40 @@ const enterText = (label, hierarchy, resourceId, value) => {
   sleep(600);
 };
 
-const unlockIfNeeded = hierarchy => {
+const unlockIfNeeded = (hierarchy, { requireUnlock = false } = {}) => {
   if (!hierarchy.includes('resource-id="unlock-screen-logo"')) {
+    if (requireUnlock) {
+      throw new Error('Unlock screen was not reached after restarting the app process.');
+    }
     return hierarchy;
   }
 
-  append('Unlock screen detected; entering test PIN.');
+  if (requireUnlock) {
+    unlockScreenReachedAfterRestart = true;
+
+    const wrongFinalDigit = unlockPin.at(-1) === '9' ? '0' : String(Number(unlockPin.at(-1)) + 1);
+    const incorrectPin = `${unlockPin.slice(0, -1)}${wrongFinalDigit}`;
+
+    append('Unlock screen detected; verifying that an incorrect PIN is rejected.');
+    for (const digit of incorrectPin) {
+      const node = getNodeByContentDescription(hierarchy, digit);
+
+      if (!node?.enabled) {
+        throw new Error(`Unable to find enabled incorrect PIN digit ${digit}.`);
+      }
+      tapNodeCenter(node);
+      sleep(250);
+      hierarchy = readUiHierarchy(`after incorrect unlock digit ${digit}`);
+    }
+    sleep(500);
+    hierarchy = readUiHierarchy('after incorrect unlock PIN');
+    if (!hierarchy.includes('resource-id="unlock-screen-logo"')) {
+      throw new Error('App left the unlock screen after an incorrect test PIN.');
+    }
+    incorrectPinRejectedAfterRestart = true;
+  }
+
+  append('Entering the configured test PIN.');
   for (const digit of unlockPin) {
     if (!/^\d$/.test(digit)) {
       throw new Error('ANDROID_SMOKE_PIN must contain digits only.');
@@ -362,14 +402,27 @@ const unlockIfNeeded = hierarchy => {
     hierarchy = readUiHierarchy(`after unlock digit ${digit}`);
   }
   sleep(2500);
-  return readUiHierarchy('after unlock PIN');
+  const unlockedHierarchy = readUiHierarchy('after unlock PIN');
+
+  if (unlockedHierarchy.includes('resource-id="unlock-screen-logo"')) {
+    throw new Error('Unlock screen is still visible after entering the test PIN.');
+  }
+
+  return unlockedHierarchy;
+};
+
+const readAppPid = label => {
+  const pid = run(label, ['shell', 'pidof', packageName], { printOutput: false }).trim().split(/\s+/)[0] || '';
+
+  if (!pid) {
+    throw new Error(`Unable to find running process for ${packageName}.`);
+  }
+
+  return pid;
 };
 
 const captureLogcat = () => {
-  appPid = run('read app pid', ['shell', 'pidof', packageName], { printOutput: false }).trim().split(/\s+/)[0] || '';
-  if (!appPid) {
-    throw new Error(`Unable to find running process for ${packageName}.`);
-  }
+  appPid = readAppPid('read app pid');
 
   const logcat = run('read import-wallet logcat', ['logcat', '-d', '--pid', appPid, '-t', String(logcatLineLimit)], {
     printOutput: false,
@@ -393,7 +446,7 @@ const captureLogcat = () => {
   fatalRuntimeLogcatFindings = 'no';
 };
 
-const assertSecureWindowFlagCleared = () => {
+const assertSecureWindowFlagCleared = phase => {
   const windowState = run('read Android window state', ['shell', 'dumpsys', 'window', 'windows'], {
     printOutput: false,
   });
@@ -407,11 +460,46 @@ const assertSecureWindowFlagCleared = () => {
   const activityWindow = windowState.slice(activityIndex, nextWindowIndex === -1 ? undefined : nextWindowIndex);
 
   if (/\bSECURE\b/.test(activityWindow)) {
-    secureWindowFlagAfterImport = 'yes';
-    throw new Error('Android FLAG_SECURE remained enabled after leaving the import-wallet screen.');
+    if (phase === 'restart') {
+      secureWindowFlagAfterRestart = 'yes';
+    } else {
+      secureWindowFlagAfterImport = 'yes';
+    }
+    throw new Error(`Android FLAG_SECURE remained enabled after the import-wallet ${phase}.`);
   }
 
-  secureWindowFlagAfterImport = 'no';
+  if (phase === 'restart') {
+    secureWindowFlagAfterRestart = 'no';
+  } else {
+    secureWindowFlagAfterImport = 'no';
+  }
+};
+
+const restartAppAndRequirePersistedWallet = walletCardResourceId => {
+  preRestartAppPid = readAppPid('read pre-restart app pid');
+  run('force-stop app after wallet import', ['shell', 'am', 'force-stop', packageName]);
+  sleep(1000);
+  run('restart app after wallet import', ['shell', 'am', 'start', '-W', '-n', activityName]);
+  sleep(6000);
+
+  let hierarchy = unlockIfNeeded(readUiHierarchy('unlock screen after import restart'), { requireUnlock: true });
+
+  if (!hierarchy.includes('resource-id="dashboard-header"')) {
+    hierarchy = waitForResourceIds('dashboard after import restart', ['dashboard-header', walletCardResourceId]);
+  }
+  assertNoImportError(hierarchy);
+  if (!hierarchy.includes(`resource-id="${walletCardResourceId}"`)) {
+    hierarchy = waitForResourceIds('persisted wallet after import restart', ['dashboard-header', walletCardResourceId]);
+  }
+
+  appPid = readAppPid('read restarted app pid');
+  if (appPid === preRestartAppPid) {
+    throw new Error(`App PID did not change after force-stop: ${appPid}.`);
+  }
+
+  importedWalletVisibleAfterRestart = true;
+  appProcessRestartCompleted = true;
+  assertSecureWindowFlagCleared('restart');
 };
 
 try {
@@ -495,7 +583,8 @@ try {
   noErrorUi = true;
 
   sleep(2500);
-  assertSecureWindowFlagCleared();
+  assertSecureWindowFlagCleared('import');
+  restartAppAndRequirePersistedWallet(walletCardResourceId);
   runBinary('capture import-wallet screenshot', ['exec-out', 'screencap', '-p'], screenshotOutputPath);
   captureLogcat();
   smokeOutcome = 'passed';

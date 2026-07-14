@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.895 - Production import persistence after process restart
+
+- Branch: `feature/bem-37-895-production-import-persistence-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the production watch-only import smoke across a real Android process boundary instead of accepting success within the original app session.
+- Record the pre-restart PID, force-stop and restart the app, require PIN unlock, reject an incorrect PIN, and verify the same imported wallet card under a different PID after the configured PIN.
+- Require cleared Android secure-window state after both import navigation and restart while keeping all generated evidence under ignored `local-docs/`.
+
+Findings:
+
+- The create-wallet smoke already had a reusable force-stop/restart pattern, while the import-wallet proof ended immediately after the first dashboard render and therefore did not prove durable storage reload.
+- A public watch-only address remains sufficient for persistence validation and does not require a mnemonic, private key, funded wallet, or transaction signing.
+- The first runtime restart reached the production PIN overlay but remained there after both the configured `1111` PIN and a delayed manual retry. A control `prodRelease` create-wallet smoke unlocked successfully on the same APK and emulator, isolating the regression to restart after imported wallet state was loaded.
+- Navigator previously awaited persisted wallet loading before dispatching the startup credentials check. Imported-wallet history/network work could therefore expose the persisted unlock state while the process verifier was still empty, routing PIN input into the same delayed Keychain path.
+- The fix awaits credentials initialization before wallet loading, retains only a SHA-256 verifier for the current process, refreshes it after PIN creation/change, and clears it during factory reset. The existing `authenticate` action and `authenticateSuccess` reducer flow remain intact; the authentication saga checks the process verifier without a second Keychain read and retains Keychain as a fallback when no startup verifier exists.
+- The credentials barrier also normalizes non-`Error` storage rejections, dispatches the failure state, and always invokes its failure callback so an unusual native rejection cannot leave Navigator waiting indefinitely.
+- While imported-wallet reload is still pending, React Redux can publish the successful authentication state before the navigator's async mount work causes the overlay subtree to render again. The unlock screen therefore closes its local overlay from the same successful saga callback (or successful biometric result); failed PIN callbacks never set that local state.
+- Dashboard startup previously mounted before disk hydration completed, while `loadWalletsSaga` withheld its first success action until Electrum balance and transaction refresh finished. The fix gates route mounting on hydrated storage and publishes cached wallets before the network refresh, so persistence proof no longer depends on Electrum latency.
+- The final `prodRelease` persistence run passed against ready production-mainnet Electrum endpoints. The separate `devDebug` dashboard smoke assembled and launched successfully but reached the known external `No network` state after onboarding; a live endpoint audit on 2026-07-14 classified `electrumx.testnet.btcv.stage.rnd.land:443 tls` as `certificate-expired` (`CERT_HAS_EXPIRED`, valid through 2026-06-23), while all stage/production mainnet entries remained ready.
+- The controlled dev no-network smoke passed against the same `devDebug` APK with first-run terms, PIN, transaction-password, and email-skip coverage and no fatal or React Native runtime logcat findings. This is blocker evidence only and does not claim the dev/testnet dashboard, tab, QR, or Settings Terms flows.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-import-wallet-smoke-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:pin-session-verifier-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:wallet-startup-hydration-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules/jest/bin/jest.js tests/unit/AuthenticationSaga.test.ts tests/unit/PinSessionVerifier.test.ts --runInBand --forceExit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:import-wallet-verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:embedded` (expected external blocker: testnet `No network`, not a runtime crash)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn electrum:endpoint-readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn electrum:endpoint-readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.894 - Production release import-wallet validation
 
 - Branch: `feature/bem-37-894-production-import-wallet-smoke`
