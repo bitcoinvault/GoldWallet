@@ -84,6 +84,12 @@ const classifiedNetworkBlockerFixture = [
   'requires-env=SENTRY_AUTH_TOKEN',
   'corepack yarn sentry:release:prereq-audit',
   'corepack yarn sentry:release:prereq-check-summary',
+  'corepack yarn check:sentry-release-credential-plan-guard',
+  'corepack yarn sentry:release:credential-plan',
+  'corepack yarn sentry:release:credential-plan:check',
+  'corepack yarn check:sentry-release-validation-handoff-summary-guard',
+  'corepack yarn sentry:release:validation:handoff-summary',
+  'corepack yarn sentry:release:validation:handoff-summary:check',
   'corepack yarn release-services:check-summaries',
 ].forEach(expected => {
   assert(fullRendered.includes(expected), `Expected Sentry handoff commands to include: ${expected}`);
@@ -110,8 +116,9 @@ assert(
 assert(
   preflightRendered.includes('corepack yarn sentry:release:prereq-audit') &&
     preflightRendered.includes('corepack yarn sentry:release:prereq-check-summary') &&
+    preflightRendered.includes('corepack yarn sentry:release:validation:handoff-summary --skip-android-release') &&
     !preflightRendered.includes('corepack yarn release-services:check-summaries'),
-  'Preflight-only Sentry handoff must audit Sentry prerequisites without running the final aggregate release-services gate',
+  'Preflight-only Sentry handoff must audit Sentry prerequisites and refresh the handoff summary without running the final aggregate release-services gate',
 );
 assert(
   scripts['sentry:release:validation:preflight'] ===
@@ -122,6 +129,15 @@ assert(
   scripts['sentry:release:validation:preflight:dry-run'] ===
     'node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release --dry-run',
   'package.json must expose a dry-run Sentry release validation preflight script',
+);
+assert(
+  scripts['sentry:release:validation:handoff-summary'] === 'node scripts/runSentryReleaseValidationHandoff.mjs --summary-only',
+  'package.json must expose a Sentry release validation handoff summary script',
+);
+assert(
+  scripts['sentry:release:validation:handoff-summary:check'] ===
+    'node scripts/checkSentryReleaseValidationHandoffSummary.mjs',
+  'package.json must expose a Sentry release validation handoff summary checker',
 );
 assert(
   skippedRendered.includes('corepack yarn sentry:android-warning:audit'),
@@ -149,6 +165,31 @@ assert(
   fullCommands.findIndex(step => step.args.includes('sentry:rn-bundle-task-compat:check-summary')) <
     fullCommands.findIndex(step => step.args.includes('sentry:release:create-properties')),
   'Sentry properties generation must run after RN bundle task compatibility is validated',
+);
+assert(
+  fullCommands.findIndex(step => step.args.includes('sentry:release:prereq-check-summary')) <
+    fullCommands.findIndex(step => step.args.includes('sentry:release:credential-plan')),
+  'Sentry credential plan must run after prerequisite summary validation',
+);
+assert(
+  fullCommands.findIndex(step => step.args.includes('sentry:release:credential-plan:check')) <
+    fullCommands.findIndex(step => step.args.includes('check:sentry-release-validation-handoff-summary-guard')),
+  'Sentry validation handoff summary guard must run after credential plan validation',
+);
+assert(
+  fullCommands.findIndex(step => step.args.includes('check:sentry-release-validation-handoff-summary-guard')) <
+    fullCommands.findIndex(step => step.args.includes('sentry:release:validation:handoff-summary')),
+  'Sentry validation handoff summary must run after its guard self-check',
+);
+assert(
+  fullCommands.findIndex(step => step.args.includes('sentry:release:validation:handoff-summary')) <
+    fullCommands.findIndex(step => step.args.includes('sentry:release:validation:handoff-summary:check')),
+  'Sentry validation handoff summary must be checked after it is generated',
+);
+assert(
+  fullCommands.findIndex(step => step.args.includes('sentry:release:validation:handoff-summary:check')) <
+    fullCommands.findIndex(step => step.args.includes('release-services:check-summaries')),
+  'Sentry validation handoff summary must be checked before the aggregate release-services gate',
 );
 assert(
   fullCommands[fullCommands.length - 1].args.includes('release-services:check-summaries'),

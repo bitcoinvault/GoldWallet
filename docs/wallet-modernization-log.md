@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.891 - Sentry release validation handoff summary
+
+- Branch: `feature/bem-37-891-sentry-release-validation-handoff-summary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a generated `local-docs/sentry-release-validation-handoff-summary.txt` artifact for the Sentry source-map/release validation handoff.
+- Keep Sentry release upload validation explicitly `not claimed` while credentials, local-only Sentry properties files, full Android release smoke/create-wallet evidence, and macOS iOS archive validation are unavailable.
+- Wire the summary guard/check into `rn:baseline:preflight`, the Sentry release validation handoff, the release-services validation handoff, and the aggregate `release-services:check-summaries` gate.
+- Keep app runtime code, native files, dependency versions, lockfiles, Metro configuration, release credentials, and local app state unchanged in this branch.
+
+Findings:
+
+- Sentry release readiness already had prerequisite, credential-plan, Android-warning, and RN bundle-task compatibility summaries.
+- The release-services aggregate did not preserve a single generated handoff artifact that combined those Sentry blockers into a review-safe source-map upload outcome.
+- The new summary records the current posture as `Sentry release upload validation: not claimed`, hides token values, names missing `SENTRY_AUTH_TOKEN`/properties, preserves the controlled Electrum certificate blocker, and keeps iOS runtime validation unclaimed on this Windows host.
+- No emulator smoke is claimed for this branch because it changes only release-services/Sentry orchestration scripts and docs and does not move runtime dependencies, native files, Metro config, or app code.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:sentry-release-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:release-services-validation-handoff-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff-summary --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:handoff-summary:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn sentry:release:validation:preflight:dry-run`
+- `SENTRY_DISABLE_AUTO_UPLOAD=true JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:release:verify-local`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn release-services:validation:handoff --skip-android-release`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn release-services:check-summaries`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn rn:upgrade-path:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.890 - iOS validation handoff summary checker
 
 - Branch: `feature/bem-37-890-ios-validation-handoff-summary-check`
