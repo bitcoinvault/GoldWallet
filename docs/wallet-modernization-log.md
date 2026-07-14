@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.894 - Production release import-wallet validation
+
+- Branch: `feature/bem-37-894-production-import-wallet-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a variant-aware release import-wallet smoke that starts from a clean release onboarding state and imports a public mainnet BTCV watch-only fixture without handling a mnemonic, private key, or funded test wallet.
+- Bind the generated summary to the locally signed release APK and require the import-specific success message, imported wallet card, cleared Android secure-window flag, non-empty screenshot, and clean fatal/runtime logcat state.
+- Reset the root navigation stack after successful wallet import so the protected import form unmounts, screenshot protection is released on the dashboard, and Android Back cannot reopen the sensitive import flow.
+
+Findings:
+
+- The first public P2SH fixture had Electrum balance/history but did not produce the full transaction model required by the import screen, so the real app correctly rejected it. The final public Bech32 fixture is already present in the Electrum integration tests and both production Electrum servers returned two history entries during preflight.
+- A generic `success-message` resource ID from first-run onboarding remained in the hidden navigation stack, so resource ID presence alone could falsely classify a later import result. The smoke now requires the import-specific success description before proceeding.
+- Successful import previously used `navigation.navigate` back to the dashboard, leaving `ImportWalletScreen` mounted and Android `FLAG_SECURE` enabled over the dashboard. The success action now resets the root stack to `MainTabStackNavigator/Dashboard`, which unmounts the import screen and clears the secure-window flag.
+- The final production proof imports watch-only state only and does not expose spending capability, move funds, claim funded transaction validation, or claim iOS runtime validation.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-import-wallet-smoke-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:import-wallet-success-navigation-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:import-wallet-verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:prod:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:prod:release:check-import-wallet-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.893 - Production release create-wallet validation
 
 - Branch: `feature/bem-37-893-production-create-wallet-smoke`
