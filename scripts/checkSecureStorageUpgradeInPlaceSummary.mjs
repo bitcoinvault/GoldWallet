@@ -14,6 +14,7 @@ if (!existsSync(summaryPath)) {
 }
 
 const errors = getSecureStorageUpgradeInPlaceSummaryErrors(readFileSync(summaryPath, 'utf8'));
+
 if (errors.length > 0) {
   console.error('Secure-storage upgrade-in-place summary artifact is invalid:');
   errors.forEach(error => console.error(`- ${error}`));

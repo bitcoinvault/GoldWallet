@@ -89,6 +89,7 @@ export const getSecureStorageUpgradeInPlaceSummaryErrors = (summary, { requireAr
 
   const preUpdatePid = getLineValue(summary, 'Pre-update App PID');
   const postUpdatePid = getLineValue(summary, 'Post-update App PID');
+
   if (isPositiveInteger(preUpdatePid) && preUpdatePid === postUpdatePid) {
     errors.push('Pre-update App PID and Post-update App PID must differ');
   }
@@ -98,6 +99,7 @@ export const getSecureStorageUpgradeInPlaceSummaryErrors = (summary, { requireAr
 
   const baselineSha = getLineValue(summary, 'Baseline APK sha256');
   const candidateSha = getLineValue(summary, 'Candidate APK sha256');
+
   if (/^[a-f0-9]{64}$/.test(baselineSha) && baselineSha === candidateSha) {
     errors.push('Baseline and candidate APK SHA-256 digests must differ');
   }

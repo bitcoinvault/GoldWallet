@@ -308,6 +308,7 @@
     "check:wallet-startup-hydration-guard": "node scripts/checkWalletStartupHydrationGuard.mjs",
     "check:secure-storage-upgrade-in-place-summary-guard": "node scripts/checkSecureStorageUpgradeInPlaceSummaryGuard.mjs",
     "secure-storage:upgrade-in-place:check-summary": "node scripts/checkSecureStorageUpgradeInPlaceSummary.mjs",
+    "secure-storage:upgrade-in-place:verify": "node scripts/runSecureStorageUpgradeInPlaceValidation.mjs && yarn secure-storage:upgrade-in-place:check-summary",
     "check:metro-dev-runtime-audit-guard": "node scripts/checkMetroDevRuntimeGuard.mjs",
     "check:rn-upgrade-path-audit-guard": "node scripts/checkReactNativeUpgradePathGuard.mjs",
     "android:dev:check-artifacts": "node scripts/checkAndroidValidationArtifacts.mjs",
