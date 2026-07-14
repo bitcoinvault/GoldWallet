@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.892 - Production release smoke validation
+
+- Branch: `feature/bem-37-892-production-release-smoke`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Generalize the locally signed Android release-smoke wrapper and summary checker from a hardcoded `devRelease` path to explicit `dev`, `stage`, `prod`, and `beta` release variants.
+- Add repeatable `prodRelease` smoke commands with variant-specific package IDs and ignored local APK, screenshot, UI hierarchy, log, and summary artifacts.
+- Prove the production/mainnet runtime baseline independently from the expired dev/testnet Electrum certificate without changing app runtime, native code, dependencies, env values, or release credentials.
+
+Findings:
+
+- `react-native@0.86.0`, `@sentry/react-native@8.18.0`, and `react-native-camera-kit@18.0.0` still match the current npm `latest` dist-tags checked before this milestone.
+- The previous release-smoke wrapper hardcoded the `devRelease` APK, package `io.goldwallet.wallet.dev`, and `android-smoke-dev-release` artifacts even though release build evidence already covered all four Android variants.
+- Both the manual production proof and the final `corepack yarn android:prod:release:smoke:embedded` command passed on `emulator-5554` without Metro. The app completed first-run terms, PIN, transaction password, and email skip, then validated the empty dashboard, Create/Import navigation, CameraKit QR scanner, all bottom tabs, Settings Terms WebView, screenshot capture, and fatal/runtime logcat checks.
+- The new variant module has 100% line, branch, and function coverage under Node's test coverage runner.
+- Production runtime proof does not clear the separate `blocked-by-electrum-certificate-expired` dev/testnet release-services blocker and does not claim funded transaction or iOS runtime validation.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node --test --experimental-test-coverage scripts/checkAndroidReleaseSmokeVariantGuard.mjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-release-smoke-variant-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:prod:release:check-smoke-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:android-smoke-storage-preflight-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:check-light-docs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.891 - Sentry release validation handoff summary
 
 - Branch: `feature/bem-37-891-sentry-release-validation-handoff-summary`

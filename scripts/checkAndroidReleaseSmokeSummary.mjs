@@ -2,22 +2,17 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import {
+  getAndroidReleaseSmokeVariantConfig,
+  parseAndroidReleaseSmokeVariant,
+} from './androidReleaseSmokeVariant.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const summaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
-const signedReleaseApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
-const unsignedReleaseApkPath = path.join(
-  root,
-  'android',
-  'app',
-  'build',
-  'outputs',
-  'apk',
-  'dev',
-  'release',
-  'app-dev-release-unsigned.apk',
-);
+const releaseVariant = parseAndroidReleaseSmokeVariant(process.argv.slice(2));
+const releaseSmokeConfig = getAndroidReleaseSmokeVariantConfig(root, releaseVariant);
+const { artifactBase, signedApkPath, unsignedApkPath } = releaseSmokeConfig;
+const summaryPath = path.join(root, 'local-docs', `${artifactBase}-summary.txt`);
 
 if (!existsSync(summaryPath)) {
   console.error(`Missing Android release smoke summary artifact: ${summaryPath}`);
@@ -25,12 +20,12 @@ if (!existsSync(summaryPath)) {
 }
 
 const errors = getAndroidEmbeddedSmokeSummaryErrors(readFileSync(summaryPath, 'utf8'), {
-  expectedArtifactBase: 'android-smoke-dev-release',
+  expectedArtifactBase: artifactBase,
   requireDataStoragePreflight: true,
   requireSmokeApkDigest: true,
-  expectedSmokeApkPath: signedReleaseApkPath,
+  expectedSmokeApkPath: signedApkPath,
   requireSourceApkDigest: true,
-  expectedSourceApkPath: unsignedReleaseApkPath,
+  expectedSourceApkPath: unsignedApkPath,
 });
 
 if (errors.length > 0) {
