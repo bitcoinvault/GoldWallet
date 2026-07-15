@@ -43,10 +43,6 @@ const walletName =
   `Upgrade${new Date().toISOString().replace(/\D/g, '').slice(8, 14)}`;
 const pin = process.env.ANDROID_SMOKE_PIN || '1111';
 const localReleaseBuildEnv = { SENTRY_DISABLE_AUTO_UPLOAD: 'true' };
-const disableLegacyEnv = {
-  ...localReleaseBuildEnv,
-  GOLDWALLET_DISABLE_LEGACY_SECURE_STORAGE: '1',
-};
 const sdkRoot =
   process.env.ANDROID_HOME ||
   process.env.ANDROID_SDK_ROOT ||
@@ -172,33 +168,37 @@ try {
   selectedSerial ||= devices[0];
 
   if (!resumeCandidate) {
-    clearGeneratedAutolinking();
-    runNode(
-      'build normal prodRelease baseline',
-      'scripts/runAndroidGradle.mjs',
-      ['clean', 'assembleProdRelease', '--no-build-cache', '--rerun-tasks'],
-      localReleaseBuildEnv,
-    );
-    if (!existsSync(generatedPackageListPath)) {
-      throw new Error(`Missing generated normal-build PackageList.java: ${generatedPackageListPath}`);
+    if (!existsSync(baselineApkPath)) {
+      throw new Error(`Missing retained legacy baseline APK: ${baselineApkPath}`);
     }
-    baselineLegacyLinked = readFileSync(generatedPackageListPath, 'utf8').includes('RNSecureKeyStorePackage');
-    if (!baselineLegacyLinked) {
-      throw new Error('Normal prodRelease baseline did not link RNSecureKeyStorePackage.');
-    }
-
+    baselineLegacyLinked = true;
     runNode(
-      'prepare and seed normal prodRelease wallet',
-      'scripts/androidCreateWalletSmokeDevReleaseEmbedded.mjs',
-      ['--variant=prod'],
+      'install and onboard retained legacy prodRelease baseline',
+      'scripts/androidSmokeDevEmbedded.mjs',
+      [],
       {
         ANDROID_SERIAL: selectedSerial,
+        ANDROID_SMOKE_APK: baselineApkPath,
+        ANDROID_SMOKE_PACKAGE: packageName,
+        ANDROID_SMOKE_ACTIVITY: activityName,
+        ANDROID_SMOKE_OUTPUT_BASENAME: 'secure-storage-upgrade-baseline-runtime',
+      },
+    );
+    runNode(
+      'seed wallet in retained legacy prodRelease baseline',
+      'scripts/androidCreateWalletSmoke.mjs',
+      [],
+      {
+        ANDROID_SERIAL: selectedSerial,
+        ANDROID_SMOKE_APK: baselineApkPath,
+        ANDROID_SMOKE_PACKAGE: packageName,
+        ANDROID_SMOKE_ACTIVITY: activityName,
         ANDROID_SMOKE_PIN: pin,
         ANDROID_CREATE_WALLET_STANDARD_NAME: walletName,
         ANDROID_CREATE_WALLET_VAULT_NAME: `Vault${walletName}`.slice(0, 40),
+        ANDROID_CREATE_WALLET_SMOKE_OUTPUT_BASENAME: 'secure-storage-upgrade-baseline-wallet',
       },
     );
-    copyFileSync(releaseConfig.signedApkPath, baselineApkPath);
     preUpdatePid = runAdb('read pre-update app PID', ['shell', 'pidof', packageName], { capture: true }).split(
       /\s+/,
     )[0];
@@ -230,24 +230,24 @@ try {
 
   clearGeneratedAutolinking();
   runNode(
-    'build fallback-disabled prodRelease candidate',
+    'build current Keychain-only prodRelease candidate',
     'scripts/runAndroidGradle.mjs',
     ['clean', 'assembleProdRelease', '--no-build-cache', '--rerun-tasks'],
-    disableLegacyEnv,
+    localReleaseBuildEnv,
   );
   if (!existsSync(generatedPackageListPath)) {
     throw new Error(`Missing generated candidate PackageList.java: ${generatedPackageListPath}`);
   }
   candidateLegacyLinked = readFileSync(generatedPackageListPath, 'utf8').includes('RNSecureKeyStorePackage');
   if (candidateLegacyLinked) {
-    throw new Error('Fallback-disabled candidate still links RNSecureKeyStorePackage.');
+    throw new Error('Keychain-only candidate still links RNSecureKeyStorePackage.');
   }
 
   runNode(
-    'prepare signed fallback-disabled candidate',
+    'prepare signed Keychain-only candidate',
     'scripts/androidSmokeDevReleaseEmbedded.mjs',
     ['--variant=prod', '--prepare-only'],
-    disableLegacyEnv,
+    localReleaseBuildEnv,
   );
   copyFileSync(releaseConfig.signedApkPath, candidateApkPath);
 
@@ -258,10 +258,10 @@ try {
     throw new Error('Normal baseline and fallback-disabled candidate APK digests are identical.');
   }
 
-  runAdb('install fallback-disabled candidate over baseline data', ['install', '-r', candidateApkPath]);
+  runAdb('install Keychain-only candidate over baseline data', ['install', '-r', candidateApkPath]);
   candidateInstalledWithReplace = true;
 
-  runNode('verify persisted wallet without legacy native fallback', 'scripts/androidCreateWalletSmoke.mjs', [], {
+  runNode('verify persisted wallet on the Keychain-only candidate', 'scripts/androidCreateWalletSmoke.mjs', [], {
     ANDROID_SERIAL: selectedSerial,
     ANDROID_SMOKE_APK: candidateApkPath,
     ANDROID_SMOKE_PACKAGE: packageName,
@@ -278,7 +278,7 @@ try {
   dataPreserved = getLineValue(runtimeSummary, 'Standard wallet persisted after restart') === 'yes';
 
   outcome = 'passed';
-  reason = 'fallback-disabled prodRelease unlocked Keychain-backed PIN and wallet data after adb install -r';
+  reason = 'Keychain-only prodRelease unlocked migrated PIN and wallet data after adb install -r';
   writeSummary(0);
   append(`\nSecure-storage upgrade-in-place summary written to ${summaryPath}`);
   writeFileSync(logPath, `${log.join('\n')}\n`);

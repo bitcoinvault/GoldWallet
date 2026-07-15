@@ -22,7 +22,6 @@ const trackedPackages = [
   'react-native-localize',
   'react-native-get-random-values',
   'react-native-keychain',
-  'react-native-secure-key-store',
   'react-native-tcp-socket',
   'react-native-webview',
 ];

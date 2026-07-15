@@ -1,11 +1,4 @@
-export const expectedRemainingWarningFollowups = [
-  {
-    packageName: 'react-native-secure-key-store',
-    warningSource: 'node_modules/react-native-secure-key-store/android/build.gradle:46',
-    followUp: 'dedicated secure-storage removal after legacy fallback migration validation',
-    evidence: 'secure-storage release validation summary',
-  },
-];
+export const expectedRemainingWarningFollowups = [];
 
 export const getRemainingWarningPlanErrors = documentText => {
   const errors = [];
@@ -28,6 +21,14 @@ export const getRemainingWarningPlanErrors = documentText => {
     }
   });
 
+  if (!documentText.includes('Targeted Android Gradle warnings: 0')) {
+    errors.push('Remaining warning plan must record zero targeted Android Gradle warnings');
+  }
+
+  if (!documentText.includes('No targeted Android Gradle warning sources remain')) {
+    errors.push('Remaining warning plan must state that no targeted warning sources remain');
+  }
+
   [
     '@react-native-community/toolbar-android',
     'react-native-vector-icons',
@@ -36,6 +37,7 @@ export const getRemainingWarningPlanErrors = documentText => {
     'react-native-device-info',
     'react-native-camera',
     '@react-native-community/masked-view',
+    'react-native-secure-key-store',
   ].forEach(
     packageName => {
       const unexpectedRowPrefix = `| \`${packageName}\` |`;

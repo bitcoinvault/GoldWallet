@@ -10,6 +10,53 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.904 - Legacy secure-storage removal
+
+- Branch: `feature/bem-37-904-secure-storage-removal`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove `react-native-secure-key-store`, its native autolink switch, the legacy adapter, and all runtime fallback/cleanup paths after the validated migration window.
+- Keep `react-native-keychain@10.0.0` as the only backend for PIN, transaction-password hash, and encrypted wallet storage.
+- Convert migration, removal, warning, inventory, release-validation, and documentation guards to the final Keychain-only contract.
+
+Findings:
+
+- Historical prod upgrade-in-place evidence passes: a legacy-only wallet migrated PIN, transaction password, and encrypted wallet data to Keychain, survived a fallback-free `adb install -r`, rejected an incorrect PIN, accepted the correct PIN and storage password, retained the wallet card, and produced no fatal/runtime findings.
+- Focused storage/network tests pass, including 10 secure-storage unit tests and 9 `AppStorage` integration tests; all 12 unit suites / 55 tests and TypeScript also pass.
+- Android `devDebug` and `prodRelease` build successfully on JDK 17. The targeted Android Gradle warning audit is reduced from one legacy `jcenter()` source to zero targeted and zero unexpected findings.
+- Fresh `prodRelease` smoke passes on `emulator-5554` without Metro: onboarding, PIN and transaction-password setup, dashboard, Create/Import navigation, QR scanner, all empty-state tabs, and Settings Terms WebView pass without fatal Android or React Native runtime findings.
+- The signed prod smoke APK SHA-256 is `8dc69989fb32e60a124835bee753a259eddcbd9a88808b2584b659525225e6f1`; its unsigned source APK SHA-256 is `bec53dd83ae6ba76a2b90e3092deb4dc879d0a5a16a69236c32c42c5176ad520`.
+- Dev/testnet full dashboard smoke remains blocked by the external Electrum TLS certificate that expired on 2026-06-23. The controlled no-network smoke still completes terms, PIN, transaction-password, and email-skip without fatal/runtime findings.
+- iOS static validation reports zero errors and the existing 12 `Podfile.lock` drift issues. Runtime/archive validation remains unclaimed until macOS with Xcode 16.1+ and CocoaPods refreshes and tests all shared schemes.
+
+Validation:
+
+- RED `corepack yarn check:secure-storage-legacy-removal`
+- `corepack yarn install --frozen-lockfile`
+- `corepack yarn check:secure-storage-legacy-removal`
+- `corepack yarn secure-storage:migration:audit && corepack yarn secure-storage:migration:check-summary`
+- `corepack yarn secure-storage:removal-readiness:audit && corepack yarn secure-storage:removal-readiness:check-summary`
+- `corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `corepack yarn check:secure-storage-release-validation-summary-guard`
+- `corepack yarn check:secure-storage-historical-migration-summary-guard`
+- `corepack yarn secure-storage:historical-migration:check-summary`
+- `corepack yarn secure-storage:upgrade-in-place:check-summary`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:audit-warnings`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true node scripts/runAndroidGradle.mjs :app:assembleProdRelease -x lint`
+- `ANDROID_SERIAL=emulator-5554 SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:prod:release:smoke:verify`
+- `corepack yarn ios:static:verify`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.903 - TypeScript ESLint 8.64.0 patch
 
 - Branch: `feature/bem-37-903-typescript-eslint-8-64`

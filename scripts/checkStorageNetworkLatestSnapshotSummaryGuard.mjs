@@ -5,7 +5,7 @@ const validSummary = [
   'Generated at: 2026-06-10T00:00:00.000Z',
   'Node version: v24.16.0',
   'Expected Node version: v24.16.0',
-  'Entries: 10',
+  'Entries: 9',
   '- @react-native-async-storage/async-storage: package 3.1.1, installed 3.1.1, latest 3.1.1, peers react@*, react-native@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- @react-native-community/netinfo: package 12.0.1, installed 12.0.1, latest 12.0.1, peers react@*, react-native@>=0.59, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-device-info: package 15.0.2, installed 15.0.2, latest 15.0.2, peers react-native@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
@@ -13,10 +13,9 @@ const validSummary = [
   '- react-native-localize: package 3.7.0, installed 3.7.0, latest 3.7.0, peers @expo/config-plugins@*, react@*, react-native@*, react-native-macos@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-get-random-values: package 2.0.0, installed 2.0.0, latest 2.0.0, peers react-native@>=0.81, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-keychain: package 10.0.0, installed 10.0.0, latest 10.0.0, peers none, engines node@>=16, decision current - latest npm package is installed and pinned for the storage/network baseline',
-  '- react-native-secure-key-store: package 2.0.10, installed 2.0.10, latest 2.0.10, peers none, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-tcp-socket: package 6.4.1, installed 6.4.1, latest 6.4.1, peers react-native@>=0.60.0, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-webview: package 14.0.1, installed 14.0.1, latest 14.0.1, peers react@*, react-native@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
-  'Current entries: 10',
+  'Current entries: 9',
   'Deferred entries: 0',
   'Secret values printed: no',
   'Required action: use this snapshot before storage/network dependency branches; package changes require focused tests, Android build, and emulator smoke.',
@@ -48,12 +47,12 @@ assertRejected('Bad header fixture', validSummary.replace('Storage/network lates
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-10T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Missing expected Node fixture', validSummary.replace('Expected Node version: v24.16.0', 'Expected Node version: '), 'Expected Node version');
 assertRejected('Wrong Node fixture', validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'), 'repo .nvmrc baseline');
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 10', 'Entries: 9'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 9', 'Entries: 8'), 'Entries count');
 assertRejected(
   'Unexpected package fixture',
-  validSummary.replace('Entries: 10', 'Entries: 11').replace(
-    'Current entries: 10',
-    '- react-native-extra-storage: package 1.0.0, installed 1.0.0, latest 1.0.0, peers none, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline\nCurrent entries: 11',
+  validSummary.replace('Entries: 9', 'Entries: 10').replace(
+    'Current entries: 9',
+    '- react-native-extra-storage: package 1.0.0, installed 1.0.0, latest 1.0.0, peers none, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline\nCurrent entries: 10',
   ),
   'Unexpected storage/network latest entry for react-native-extra-storage',
 );
