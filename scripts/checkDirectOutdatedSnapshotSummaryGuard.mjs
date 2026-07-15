@@ -164,14 +164,6 @@ const validEntries = [
     decision: 'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
   },
   {
-    name: 'react-native-screens',
-    current: '4.26.0',
-    wanted: '4.26.0',
-    latest: '4.26.1',
-    type: 'dependencies',
-    decision: 'blocked - native screens patch drift requires a dedicated navigation/native-screens branch with stack/tab navigation and Android emulator proof',
-  },
-  {
     name: 'react-test-renderer',
     current: '19.2.3',
     wanted: '19.2.3',
@@ -235,10 +227,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 23', 'Entries: 22'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 22', 'Entries: 21'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 23', 'Entries: 24').replace(
+  validSummary.replace('Entries: 22', 'Entries: 23').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -279,7 +271,7 @@ assertRejected(
 );
 assertRejected(
   'Missing caniuse-lite resolution blocker fixture',
-  validSummary.replace('Entries: 23', 'Entries: 24').replace(
+  validSummary.replace('Entries: 22', 'Entries: 23').replace(
     'Secret values printed: no',
     '- caniuse-lite: current 1.0.30001805, wanted 1.0.30001805, latest 1.0.30001806, type resolutionDependencies, decision blocked - generic data branch required\nSecret values printed: no',
   ),

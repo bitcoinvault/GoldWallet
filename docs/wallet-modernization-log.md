@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.901 - React Native Screens 4.26.1 patch
+
+- Branch: `feature/bem-37-901-native-screens-patch`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the native navigation runtime from `react-native-screens@4.26.0` to current latest `4.26.1` without mixing other dependency drifts.
+- Refresh native-module inventory, direct-outdated, navigation compatibility, and iOS Podfile drift contracts.
+- Prove Android build plus production stack/tab navigation behavior on a real emulator.
+
+Findings:
+
+- Live npm metadata discovered by BEM-37.900 reports `react-native-screens@4.26.1` as latest; its peer metadata accepts the current React and React Native runtime.
+- The package/lockfile change is isolated to the native-screens patch. TypeScript ESLint and `protobufjs` remain separate follow-up branches.
+- Android `devDebug` and `prodRelease` both build successfully with native-screens codegen and native binaries for the configured ABIs.
+- The first prod smoke attempt exposed a stale pre-upgrade APK, so the final proof explicitly rebuilt `assembleProdRelease` after the package/lockfile change and confirmed `.env.prod.mainnet` during Gradle configuration.
+- Fresh `prodRelease` smoke passed on `emulator-5554` without Metro: clean onboarding, empty-dashboard Create/Import navigation, QR scanner open/close, all four empty-state tabs, and Settings Terms WebView all passed with no fatal Android or React Native runtime findings.
+- The locally signed smoke APK SHA-256 is `3371254766de5c23cb87d2ca725781211e4ceafb4b95d561cb400a5997339e02`; its current unsigned source APK SHA-256 is `0e673c7c1160cf455521ba6f5f4da9c128dd0c9db24749fa5e85ed68a2e91e8b`.
+- Windows cannot refresh `ios/Podfile.lock`; the static iOS audit continues to report historical `RNScreens 3.6.0` against package `4.26.1` and does not claim iOS runtime validation.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:native-module-inventory-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:native-module-inventory`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true node scripts/runAndroidGradle.mjs :app:assembleProdRelease -x lint`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.900 - Resilient React Native target refresh policy
 
 - Branch: `feature/bem-37-900-rn-target-refresh-policy`
