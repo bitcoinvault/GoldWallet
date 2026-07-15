@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.899 - React Native 0.87 and AGP 9 readiness
+
+- Branch: `feature/bem-37-899-rn-087-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Probe the complete React Native `0.87.0-rc.1` cohort and its required Android toolchain in an isolated worktree without moving production dependencies to a prerelease line.
+- Remove project-owned TypeScript and Android Gradle API blockers that are compatible with the current RN `0.86.0` / AGP `8.13.2` baseline.
+- Add a durable readiness contract and technical handoff for the remaining upstream blocker.
+
+Findings:
+
+- Live npm metadata on 2026-07-15 reports RN `0.86.0` as stable latest and `0.87.0-rc.1` as `next`; the official schedule targets RN `0.87.x` stable for 2026-08-10.
+- The RC keeps React peer `^19.2.3` and supports Node `24.16.0`, but its Android cohort is AGP `9.2.1`, Gradle `9.4.1`, and Kotlin `2.2.0`.
+- RN 0.87 generated types rejected three `StyleSheet.absoluteFill` spreads. Equivalent explicit absolute-position properties pass TypeScript on both the RC probe and the current production baseline.
+- AGP 9 removed the legacy `proguard-android.txt`, `applicationVariants`, and `OutputFile` surfaces. The app now uses `proguard-android-optimize.txt`; the disabled per-ABI split block and dead version-code callback were removed instead of being reimplemented with another Variant API.
+- Fresh current-baseline dev and prod APKs both retain base `versionCode=14`, confirming that removal of the disabled split path does not change the produced package version code.
+- After those project-owned blockers were removed in the isolated probe, Android configuration reached latest `@react-native-async-storage/async-storage@3.1.1` and failed on its explicit `kotlin-android` application under AGP 9 built-in Kotlin plus its compile SDK model.
+- Production remains on RN `0.86.0`, AGP `8.13.2`, Gradle `8.13`, and Kotlin `2.1.20`. No package or lockfile upgrade is included until RN 0.87 is stable and AsyncStorage publishes a compatible Android build.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-087-readiness`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:qr-scanner:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true node scripts/runAndroidGradle.mjs :app:assembleProdRelease -x lint`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `git diff --check`
+
 ### BEM-37.898 - Historical legacy-only secure-storage migration proof
 
 - Branch: `feature/bem-37-898-legacy-storage-migration-proof`
