@@ -19,15 +19,17 @@ project.ext.envConfigFiles = [
 
 
 
+def goldwalletEntryFile = project.findProperty("goldwalletEntryFile") ?: "index.js"
+
 project.ext.react = [
-    entryFile: "index.js",
+    entryFile: goldwalletEntryFile,
     devDisabledInStaging: true,
     enableHermes: true,
     deleteDebugFilesForVariant: { false }
 ]
 
 react {
-    entryFile = file("../../index.js")
+    entryFile = file("../../${goldwalletEntryFile}")
     autolinkLibrariesWithApp()
 }
 

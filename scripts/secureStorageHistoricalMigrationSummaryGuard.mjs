@@ -30,10 +30,7 @@ const requireApkEvidence = (summary, prefix, errors, requireArtifacts) => {
   if (sha256 !== fileSha256(filePath)) errors.push(`${prefix} APK sha256 does not match the current file`);
 };
 
-export const getSecureStorageHistoricalMigrationSummaryErrors = (
-  summary,
-  { requireArtifacts = true } = {},
-) => {
+export const getSecureStorageHistoricalMigrationSummaryErrors = (summary, { requireArtifacts = true } = {}) => {
   const errors = [];
 
   if (!isIsoTimestamp(getLineValue(summary, 'Generated at'))) {
@@ -47,7 +44,7 @@ export const getSecureStorageHistoricalMigrationSummaryErrors = (
     'Seed validation entry selected: yes',
     'Seed wallet created in legacy backend only: yes',
     'Migration legacy native package linked: yes',
-    'Migration normal entry selected: yes',
+    'Migration production entry loaded: yes',
     'Migration installed with adb install -r: yes',
     'Legacy pin migrated and removed: yes',
     'Legacy transactionPassword migrated and removed: yes',
@@ -56,6 +53,7 @@ export const getSecureStorageHistoricalMigrationSummaryErrors = (
     'Migration unlock screen reached: yes',
     'Migration incorrect PIN rejected: yes',
     'Migration correct PIN accepted: yes',
+    'Migration storage password accepted: yes',
     'Migration wallet card visible: yes',
     'Fallback-free legacy native package linked: no',
     'Fallback-free normal entry selected: yes',
@@ -64,6 +62,7 @@ export const getSecureStorageHistoricalMigrationSummaryErrors = (
     'Fallback-free unlock screen reached: yes',
     'Fallback-free incorrect PIN rejected: yes',
     'Fallback-free correct PIN accepted: yes',
+    'Fallback-free storage password accepted: yes',
     'Fallback-free wallet card visible: yes',
     'Secure window flag after fallback-free update: no',
     'Fatal/runtime logcat findings: no',
@@ -77,9 +76,11 @@ export const getSecureStorageHistoricalMigrationSummaryErrors = (
 
   const pids = ['Seed App PID', 'Migration App PID', 'Fallback-free App PID'].map(label => {
     const value = getLineValue(summary, label);
+
     if (!isPositiveInteger(value)) errors.push(`${label} must be a positive integer`);
     return value;
   });
+
   if (pids.every(isPositiveInteger) && new Set(pids).size !== pids.length) {
     errors.push('Seed, migration, and fallback-free App PIDs must differ');
   }
@@ -88,6 +89,7 @@ export const getSecureStorageHistoricalMigrationSummaryErrors = (
     requireApkEvidence(summary, prefix, errors, requireArtifacts),
   );
   const digests = ['Seed', 'Migration', 'Fallback-free'].map(prefix => getLineValue(summary, `${prefix} APK sha256`));
+
   if (digests.every(value => /^[a-f0-9]{64}$/.test(value)) && new Set(digests).size !== digests.length) {
     errors.push('Seed, migration, and fallback-free APK SHA-256 digests must differ');
   }

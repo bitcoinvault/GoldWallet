@@ -30,6 +30,7 @@ const uiWaitMs = Number(process.env.ANDROID_CREATE_WALLET_SMOKE_UI_WAIT_MS || 90
 const uiPollIntervalMs = Number(process.env.ANDROID_CREATE_WALLET_SMOKE_UI_POLL_INTERVAL_MS || 1000);
 const logcatLineLimit = Number(process.env.ANDROID_CREATE_WALLET_SMOKE_LOGCAT_LINES || 1200);
 const unlockPin = process.env.ANDROID_SMOKE_PIN || '1111';
+const storagePassword = process.env.ANDROID_CREATE_WALLET_STORAGE_PASSWORD || '';
 const verifyExistingWalletOnly = process.env.ANDROID_CREATE_WALLET_VERIFY_EXISTING_ONLY === 'true';
 const standardWalletName =
   process.env.ANDROID_CREATE_WALLET_STANDARD_NAME || `Std${new Date().toISOString().replace(/\D/g, '').slice(8, 14)}`;
@@ -59,6 +60,7 @@ let appProcessRestartCompleted = false;
 let unlockScreenReachedAfterRestart = false;
 let incorrectPinRejectedAfterRestart = false;
 let correctPinAcceptedAfterRestart = false;
+let storagePasswordPromptCompleted = storagePassword ? false : null;
 let secureWindowFlagOnMnemonicScreen = 'not checked';
 let secureWindowFlagAfterRestart = 'not checked';
 let vaultNextStepReached = false;
@@ -197,6 +199,9 @@ const writeSummary = exitCode => {
     `Unlock screen reached after restart: ${unlockScreenReachedAfterRestart ? 'yes' : 'no'}`,
     `Incorrect PIN rejected after restart: ${incorrectPinRejectedAfterRestart ? 'yes' : 'no'}`,
     `Correct PIN accepted after restart: ${correctPinAcceptedAfterRestart ? 'yes' : 'no'}`,
+    `Storage password prompt completed: ${
+      storagePasswordPromptCompleted === null ? 'not configured' : storagePasswordPromptCompleted ? 'yes' : 'no'
+    }`,
     `Secure window flag on mnemonic screen: ${secureWindowFlagOnMnemonicScreen}`,
     `Secure window flag after restart: ${secureWindowFlagAfterRestart}`,
     `Vault wallet name: ${vaultWalletName}`,
@@ -291,6 +296,26 @@ const getNodeByContentDescription = (uiHierarchy, contentDescription) => {
   if (nodeStart === -1 || nodeEnd === -1) {
     return null;
   }
+
+  const node = uiHierarchy.slice(nodeStart, nodeEnd + 1);
+  const boundsMatch = node.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/);
+
+  return {
+    enabled: /enabled="true"/.test(node),
+    bounds: boundsMatch ? boundsMatch.slice(1).map(value => Number(value)) : null,
+  };
+};
+
+const getNodeByClass = (uiHierarchy, className) => {
+  const classMarker = `class="${className}"`;
+  const classIndex = uiHierarchy.indexOf(classMarker);
+
+  if (classIndex === -1) return null;
+
+  const nodeStart = uiHierarchy.lastIndexOf('<node', classIndex);
+  const nodeEnd = uiHierarchy.indexOf('>', classIndex);
+
+  if (nodeStart === -1 || nodeEnd === -1) return null;
 
   const node = uiHierarchy.slice(nodeStart, nodeEnd + 1);
   const boundsMatch = node.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/);
@@ -592,6 +617,22 @@ const restartAppAndWaitForDashboard = (label, { requirePersistedStandardWallet =
   sleep(1000);
   run(`${label}: launch app`, ['shell', 'am', 'start', '-W', '-n', activityName]);
   sleep(6000);
+
+  if (storagePassword) {
+    const promptHierarchy = readUiHierarchy(`${label} storage password prompt`);
+    const passwordInput = getNodeByClass(promptHierarchy, 'android.widget.EditText');
+    const confirmButton = getNodeByResourceId(promptHierarchy, 'android:id/button1');
+
+    if (!passwordInput?.enabled || !confirmButton?.enabled) {
+      throw new Error(`${label}: encrypted-storage password prompt was not ready.`);
+    }
+
+    tapNodeCenter(passwordInput);
+    run(`${label}: enter encrypted-storage password`, ['shell', 'input', 'text', storagePassword]);
+    tapNodeCenter(confirmButton);
+    storagePasswordPromptCompleted = true;
+    sleep(4000);
+  }
 
   let dashboard = assertReadyDashboard(
     label,
