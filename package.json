@@ -110,6 +110,7 @@
     "check:rn-target-snapshot-summary-guard": "node scripts/checkReactNativeTargetSnapshotSummaryGuard.mjs",
     "react19:impact:audit": "node scripts/auditReact19Impact.mjs",
     "check:react19-impact-guard": "node scripts/checkReact19ImpactGuard.mjs",
+    "check:rn-087-readiness": "node scripts/checkReactNative087Readiness.mjs",
     "react:package-coupling:audit": "node scripts/auditReactPackageCoupling.mjs",
     "check:react-package-coupling-guard": "node scripts/checkReactPackageCouplingGuard.mjs",
     "react:renderer-version:audit": "node scripts/auditReactNativeRendererVersion.mjs",
