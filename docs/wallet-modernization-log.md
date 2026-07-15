@@ -10,6 +10,53 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.903 - TypeScript ESLint 8.64.0 patch
+
+- Branch: `feature/bem-37-903-typescript-eslint-8-64`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the matched `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` pair from `8.63.0` to current latest `8.64.0`.
+- Refresh the ESLint compatibility, tooling-latest, direct-outdated, and TypeScript 7 blocker contracts without changing the existing lint policy.
+- Re-prove JavaScript tooling, Android debug/release builds, and the production emulator runtime.
+
+Findings:
+
+- Live npm metadata on 2026-07-15 reports both TypeScript ESLint packages at `8.64.0`; their Node, ESLint 10, and TypeScript 6 peer ranges accept the current repo baseline.
+- TypeScript 7 remains intentionally pinned out: the refreshed isolated probe reports `ERESOLVE`, and TypeScript ESLint `8.64.0` still peers `typescript >=4.8.4 <6.1.0` while `ts-jest@29.4.11` peers `<7`.
+- Direct outdated now reports `19` entries: `15` known blockers, `4` exotic/git-pinned entries, and `0` review-required entries. The tooling latest snapshot reports the updated parser/plugin pair as current.
+- Frozen install, rn-nodeify shims, TypeScript, 12 unit suites / 68 tests, the focused storage/network suite, lint-staged, Prettier, and ESLint compatibility checks pass.
+- The controlled lint audit remains unchanged at `36,842` known CRLF baseline errors and `0` warnings; no mass formatting or lint-policy expansion is part of this patch.
+- Android `devDebug` and fresh `prodRelease` build successfully. Fresh `prodRelease` smoke passes on `emulator-5554` without Metro: onboarding, empty-dashboard Create/Import navigation, QR scanner, all empty-state tabs, and Settings Terms WebView pass with no fatal Android or React Native runtime findings.
+- The locally signed smoke APK SHA-256 is `3371254766de5c23cb87d2ca725781211e4ceafb4b95d561cb400a5997339e02`; its unsigned source APK SHA-256 is `0e673c7c1160cf455521ba6f5f4da9c128dd0c9db24749fa5e85ed68a2e91e8b`.
+- iOS static validation reports `0` errors and the existing `12` Podfile.lock drift issues. Runtime delivery remains unclaimed until macOS/Xcode/CocoaPods refresh and validate the shared schemes.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @typescript-eslint/eslint-plugin version peerDependencies engines --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view @typescript-eslint/parser version peerDependencies engines --json`
+- RED compatibility contract before the dependency update
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:eslint-config-compatibility`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn tooling:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript7:compatibility-probe:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript7:compatibility-probe:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true node scripts/runAndroidGradle.mjs :app:assembleProdRelease -x lint`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.902 - Protobufjs 8.7.1 Firebase owner-path patch
 
 - Branch: `feature/bem-37-902-protobufjs-8-7-1`
