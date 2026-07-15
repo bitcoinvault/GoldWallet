@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.900 - Resilient React Native target refresh policy
+
+- Branch: `feature/bem-37-900-rn-target-refresh-policy`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the React Native planning snapshot from npm after `next` moved to `0.87.0-rc.1`.
+- Stop exact daily RN nightly versions from invalidating the complete online foundation target refresh.
+- Keep stable `latest`, planning `next`, React peer, Node engine, channel classification, and nightly tag shape as enforced compatibility gates.
+
+Findings:
+
+- The first `foundation:target:refresh-online` run failed before dependency discovery because live npm reported `0.87.0-rc.1` and a newer daily nightly while the snapshot expected RC0 and an older nightly.
+- BEM-37.899 already probed `0.87.0-rc.1` and recorded the AsyncStorage/AGP 9 blocker, so RC1 is planning evidence rather than a production dependency change.
+- Exact nightly hashes and dates are informational. The refreshed gate accepts a changing nightly only when it remains a valid prerelease nightly tag, remains distinct from stable `latest`, and all stable/next/peer/engine checks still match.
+- Live Android metadata moved to AGP `9.3.0`, Gradle `9.6.1`, and Kotlin `2.4.10`. A real isolated RN `0.86.0` probe used that complete tuple with JDK 17 and failed in `:gradle-plugin:settings-plugin:compileKotlin` while compiling `ReactSettingsExtension.kt`.
+- The isolated failure confirms that Gradle supplies Kotlin metadata `2.3.0`, while the React Native Gradle plugin compiler path can read up to `2.2.0`. The validated production baseline therefore remains AGP `8.13.2`, Gradle `8.13`, and Kotlin `2.1.20`.
+- The direct outdated snapshot now contains `23` entries: `19` known blockers, `4` exotic/git-pinned entries, and `0` review-required entries. Newly visible patch drifts for TypeScript ESLint, `protobufjs`, and `react-native-screens` remain assigned to separate owner-path branches.
+- Production remains on React Native `0.86.0`; this branch changes target discovery policy and documentation, not runtime dependencies.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-current-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-target-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn foundation:target:refresh-online`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 node scripts/runAndroidGradle.mjs :gradle-plugin:settings-plugin:compileKotlin --stacktrace` in isolated worktree `D:\wt\GoldWallet\bem-37-900-agp93-probe` with AGP `9.3.0`, Gradle `9.6.1`, and Kotlin `2.4.10` (expected compatibility blocker)
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.899 - React Native 0.87 and AGP 9 readiness
 
 - Branch: `feature/bem-37-899-rn-087-readiness`

@@ -1,6 +1,4 @@
-import {
-  expectedReactNativeTargetSnapshot,
-} from './auditReactNativeTargetSnapshot.mjs';
+import { expectedReactNativeTargetSnapshot } from './auditReactNativeTargetSnapshot.mjs';
 import {
   getReactNativeTargetSnapshotCurrentIssues,
   formatReactNativeTargetSnapshotCurrentSummary,
@@ -52,11 +50,21 @@ if (!staleSummary.includes('Live check outcome: stale') || !staleSummary.include
   console.error('Changed live npm metadata fixture should produce a stale summary with one mismatch.');
   process.exit(1);
 }
-assertRejected('Changed next fixture', { ...validCurrent, next: '0.86.0-rc.3' }, 'npm next react-native is 0.86.0-rc.3');
+assertRejected(
+  'Changed next fixture',
+  { ...validCurrent, next: '0.86.0-rc.3' },
+  'npm next react-native is 0.86.0-rc.3',
+);
 assertAccepted('Changed valid nightly fixture', {
   ...validCurrent,
   nightly: '0.88.0-nightly-20260715-abcdef123',
 });
+assertRejected('Malformed nightly fixture', { ...validCurrent, nightly: '0.88.0-dev' }, 'npm nightly tag format is invalid');
+assertRejected(
+  'Malformed nightly fixture',
+  { ...validCurrent, nightly: '0.88.0-dev' },
+  'npm nightly tag format is invalid',
+);
 assertRejected('Stable next fixture', { ...validCurrent, next: '0.86.0' }, 'npm next channel classification is stable');
 assertRejected(
   'Next equals latest fixture',

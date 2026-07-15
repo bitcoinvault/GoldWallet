@@ -7,24 +7,25 @@ Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.
 
 ## Snapshot
 
-- NPM snapshot date: `2026-07-12`
+- NPM snapshot date: `2026-07-15`
 - Current repo React Native: `0.86.0`
 - Current repo React: `19.2.3`
 - Current repo Metro/dev Node runtime: `24.16.0`
 - npm `latest`: `0.86.0`
-- npm `next`: `0.87.0-rc.0`
-- npm `nightly`: `0.88.0-nightly-20260712-1790c61ac`
+- npm `next`: `0.87.0-rc.1`
+- npm `nightly` last observed: `0.88.0-nightly-20260715-ef54f74de`
 - npm `next` channel classification: `prerelease`
+- npm `nightly` tracking policy: `informational version, enforced prerelease tag format`
 - Default upgrade channel: `latest`
 - React peer for `react-native@0.86.0`: `^19.2.3`
 - Node engine for `react-native@0.86.0`: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
-- Latest live verification: `2026-07-12T17:43:30.469Z`
+- Latest live verification: `2026-07-15`
 - Live check outcome: `matched`
 - Live check mismatches: `0`
 
 ## Meaning
 
-This snapshot is not a direct-upgrade instruction. It shows the current stable target line and the minimum ecosystem shift implied by that line: React 19, a newer Node runtime for RN tooling, newer Metro behavior, Android/iOS template changes, and native dependency compatibility work. The `next` and `nightly` tags are recorded for planning, but RC/nightly builds are not treated as the wallet's default upgrade target unless a dedicated branch proves that tradeoff is needed. If npm `next` stops being a prerelease line or starts matching `latest`, refresh this document and the target policy before starting another baseline branch.
+This snapshot is not a direct-upgrade instruction. It shows the current stable target line and the minimum ecosystem shift implied by that line: React 19, a newer Node runtime for RN tooling, newer Metro behavior, Android/iOS template changes, and native dependency compatibility work. The `next` and `nightly` tags are recorded for planning, but RC/nightly builds are not treated as the wallet's default upgrade target unless a dedicated branch proves that tradeoff is needed. Exact `nightly` versions are informational because that channel changes frequently; the live gate enforces a valid prerelease nightly tag instead of requiring the last-observed version. Changes to `latest`, `next`, their channel relationship, the React peer, or the Node engine still fail the gate and require a target-policy refresh.
 
 Use it to size and sequence the RN modernization path. Re-check npm and the official React Native release page at the start of the actual RN baseline branch, then update this snapshot in that branch if the target line has changed.
 
