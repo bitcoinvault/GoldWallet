@@ -25,7 +25,6 @@ const requiredKnownEntries = [
   ['protobufjs', 'resolutionDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
-  ['react-native-screens', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
   ['typescript', 'devDependencies'],
