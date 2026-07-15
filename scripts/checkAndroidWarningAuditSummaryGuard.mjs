@@ -6,26 +6,15 @@ const validSummary = [
   'Android Gradle audit timeout: 300000ms',
   'Android Gradle audit exit code: 0',
   'Android Gradle warning baseline guard exit code: 0',
-  'Targeted Android Gradle warnings: 1',
-  'Unexpected targeted Android Gradle warnings: 0',
-  String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
-].join('\n');
-
-const zeroWarningSummary = [
-  'Generated at: 2026-05-28T00:00:00.000Z',
-  'Android Gradle audit log path: D:\\GoldWallet\\local-docs\\android-warning-audit.log',
-  'Android Gradle audit timeout: 300000ms',
-  'Android Gradle audit exit code: 0',
-  'Android Gradle warning baseline guard exit code: 0',
   'Targeted Android Gradle warnings: 0',
   'Unexpected targeted Android Gradle warnings: 0',
 ].join('\n');
 
-const badCountSummary = validSummary.replace('Targeted Android Gradle warnings: 1', 'Targeted Android Gradle warnings: 0');
-const unexpectedSourceSummary = validSummary.replace(
-  String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\react-native-secure-key-store\android\build.gradle:46)`,
-  String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\new-native-lib\android\build.gradle:59)`,
-);
+const badCountSummary = `${validSummary}\n- jcenter(): unexpected warning without matching count`;
+const unexpectedSourceSummary = validSummary
+  .replace('Targeted Android Gradle warnings: 0', 'Targeted Android Gradle warnings: 1')
+  .replace('Unexpected targeted Android Gradle warnings: 0', 'Unexpected targeted Android Gradle warnings: 1')
+  .concat('\n', String.raw`- jcenter(): at build_abc$_run_closure2.doCall(D:\GoldWallet\node_modules\new-native-lib\android\build.gradle:59)`);
 
 const assertAccepted = (label, summary) => {
   const errors = getWarningSummarySourceErrors(summary);
@@ -47,8 +36,7 @@ const assertRejected = (label, summary, expectedError) => {
   }
 };
 
-assertAccepted('Known warning baseline summary fixture', validSummary);
-assertAccepted('Zero warning target summary fixture', zeroWarningSummary);
+assertAccepted('Zero warning target summary fixture', validSummary);
 assertRejected('Mismatched warning count fixture', badCountSummary, 'Targeted Android Gradle warnings must be 1');
 assertRejected('Unexpected warning source fixture', unexpectedSourceSummary, 'Unexpected targeted Android warning source');
 

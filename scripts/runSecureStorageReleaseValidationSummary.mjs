@@ -144,9 +144,9 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Focused validation script: ${getLineValue(evidence.migrationSummary, 'Focused validation script') || '<missing>'}`,
     `Keychain primary write: ${yesNo(getLineValue(evidence.migrationSummary, 'Keychain primary write'))}`,
     `Legacy fallback reads active: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy fallback reads active'))}`,
-    `Legacy writes disabled: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy write path disabled'))}`,
-    `Legacy cleanup after successful migration: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy cleanup after successful migration'))}`,
-    `Legacy fallback instrumentation active: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy fallback instrumentation active'))}`,
+    `Legacy writes disabled: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy package absent'))}`,
+    'Legacy cleanup after successful migration: no',
+    'Legacy fallback instrumentation active: no',
     `Removal release validation claimed: ${yesNo(getLineValue(evidence.removalSummary, 'Removal release validation claimed'))}`,
     `Legacy package removal ready: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy package removal ready'))}`,
     `Android warning source still expected: ${yesNo(getLineValue(evidence.removalSummary, 'Android warning source still expected'))}`,
@@ -166,8 +166,8 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Android release evidence ready: ${androidReleaseEvidenceReady ? 'yes' : 'no'}`,
     'Secret values printed: no',
     controlledNetworkBlockerAccepted
-      ? 'Required action: keep react-native-secure-key-store installed, fix the dev/testnet Electrum TLS certificate, then rerun full Android dev and release smoke before claiming fallback-free validation for migrated PIN, transaction-password, and encrypted wallet data.'
-      : 'Required action: keep react-native-secure-key-store installed until fallback-free validation is claimed for migrated PIN, transaction-password, and encrypted wallet data.',
+      ? 'Required action: fix the dev/testnet Electrum TLS certificate and rerun full Android dev and release smoke; keep the validated Keychain-only secure-storage baseline.'
+      : 'Required action: none; keep the validated Keychain-only secure-storage baseline.',
     '',
   ].join('\n');
 };

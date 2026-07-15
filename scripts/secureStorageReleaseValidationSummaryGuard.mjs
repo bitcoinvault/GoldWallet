@@ -76,8 +76,8 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     errors.push(`Current secure-storage package must be react-native-keychain@10.0.0. Received: ${currentPackage || 'missing'}`);
   }
 
-  if (legacyPackage !== 'react-native-secure-key-store@2.0.10') {
-    errors.push(`Legacy secure-storage package must be react-native-secure-key-store@2.0.10. Received: ${legacyPackage || 'missing'}`);
+  if (legacyPackage !== '<removed>') {
+    errors.push(`Legacy secure-storage package must be <removed>. Received: ${legacyPackage || 'missing'}`);
   }
 
   yesNoLabels.forEach(label => {
@@ -209,32 +209,32 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     errors.push('Keychain primary write must stay enabled');
   }
 
-  if (getLineValue(summary, 'Legacy fallback reads active') !== 'yes') {
-    errors.push('Legacy fallback reads must remain active until release validation without fallback is explicitly claimed');
+  if (getLineValue(summary, 'Legacy fallback reads active') !== 'no') {
+    errors.push('Legacy fallback reads must remain disabled after legacy removal');
   }
 
   if (getLineValue(summary, 'Legacy writes disabled') !== 'yes') {
     errors.push('Legacy writes must stay disabled during staged migration');
   }
 
-  if (getLineValue(summary, 'Legacy cleanup after successful migration') !== 'yes') {
-    errors.push('Legacy cleanup after successful migration must stay enabled');
+  if (getLineValue(summary, 'Legacy cleanup after successful migration') !== 'no') {
+    errors.push('Legacy cleanup must be absent after legacy removal');
   }
 
-  if (getLineValue(summary, 'Legacy fallback instrumentation active') !== 'yes') {
-    errors.push('Legacy fallback instrumentation must stay enabled until fallback-free validation is claimed');
+  if (getLineValue(summary, 'Legacy fallback instrumentation active') !== 'no') {
+    errors.push('Legacy fallback instrumentation must be absent after legacy removal');
   }
 
-  if (getLineValue(summary, 'Removal release validation claimed') !== 'no') {
-    errors.push('Removal release validation must remain unclaimed while fallback reads are active');
+  if (getLineValue(summary, 'Removal release validation claimed') !== 'yes') {
+    errors.push('Removal release validation must remain claimed after historical migration validation');
   }
 
-  if (getLineValue(summary, 'Legacy package removal ready') !== 'no') {
-    errors.push('Legacy package removal must remain blocked while fallback reads are active');
+  if (getLineValue(summary, 'Legacy package removal ready') !== 'yes') {
+    errors.push('Legacy package removal must remain ready');
   }
 
-  if (getLineValue(summary, 'Android warning source still expected') !== 'yes') {
-    errors.push('Android warning source must remain expected while react-native-secure-key-store is installed');
+  if (getLineValue(summary, 'Android warning source still expected') !== 'no') {
+    errors.push('Removed legacy package must not remain an expected Android warning source');
   }
 
   if (getLineValue(summary, 'Secure-storage release validation evidence ready') !== 'yes') {
@@ -245,8 +245,8 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     errors.push('Secure-storage release validation summary must not print secret values');
   }
 
-  if (!requiredAction.includes('keep react-native-secure-key-store installed')) {
-    errors.push('Required action must keep react-native-secure-key-store installed until fallback-free validation is claimed');
+  if (!requiredAction.includes('keep the validated Keychain-only secure-storage baseline')) {
+    errors.push('Required action must preserve the validated Keychain-only baseline');
   }
 
   return errors;

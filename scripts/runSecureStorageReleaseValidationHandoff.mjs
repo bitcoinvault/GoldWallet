@@ -113,8 +113,8 @@ export const getSecureStorageReleaseValidationReadinessErrors = ({
 
     [
       'Keychain primary write: yes',
-      'Legacy secure-storage writes disabled: yes',
-      'Legacy secure-storage fallback reads active: yes',
+      'Legacy secure-storage fallback reads active: no',
+      'Legacy secure-storage runtime removed: yes',
       'Secure-storage migration baseline stable: yes',
     ].forEach(expected => {
       if (!migrationSummary.includes(expected)) {
@@ -131,9 +131,9 @@ export const getSecureStorageReleaseValidationReadinessErrors = ({
     });
 
     [
-      'Removal release validation claimed: no',
-      'Legacy package removal ready: no',
-      'Required action: keep react-native-secure-key-store installed until release validation is claimed for migrated secure values.',
+      'Removal release validation claimed: yes',
+      'Legacy package removal ready: yes',
+      'Required action: none; keep the removed legacy backend from returning.',
     ].forEach(expected => {
       if (!removalSummary.includes(expected)) {
         errors.push(`Secure-storage removal readiness summary must include: ${expected}`);
@@ -222,7 +222,7 @@ const main = () => {
   if (options.dryRun) {
     console.log('Secure-storage release validation handoff dry run');
     console.log(`Android dev build and emulator smoke: ${options.skipAndroidSmoke ? 'skipped' : 'included'}`);
-    console.log('This handoff validates the migration posture but does not claim legacy package removal readiness.');
+    console.log('This handoff validates the final Keychain-only secure-storage posture.');
     commands.forEach((step, index) => {
       console.log(`${index + 1}. ${step.label}`);
       console.log(`   ${renderSecureStorageReleaseValidationCommand(step)}`);
@@ -252,7 +252,7 @@ const main = () => {
   }
 
   console.log('\nSecure-storage release validation handoff completed.');
-  console.log('Legacy secure-storage removal is still not claimed; keep react-native-secure-key-store installed.');
+  console.log('Legacy secure-storage removal and the Keychain-only runtime are validated.');
   return 0;
 };
 

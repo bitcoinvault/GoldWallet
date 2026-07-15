@@ -62,8 +62,8 @@ assert(
 
 const partialReadyMigrationSummary = [
   'Keychain primary write: yes',
-  'Legacy secure-storage writes disabled: yes',
-  'Legacy secure-storage fallback reads active: yes',
+  'Legacy secure-storage fallback reads active: no',
+  'Legacy secure-storage runtime removed: yes',
   'Secure-storage migration baseline stable: yes',
 ].join('\n');
 
@@ -71,63 +71,44 @@ const readyMigrationSummary = [
   'Secure-storage migration audit',
   'Generated at: 2026-06-10T00:00:00.000Z',
   'Current secure-storage package: react-native-keychain@10.0.0',
-  'Legacy secure-storage package: react-native-secure-key-store@2.0.10',
+  'Legacy secure-storage package: <removed>',
   'SecureStorageService file: src/services/SecureStorageService.ts',
   'AppStorage secure-storage file: class/app-storage.js',
   'Stores PIN: yes',
   'Stores transaction password hash: yes',
   'Keychain primary write: yes',
-  'Legacy secure-storage writes disabled: yes',
-  'Legacy secure-storage fallback reads active: yes',
-  'Legacy secure-storage cleanup after successful migration: yes',
-  'Legacy fallback instrumentation active: yes',
+  'Legacy secure-storage fallback reads active: no',
+  'Legacy secure-storage runtime removed: yes',
   'Focused validation script: test:storage-network:focused',
   'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
-  'Warning baseline mentions secure-key-store: yes',
-  'Legacy secure-storage removal ready: no',
-  'Legacy secure-storage removal blocker: legacy fallback reads are still active; remove react-native-secure-key-store only after a release validates migrated PIN, transaction-password, and encrypted wallet data without the fallback backend',
   'Secure-storage migration baseline stable: yes',
-  'Warnings: 0',
-  'Required action: none; secure-storage migration baseline is stable for a dedicated storage validation branch.',
+  'Errors: 0',
+  'Required action: none; keep secure storage on the validated Keychain-only baseline.',
 ].join('\n');
 
 const partialBlockedRemovalSummary = [
-  'Removal release validation claimed: no',
-  'Legacy package removal ready: no',
-  'Required action: keep react-native-secure-key-store installed until release validation is claimed for migrated secure values.',
+  'Removal release validation claimed: yes',
+  'Legacy package removal ready: yes',
+  'Required action: none; keep the removed legacy backend from returning.',
 ].join('\n');
 
 const blockedRemovalSummary = [
   'Secure-storage removal readiness audit',
   'Generated at: 2026-06-10T00:00:00.000Z',
   'Current secure-storage package: react-native-keychain@10.0.0',
-  'Legacy secure-storage package: react-native-secure-key-store@2.0.10',
-  'Current posture: staged migration with legacy fallback',
+  'Legacy secure-storage package: <removed>',
+  'Current posture: Keychain-only after validated historical migration',
   'Keychain primary write: yes',
-  'Legacy fallback reads active: yes',
-  'Legacy write path disabled: yes',
-  'Legacy cleanup after successful migration: yes',
-  'Legacy fallback instrumentation active: yes',
-  'SecureStorageService fallback migration tests present: yes',
-  'SecureStorageService keychain-failure empty fallback tests present: yes',
-  'SecureStorageService fallback-free keychain tests present: yes',
-  'SecureStorageService secret-safe fallback instrumentation tests present: yes',
-  'SecureStorageService legacy native-module unavailable tests present: yes',
-  'AppStorage fallback migration tests present: yes',
-  'AppStorage keychain-failure empty fallback tests present: yes',
-  'AppStorage fallback-free encrypted wallet tests present: yes',
-  'AppStorage secret-safe fallback instrumentation tests present: yes',
-  'AppStorage legacy native-module unavailable tests present: yes',
-  'Fallback migration tests present: yes',
-  'Removal release validation claimed: no',
-  'Android warning source still expected: yes',
-  'Legacy package removal ready: no',
-  'Required release validation: migrated PIN, transaction-password, and encrypted wallet data without the fallback backend',
-  'Removal blocker: release validation is not claimed while legacy fallback reads remain active',
-  'Warnings: 0',
+  'Legacy fallback reads active: no',
+  'Legacy package absent: yes',
+  'Legacy adapter absent: yes',
+  'Keychain-only tests present: yes',
+  'Historical legacy migration proof guarded: yes',
+  'Removal release validation claimed: yes',
+  'Android warning source still expected: no',
+  'Legacy package removal ready: yes',
   'Errors: 0',
-  'Secret values printed: no',
-  'Required action: keep react-native-secure-key-store installed until release validation is claimed for migrated secure values.',
+  'Required action: none; keep the removed legacy backend from returning.',
 ].join('\n');
 
 const readyAndroidSmokeSummary = [
@@ -170,7 +151,7 @@ const readyFixtureErrors = getSecureStorageReleaseValidationReadinessErrors({
 
 assert(
   readyFixtureErrors.length === 0,
-  `Secure-storage readiness fixture must pass while removal remains unclaimed:\n${readyFixtureErrors.map(error => `- ${error}`).join('\n')}`,
+  `Secure-storage readiness fixture must pass after legacy removal:\n${readyFixtureErrors.map(error => `- ${error}`).join('\n')}`,
 );
 assert(
   getSecureStorageReleaseValidationReadinessErrors({
@@ -190,19 +171,19 @@ assert(
 );
 assert(
   getSecureStorageReleaseValidationReadinessErrors({
-    migrationSummary: readyMigrationSummary.replace('Legacy secure-storage fallback reads active: yes', 'Legacy secure-storage fallback reads active: no'),
+    migrationSummary: readyMigrationSummary.replace('Legacy secure-storage fallback reads active: no', 'Legacy secure-storage fallback reads active: yes'),
     removalSummary: blockedRemovalSummary,
     androidSmokeSummary: readyAndroidSmokeSummary,
-  }).some(error => error.includes('Legacy secure-storage fallback reads active: yes')),
-  'Secure-storage readiness check must require active fallback reads before removal is claimed',
+  }).some(error => error.includes('Legacy secure-storage fallback reads active: no')),
+  'Secure-storage readiness check must reject restored fallback reads',
 );
 assert(
   getSecureStorageReleaseValidationReadinessErrors({
     migrationSummary: readyMigrationSummary,
-    removalSummary: blockedRemovalSummary.replace('Legacy package removal ready: no', 'Legacy package removal ready: yes'),
+    removalSummary: blockedRemovalSummary.replace('Legacy package removal ready: yes', 'Legacy package removal ready: no'),
     androidSmokeSummary: readyAndroidSmokeSummary,
-  }).some(error => error.includes('Legacy package removal ready: no')),
-  'Secure-storage readiness check must reject premature legacy package removal claims',
+  }).some(error => error.includes('Legacy package removal ready: yes')),
+  'Secure-storage readiness check must reject removal readiness regression',
 );
 assert(
   getSecureStorageReleaseValidationReadinessErrors({

@@ -84,7 +84,7 @@ Branch shape:
 - `react-native-config` -> `1.6.1`
 - `react-native-localize` -> `3.7.0`
 - `react-native-get-random-values` -> `2.0.0`
-- `react-native-secure-key-store` -> `2.0.10`
+- `react-native-secure-key-store` -> removed after validated historical migration
 - `react-native-keychain` -> `10.0.0`
 - `react-native-tcp-socket` -> `6.4.1`
 - `react-native-version-number` -> `0.3.6`
@@ -107,10 +107,10 @@ Branch shape:
 - `react-native-device-info` is on checked `15.0.2` after `BEM-37.109`; the app's used APIs remain available (`isEmulator`, `isPinOrFingerprintSet`, app/build metadata), and the package no longer contributes an Android `jcenter()` warning.
 - `react-native-exit-app` is on checked `2.0.0` after `BEM-37.106`; the package no longer contributes an Android `jcenter()` warning on the RN `0.86.0` baseline. Future exit-app work should validate factory reset and terms rejection behavior.
 - `react-native-localize` is on checked `3.7.0` after `BEM-37.107`; the package no longer contributes an Android `jcenter()` warning on the RN `0.86.0` baseline. Future localization work should focus on app language behavior and RN baseline changes.
-- `react-native-keychain@10.0.0` is installed beside `react-native-secure-key-store@2.0.10` for a staged secure-storage migration; new writes are Keychain-only, runtime fallback access is centralized through `src/services/LegacySecureKeyStore.ts`, and future secure-storage work should remove the legacy backend only after fallback reads have shipped and migrated data is validated without the fallback backend.
-- `corepack yarn secure-storage:migration:audit` records that secure storage protects PIN and transaction-password behavior before any replacement branch starts.
-- `corepack yarn secure-storage:release-validation:handoff` is the guarded release-candidate sequence for secure-storage validation before any future branch removes `react-native-secure-key-store`; it still keeps legacy package removal unclaimed while fallback reads are active.
-- `tests/integration/Storage.test.js` now locks the React Native `AppStorage` Keychain-only write and legacy fallback-read contract for encrypted wallet data before any later legacy secure-store removal.
+- `react-native-keychain@10.0.0` is the only secure-storage backend after the guarded historical migration and fallback-free upgrade-in-place validation.
+- `corepack yarn check:secure-storage-legacy-removal` prevents the removed package, adapter, environment switch, and runtime fallback references from returning.
+- `corepack yarn secure-storage:release-validation:handoff` validates the final Keychain-only posture and focused wallet storage contracts.
+- `tests/integration/Storage.test.js` locks the React Native `AppStorage` Keychain-only contract for encrypted wallet data.
 - `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 - `react-native-randombytes` was removed after the dedicated crypto/runtime replacement branch; random values are provided by `react-native-get-random-values@2.0.0`, imported in `index.js` before app startup.
 - `react-native-version-number` is pinned to the already-resolved `0.3.6` after `BEM-36.69`; future app metadata work should validate displayed/build version behavior on both platforms.

@@ -45,18 +45,21 @@ assert.ok(
 );
 
 const reactNativeConfig = readFileSync('react-native.config.js', 'utf8');
+const packageJson = readFileSync('package.json', 'utf8');
 const releaseSmokeDriver = readFileSync('scripts/androidSmokeDevReleaseEmbedded.mjs', 'utf8');
 const createWalletDriver = readFileSync('scripts/androidCreateWalletSmoke.mjs', 'utf8');
 const upgradeDriver = readFileSync('scripts/runSecureStorageUpgradeInPlaceValidation.mjs', 'utf8');
 
-assert.match(reactNativeConfig, /GOLDWALLET_DISABLE_LEGACY_SECURE_STORAGE/);
-assert.match(reactNativeConfig, /'react-native-secure-key-store'/);
-assert.match(reactNativeConfig, /android: null/);
+assert.doesNotMatch(reactNativeConfig, /GOLDWALLET_DISABLE_LEGACY_SECURE_STORAGE/);
+assert.doesNotMatch(reactNativeConfig, /'react-native-secure-key-store'/);
+assert.doesNotMatch(packageJson, /"react-native-secure-key-store"/);
 assert.match(releaseSmokeDriver, /--prepare-only/);
 assert.match(createWalletDriver, /ANDROID_CREATE_WALLET_VERIFY_EXISTING_ONLY/);
 assert.match(createWalletDriver, /Correct PIN accepted after restart/);
 assert.match(upgradeDriver, /'install', '-r', candidateApkPath/);
 assert.match(upgradeDriver, /RNSecureKeyStorePackage/);
+assert.match(upgradeDriver, /Missing retained legacy baseline APK/);
+assert.match(upgradeDriver, /scripts\/androidSmokeDevEmbedded\.mjs/);
 assert.match(upgradeDriver, /SENTRY_DISABLE_AUTO_UPLOAD: 'true'/);
 assert.match(upgradeDriver, /--resume-candidate/);
 assert.match(upgradeDriver, /previousOutcome !== 'failed'/);
