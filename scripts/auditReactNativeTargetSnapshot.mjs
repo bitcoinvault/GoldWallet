@@ -7,28 +7,31 @@ const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
 
 export const expectedReactNativeTargetSnapshot = {
-  snapshotDate: '2026-07-12',
+  snapshotDate: '2026-07-15',
   currentReactNative: '0.86.0',
   currentReact: '19.2.3',
   currentNode: '24.16.0',
   npmLatestReactNative: '0.86.0',
-  npmNextReactNative: '0.87.0-rc.0',
-  npmNightlyReactNative: '0.88.0-nightly-20260712-1790c61ac',
+  npmNextReactNative: '0.87.0-rc.1',
+  npmNightlyReactNative: '0.88.0-nightly-20260715-ef54f74de',
   npmNextChannel: 'prerelease',
+  npmNightlyChannel: 'prerelease',
+  npmNightlyTagFormat: 'valid',
   defaultUpgradeChannel: 'latest',
   targetReactPeer: '^19.2.3',
   targetNodeEngine: '^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0',
 };
 
 export const requiredReactNativeTargetSnapshotSnippets = [
-  ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-07-12`'],
+  ['docs/react-native-target-snapshot.md', 'NPM snapshot date: `2026-07-15`'],
   ['docs/react-native-target-snapshot.md', 'Current repo React Native: `0.86.0`'],
   ['docs/react-native-target-snapshot.md', 'Current repo React: `19.2.3`'],
   ['docs/react-native-target-snapshot.md', 'Current repo Metro/dev Node runtime: `24.16.0`'],
   ['docs/react-native-target-snapshot.md', 'npm `latest`: `0.86.0`'],
-  ['docs/react-native-target-snapshot.md', 'npm `next`: `0.87.0-rc.0`'],
-  ['docs/react-native-target-snapshot.md', 'npm `nightly`: `0.88.0-nightly-20260712-1790c61ac`'],
+  ['docs/react-native-target-snapshot.md', 'npm `next`: `0.87.0-rc.1`'],
+  ['docs/react-native-target-snapshot.md', 'npm `nightly` last observed: `0.88.0-nightly-20260715-ef54f74de`'],
   ['docs/react-native-target-snapshot.md', 'npm `next` channel classification: `prerelease`'],
+  ['docs/react-native-target-snapshot.md', 'npm `nightly` tracking policy: `informational version, enforced prerelease tag format`'],
   ['docs/react-native-target-snapshot.md', 'Default upgrade channel: `latest`'],
   ['docs/react-native-target-snapshot.md', 'React peer for `react-native@0.86.0`: `^19.2.3`'],
   ['docs/react-native-target-snapshot.md', 'Node engine for `react-native@0.86.0`: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`'],
@@ -102,7 +105,7 @@ const printReport = environment => {
   console.log(`Current .nvmrc: ${environment.nvmrc || '<missing>'}`);
   console.log(`npm latest snapshot: react-native@${expectedReactNativeTargetSnapshot.npmLatestReactNative}`);
   console.log(`npm next snapshot: react-native@${expectedReactNativeTargetSnapshot.npmNextReactNative}`);
-  console.log(`npm nightly snapshot: react-native@${expectedReactNativeTargetSnapshot.npmNightlyReactNative}`);
+  console.log(`npm nightly last observed: react-native@${expectedReactNativeTargetSnapshot.npmNightlyReactNative}`);
   console.log(`Target React peer snapshot: ${expectedReactNativeTargetSnapshot.targetReactPeer}`);
   console.log(`Target Node engine snapshot: ${expectedReactNativeTargetSnapshot.targetNodeEngine}`);
 

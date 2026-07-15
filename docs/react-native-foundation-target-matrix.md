@@ -17,13 +17,14 @@ This matrix defines how to move the app foundation forward without upgrading eve
 ## Latest Snapshot
 
 - npm `react-native@latest`: `0.86.0`
-- npm `react-native@next`: `0.87.0-rc.0`
-- npm `react-native@nightly`: `0.88.0-nightly-20260712-1790c61ac`
+- npm `react-native@next`: `0.87.0-rc.1`
+- npm `react-native@nightly` last observed: `0.88.0-nightly-20260715-ef54f74de`
 - `react-native@0.86.0` peer React: `^19.2.3`
 - `react-native@0.86.0` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
-- Snapshot recorded: `2026-07-12`
-- Latest live verification: `2026-07-12`, outcome `matched`, mismatches `0`
+- Snapshot recorded: `2026-07-15`
+- Latest live verification: `2026-07-15`, outcome `matched`, mismatches `0`
 - `react-native@next` is currently a prerelease channel and is not the default wallet target.
+- Exact nightly drift is informational; the live gate enforces the nightly prerelease tag shape without requiring a daily snapshot commit.
 
 ## Milestone Jump Strategy
 
@@ -66,9 +67,9 @@ Status:
 
 - This is now the current foundation checkpoint.
 - It keeps React pinned to `19.2.3` while `react-native-renderer` stays on `19.2.3`; package-only React `19.2.7` remains blocked by renderer coupling.
-- It records AGP `9.2.1`, Gradle `9.6.1`, stable Kotlin `2.4.0`, and Kotlin metadata release `2.4.20-Beta1` as not yet adoptable because the React Native Gradle plugin `0.86.0` path cannot compile through the Gradle 9 embedded Kotlin metadata path. The direct Gradle `9.6.1` probe failed in `:gradle-plugin:settings-plugin:compileKotlin` while compiling `ReactSettingsExtension.kt`.
+- It records AGP `9.3.0`, Gradle `9.6.1`, stable Kotlin `2.4.10`, and Kotlin metadata release `2.4.20-Beta1` as not yet adoptable because the React Native Gradle plugin `0.86.0` path cannot compile through the Gradle 9 embedded Kotlin metadata path. The real isolated Gradle `9.6.1` probe failed in `:gradle-plugin:settings-plugin:compileKotlin` while compiling `ReactSettingsExtension.kt`.
 - The validated Android foundation remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17` until a future RN Gradle plugin baseline clears that blocker.
-- Live npm metadata checked on `2026-07-12` keeps stable `latest` on `0.86.0`, while `next` remains `0.87.0-rc.0` and `nightly` moved to `0.88.0-nightly-20260712-1790c61ac`; those remain planning channels, not the default wallet target.
+- Live npm metadata checked on `2026-07-15` keeps stable `latest` on `0.86.0`, while `next` moved to `0.87.0-rc.1` and nightly was observed at `0.88.0-nightly-20260715-ef54f74de`; those remain planning channels, not the default wallet target. BEM-37.899 records the RC1 compatibility probe and its AsyncStorage/AGP 9 blocker.
 
 ### Milestone C: Future current line
 

@@ -84,6 +84,22 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
+    name: '@typescript-eslint/eslint-plugin',
+    current: '8.63.0',
+    wanted: '8.63.0',
+    latest: '8.64.0',
+    type: 'devDependencies',
+    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
+  },
+  {
+    name: '@typescript-eslint/parser',
+    current: '8.63.0',
+    wanted: '8.63.0',
+    latest: '8.64.0',
+    type: 'devDependencies',
+    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
+  },
+  {
     name: 'babel-plugin-polyfill-regenerator',
     current: '0.6.8',
     wanted: '0.6.8',
@@ -124,6 +140,14 @@ const validEntries = [
     decision: 'blocked - plist major drift belongs in a dedicated iOS/config tooling owner-path branch with xcode/config-plugin compatibility proof',
   },
   {
+    name: 'protobufjs',
+    current: '8.7.0',
+    wanted: '8.7.0',
+    latest: '8.7.1',
+    type: 'resolutionDependencies',
+    decision: 'blocked - protobufjs major drift belongs in a dedicated Firebase/storage-network branch with focused tests, Android build, and emulator smoke proof',
+  },
+  {
     name: 'react',
     current: '19.2.3',
     wanted: '19.2.3',
@@ -138,6 +162,14 @@ const validEntries = [
     latest: 'exotic',
     type: 'dependencies',
     decision: 'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
+  },
+  {
+    name: 'react-native-screens',
+    current: '4.26.0',
+    wanted: '4.26.0',
+    latest: '4.26.1',
+    type: 'dependencies',
+    decision: 'blocked - native screens patch drift requires a dedicated navigation/native-screens branch with stack/tab navigation and Android emulator proof',
   },
   {
     name: 'react-test-renderer',
@@ -203,10 +235,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 19', 'Entries: 18'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 23', 'Entries: 22'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 19', 'Entries: 20').replace(
+  validSummary.replace('Entries: 23', 'Entries: 24').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -247,7 +279,7 @@ assertRejected(
 );
 assertRejected(
   'Missing caniuse-lite resolution blocker fixture',
-  validSummary.replace('Entries: 19', 'Entries: 20').replace(
+  validSummary.replace('Entries: 23', 'Entries: 24').replace(
     'Secret values printed: no',
     '- caniuse-lite: current 1.0.30001805, wanted 1.0.30001805, latest 1.0.30001806, type resolutionDependencies, decision blocked - generic data branch required\nSecret values printed: no',
   ),

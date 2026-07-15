@@ -11,6 +11,7 @@ export const getReactNativeTargetSnapshotSummaryErrors = summary => {
   const snapshotDate = getLineValue(summary, 'Snapshot date');
   const outcome = getLineValue(summary, 'Live check outcome');
   const mismatches = getLineValue(summary, 'Mismatches');
+  const nightlyLine = getLineValue(summary, 'npm nightly react-native');
 
   if (!summary.startsWith('React Native target snapshot live npm check')) {
     errors.push('summary header is missing or invalid');
@@ -35,8 +36,9 @@ export const getReactNativeTargetSnapshotSummaryErrors = summary => {
   const expectedLines = [
     `npm latest react-native: ${expectedReactNativeTargetSnapshot.npmLatestReactNative} (snapshot: ${expectedReactNativeTargetSnapshot.npmLatestReactNative})`,
     `npm next react-native: ${expectedReactNativeTargetSnapshot.npmNextReactNative} (snapshot: ${expectedReactNativeTargetSnapshot.npmNextReactNative})`,
-    `npm nightly react-native: ${expectedReactNativeTargetSnapshot.npmNightlyReactNative} (snapshot: ${expectedReactNativeTargetSnapshot.npmNightlyReactNative})`,
     `npm next channel classification: ${expectedReactNativeTargetSnapshot.npmNextChannel} (snapshot: ${expectedReactNativeTargetSnapshot.npmNextChannel})`,
+    `npm nightly channel classification: ${expectedReactNativeTargetSnapshot.npmNightlyChannel} (snapshot: ${expectedReactNativeTargetSnapshot.npmNightlyChannel})`,
+    `npm nightly tag format: ${expectedReactNativeTargetSnapshot.npmNightlyTagFormat} (snapshot: ${expectedReactNativeTargetSnapshot.npmNightlyTagFormat})`,
     `default React Native upgrade channel: ${expectedReactNativeTargetSnapshot.defaultUpgradeChannel} (snapshot: latest)`,
     `react-native@${expectedReactNativeTargetSnapshot.npmLatestReactNative} React peer: ${expectedReactNativeTargetSnapshot.targetReactPeer} (snapshot: ${expectedReactNativeTargetSnapshot.targetReactPeer})`,
     `react-native@${expectedReactNativeTargetSnapshot.npmLatestReactNative} Node engine: ${expectedReactNativeTargetSnapshot.targetNodeEngine} (snapshot: ${expectedReactNativeTargetSnapshot.targetNodeEngine})`,
@@ -47,6 +49,13 @@ export const getReactNativeTargetSnapshotSummaryErrors = summary => {
       errors.push(`Expected summary line not found: ${expectedLine}`);
     }
   });
+
+  const nightlyPattern = new RegExp(
+    `^\\d+\\.\\d+\\.\\d+-nightly-\\d{8}-[0-9a-f]+ \\(snapshot: ${expectedReactNativeTargetSnapshot.npmNightlyReactNative.replaceAll('.', '\\.')}\\)$`,
+  );
+  if (!nightlyPattern.test(nightlyLine)) {
+    errors.push(`npm nightly react-native must contain a valid live nightly tag and the recorded last-observed snapshot. Received: ${nightlyLine || '<missing>'}`);
+  }
 
   if (outcome === 'matched' && mismatches !== '0') {
     errors.push(`Matched summary must have 0 mismatches. Received: ${mismatches}`);

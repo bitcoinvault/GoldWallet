@@ -25,21 +25,26 @@ const readString = (pkg, field) => {
 };
 const readObject = (pkg, field) => parseJson(npmView(pkg, field));
 const classifyReactNativeChannel = version => (version && version.includes('-') ? 'prerelease' : 'stable');
+const classifyNightlyTagFormat = version => (/^\d+\.\d+\.\d+-nightly-\d{8}-[0-9a-f]+$/.test(version) ? 'valid' : 'invalid');
 
 export const getReactNativeTargetSnapshotCurrentIssues = ({ latest, next, nightly, reactPeer, nodeEngine }, snapshot = expectedReactNativeTargetSnapshot) => {
   const nextChannel = classifyReactNativeChannel(next);
+  const nightlyChannel = classifyReactNativeChannel(nightly);
+  const nightlyTagFormat = classifyNightlyTagFormat(nightly);
   const checks = [
     ['npm latest react-native', latest, snapshot.npmLatestReactNative],
     ['npm next react-native', next, snapshot.npmNextReactNative],
-    ['npm nightly react-native', nightly, snapshot.npmNightlyReactNative],
+    ['npm nightly react-native', nightly, snapshot.npmNightlyReactNative, false],
     ['npm next channel classification', nextChannel, snapshot.npmNextChannel],
+    ['npm nightly channel classification', nightlyChannel, snapshot.npmNightlyChannel],
+    ['npm nightly tag format', nightlyTagFormat, snapshot.npmNightlyTagFormat],
     ['default React Native upgrade channel', snapshot.defaultUpgradeChannel, 'latest'],
     [`react-native@${snapshot.npmLatestReactNative} React peer`, reactPeer, snapshot.targetReactPeer],
     [`react-native@${snapshot.npmLatestReactNative} Node engine`, nodeEngine, snapshot.targetNodeEngine],
   ];
 
   const errors = checks
-    .filter(([, actual, expected]) => actual !== expected)
+    .filter(([, actual, expected, enforced = true]) => enforced && actual !== expected)
     .map(([label, actual, expected]) => `${label} is ${actual || '<missing>'}; snapshot expects ${expected}`);
 
   if (next && latest && next === latest) {
