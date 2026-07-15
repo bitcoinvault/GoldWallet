@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.898 - Historical legacy-only secure-storage migration proof
+
+- Branch: `feature/bem-37-898-legacy-storage-migration-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a validation-only Android entry-point override while keeping `index.js` as the default for every normal build.
+- Create an encrypted production wallet fixture whose PIN, transaction-password digest, encryption flag, and wallet data are written and read only through the historical `react-native-secure-key-store` backend.
+- Install the current migration release over that historical state with `adb install -r`, verify successful Keychain migration and legacy cleanup, then install a normal-entry release without the legacy native package and verify the same wallet again.
+- Extend the shared create-wallet smoke with optional native encrypted-storage prompt handling and add a secret-safe three-APK evidence contract.
+
+Findings:
+
+- The validation seed must switch both writes and reads to the historical backend. Switching writes alone allowed the seed APK's own restart to migrate data before the actual upgrade proof.
+- The seed entry must initialize `react-native-get-random-values` before `crypto-js`; otherwise `crypto-js` captures an unavailable secure RNG before generating the AES fixture salt.
+- The final seed APK stored an encrypted wallet fixture under the legacy backend only and retained it through a real process restart without placing test values in committed summaries or logs.
+- After the first `adb install -r`, the current release accepted the encrypted-storage password, rejected an incorrect PIN, accepted the configured PIN, and displayed the generated historical wallet under a new PID.
+- A validation-only post-migration probe confirmed that `pin`, `transactionPassword`, `data_encrypted`, and `data` were all absent from the legacy backend after the production migration path completed. Each legacy removal occurs only after its corresponding Keychain write succeeds.
+- The final APK used the normal `index.js` entry and generated a `PackageList.java` without `RNSecureKeyStorePackage`. After the second `adb install -r`, it again accepted the storage password and PIN and displayed the same wallet under a third PID.
+- Seed, migration, and fallback-free APKs had distinct SHA-256 digests. Both update smokes reported no fatal Android or React Native runtime findings, and the final screenshot shows the expected HD P2SH wallet dashboard.
+- This closes the missing technical proof for historical Android data migration. Permanent dependency removal still requires an explicit release/rollout decision and must not be inferred solely from a local emulator proof.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-historical-migration-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn secure-storage:historical-migration:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:historical-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:secure-storage:unit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `git diff --check`
+
 ### BEM-37.896 - Production created-wallet persistence after process restart
 
 - Branch: `feature/bem-37-896-production-created-wallet-persistence`
