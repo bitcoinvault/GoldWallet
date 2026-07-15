@@ -22,7 +22,6 @@ const requiredKnownEntries = [
   ['bl', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
   ['plist', 'resolutionDependencies'],
-  ['protobufjs', 'resolutionDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
