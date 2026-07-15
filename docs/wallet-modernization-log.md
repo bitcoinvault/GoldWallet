@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.905 - Secure-storage release APK matrix
+
+- Branch: `feature/bem-37-905-secure-storage-release-matrix`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a release-artifact guard that scans every configured Android release APK and requires the `react-native-keychain` native module while rejecting the removed `react-native-secure-key-store` package and module markers.
+- Wire the guard into `android:dev:release:verify-local` so release validation cannot pass on stale or incomplete secure-storage packaging evidence.
+- Refresh `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` evidence after the Keychain-only migration.
+
+Findings:
+
+- All four release variants build successfully with JDK 17, AGP 8.13.2, Gradle 8.13, compile/target SDK 36, New Architecture, and Hermes.
+- APK DEX scans confirm `com.oblador.keychain.KeychainModule` in every variant and reject `com.reactlibrary.securekeystore`, `RNSecureKeyStorePackage`, and `RNSecureKeyStoreModule`.
+- The release-input fingerprint is `cc66c160b74431e0286537200cc8dbd6f89151e3b7aa58ddf1690267f11d3bad` across `510` files. Unsigned APK SHA-256 values are `dev` `63e4b7d6c7b1d68db5d5d21424a18587dd69fe709fabdfe6b6ddf861d62a5b92`, `stage` `8d9f99fde67770c8776400b012644a87c16ea51c982c056bd491aab982f26404`, `prod` `bec53dd83ae6ba76a2b90e3092deb4dc879d0a5a16a69236c32c42c5176ad520`, and `beta` `999b17a1e6f2fbc531c1c55d689da73efe97487a8515d40f06832c1c9f70b695`.
+- Full `prodRelease` smoke passes on `emulator-5554` without Metro: install, cold start, onboarding, PIN and transaction-password setup, dashboard, Create/Import navigation, QR scanner, all empty-state tabs, Settings Terms WebView, and fatal/runtime logcat checks pass.
+- The locally signed prod smoke APK SHA-256 is `8dc69989fb32e60a124835bee753a259eddcbd9a88808b2584b659525225e6f1`; it is bound to the unsigned prod APK above.
+- Sentry source-map upload remains unclaimed because local credentials/properties are unavailable. iOS static validation passes with the existing 12 `Podfile.lock` drift issues; runtime/archive validation still requires macOS, Xcode 16.1+, and CocoaPods.
+
+Validation:
+
+- RED `corepack yarn android:dev:release:check-secure-storage-apks`
+- `corepack yarn install --frozen-lockfile`
+- `ANDROID_RELEASE_VARIANTS=dev,stage,prod,beta JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn android:dev:release:check-secure-storage-apks`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `corepack yarn check:android-release-secure-storage-apk-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `corepack yarn ios:static:verify`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.904 - Legacy secure-storage removal
 
 - Branch: `feature/bem-37-904-secure-storage-removal`
