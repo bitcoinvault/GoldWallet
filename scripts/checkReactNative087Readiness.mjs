@@ -32,12 +32,11 @@ if (appBuildGradle.includes('applicationVariants')) {
   errors.push('android/app/build.gradle still uses the removed applicationVariants API.');
 }
 
-if (!appBuildGradle.includes('com.android.build.api.variant.FilterConfiguration')) {
-  errors.push('android/app/build.gradle is missing the stable FilterConfiguration API.');
-}
-
-if (!appBuildGradle.includes('androidComponents') || !appBuildGradle.includes('output.versionCode.set')) {
-  errors.push('android/app/build.gradle is missing androidComponents ABI version-code configuration.');
+if (
+  appBuildGradle.includes('enableSeparateBuildPerCPUArchitecture') ||
+  /splits\s*\{\s*abi\s*\{/s.test(appBuildGradle)
+) {
+  errors.push('android/app/build.gradle still carries disabled per-ABI split configuration.');
 }
 
 if (/getDefaultProguardFile\(["']proguard-android\.txt["']\)/.test(appBuildGradle)) {
@@ -52,6 +51,7 @@ const requiredDocSnippets = [
   'Current stable target: `react-native@0.86.0`',
   'Probed next target: `react-native@0.87.0-rc.1`',
   'Required Android cohort: AGP `9.2.1`, Gradle `9.4.1`, Kotlin `2.2.0`',
+  'ABI split decision: removed dead per-ABI override',
   'Blocking dependency: `@react-native-async-storage/async-storage@3.1.1`',
   'Production upgrade decision: blocked',
 ];
@@ -60,6 +60,7 @@ if (!existsSync(readinessDocPath)) {
   errors.push(`${readinessDocPath} is missing.`);
 } else {
   const readinessDoc = read(readinessDocPath);
+
   requiredDocSnippets.forEach(snippet => {
     if (!readinessDoc.includes(snippet)) errors.push(`${readinessDocPath} is missing "${snippet}".`);
   });
