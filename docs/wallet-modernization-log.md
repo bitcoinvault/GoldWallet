@@ -10,6 +10,51 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.902 - Protobufjs 8.7.1 Firebase owner-path patch
+
+- Branch: `feature/bem-37-902-protobufjs-8-7-1`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded Firebase/Firestore `@grpc/proto-loader` owner path from `protobufjs@8.7.0` to current latest `8.7.1`.
+- Keep the change isolated to the resolution, lockfile, security/direct-outdated contracts, and active baseline documentation.
+- Re-prove the CommonJS/proto-loader API, storage-network tests, Android debug/release builds, and production emulator runtime.
+
+Findings:
+
+- Live npm metadata on 2026-07-15 reports `protobufjs@8.7.1` as latest; the resolved package remains CommonJS-compatible and keeps the `long@^5.3.2` dependency surface.
+- `corepack yarn why protobufjs` resolves the Firebase/Firestore `@grpc/proto-loader` owner path to exactly `8.7.1` despite its older `^7.2.5` request, so the deliberate major resolution remains guarded.
+- The runtime probe exposes `parse`, `load`, `Root`, `Type`, and `util.Long`; `@grpc/proto-loader.loadSync` returns the expected `gw.Ping` and `gw.S` definitions from a local ignored fixture.
+- Direct outdated now reports `21` entries: `17` known blockers, `4` exotic/git-pinned entries, and `0` review-required entries. The remaining current patch drift is the dedicated TypeScript ESLint cohort.
+- `corepack yarn install --frozen-lockfile`, the security resolution baseline, 12 unit suites / 68 tests, and the focused storage-network suite pass.
+- Yarn Classic audit could not refresh because `https://registry.yarnpkg.com/-/npm/v1/security/audits` returns HTTP 410. This is recorded as an audit-service blocker; no fresh zero-vulnerability claim is made for this branch.
+- Android `devDebug` and `prodRelease` build successfully. Fresh `prodRelease` smoke passes on `emulator-5554` without Metro: onboarding, empty-dashboard Create/Import navigation, QR scanner, all empty-state tabs, and Settings Terms WebView pass with no fatal Android or React Native runtime findings.
+- The locally signed smoke APK SHA-256 is `3371254766de5c23cb87d2ca725781211e4ceafb4b95d561cb400a5997339e02`; its unsigned source APK SHA-256 is `0e673c7c1160cf455521ba6f5f4da9c128dd0c9db24749fa5e85ed68a2e91e8b`.
+- iOS runtime validation is not claimed from Windows; static iOS validation remains the available gate until macOS/Xcode/CocoaPods can refresh `ios/Podfile.lock` and run the shared schemes.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view protobufjs version dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why protobufjs`
+- CommonJS and `@grpc/proto-loader.loadSync` probe using ignored `local-docs/protobufjs-probe.proto`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 SENTRY_DISABLE_AUTO_UPLOAD=true node scripts/runAndroidGradle.mjs :app:assembleProdRelease -x lint`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:static:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.901 - React Native Screens 4.26.1 patch
 
 - Branch: `feature/bem-37-901-native-screens-patch`

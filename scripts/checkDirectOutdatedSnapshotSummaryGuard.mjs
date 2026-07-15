@@ -140,14 +140,6 @@ const validEntries = [
     decision: 'blocked - plist major drift belongs in a dedicated iOS/config tooling owner-path branch with xcode/config-plugin compatibility proof',
   },
   {
-    name: 'protobufjs',
-    current: '8.7.0',
-    wanted: '8.7.0',
-    latest: '8.7.1',
-    type: 'resolutionDependencies',
-    decision: 'blocked - protobufjs major drift belongs in a dedicated Firebase/storage-network branch with focused tests, Android build, and emulator smoke proof',
-  },
-  {
     name: 'react',
     current: '19.2.3',
     wanted: '19.2.3',
@@ -227,10 +219,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 22', 'Entries: 21'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 21', 'Entries: 20'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 22', 'Entries: 23').replace(
+  validSummary.replace('Entries: 21', 'Entries: 22').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -271,7 +263,7 @@ assertRejected(
 );
 assertRejected(
   'Missing caniuse-lite resolution blocker fixture',
-  validSummary.replace('Entries: 22', 'Entries: 23').replace(
+  validSummary.replace('Entries: 21', 'Entries: 22').replace(
     'Secret values printed: no',
     '- caniuse-lite: current 1.0.30001805, wanted 1.0.30001805, latest 1.0.30001806, type resolutionDependencies, decision blocked - generic data branch required\nSecret values printed: no',
   ),
