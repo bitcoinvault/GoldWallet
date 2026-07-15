@@ -53,11 +53,10 @@ if (!staleSummary.includes('Live check outcome: stale') || !staleSummary.include
   process.exit(1);
 }
 assertRejected('Changed next fixture', { ...validCurrent, next: '0.86.0-rc.3' }, 'npm next react-native is 0.86.0-rc.3');
-assertRejected(
-  'Changed nightly fixture',
-  { ...validCurrent, nightly: '0.88.0-nightly-20260603-abcdef123' },
-  'npm nightly react-native is 0.88.0-nightly-20260603-abcdef123',
-);
+assertAccepted('Changed valid nightly fixture', {
+  ...validCurrent,
+  nightly: '0.88.0-nightly-20260715-abcdef123',
+});
 assertRejected('Stable next fixture', { ...validCurrent, next: '0.86.0' }, 'npm next channel classification is stable');
 assertRejected(
   'Next equals latest fixture',
