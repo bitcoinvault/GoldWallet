@@ -4,6 +4,11 @@ import {
   getNativeModuleInventoryErrors,
 } from './nativeModuleInventoryGuard.mjs';
 
+if (expectedNativeModuleDependencies.get('react-native-screens') !== '4.26.1') {
+  console.error('Native module inventory should require react-native-screens@4.26.1.');
+  process.exit(1);
+}
+
 const expectedDependencies = Object.fromEntries(expectedNativeModuleDependencies);
 const missingDependencyFixture = { ...expectedDependencies };
 delete missingDependencyFixture['react-native-camera-kit'];
