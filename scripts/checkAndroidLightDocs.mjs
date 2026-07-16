@@ -6,6 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const checkLightScript = packageJson.scripts['android:dev:check-light'] || '';
+const releaseReadinessScript = packageJson.scripts['android:release-readiness:check-light'] || '';
 
 const requiredCheckLightScripts = [
   'check:node-runtime-version',
@@ -257,6 +258,17 @@ const docs = [
 ];
 
 const errors = [];
+
+for (const requiredScript of [
+  'check:android-app-bundle-validation-guard',
+  'check:android-upload-signing-guard',
+  'android:upload-signing:audit',
+  'android:upload-signing:check-summary',
+]) {
+  if (!releaseReadinessScript.includes(requiredScript)) {
+    errors.push(`android:release-readiness:check-light is missing ${requiredScript}`);
+  }
+}
 
 requiredCheckLightScripts.forEach(scriptName => {
   if (!checkLightScript.includes(scriptName)) {

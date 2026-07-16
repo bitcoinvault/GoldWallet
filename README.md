@@ -53,6 +53,32 @@ $ yarn sentry:release:prereq-audit
 
 The Sentry prerequisite audit uses current `prodRelease` smoke and create-wallet evidence by default. Set `SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT` to `dev`, `stage`, `prod`, or `beta` only when validating another explicit release target. The controlled Electrum no-network fallback is valid only with the `dev` evidence variant and never substitutes for production runtime proof.
 
+### Android upload signing
+
+Android release builds remain unsigned when upload-key configuration is absent. Production AAB generation uses the upload-key model described in the [Android app-signing documentation](https://developer.android.com/studio/publish/app-signing): Google Play manages the app-signing key, while the release environment signs the submitted bundle with its upload key.
+
+Provide all four values through ignored `android/keystore.properties` (see `android/keystore.properties.example`) or through environment variables:
+
+- `GOLDWALLET_UPLOAD_STORE_FILE`
+- `GOLDWALLET_UPLOAD_STORE_PASSWORD`
+- `GOLDWALLET_UPLOAD_KEY_ALIAS`
+- `GOLDWALLET_UPLOAD_KEY_PASSWORD`
+
+Audit readiness without printing passwords:
+
+```sh
+$ yarn android:upload-signing:audit
+$ yarn android:upload-signing:check-summary
+```
+
+Generate the production bundle only in the secured release environment:
+
+```sh
+$ yarn android:prod:bundle:signed
+```
+
+The command fails before building when signing data is absent, partial, points to a missing keystore, or does not contain the configured alias. It compares the configured alias certificate fingerprint with the certificate embedded in the resulting AAB. `yarn android:upload-signing:proof` uses a random temporary local key to exercise the same Gradle/signature/certificate/`bundletool` path; it never proves the real upload key or Play Console acceptance.
+
 But to run the app with Metro server, this step isn't required.
 
 ## Running the app
@@ -66,6 +92,8 @@ $ yarn android:dev:check-light
 This runs the lightweight Android warning, validation artifact, Android dev environment audit, Android toolchain current-state guard self-check, Android toolchain current-state check, Metro dev runtime audit, React Native renderer exact-version guard, camera usage, QR scanner caller, QR scanner validation scripts, QR render usage, QR render validation scripts, legacy Android autolink disables, Sentry usage, Sentry release integration, CodePush usage, Firebase usage, Firebase Messaging modular API guard, iOS push notification bridge, release-service env keys, Android env mapping, iOS scheme config mapping, iOS release-config doc guard, explorer/env readiness, store metadata readiness, rebranding release-config readiness, storage/network usage, storage/network validation scripts, Electrum endpoint readiness guard, Electrum runtime observation parser guard, Electrum Metro observation path guard, wallet crypto validation scripts, transaction details amount label guard, native module inventory and upgrade-plan, git dependency snapshot guard, wallet crypto latest snapshot guard, direct outdated snapshot guard, BL resolution guard, BL current resolution check, node-fetch resolution guard, secure-storage removal readiness guard, node polyfill shim, TypeScript, and diff whitespace guards used before the offline suites in `prepush`.
 
 The same lightweight gate runs the App Center retirement guard and source check so retired App Center dependencies, configuration files, Android resource switches, and iOS project references cannot return.
+
+Its release-readiness subgroup also runs the Android App Bundle validation guard plus the Android upload signing readiness guard, audit, and generated summary check. It does not require or print a production upload key.
 
 The React Native upgrade path guard is included through `check:rn-upgrade-path-audit-guard` and `rn:upgrade-path:audit`.
 

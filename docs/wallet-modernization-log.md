@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.909 - Android upload-signing readiness
+
+- Branch: `feature/bem-37-909-android-upload-signing-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add optional upload-key signing for Android release variants using ignored `android/keystore.properties` or four scoped environment variables, without committing or printing key material.
+- Add a fail-fast `goldwalletRequireUploadSigning` contract for production AAB generation while preserving existing unsigned local release validation when signing data is absent.
+- Add readiness/summary checks and a local PKCS12 proof that verifies Gradle signing, AAB JAR signature, certificate identity, and `bundletool` validation before deleting the temporary key.
+
+Findings:
+
+- No production upload keystore, alias, password variables, or `android/keystore.properties` are present on this machine. The readiness audit correctly reports `Production signing ready: no`, and required mode fails during Gradle configuration with the exact missing-configuration action.
+- Normal Gradle task configuration remains available without signing credentials; a partial signing configuration is rejected instead of silently creating an unsigned or incorrectly signed production artifact.
+- The local proof ran `validateSigningProdRelease` and `signProdReleaseBundle`, then verified the resulting AAB with `jarsigner`, inspected the expected local proof certificate with `keytool`, and validated the bundle with official `bundletool` `1.18.3`.
+- The final proof used a random temporary PKCS12 key and the shared production runner, matched the configured alias certificate to the AAB certificate, and produced a 110,711,911-byte AAB with SHA-256 `59c5caa1ce64bfbc874484c9c4c7dbcd2a64f312e35759718a96514d03bfc06a`; the temporary keystore was removed. This does not claim the production upload key, Play App Signing enrollment, Play Console upload, or rollout readiness.
+
+Validation:
+
+- RED `corepack yarn check:android-upload-signing-guard`
+- `corepack yarn check:android-upload-signing-guard`
+- `corepack yarn android:upload-signing:audit`
+- `corepack yarn android:upload-signing:check-summary`
+- expected failure `node scripts/runAndroidGradle.mjs :app:tasks -PgoldwalletRequireUploadSigning=true --quiet` without signing data
+- expected failure `GOLDWALLET_UPLOAD_STORE_FILE=<path> node scripts/runAndroidGradle.mjs :app:tasks --quiet` with the other three fields missing
+- expected failure `corepack yarn android:prod:bundle:signed` without production signing data
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:upload-signing:proof`
+- `corepack yarn android:upload-signing:check-proof`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:bundle:smoke`
+- `corepack yarn android:prod:bundle:check-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand` (12 suites, 55 tests)
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn ios:static:verify` (static checks passed; macOS runtime validation remains required)
+- `corepack yarn audit --level low` could not complete because the Yarn Classic audit endpoint returned HTTP 410; no dependency-audit result is claimed.
+
 ### BEM-37.908 - Android App Bundle production-path proof
 
 - Branch: `feature/bem-37-908-android-app-bundle-proof`
