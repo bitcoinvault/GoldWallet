@@ -10,6 +10,30 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.916.1 - GitHub security workflow guard CRLF compatibility
+
+- Branch: `feature/bem-37-916-1-workflow-guard-crlf`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the write-all mutation fixture independent of LF versus CRLF checkout behavior.
+- Preserve the exact security policy while ensuring the offline guard passes after a Windows branch switch or merge.
+
+Findings:
+
+- The workflow sources and production validations were correct; only the test mutation used an LF-only multiline replacement.
+- Git converted workflow working-tree lines to CRLF after the local merge, correctly causing the fixture to report that its mutation had not been applied.
+- No application, workflow execution, dependency, native, or Metro behavior changed.
+
+Validation:
+
+- reproduced failure on `upgrade/wallet-modernization` after the BEM-37.916 merge
+- `corepack yarn check:github-security-workflows-guard`
+- LF and CRLF fixture variants
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.916 - GitHub security workflow modernization
 
 - Branch: `feature/bem-37-916-github-security-workflows`
