@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.911 - Google Play internal-track handoff
+
+- Branch: `feature/bem-37-911-google-play-internal-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add the pinned official Android Publisher API client and a real Google Play edit workflow restricted to the `internal` track.
+- Separate read-only readiness, upload-and-validate with edit deletion, and explicitly confirmed edit commit into distinct commands.
+- Keep service-account material outside Git and out of generated summaries while cleaning up uncommitted edits after validation or API failure.
+
+Findings:
+
+- Google recommends service-account authentication for secure server-to-server Play Developer API access and recommends its client libraries over hand-rolled JWT authentication.
+- The current repository cannot execute an upload: version `6.5.1 (14)` is stale against the public `6.5.2` baseline, upload signing is not configured, and no service-account JSON is present.
+- The dry-run remains green while reporting those three blockers; no API request, AAB build, credential read, upload, edit, or release is claimed.
+
+Validation:
+
+- RED `corepack yarn check:android-play-internal-handoff-guard`
+- `corepack yarn check:android-play-internal-handoff-guard`
+- `corepack yarn android:play:internal:dry-run`
+- `corepack yarn android:play:internal:check-summary`
+- expected preflight failure `corepack yarn android:play:internal:validate-upload` without release version, signing, or service-account readiness
+- fixture API workflow: insert/upload/internal-track update/validate/delete passed
+- fixture commit workflow: insert/upload/internal-track update/validate/commit passed
+- fixture cleanup after version mismatch and validation failure passed
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand` - 12 suites and 55 tests passed
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `corepack yarn android:dev:assemble` - `assembleDevDebug` passed
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded` - APK install, first-run flow, `No network`, and fatal/runtime logcat checks passed
+- `corepack yarn ios:static:verify` - static checks passed; runtime remains blocked on Windows without Xcode/CocoaPods and until the 12-entry `Podfile.lock` drift is refreshed on macOS
+- `corepack yarn why @googleapis/androidpublisher` - direct dev dependency `36.0.0` confirmed
+- `corepack yarn audit --groups dependencies` - external audit unavailable because the retired Yarn 1 audit endpoint returned HTTP 410; no vulnerability result is claimed
+
 ### BEM-37.910 - Android release versioning and Play baseline
 
 - Branch: `feature/bem-37-910-android-release-versioning`

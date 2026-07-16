@@ -100,6 +100,7 @@ const docs = [
       'Android toolchain current-state guard self-check',
       'Android toolchain current-state check',
       'Android release versioning',
+      'Google Play internal handoff',
       'Metro dev runtime audit',
       'Java/SDK/ADB toolchain',
       'QR scanner validation scripts',
@@ -166,6 +167,7 @@ const docs = [
       'check:legacy-android-autolink',
       'Sentry release integration guard self-check',
       'check:sentry-release-integration',
+      'android:play:internal:dry-run',
       'check:release-service-env-keys',
       'Android envConfigFiles guard self-check',
       'check:android-env-config-files',
@@ -219,6 +221,7 @@ const docs = [
       'Android toolchain current-state guard self-check',
       'Android toolchain current-state check',
       'Public Google Play baseline',
+      'Google Play internal handoff',
       'Metro dev runtime audit',
       'CodePush usage self-check/inventory guard',
       'App Center retirement self-check/source guard',
@@ -270,6 +273,9 @@ for (const requiredScript of [
   'check:android-upload-signing-guard',
   'android:upload-signing:audit',
   'android:upload-signing:check-summary',
+  'check:android-play-internal-handoff-guard',
+  'android:play:internal:dry-run',
+  'android:play:internal:check-summary',
 ]) {
   if (!releaseReadinessScript.includes(requiredScript)) {
     errors.push(`android:release-readiness:check-light is missing ${requiredScript}`);
