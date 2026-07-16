@@ -1,0 +1,44 @@
+import java.util.Properties
+
+def propertiesFileSetting = System.getenv('GOLDWALLET_UPLOAD_KEYSTORE_PROPERTIES') ?: 'keystore.properties'
+def uploadPropertiesFile = rootProject.file(propertiesFileSetting)
+def uploadProperties = new Properties()
+
+if (uploadPropertiesFile.exists()) {
+    uploadPropertiesFile.withInputStream { stream -> uploadProperties.load(stream) }
+}
+
+def signingValues = [
+    storeFile: System.getenv('GOLDWALLET_UPLOAD_STORE_FILE') ?: uploadProperties.getProperty('storeFile'),
+    storePassword: System.getenv('GOLDWALLET_UPLOAD_STORE_PASSWORD') ?: uploadProperties.getProperty('storePassword'),
+    keyAlias: System.getenv('GOLDWALLET_UPLOAD_KEY_ALIAS') ?: uploadProperties.getProperty('keyAlias'),
+    keyPassword: System.getenv('GOLDWALLET_UPLOAD_KEY_PASSWORD') ?: uploadProperties.getProperty('keyPassword'),
+]
+def configuredFields = signingValues.findAll { key, value -> value != null && !value.toString().trim().isEmpty() }
+def missingFields = signingValues.findAll { key, value -> value == null || value.toString().trim().isEmpty() }.keySet()
+def requireUploadSigning = project.findProperty('goldwalletRequireUploadSigning')?.toString()?.toBoolean() ?: false
+
+if (!configuredFields.isEmpty() && !missingFields.isEmpty()) {
+    throw new GradleException("Incomplete GoldWallet upload signing configuration. Missing: ${missingFields.join(', ')}")
+}
+
+def uploadSigningConfigured = missingFields.isEmpty()
+def uploadStoreFile = uploadSigningConfigured ? rootProject.file(signingValues.storeFile.toString()) : null
+
+if (uploadSigningConfigured && !uploadStoreFile.exists()) {
+    throw new GradleException("GoldWallet upload keystore file does not exist: ${uploadStoreFile}")
+}
+
+if (requireUploadSigning && !uploadSigningConfigured) {
+    throw new GradleException(
+        'GoldWallet upload signing is required. Provide android/keystore.properties or the GOLDWALLET_UPLOAD_* environment variables.'
+    )
+}
+
+project.ext.goldwalletUploadSigning = [
+    configured: uploadSigningConfigured,
+    storeFile: uploadStoreFile,
+    storePassword: signingValues.storePassword,
+    keyAlias: signingValues.keyAlias,
+    keyPassword: signingValues.keyPassword,
+]

@@ -82,6 +82,7 @@ try {
   }
 
   if (!skipBuild) {
+    rmSync(config.aabPath, { force: true });
     run(`build ${config.displayName} AAB`, process.execPath, ['scripts/runAndroidGradle.mjs', config.gradleTask], {
       env: { ...process.env, SENTRY_DISABLE_AUTO_UPLOAD: 'true' },
     });

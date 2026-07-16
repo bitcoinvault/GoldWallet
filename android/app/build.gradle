@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
 apply plugin: 'com.google.firebase.crashlytics'
+apply from: rootProject.file("upload-signing.gradle")
 
 
 project.ext.envConfigFiles = [
@@ -136,8 +137,22 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
+    signingConfigs {
+        if (goldwalletUploadSigning.configured) {
+            upload {
+                storeFile goldwalletUploadSigning.storeFile
+                storePassword goldwalletUploadSigning.storePassword
+                keyAlias goldwalletUploadSigning.keyAlias
+                keyPassword goldwalletUploadSigning.keyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (goldwalletUploadSigning.configured) {
+                signingConfig signingConfigs.upload
+            }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
