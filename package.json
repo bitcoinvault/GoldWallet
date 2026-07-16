@@ -90,6 +90,7 @@
     "android:dev:assemble": "node scripts/runAndroidGradle.mjs :app:assembleDevDebug -x lint",
     "check:android-app-bundle-validation-guard": "node scripts/checkAndroidAppBundleValidationGuard.mjs",
     "check:android-release-versioning-guard": "node scripts/checkAndroidReleaseVersioningGuard.mjs",
+    "check:android-play-internal-handoff-guard": "node scripts/checkAndroidPlayInternalHandoffGuard.mjs",
     "android:release-version:audit": "node scripts/auditAndroidReleaseVersionReadiness.mjs",
     "android:release-version:check-summary": "node scripts/checkAndroidReleaseVersionSummary.mjs",
     "check:android-upload-signing-guard": "node scripts/checkAndroidUploadSigningGuard.mjs",
