@@ -63,6 +63,7 @@ const notReadySummary = [
   'Android release summary errors: 0',
   'Android release APK manifest valid: yes',
   'Android release APK manifest errors: 0',
+  'Android release evidence variant: prod',
   'Android release smoke summary present: yes',
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
@@ -149,6 +150,7 @@ const readySummary = [
   'Android release summary errors: 0',
   'Android release APK manifest valid: yes',
   'Android release APK manifest errors: 0',
+  'Android release evidence variant: prod',
   'Android release smoke summary present: yes',
   'Android release smoke summary valid: yes',
   'Android release smoke summary errors: 0',
@@ -198,6 +200,7 @@ const readySummary = [
 ].join('\n');
 
 const notReadyNoNetworkSummary = notReadySummary
+  .replace('Android release evidence variant: prod', 'Android release evidence variant: dev')
   .replace(
     [
       'Android release smoke summary valid: yes',
@@ -422,6 +425,16 @@ assertRejected(
     'Android release APK manifest valid: yes\nAndroid release APK manifest errors: 1\n- Variant stage targetSdkVersion mismatch: expected 36, received 35',
   ),
   '0 manifest errors',
+);
+assertRejected(
+  'Unsupported Android release evidence variant fixture',
+  notReadySummary.replace('Android release evidence variant: prod', 'Android release evidence variant: internal'),
+  'Android release evidence variant must be one of',
+);
+assertRejected(
+  'Production evidence cannot use dev no-network fallback fixture',
+  notReadyNoNetworkSummary.replace('Android release evidence variant: dev', 'Android release evidence variant: prod'),
+  'valid full Android release smoke evidence or valid controlled no-network blocker evidence',
 );
 assertRejected(
   'Missing Android release smoke fixture',

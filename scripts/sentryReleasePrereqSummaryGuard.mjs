@@ -1,4 +1,5 @@
 import { requiredSentryPropertiesFiles } from './auditSentryReleasePrerequisites.mjs';
+import { supportedAndroidReleaseSmokeVariants } from './androidReleaseSmokeVariant.mjs';
 
 const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
@@ -63,6 +64,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseSummaryErrors = getLineValue(summary, 'Android release summary errors');
   const androidReleaseApkManifestValid = getLineValue(summary, 'Android release APK manifest valid');
   const androidReleaseApkManifestErrors = getLineValue(summary, 'Android release APK manifest errors');
+  const androidReleaseEvidenceVariant = getLineValue(summary, 'Android release evidence variant');
   const androidReleaseSmokeSummaryPresent = getLineValue(summary, 'Android release smoke summary present');
   const androidReleaseSmokeSummaryValid = getLineValue(summary, 'Android release smoke summary valid');
   const androidReleaseSmokeSummaryErrors = getLineValue(summary, 'Android release smoke summary errors');
@@ -371,6 +373,14 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Valid Android release APK manifest proof must have 0 manifest errors');
   }
 
+  if (!supportedAndroidReleaseSmokeVariants.includes(androidReleaseEvidenceVariant)) {
+    errors.push(
+      `Android release evidence variant must be one of ${supportedAndroidReleaseSmokeVariants.join(', ')}. Received: ${
+        androidReleaseEvidenceVariant || 'missing'
+      }`,
+    );
+  }
+
   if (!/^\d+$/.test(androidReleaseSmokeSummaryErrors)) {
     errors.push(`Android release smoke summary errors must be a non-negative integer. Received: ${androidReleaseSmokeSummaryErrors || 'missing'}`);
   } else if (Number(androidReleaseSmokeSummaryErrors) !== androidReleaseSmokeSummaryErrorLines.length) {
@@ -411,7 +421,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseNetworkBlockerOutcome === 'blocked-by-electrum-certificate-expired' &&
     sentryReleaseNetworkBlockerClassified === 'yes';
 
-  if (!fullAndroidReleaseSmokeReady && !(readiness === 'not ready' && noNetworkBlockerEvidenceReady)) {
+  const devNoNetworkFallbackReady =
+    androidReleaseEvidenceVariant === 'dev' && readiness === 'not ready' && noNetworkBlockerEvidenceReady;
+
+  if (!fullAndroidReleaseSmokeReady && !devNoNetworkFallbackReady) {
     errors.push(
       'Sentry release prerequisites require either valid full Android release smoke evidence or valid controlled no-network blocker evidence for a not-ready preflight summary',
     );
@@ -470,12 +483,12 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
 
   if (
     androidReleaseCreateWalletSmokeSummaryValid !== 'yes' &&
-    !(readiness === 'not ready' && noNetworkBlockerEvidenceReady)
+    !devNoNetworkFallbackReady
   ) {
     errors.push('Sentry release prerequisites require a valid Android release create-wallet smoke summary');
   }
 
-  if (sentryReleaseCreateWalletEvidenceReady !== 'yes' && !(readiness === 'not ready' && noNetworkBlockerEvidenceReady)) {
+  if (sentryReleaseCreateWalletEvidenceReady !== 'yes' && !devNoNetworkFallbackReady) {
     errors.push('Sentry release create-wallet evidence must be ready before source-map release validation is useful');
   }
 

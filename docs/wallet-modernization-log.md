@@ -10,6 +10,53 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.907 - Production-aware release-services evidence
+
+- Branch: `feature/bem-37-907-sentry-prod-release-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace hard-coded `devRelease` Sentry runtime evidence paths with one validated `dev|stage|prod|beta` selector that defaults to `prod`.
+- Apply the same selected full-smoke and create-wallet evidence to the aggregate release-services checker, while keeping the classified Electrum no-network fallback restricted to an explicit `dev` selection.
+- Refresh dependent Sentry and CodePush handoff fixtures to the current create-wallet restart, incorrect-PIN, and secure-window contract.
+
+Findings:
+
+- The Sentry prerequisite audit previously ignored valid production runtime proof and required stale `devRelease` artifacts from the externally blocked testnet environment. It now reports `Android release evidence variant: prod`, current build/manifests, valid full smoke, and valid create-wallet evidence.
+- `SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT=dev|stage|prod|beta` provides an explicit override. An invalid value fails before evidence is read, and the controlled `blocked-by-electrum-certificate-expired` fallback cannot satisfy `prod`, `stage`, or `beta` evidence.
+- The refreshed release-input fingerprint is `d55af23dfb8d6413af1d6ebd5b35899896a78adb99f96e6dac9b0cf4c4292583` across `510` files. Unsigned APK SHA-256 values remain `dev` `6c66917e2455e686dff30269733347865000acf05fb2981e9592487180292a1a`, `stage` `acc908f1f91e6f9b92463eddfa24a3ec344e1f3f7e7539d984cabf883e6383d2`, `prod` `8509d46012e8afd01bcec23a4bd26f467addb23aea7966903ada3cb54636299b`, and `beta` `d426457ecc5e18df2c9fa7c78bfcd3465f613de235ccad3bc9bbf099e54a9a26`.
+- Full `prodRelease` smoke passes on `emulator-5554` without Metro. The signed APK SHA-256 is `8a3fa1efa125320801e155d0b0e7d92b356f64f0f8ccf68ae31d9dafc1164cdf`; the same artifact passes standard-wallet creation, restart persistence, incorrect-PIN rejection, and default 3-key vault public-key integration.
+- The complete release-services handoff now passes with production Android runtime evidence. Sentry upload remains explicitly unclaimed because `SENTRY_AUTH_TOKEN` and the three local properties files are absent; iOS archive/runtime validation remains blocked on Windows with 12 active `Podfile.lock` drift issues pending macOS/Xcode/CocoaPods.
+
+Validation:
+
+- RED `corepack yarn check:sentry-android-release-evidence-variant-guard`
+- `corepack yarn check:sentry-android-release-evidence-variant-guard`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn check:codepush-update-validation-handoff-guard`
+- `ANDROID_RELEASE_VARIANTS=dev,stage,prod,beta JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `corepack yarn android:prod:release:check-smoke-summary`
+- `corepack yarn android:prod:release:check-create-wallet-smoke-summary`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn release-services:validation:handoff --skip-android-release`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn ios:static:verify`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.906 - App Center configuration retirement
 
 - Branch: `feature/bem-37-906-appcenter-config-retirement`

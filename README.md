@@ -51,6 +51,8 @@ Before claiming Sentry release/source-map validation locally, audit the required
 $ yarn sentry:release:prereq-audit
 ```
 
+The Sentry prerequisite audit uses current `prodRelease` smoke and create-wallet evidence by default. Set `SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT` to `dev`, `stage`, `prod`, or `beta` only when validating another explicit release target. The controlled Electrum no-network fallback is valid only with the `dev` evidence variant and never substitutes for production runtime proof.
+
 But to run the app with Metro server, this step isn't required.
 
 ## Running the app

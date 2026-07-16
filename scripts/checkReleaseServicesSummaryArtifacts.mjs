@@ -27,9 +27,19 @@ import { getSentryReleaseCredentialPlanErrors } from './sentryReleaseCredentialP
 import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummaryGuard.mjs';
 import { getSentryReleaseValidationHandoffSummaryErrors } from './sentryReleaseValidationHandoffSummaryGuard.mjs';
 import { getSentryRnBundleTaskCompatibilitySummaryErrors } from './sentryRnBundleTaskCompatibilitySummaryGuard.mjs';
+import {
+  getSentryAndroidReleaseEvidenceConfig,
+  sentryAndroidReleaseEvidenceEnvName,
+} from './sentryAndroidReleaseEvidenceVariant.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
+const androidReleaseEvidenceConfig = getSentryAndroidReleaseEvidenceConfig(root);
+const androidReleaseEvidenceVariant = androidReleaseEvidenceConfig.variant;
+const getAndroidReleaseEvidenceConfig = rootPath =>
+  getSentryAndroidReleaseEvidenceConfig(rootPath, {
+    [sentryAndroidReleaseEvidenceEnvName]: androidReleaseEvidenceVariant,
+  });
 const noNetworkSmokeSummaryRelativePath = 'local-docs/android-smoke-dev-release-no-network-summary.txt';
 const networkBlockerSummaryRelativePath = 'local-docs/android-release-network-blocker-summary.txt';
 const controlledElectrumBlockerOutcome = 'blocked-by-electrum-certificate-expired';
@@ -68,17 +78,24 @@ export const releaseServicesSummaryArtifacts = [
   },
   {
     label: 'Android release smoke',
-    relativePath: 'local-docs/android-smoke-dev-release-summary.txt',
-    getErrors: (summary, rootPath) => getAndroidEmbeddedSmokeSummaryErrors(summary, getAndroidReleaseSmokeEvidenceOptions(rootPath)),
+    relativePath: `local-docs/${androidReleaseEvidenceConfig.smokeArtifactBase}-summary.txt`,
+    getErrors: (summary, rootPath) =>
+      getAndroidEmbeddedSmokeSummaryErrors(
+        summary,
+        getAndroidReleaseSmokeEvidenceOptions(rootPath, androidReleaseEvidenceVariant),
+      ),
   },
   {
     label: 'Android release create-wallet smoke',
-    relativePath: 'local-docs/android-create-wallet-smoke-dev-release-summary.txt',
-    getErrors: (summary, rootPath) =>
-      getAndroidCreateWalletSmokeSummaryErrors(summary, {
-        expectedApkPath: path.join(rootPath, 'local-docs', 'android-smoke-dev-release-signed.apk'),
-        expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
-      }),
+    relativePath: `local-docs/${androidReleaseEvidenceConfig.createWalletArtifactBase}-summary.txt`,
+    getErrors: (summary, rootPath) => {
+      const config = getAndroidReleaseEvidenceConfig(rootPath);
+
+      return getAndroidCreateWalletSmokeSummaryErrors(summary, {
+        expectedApkPath: config.signedSmokeApkPath,
+        expectedArtifactBase: config.createWalletArtifactBase,
+      });
+    },
   },
   {
     label: 'Sentry release prerequisite',
@@ -239,7 +256,7 @@ export const getReleaseServicesSummaryArtifactState = ({ rootPath = root } = {})
 
   const unexpectedErrors = errors.filter(error => !isControlledElectrumBlockerError(error));
 
-  if (unexpectedErrors.length > 0) {
+  if (unexpectedErrors.length > 0 || androidReleaseEvidenceVariant !== 'dev') {
     return {
       errors,
       status: 'invalid',

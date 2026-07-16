@@ -12,6 +12,7 @@
 - `corepack yarn check:sentry-release-integration` guards the current Android Sentry Gradle integration and iOS source-map/dSYM upload phases.
 - `corepack yarn check:sentry-release-integration-guard` verifies the Sentry release integration guard fixtures.
 - `corepack yarn sentry:release:prereq-audit` reports whether local `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available before release source-map validation and writes `local-docs/sentry-release-prereq-summary.txt`.
+- The audit selects `prodRelease` runtime evidence by default and derives the full-smoke summary, signed APK, unsigned source APK, and create-wallet summary from one variant config. `SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT=dev|stage|prod|beta` provides an explicit override; the controlled Electrum no-network fallback is accepted only for `dev` and cannot satisfy a production-evidence claim.
 - The prerequisite audit records per-file readiness for the three required Sentry properties files, validates that `create-sentry-properties.sh` writes all three paths, confirms the expected non-secret defaults without printing token values, records local `@sentry/cli` package/bin executability, records whether the latest local Android release summary artifact is present and valid, and now also embeds iOS static/macOS prerequisite evidence for Podfile.lock drift plus Sentry iOS source-map/dSYM phase coverage.
 - `create-sentry-properties.sh` now rejects a missing `SENTRY_AUTH_TOKEN` before writing any properties files, so local release setup cannot accidentally create `auth.token=` files that look configured but fail during upload.
 - `create-sentry-properties.sh` accepts optional `SENTRY_ORG` and `SENTRY_PROJECT` overrides, defaulting to the current `cloudbest` / `goldwallet` release target, so a future rebrand or Sentry project move does not require editing the generator script.
@@ -166,6 +167,7 @@ Scope:
 - `corepack yarn sentry:release:prereq-audit`.
 - `corepack yarn sentry:release:prereq-check-summary`.
 - `corepack yarn check:sentry-release-prereq-summary-guard`.
+- `corepack yarn check:sentry-android-release-evidence-variant-guard`.
 - `corepack yarn check:sentry-properties-generator`.
 - `corepack yarn check:sentry-release-validation-handoff-guard`.
 - `corepack yarn check:sentry-credential-handoff-guard`.
