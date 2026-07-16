@@ -6,6 +6,7 @@ Scope: `BEM-37.282 - CodePush retirement audit`.
 
 - `BEM-37.583` removes `react-native-code-push` from JavaScript, Android, iOS plist/native integration, `package.json`, `yarn.lock`, and `ios/Podfile.lock`.
 - `BEM-37.688` removes stale `CODEPUSH_*` entries from the tracked `.env.*` files through a secrets-safe mechanical cleanup; those keys are no longer required by the app runtime or release-service env guard.
+- `BEM-37.906` removes the remaining Android/iOS App Center configuration files, Android Analytics/Crashes resource switches, and four Xcode resource references. Source and release-APK guards keep the retired App Center surface absent without recording former app identifiers.
 - `react-native-code-push@9.0.1` is the latest npm release checked on 2026-06-24.
 - The latest npm release was published on 2024-12-19.
 - Microsoft App Center CodePush was retired on 2025-03-31.
