@@ -45,6 +45,11 @@ assert.strictEqual(
 const runner = read('scripts/runAndroidPlayInternalHandoff.mjs');
 assert(runner.includes('runAndroidPlayEditWorkflow'));
 assert(!runner.includes('private_key'), 'Runner must not print or parse service-account private key material');
+const playDryRunIndex = runner.indexOf('if (!options.execute)');
+const electrumReleaseGateIndex = runner.indexOf("['scripts/auditElectrumEndpointReadiness.mjs', '--require-ready']");
+const signedBundleIndex = runner.indexOf("['scripts/runAndroidSignedBundle.mjs']");
+assert(electrumReleaseGateIndex > playDryRunIndex, 'Play dry-run must finish before the live Electrum release gate');
+assert(electrumReleaseGateIndex < signedBundleIndex, 'Electrum release gate must pass before the signed AAB build');
 
 const workflow = read('scripts/androidPlayInternalHandoff.mjs');
 assert(workflow.includes('GOLDWALLET_PLAY_SERVICE_ACCOUNT_JSON'));
@@ -258,10 +263,19 @@ try {
     'Service account location safe: yes',
     'Commit confirmation matches: no',
     'Execution ready: yes',
+    'Electrum release gate required: yes',
+    'Electrum release gate result: passed',
     'Service account values printed: no',
     '',
   ].join('\n');
   assert.deepStrictEqual(getAndroidPlayInternalHandoffSummaryErrors(safeSummary, validateReadiness), []);
+  assert(
+    getAndroidPlayInternalHandoffSummaryErrors(
+      safeSummary.replace('Electrum release gate result: passed\n', ''),
+      validateReadiness,
+    ).some(error => error.includes('Electrum release gate result')),
+    'Play summary must require Electrum release-gate evidence',
+  );
   assert(
     getAndroidPlayInternalHandoffSummaryErrors(`${safeSummary}client_email`, validateReadiness).some(error =>
       error.includes('service-account material'),
