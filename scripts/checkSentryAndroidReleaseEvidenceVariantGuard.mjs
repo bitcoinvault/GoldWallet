@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { readFileSync } from 'fs';
 import path from 'path';
 import {
   defaultSentryAndroidReleaseEvidenceVariant,
@@ -47,5 +48,13 @@ assert.throws(
     }),
   /Unsupported Sentry Android release evidence variant: internal/,
 );
+
+const auditSource = readFileSync(path.join(fixtureRoot, 'scripts', 'auditSentryReleasePrerequisites.mjs'), 'utf8');
+
+assert.match(auditSource, /getSentryAndroidReleaseEvidenceConfig\(root, env\)/);
+assert.match(auditSource, /getAndroidReleaseSmokeEvidenceOptions\(root, androidReleaseEvidenceConfig\.variant\)/);
+assert.match(auditSource, /expectedArtifactBase: androidReleaseEvidenceConfig\.createWalletArtifactBase/);
+assert.doesNotMatch(auditSource, /android-smoke-dev-release-summary\.txt/);
+assert.doesNotMatch(auditSource, /android-create-wallet-smoke-dev-release-summary\.txt/);
 
 console.log('Sentry Android release evidence variant guard passed.');
