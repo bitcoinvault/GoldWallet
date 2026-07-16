@@ -38,7 +38,7 @@ const checkFixture = overrides =>
 
 try {
   mkdirSync(path.dirname(apkPath), { recursive: true });
-  mkdirSync(path.join(fixtureRoot, 'android', 'app'), { recursive: true });
+  mkdirSync(path.join(fixtureRoot, 'android'), { recursive: true });
 
   writeFileSync(
     path.join(fixtureRoot, 'local-docs', 'android-release-dev-summary.txt'),
@@ -63,16 +63,8 @@ try {
     ].join('\n'),
   );
   writeFileSync(
-    path.join(fixtureRoot, 'android', 'app', 'build.gradle'),
-    [
-      'android {',
-      '  defaultConfig {',
-      '    versionCode 42',
-      "    versionName '9.8.7'",
-      '  }',
-      '}',
-      '',
-    ].join('\n'),
+    path.join(fixtureRoot, 'android', 'release-version.properties'),
+    'versionCode=42\nversionName=9.8.7\n',
   );
 
   const validErrors = checkFixture();
@@ -93,22 +85,14 @@ try {
   }
 
   writeFileSync(
-    path.join(fixtureRoot, 'android', 'app', 'build.gradle'),
-    [
-      'android {',
-      '  defaultConfig {',
-      '    versionCode 43',
-      "    versionName '9.8.7'",
-      '  }',
-      '}',
-      '',
-    ].join('\n'),
+    path.join(fixtureRoot, 'android', 'release-version.properties'),
+    'versionCode=43\nversionName=9.8.7\n',
   );
 
   const isolatedRootErrors = checkFixture();
   assert(
     isolatedRootErrors.some(error => error.includes('versionCode mismatch: expected 43, received 42')),
-    `Android release APK manifest checker must read app/build.gradle from the provided root. Got: ${isolatedRootErrors.join('; ')}`,
+    `Android release APK manifest checker must read release-version.properties from the provided root. Got: ${isolatedRootErrors.join('; ')}`,
   );
 } finally {
   rmSync(fixtureRoot, { recursive: true, force: true });

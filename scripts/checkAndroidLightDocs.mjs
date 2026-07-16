@@ -99,6 +99,7 @@ const docs = [
       'Android dev environment audit',
       'Android toolchain current-state guard self-check',
       'Android toolchain current-state check',
+      'Android release versioning',
       'Metro dev runtime audit',
       'Java/SDK/ADB toolchain',
       'QR scanner validation scripts',
@@ -146,6 +147,7 @@ const docs = [
       'environment audit checks',
       'Android toolchain current-state guard self-check',
       'Android toolchain current-state check',
+      'android:release-version:audit',
       'check:metro-dev-runtime-audit-guard',
       'rn:upgrade-path:audit',
       'check:rn-upgrade-path-audit-guard',
@@ -216,6 +218,7 @@ const docs = [
       'Android dev environment audit',
       'Android toolchain current-state guard self-check',
       'Android toolchain current-state check',
+      'Public Google Play baseline',
       'Metro dev runtime audit',
       'CodePush usage self-check/inventory guard',
       'App Center retirement self-check/source guard',
@@ -261,6 +264,9 @@ const errors = [];
 
 for (const requiredScript of [
   'check:android-app-bundle-validation-guard',
+  'check:android-release-versioning-guard',
+  'android:release-version:audit',
+  'android:release-version:check-summary',
   'check:android-upload-signing-guard',
   'android:upload-signing:audit',
   'android:upload-signing:check-summary',

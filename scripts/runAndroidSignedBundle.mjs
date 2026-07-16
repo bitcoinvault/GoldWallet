@@ -4,7 +4,13 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
-import { BUNDLETOOL_SHA256, BUNDLETOOL_VERSION, getAndroidAppBundleVariantConfig } from './androidAppBundleValidation.mjs';
+import {
+  BUNDLETOOL_SHA256,
+  BUNDLETOOL_VERSION,
+  getAndroidAppBundleProjectMetadata,
+  getAndroidAppBundleVariantConfig,
+} from './androidAppBundleValidation.mjs';
+import { requireAndroidReleaseCandidateReadiness } from './androidReleaseVersioning.mjs';
 import { resolveAndroidUploadSigningConfiguration } from './androidUploadSigningReadiness.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -71,6 +77,7 @@ try {
       ...(localProof ? ['--no-summary'] : []),
     ],
   );
+  const releaseReadiness = localProof ? null : requireAndroidReleaseCandidateReadiness({ root });
 
   rmSync(config.aabPath, { force: true });
   rmSync(outputAab, { force: true });
@@ -121,6 +128,22 @@ try {
   run('validate signed AAB with bundletool', javaCommand, ['-jar', bundletoolJar, 'validate', `--bundle=${outputAab}`], {
     capture: true,
   });
+  const builtMetadata = getAndroidAppBundleProjectMetadata(root);
+  const manifestOutput = run('inspect signed AAB manifest metadata', javaCommand, [
+    '-jar',
+    bundletoolJar,
+    'dump',
+    'manifest',
+    `--bundle=${outputAab}`,
+    '--module=base',
+  ], { capture: true });
+  const builtVersionCode = manifestOutput.match(/android:versionCode="(\d+)"/)?.[1];
+  const builtVersionName = manifestOutput.match(/android:versionName="([^"]+)"/)?.[1];
+  if (builtVersionCode !== builtMetadata.versionCode || builtVersionName !== builtMetadata.versionName) {
+    throw new Error(
+      `Signed AAB version metadata mismatch: expected ${builtMetadata.versionName} (${builtMetadata.versionCode}), received ${builtVersionName || 'missing'} (${builtVersionCode || 'missing'})`,
+    );
+  }
 
   const summary = [
     localProof ? 'Android upload signing local proof' : 'Android production signed bundle evidence',
@@ -129,12 +152,16 @@ try {
     'Configured alias certificate match: passed',
     'AAB JAR signature: verified',
     'Bundle validation: passed',
+    `Version code: ${builtMetadata.versionCode}`,
+    `Version name: ${builtMetadata.versionName}`,
+    'AAB version metadata match: passed',
     `AAB bytes: ${statSync(outputAab).size}`,
     `AAB SHA-256: ${hashFile(outputAab)}`,
     `Certificate SHA-256: ${aabCertificateSha256}`,
     ...(localProof ? ['Certificate identity: GoldWallet Local Signing Proof'] : []),
     ...(localProof ? ['Temporary keystore retained: no'] : []),
     `Production upload key used: ${localProof ? 'no' : 'yes'}`,
+    `Production release version ready: ${localProof ? 'not-required-for-local-proof' : releaseReadiness.ready ? 'yes' : 'no'}`,
     'Production Play upload readiness: not claimed',
     'Sentry upload: independently gated',
     'Secret values printed: no',

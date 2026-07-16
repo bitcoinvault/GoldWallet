@@ -31,8 +31,8 @@ writeFileSync(
   "ext {\n  buildToolsVersion = '36.0.0'\n  minSdkVersion = 26\n  targetSdkVersion = 36\n}\n",
 );
 writeFileSync(
-  path.join(fixtureRoot, 'android', 'app', 'build.gradle'),
-  "android {\n  defaultConfig {\n    versionCode 14\n    versionName '6.5.1'\n  }\n}\n",
+  path.join(fixtureRoot, 'android', 'release-version.properties'),
+  'versionCode=14\nversionName=6.5.1\n',
 );
 
 const prodConfig = getAndroidAppBundleVariantConfig(fixtureRoot, 'prod');

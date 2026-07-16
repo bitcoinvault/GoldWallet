@@ -53,6 +53,19 @@ $ yarn sentry:release:prereq-audit
 
 The Sentry prerequisite audit uses current `prodRelease` smoke and create-wallet evidence by default. Set `SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT` to `dev`, `stage`, `prod`, or `beta` only when validating another explicit release target. The controlled Electrum no-network fallback is valid only with the `dev` evidence variant and never substitutes for production runtime proof.
 
+### Android release versioning
+
+Android release metadata has one tracked source of truth: `android/release-version.properties`. The public Google Play baseline is recorded separately in `android/play-release-baseline.json`; the current public listing reports `6.5.2`, while this branch still builds `6.5.1 (14)` and is therefore not yet a valid store update candidate.
+
+Audit the candidate before production signing:
+
+```sh
+$ yarn android:release-version:audit
+$ yarn android:release-version:check-summary
+```
+
+Before `android:prod:bundle:signed` can produce a real upload candidate, set `GOLDWALLET_PLAY_LATEST_VERSION_CODE` to the latest code read from Play Console and update `android/release-version.properties` so both `versionName` and `versionCode` move forward. The signed-bundle runner reads the generated AAB manifest with `bundletool` and rejects metadata that differs from the tracked candidate. A local upload-signing proof bypasses store monotonicity only to test repository signing wiring; it never claims Play readiness.
+
 ### Android upload signing
 
 Android release builds remain unsigned when upload-key configuration is absent. Production AAB generation uses the upload-key model described in the [Android app-signing documentation](https://developer.android.com/studio/publish/app-signing): Google Play manages the app-signing key, while the release environment signs the submitted bundle with its upload key.
@@ -93,7 +106,7 @@ This runs the lightweight Android warning, validation artifact, Android dev envi
 
 The same lightweight gate runs the App Center retirement guard and source check so retired App Center dependencies, configuration files, Android resource switches, and iOS project references cannot return.
 
-Its release-readiness subgroup also runs the Android App Bundle validation guard plus the Android upload signing readiness guard, audit, and generated summary check. It does not require or print a production upload key.
+Its release-readiness subgroup also runs the Android App Bundle validation guard, Android release-version readiness guard/audit/summary, and Android upload signing readiness guard/audit/summary. It does not require or print a production upload key, and it keeps a stale store version as an explicit not-ready result instead of breaking normal development builds.
 
 The React Native upgrade path guard is included through `check:rn-upgrade-path-audit-guard` and `rn:upgrade-path:audit`.
 

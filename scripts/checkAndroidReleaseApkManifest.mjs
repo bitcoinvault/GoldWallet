@@ -3,6 +3,8 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath, pathToFileURL } from 'url';
 
+import { resolveAndroidReleaseVersion } from './androidReleaseVersioning.mjs';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const defaultVariants = ['dev', 'stage', 'prod', 'beta'];
@@ -124,7 +126,7 @@ export const getAndroidReleaseApkManifestErrors = ({
 
   const summary = readFileSync(auditSummaryPath, 'utf8');
   const androidBuildGradle = readProjectFile(auditRoot, path.join('android', 'build.gradle'));
-  const appBuildGradle = readProjectFile(auditRoot, path.join('android', 'app', 'build.gradle'));
+  const releaseVersion = resolveAndroidReleaseVersion(auditRoot);
   const variants = getLineValue(summary, 'Variants')
     .split(',')
     .map(variant => variant.trim())
@@ -132,8 +134,8 @@ export const getAndroidReleaseApkManifestErrors = ({
   const expectedMinSdk = getNumericGradleValue(androidBuildGradle, 'minSdkVersion');
   const expectedTargetSdk = getNumericGradleValue(androidBuildGradle, 'targetSdkVersion');
   const expectedCompileSdk = getNumericGradleValue(androidBuildGradle, 'compileSdkVersion');
-  const expectedVersionCode = getNumericGradleValue(appBuildGradle, 'versionCode');
-  const expectedVersionName = getQuotedGradleValue(appBuildGradle, 'versionName');
+  const expectedVersionCode = String(releaseVersion.versionCode);
+  const expectedVersionName = releaseVersion.versionName;
 
   if (variants.join(',') !== expectedVariants.join(',')) {
     errors.push(`Android release summary must cover ${expectedVariants.join(', ')}. Received: ${variants.join(', ') || 'missing'}`);

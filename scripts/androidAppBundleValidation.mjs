@@ -1,6 +1,8 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 
+import { resolveAndroidReleaseVersion } from './androidReleaseVersioning.mjs';
+
 export const BUNDLETOOL_VERSION = '1.18.3';
 export const BUNDLETOOL_SHA256 = 'a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29';
 export const supportedAndroidAppBundleVariants = ['dev', 'stage', 'prod', 'beta'];
@@ -39,10 +41,10 @@ const readGradleValue = (content, key) => {
 
 export const getAndroidAppBundleProjectMetadata = root => {
   const androidBuildGradle = readFileSync(path.join(root, 'android', 'build.gradle'), 'utf8');
-  const appBuildGradle = readFileSync(path.join(root, 'android', 'app', 'build.gradle'), 'utf8');
+  const releaseVersion = resolveAndroidReleaseVersion(root);
   const metadata = {
-    versionCode: readGradleValue(appBuildGradle, 'versionCode'),
-    versionName: readGradleValue(appBuildGradle, 'versionName'),
+    versionCode: String(releaseVersion.versionCode),
+    versionName: releaseVersion.versionName,
     minSdk: readGradleValue(androidBuildGradle, 'minSdkVersion'),
     targetSdk: readGradleValue(androidBuildGradle, 'targetSdkVersion'),
     buildToolsVersion: readGradleValue(androidBuildGradle, 'buildToolsVersion'),

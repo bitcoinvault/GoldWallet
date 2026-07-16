@@ -1,0 +1,24 @@
+import java.util.Properties
+
+def releaseVersionFile = rootProject.file('release-version.properties')
+if (!releaseVersionFile.isFile()) {
+    throw new GradleException("Missing Android release version file: ${releaseVersionFile}")
+}
+
+def releaseVersionProperties = new Properties()
+releaseVersionFile.withInputStream { releaseVersionProperties.load(it) }
+
+def versionCodeValue = releaseVersionProperties.getProperty('versionCode')?.trim()
+def versionNameValue = releaseVersionProperties.getProperty('versionName')?.trim()
+
+if (!versionCodeValue?.matches('[1-9][0-9]*')) {
+    throw new GradleException('android/release-version.properties versionCode must be a positive integer')
+}
+if (!versionNameValue?.matches('[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?')) {
+    throw new GradleException('android/release-version.properties versionName must be a valid semantic version')
+}
+
+ext.goldwalletReleaseVersion = [
+    versionCode: Integer.parseInt(versionCodeValue),
+    versionName: versionNameValue,
+]

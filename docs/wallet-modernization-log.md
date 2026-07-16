@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.910 - Android release versioning and Play baseline
+
+- Branch: `feature/bem-37-910-android-release-versioning`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace duplicated Android release version literals with one validated `android/release-version.properties` source used by Gradle and repository artifact checks.
+- Add a public Google Play baseline and a release-candidate preflight requiring both semantic version progress and an authoritative latest `versionCode` from Play Console.
+- Extend signed AAB evidence to inspect the generated base manifest with pinned `bundletool` and reject version metadata drift.
+
+Findings:
+
+- The public Google Play listing observed on 2026-07-16 reports GoldWallet `6.5.2`, while the repository currently builds `6.5.1` with `versionCode 14`; the current artifact is not a valid production update candidate.
+- The public listing does not expose the authoritative latest `versionCode`. Production signing now requires `GOLDWALLET_PLAY_LATEST_VERSION_CODE` from Play Console instead of guessing it.
+- Local upload-signing proof remains usable for repository wiring and produced a signed `prodRelease` AAB whose manifest exactly matched `6.5.1 (14)`; store monotonicity and Play upload are explicitly not claimed by that proof.
+
+Validation:
+
+- RED `corepack yarn check:android-release-versioning-guard`
+- `corepack yarn check:android-release-versioning-guard`
+- `corepack yarn check:android-app-bundle-validation-guard`
+- `corepack yarn android:release-version:audit`
+- `corepack yarn android:release-version:check-summary`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:upload-signing:proof`
+- `corepack yarn android:upload-signing:check-proof`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn test:unit --runInBand` (12 suites, 55 tests)
+- `corepack yarn test:storage-network:focused`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:embedded` reached the post-onboarding `No network` screen and was externally blocked by the expired testnet Electrum TLS certificate.
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded` passed with no fatal/runtime logcat findings.
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:bundle:smoke` passed the production mainnet AAB flow, including onboarding, dashboard CTAs, QR scanner, tabs, and Terms WebView.
+- `ANDROID_RELEASE_VARIANTS=prod corepack yarn android:dev:release:verify-local` passed the real APK manifest, secure-storage, and retired App Center artifact checks.
+- `corepack yarn ios:static:verify` passed static checks; macOS/Xcode runtime validation and the existing `ios/Podfile.lock` refresh remain required.
+
 ### BEM-37.909 - Android upload-signing readiness
 
 - Branch: `feature/bem-37-909-android-upload-signing-readiness`
