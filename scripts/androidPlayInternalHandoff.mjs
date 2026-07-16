@@ -154,6 +154,7 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
     `Service account location safe: ${readiness.serviceAccountLocationSafe ? 'yes' : 'no'}`,
     `Commit confirmation matches: ${readiness.confirmationMatches ? 'yes' : 'no'}`,
     `Execution ready: ${readiness.ready ? 'yes' : 'no'}`,
+    'Electrum release gate required: yes',
     'Service account values printed: no',
   ];
   const errors = requiredLines
@@ -161,6 +162,19 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
     .map(line => `Android Play internal handoff summary is missing: ${line}`);
   if (/private_key|client_email|BEGIN PRIVATE KEY/i.test(summary)) {
     errors.push('Android Play internal handoff summary contains service-account material');
+  }
+  const electrumReleaseGateResult = summary.match(/^Electrum release gate result: (not-claimed|passed|failed)$/m)?.[1];
+  if (!electrumReleaseGateResult) {
+    errors.push('Android Play internal handoff summary has invalid Electrum release gate result');
+  }
+  if (readiness.options.mode === 'dry-run' && electrumReleaseGateResult !== 'not-claimed') {
+    errors.push('Android Play dry-run must not claim Electrum release-gate execution');
+  }
+  if (/^API edit validated: yes$/m.test(summary) && electrumReleaseGateResult !== 'passed') {
+    errors.push('Google Play API validation requires a passed Electrum release gate');
+  }
+  if (electrumReleaseGateResult === 'failed' && !/^Failure: yes; see console output$/m.test(summary)) {
+    errors.push('A failed Electrum release gate must mark the Play handoff as failed');
   }
   return errors;
 };

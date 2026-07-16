@@ -108,7 +108,7 @@ Configure the release environment with:
 - the four `GOLDWALLET_UPLOAD_*` signing values
 - optional `GOLDWALLET_PLAY_RELEASE_STATUS=draft|completed` (default `draft`)
 
-`yarn android:play:internal:validate-upload` builds the verified signed AAB, creates a Play edit, uploads the bundle to the `internal` track, validates the edit, and then deletes the uncommitted edit. It does not release the app. `yarn android:play:internal:commit` performs the same checks and can commit only when `GOLDWALLET_PLAY_COMMIT_CONFIRMATION` exactly equals `io.goldwallet.wallet:<versionCode>:internal:<status>`. No command supports another track. Service-account values and paths are not written to summaries.
+`yarn android:play:internal:validate-upload` first requires the live Electrum release gate to pass, then builds the verified signed AAB, creates a Play edit, uploads the bundle to the `internal` track, validates the edit, and deletes the uncommitted edit. It does not release the app. `yarn android:play:internal:commit` performs the same checks and can commit only when `GOLDWALLET_PLAY_COMMIT_CONFIRMATION` exactly equals `io.goldwallet.wallet:<versionCode>:internal:<status>`. No command supports another track or bypasses the backend gate. Dry-run remains network-free and reports the Electrum check as `not-claimed`. Service-account values and paths are not written to summaries.
 
 But to run the app with Metro server, this step isn't required.
 

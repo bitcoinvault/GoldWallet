@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.914 - Google Play Electrum release gate
+
+- Branch: `feature/bem-37-914-play-electrum-release-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Require the live strict Electrum endpoint gate before any signed AAB build or Google Play API authentication/upload.
+- Keep Play dry-run network-free and distinguish `not-claimed`, `failed`, and `passed` backend-gate evidence.
+- Preserve secret-safe summaries and the existing internal-track-only/explicit-commit controls.
+
+Findings:
+
+- Local release-version, signing, and service-account checks run before the live endpoint probe, avoiding unnecessary network/build work for an already incomplete handoff.
+- A passed Electrum gate is mandatory before `runAndroidSignedBundle.mjs` and before `edits.insert`; there is no skip argument.
+- Current Play execution remains blocked before the Electrum probe by the known version/signing/service-account prerequisites. Dry-run reports backend validation as `not-claimed` without making a network request.
+
+Validation:
+
+- RED `corepack yarn check:android-play-internal-handoff-guard` rejected the missing Play/Electrum execution order.
+- `corepack yarn check:android-play-internal-handoff-guard`
+- `corepack yarn android:play:internal:dry-run`
+- `corepack yarn android:play:internal:check-summary`
+- expected preflight failure `corepack yarn android:play:internal:validate-upload` retained `Electrum release gate result: not-claimed`
+- post-failure dry-run and summary check passed
+- failed/passed/not-claimed summary fixture invariants passed
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- Emulator smoke was not repeated because this branch changes only release orchestration tooling and documentation.
+
 ### BEM-37.913 - Electrum strict release gate
 
 - Branch: `feature/bem-37-913-electrum-release-gate`
