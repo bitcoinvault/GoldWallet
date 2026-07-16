@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.906 - App Center configuration retirement
+
+- Branch: `feature/bem-37-906-appcenter-config-retirement`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove the remaining Android and iOS App Center configuration after the CodePush/runtime package removal.
+- Remove App Center Analytics/Crashes resource switches from all Android source sets and remove the shared plist from four Xcode resource phases.
+- Add source and release-artifact guards so retired App Center packages, configuration, resources, Xcode references, and APK markers cannot return.
+
+Findings:
+
+- Microsoft retired App Center on 2025-03-31 and extended only Analytics and Diagnostics through 2026-06-30; the official lifecycle is now complete. The Microsoft React Native CodePush repository remains archived and does not support React Native New Architecture.
+- The repo had no App Center or CodePush dependency and no active runtime consumer, but every existing Android release APK still packaged `assets/appcenter-config.json` plus the Analytics and Crashes resource symbols. The iOS project copied `AppCenter-Config.plist` into four targets.
+- A pre-rebuild artifact check failed for all four stale APKs. After removal, the same checker passes for `dev`, `stage`, `prod`, and `beta`, and the existing secure-storage APK checker still proves the Keychain-only backend.
+- The refreshed release-input fingerprint is `a98111d0e4d30800baac7fe82db48037c2d203ad2af861e15ccb848d525e3394` across `510` files. Unsigned APK SHA-256 values are `dev` `6c66917e2455e686dff30269733347865000acf05fb2981e9592487180292a1a`, `stage` `acc908f1f91e6f9b92463eddfa24a3ec344e1f3f7e7539d984cabf883e6383d2`, `prod` `8509d46012e8afd01bcec23a4bd26f467addb23aea7966903ada3cb54636299b`, and `beta` `d426457ecc5e18df2c9fa7c78bfcd3465f613de235ccad3bc9bbf099e54a9a26`.
+- Full `prodRelease` smoke passes on `emulator-5554` without Metro. The locally signed smoke APK SHA-256 is `8a3fa1efa125320801e155d0b0e7d92b356f64f0f8ccf68ae31d9dafc1164cdf`, bound to the unsigned prod APK above.
+- iOS static validation passes with zero errors and the existing 12 `Podfile.lock` drift issues. Runtime/archive validation remains unclaimed until macOS with Xcode 16.1+ and CocoaPods refreshes and validates all shared schemes.
+
+Validation:
+
+- RED `node scripts/checkAppCenterRetirementGuard.mjs`
+- RED `corepack yarn android:dev:release:check-appcenter-apks` against pre-removal APKs
+- `corepack yarn install --frozen-lockfile`
+- `corepack yarn check:appcenter-retirement-guard`
+- `corepack yarn check:appcenter-retirement`
+- `ANDROID_RELEASE_VARIANTS=dev,stage,prod,beta JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `corepack yarn android:dev:release:check-appcenter-apks`
+- `corepack yarn android:dev:release:check-secure-storage-apks`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn ios:static:verify`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.905 - Secure-storage release APK matrix
 
 - Branch: `feature/bem-37-905-secure-storage-release-matrix`

@@ -10,7 +10,6 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		30CFD19F92C51B23CB0C72C1 /* libPods-GoldWallet Dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EF03D929CCD83ED66518457F /* libPods-GoldWallet Dev.a */; };
-		3208E93922F63279007F5A27 /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3208E93822F63279007F5A27 /* AppCenter-Config.plist */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		38E48FB7410DBBAF5EBA7323 /* libPods-GoldWallet Stage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD0214C21DB9F1943AF86A62 /* libPods-GoldWallet Stage.a */; };
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
@@ -31,7 +30,6 @@
 		A281C092253846110012082E /* Ubuntu-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644C243B5FDD00A8F351 /* Ubuntu-Light.ttf */; };
 		A281C093253846110012082E /* Ubuntu-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644B243B5FDD00A8F351 /* Ubuntu-Medium.ttf */; };
 		A281C094253846110012082E /* Ubuntu-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644E243B5FDD00A8F351 /* Ubuntu-Regular.ttf */; };
-		A281C095253846110012082E /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3208E93822F63279007F5A27 /* AppCenter-Config.plist */; };
 		A298644F243B5FDD00A8F351 /* Ubuntu-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644B243B5FDD00A8F351 /* Ubuntu-Medium.ttf */; };
 		A2986450243B5FDD00A8F351 /* Ubuntu-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644C243B5FDD00A8F351 /* Ubuntu-Light.ttf */; };
 		A2986451243B5FDD00A8F351 /* Ubuntu-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644D243B5FDD00A8F351 /* Ubuntu-Bold.ttf */; };
@@ -49,7 +47,6 @@
 		B53FB7BC264C3EF000463BE5 /* Ubuntu-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644C243B5FDD00A8F351 /* Ubuntu-Light.ttf */; };
 		B53FB7BD264C3EF000463BE5 /* Ubuntu-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644B243B5FDD00A8F351 /* Ubuntu-Medium.ttf */; };
 		B53FB7BE264C3EF000463BE5 /* Ubuntu-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644E243B5FDD00A8F351 /* Ubuntu-Regular.ttf */; };
-		B53FB7BF264C3EF000463BE5 /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3208E93822F63279007F5A27 /* AppCenter-Config.plist */; };
 		B53FB7C1264C3EF000463BE5 /* Launch Screen beta.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A23B9D982538F3B4000E53DE /* Launch Screen beta.storyboard */; };
 		B53FB7C2264C3EF000463BE5 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A23B9D962538E569000E53DE /* Launch Screen.storyboard */; };
 		B57F8EE0264A847500D41CF9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
@@ -62,7 +59,6 @@
 		B57F8EEA264A847500D41CF9 /* Ubuntu-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644C243B5FDD00A8F351 /* Ubuntu-Light.ttf */; };
 		B57F8EEB264A847500D41CF9 /* Ubuntu-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644B243B5FDD00A8F351 /* Ubuntu-Medium.ttf */; };
 		B57F8EEC264A847500D41CF9 /* Ubuntu-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644E243B5FDD00A8F351 /* Ubuntu-Regular.ttf */; };
-		B57F8EED264A847500D41CF9 /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3208E93822F63279007F5A27 /* AppCenter-Config.plist */; };
 		B57F8EEF264A847500D41CF9 /* Launch Screen beta.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A23B9D982538F3B4000E53DE /* Launch Screen beta.storyboard */; };
 		B57F8EF0264A847500D41CF9 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A23B9D962538E569000E53DE /* Launch Screen.storyboard */; };
 		B58BE197264A86ED004E02CD /* GoldWalletDev-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B58BE196264A86ED004E02CD /* GoldWalletDev-Info.plist */; };
@@ -167,7 +163,6 @@
 		2654894D4DE44A4C8F71773D /* CoreData.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FCC2CD6FF4448229D0CE0F3 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
-		3208E93822F63279007F5A27 /* AppCenter-Config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "AppCenter-Config.plist"; sourceTree = "<group>"; };
 		3271B0AA236E2E0700DA766F /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		32B5A3282334450100F8D608 /* GoldWallet-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "GoldWallet-Bridging-Header.h"; sourceTree = "<group>"; };
 		32B5A3292334450100F8D608 /* Bridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bridge.swift; sourceTree = "<group>"; };
@@ -297,7 +292,6 @@
 				B58BE196264A86ED004E02CD /* GoldWalletDev-Info.plist */,
 				A23B9D962538E569000E53DE /* Launch Screen.storyboard */,
 				32F0A2502310B0910095C559 /* GoldWallet.entitlements */,
-				3208E93822F63279007F5A27 /* AppCenter-Config.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -600,7 +594,6 @@
 				A2986450243B5FDD00A8F351 /* Ubuntu-Light.ttf in Resources */,
 				A298644F243B5FDD00A8F351 /* Ubuntu-Medium.ttf in Resources */,
 				A2986452243B5FDD00A8F351 /* Ubuntu-Regular.ttf in Resources */,
-				3208E93922F63279007F5A27 /* AppCenter-Config.plist in Resources */,
 				B5D3AF0C264C3D9200D78133 /* GoogleService-Info-prod.plist in Resources */,
 				A23B9D9B2538F64C000E53DE /* Launch Screen beta.storyboard in Resources */,
 				A23B9D972538E569000E53DE /* Launch Screen.storyboard in Resources */,
@@ -619,7 +612,6 @@
 				A23B9D992538F3B4000E53DE /* Launch Screen beta.storyboard in Resources */,
 				A281C093253846110012082E /* Ubuntu-Medium.ttf in Resources */,
 				A281C094253846110012082E /* Ubuntu-Regular.ttf in Resources */,
-				A281C095253846110012082E /* AppCenter-Config.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -634,7 +626,6 @@
 				B519CCE82660E76800E4A69C /* GoldWalletStage-Info.plist in Resources */,
 				B53FB7BD264C3EF000463BE5 /* Ubuntu-Medium.ttf in Resources */,
 				B53FB7BE264C3EF000463BE5 /* Ubuntu-Regular.ttf in Resources */,
-				B53FB7BF264C3EF000463BE5 /* AppCenter-Config.plist in Resources */,
 				B53FB7C1264C3EF000463BE5 /* Launch Screen beta.storyboard in Resources */,
 				B53FB7C2264C3EF000463BE5 /* Launch Screen.storyboard in Resources */,
 			);
@@ -651,7 +642,6 @@
 				B57F8EEA264A847500D41CF9 /* Ubuntu-Light.ttf in Resources */,
 				B57F8EEB264A847500D41CF9 /* Ubuntu-Medium.ttf in Resources */,
 				B57F8EEC264A847500D41CF9 /* Ubuntu-Regular.ttf in Resources */,
-				B57F8EED264A847500D41CF9 /* AppCenter-Config.plist in Resources */,
 				B57F8EEF264A847500D41CF9 /* Launch Screen beta.storyboard in Resources */,
 				B57F8EF0264A847500D41CF9 /* Launch Screen.storyboard in Resources */,
 			);
