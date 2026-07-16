@@ -1,9 +1,17 @@
+import { readFileSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import {
   classifyElectrumTlsStatus,
   expectedElectrumEnvFiles,
   getElectrumEndpointReadinessSummaryErrors,
   parseEndpointEntry,
 } from './electrumEndpointReadinessSummaryGuard.mjs';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
+const packageJson = JSON.parse(read('package.json'));
 
 const assert = (condition, message) => {
   if (!condition) {
@@ -81,6 +89,9 @@ const validSummary = [
   'Certificate expiring entries: 6',
   'Unique expired endpoints: 1',
   'Unique expiring endpoints: 2',
+  'Release gate ready: no',
+  'Release gate blocking entries: 8',
+  'Release gate blocking unique endpoints: 3',
   'TLS authorization error entries: 0',
   'Connection error entries: 0',
   'Unsupported protocol entries: 0',
@@ -114,6 +125,25 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid Electrum endpoint readiness fixture', validSummary);
+assert(
+  packageJson.scripts['electrum:endpoint-readiness:release-gate'] ===
+    'node scripts/auditElectrumEndpointReadiness.mjs --require-ready',
+  'package.json must expose the strict Electrum endpoint release gate',
+);
+assert(
+  read('scripts/auditElectrumEndpointReadiness.mjs').includes("process.argv.includes('--require-ready')"),
+  'Electrum endpoint audit must support --require-ready',
+);
+assertRejected(
+  'Missing release gate readiness fixture',
+  validSummary.replace('Release gate ready: no\n', ''),
+  'Release gate ready',
+);
+assertRejected(
+  'Mismatched release gate blocker count fixture',
+  validSummary.replace('Release gate blocking entries: 8', 'Release gate blocking entries: 7'),
+  'Release gate blocking entries count',
+);
 assertRejected('Missing header fixture', validSummary.replace('Electrum endpoint readiness audit', 'Other audit'), 'summary header');
 assertRejected('Mismatched count fixture', validSummary.replace('Electrum endpoint entries: 8', 'Electrum endpoint entries: 7'), 'but listed 8');
 assertRejected('Secret fixture', `${validSummary}\nSENTRY_AUTH_TOKEN=secret`, 'secret-looking values');
