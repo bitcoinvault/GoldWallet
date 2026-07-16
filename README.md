@@ -92,6 +92,24 @@ $ yarn android:prod:bundle:signed
 
 The command fails before building when signing data is absent, partial, points to a missing keystore, or does not contain the configured alias. It compares the configured alias certificate fingerprint with the certificate embedded in the resulting AAB. `yarn android:upload-signing:proof` uses a random temporary local key to exercise the same Gradle/signature/certificate/`bundletool` path; it never proves the real upload key or Play Console acceptance.
 
+### Google Play internal handoff
+
+The repository uses the official `@googleapis/androidpublisher` client for the [Google Play edit workflow](https://developers.google.com/android-publisher/api-ref/rest). Google recommends [service-account authentication and its client libraries](https://developers.google.com/android-publisher/getting_started) for this server-to-server integration. The default command is read-only and prints only readiness state:
+
+```sh
+$ yarn android:play:internal:dry-run
+$ yarn android:play:internal:check-summary
+```
+
+Configure the release environment with:
+
+- `GOLDWALLET_PLAY_LATEST_VERSION_CODE` from Play Console
+- `GOLDWALLET_PLAY_SERVICE_ACCOUNT_JSON` pointing outside the repository or to an existing file confirmed by `git check-ignore`
+- the four `GOLDWALLET_UPLOAD_*` signing values
+- optional `GOLDWALLET_PLAY_RELEASE_STATUS=draft|completed` (default `draft`)
+
+`yarn android:play:internal:validate-upload` builds the verified signed AAB, creates a Play edit, uploads the bundle to the `internal` track, validates the edit, and then deletes the uncommitted edit. It does not release the app. `yarn android:play:internal:commit` performs the same checks and can commit only when `GOLDWALLET_PLAY_COMMIT_CONFIRMATION` exactly equals `io.goldwallet.wallet:<versionCode>:internal:<status>`. No command supports another track. Service-account values and paths are not written to summaries.
+
 But to run the app with Metro server, this step isn't required.
 
 ## Running the app
@@ -106,7 +124,7 @@ This runs the lightweight Android warning, validation artifact, Android dev envi
 
 The same lightweight gate runs the App Center retirement guard and source check so retired App Center dependencies, configuration files, Android resource switches, and iOS project references cannot return.
 
-Its release-readiness subgroup also runs the Android App Bundle validation guard, Android release-version readiness guard/audit/summary, and Android upload signing readiness guard/audit/summary. It does not require or print a production upload key, and it keeps a stale store version as an explicit not-ready result instead of breaking normal development builds.
+Its release-readiness subgroup also runs the Android App Bundle validation guard, Android release-version readiness guard/audit/summary, Android upload signing readiness guard/audit/summary, and the Google Play internal handoff guard/dry-run/summary. It does not require or print a production upload key or service-account value, and it keeps missing release inputs as explicit not-ready results instead of breaking normal development builds.
 
 The React Native upgrade path guard is included through `check:rn-upgrade-path-audit-guard` and `rn:upgrade-path:audit`.
 

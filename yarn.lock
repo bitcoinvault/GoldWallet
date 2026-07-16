@@ -1843,6 +1843,13 @@
   resolved "https://registry.yarnpkg.com/@flatten-js/interval-tree/-/interval-tree-1.1.4.tgz#08d90dec1ede2026196c832059b296182a32c5a0"
   integrity sha512-o4emRDDvGdkwX18BSVSXH8q27qAL7Z2WDHSN75C8xyRSE4A8UOkig0mWSGoT5M5KaTHZxoLmalFwOTQmbRusUg==
 
+"@googleapis/androidpublisher@36.0.0":
+  version "36.0.0"
+  resolved "https://registry.yarnpkg.com/@googleapis/androidpublisher/-/androidpublisher-36.0.0.tgz#d3ed769aba8b2594019dfc8acfceb9bdfb80d784"
+  integrity sha512-Lnm4+oMK6wDYgDtF/Ydn+LrGuRGgSrJT1MRB238KajyaoNfo7m6Zl0wOO9ti485aFe5IFSMBr4Sg8SMOglrY9A==
+  dependencies:
+    googleapis-common "^8.0.0"
+
 "@grpc/grpc-js@~1.9.0":
   version "1.9.16"
   resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.9.16.tgz#614f85036ac8e3c957374c1bd1ebb05934a79a1c"

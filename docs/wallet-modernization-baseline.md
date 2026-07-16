@@ -17,6 +17,7 @@ All modernization work should be developed on focused task branches and merged i
 - App name/package: `goldwallet`
 - App version: `6.5.1` (`versionCode 14`), sourced from `android/release-version.properties`
 - Public Google Play baseline: `6.5.2` observed 2026-07-16; the next production candidate requires a newer `versionName` and a `versionCode` above the value supplied from Play Console
+- Google Play internal handoff: official API client wired in read-only dry-run mode; execution requires ignored service-account credentials, real upload signing, a monotonic release version, and explicit commit confirmation
 - React Native: `0.86.0`
 - React: `19.2.3`
 - TypeScript: `6.0.3`
@@ -25,6 +26,7 @@ All modernization work should be developed on focused task branches and merged i
 - jest-environment-node: `30.4.1`
 - ts-jest: `29.4.11`
 - Detox: `20.51.4`
+- Google Play Android Publisher client: `@googleapis/androidpublisher 36.0.0` (release tooling only)
 - RN Babel preset: `0.86.0`
 - RN Metro config: `0.86.0`
 - Android New Architecture: enabled
@@ -158,7 +160,7 @@ Passing:
 - RN baseline preflight runs the Camera/QR validation handoff dry-run and now regenerates/checks `local-docs/camera-qr-validation-summary.txt` after candidate and migration summaries, so scanner readiness evidence cannot drift out of the main RN modernization gate.
 - Android lightweight check runs `check:node-runtime-version`, the Android warning baseline guard, Android warning artifact guard, Android dev environment audit self-check, Android toolchain current-state guard self-check, Android toolchain current-state check, Metro dev runtime audit self-check, React Native upgrade path audit self-check, React Native upgrade path audit, React Native renderer exact-version guard self-check, React Native renderer exact-version guard, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, QR scanner validation script guard, QR render usage self-check/inventory guard, QR render validation script guard, legacy Android autolink self-check/guard, Sentry usage self-check/inventory guard, Sentry release integration self-check/guard, CodePush usage self-check/inventory guard, Firebase usage self-check/inventory guard, Firebase Messaging modular API guard, iOS push notification usage self-check/inventory guard, release-service env key self-check/guard, Android env mapping self-check/guard, iOS scheme config self-check/guard, iOS release-config doc guard, explorer/env readiness self-check/guard, store metadata readiness self-check/guard, rebranding release-config readiness self-check/guard, storage/network usage self-check/guard, storage/network validation script self-check/guard, Electrum endpoint readiness guard, Electrum runtime observation parser guard, Electrum Metro observation path guard, wallet crypto validation script guard, transaction details amount label guard, native module inventory self-check/inventory guard, native module upgrade-plan self-check/coverage guard, git dependency snapshot guard, wallet crypto latest snapshot guard, direct outdated snapshot guard, security resolution baseline guard, BL resolution guard, BL current resolution check, node-fetch resolution guard, secure-storage removal readiness guard, RN nodeify shim self-check/inventory guard, modernization log ID guard self-check, modernization log ID guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
 - The Android lightweight gate includes the App Center retirement self-check/source guard, rejecting retired dependencies, Android/iOS configuration files, Android resource switches, and Xcode resource references.
-- The Android lightweight release-readiness subgroup includes the Android App Bundle validation guard and the Android upload signing readiness guard/audit/summary check without requiring production key material.
+- The Android lightweight release-readiness subgroup includes the Android App Bundle validation guard, release-version readiness, upload-signing readiness, and Google Play internal handoff dry-run without requiring production key or service-account material.
 - `corepack yarn prepush` starts with `check:node-runtime-version`, then `android:dev:check-light`, before promoted offline Jest suites.
 - `corepack yarn typescript:check`
 - ESLint on files changed by `BEM-39`, with existing warnings only

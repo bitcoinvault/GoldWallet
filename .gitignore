@@ -41,6 +41,8 @@ buck-out/
 *.keystore
 *.jks
 *.p12
+play-service-account*.json
+android-publisher-service-account*.json
 
 # fastlane
 #
