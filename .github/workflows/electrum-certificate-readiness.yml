@@ -1,0 +1,66 @@
+name: Electrum certificate readiness
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: electrum-certificate-readiness
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    name: Audit Electrum certificates
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Run strict Electrum readiness gate
+        id: electrum_gate
+        continue-on-error: true
+        run: node scripts/auditElectrumEndpointReadiness.mjs --require-ready
+
+      - name: Publish job summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## Electrum certificate readiness'
+            echo
+            echo 'Gate outcome: `${{ steps.electrum_gate.outcome }}`'
+            echo
+            if [[ -f local-docs/electrum-endpoint-readiness-summary.txt ]]; then
+              echo '```text'
+              sed '/^Endpoint entries:/,$d' local-docs/electrum-endpoint-readiness-summary.txt
+              echo '```'
+            else
+              echo 'The readiness script did not produce its expected summary file.'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Electrum readiness summary
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: electrum-endpoint-readiness-summary
+          path: local-docs/electrum-endpoint-readiness-summary.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Enforce readiness gate result
+        if: ${{ always() && steps.electrum_gate.outcome != 'success' }}
+        run: exit 1

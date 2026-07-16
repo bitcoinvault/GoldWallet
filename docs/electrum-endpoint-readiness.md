@@ -8,6 +8,7 @@ This document records the repo-side Electrum endpoint preflight used before Andr
 - `corepack yarn electrum:endpoint-readiness:audit` performs the live endpoint check and writes `local-docs/electrum-endpoint-readiness-summary.txt`.
 - `corepack yarn electrum:endpoint-readiness:check-summary` validates the generated local summary.
 - `corepack yarn electrum:endpoint-readiness:release-gate` performs the same live audit and exits non-zero unless every configured endpoint is `ready`.
+- `corepack yarn check:electrum-certificate-workflow-guard` verifies the scheduled CI monitor offline, including least-privilege permissions, pinned actions, artifact-on-failure handling, and the absence of secret-dependent or bypass paths.
 
 ## Scope
 
@@ -33,6 +34,8 @@ The summary reports both environment-entry counts and unique endpoint counts, so
 The normal audit is informational and exits successfully after writing structurally valid evidence, even when endpoints are blocked. The strict release gate writes the same summary first and then exits with code `1` for expired, expiring, authorization-error, connection-error, unsupported-protocol, or missing-config entries. It rejects unknown command-line flags and has no option to weaken the 30-day threshold.
 
 The live audit is not part of `prepush`; it depends on external Electrum DNS, TCP, and TLS state. Use it before release-smoke work when Android reaches `No network`, and keep generated output in ignored `local-docs/`.
+
+The `Electrum certificate readiness` GitHub Actions workflow runs the strict gate daily and on manual dispatch. It uploads the redacted readiness summary even when the gate fails, then fails the job explicitly. It requires no repository secrets and does not install dependencies. Scheduled runs begin only after the workflow exists on the repository's default branch; while this modernization branch remains unmerged, use manual local gate runs as the source of current evidence.
 
 ## Current Result
 
