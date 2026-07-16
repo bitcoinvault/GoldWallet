@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.915 - Scheduled Electrum certificate readiness monitor
+
+- Branch: `feature/bem-37-915-electrum-certificate-ci`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a daily and manually dispatchable GitHub Actions monitor for the strict Electrum certificate release gate.
+- Preserve the redacted readiness summary as an artifact before explicitly failing a blocked job.
+- Guard the workflow offline against floating or unapproved actions, write permissions, secret access, dependency installation, and release-gate bypasses.
+
+Findings:
+
+- The workflow uses read-only repository permissions, a five-minute timeout, `.nvmrc`, and full-SHA-pinned official checkout, setup-node, and artifact actions. It requires no repository secrets or dependency installation.
+- Scheduled and manual GitHub execution becomes available only after the workflow definition reaches the repository default branch.
+- Live validation on `2026-07-16` remains intentionally blocked: 8 non-ready entries across 3 unique endpoints. The testnet certificate is expired by 24 full days, while both mainnet endpoints have 21 full days remaining and are inside the 30-day warning window.
+- No runtime, native, dependency, or Metro behavior changed, so Android emulator smoke was not repeated for this CI/tooling-only milestone.
+
+Validation:
+
+- RED `corepack yarn check:electrum-certificate-workflow-guard` rejected the invalid checkout SHA and inconsistent gate/failure contract.
+- `corepack yarn check:electrum-certificate-workflow-guard`
+- workflow YAML parsed successfully with the installed `yaml` parser
+- mutation fixtures rejected an unapproved floating action, dependency installation through Corepack, secret access, and write permission
+- `corepack yarn android:dev:check-light`
+- `corepack yarn lint:baseline:audit` passed against the existing lint baseline
+- expected live failure `corepack yarn electrum:endpoint-readiness:release-gate` wrote the blocked summary before exiting with code `1`
+- `corepack yarn electrum:endpoint-readiness:check-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.914 - Google Play Electrum release gate
 
 - Branch: `feature/bem-37-914-play-electrum-release-gate`
