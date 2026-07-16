@@ -7,6 +7,7 @@ This document records the repo-side Electrum endpoint preflight used before Andr
 - `corepack yarn check:electrum-endpoint-readiness-guard` runs offline parser and policy fixtures.
 - `corepack yarn electrum:endpoint-readiness:audit` performs the live endpoint check and writes `local-docs/electrum-endpoint-readiness-summary.txt`.
 - `corepack yarn electrum:endpoint-readiness:check-summary` validates the generated local summary.
+- `corepack yarn electrum:endpoint-readiness:release-gate` performs the same live audit and exits non-zero unless every configured endpoint is `ready`.
 
 ## Scope
 
@@ -29,6 +30,8 @@ TLS certificates use a fixed 30-day release-warning policy:
 
 The summary reports both environment-entry counts and unique endpoint counts, so shared hosts are not mistaken for separate operational incidents.
 
+The normal audit is informational and exits successfully after writing structurally valid evidence, even when endpoints are blocked. The strict release gate writes the same summary first and then exits with code `1` for expired, expiring, authorization-error, connection-error, unsupported-protocol, or missing-config entries. It rejects unknown command-line flags and has no option to weaken the 30-day threshold.
+
 The live audit is not part of `prepush`; it depends on external Electrum DNS, TCP, and TLS state. Use it before release-smoke work when Android reaches `No network`, and keep generated output in ignored `local-docs/`.
 
 ## Current Result
@@ -44,6 +47,9 @@ Latest local audit on `2026-07-16`:
 - Certificate expiring entries: `6`
 - Unique expired endpoints: `1`
 - Unique expiring endpoints: `2`
+- Release gate ready: `no`
+- Release gate blocking entries: `8`
+- Release gate blocking unique endpoints: `3`
 - TLS authorization error entries: `0`
 - Connection error entries: `0`
 - Unsupported protocol entries: `0`
@@ -53,4 +59,4 @@ The mainnet endpoints in `.env.stage.mainnet`, `.env.prod.mainnet`, and `.env.be
 
 The blocked entries are `.env.dev.testnet` and `.env.beta.testnet`, both using `electrumx.testnet.btcv.stage.rnd.land:443 tls`. The TLS certificate is expired with `CERT_HAS_EXPIRED`, `valid_to=Jun 23 16:52:40 2026 GMT`, and `expires_in_days=-23`.
 
-Required action: renew or fix the dev/testnet certificate and rotate the mainnet certificate before `2026-08-07`. Then rerun `corepack yarn electrum:endpoint-readiness:audit`, its summary check, and Android dev/release smoke validation.
+Required action: renew or fix the dev/testnet certificate and rotate the mainnet certificate before `2026-08-07`. Then rerun `corepack yarn electrum:endpoint-readiness:release-gate`; only a zero exit code may be used as Electrum release-readiness evidence before Android dev/release smoke validation.

@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.913 - Electrum strict release gate
+
+- Branch: `feature/bem-37-913-electrum-release-gate`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Convert Electrum certificate policy from informational evidence into an explicit opt-in release gate.
+- Persist release-gate readiness and blocking entry/unique-endpoint counts in the guarded summary.
+- Keep live network checks outside normal prepush while preventing release claims inside the 30-day certificate window.
+
+Findings:
+
+- The normal audit must remain usable for diagnosis and therefore exits successfully with a valid blocked summary.
+- The strict command writes the same evidence before failing, so CI or release handoff retains the exact blocker state.
+- Current live gate is intentionally blocked: 8 non-ready entries across all 3 configured unique endpoints.
+
+Validation:
+
+- RED `corepack yarn check:electrum-endpoint-readiness-guard` rejected the missing strict command.
+- `corepack yarn check:electrum-endpoint-readiness-guard`
+- live `corepack yarn electrum:endpoint-readiness:audit`
+- `corepack yarn electrum:endpoint-readiness:check-summary`
+- expected live failure `corepack yarn electrum:endpoint-readiness:release-gate` with exit code `1`
+- post-failure `corepack yarn electrum:endpoint-readiness:check-summary`
+- all-ready fixture passed with zero blocking entries and `Release gate ready: yes`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- Emulator smoke was not repeated because this branch changes only live release-readiness tooling and documentation.
+
 ### BEM-37.912 - Electrum TLS expiry policy
 
 - Branch: `feature/bem-37-912-electrum-tls-expiry-policy`

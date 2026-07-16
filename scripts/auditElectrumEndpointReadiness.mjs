@@ -7,6 +7,8 @@ import {
   classifyElectrumTlsStatus,
   electrumCertificateWarningDays,
   expectedElectrumEnvFiles,
+  getElectrumEndpointReleaseGateState,
+  parseElectrumEndpointAuditArgs,
 } from './electrumEndpointReadinessSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -278,9 +280,11 @@ const renderEntry = entry =>
   ].join('; ');
 
 const main = async () => {
+  const { requireReady } = parseElectrumEndpointAuditArgs(process.argv.slice(2));
   mkdirSync(localDocsDir, { recursive: true });
 
   const entries = await Promise.all(buildEntries().map(inspectEndpoint));
+  const releaseGate = getElectrumEndpointReleaseGateState(entries);
   const uniqueEndpoints = new Set(entries.map(entry => entry.endpoint));
   const uniqueExpiredEndpoints = new Set(
     entries.filter(entry => entry.status === 'certificate-expired').map(entry => entry.endpoint),
@@ -319,6 +323,9 @@ const main = async () => {
     `Certificate expiring entries: ${counts.certificateExpiring}`,
     `Unique expired endpoints: ${uniqueExpiredEndpoints.size}`,
     `Unique expiring endpoints: ${uniqueExpiringEndpoints.size}`,
+    `Release gate ready: ${releaseGate.ready ? 'yes' : 'no'}`,
+    `Release gate blocking entries: ${releaseGate.blockingEntries}`,
+    `Release gate blocking unique endpoints: ${releaseGate.blockingUniqueEndpoints}`,
     `TLS authorization error entries: ${counts.tlsAuthorizationError}`,
     `Connection error entries: ${counts.connectionError}`,
     `Unsupported protocol entries: ${counts.unsupportedProtocol}`,
@@ -334,6 +341,10 @@ const main = async () => {
   writeFileSync(outputPath, summary);
   console.log(summary);
   console.log(`Electrum endpoint readiness summary written to ${path.relative(root, outputPath)}`);
+  if (requireReady && !releaseGate.ready) {
+    console.error('Electrum endpoint release gate is blocked.');
+    process.exitCode = 1;
+  }
 };
 
 main().catch(error => {

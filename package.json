@@ -389,6 +389,7 @@
     "check:storage-network-validation-scripts": "node scripts/checkStorageNetworkValidationScripts.mjs",
     "electrum:endpoint-readiness:audit": "node scripts/auditElectrumEndpointReadiness.mjs",
     "electrum:endpoint-readiness:check-summary": "node scripts/checkElectrumEndpointReadinessSummary.mjs",
+    "electrum:endpoint-readiness:release-gate": "node scripts/auditElectrumEndpointReadiness.mjs --require-ready",
     "check:electrum-endpoint-readiness-guard": "node scripts/checkElectrumEndpointReadinessGuard.mjs",
     "electrum:runtime:observe": "node scripts/captureElectrumRuntimeObservation.mjs",
     "electrum:runtime:check-artifact": "node scripts/checkElectrumRuntimeObservationArtifact.mjs",

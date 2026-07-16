@@ -16,6 +16,24 @@ export const expectedElectrumEnvFiles = [
 
 export const electrumCertificateWarningDays = 30;
 
+export const parseElectrumEndpointAuditArgs = args => {
+  const unknown = args.filter(argument => argument !== '--require-ready');
+  if (unknown.length > 0) {
+    throw new Error(`Unsupported Electrum endpoint audit argument(s): ${unknown.join(', ')}`);
+  }
+
+  return { requireReady: args.includes('--require-ready') };
+};
+
+export const getElectrumEndpointReleaseGateState = entries => {
+  const blockingEntries = entries.filter(entry => entry.status !== 'ready');
+  return {
+    ready: entries.length > 0 && blockingEntries.length === 0,
+    blockingEntries: blockingEntries.length,
+    blockingUniqueEndpoints: new Set(blockingEntries.map(entry => entry.endpoint)).size,
+  };
+};
+
 export const classifyElectrumTlsStatus = ({ authorized, expiresInDays }) => {
   const normalizedExpiryDays = String(expiresInDays ?? '');
 
@@ -121,6 +139,13 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
   const certificateExpiringEntries = parseInteger(summary, 'Certificate expiring entries', errors);
   const uniqueExpiredEndpoints = parseInteger(summary, 'Unique expired endpoints', errors);
   const uniqueExpiringEndpoints = parseInteger(summary, 'Unique expiring endpoints', errors);
+  const releaseGateReady = getLineValue(summary, 'Release gate ready');
+  const releaseGateBlockingEntries = parseInteger(summary, 'Release gate blocking entries', errors);
+  const releaseGateBlockingUniqueEndpoints = parseInteger(
+    summary,
+    'Release gate blocking unique endpoints',
+    errors,
+  );
   const tlsAuthorizationErrorEntries = parseInteger(summary, 'TLS authorization error entries', errors);
   const connectionErrorEntries = parseInteger(summary, 'Connection error entries', errors);
   const unsupportedProtocolEntries = parseInteger(summary, 'Unsupported protocol entries', errors);
@@ -223,6 +248,28 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
     }
   });
 
+  const releaseGate = getElectrumEndpointReleaseGateState(
+    parsedEntries.map(fields => ({ endpoint: fields.get('endpoint'), status: fields.get('status') })),
+  );
+
+  if (!['yes', 'no'].includes(releaseGateReady)) {
+    errors.push(`Release gate ready must be yes or no. Received: ${releaseGateReady || 'missing'}`);
+  } else if (releaseGateReady !== (releaseGate.ready ? 'yes' : 'no')) {
+    errors.push(`Release gate ready is ${releaseGateReady}, but derived ${releaseGate.ready ? 'yes' : 'no'}`);
+  }
+
+  if (releaseGateBlockingEntries !== releaseGate.blockingEntries) {
+    errors.push(
+      `Release gate blocking entries count is ${releaseGateBlockingEntries}, but listed ${releaseGate.blockingEntries}`,
+    );
+  }
+
+  if (releaseGateBlockingUniqueEndpoints !== releaseGate.blockingUniqueEndpoints) {
+    errors.push(
+      `Release gate blocking unique endpoints count is ${releaseGateBlockingUniqueEndpoints}, but listed ${releaseGate.blockingUniqueEndpoints}`,
+    );
+  }
+
   if (readyEntries !== countedStatuses.ready) {
     errors.push(`Ready entries count is ${readyEntries}, but listed ${countedStatuses.ready}`);
   }
@@ -277,6 +324,14 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
 
   if (certificateExpiringEntries > 0 && !/renew|rotate/i.test(requiredAction)) {
     errors.push('Expiring certificate summaries must include a renew/rotate required action');
+  }
+
+  if (!releaseGate.ready && /^none\b/i.test(requiredAction)) {
+    errors.push('Blocked release gate summaries must include a required action');
+  }
+
+  if (releaseGate.ready && !/^none\b/i.test(requiredAction)) {
+    errors.push('Ready release gate summaries must not include a blocking required action');
   }
 
   if (/SENTRY_AUTH_TOKEN=|auth\.token=|CODEPUSH_DEPLOYMENT_KEY|SENTRY_DSN_(?:IOS|ANDROID)=|https?:\/\/[^/\s]+@/i.test(summary)) {
