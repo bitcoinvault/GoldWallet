@@ -424,6 +424,17 @@ for (const [name, workflowPath] of Object.entries(workflowPaths)) {
   errors.push(...validators[name](workflows[name]));
 }
 
+for (const [name, source] of Object.entries(workflows)) {
+  const lineEndingVariants = {
+    LF: source.replace(/\r\n/g, '\n'),
+    CRLF: source.replace(/\r?\n/g, '\r\n'),
+  };
+
+  for (const [lineEnding, fixture] of Object.entries(lineEndingVariants)) {
+    errors.push(...validators[name](fixture).map(error => `${lineEnding} fixture: ${error}`));
+  }
+}
+
 const mutationFixtures =
   workflows.codeql && workflows.semgrep && workflows.pullRequest
     ? [
@@ -442,7 +453,7 @@ const mutationFixtures =
         [
           'write-all',
           validateCodeql,
-          workflows.codeql.replace('permissions:\n  contents: read', 'permissions: write-all'),
+          workflows.codeql.replace(/permissions:\r?\n  contents: read/, 'permissions: write-all'),
           'write-all permissions are forbidden',
         ],
         [
