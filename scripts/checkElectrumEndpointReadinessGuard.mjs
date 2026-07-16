@@ -1,9 +1,19 @@
+import { readFileSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import {
   classifyElectrumTlsStatus,
   expectedElectrumEnvFiles,
+  getElectrumEndpointReleaseGateState,
   getElectrumEndpointReadinessSummaryErrors,
+  parseElectrumEndpointAuditArgs,
   parseEndpointEntry,
 } from './electrumEndpointReadinessSummaryGuard.mjs';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
+const packageJson = JSON.parse(read('package.json'));
 
 const assert = (condition, message) => {
   if (!condition) {
@@ -29,6 +39,34 @@ expectedTlsStatuses.forEach(([input, expected]) => {
     `TLS status for ${JSON.stringify(input)} must be ${expected}`,
   );
 });
+
+assert(parseElectrumEndpointAuditArgs([]).requireReady === false, 'Default endpoint audit must not enforce readiness');
+assert(
+  parseElectrumEndpointAuditArgs(['--require-ready']).requireReady === true,
+  'Strict endpoint audit must enforce readiness',
+);
+try {
+  parseElectrumEndpointAuditArgs(['--unknown']);
+  assert(false, 'Unknown endpoint audit arguments must fail');
+} catch (error) {
+  assert(/Unsupported Electrum endpoint audit argument/.test(error.message), 'Unknown argument error must be explicit');
+}
+
+const readyGate = getElectrumEndpointReleaseGateState([
+  { endpoint: 'one.example:443', status: 'ready' },
+  { endpoint: 'two.example:443', status: 'ready' },
+]);
+assert(readyGate.ready, 'All-ready endpoints must pass the release gate');
+assert(readyGate.blockingEntries === 0, 'All-ready endpoints must have no blocking entries');
+const blockedGate = getElectrumEndpointReleaseGateState([
+  { endpoint: 'one.example:443', status: 'certificate-expiring' },
+  { endpoint: 'one.example:443', status: 'certificate-expired' },
+  { endpoint: 'two.example:443', status: 'connection-error' },
+]);
+assert(!blockedGate.ready, 'Non-ready endpoints must block the release gate');
+assert(blockedGate.blockingEntries === 3, 'Release gate must count blocking entries');
+assert(blockedGate.blockingUniqueEndpoints === 2, 'Release gate must deduplicate blocking endpoints');
+assert(!getElectrumEndpointReleaseGateState([]).ready, 'An empty endpoint inventory must not pass the release gate');
 
 const entry = ({ env, endpoint, protocol = 'tls', status = 'ready', authorized = 'yes', expiresInDays = '45' }) =>
   [
@@ -81,6 +119,9 @@ const validSummary = [
   'Certificate expiring entries: 6',
   'Unique expired endpoints: 1',
   'Unique expiring endpoints: 2',
+  'Release gate ready: no',
+  'Release gate blocking entries: 8',
+  'Release gate blocking unique endpoints: 3',
   'TLS authorization error entries: 0',
   'Connection error entries: 0',
   'Unsupported protocol entries: 0',
@@ -90,6 +131,39 @@ const validSummary = [
   '',
   'Endpoint entries:',
   ...entries.map(line => `- ${line}`),
+  '',
+].join('\n');
+
+const allReadyEntries = entries.map(line =>
+  line
+    .replace(/status=(?:certificate-expired|certificate-expiring)/, 'status=ready')
+    .replace('authorized=no', 'authorized=yes')
+    .replace(/expires_in_days=-?\d+/, 'expires_in_days=45'),
+);
+const allReadySummary = [
+  'Electrum endpoint readiness audit',
+  'Generated at: 2026-07-11T20:00:00.000Z',
+  `Env files scanned: ${expectedElectrumEnvFiles.length}`,
+  `Electrum endpoint entries: ${allReadyEntries.length}`,
+  'Unique endpoints: 3',
+  'Certificate warning threshold days: 30',
+  'Ready entries: 8',
+  'Certificate expired entries: 0',
+  'Certificate expiring entries: 0',
+  'Unique expired endpoints: 0',
+  'Unique expiring endpoints: 0',
+  'Release gate ready: yes',
+  'Release gate blocking entries: 0',
+  'Release gate blocking unique endpoints: 0',
+  'TLS authorization error entries: 0',
+  'Connection error entries: 0',
+  'Unsupported protocol entries: 0',
+  'Missing config entries: 0',
+  'Secret values printed: no',
+  'Required action: none; Electrum endpoint preflight has no blocking findings.',
+  '',
+  'Endpoint entries:',
+  ...allReadyEntries.map(line => `- ${line}`),
   '',
 ].join('\n');
 
@@ -114,6 +188,30 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid Electrum endpoint readiness fixture', validSummary);
+assertAccepted('All-ready Electrum endpoint release gate fixture', allReadySummary);
+assert(
+  packageJson.scripts['electrum:endpoint-readiness:release-gate'] ===
+    'node scripts/auditElectrumEndpointReadiness.mjs --require-ready',
+  'package.json must expose the strict Electrum endpoint release gate',
+);
+assert(
+  read('scripts/auditElectrumEndpointReadiness.mjs').includes('parseElectrumEndpointAuditArgs(process.argv.slice(2))'),
+  'Electrum endpoint audit must support --require-ready',
+);
+assert(
+  read('docs/electrum-endpoint-readiness.md').includes('electrum:endpoint-readiness:release-gate'),
+  'Electrum endpoint readiness docs must describe the strict release gate',
+);
+assertRejected(
+  'Missing release gate readiness fixture',
+  validSummary.replace('Release gate ready: no\n', ''),
+  'Release gate ready',
+);
+assertRejected(
+  'Mismatched release gate blocker count fixture',
+  validSummary.replace('Release gate blocking entries: 8', 'Release gate blocking entries: 7'),
+  'Release gate blocking entries count',
+);
 assertRejected('Missing header fixture', validSummary.replace('Electrum endpoint readiness audit', 'Other audit'), 'summary header');
 assertRejected('Mismatched count fixture', validSummary.replace('Electrum endpoint entries: 8', 'Electrum endpoint entries: 7'), 'but listed 8');
 assertRejected('Secret fixture', `${validSummary}\nSENTRY_AUTH_TOKEN=secret`, 'secret-looking values');
