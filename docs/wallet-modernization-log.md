@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.908 - Android App Bundle production-path proof
+
+- Branch: `feature/bem-37-908-android-app-bundle-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a reproducible `prodRelease` Android App Bundle validation path based on the official `bundletool` `1.18.3` release and its pinned SHA-256.
+- Build and validate the AAB, generate a locally signed universal APK Set, inspect the resulting APK manifest, and run the existing full release smoke without Metro.
+- Keep `bundletool`, AAB/APKS files, the universal APK, screenshots, summaries, and the debug test signature in ignored `local-docs`; do not add production signing keys or claim Play upload readiness.
+
+Findings:
+
+- `:app:bundleProdRelease` succeeds with `.env.prod.mainnet` and produces package `io.goldwallet.wallet`, version `6.5.1` (`14`), minimum SDK `26`, and target SDK `36`.
+- Official `bundletool` `1.18.3` validates the 110,621,872-byte AAB. Its SHA-256 is `0769067beb5cb490b7e5ffb33b41ac151579143761be76aac05f9f9b0f6542f7`.
+- The generated universal APK is derived from the AAB through an APK Set and is signed only with the local Android debug keystore for device testing. This does not prove the production upload key, Play App Signing configuration, store upload, or staged rollout.
+- The AAB-derived universal APK passes the full `prodRelease` smoke on `emulator-5554`: first-run terms, PIN and transaction password, empty dashboard CTAs, create/import screens, QR scanner, all main tabs, settings Terms WebView, expected UI resources, and fatal/runtime logcat checks.
+
+Validation:
+
+- RED `corepack yarn check:android-app-bundle-validation-guard`
+- `corepack yarn check:android-app-bundle-validation-guard`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:bundle:smoke`
+- `corepack yarn android:prod:bundle:check-summary`
+
 ### BEM-37.907 - Production-aware release-services evidence
 
 - Branch: `feature/bem-37-907-sentry-prod-release-evidence`
