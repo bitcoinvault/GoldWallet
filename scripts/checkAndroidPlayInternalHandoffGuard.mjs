@@ -277,6 +277,33 @@ try {
     'Play summary must require Electrum release-gate evidence',
   );
   assert(
+    getAndroidPlayInternalHandoffSummaryErrors(
+      safeSummary.replace('Electrum release gate result: passed', 'Electrum release gate result: failed'),
+      validateReadiness,
+    ).some(error => error.includes('must mark the Play handoff as failed')),
+    'A failed Electrum gate must fail the Play handoff summary',
+  );
+  assert(
+    getAndroidPlayInternalHandoffSummaryErrors(
+      `${safeSummary.replace('Electrum release gate result: passed', 'Electrum release gate result: not-claimed')}API edit validated: yes\n`,
+      validateReadiness,
+    ).some(error => error.includes('API validation requires a passed Electrum release gate')),
+    'Play API validation must require a passed Electrum gate',
+  );
+  const dryRunReadiness = resolveAndroidPlayInternalHandoff({
+    root: fixtureRoot,
+    env: baseEnvironment,
+    options: parseAndroidPlayHandoffArgs([]),
+    ignoredPathCheck: () => true,
+  });
+  assert(
+    getAndroidPlayInternalHandoffSummaryErrors(
+      safeSummary.replace('Mode: execute-validate', 'Mode: dry-run'),
+      dryRunReadiness,
+    ).some(error => error.includes('dry-run must not claim Electrum release-gate execution')),
+    'Play dry-run must keep Electrum execution unclaimed',
+  );
+  assert(
     getAndroidPlayInternalHandoffSummaryErrors(`${safeSummary}client_email`, validateReadiness).some(error =>
       error.includes('service-account material'),
     ),

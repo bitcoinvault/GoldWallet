@@ -39,6 +39,8 @@ const renderSummary = (readiness, result = {}, error = '') =>
     `Service account location safe: ${readiness.serviceAccountLocationSafe ? 'yes' : 'no'}`,
     `Commit confirmation matches: ${readiness.confirmationMatches ? 'yes' : 'no'}`,
     `Execution ready: ${readiness.ready ? 'yes' : 'no'}`,
+    'Electrum release gate required: yes',
+    `Electrum release gate result: ${electrumReleaseGateResult}`,
     `Signed AAB present: ${existsSync(readiness.signedAabPath) ? 'yes' : 'no'}`,
     `Signed AAB bytes: ${existsSync(readiness.signedAabPath) ? statSync(readiness.signedAabPath).size : 0}`,
     `API edit validated: ${result.editValidated ? 'yes' : 'not-claimed'}`,
@@ -54,6 +56,7 @@ const renderSummary = (readiness, result = {}, error = '') =>
   ].join('\n');
 
 let readiness;
+let electrumReleaseGateResult = 'not-claimed';
 try {
   const options = parseAndroidPlayHandoffArgs(process.argv.slice(2));
   readiness = resolveAndroidPlayInternalHandoff({ root, options });
@@ -67,6 +70,9 @@ try {
   }
   if (!readiness.ready) throw new Error(`Android Play internal handoff is not ready: ${readiness.blockers.join(' ')}`);
 
+  electrumReleaseGateResult = 'failed';
+  run('validate Electrum release gate', process.execPath, ['scripts/auditElectrumEndpointReadiness.mjs', '--require-ready']);
+  electrumReleaseGateResult = 'passed';
   run('build verified production signed AAB', process.execPath, ['scripts/runAndroidSignedBundle.mjs']);
   if (!existsSync(readiness.signedAabPath) || statSync(readiness.signedAabPath).size === 0) {
     throw new Error('Verified production signed AAB is missing after the signing runner');
