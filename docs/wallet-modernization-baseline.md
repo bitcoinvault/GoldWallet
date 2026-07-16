@@ -15,7 +15,8 @@ All modernization work should be developed on focused task branches and merged i
 ## Current Application Snapshot
 
 - App name/package: `goldwallet`
-- App version: `6.5.1`
+- App version: `6.5.1` (`versionCode 14`), sourced from `android/release-version.properties`
+- Public Google Play baseline: `6.5.2` observed 2026-07-16; the next production candidate requires a newer `versionName` and a `versionCode` above the value supplied from Play Console
 - React Native: `0.86.0`
 - React: `19.2.3`
 - TypeScript: `6.0.3`

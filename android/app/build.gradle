@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
 apply plugin: 'com.google.firebase.crashlytics'
+apply from: rootProject.file("release-version.gradle")
 apply from: rootProject.file("upload-signing.gradle")
 
 
@@ -130,8 +131,8 @@ android {
         resValue "string", "build_config_package", "io.goldwallet.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 14
-        versionName "6.5.1"
+        versionCode goldwalletReleaseVersion.versionCode
+        versionName goldwalletReleaseVersion.versionName
         multiDexEnabled true
         testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
