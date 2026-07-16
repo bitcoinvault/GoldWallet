@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.916 - GitHub security workflow modernization
+
+- Branch: `feature/bem-37-916-github-security-workflows`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace obsolete and floating GitHub Actions workflow dependencies with current immutable action/image pins.
+- Move CodeQL to the supported JavaScript/TypeScript no-build path, replace the archived Semgrep action with native CLI/SARIF scanning, and make semantic pull-request validation safe for public fork contributions.
+- Add one offline guard for triggers, permissions, execution shape, pins, fork behavior, SARIF retention, and privileged-event containment.
+
+Findings:
+
+- Official metadata on `2026-07-16` reports `actions/checkout` `v7.0.0`, `github/codeql-action` `v4.37.1`, `amannn/action-semantic-pull-request` `v6.1.1`, and Semgrep `1.170.0`; all executable references are pinned to full commit SHAs or the Semgrep image digest.
+- The previous `returntocorp/semgrep-action@v1` repository is archived and explicitly deprecated. Native Semgrep CLI now produces SARIF, publishes it to code scanning, retains it as a 14-day artifact when created, and fails only for scanner/configuration errors while the existing finding baseline is reviewed.
+- A full local Semgrep scan completed in `14m 41s`, scanned `988` tracked files with `277` effective rules, and produced `24` legacy findings: 20 child-process findings in repo tooling, 2 Dependabot cooldown findings, 1 exported Android activity finding, and 1 TLS-bypass finding in the certificate audit. The workflow timeout is 30 minutes and `--error` remains forbidden until this baseline is remediated or explicitly reviewed.
+- GitHub permits code-scanning result uploads for runs triggered by `pull_request`, including fork and Dependabot pull requests. CodeQL and Semgrep therefore keep uploads enabled for those events.
+- Semantic title validation uses the action's documented `pull_request_target` path for public forks, but cannot check out or execute repository code, has only `pull-requests: read`, and accepts no action input except `validateSingleCommit: true`.
+- No runtime, native, dependency, or Metro behavior changed, so Android emulator smoke was not repeated for this CI-only milestone.
+
+Validation:
+
+- official GitHub/PyPI/Docker metadata and immutable pin resolution
+- all workflow YAML parsed with the installed `yaml` parser
+- checksum-verified `actionlint` `1.7.12` passed all four repository workflows
+- `corepack yarn check:github-security-workflows-guard`
+- mutation fixtures rejected floating actions, wrong triggers, write-all, arbitrary secrets, archived Semgrep action, persisted checkout credentials, privileged shell execution, CodeQL upload suppression, and semantic API redirection
+- pinned `semgrep/semgrep:1.170.0` image version and shell/git prerequisites
+- full native Semgrep/SARIF scan of the repository with the guarded rule set
+- focused non-blocking Semgrep fixture exited `0` while retaining one finding in valid SARIF
+- `corepack yarn android:dev:check-light`
+- `corepack yarn lint:baseline:audit` passed against the existing lint baseline
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.915 - Scheduled Electrum certificate readiness monitor
 
 - Branch: `feature/bem-37-915-electrum-certificate-ci`

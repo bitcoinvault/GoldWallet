@@ -1,30 +1,34 @@
-name: "Lint PR"
+name: Validate pull request title
 
 on:
-  push:
-    branches: [ $default-branch, $protected-branches, main, develop, stage ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [$default-branch, main, develop, stage]
   pull_request_target:
+    branches:
+      - develop
+      - main
+      - stage
     types:
       - opened
       - edited
       - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  pull-requests: read
+
+concurrency:
+  group: semantic-pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
-  lint:
+  validate-title:
+    name: Validate semantic pull request title
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: amannn/action-semantic-pull-request@v3.4.2
+      - name: Validate pull request title
+        uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          wip: true
-          # When using "Squash and merge" on a PR with only one commit, GitHub
-          # will suggest using that commit message instead of the PR title for the
-          # merge commit, and it's easy to commit this by mistake. Enable this option
-          # to also validate the commit message for one commit PRs.
           validateSingleCommit: true
-
-          
