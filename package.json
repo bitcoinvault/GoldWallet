@@ -291,6 +291,7 @@
     "sentry:release:credential-plan": "node scripts/planSentryReleaseCredentials.mjs",
     "sentry:release:credential-plan:check": "node scripts/checkSentryReleaseCredentialPlan.mjs",
     "check:sentry-release-prereq-summary-guard": "node scripts/checkSentryReleasePrereqSummaryGuard.mjs",
+    "check:sentry-android-release-evidence-variant-guard": "node scripts/checkSentryAndroidReleaseEvidenceVariantGuard.mjs",
     "check:sentry-properties-generator": "node scripts/checkCreateSentryPropertiesGuard.mjs",
     "check:sentry-release-validation-handoff-guard": "node scripts/checkSentryReleaseValidationHandoffGuard.mjs",
     "check:sentry-release-validation-handoff-summary-guard": "node scripts/checkSentryReleaseValidationHandoffSummaryGuard.mjs",
