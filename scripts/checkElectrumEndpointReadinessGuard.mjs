@@ -1,4 +1,5 @@
 import {
+  classifyElectrumTlsStatus,
   expectedElectrumEnvFiles,
   getElectrumEndpointReadinessSummaryErrors,
   parseEndpointEntry,
@@ -11,7 +12,25 @@ const assert = (condition, message) => {
   }
 };
 
-const entry = ({ env, endpoint, protocol = 'tls', status = 'ready', authorized = 'yes', expiresInDays = '30' }) =>
+const expectedTlsStatuses = [
+  [{ authorized: true, expiresInDays: '-1' }, 'certificate-expired'],
+  [{ authorized: false, expiresInDays: '21' }, 'tls-authorization-error'],
+  [{ authorized: true, expiresInDays: 'not-applicable' }, 'tls-authorization-error'],
+  [{ authorized: true, expiresInDays: '' }, 'tls-authorization-error'],
+  [{ authorized: true, expiresInDays: null }, 'tls-authorization-error'],
+  [{ authorized: true, expiresInDays: '0' }, 'certificate-expiring'],
+  [{ authorized: true, expiresInDays: '30' }, 'certificate-expiring'],
+  [{ authorized: true, expiresInDays: '31' }, 'ready'],
+];
+
+expectedTlsStatuses.forEach(([input, expected]) => {
+  assert(
+    classifyElectrumTlsStatus(input) === expected,
+    `TLS status for ${JSON.stringify(input)} must be ${expected}`,
+  );
+});
+
+const entry = ({ env, endpoint, protocol = 'tls', status = 'ready', authorized = 'yes', expiresInDays = '45' }) =>
   [
     `env=${env}`,
     'network=bitcoinvault',
@@ -35,10 +54,10 @@ const entries = [
     authorized: 'no',
     expiresInDays: '-18',
   }),
-  entry({ env: '.env.stage.mainnet', endpoint: 'electrumx-mainnet1.bitcoinvault.global:443' }),
-  entry({ env: '.env.stage.mainnet', endpoint: 'electrumx-mainnet2.bitcoinvault.global:443' }),
-  entry({ env: '.env.prod.mainnet', endpoint: 'electrumx-mainnet1.bitcoinvault.global:443' }),
-  entry({ env: '.env.prod.mainnet', endpoint: 'electrumx-mainnet2.bitcoinvault.global:443' }),
+  entry({ env: '.env.stage.mainnet', endpoint: 'electrumx-mainnet1.bitcoinvault.global:443', status: 'certificate-expiring', expiresInDays: '21' }),
+  entry({ env: '.env.stage.mainnet', endpoint: 'electrumx-mainnet2.bitcoinvault.global:443', status: 'certificate-expiring', expiresInDays: '21' }),
+  entry({ env: '.env.prod.mainnet', endpoint: 'electrumx-mainnet1.bitcoinvault.global:443', status: 'certificate-expiring', expiresInDays: '21' }),
+  entry({ env: '.env.prod.mainnet', endpoint: 'electrumx-mainnet2.bitcoinvault.global:443', status: 'certificate-expiring', expiresInDays: '21' }),
   entry({
     env: '.env.beta.testnet',
     endpoint: 'electrumx.testnet.btcv.stage.rnd.land:443',
@@ -46,8 +65,8 @@ const entries = [
     authorized: 'no',
     expiresInDays: '-18',
   }),
-  entry({ env: '.env.beta.mainnet', endpoint: 'electrumx-mainnet1.bitcoinvault.global:443' }),
-  entry({ env: '.env.beta.mainnet', endpoint: 'electrumx-mainnet2.bitcoinvault.global:443' }),
+  entry({ env: '.env.beta.mainnet', endpoint: 'electrumx-mainnet1.bitcoinvault.global:443', status: 'certificate-expiring', expiresInDays: '21' }),
+  entry({ env: '.env.beta.mainnet', endpoint: 'electrumx-mainnet2.bitcoinvault.global:443', status: 'certificate-expiring', expiresInDays: '21' }),
 ];
 
 const validSummary = [
@@ -56,8 +75,12 @@ const validSummary = [
   `Env files scanned: ${expectedElectrumEnvFiles.length}`,
   `Electrum endpoint entries: ${entries.length}`,
   'Unique endpoints: 3',
-  'Ready entries: 6',
+  'Certificate warning threshold days: 30',
+  'Ready entries: 0',
   'Certificate expired entries: 2',
+  'Certificate expiring entries: 6',
+  'Unique expired endpoints: 1',
+  'Unique expiring endpoints: 2',
   'TLS authorization error entries: 0',
   'Connection error entries: 0',
   'Unsupported protocol entries: 0',
@@ -99,17 +122,39 @@ assertRejected(
   validSummary.replace('- env=.env.beta.testnet; ', '- env=.env.other; '),
   'missing env file .env.beta.testnet',
 );
-assertRejected('Invalid status fixture', validSummary.replace('status=ready', 'status=unknown'), 'status is invalid');
+assertRejected(
+  'Invalid status fixture',
+  validSummary.replace('status=certificate-expiring', 'status=unknown'),
+  'status is invalid',
+);
+assertRejected(
+  'Expiring certificate above threshold fixture',
+  validSummary.replace(
+    'status=certificate-expiring; authorized=yes; authorization_error=none; valid_from=Jan 01 00:00:00 2026 GMT; valid_to=Aug 01 00:00:00 2026 GMT; expires_in_days=21',
+    'status=certificate-expiring; authorized=yes; authorization_error=none; valid_from=Jan 01 00:00:00 2026 GMT; valid_to=Aug 01 00:00:00 2026 GMT; expires_in_days=31',
+  ),
+  'certificate-expiring status must be within the warning threshold',
+);
+assertRejected(
+  'Warning threshold drift fixture',
+  validSummary.replace('Certificate warning threshold days: 30', 'Certificate warning threshold days: 29'),
+  'Certificate warning threshold days must be 30',
+);
+assertRejected(
+  'Unauthorized expiring certificate fixture',
+  validSummary.replace('status=certificate-expiring; authorized=yes', 'status=certificate-expiring; authorized=no'),
+  'certificate-expiring TLS status must be authorized',
+);
 assertAccepted(
   'Unsupported protocol fixture',
   validSummary
-    .replace('Ready entries: 6', 'Ready entries: 5')
+    .replace('Certificate expiring entries: 6', 'Certificate expiring entries: 5')
     .replace('Unsupported protocol entries: 0', 'Unsupported protocol entries: 1')
-    .replace('protocol=tls; status=ready; authorized=yes', 'protocol=ssl; status=unsupported-protocol; authorized=not-applicable'),
+    .replace('protocol=tls; status=certificate-expiring; authorized=yes', 'protocol=ssl; status=unsupported-protocol; authorized=not-applicable'),
 );
 assertRejected(
   'Invalid protocol fixture',
-  validSummary.replace('protocol=tls; status=ready', 'protocol=ssl; status=ready'),
+  validSummary.replace('protocol=tls; status=certificate-expiring', 'protocol=ssl; status=certificate-expiring'),
   'unsupported protocol with unsupported-protocol status',
 );
 assertRejected(

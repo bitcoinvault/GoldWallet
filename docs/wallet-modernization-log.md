@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.912 - Electrum TLS expiry policy
+
+- Branch: `feature/bem-37-912-electrum-tls-expiry-policy`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a fixed 30-day warning state for authorized Electrum TLS certificates approaching expiry.
+- Validate exact status boundaries and report both environment-entry and unique-endpoint counts.
+- Refresh live certificate evidence before Android release work.
+
+Findings:
+
+- The testnet endpoint certificate expired on `2026-06-23`; it blocks both dev and beta testnet entries and remains the reason controlled Android smoke reaches `No network`.
+- Both mainnet endpoints share an authorized certificate expiring on `2026-08-07`; the live audit reports 21 full days remaining.
+- Current live state is 0 ready entries, 2 expired entries on 1 unique endpoint, and 6 expiring entries on 2 unique endpoints.
+
+Validation:
+
+- RED `corepack yarn check:electrum-endpoint-readiness-guard` rejected the unsupported `certificate-expiring` status.
+- `corepack yarn check:electrum-endpoint-readiness-guard`
+- live `corepack yarn electrum:endpoint-readiness:audit`
+- `corepack yarn electrum:endpoint-readiness:check-summary`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- Emulator smoke was not repeated because this branch changes only the offline/live readiness tooling and documentation; the Android smoke immediately preceding this branch passed on `emulator-5554`.
+
 ### BEM-37.911 - Google Play internal-track handoff
 
 - Branch: `feature/bem-37-911-google-play-internal-handoff`

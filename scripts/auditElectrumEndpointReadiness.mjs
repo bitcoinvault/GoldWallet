@@ -3,7 +3,11 @@ import net from 'net';
 import path from 'path';
 import tls from 'tls';
 import { fileURLToPath } from 'url';
-import { expectedElectrumEnvFiles } from './electrumEndpointReadinessSummaryGuard.mjs';
+import {
+  classifyElectrumTlsStatus,
+  electrumCertificateWarningDays,
+  expectedElectrumEnvFiles,
+} from './electrumEndpointReadinessSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -106,8 +110,7 @@ const inspectTlsEndpoint = ({ host, port }) =>
     socket.once('secureConnect', () => {
       const certificate = socket.getPeerCertificate();
       const expiresInDays = daysUntil(certificate?.valid_to);
-      const certificateExpired = /^-/.test(expiresInDays);
-      const status = certificateExpired ? 'certificate-expired' : socket.authorized ? 'ready' : 'tls-authorization-error';
+      const status = classifyElectrumTlsStatus({ authorized: socket.authorized, expiresInDays });
 
       finish({
         authorizationError: socket.authorizationError || 'none',
@@ -279,17 +282,28 @@ const main = async () => {
 
   const entries = await Promise.all(buildEntries().map(inspectEndpoint));
   const uniqueEndpoints = new Set(entries.map(entry => entry.endpoint));
+  const uniqueExpiredEndpoints = new Set(
+    entries.filter(entry => entry.status === 'certificate-expired').map(entry => entry.endpoint),
+  );
+  const uniqueExpiringEndpoints = new Set(
+    entries.filter(entry => entry.status === 'certificate-expiring').map(entry => entry.endpoint),
+  );
   const counts = {
     ready: entries.filter(entry => entry.status === 'ready').length,
     certificateExpired: entries.filter(entry => entry.status === 'certificate-expired').length,
+    certificateExpiring: entries.filter(entry => entry.status === 'certificate-expiring').length,
     tlsAuthorizationError: entries.filter(entry => entry.status === 'tls-authorization-error').length,
     connectionError: entries.filter(entry => entry.status === 'connection-error').length,
     unsupportedProtocol: entries.filter(entry => entry.status === 'unsupported-protocol').length,
     missingConfig: entries.filter(entry => entry.status === 'missing-config').length,
   };
   const action =
-    counts.certificateExpired > 0
+    counts.certificateExpired > 0 && counts.certificateExpiring > 0
+      ? 'renew or fix expired Electrum TLS certificates and rotate expiring certificates before their deadline, then rerun Android dev/release smoke validation.'
+      : counts.certificateExpired > 0
       ? 'renew or fix expired Electrum TLS certificates, then rerun Android dev/release smoke validation.'
+      : counts.certificateExpiring > 0
+      ? 'renew or rotate expiring Electrum TLS certificates before their deadline, then rerun endpoint readiness.'
       : counts.connectionError > 0 || counts.tlsAuthorizationError > 0
       ? 'fix Electrum endpoint connectivity/TLS authorization, then rerun Android dev/release smoke validation.'
       : 'none; Electrum endpoint preflight has no blocking findings.';
@@ -299,8 +313,12 @@ const main = async () => {
     `Env files scanned: ${expectedElectrumEnvFiles.length}`,
     `Electrum endpoint entries: ${entries.length}`,
     `Unique endpoints: ${uniqueEndpoints.size}`,
+    `Certificate warning threshold days: ${electrumCertificateWarningDays}`,
     `Ready entries: ${counts.ready}`,
     `Certificate expired entries: ${counts.certificateExpired}`,
+    `Certificate expiring entries: ${counts.certificateExpiring}`,
+    `Unique expired endpoints: ${uniqueExpiredEndpoints.size}`,
+    `Unique expiring endpoints: ${uniqueExpiringEndpoints.size}`,
     `TLS authorization error entries: ${counts.tlsAuthorizationError}`,
     `Connection error entries: ${counts.connectionError}`,
     `Unsupported protocol entries: ${counts.unsupportedProtocol}`,

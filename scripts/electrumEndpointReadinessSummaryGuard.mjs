@@ -14,9 +14,32 @@ export const expectedElectrumEnvFiles = [
   '.env.beta.mainnet',
 ];
 
+export const electrumCertificateWarningDays = 30;
+
+export const classifyElectrumTlsStatus = ({ authorized, expiresInDays }) => {
+  const normalizedExpiryDays = String(expiresInDays ?? '');
+
+  if (!/^-?\d+$/.test(normalizedExpiryDays)) {
+    return 'tls-authorization-error';
+  }
+
+  const expiryDays = Number(normalizedExpiryDays);
+
+  if (expiryDays < 0) {
+    return 'certificate-expired';
+  }
+
+  if (!authorized) {
+    return 'tls-authorization-error';
+  }
+
+  return expiryDays <= electrumCertificateWarningDays ? 'certificate-expiring' : 'ready';
+};
+
 export const allowedEndpointStatuses = new Set([
   'ready',
   'certificate-expired',
+  'certificate-expiring',
   'tls-authorization-error',
   'connection-error',
   'unsupported-protocol',
@@ -92,8 +115,12 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
   const envFilesScanned = parseInteger(summary, 'Env files scanned', errors);
   const endpointEntries = parseInteger(summary, 'Electrum endpoint entries', errors);
   const uniqueEndpoints = parseInteger(summary, 'Unique endpoints', errors);
+  const certificateWarningThresholdDays = parseInteger(summary, 'Certificate warning threshold days', errors);
   const readyEntries = parseInteger(summary, 'Ready entries', errors);
   const certificateExpiredEntries = parseInteger(summary, 'Certificate expired entries', errors);
+  const certificateExpiringEntries = parseInteger(summary, 'Certificate expiring entries', errors);
+  const uniqueExpiredEndpoints = parseInteger(summary, 'Unique expired endpoints', errors);
+  const uniqueExpiringEndpoints = parseInteger(summary, 'Unique expiring endpoints', errors);
   const tlsAuthorizationErrorEntries = parseInteger(summary, 'TLS authorization error entries', errors);
   const connectionErrorEntries = parseInteger(summary, 'Connection error entries', errors);
   const unsupportedProtocolEntries = parseInteger(summary, 'Unsupported protocol entries', errors);
@@ -105,11 +132,14 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
   const countedStatuses = {
     ready: 0,
     'certificate-expired': 0,
+    'certificate-expiring': 0,
     'tls-authorization-error': 0,
     'connection-error': 0,
     'unsupported-protocol': 0,
     'missing-config': 0,
   };
+  const expiredEndpoints = new Set();
+  const expiringEndpoints = new Set();
 
   if (envFilesScanned !== expectedElectrumEnvFiles.length) {
     errors.push(`Env files scanned must be ${expectedElectrumEnvFiles.length}. Received: ${envFilesScanned}`);
@@ -117,6 +147,12 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
 
   if (endpointEntries !== entries.length) {
     errors.push(`Electrum endpoint entries count is ${endpointEntries}, but listed ${entries.length}`);
+  }
+
+  if (certificateWarningThresholdDays !== electrumCertificateWarningDays) {
+    errors.push(
+      `Certificate warning threshold days must be ${electrumCertificateWarningDays}. Received: ${certificateWarningThresholdDays}`,
+    );
   }
 
   if (secretValuesPrinted !== 'no') {
@@ -155,6 +191,8 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
       errors.push(`${lineLabel} status is invalid. Received: ${status || 'missing'}`);
     } else {
       countedStatuses[status] += 1;
+      if (status === 'certificate-expired') expiredEndpoints.add(endpoint);
+      if (status === 'certificate-expiring') expiringEndpoints.add(endpoint);
     }
 
     if (!['yes', 'no', 'not-applicable'].includes(authorized || '')) {
@@ -168,6 +206,21 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
     if (status === 'certificate-expired' && !/^-/.test(expiresInDays || '')) {
       errors.push(`${lineLabel} certificate-expired status must have negative expires_in_days`);
     }
+
+    if (
+      status === 'certificate-expiring' &&
+      (!/^\d+$/.test(expiresInDays || '') || Number(expiresInDays) > certificateWarningThresholdDays)
+    ) {
+      errors.push(`${lineLabel} certificate-expiring status must be within the warning threshold`);
+    }
+
+    if (status === 'ready' && protocol === 'tls' && Number(expiresInDays) <= certificateWarningThresholdDays) {
+      errors.push(`${lineLabel} ready TLS status must be above the warning threshold`);
+    }
+
+    if (protocol === 'tls' && ['ready', 'certificate-expiring'].includes(status) && authorized !== 'yes') {
+      errors.push(`${lineLabel} ${status} TLS status must be authorized`);
+    }
   });
 
   if (readyEntries !== countedStatuses.ready) {
@@ -178,6 +231,20 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
     errors.push(
       `Certificate expired entries count is ${certificateExpiredEntries}, but listed ${countedStatuses['certificate-expired']}`,
     );
+  }
+
+  if (certificateExpiringEntries !== countedStatuses['certificate-expiring']) {
+    errors.push(
+      `Certificate expiring entries count is ${certificateExpiringEntries}, but listed ${countedStatuses['certificate-expiring']}`,
+    );
+  }
+
+  if (uniqueExpiredEndpoints !== expiredEndpoints.size) {
+    errors.push(`Unique expired endpoints count is ${uniqueExpiredEndpoints}, but listed ${expiredEndpoints.size}`);
+  }
+
+  if (uniqueExpiringEndpoints !== expiringEndpoints.size) {
+    errors.push(`Unique expiring endpoints count is ${uniqueExpiringEndpoints}, but listed ${expiringEndpoints.size}`);
   }
 
   if (tlsAuthorizationErrorEntries !== countedStatuses['tls-authorization-error']) {
@@ -206,6 +273,10 @@ export const getElectrumEndpointReadinessSummaryErrors = summary => {
 
   if (certificateExpiredEntries > 0 && !/renew|fix/i.test(requiredAction)) {
     errors.push('Expired certificate summaries must include a renew/fix required action');
+  }
+
+  if (certificateExpiringEntries > 0 && !/renew|rotate/i.test(requiredAction)) {
+    errors.push('Expiring certificate summaries must include a renew/rotate required action');
   }
 
   if (/SENTRY_AUTH_TOKEN=|auth\.token=|CODEPUSH_DEPLOYMENT_KEY|SENTRY_DSN_(?:IOS|ANDROID)=|https?:\/\/[^/\s]+@/i.test(summary)) {
