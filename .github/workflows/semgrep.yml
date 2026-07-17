@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [develop, main, stage]
   schedule:
-    - cron: "23 6 * * 1"
+    - cron: '23 6 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -22,8 +22,6 @@ jobs:
     name: Scan
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    container:
-      image: semgrep/semgrep:1.170.0@sha256:c98f8829eea377274ee4b10656458b078b88232469b2ff913f091c2317347c9d
     steps:
       - name: Check out repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -34,9 +32,16 @@ jobs:
         id: semgrep
         continue-on-error: true
         run: |
+          rm -f semgrep.sarif
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/src" \
+            --workdir /src \
+            semgrep/semgrep:1.170.0@sha256:c98f8829eea377274ee4b10656458b078b88232469b2ff913f091c2317347c9d \
           semgrep scan \
             --sarif \
             --output semgrep.sarif \
+            --disable-nosem \
+            --x-ignore-semgrepignore-files \
             --config p/security-audit \
             --config p/typescript \
             --config p/insecure-transport \
@@ -45,6 +50,39 @@ jobs:
             --config p/react \
             --config p/owasp-top-ten \
             .
+
+      - name: Check out trusted Semgrep policy
+        if: always()
+        id: semgrep_policy_checkout
+        continue-on-error: true
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          path: .semgrep-policy
+          persist-credentials: false
+
+      - name: Prepare trusted Semgrep checker
+        if: always()
+        id: semgrep_policy
+        continue-on-error: true
+        env:
+          TRUSTED_CHECKOUT_OUTCOME: ${{ steps.semgrep_policy_checkout.outcome }}
+        run: |
+          if [ "$TRUSTED_CHECKOUT_OUTCOME" != "success" ]; then
+            exit 1
+          fi
+          if [ -f .semgrep-policy/scripts/checkSemgrepSarifBaseline.mjs ]; then
+            exit 0
+          fi
+          echo "a72ac8ddea6c21d48614245aafce552dceedbdfe8dba1e57d7c7b48a2b80ca7f  scripts/checkSemgrepSarifBaseline.mjs" | sha256sum --check -
+          mkdir -p .semgrep-policy/scripts
+          cp scripts/checkSemgrepSarifBaseline.mjs .semgrep-policy/scripts/checkSemgrepSarifBaseline.mjs
+
+      - name: Check Semgrep SARIF baseline
+        id: semgrep_baseline
+        if: always() && hashFiles('semgrep.sarif') != ''
+        continue-on-error: true
+        run: node .semgrep-policy/scripts/checkSemgrepSarifBaseline.mjs semgrep.sarif .github/semgrep-baseline.json
 
       - name: Upload SARIF to GitHub code scanning
         if: always() && hashFiles('semgrep.sarif') != ''
@@ -62,5 +100,5 @@ jobs:
           retention-days: 14
 
       - name: Enforce Semgrep result
-        if: always() && steps.semgrep.outcome != 'success'
+        if: always() && (steps.semgrep.outcome != 'success' || steps.semgrep_policy_checkout.outcome != 'success' || steps.semgrep_policy.outcome != 'success' || steps.semgrep_baseline.outcome != 'success')
         run: exit 1

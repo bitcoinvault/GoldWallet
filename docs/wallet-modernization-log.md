@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.917 - Semgrep reviewed baseline gate
+
+- Branch: `feature/bem-37-917-semgrep-sarif-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace reporting-only Semgrep findings with a reviewed SARIF baseline that blocks every new, removed, changed, duplicated, or containing-file-modified finding.
+- Run the pinned Semgrep image through Docker on the Ubuntu host and validate SARIF with Node after loading policy code from the pull request base SHA.
+- Preserve Code Scanning upload and the raw SARIF artifact before explicitly failing scanner or baseline errors.
+
+Findings:
+
+- A fresh full scan on `2026-07-17` completed in `13m 49s`, scanned `988` tracked files with `277` effective rules, and reproduced all `24` findings from the previous milestone.
+- The 20 child-process findings are local maintenance helpers using fixed developer tools and separated or allowlisted arguments; no application, network, pull-request, or CI-controlled value selects an executable command.
+- The exported Android `MainActivity` is intentionally public because it is the launcher and deep-link entry activity. The certificate audit intentionally permits TLS negotiation only to inspect invalid certificate metadata and still fails strict readiness when authorization is invalid.
+- Both Dependabot cooldown findings were fixed with explicit seven-day cooldowns instead of being added to the accepted baseline, leaving 22 reviewed entries.
+- Running the checker from the source checkout would allow a pull request to alter its own parser. The workflow therefore scans first and then loads the checker from the base SHA into `.semgrep-policy`; the inaugural rollout uses a checksum-pinned checker bootstrap because the base commit does not contain that file yet.
+- Baseline entries retain only hashes, paths, occurrence counts, and review rationales. Secret/credential rules cannot be accepted, unsuccessful or error-level SARIF execution is rejected, and locations must be rooted at `%SRCROOT%`.
+- Review found four Semgrep parser warnings. The TypeScript-only Axios aliases were simplified so `src/api/client.ts` parses fully, an invalid apostrophe in the Turkish translation-maintenance script was corrected, and the two generated Gradle wrapper warnings are accepted only behind exact normalized file hashes.
+- Trusted-policy checkout failure is enforced separately from checker preparation, so a pull request cannot reuse a pre-existing `.semgrep-policy` path when the base-SHA checkout fails.
+- Inline `nosem` suppression and pull-request-controlled `.semgrepignore` files are disabled in the pinned scanner command and guarded by mutation fixtures.
+- The final enforced scan covered `1,074` tracked targets instead of `990`, retained exactly `22` reviewed findings, and reported only the two hash-pinned Gradle wrapper parser warnings. A local suppression fixture proved the default command hid `eval(...) // nosem` while the guarded flags detected it.
+- Checker review also verified fail-closed tool notifications: timeout, resource-limit, error, and unknown warnings are rejected; only the two exact reviewed Gradle wrapper syntax warnings are allowed.
+- Both SARIF execution and configuration notification collections are enforced at run and invocation scope; a configuration-error fixture is rejected by the self-test.
+- No application runtime, native dependency, Metro, or wallet behavior changed, so Android emulator smoke is not required for this CI/tooling-only milestone.
+
+Validation:
+
+- full pinned-image Semgrep scan before remediation
+- baseline checker self-test, malformed-input tests, and positive/negative/stale/count-change cases
+- focused Dependabot scan after the cooldown remediation
+- workflow mutation fixtures for baseline bypass, policy source, upload suppression, artifact suppression, and final enforcement
+- workflow YAML parsing and checksum-verified `actionlint` `1.7.12`
+- final full pinned-image Semgrep scan and reviewed baseline comparison
+- suppression fixture for `nosem` plus `.semgrepignore`, followed by the full enforced `1,074`-target scan
+- `corepack yarn check:github-security-workflows-guard`
+- `corepack yarn android:dev:check-light`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.916.1 - GitHub security workflow guard CRLF compatibility
 
 - Branch: `feature/bem-37-916-1-workflow-guard-crlf`

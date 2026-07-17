@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "findings": [
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runAndroidAppBundleValidation.mjs",
+      "snippetHash": "b3060c5eca191ba65950c6ed91da9657ce32ccb53c3eb25ca92490adb8a70ac1",
+      "fileHash": "476ea7fc04e531373e5073c9dc9ca516d9f07e64e7a49100aa3697631724f48d",
+      "id": "semgrep-v1:f5a89d88b4509c29c2e8d024c292e5c5ba180193cf7ec2ab186d0f23ae49e4e5",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/checkAndroidReleaseSecureStorageApks.mjs",
+      "snippetHash": "46d4fa160e459d741b736e26ebb69dfc6a7a10ef6c49f0d73c2a656663e1120d",
+      "fileHash": "96d8bd737f646655a29c1a641cbd9d6de09bd3afc2f51b1845f67d39272ff540",
+      "id": "semgrep-v1:8241395b1908e741c38d1e491859d1f6f2fb99b62b9e8fa29b9fdb308732d5d6",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runSecureStorageReleaseValidationHandoff.mjs",
+      "snippetHash": "46d4fa160e459d741b736e26ebb69dfc6a7a10ef6c49f0d73c2a656663e1120d",
+      "fileHash": "701671342f06e926c64806f36c247d67e0e6d08f94f736bc03def42872386249",
+      "id": "semgrep-v1:4d77ed4a6db2fb916116457f565cd4a49495430fe000659a5c62a64d53f1fcb8",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runSecureStorageUpgradeInPlaceValidation.mjs",
+      "snippetHash": "dee980853591e011373a01b5c9bcb90f46b0d0125fe6d96b198a1912703f8a24",
+      "fileHash": "f5cefce1379e8f3b5dd9d0618981d8bce2a59935ccad41e69c6caad749218b84",
+      "id": "semgrep-v1:da91fb2e282a94b9503594a287901f667e9cd2e1a7860811cc621f5e5488a532",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/checkAndroidReleaseApkManifest.mjs",
+      "snippetHash": "140729b14449d662eb7de81939662d73846f0a4e1dd121c06b9fd3faca9c28bc",
+      "fileHash": "b42eb4456f49ae1ab3c8095cfda1d92eb0543162c7288919c18b90e2de73ea58",
+      "id": "semgrep-v1:3ce8a3fddebf889f322fa871af08629985a79cbdb24d272c7e72946a6f10b106",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runAndroidSignedBundle.mjs",
+      "snippetHash": "dee980853591e011373a01b5c9bcb90f46b0d0125fe6d96b198a1912703f8a24",
+      "fileHash": "f77681f32e1ba56d12a9e9e4fc72dffdbe9d847516cf93c84e83c37a4fb1c416",
+      "id": "semgrep-v1:b41e51fd022feefe4900934a82202e9752bb83c5e74d88f269fe83e92dfeaf2a",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runSecureStorageHistoricalMigrationValidation.mjs",
+      "snippetHash": "dee980853591e011373a01b5c9bcb90f46b0d0125fe6d96b198a1912703f8a24",
+      "fileHash": "363234823e61b189a3b37ea252733e71f4eca2414667e95e1564955eb79fcd2d",
+      "id": "semgrep-v1:31a49ec60b8c24d29b1320e8fa8505bbf91745c307bffa152497fb6853265e58",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runAndroidPlayInternalHandoff.mjs",
+      "snippetHash": "c24fc8ab62dbef0a3447c935934f426773aae7b9e6169d254b2a4ef1c1852abd",
+      "fileHash": "2bafc8dc6981e6ff7377938350ab8be998c98a550837f0d7956db35012155fc2",
+      "id": "semgrep-v1:9455c9b012d248212c1432992a7557ff6178220a01f7046a27b5614e52628732",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/checkAndroidToolchainCurrent.mjs",
+      "snippetHash": "922faa64640ab53cd4d1e14ec47fd53dd4196130841094fa51550337ce5704b2",
+      "fileHash": "1f007ba46caabe7f8c05136a6e39033b3c80882fb7845b01ea05b26f39860198",
+      "id": "semgrep-v1:0aa8e17ffd901fe578aa142d7a7f889abc6a5d5421df4937044ec9f5c46801ae",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runCodePushUpdateValidationHandoff.mjs",
+      "snippetHash": "46d4fa160e459d741b736e26ebb69dfc6a7a10ef6c49f0d73c2a656663e1120d",
+      "fileHash": "016b8bf1c7654f395cd14b8c7c8216baa448f851b83a04035088310047c1b810",
+      "id": "semgrep-v1:9fb1bb646ccbed5b211cfb209f9ba41a4c4c21d8c5209257f34a9f5cb1d3edd6",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/checkAndroidReleaseAppCenterArtifacts.mjs",
+      "snippetHash": "46d4fa160e459d741b736e26ebb69dfc6a7a10ef6c49f0d73c2a656663e1120d",
+      "fileHash": "386859df404c6fcedc4b0ee09d74e8e78241caa37dbaaf5cd65b480b8a8cfc54",
+      "id": "semgrep-v1:67fa3fb473b0fd8042b025dd359275533e5ad06917690c36c62429143338750f",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runFirebaseRuntimeDeliveryHandoff.mjs",
+      "snippetHash": "46d4fa160e459d741b736e26ebb69dfc6a7a10ef6c49f0d73c2a656663e1120d",
+      "fileHash": "2f7cb77af10b916adb07e1169a8b650ca88129139beaee0878ee818f6d21fcdf",
+      "id": "semgrep-v1:92ec8b3e2505e211dab4f085fadb58f8bfc50ffb097d244b71391592accd3cb7",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runAndroidUploadSigningProof.mjs",
+      "snippetHash": "f60e896b4ee422297d2afa484b8b14e53e9193c2a23fe1b9ddbbd35c2768f24c",
+      "fileHash": "a3dfb55f5194a55fb634cd3d13c4a66bee4a97d1827d33e8bb69741fee05ee3d",
+      "id": "semgrep-v1:bdd5df14b64d7dcaa8dabb5c7c12adf2a1d5524f46dda8a50b34b29a0f7d56ae",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runReleaseServicesValidationHandoff.mjs",
+      "snippetHash": "46d4fa160e459d741b736e26ebb69dfc6a7a10ef6c49f0d73c2a656663e1120d",
+      "fileHash": "d03d2a60c7c44a8e2faabb7b5509f343d8246049740fb51f8aa398091bac8022",
+      "id": "semgrep-v1:24db0c4fea497b1f3d721b8ff931445b74abe3b3d3cbed97749b398b17c8c6cf",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/auditAndroidDevEnvironment.mjs",
+      "snippetHash": "2226eab29920631471346ada471026e53c1d3662b9517c8b5d3dcee23647c5a9",
+      "fileHash": "f18cf1ad1b48eda344c2a8258dcfc6a9514f0b61ebd28df1bf4a37e016b95f1e",
+      "id": "semgrep-v1:e732fe8ebac0bf30664cf8dacfed4df46e63c5d4d7652ac0a9ae07aed2a26fa5",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runSentryReleaseValidationHandoff.mjs",
+      "snippetHash": "46d4fa160e459d741b736e26ebb69dfc6a7a10ef6c49f0d73c2a656663e1120d",
+      "fileHash": "2a83193e40b3d56855c3c7bc0d0be82a238ea5425ec1333a04e4a57498b22dc4",
+      "id": "semgrep-v1:eeda66ff82a815643fe3d36bebbab6bbbad9b21b4bb672ccac93ef3c6a2ce4f4",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runIosMacValidationHandoff.mjs",
+      "snippetHash": "46d4fa160e459d741b736e26ebb69dfc6a7a10ef6c49f0d73c2a656663e1120d",
+      "fileHash": "647deb7021cc3f128c07b55038524dbe9949ce071d6250f28ec3b176d64e043f",
+      "id": "semgrep-v1:a4f4a72753d8147a846b0e924b753be181a4a0e4f0317a6b84ca10fb5618bdbb",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "java.android.security.exported_activity.exported_activity",
+      "path": "android/app/src/main/AndroidManifest.xml",
+      "snippetHash": "8e270b691f0336e05140d61c393b05f98589d7c7e8c0e14d0bf4c0a8a10010a8",
+      "fileHash": "25f3aed607fe509b4a83beaae540378ca494bc9cffd55597c961a074afd0a932",
+      "id": "semgrep-v1:d6b60a3408edc8bf1407aadaa93f8278a646779b344599b1589e35fa9835ffb6",
+      "occurrences": 1,
+      "rationale": "Launcher activity must remain exported for MAIN/LAUNCHER and declared deep links; it does not process privileged intent data."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/runCameraQrValidationHandoff.mjs",
+      "snippetHash": "46d4fa160e459d741b736e26ebb69dfc6a7a10ef6c49f0d73c2a656663e1120d",
+      "fileHash": "a59a6df7518f81ef0e04b8ed42fbd0cab7fff4f16b4209e22edaa4ce91d3631a",
+      "id": "semgrep-v1:76aea34fed892867168d2c3ab4e6ee9d322c9f8e9cf09255e3caefec7ff5e160",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/auditPlistMajorCompatibility.mjs",
+      "snippetHash": "2226eab29920631471346ada471026e53c1d3662b9517c8b5d3dcee23647c5a9",
+      "fileHash": "b3be5c9138b7d3d8ba41e11bfd90a1739ed909663a189d3cb38613b18c3d3645",
+      "id": "semgrep-v1:ba79f3952ec5ce5a830dd65d1b9c57e11633928f704148e046ba1ba70d0b86dc",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    },
+    {
+      "ruleId": "problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification",
+      "path": "scripts/auditElectrumEndpointReadiness.mjs",
+      "snippetHash": "12f951414cbf0f3bc1827cc3408702e641345489efa78436bf092eb3f326034b",
+      "fileHash": "22083de94faa1eeff7633b61eef9b09df77e224a597c7ecfa01f7d177dcd4899",
+      "id": "semgrep-v1:a1087ffef620e828a7ec1577d48fcd362cfd9b10844b87282c6592751e6acd64",
+      "occurrences": 1,
+      "rationale": "Certificate-readiness diagnostic intentionally completes TLS to inspect invalid certificate metadata, then fails strict readiness on unauthorized endpoints."
+    },
+    {
+      "ruleId": "javascript.lang.security.detect-child-process.detect-child-process",
+      "path": "scripts/androidSmokeDevReleaseEmbedded.mjs",
+      "snippetHash": "dee980853591e011373a01b5c9bcb90f46b0d0125fe6d96b198a1912703f8a24",
+      "fileHash": "45a661e5ddcf40c65c2d75baf018e740b8930a97c75d5b46186c4f17ba0fb9bc",
+      "id": "semgrep-v1:3adfe56540a5d970ecda49dc4cc5d4468f162abc2e2eae480e41a6b6833114ab",
+      "occurrences": 1,
+      "rationale": "Local maintenance helper invokes fixed developer tools with separated arguments and no application, network, pull-request, or CI-controlled command input."
+    }
+  ]
+}

@@ -107,7 +107,7 @@ const tr = {
   betaVersion: {
     button: 'Riski kabul ediyorum',
     description: 'Hala resmi olarak piyasaya sürülme öncesinde nihai test aşamasındadır. Mobil uygulaması ve tüm içeriği \"olduğu gibi\" ve \"kullanılabildiği gibi\" esasına göre sunulur. Yazılımın kullanımına ait riskler kullanıcıya aittir.',
-    title: 'Bu GoldWallet'in beta sürümüdür',
+    title: "Bu GoldWallet'in beta sürümüdür",
   },
   contactCreate: {
     addressLabel: 'Adres',
