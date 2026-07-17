@@ -18,6 +18,7 @@ const approved = {
   uploadArtifact: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1',
   semanticPullRequest: 'amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1',
   semgrepImage: 'semgrep/semgrep:1.170.0@sha256:c98f8829eea377274ee4b10656458b078b88232469b2ff913f091c2317347c9d',
+  semgrepBootstrapCheckerSha256: 'a72ac8ddea6c21d48614245aafce552dceedbdfe8dba1e57d7c7b48a2b80ca7f',
 };
 
 const expectedBranches = ['develop', 'main', 'stage'];
@@ -240,10 +241,16 @@ const validateSemgrep = source => {
   const onSection = getIndentedSection(source, /^on:\s*$/, 0);
   const job = getIndentedSection(source, /^\s{2}semgrep:\s*$/, 2);
   const scanStep = getStep(source, 'Run Semgrep');
+  const baselineStep = getStep(source, 'Check Semgrep SARIF baseline');
+  const policyStep = getStep(source, 'Check out trusted Semgrep policy');
+  const policyPrepareStep = getStep(source, 'Prepare trusted Semgrep checker');
   const uploadStep = getStep(source, 'Upload SARIF to GitHub code scanning');
   const retainStep = getStep(source, 'Retain Semgrep SARIF');
   const failureStep = getStep(source, 'Enforce Semgrep result');
   const scanIndex = source.indexOf('- name: Run Semgrep');
+  const policyIndex = source.indexOf('- name: Check out trusted Semgrep policy');
+  const policyPrepareIndex = source.indexOf('- name: Prepare trusted Semgrep checker');
+  const baselineIndex = source.indexOf('- name: Check Semgrep SARIF baseline');
   const uploadIndex = source.indexOf('- name: Upload SARIF to GitHub code scanning');
   const retainIndex = source.indexOf('- name: Retain Semgrep SARIF');
   const failureIndex = source.indexOf('- name: Enforce Semgrep result');
@@ -253,7 +260,12 @@ const validateSemgrep = source => {
   requireExactTriggers('Semgrep', source, ['push', 'pull_request', 'schedule', 'workflow_dispatch'], errors);
   requireExactBranches('Semgrep', source, 'push', errors);
   requireExactBranches('Semgrep', source, 'pull_request', errors);
-  requireExactUses('Semgrep', source, [approved.checkout, approved.codeqlUploadSarif, approved.uploadArtifact], errors);
+  requireExactUses(
+    'Semgrep',
+    source,
+    [approved.checkout, approved.checkout, approved.codeqlUploadSarif, approved.uploadArtifact],
+    errors,
+  );
   requireExactExecutionShape(
     'Semgrep',
     source,
@@ -261,6 +273,9 @@ const validateSemgrep = source => {
     [
       'Check out repository',
       'Run Semgrep',
+      'Check out trusted Semgrep policy',
+      'Prepare trusted Semgrep checker',
+      'Check Semgrep SARIF baseline',
       'Upload SARIF to GitHub code scanning',
       'Retain Semgrep SARIF',
       'Enforce Semgrep result',
@@ -290,11 +305,7 @@ const validateSemgrep = source => {
   if (!/^\s{4}timeout-minutes:\s*30\s*$/m.test(job)) {
     errors.push('Semgrep: scan job timeout must be 30 minutes');
   }
-  const images = collectImages(source);
-
-  if (images.length !== 1 || images[0] !== approved.semgrepImage) {
-    errors.push('Semgrep: native CLI image must match the approved pinned version and digest');
-  }
+  if (collectImages(source).length !== 0) errors.push('Semgrep: scanner must run via Docker on the Ubuntu host');
   if (!/persist-credentials:\s*false/.test(getStep(source, 'Check out repository'))) {
     errors.push('Semgrep: checkout must set persist-credentials: false');
   }
@@ -307,35 +318,122 @@ const validateSemgrep = source => {
   if (!/^\s{8}continue-on-error:\s*true\s*$/m.test(scanStep)) {
     errors.push('Semgrep: scan must preserve SARIF with continue-on-error');
   }
+  if (!/\bdocker run --rm\s+\\/.test(scanStep) || !scanStep.includes(approved.semgrepImage)) {
+    errors.push('Semgrep: scan must use the approved pinned Docker image');
+  }
   if (!/\bsemgrep scan\s+\\/.test(scanStep)) {
     errors.push('Semgrep: scan must use the native semgrep CLI');
   }
-  for (const requiredFlag of ['--sarif', '--output semgrep.sarif']) {
+  for (const requiredFlag of [
+    '--sarif',
+    '--output semgrep.sarif',
+    '--disable-nosem',
+    '--x-ignore-semgrepignore-files',
+  ]) {
     if (!scanStep.includes(requiredFlag)) errors.push(`Semgrep: scan must include ${requiredFlag}`);
   }
   if (scanStep.includes('--error')) {
     errors.push('Semgrep: legacy findings must remain reporting-only until the reviewed baseline is cleared');
   }
-  if (!/if:\s*always\(\)\s*&&\s*hashFiles\(['"]semgrep\.sarif['"]\)\s*!=\s*['"]['"]/.test(uploadStep)) {
+  if (!/^\s{8}if:\s*always\(\)\s*$/m.test(policyStep)) {
+    errors.push('Semgrep: trusted policy checkout must run even when scanning fails');
+  }
+  if (!/^\s{8}id:\s*semgrep_policy_checkout\s*$/m.test(policyStep)) {
+    errors.push('Semgrep: trusted policy checkout must expose semgrep_policy_checkout outcome');
+  }
+  if (!/^\s{8}continue-on-error:\s*true\s*$/m.test(policyStep)) {
+    errors.push('Semgrep: trusted policy checkout must permit checksum-verified bootstrap');
+  }
+  if (!/persist-credentials:\s*false/.test(policyStep)) {
+    errors.push('Semgrep: trusted policy checkout must disable persisted credentials');
+  }
+  if (!/^\s{10}ref:\s*\$\{\{ github\.event\.pull_request\.base\.sha \|\| github\.sha \}\}\s*$/m.test(policyStep)) {
+    errors.push('Semgrep: trusted policy must come from the pull request base SHA or current push SHA');
+  }
+  if (!/^\s{10}path:\s*\.semgrep-policy\s*$/m.test(policyStep)) {
+    errors.push('Semgrep: trusted policy checkout must use .semgrep-policy');
+  }
+  if (!/^\s{8}if:\s*always\(\)\s*$/m.test(policyPrepareStep)) {
+    errors.push('Semgrep: trusted checker preparation must always run');
+  }
+  if (!/^\s{8}id:\s*semgrep_policy\s*$/m.test(policyPrepareStep)) {
+    errors.push('Semgrep: trusted checker preparation must expose semgrep_policy outcome');
+  }
+  if (!/^\s{8}continue-on-error:\s*true\s*$/m.test(policyPrepareStep)) {
+    errors.push('Semgrep: trusted checker preparation must preserve SARIF publication');
+  }
+  if (
+    !/^\s{8}env:\s*\r?\n\s{10}TRUSTED_CHECKOUT_OUTCOME:\s*\$\{\{ steps\.semgrep_policy_checkout\.outcome \}\}\s*$/m.test(
+      policyPrepareStep,
+    ) ||
+    !policyPrepareStep.includes('if [ "$TRUSTED_CHECKOUT_OUTCOME" != "success" ]; then')
+  ) {
+    errors.push('Semgrep: checker preparation must reject an unsuccessful trusted checkout');
+  }
+  if (
+    !policyPrepareStep.includes(
+      `echo "${approved.semgrepBootstrapCheckerSha256}  scripts/checkSemgrepSarifBaseline.mjs" | sha256sum --check -`,
+    ) ||
+    !policyPrepareStep.includes(
+      'cp scripts/checkSemgrepSarifBaseline.mjs .semgrep-policy/scripts/checkSemgrepSarifBaseline.mjs',
+    )
+  ) {
+    errors.push('Semgrep: bootstrap checker must match the approved checksum before copying');
+  }
+  if (/curl|wget|Invoke-WebRequest|npm|yarn|npx|\$\{\{\s*secrets\./i.test(policyPrepareStep)) {
+    errors.push('Semgrep: trusted checker preparation must remain offline and secret-free');
+  }
+  if (!/^\s{8}id:\s*semgrep_baseline\s*$/m.test(baselineStep)) {
+    errors.push('Semgrep: SARIF baseline check must use id: semgrep_baseline');
+  }
+  if (!/^\s{8}continue-on-error:\s*true\s*$/m.test(baselineStep)) {
+    errors.push('Semgrep: SARIF baseline check must preserve upload and artifact steps with continue-on-error');
+  }
+  if (!/^\s{8}if:\s*always\(\)\s*&&\s*hashFiles\(['"]semgrep\.sarif['"]\)\s*!=\s*['"]['"]\s*$/m.test(baselineStep)) {
+    errors.push('Semgrep: SARIF baseline check must run after scan whenever semgrep.sarif exists');
+  }
+  if (
+    !/^\s{8}run:\s*node\s+\.semgrep-policy\/scripts\/checkSemgrepSarifBaseline\.mjs\s+semgrep\.sarif\s+\.github\/semgrep-baseline\.json\s*$/m.test(
+      baselineStep,
+    )
+  ) {
+    errors.push('Semgrep: SARIF baseline check must run the local checker against SARIF and the reviewed baseline');
+  }
+  if (/\|\|\s*true\b|&&\s*true\b|\bset\s+\+e\b|\bexit\s+0\b|^\s{8}run:\s*!/m.test(baselineStep)) {
+    errors.push('Semgrep: SARIF baseline check bypass patterns are forbidden');
+  }
+  if (!/^\s{8}if:\s*always\(\)\s*&&\s*hashFiles\(['"]semgrep\.sarif['"]\)\s*!=\s*['"]['"]\s*$/m.test(uploadStep)) {
     errors.push('Semgrep: Code Scanning upload must run for every pull request when SARIF exists');
   }
   if (!/^\s{10}sarif_file:\s*semgrep\.sarif\s*$/m.test(uploadStep)) {
     errors.push('Semgrep: semgrep.sarif must be uploaded to code scanning');
   }
-  if (!/if:\s*always\(\)\s*&&\s*hashFiles\(['"]semgrep\.sarif['"]\)\s*!=\s*['"]['"]/.test(retainStep)) {
+  if (!/^\s{8}if:\s*always\(\)\s*&&\s*hashFiles\(['"]semgrep\.sarif['"]\)\s*!=\s*['"]['"]\s*$/m.test(retainStep)) {
     errors.push('Semgrep: SARIF artifact retention must run with always()');
   }
   if (!/^\s{10}path:\s*semgrep\.sarif\s*$/m.test(retainStep)) {
     errors.push('Semgrep: retained artifact must contain semgrep.sarif');
   }
-  if (!(scanIndex !== -1 && scanIndex < uploadIndex && uploadIndex < retainIndex && retainIndex < failureIndex)) {
-    errors.push('Semgrep: scan, Code Scanning upload, and artifact retention must complete before explicit failure');
+  if (!(
+    scanIndex !== -1 &&
+    scanIndex < policyIndex &&
+    policyIndex < policyPrepareIndex &&
+    policyPrepareIndex < baselineIndex &&
+    baselineIndex < uploadIndex &&
+    uploadIndex < retainIndex &&
+    retainIndex < failureIndex
+  )) {
+    errors.push('Semgrep: scan and baseline check must precede uploads, with explicit enforcement last');
   }
-  if (!/if:\s*always\(\)\s*&&\s*steps\.semgrep\.outcome\s*!=\s*['"]success['"]/.test(failureStep)) {
-    errors.push('Semgrep: final failure must explicitly enforce the scan outcome');
+  if (
+    !/^\s{8}if:\s*always\(\)\s*&&\s*\(\s*steps\.semgrep\.outcome\s*!=\s*['"]success['"]\s*\|\|\s*steps\.semgrep_policy_checkout\.outcome\s*!=\s*['"]success['"]\s*\|\|\s*steps\.semgrep_policy\.outcome\s*!=\s*['"]success['"]\s*\|\|\s*steps\.semgrep_baseline\.outcome\s*!=\s*['"]success['"]\s*\)\s*$/m.test(
+      failureStep,
+    )
+  ) {
+    errors.push('Semgrep: final failure must enforce scan, trusted checkout, policy, and SARIF baseline outcomes');
   }
   if (!/^\s{8}run:\s*exit\s+1\s*$/m.test(failureStep)) {
-    errors.push('Semgrep: failed scan must exit 1 explicitly');
+    errors.push('Semgrep: failed scan or SARIF baseline check must exit 1 explicitly');
   }
 
   return errors;
@@ -467,6 +565,84 @@ const mutationFixtures =
           validateSemgrep,
           `${workflows.semgrep}\n      - uses: returntocorp/semgrep-action@v1\n`,
           'archived Semgrep GitHub Action is forbidden',
+        ],
+        [
+          'Semgrep baseline command bypass',
+          validateSemgrep,
+          workflows.semgrep.replace(
+            'run: node .semgrep-policy/scripts/checkSemgrepSarifBaseline.mjs semgrep.sarif .github/semgrep-baseline.json',
+            'run: node .semgrep-policy/scripts/checkSemgrepSarifBaseline.mjs semgrep.sarif .github/semgrep-baseline.json || true',
+          ),
+          'baseline check bypass patterns are forbidden',
+        ],
+        [
+          'Semgrep untrusted policy source',
+          validateSemgrep,
+          workflows.semgrep.replace(
+            'ref: ${{ github.event.pull_request.base.sha || github.sha }}',
+            'ref: ${{ github.sha }}',
+          ),
+          'trusted policy must come from the pull request base SHA',
+        ],
+        [
+          'Semgrep floating scanner image',
+          validateSemgrep,
+          workflows.semgrep.replace(approved.semgrepImage, 'semgrep/semgrep:latest'),
+          'approved pinned Docker image',
+        ],
+        [
+          'Semgrep nosem suppression regression',
+          validateSemgrep,
+          workflows.semgrep.replace('            --disable-nosem \\\n', ''),
+          'scan must include --disable-nosem',
+        ],
+        [
+          'Semgrep ignore-file suppression regression',
+          validateSemgrep,
+          workflows.semgrep.replace('            --x-ignore-semgrepignore-files \\\n', ''),
+          'scan must include --x-ignore-semgrepignore-files',
+        ],
+        [
+          'Semgrep bootstrap checker checksum bypass',
+          validateSemgrep,
+          workflows.semgrep.replace(approved.semgrepBootstrapCheckerSha256, '0'.repeat(64)),
+          'bootstrap checker must match the approved checksum',
+        ],
+        [
+          'Semgrep trusted checkout outcome bypass',
+          validateSemgrep,
+          workflows.semgrep.replace(
+            'TRUSTED_CHECKOUT_OUTCOME: ${{ steps.semgrep_policy_checkout.outcome }}',
+            'TRUSTED_CHECKOUT_OUTCOME: success',
+          ),
+          'checker preparation must reject an unsuccessful trusted checkout',
+        ],
+        [
+          'Semgrep baseline upload suppression',
+          validateSemgrep,
+          workflows.semgrep.replace(
+            /if: always\(\) && hashFiles\(['"]semgrep\.sarif['"]\) != ['"]['"](\r?\n\s+uses: github\/codeql-action\/upload-sarif)/,
+            "if: steps.semgrep_baseline.outcome == 'success' && hashFiles('semgrep.sarif') != ''$1",
+          ),
+          'Code Scanning upload must run for every pull request when SARIF exists',
+        ],
+        [
+          'Semgrep baseline artifact suppression',
+          validateSemgrep,
+          workflows.semgrep.replace(
+            /(name: Retain Semgrep SARIF\r?\n\s+)if: always\(\) && hashFiles\(['"]semgrep\.sarif['"]\) != ['"]['"]/,
+            "$1if: steps.semgrep_baseline.outcome == 'success'",
+          ),
+          'SARIF artifact retention must run with always()',
+        ],
+        [
+          'Semgrep baseline enforcement omission',
+          validateSemgrep,
+          workflows.semgrep.replace(
+            /always\(\) && \(steps\.semgrep\.outcome != ['"]success['"] \|\| steps\.semgrep_policy_checkout\.outcome != ['"]success['"] \|\| steps\.semgrep_policy\.outcome != ['"]success['"] \|\| steps\.semgrep_baseline\.outcome != ['"]success['"]\)/,
+            "always() && steps.semgrep.outcome != 'success'",
+          ),
+          'final failure must enforce scan, trusted checkout, policy, and SARIF baseline outcomes',
         ],
         [
           'checkout credential regression',

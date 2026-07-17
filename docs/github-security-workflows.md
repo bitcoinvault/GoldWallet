@@ -5,7 +5,7 @@ This document records the guarded GitHub Actions baseline used by the GoldWallet
 ## Workflows
 
 - `codeql.yml` analyzes JavaScript and TypeScript on pushes and pull requests for `develop`, `main`, and `stage`, on a weekly schedule, and by manual dispatch. CodeQL uses `build-mode: none` and publishes results with `security-events: write` while repository contents remain read-only. GitHub permits code-scanning uploads triggered by `pull_request`, including fork and Dependabot pull requests.
-- `semgrep.yml` replaces the archived `semgrep-action` wrapper with the native Semgrep CLI. The official Semgrep image is pinned by version and digest, the scan produces SARIF, and the report is retained as an artifact when SARIF was created. The same `pull_request` code-scanning exception keeps SARIF publication visible for untrusted fork and Dependabot changes.
+- `semgrep.yml` replaces the archived `semgrep-action` wrapper with the native Semgrep CLI. The official Semgrep image is pinned by version and digest and runs through Docker on the Ubuntu host. The scan produces SARIF, validates it against the reviewed baseline, and retains the report even when the baseline gate fails. The same `pull_request` code-scanning exception keeps SARIF publication visible for untrusted fork and Dependabot changes.
 - `pull-request.yml` validates pull request metadata with `pull_request_target` so public fork contributions are supported. This is the only workflow allowed to use that event: it does not check out or execute repository code, has no shell steps, and reads the built-in `github.token` with pull-request metadata permissions only.
 
 ## Supply-Chain Policy
@@ -21,9 +21,15 @@ The currently guarded upstream baseline, verified from official GitHub/PyPI/Dock
 
 Pin updates require a fresh upstream metadata check, an offline guard update, YAML parsing, and the same review as executable code. Scheduled and manual workflows become available after their definitions reach the default branch.
 
-The `p/...` Semgrep registry packs are resolved at scan time and can change independently of the pinned image. That is intentional for current security coverage but means findings are timestamped evidence rather than a byte-for-byte reproducible gate; changing the guarded pack list still requires review.
+The `p/...` Semgrep registry packs are resolved at scan time and can change independently of the pinned image. The reviewed `.github/semgrep-baseline.json` makes that drift visible: a new, removed, moved, edited, or duplicated finding fails the gate and requires explicit review. Changing the guarded pack list or baseline still requires the same security review as executable code.
 
-The first full local scan with this exact image and rule set completed in `14m 41s`, scanned `988` tracked files with `277` effective rules, and produced `24` legacy findings. The workflow therefore uses a 30-minute timeout and keeps findings reporting-only for this migration milestone; scanner/configuration failures still fail the job. The findings must be reviewed in a separate security-remediation block before `--error` can become a guarded blocking policy.
+The reviewed baseline contains 22 accepted findings: 20 local maintenance helpers that invoke fixed developer tools, the required exported Android launcher activity, and the certificate-readiness diagnostic that intentionally inspects invalid TLS metadata before failing strict readiness. Two Dependabot cooldown findings were remediated with an explicit seven-day policy instead of being accepted. Every entry records its exact rule, path, snippet hash, full-file hash, occurrence count, and rationale; no raw finding text is committed. Any change to a file containing an accepted finding requires renewed baseline review, even when the sink line itself is unchanged. Secret and credential rules cannot be baselined.
+
+The checker rejects failed scanner invocations and every execution/configuration notification except two exact `warning / Syntax error` execution notifications for generated Gradle wrapper scripts whose normalized full-file hashes match the reviewed values. Timeouts, resource limits, configuration failures, application parse warnings, and repository-tooling parse warnings fail closed.
+
+The scan disables inline `nosem` suppression and ignores repository `.semgrepignore` files through the pinned Semgrep 1.170 CLI option. Pull-request code therefore cannot hide tracked findings before SARIF generation; any future scanner-version update must revalidate this guarded option.
+
+For pull requests, the scan runs against the proposed source, but the checker is loaded after scanning from the pull request base SHA. Proposed baseline changes remain visible in the pull-request diff and are interpreted only by that trusted checker. During the initial rollout, when the base SHA has no checker yet, the source checker is copied only after its SHA-256 matches the checksum pinned in the guarded workflow. Push runs use their current SHA. The workflow keeps scanner, policy, and baseline failures non-terminal until SARIF upload and artifact retention have run, then fails explicitly from the recorded step outcomes.
 
 ## Local Validation
 
@@ -31,6 +37,7 @@ Run:
 
 ```powershell
 corepack yarn check:github-security-workflows-guard
+corepack yarn check:semgrep-sarif-baseline-guard
 corepack yarn android:dev:check-light
 ```
 

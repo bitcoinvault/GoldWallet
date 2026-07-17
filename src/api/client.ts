@@ -4,9 +4,9 @@ import logger from '../../logger';
 
 const axios = require('axios/dist/browser/axios.cjs') as typeof import('axios').default;
 
-type AxiosError<T = any> = import('axios').AxiosError<T>;
-type AxiosResponse<T = any> = import('axios').AxiosResponse<T>;
-type InternalAxiosRequestConfig<T = any> = import('axios').InternalAxiosRequestConfig<T>;
+type AxiosError = import('axios').AxiosError;
+type AxiosResponse = import('axios').AxiosResponse;
+type InternalAxiosRequestConfig = import('axios').InternalAxiosRequestConfig;
 
 export enum GeneralHttpError {
   NO_RESPONSE = 'No response',
@@ -28,7 +28,7 @@ const createHttpClient = (baseUrl: string) => {
     return request;
   };
 
-  const onResponse = (response: AxiosResponse<any>) => {
+  const onResponse = (response: AxiosResponse) => {
     logger.info({
       category: 'http',
       message: `<-- ${response.status} ${response.config.baseURL}${response.config.url}`,
