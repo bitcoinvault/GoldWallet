@@ -591,15 +591,27 @@ const mutationFixtures =
           'approved pinned Docker image',
         ],
         [
-          'Semgrep nosem suppression regression',
+          'Semgrep nosem suppression LF regression',
           validateSemgrep,
-          workflows.semgrep.replace('            --disable-nosem \\\n', ''),
+          workflows.semgrep.replace(/\r\n/g, '\n').replace(/^\s+--disable-nosem \\\r?$/m, ''),
           'scan must include --disable-nosem',
         ],
         [
-          'Semgrep ignore-file suppression regression',
+          'Semgrep nosem suppression CRLF regression',
           validateSemgrep,
-          workflows.semgrep.replace('            --x-ignore-semgrepignore-files \\\n', ''),
+          workflows.semgrep.replace(/\r?\n/g, '\r\n').replace(/^\s+--disable-nosem \\\r?$/m, ''),
+          'scan must include --disable-nosem',
+        ],
+        [
+          'Semgrep ignore-file suppression LF regression',
+          validateSemgrep,
+          workflows.semgrep.replace(/\r\n/g, '\n').replace(/^\s+--x-ignore-semgrepignore-files \\\r?$/m, ''),
+          'scan must include --x-ignore-semgrepignore-files',
+        ],
+        [
+          'Semgrep ignore-file suppression CRLF regression',
+          validateSemgrep,
+          workflows.semgrep.replace(/\r?\n/g, '\r\n').replace(/^\s+--x-ignore-semgrepignore-files \\\r?$/m, ''),
           'scan must include --x-ignore-semgrepignore-files',
         ],
         [

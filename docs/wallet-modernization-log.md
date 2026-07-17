@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.917.1 - Semgrep suppression guard CRLF compatibility
+
+- Branch: `feature/bem-37-917-1-suppression-guard-crlf`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the `nosem` and `.semgrepignore` mutation fixtures independent of LF versus CRLF checkout behavior.
+- Exercise both line-ending variants explicitly while preserving the production suppression policy.
+
+Findings:
+
+- The production workflow, full enforced scan, baseline checker, and actionlint result remained valid after merge.
+- Only the two new mutation fixtures used LF-only string replacement, so a Windows branch switch correctly exposed that their mutation had not been applied.
+- No application, scanner command, baseline, dependency, native, or Metro behavior changed.
+
+Validation:
+
+- reproduced the post-merge failure on `upgrade/wallet-modernization`
+- `corepack yarn check:github-security-workflows-guard`
+- explicit LF and CRLF suppression mutation fixtures
+- `corepack yarn android:dev:check-light`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.917 - Semgrep reviewed baseline gate
 
 - Branch: `feature/bem-37-917-semgrep-sarif-baseline`
