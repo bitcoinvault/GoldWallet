@@ -64,7 +64,7 @@ $ yarn android:release-version:audit
 $ yarn android:release-version:check-summary
 ```
 
-Before `android:prod:bundle:signed` can produce a real upload candidate, set `GOLDWALLET_PLAY_LATEST_VERSION_CODE` to the latest code read from Play Console and update `android/release-version.properties` so both `versionName` and `versionCode` move forward. The signed-bundle runner reads the generated AAB manifest with `bundletool` and rejects metadata that differs from the tracked candidate. A local upload-signing proof bypasses store monotonicity only to test repository signing wiring; it never claims Play readiness.
+Before `android:prod:bundle:signed` can produce a real upload candidate, set `GOLDWALLET_PLAY_LATEST_VERSION_CODE` to the latest code read from Play Console and update `android/release-version.properties` so both `versionName` and `versionCode` move forward. The signed-bundle runner reads the generated AAB manifest with `bundletool`, rejects metadata that differs from the tracked candidate, requires `PAGE_ALIGNMENT_16K`, generates an installable universal APK from that exact AAB, verifies 16 KB ZIP and 64-bit ELF alignment, and runs the embedded production smoke against it. The universal APK uses the local debug key only for emulator installation; the summary binds its runtime evidence to the source AAB SHA-256 and does not claim Play App Signing identity. A local upload-signing proof bypasses store monotonicity only to test this full repository path; it never claims Play readiness.
 
 ### Android upload signing
 
@@ -90,7 +90,7 @@ Generate the production bundle only in the secured release environment:
 $ yarn android:prod:bundle:signed
 ```
 
-The command fails before building when signing data is absent, partial, points to a missing keystore, or does not contain the configured alias. It compares the configured alias certificate fingerprint with the certificate embedded in the resulting AAB. `yarn android:upload-signing:proof` uses a random temporary local key to exercise the same Gradle/signature/certificate/`bundletool` path; it never proves the real upload key or Play Console acceptance.
+The command fails before building when signing data is absent, partial, points to a missing keystore, or does not contain the configured alias. It compares the configured alias certificate fingerprint with the certificate embedded in the resulting AAB. `yarn android:upload-signing:proof` uses a random temporary local key to exercise the same Gradle/signature/certificate/`bundletool`/exact-AAB runtime path, including 16 KB artifact checks; it never proves the real upload key, a 16 KB kernel runtime, or Play Console acceptance.
 
 ### Google Play internal handoff
 
@@ -124,7 +124,7 @@ This runs the lightweight Android warning, validation artifact, Android dev envi
 
 The same lightweight gate runs the App Center retirement guard and source check so retired App Center dependencies, configuration files, Android resource switches, and iOS project references cannot return.
 
-Its release-readiness subgroup also runs the Android App Bundle validation guard, Android release-version readiness guard/audit/summary, Android upload signing readiness guard/audit/summary, and the Google Play internal handoff guard/dry-run/summary. It does not require or print a production upload key or service-account value, and it keeps missing release inputs as explicit not-ready results instead of breaking normal development builds.
+Its release-readiness subgroup also runs the Android App Bundle, 16 KB page-size, candidate-bound signed-bundle, release-version, upload-signing, and Google Play internal-handoff guards plus the secret-free readiness audits and summaries. It does not require or print a production upload key or service-account value, and it keeps missing release inputs as explicit not-ready results instead of breaking normal development builds.
 
 The React Native upgrade path guard is included through `check:rn-upgrade-path-audit-guard` and `rn:upgrade-path:audit`.
 

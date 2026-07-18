@@ -48,8 +48,14 @@ assert(!runner.includes('private_key'), 'Runner must not print or parse service-
 const playDryRunIndex = runner.indexOf('if (!options.execute)');
 const electrumReleaseGateIndex = runner.indexOf("['scripts/auditElectrumEndpointReadiness.mjs', '--require-ready']");
 const signedBundleIndex = runner.indexOf("['scripts/runAndroidSignedBundle.mjs']");
+const signedBundleSummaryIndex = runner.indexOf('scripts/checkAndroidProductionSignedBundleSummary.mjs');
 assert(electrumReleaseGateIndex > playDryRunIndex, 'Play dry-run must finish before the live Electrum release gate');
 assert(electrumReleaseGateIndex < signedBundleIndex, 'Electrum release gate must pass before the signed AAB build');
+assert(signedBundleSummaryIndex > signedBundleIndex, 'Candidate-bound runtime evidence must be checked after the signed AAB build');
+assert(
+  signedBundleSummaryIndex < runner.indexOf('new auth.GoogleAuth'),
+  'Candidate-bound runtime evidence must pass before Google authentication',
+);
 
 const workflow = read('scripts/androidPlayInternalHandoff.mjs');
 assert(workflow.includes('GOLDWALLET_PLAY_SERVICE_ACCOUNT_JSON'));

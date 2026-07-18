@@ -74,6 +74,9 @@ try {
   run('validate Electrum release gate', process.execPath, ['scripts/auditElectrumEndpointReadiness.mjs', '--require-ready']);
   electrumReleaseGateResult = 'passed';
   run('build verified production signed AAB', process.execPath, ['scripts/runAndroidSignedBundle.mjs']);
+  run('validate candidate-bound signed AAB runtime evidence', process.execPath, [
+    'scripts/checkAndroidProductionSignedBundleSummary.mjs',
+  ]);
   if (!existsSync(readiness.signedAabPath) || statSync(readiness.signedAabPath).size === 0) {
     throw new Error('Verified production signed AAB is missing after the signing runner');
   }

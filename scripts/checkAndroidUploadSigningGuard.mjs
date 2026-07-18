@@ -25,7 +25,24 @@ assert(existsSync(readinessModulePath), 'Android upload signing readiness module
 assert(existsSync(readinessAuditPath), 'Android upload signing readiness audit must exist');
 assert(existsSync(proofRunnerPath), 'Android upload signing proof runner must exist');
 assert(existsSync(path.join(root, 'scripts', 'runAndroidSignedBundle.mjs')), 'Shared signed-bundle runner must exist');
+assert(existsSync(path.join(root, 'scripts', 'androidSignedBundleSummary.mjs')), 'Signed-bundle summary validator must exist');
+assert(
+  existsSync(path.join(root, 'scripts', 'checkAndroidProductionSignedBundleSummary.mjs')),
+  'Production signed-bundle summary checker must exist',
+);
 assert(appBundleRunner.includes('rmSync(config.aabPath, { force: true })'), 'Unsigned AAB validation must remove stale signed output');
+for (const snippet of ['--source-aab', '--artifact-base', '--signed-source']) {
+  assert(appBundleRunner.includes(snippet), `AAB validator must support ${snippet} for candidate-bound runtime proof`);
+}
+const signedBundleRunner = read('scripts/runAndroidSignedBundle.mjs');
+for (const snippet of [
+  'validate runtime from the exact signed AAB',
+  'Candidate-bound emulator smoke: passed',
+  'Runtime source AAB SHA-256',
+  'getAndroidEmbeddedSmokeSummaryErrors',
+]) {
+  assert(signedBundleRunner.includes(snippet), `Signed-bundle runner must retain ${snippet}`);
+}
 
 const signingScript = read('android/upload-signing.gradle');
 for (const key of ['storeFile', 'storePassword', 'keyAlias', 'keyPassword']) {
@@ -52,6 +69,14 @@ assert.strictEqual(packageJson.scripts['android:upload-signing:proof'], 'node sc
 assert.strictEqual(
   packageJson.scripts['android:prod:bundle:signed'],
   'node scripts/runAndroidSignedBundle.mjs',
+);
+assert.strictEqual(
+  packageJson.scripts['android:prod:bundle:check-signed-summary'],
+  'node scripts/checkAndroidProductionSignedBundleSummary.mjs',
+);
+assert.strictEqual(
+  packageJson.scripts['check:android-signed-bundle-summary-guard'],
+  'node scripts/checkAndroidSignedBundleSummaryGuard.mjs',
 );
 assert.strictEqual(
   packageJson.scripts['android:upload-signing:check-summary'],
