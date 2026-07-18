@@ -1,4 +1,5 @@
-import { readFileSync } from 'fs';
+import { createHash } from 'crypto';
+import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 
 import { resolveAndroidReleaseVersion } from './androidReleaseVersioning.mjs';
@@ -60,14 +61,29 @@ export const getAndroidAppBundleProjectMetadata = root => {
   return metadata;
 };
 
-export const getAndroidAppBundleVariantConfig = (root, variant) => {
+export const getAndroidAppBundleVariantConfig = (root, variant, options = {}) => {
   if (!supportedAndroidAppBundleVariants.includes(variant)) {
     throw new Error(`Unsupported Android App Bundle variant: ${variant}`);
   }
 
   const displayName = `${variant}Release`;
-  const artifactBase = `android-app-bundle-${variant}-release`;
+  const defaultArtifactBase = `android-app-bundle-${variant}-release`;
+  const artifactBase = options.artifactBase || defaultArtifactBase;
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(artifactBase)) {
+    throw new Error(`Invalid Android App Bundle artifact base: ${artifactBase}`);
+  }
   const projectMetadata = getAndroidAppBundleProjectMetadata(root);
+  const defaultAabPath = path.join(
+    root,
+    'android',
+    'app',
+    'build',
+    'outputs',
+    'bundle',
+    displayName,
+    `app-${variant}-release.aab`,
+  );
+  const aabPath = options.aabPath ? path.resolve(root, options.aabPath) : defaultAabPath;
 
   return {
     variant,
@@ -75,16 +91,8 @@ export const getAndroidAppBundleVariantConfig = (root, variant) => {
     gradleTask: `:app:bundle${variant[0].toUpperCase()}${variant.slice(1)}Release`,
     packageName: variantPackages[variant],
     ...projectMetadata,
-    aabPath: path.join(
-      root,
-      'android',
-      'app',
-      'build',
-      'outputs',
-      'bundle',
-      displayName,
-      `app-${variant}-release.aab`,
-    ),
+    artifactBase,
+    aabPath,
     apksPath: path.join(root, 'local-docs', `${artifactBase}.apks`),
     extractionDir: path.join(root, 'local-docs', `${artifactBase}-extracted`),
     universalApkPath: path.join(root, 'local-docs', `${artifactBase}-universal.apk`),
@@ -106,6 +114,10 @@ export const getAndroidAppBundleSummaryErrors = (summary, config) => {
     `Bundletool version: ${BUNDLETOOL_VERSION}`,
     `Bundletool SHA-256: ${BUNDLETOOL_SHA256}`,
     'Bundle validation: passed',
+    'AAB page alignment: PAGE_ALIGNMENT_16K',
+    'Universal APK 16 KB ZIP alignment: passed',
+    'Universal APK 16 KB 64-bit ELF alignment: passed',
+    '16 KB required ABIs: arm64-v8a, x86_64',
     'Emulator smoke: passed',
     'Production signing/upload: not claimed; local debug keystore used for device proof',
   ];
@@ -120,5 +132,41 @@ export const getAndroidAppBundleSummaryErrors = (summary, config) => {
     }
   });
 
+  for (const label of ['16 KB native libraries checked', '16 KB ELF LOAD segments checked']) {
+    if (!new RegExp(`^${label}: [1-9]\\d*$`, 'm').test(summary)) {
+      errors.push(`Android App Bundle summary has an invalid ${label}`);
+    }
+  }
+  if (!/^16 KB ignored 32-bit libraries: \d+$/m.test(summary)) {
+    errors.push('Android App Bundle summary has an invalid 16 KB ignored 32-bit libraries count');
+  }
+
+  return errors;
+};
+
+const hashFile = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
+
+export const getAndroidAppBundleArtifactErrors = (summary, config) => {
+  const errors = [];
+  const artifacts = [
+    ['AAB', config.aabPath],
+    ['APK Set', config.apksPath],
+    ['Universal APK', config.universalApkPath],
+  ];
+
+  for (const [label, filePath] of artifacts) {
+    if (!existsSync(filePath) || statSync(filePath).size === 0) {
+      errors.push(`Android App Bundle ${label} is missing or empty: ${filePath}`);
+      continue;
+    }
+    for (const requiredLine of [
+      `${label} bytes: ${statSync(filePath).size}`,
+      `${label} SHA-256: ${hashFile(filePath)}`,
+    ]) {
+      if (!summary.includes(requiredLine)) {
+        errors.push(`Android App Bundle summary is stale for ${label}: ${requiredLine}`);
+      }
+    }
+  }
   return errors;
 };

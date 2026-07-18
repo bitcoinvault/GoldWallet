@@ -10,13 +10,40 @@ import {
   getAndroidAppBundleVariantConfig,
   parseAndroidAppBundleVariant,
 } from './androidAppBundleValidation.mjs';
+import { validateAndroid16KbPageSize } from './android16KbPageSizeValidation.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const variant = parseAndroidAppBundleVariant(args);
 const skipBuild = args.includes('--skip-build');
 const skipSmoke = args.includes('--skip-smoke');
-const config = getAndroidAppBundleVariantConfig(root, variant);
+const signedSource = args.includes('--signed-source');
+const readOption = name => {
+  const inline = args.find(argument => argument.startsWith(`${name}=`));
+  const inlineValue = inline?.slice(name.length + 1);
+  const index = args.indexOf(name);
+  const separateValue = index >= 0 ? args[index + 1] : undefined;
+
+  if ((inline && !inlineValue) || (index >= 0 && (!separateValue || separateValue.startsWith('--')))) {
+    throw new Error(`Missing value for ${name}`);
+  }
+
+  return inlineValue || separateValue;
+};
+const sourceAab = readOption('--source-aab');
+const artifactBase = readOption('--artifact-base');
+
+if (sourceAab && !skipBuild) {
+  throw new Error('--source-aab requires --skip-build so the supplied artifact cannot be overwritten');
+}
+if (artifactBase && !sourceAab) {
+  throw new Error('--artifact-base requires --source-aab');
+}
+
+const config = getAndroidAppBundleVariantConfig(root, variant, {
+  aabPath: sourceAab,
+  artifactBase,
+});
 const javaHome = process.env.JAVA_HOME;
 const executable = name => path.join(javaHome || '', 'bin', `${name}${process.platform === 'win32' ? '.exe' : ''}`);
 const javaCommand = javaHome && existsSync(executable('java')) ? executable('java') : 'java';
@@ -92,6 +119,16 @@ try {
   run(`validate ${config.displayName} AAB`, javaCommand, ['-jar', bundletoolJar, 'validate', `--bundle=${config.aabPath}`], {
     capture: true,
   });
+  const bundleConfigOutput = run(`inspect ${config.displayName} AAB page alignment`, javaCommand, [
+    '-jar',
+    bundletoolJar,
+    'dump',
+    'config',
+    `--bundle=${config.aabPath}`,
+  ], { capture: true });
+  if (!bundleConfigOutput.includes('"alignment": "PAGE_ALIGNMENT_16K"')) {
+    throw new Error(`${config.displayName} AAB does not request PAGE_ALIGNMENT_16K`);
+  }
 
   mkdirSync(path.dirname(config.apksPath), { recursive: true });
   rmSync(config.apksPath, { force: true });
@@ -114,13 +151,16 @@ try {
   ]);
   requireFile(`${config.displayName} APK Set`, config.apksPath);
 
-  run('extract universal APK from APK Set', jarCommand, ['-xf', config.apksPath, 'universal.apk'], {
-    cwd: config.extractionDir,
-  });
-  const extractedApkPath = path.join(config.extractionDir, 'universal.apk');
-  requireFile('extracted universal APK', extractedApkPath);
-  renameSync(extractedApkPath, config.universalApkPath);
-  rmSync(config.extractionDir, { recursive: true, force: true });
+  try {
+    run('extract universal APK from APK Set', jarCommand, ['-xf', config.apksPath, 'universal.apk'], {
+      cwd: config.extractionDir,
+    });
+    const extractedApkPath = path.join(config.extractionDir, 'universal.apk');
+    requireFile('extracted universal APK', extractedApkPath);
+    renameSync(extractedApkPath, config.universalApkPath);
+  } finally {
+    rmSync(config.extractionDir, { recursive: true, force: true });
+  }
 
   const badging = run('inspect universal APK manifest', aapt2Command, ['dump', 'badging', config.universalApkPath], {
     capture: true,
@@ -148,6 +188,7 @@ try {
       throw new Error(`Universal APK ${key} mismatch: expected ${expected}, received ${metadata[key] || 'unknown'}`);
     }
   }
+  const pageSizeEvidence = validateAndroid16KbPageSize({ apkPath: config.universalApkPath, root });
 
   if (!skipSmoke) {
     run(`smoke ${config.displayName} universal APK`, process.execPath, ['scripts/androidSmokeDev.mjs'], {
@@ -183,6 +224,13 @@ try {
     `Bundletool version: ${bundletoolVersion}`,
     `Bundletool SHA-256: ${bundletoolHash}`,
     'Bundle validation: passed',
+    'AAB page alignment: PAGE_ALIGNMENT_16K',
+    'Universal APK 16 KB ZIP alignment: passed',
+    'Universal APK 16 KB 64-bit ELF alignment: passed',
+    `16 KB required ABIs: ${pageSizeEvidence.nativeLibraries.requiredAbis.join(', ')}`,
+    `16 KB native libraries checked: ${pageSizeEvidence.nativeLibraries.libraryCount}`,
+    `16 KB ELF LOAD segments checked: ${pageSizeEvidence.nativeLibraries.segmentCount}`,
+    `16 KB ignored 32-bit libraries: ${pageSizeEvidence.nativeLibraries.ignored32BitLibraryCount}`,
     `AAB path: ${path.relative(root, config.aabPath)}`,
     `AAB bytes: ${statSync(config.aabPath).size}`,
     `AAB SHA-256: ${hashFile(config.aabPath)}`,
@@ -193,6 +241,8 @@ try {
     `Universal APK bytes: ${statSync(config.universalApkPath).size}`,
     `Universal APK SHA-256: ${hashFile(config.universalApkPath)}`,
     `Emulator smoke: ${skipSmoke ? 'skipped' : 'passed'}`,
+    `Source AAB signing: ${signedSource ? 'verified by signed-bundle runner' : 'not claimed'}`,
+    'Install APK signing: local debug keystore used for device proof',
     'Production signing/upload: not claimed; local debug keystore used for device proof',
     '',
   ].join('\n');

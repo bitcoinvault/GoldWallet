@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { createHash } from 'crypto';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
@@ -6,6 +7,7 @@ import path from 'path';
 import {
   BUNDLETOOL_SHA256,
   BUNDLETOOL_VERSION,
+  getAndroidAppBundleArtifactErrors,
   getAndroidAppBundleSummaryErrors,
   getAndroidAppBundleVariantConfig,
   parseAndroidAppBundleVariant,
@@ -49,6 +51,16 @@ assert.strictEqual(
   prodConfig.universalApkPath,
   path.join(fixtureRoot, 'local-docs', 'android-app-bundle-prod-release-universal.apk'),
 );
+const signedConfig = getAndroidAppBundleVariantConfig(fixtureRoot, 'prod', {
+  aabPath: 'local-docs/candidate.aab',
+  artifactBase: 'candidate-runtime',
+});
+assert.strictEqual(signedConfig.aabPath, path.join(fixtureRoot, 'local-docs', 'candidate.aab'));
+assert.strictEqual(signedConfig.summaryPath, path.join(fixtureRoot, 'local-docs', 'candidate-runtime-summary.txt'));
+assert.throws(
+  () => getAndroidAppBundleVariantConfig(fixtureRoot, 'prod', { artifactBase: '../unsafe' }),
+  /Invalid Android App Bundle artifact base/,
+);
 
 const validSummary = [
   'Android App Bundle validation',
@@ -61,6 +73,13 @@ const validSummary = [
   'Bundletool version: 1.18.3',
   `Bundletool SHA-256: ${BUNDLETOOL_SHA256}`,
   'Bundle validation: passed',
+  'AAB page alignment: PAGE_ALIGNMENT_16K',
+  'Universal APK 16 KB ZIP alignment: passed',
+  'Universal APK 16 KB 64-bit ELF alignment: passed',
+  '16 KB required ABIs: arm64-v8a, x86_64',
+  '16 KB native libraries checked: 12',
+  '16 KB ELF LOAD segments checked: 36',
+  '16 KB ignored 32-bit libraries: 12',
   `AAB SHA-256: ${'a'.repeat(64)}`,
   `APK Set SHA-256: ${'b'.repeat(64)}`,
   `Universal APK SHA-256: ${'c'.repeat(64)}`,
@@ -70,6 +89,27 @@ const validSummary = [
 ].join('\n');
 
 assert.deepStrictEqual(getAndroidAppBundleSummaryErrors(validSummary, prodConfig), []);
+
+mkdirSync(path.dirname(prodConfig.aabPath), { recursive: true });
+writeFileSync(prodConfig.aabPath, 'fixture-aab');
+mkdirSync(path.dirname(prodConfig.apksPath), { recursive: true });
+writeFileSync(prodConfig.apksPath, 'fixture-apks');
+writeFileSync(prodConfig.universalApkPath, 'fixture-universal-apk');
+const hash = value => createHash('sha256').update(value).digest('hex');
+const artifactSummary = [
+  validSummary,
+  'AAB bytes: 11',
+  `AAB SHA-256: ${hash('fixture-aab')}`,
+  'APK Set bytes: 12',
+  `APK Set SHA-256: ${hash('fixture-apks')}`,
+  'Universal APK bytes: 21',
+  `Universal APK SHA-256: ${hash('fixture-universal-apk')}`,
+].join('\n');
+assert.deepStrictEqual(getAndroidAppBundleArtifactErrors(artifactSummary, prodConfig), []);
+writeFileSync(prodConfig.aabPath, 'changed-fixture-aab');
+assert(
+  getAndroidAppBundleArtifactErrors(artifactSummary, prodConfig).some(error => error.includes('stale for AAB')),
+);
 assert(
   getAndroidAppBundleSummaryErrors(validSummary.replace('Target SDK: 36', 'Target SDK: 35'), prodConfig).some(error =>
     error.includes('Target SDK: 36'),
@@ -84,6 +124,15 @@ assert(
   getAndroidAppBundleSummaryErrors(validSummary.replace('Emulator smoke: passed', 'Emulator smoke: skipped'), prodConfig).some(
     error => error.includes('Emulator smoke: passed'),
   ),
+);
+assert(
+  getAndroidAppBundleSummaryErrors(
+    validSummary.replace(
+      'Universal APK 16 KB 64-bit ELF alignment: passed',
+      'Universal APK 16 KB 64-bit ELF alignment: failed',
+    ),
+    prodConfig,
+  ).some(error => error.includes('Universal APK 16 KB 64-bit ELF alignment: passed')),
 );
 
 rmSync(fixtureRoot, { recursive: true, force: true });

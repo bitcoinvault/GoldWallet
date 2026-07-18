@@ -8,8 +8,10 @@ import {
   BUNDLETOOL_SHA256,
   BUNDLETOOL_VERSION,
   getAndroidAppBundleProjectMetadata,
+  getAndroidAppBundleSummaryErrors,
   getAndroidAppBundleVariantConfig,
 } from './androidAppBundleValidation.mjs';
+import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { requireAndroidReleaseCandidateReadiness } from './androidReleaseVersioning.mjs';
 import { resolveAndroidUploadSigningConfiguration } from './androidUploadSigningReadiness.mjs';
 
@@ -27,6 +29,14 @@ const summaryPath = path.join(
   outputDir,
   localProof ? 'android-upload-signing-proof-summary.txt' : 'android-prod-signed-bundle-summary.txt',
 );
+const runtimeArtifactBase = localProof
+  ? 'android-upload-signing-proof-prod-release-runtime'
+  : 'android-prod-signed-bundle-runtime';
+const runtimeConfig = getAndroidAppBundleVariantConfig(root, 'prod', {
+  aabPath: outputAab,
+  artifactBase: runtimeArtifactBase,
+});
+const runtimeSmokeSummaryPath = path.join(outputDir, `${runtimeConfig.smokeArtifactBase}-summary.txt`);
 const javaHome = process.env.JAVA_HOME;
 const javaBin = executable =>
   javaHome ? path.join(javaHome, 'bin', `${executable}${process.platform === 'win32' ? '.exe' : ''}`) : executable;
@@ -37,6 +47,8 @@ const bundletoolJar =
   process.env.BUNDLETOOL_JAR || path.join(outputDir, 'tools', `bundletool-all-${BUNDLETOOL_VERSION}.jar`);
 const passwordEnvironmentName = 'GOLDWALLET_SIGNED_BUNDLE_STORE_PASSWORD';
 const hashFile = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
+const getSummaryLineValue = (summary, label) =>
+  summary.split(/\r?\n/).find(line => line.startsWith(`${label}:`))?.slice(label.length + 1).trim() || '';
 
 const run = (label, command, args, options = {}) => {
   console.log(`\n> ${label}`);
@@ -145,6 +157,41 @@ try {
     );
   }
 
+  run('validate runtime from the exact signed AAB', process.execPath, [
+    'scripts/runAndroidAppBundleValidation.mjs',
+    '--variant=prod',
+    '--skip-build',
+    `--source-aab=${outputAab}`,
+    `--artifact-base=${runtimeArtifactBase}`,
+    '--signed-source',
+  ]);
+
+  if (!existsSync(runtimeConfig.summaryPath) || !existsSync(runtimeSmokeSummaryPath)) {
+    throw new Error('Exact signed AAB runtime evidence was not generated');
+  }
+  const runtimeSummary = readFileSync(runtimeConfig.summaryPath, 'utf8');
+  const runtimeSummaryErrors = getAndroidAppBundleSummaryErrors(runtimeSummary, runtimeConfig);
+  if (!runtimeSummary.includes('Source AAB signing: verified by signed-bundle runner')) {
+    runtimeSummaryErrors.push('Exact signed AAB runtime summary did not preserve signed-source provenance');
+  }
+  if (runtimeSummaryErrors.length > 0) {
+    throw new Error(`Exact signed AAB runtime summary is invalid:\n${runtimeSummaryErrors.join('\n')}`);
+  }
+  const runtimeNativeLibraryCount = getSummaryLineValue(runtimeSummary, '16 KB native libraries checked');
+  const runtimeElfSegmentCount = getSummaryLineValue(runtimeSummary, '16 KB ELF LOAD segments checked');
+  const runtimeSmokeSummary = readFileSync(runtimeSmokeSummaryPath, 'utf8');
+  const runtimeSmokeErrors = getAndroidEmbeddedSmokeSummaryErrors(runtimeSmokeSummary, {
+    expectedArtifactBase: runtimeConfig.smokeArtifactBase,
+    requireDataStoragePreflight: true,
+    requireSmokeApkDigest: true,
+    expectedSmokeApkPath: runtimeConfig.universalApkPath,
+    requireSourceApkDigest: true,
+    expectedSourceApkPath: outputAab,
+  });
+  if (runtimeSmokeErrors.length > 0) {
+    throw new Error(`Exact signed AAB emulator smoke summary is invalid:\n${runtimeSmokeErrors.join('\n')}`);
+  }
+
   const summary = [
     localProof ? 'Android upload signing local proof' : 'Android production signed bundle evidence',
     'Variant: prodRelease',
@@ -152,12 +199,22 @@ try {
     'Configured alias certificate match: passed',
     'AAB JAR signature: verified',
     'Bundle validation: passed',
+    'AAB page alignment: PAGE_ALIGNMENT_16K',
     `Version code: ${builtMetadata.versionCode}`,
     `Version name: ${builtMetadata.versionName}`,
     'AAB version metadata match: passed',
     `AAB bytes: ${statSync(outputAab).size}`,
     `AAB SHA-256: ${hashFile(outputAab)}`,
     `Certificate SHA-256: ${aabCertificateSha256}`,
+    'Candidate-bound emulator smoke: passed',
+    'Runtime universal APK 16 KB ZIP alignment: passed',
+    'Runtime universal APK 16 KB 64-bit ELF alignment: passed',
+    `Runtime 16 KB native libraries checked: ${runtimeNativeLibraryCount}`,
+    `Runtime 16 KB ELF LOAD segments checked: ${runtimeElfSegmentCount}`,
+    `Runtime source AAB SHA-256: ${hashFile(outputAab)}`,
+    `Runtime universal APK bytes: ${statSync(runtimeConfig.universalApkPath).size}`,
+    `Runtime universal APK SHA-256: ${hashFile(runtimeConfig.universalApkPath)}`,
+    `Runtime smoke summary SHA-256: ${hashFile(runtimeSmokeSummaryPath)}`,
     ...(localProof ? ['Certificate identity: GoldWallet Local Signing Proof'] : []),
     ...(localProof ? ['Temporary keystore retained: no'] : []),
     `Production upload key used: ${localProof ? 'no' : 'yes'}`,

@@ -275,6 +275,8 @@ const errors = [];
 
 for (const requiredScript of [
   'check:android-app-bundle-validation-guard',
+  'check:android-16kb-page-size-guard',
+  'check:android-signed-bundle-summary-guard',
   'check:android-release-versioning-guard',
   'android:release-version:audit',
   'android:release-version:check-summary',

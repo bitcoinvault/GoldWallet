@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.918 - Signed AAB candidate-bound runtime proof
+
+- Branch: `feature/bem-37-918-signed-aab-runtime-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Extend the signed production AAB runner so the exact upload candidate is converted to an installable universal APK and exercised by the embedded production emulator smoke.
+- Bind the source AAB, generated universal APK, and smoke summary with SHA-256 evidence before Google Play authentication or upload can begin.
+- Enforce Android 16 KB packaging readiness through the AAB `PAGE_ALIGNMENT_16K` setting, APK ZIP alignment, and every `arm64-v8a` and `x86_64` ELF `LOAD` segment.
+
+Findings:
+
+- The previous App Bundle validation proved runtime from an unsigned release AAB, while the upload-signing runner rebuilt a separate signed AAB and verified only its signature and manifest. A signing- or packaging-specific candidate could therefore reach the Play handoff without runtime evidence from those exact bytes.
+- The new runner supplies the signed AAB as an immutable source, generates a namespaced APK set, installs the resulting universal APK, and validates the smoke summary against both the source AAB and installed APK paths and hashes.
+- The universal APK is signed with the local debug key only because an AAB is not directly installable. This does not alter or claim the source AAB upload identity or Play App Signing identity.
+- Android's 16 KB compatibility requirement applies to 64-bit native libraries. The validator checks all `arm64-v8a` and `x86_64` libraries and records ignored 32-bit libraries separately while retaining whole-APK ZIP alignment validation.
+- The available API 36 emulator reports a 4 KB kernel page size. The proof covers packaging, 64-bit ELF alignment, and application runtime on that emulator; runtime on a 16 KB kernel remains a separate device-lab or compatible-AVD release check.
+- The exact production-mainnet signed-AAB proof reached the empty-wallet dashboard and completed its guarded navigation, QR, and Terms flow. The separate dev/testnet smoke completed onboarding but reached the known `No network` state because `electrumx.testnet.btcv.stage.rnd.land` still presents the certificate that expired on `2026-06-23`; the controlled no-network smoke passed without fatal Android or React Native runtime findings.
+- Parallel agents were used for independent release-gap analysis and the initial isolated 16 KB validator implementation; final integration and validation remained in the main checkout.
+
+Validation:
+
+- signed-bundle, App Bundle, Play handoff, 16 KB page-size, and summary guard suites
+- local random upload-signing proof through the production signed-bundle runner
+- exact signed AAB to universal APK conversion and embedded production emulator smoke
+- dev debug assemble plus controlled no-network emulator smoke; full dev/testnet dashboard smoke remains externally blocked by the expired Electrum certificate
+- AAB `PAGE_ALIGNMENT_16K`, APK `zipalign -P 16`, and 64-bit ELF `LOAD` alignment checks
+- Android release-readiness and development light checks
+- TypeScript, unit, focused storage/network, Android assemble, modernization-log, shim, lint-baseline, and diff checks
+
 ### BEM-37.917.1 - Semgrep suppression guard CRLF compatibility
 
 - Branch: `feature/bem-37-917-1-suppression-guard-crlf`
