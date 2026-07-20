@@ -14,6 +14,22 @@ const args = process.platform === 'win32' ? ['/d', '/s', '/c', 'corepack', 'yarn
 
 const knownDecisions = new Map([
   [
+    '@react-navigation/bottom-tabs',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  ],
+  [
+    '@react-navigation/devtools',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  ],
+  [
+    '@react-navigation/native',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  ],
+  [
+    '@react-navigation/stack',
+    'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  ],
+  [
     '@babel/cli',
     'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
@@ -92,6 +108,10 @@ const knownDecisions = new Map([
   [
     'react-native-gesture-handler',
     'blocked - gesture runtime patch drift requires a dedicated navigation/gesture smoke branch before bumping',
+  ],
+  [
+    'react-i18next',
+    'blocked - localization runtime patch drift requires a dedicated i18n branch with translation checks and Android emulator proof',
   ],
   [
     'react-native-bootsplash',

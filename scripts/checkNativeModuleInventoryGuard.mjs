@@ -4,8 +4,13 @@ import {
   getNativeModuleInventoryErrors,
 } from './nativeModuleInventoryGuard.mjs';
 
-if (expectedNativeModuleDependencies.get('react-native-screens') !== '4.26.1') {
-  console.error('Native module inventory should require react-native-screens@4.26.1.');
+if (expectedNativeModuleDependencies.get('react-native-gesture-handler') !== '3.1.0') {
+  console.error('Native module inventory should require react-native-gesture-handler@3.1.0.');
+  process.exit(1);
+}
+
+if (expectedNativeModuleDependencies.get('react-native-screens') !== '4.26.2') {
+  console.error('Native module inventory should require react-native-screens@4.26.2.');
   process.exit(1);
 }
 
@@ -16,6 +21,16 @@ delete missingDependencyFixture['react-native-camera-kit'];
 const changedDependencyFixture = {
   ...expectedDependencies,
   '@sentry/react-native': '5.36.0',
+};
+
+const outdatedGestureHandlerFixture = {
+  ...expectedDependencies,
+  'react-native-gesture-handler': '3.0.2',
+};
+
+const outdatedScreensFixture = {
+  ...expectedDependencies,
+  'react-native-screens': '4.26.1',
 };
 
 const assertAccepted = (label, dependencies) => {
@@ -40,5 +55,7 @@ const assertRejected = (label, dependencies) => {
 assertAccepted('Known native module inventory', expectedDependencies);
 assertRejected('Missing native module dependency', missingDependencyFixture);
 assertRejected('Changed native module dependency version', changedDependencyFixture);
+assertRejected('Outdated react-native-gesture-handler version', outdatedGestureHandlerFixture);
+assertRejected('Outdated react-native-screens version', outdatedScreensFixture);
 
 console.log('Native module inventory guard checks are valid.');

@@ -27,7 +27,7 @@ React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use
 
 - `@react-native-clipboard/clipboard` -> `1.16.3`
 - `react-native-biometrics` -> `3.0.1`
-- `react-native-screens` -> `4.26.1`
+- `react-native-screens` -> `4.26.2`
 - `react-native-share` -> `12.3.1`
 - `jail-monkey` -> `3.0.0`
 
@@ -38,7 +38,7 @@ Current expectation:
 
 ### Group B - Navigation And Layout Native Surface
 
-- `react-native-gesture-handler` -> `3.0.2`
+- `react-native-gesture-handler` -> `3.1.0`
 - `@react-native-community/blur` -> `4.4.1`
 - `@react-native-community/masked-view` -> removed
 - `react-native-bootsplash` -> `7.3.2`
@@ -64,14 +64,14 @@ Branch shape:
 - `react-native-bootsplash` is on latest checked `7.3.2` after `BEM-37.761`; future splash work should focus on release launch-screen behavior and iOS validation, not another immediate package bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
 - `react-native-safe-area-context` is on checked `5.8.0` after `BEM-36.119`; future safe-area work should focus on layout validation and the next RN baseline.
-- `react-native-screens` is on checked latest `4.26.1` after `BEM-37.901`; the package satisfies the RN `0.86.0` baseline and keeps future changes tied to Android navigation smoke.
+- `react-native-screens` is on checked latest `4.26.2` as of 2026-07-18; the package satisfies the RN `0.86.0` baseline and keeps future changes tied to Android navigation smoke.
 - `react-native-svg` is on checked `15.15.5` after `BEM-36.119`, paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4` resolution after `BEM-37.158`; the QR renderer branch remains guarded on the RN `0.86.0` baseline.
 - For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
 - `react-native-fast-image` is on latest checked `8.6.3` after `BEM-36.53`; future image work should focus on cached image behavior and any RN baseline-driven replacement rather than another 8.x package bump.
 - `@react-native-community/slider` is on checked `5.2.0` after `BEM-37.108`; the app has no source imports for Slider, and the package no longer contributes Android `jcenter()` warnings on the RN `0.86.0` baseline.
 - `react-native-vector-icons` is on checked latest `10.3.0` after `BEM-37.110`; the package no longer requires `@react-native-community/toolbar-android` and no longer contributes an Android `jcenter()` warning. Future icon work should focus on the package's per-icon-family migration guidance and iOS font validation rather than another warning-only cleanup.
-- `react-native-gesture-handler` is on latest checked `3.0.2` after `BEM-37.762`; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces on the current RN `0.86.0` New Architecture baseline.
-- `@react-native-community/masked-view` was removed after moving the navigation proof to React Navigation 7; the current `@react-navigation/stack@7.10.11` package no longer requires the old community masked-view runtime path.
+- `react-native-gesture-handler` is on latest checked `3.1.0` as of 2026-07-18; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces on the current RN `0.86.0` New Architecture baseline.
+- `@react-native-community/masked-view` was removed after moving the navigation proof to React Navigation 7; the current `@react-navigation/stack@7.10.14` package no longer requires the old community masked-view runtime path.
 - `corepack yarn masked-view:migration:audit` now guards the completed removal state and keeps the warning baseline at one remaining targeted source.
 
 ### Group C - Device, Storage, Network, And Runtime Integrations
