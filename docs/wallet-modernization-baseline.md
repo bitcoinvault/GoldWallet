@@ -120,7 +120,7 @@ High-risk native dependencies:
 
 - `@react-native-firebase/*` is now on the checked latest `25.1.0` package family; Firebase release delivery remains a runtime validation item, not a package-version blocker.
 - `react-native-camera` was replaced by `react-native-camera-kit@18.0.0` in the dedicated QR scanner migration stream.
-- Navigation/layout packages are on the RN `0.86.0` checkpoint versions: `@react-navigation/native@7.3.8`, `@react-navigation/stack@7.10.11`, `@react-navigation/bottom-tabs@7.18.8`, `@react-navigation/devtools@7.1.5`, `react-native-gesture-handler@3.0.2`, `react-native-screens@4.26.1`, and `react-native-safe-area-context@5.8.0`; future bumps should stay tied to navigation smoke validation.
+- Navigation/layout packages are on the RN `0.86.0` checkpoint versions checked on 2026-07-18: `@react-navigation/native@7.3.11`, `@react-navigation/stack@7.10.14`, `@react-navigation/bottom-tabs@7.18.11`, `@react-navigation/devtools@7.1.8`, `react-native-gesture-handler@3.1.0`, `react-native-screens@4.26.2`, and `react-native-safe-area-context@5.8.0`; future bumps should stay tied to navigation smoke validation.
 - `react-native-svg@15.15.5` is paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4`; future SVG/QR changes need the guarded QR render-screen validation.
 - `react-native-share@12.3.1`, `react-native-vector-icons@10.3.0`, `react-native-webview@14.0.1`, `react-native-bootsplash@7.3.2`, and `react-native-fast-image@8.6.3` are checked native packages whose future work should focus on release/device behavior, not generic warning cleanup.
 - `react-native-prompt-android` still requires Jetifier because it uses old Android support imports before transformation.

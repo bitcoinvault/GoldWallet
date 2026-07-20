@@ -2,16 +2,16 @@
 
 This audit supports staged navigation and layout-native dependency work after the RN `0.86.0` baseline proof.
 
-Checked on: 2026-07-10
+Checked on: 2026-07-18
 
 ## Current State
 
 - React Native baseline: `0.86.0`.
 - React baseline: `19.2.3`.
-- Active navigation packages: `@react-navigation/native@7.3.8`, `@react-navigation/stack@7.10.11`, `@react-navigation/bottom-tabs@7.18.8`, and `@react-navigation/devtools@7.1.5`.
+- Active navigation packages: `@react-navigation/native@7.3.11`, `@react-navigation/stack@7.10.14`, `@react-navigation/bottom-tabs@7.18.11`, and `@react-navigation/devtools@7.1.8`.
 - `@react-native-community/masked-view` is removed; React Navigation 7 no longer needs the old community masked-view runtime path.
-- `react-native-gesture-handler@3.0.2` is the latest checked stable line validated with the RN `0.86.0` New Architecture baseline. The earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces after the RN foundation.
-- `react-native-screens@4.26.1` is the latest checked stable screens baseline. Its npm peer metadata accepts the current React and React Native runtime, and the patch is validated against the RN `0.86.0` checkpoint.
+- `react-native-gesture-handler@3.1.0` is the latest checked stable line validated with the RN `0.86.0` New Architecture baseline. The earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces after the RN foundation.
+- `react-native-screens@4.26.2` is the latest checked stable screens baseline. Its npm peer metadata accepts the current React and React Native runtime, and the patch is validated against the RN `0.86.0` checkpoint.
 - `react-native-safe-area-context@5.8.0` is the latest checked safe-area baseline.
 - `@react-native-community/blur@4.4.1`, `react-native-bootsplash@7.3.2`, `react-native-fast-image@8.6.3`, and `react-native-vector-icons@10.3.0` remain fixed.
 - iOS `Podfile.lock` is stale on Windows and still references older active native pods; the removed `RNCMaskedView` pod entry has been cleaned up, but refresh it on macOS before claiming iOS validation.
@@ -29,17 +29,17 @@ Checked on: 2026-07-10
 ## Findings
 
 - Navigation 7 plus masked-view removal is validated on Android through the RN `0.86.0` proof branch and emulator smoke.
-- Live npm metadata on 2026-07-10 reports the installed React Navigation 7 package family as latest/current: native `7.3.8`, stack `7.10.11`, bottom-tabs `7.18.8`, and devtools `7.1.5`.
-- React Navigation stack and bottom-tabs peer on `@react-navigation/native ^7.3.8`, `react-native-screens >=4.0.0`, and `react-native-safe-area-context >=4.0.0`, which are satisfied by the current package set.
+- Live npm metadata on 2026-07-18 reports the installed React Navigation 7 package family as latest/current: native `7.3.11`, stack `7.10.14`, bottom-tabs `7.18.11`, and devtools `7.1.8`.
+- React Navigation stack and bottom-tabs peer on `@react-navigation/native ^7.3.11`, `react-native-screens >=4.0.0`, and `react-native-safe-area-context >=4.0.0`, which are satisfied by the current package set.
 - The previous `react-native-screens@4.25.x` blocker is cleared by the RN `0.86.0` checkpoint; future navigation-native dependency jumps should stay tied to Android navigation smoke validation.
 - `react-native-bootsplash@7.3.2` is the live npm latest checked on 2026-06-23; the package bump is scoped to startup/splash validation and still requires iOS Podfile refresh on macOS before any iOS runtime claim.
-- `react-native-gesture-handler@3.0.2` is the live npm latest checked on 2026-06-23; the package bump is scoped to navigation/gesture validation and still requires iOS Podfile refresh on macOS before any iOS runtime claim.
+- `react-native-gesture-handler@3.1.0` is the live npm latest checked on 2026-07-18; the package bump is scoped to navigation/gesture validation and still requires iOS Podfile refresh on macOS before any iOS runtime claim.
 - Gesture Handler `3.x` is not a small package cleanup on the current baseline; it requires a dedicated RN/new-arch compatibility branch.
 - iOS validation is not claimed from Windows; `Podfile.lock` must be regenerated and built on macOS after the navigation/native dependency changes.
 
 ## Decision
 
-- Keep `react-native-gesture-handler@3.0.2`, `react-native-screens@4.26.1`, `react-native-safe-area-context@5.8.0`, and `react-native-bootsplash@7.3.2` fixed until the next navigation-native validation branch.
+- Keep `react-native-gesture-handler@3.1.0`, `react-native-screens@4.26.2`, `react-native-safe-area-context@5.8.0`, and `react-native-bootsplash@7.3.2` fixed until the next navigation-native validation branch.
 - Do not reintroduce masked-view.
 - Do not combine a future screens/gesture-handler jump with unrelated UI, storage, release-service, or Electrum work.
 - Treat iOS Podfile refresh as a required follow-up before release-candidate claims.
@@ -47,6 +47,10 @@ Checked on: 2026-07-10
 ## Required Validation For Future Navigation-Native Changes
 
 ```powershell
+corepack yarn check:navigation-runtime-cohort-guard
+corepack yarn check:navigation-runtime-cohort
+corepack yarn check:native-module-inventory-guard
+corepack yarn check:native-module-inventory
 corepack yarn masked-view:migration:audit
 corepack yarn masked-view:migration:check-summary
 corepack yarn android:dev:check-light

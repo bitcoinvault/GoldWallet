@@ -84,6 +84,15 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
+    name: '@sentry/react-native',
+    current: '8.18.0',
+    wanted: '8.18.0',
+    latest: '8.19.0',
+    type: 'dependencies',
+    decision:
+      'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Sentry prerequisite summaries and no source-map upload claim without credentials',
+  },
+  {
     name: 'babel-plugin-polyfill-regenerator',
     current: '0.6.8',
     wanted: '0.6.8',
@@ -108,12 +117,30 @@ const validEntries = [
     decision: 'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   },
   {
+    name: 'caniuse-lite',
+    current: '1.0.30001805',
+    wanted: '1.0.30001805',
+    latest: '1.0.30001806',
+    type: 'resolutionDependencies',
+    decision:
+      'blocked - Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof',
+  },
+  {
     name: 'electrum-client',
     current: '2.0.0',
     wanted: 'exotic',
     latest: 'exotic',
     type: 'dependencies',
     decision: 'exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
+  },
+  {
+    name: 'lint-staged',
+    current: '17.0.8',
+    wanted: '17.0.8',
+    latest: '17.1.0',
+    type: 'devDependencies',
+    decision:
+      'blocked - precommit tooling patch drift requires a dedicated hook/tooling branch with lint-staged, precommit, and TypeScript proof',
   },
   {
     name: 'plist',
@@ -130,6 +157,15 @@ const validEntries = [
     latest: '19.2.7',
     type: 'dependencies',
     decision: 'blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
+  },
+  {
+    name: 'react-i18next',
+    current: '17.0.9',
+    wanted: '17.0.9',
+    latest: '17.0.10',
+    type: 'dependencies',
+    decision:
+      'blocked - localization runtime patch drift requires a dedicated i18n branch with translation checks and Android emulator proof',
   },
   {
     name: 'react-native-prompt-android',
@@ -203,10 +239,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 19', 'Entries: 18'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 23', 'Entries: 22'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 19', 'Entries: 20').replace(
+  validSummary.replace('Entries: 23', 'Entries: 24').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -247,9 +283,9 @@ assertRejected(
 );
 assertRejected(
   'Missing caniuse-lite resolution blocker fixture',
-  validSummary.replace('Entries: 19', 'Entries: 20').replace(
-    'Secret values printed: no',
-    '- caniuse-lite: current 1.0.30001805, wanted 1.0.30001805, latest 1.0.30001806, type resolutionDependencies, decision blocked - generic data branch required\nSecret values printed: no',
+  validSummary.replace(
+    'Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof',
+    'generic data branch required',
   ),
   'caniuse-lite drift',
 );

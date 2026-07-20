@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.919 - Navigation runtime cohort refresh
+
+- Branch: `feature/bem-37-919-navigation-runtime-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the React Navigation runtime family as one compatibility cohort on the React Native `0.86.0` and React `19.2.3` baseline.
+- Upgrade `@react-navigation/native` to `7.3.11`, `@react-navigation/stack` to `7.10.14`, `@react-navigation/bottom-tabs` to `7.18.11`, `@react-navigation/devtools` to `7.1.8`, `react-native-gesture-handler` to `3.1.0`, and `react-native-screens` to `4.26.2`.
+- Add fail-closed package, installation, and peer-range validation for the six-package cohort and update the native/iOS inventory contracts.
+
+Findings:
+
+- Live npm metadata checked on `2026-07-18` reports the selected six versions as the latest stable releases and their peer ranges accept the current React and React Native baseline.
+- The direct-outdated snapshot now contains `23` known entries: `19` blocked and `4` exotic, with no review-required navigation, gesture-handler, or screens drift.
+- The Android dev debug build succeeds with the refreshed native navigation cohort. The first production build reached the Sentry source-map upload task and correctly stopped because local `SENTRY_ORG` credentials are unavailable; the final local release proof uses the repository-standard `SENTRY_DISABLE_AUTO_UPLOAD=true` and does not claim a credentialed Sentry upload.
+- Android production runtime validation covers onboarding, the empty dashboard, Create/Import navigation, CameraKit QR scanning, bottom tabs, Settings Terms WebView, screenshots, and fatal/runtime logcat checks without Metro.
+- The Windows iOS readiness audit remains fail-closed: `Podfile.lock` still records stale `RNGestureHandler 1.10.3` and `RNScreens 3.6.0` pods. Static audit output is validated, but iOS runtime or archive compatibility is not claimed until a macOS pod refresh and build are completed.
+
+Validation:
+
+- `corepack yarn check:navigation-runtime-cohort-guard`
+- `corepack yarn check:navigation-runtime-cohort`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- TypeScript, unit, focused storage/network, shim, lint-baseline, modernization-log, Android light, and diff checks
+- JDK 17 Android dev debug and production release builds; the production build uses `SENTRY_DISABLE_AUTO_UPLOAD=true`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+
 ### BEM-37.918 - Signed AAB candidate-bound runtime proof
 
 - Branch: `feature/bem-37-918-signed-aab-runtime-proof`
