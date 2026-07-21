@@ -1,4 +1,8 @@
 import { getCameraQrValidationSummaryErrors } from './cameraQrValidationSummaryGuard.mjs';
+import {
+  getCameraQrControlledReleaseBlocker,
+  parseCameraQrValidationSummaryArgs,
+} from './runCameraQrValidationSummary.mjs';
 
 const validSummary = [
   'Camera/QR validation summary',
@@ -14,6 +18,7 @@ const validSummary = [
   'Android smoke artifact base: android-smoke-dev',
   'Android smoke outcome: passed',
   'Android dev QR scanner validated: yes',
+  'Android release evidence variant: dev',
   'Android release smoke summary present: yes',
   'Android release smoke summary valid: yes',
   'Android release smoke artifact base: android-smoke-dev-release',
@@ -42,7 +47,7 @@ const validSummary = [
   'Camera/QR Android validation evidence ready: yes',
   'Android release evidence ready: yes',
   'Secret values printed: no',
-  'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; rerun Android dev and release Camera/QR smoke before claiming Android validation; renew the dev/testnet Electrum TLS certificate before relying on full release Camera/QR proof; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
+  'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; rerun Camera/QR smoke for each changed Android build variant before claiming that variant; renew the dev/testnet Electrum TLS certificate before relying on dev/testnet Camera/QR proof; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
   '',
 ].join('\n');
 
@@ -78,8 +83,12 @@ const notReadyAndroidSmokeSummary = validSummary
   .replace('Android dev smoke summary valid: yes', 'Android dev smoke summary valid: no')
   .replace('Android smoke outcome: passed', 'Android smoke outcome: failed')
   .replace('Android dev QR scanner validated: yes', 'Android dev QR scanner validated: no')
-  .replace('Android dev smoke summary errors: 0', 'Android dev smoke summary errors: 1\n- UI hierarchy is missing expected text(s): Wallets, No wallets, Create new wallet, Import wallet')
-  .replace('Camera/QR Android validation evidence ready: yes', 'Camera/QR Android validation evidence ready: no');
+  .replace('Android dev smoke summary errors: 0', 'Android dev smoke summary errors: 1\n- UI hierarchy is missing expected text(s): Wallets, No wallets, Create new wallet, Import wallet');
+
+const prodReleaseEvidenceSummary = validSummary
+  .replace('Android release evidence variant: dev', 'Android release evidence variant: prod')
+  .replace('android-smoke-dev-release', 'android-smoke-prod-release')
+  .replace('android-create-wallet-smoke-dev-release', 'android-create-wallet-smoke-prod-release');
 
 const assertAccepted = (label, summary) => {
   const errors = getCameraQrValidationSummaryErrors(summary);
@@ -105,9 +114,50 @@ assertAccepted('Valid Camera/QR validation summary fixture', validSummary);
 assertAccepted('Camera/QR validation summary without optional release evidence fixture', releaseEvidenceMissingSummary);
 assertAccepted('Camera/QR validation summary with controlled release blocker fixture', controlledBlockedReleaseSummary);
 assertAccepted('Camera/QR validation summary with not-ready Android smoke fixture', notReadyAndroidSmokeSummary);
+assertAccepted('Camera/QR validation summary with production release evidence fixture', prodReleaseEvidenceSummary);
+const nonDevBlocker = getCameraQrControlledReleaseBlocker('prod', {
+  present: true,
+  valid: true,
+  outcome: 'blocked-by-electrum-certificate-expired',
+  errors: [],
+});
+if (
+  nonDevBlocker.present ||
+  nonDevBlocker.valid ||
+  nonDevBlocker.outcome !== 'not-applicable' ||
+  nonDevBlocker.errors.length !== 0
+) {
+  console.error('Non-dev Camera/QR evidence must not inherit the dev/testnet controlled blocker');
+  process.exit(1);
+}
+if (parseCameraQrValidationSummaryArgs(['--dry-run', '--variant=prod']).androidReleaseVariant !== 'prod') {
+  console.error('Camera/QR summary parser must accept one supported release variant');
+  process.exit(1);
+}
+[
+  [['--varaint=prod'], 'Unknown argument'],
+  [['--variant=prod', '--variant=stage'], 'Duplicate argument'],
+  [['--variant'], 'Missing value'],
+].forEach(([args, expectedError]) => {
+  try {
+    parseCameraQrValidationSummaryArgs(args);
+    console.error(`Camera/QR summary parser should reject: ${args.join(' ')}`);
+    process.exit(1);
+  } catch (error) {
+    if (!error.message.includes(expectedError)) {
+      console.error(`Camera/QR summary parser should reject with ${expectedError}, but produced: ${error.message}`);
+      process.exit(1);
+    }
+  }
+});
 assertRejected('Missing header fixture', validSummary.replace('Camera/QR validation summary', 'Bad summary'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-17T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Bad CameraKit package fixture', validSummary.replace('react-native-camera-kit@18.0.0', 'react-native-camera-kit@17.0.0'), 'CameraKit package');
+assertRejected(
+  'Unsupported release variant fixture',
+  validSummary.replace('Android release evidence variant: dev', 'Android release evidence variant: unknown'),
+  'Android release evidence variant',
+);
 assertRejected(
   'Invalid candidate fixture',
   validSummary.replace('Camera candidate summary valid: yes', 'Camera candidate summary valid: no'),
@@ -116,7 +166,7 @@ assertRejected(
 assertRejected(
   'Inconsistent missing Android smoke fixture',
   validSummary.replace('Android dev smoke summary present: yes', 'Android dev smoke summary present: no'),
-  'Camera/QR Android validation evidence ready must be no',
+  'Android dev smoke summary cannot be valid when it is not present',
 );
 assertRejected(
   'Inconsistent failed Android smoke fixture',
@@ -125,7 +175,7 @@ assertRejected(
 );
 assertRejected(
   'Missing QR scanner evidence fixture',
-  validSummary.replace('Android dev QR scanner validated: yes', 'Android dev QR scanner validated: no'),
+  releaseEvidenceMissingSummary.replace('Android dev QR scanner validated: yes', 'Android dev QR scanner validated: no'),
   'Camera/QR Android validation evidence ready must be no',
 );
 assertRejected(
@@ -152,6 +202,22 @@ assertRejected(
   'valid controlled release blocker summary',
 );
 assertRejected(
+  'Controlled blocker release proof with ready release evidence fixture',
+  validSummary
+    .replace('Controlled release blocker summary present: no', 'Controlled release blocker summary present: yes')
+    .replace('Controlled release blocker valid: no', 'Controlled release blocker valid: yes')
+    .replace('Controlled release blocker outcome: missing', 'Controlled release blocker outcome: blocked-by-electrum-certificate-expired')
+    .replace('Controlled release blocker errors: 1\n- missing Android release network blocker summary', 'Controlled release blocker errors: 0')
+    .replace('Camera/QR release runtime proof state: ready', 'Camera/QR release runtime proof state: blocked-by-electrum-certificate-expired'),
+  'requires Android release evidence not ready',
+);
+assertRejected(
+  'Controlled blocker release proof for production variant fixture',
+  controlledBlockedReleaseSummary
+    .replace('Android release evidence variant: dev', 'Android release evidence variant: prod'),
+  'requires the dev evidence variant',
+);
+assertRejected(
   'iOS runtime claimed fixture',
   validSummary.replace('iOS runtime validation claimed: no', 'iOS runtime validation claimed: yes'),
   'iOS runtime validation must remain unclaimed',
@@ -164,12 +230,12 @@ assertRejected(
 );
 assertRejected(
   'Missing Android rerun action fixture',
-  validSummary.replace('rerun Android dev and release Camera/QR smoke before claiming Android validation; ', ''),
-  'rerunning Android dev and release Camera/QR smoke',
+  validSummary.replace('rerun Camera/QR smoke for each changed Android build variant before claiming that variant; ', ''),
+  'rerunning Camera/QR smoke for each changed Android build variant',
 );
 assertRejected(
   'Missing Electrum blocker action fixture',
-  validSummary.replace('renew the dev/testnet Electrum TLS certificate before relying on full release Camera/QR proof; ', ''),
+  validSummary.replace('renew the dev/testnet Electrum TLS certificate before relying on dev/testnet Camera/QR proof; ', ''),
   'Electrum TLS certificate',
 );
 

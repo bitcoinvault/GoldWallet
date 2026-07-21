@@ -10,6 +10,34 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.923 - Camera/QR production release evidence
+
+- Branch: `feature/bem-37-923-camera-qr-prod-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the Camera/QR release handoff and aggregate summary select one guarded Android release evidence variant from `dev`, `stage`, `prod`, or `beta`.
+- Keep the latest compatible CameraKit/QR implementation unchanged while refreshing live candidate metadata and documenting the selected-variant release workflow.
+- Allow valid production-mainnet scanner evidence to satisfy Android Camera/QR readiness without incorrectly depending on the expired dev/testnet Electrum certificate.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-21 confirms `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` remain latest. VisionCamera moved to `5.1.1` and still requires the additional Nitro native stack, so CameraKit remains the compatible selected scanner.
+- All four Android release variants build with APK, JavaScript bundle, source map, manifest, secure-storage, and removed-AppCenter checks. The first all-variant run hit a transient `devRelease` Gradle/autolinking process failure; isolated `devRelease` and the complete rerun both passed.
+- Signed `prodRelease` smoke on `emulator-5554` passes first-run onboarding, empty dashboard actions, CameraKit QR scanner open/close, all bottom tabs, Settings Terms WebView, and fatal/runtime logcat checks without Metro.
+- Production create-wallet smoke creates a standard wallet, verifies mnemonic-screen secure-window protection, restarts the process, rejects an incorrect PIN, unlocks with the configured PIN, confirms wallet persistence, and reaches the 3-key vault public-key integration screen.
+- The aggregate Camera/QR summary reports Android validation and production release evidence ready. Dev/testnet remains blocked by the expired Electrum TLS certificate. Removed iOS camera pods are absent, but broader `Podfile.lock` refresh and scanner runtime validation remain unclaimed until macOS/Xcode validation.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn camera:qr-validation:handoff:dry-run --include-android-release-smoke --android-release-variant=prod`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn camera:qr-validation:handoff --include-android-release-smoke --android-release-variant=prod`
+- `corepack yarn node:runtime:yarn check:camera-candidate-summary-guard`
+- `corepack yarn node:runtime:yarn check:camera-qr-validation-handoff-guard`
+- `corepack yarn node:runtime:yarn check:camera-qr-validation-summary-guard`
+- TypeScript, 55 unit tests, focused storage/network tests, shim, lint-baseline, modernization-log, and diff checks
+
 ### BEM-37.922 - React Navigation patch cohort
 
 - Branch: `feature/bem-37-922-navigation-patch-cohort`

@@ -6,40 +6,29 @@ import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.m
 import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
+import { getCameraQrReleaseEvidenceConfig } from './cameraQrReleaseEvidence.mjs';
+import { supportedAndroidReleaseSmokeVariants } from './androidReleaseSmokeVariant.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const cameraCandidateSummaryPath = path.join(root, 'local-docs', 'camera-candidate-summary.txt');
 const cameraQrMigrationSummaryPath = path.join(root, 'local-docs', 'camera-qr-migration-summary.txt');
 const androidSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-summary.txt');
-const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
-const androidReleaseCreateWalletSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
-const signedReleaseApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
-const unsignedDevReleaseApkPath = path.join(
-  root,
-  'android',
-  'app',
-  'build',
-  'outputs',
-  'apk',
-  'dev',
-  'release',
-  'app-dev-release-unsigned.apk',
-);
 
 const defaultOptions = {
   dryRun: false,
   includeAndroidSmoke: false,
   includeAndroidReleaseSmoke: false,
+  androidReleaseVariant: 'dev',
 };
 
 const usage = [
-  'Usage: node scripts/runCameraQrValidationHandoff.mjs [--dry-run] [--include-android-smoke] [--include-android-release-smoke]',
+  'Usage: node scripts/runCameraQrValidationHandoff.mjs [--dry-run] [--include-android-smoke] [--include-android-release-smoke] [--android-release-variant=<dev|stage|prod|beta>]',
   '',
   'Examples:',
   '  node scripts/runCameraQrValidationHandoff.mjs --dry-run',
   '  node scripts/runCameraQrValidationHandoff.mjs --dry-run --include-android-smoke',
-  '  node scripts/runCameraQrValidationHandoff.mjs --dry-run --include-android-release-smoke',
+  '  node scripts/runCameraQrValidationHandoff.mjs --dry-run --include-android-release-smoke --android-release-variant=prod',
   '  node scripts/runCameraQrValidationHandoff.mjs',
 ].join('\n');
 
@@ -66,14 +55,15 @@ export const renderCameraQrValidationCommand = step => {
   return [`cwd=${cwd}`, command].join(' ');
 };
 
-const yarnStep = (label, script) => ({
+const yarnStep = (label, script, args = []) => ({
   label,
   command: 'corepack',
-  args: ['yarn', script],
+  args: ['yarn', script, ...args],
   cwd: root,
 });
 
 export const getCameraQrValidationCommands = (options = defaultOptions) => {
+  const releaseEvidence = getCameraQrReleaseEvidenceConfig(root, options.androidReleaseVariant ?? 'dev');
   const commands = [
     yarnStep('Audit Camera/QR candidate metadata', 'camera:candidate:audit'),
     yarnStep('Validate Camera/QR candidate summary', 'camera:candidate:check-summary'),
@@ -101,13 +91,24 @@ export const getCameraQrValidationCommands = (options = defaultOptions) => {
 
   if (options.includeAndroidReleaseSmoke) {
     commands.push(
-      yarnStep('Run Android devRelease build, release smoke, and create-wallet smoke for Camera/QR', 'android:dev:release:create-wallet-verify'),
+      yarnStep('Build and validate Android release APKs for Camera/QR', 'android:dev:release:verify-local'),
+      yarnStep(
+        `Run Android ${releaseEvidence.smoke.displayName} release and create-wallet smoke for Camera/QR`,
+        releaseEvidence.createWalletScript,
+      ),
+      yarnStep(`Validate Android ${releaseEvidence.smoke.displayName} release smoke summary`, releaseEvidence.smokeSummaryScript),
+      yarnStep(
+        `Validate Android ${releaseEvidence.smoke.displayName} create-wallet smoke summary`,
+        releaseEvidence.createWalletSummaryScript,
+      ),
     );
   }
 
   commands.push(
     yarnStep('Validate Camera/QR validation summary guard fixtures', 'check:camera-qr-validation-summary-guard'),
-    yarnStep('Write Camera/QR validation summary', 'camera:qr-validation:summary'),
+    yarnStep('Write Camera/QR validation summary', 'camera:qr-validation:summary', [
+      `--variant=${releaseEvidence.variant}`,
+    ]),
     yarnStep('Validate Camera/QR validation summary', 'camera:qr-validation:check-summary'),
   );
 
@@ -129,6 +130,15 @@ export const getCameraQrValidationHandoffErrors = options => {
     errors.push('includeAndroidReleaseSmoke must be a boolean');
   }
 
+  const androidReleaseVariant = options.androidReleaseVariant ?? 'dev';
+  if (!supportedAndroidReleaseSmokeVariants.includes(androidReleaseVariant)) {
+    errors.push(
+      `androidReleaseVariant must be one of: ${supportedAndroidReleaseSmokeVariants.join(', ')}. Received: ${
+        androidReleaseVariant
+      }`,
+    );
+  }
+
   return errors;
 };
 
@@ -138,13 +148,18 @@ export const getCameraQrValidationReadinessErrors = ({
   includeAndroidSmoke = false,
   androidSmokeSummaryText,
   includeAndroidReleaseSmoke = false,
+  androidReleaseVariant = 'dev',
   androidReleaseSmokeSummaryText,
   androidReleaseCreateWalletSummaryText,
-  androidReleaseSmokeExpectedApkPath = signedReleaseApkPath,
-  androidReleaseSmokeExpectedSourceApkPath = unsignedDevReleaseApkPath,
-  androidReleaseCreateWalletExpectedApkPath = signedReleaseApkPath,
+  androidReleaseSmokeExpectedApkPath,
+  androidReleaseSmokeExpectedSourceApkPath,
+  androidReleaseCreateWalletExpectedApkPath,
 }) => {
   const errors = [];
+  const releaseEvidence = getCameraQrReleaseEvidenceConfig(root, androidReleaseVariant);
+  const expectedSmokeApkPath = androidReleaseSmokeExpectedApkPath || releaseEvidence.smoke.signedApkPath;
+  const expectedSourceApkPath = androidReleaseSmokeExpectedSourceApkPath || releaseEvidence.smoke.unsignedApkPath;
+  const expectedCreateWalletApkPath = androidReleaseCreateWalletExpectedApkPath || releaseEvidence.smoke.signedApkPath;
 
   if (!candidateSummaryText) {
     errors.push('Camera candidate summary is missing; run camera:candidate:audit first');
@@ -177,11 +192,11 @@ export const getCameraQrValidationReadinessErrors = ({
       errors.push('Android release smoke summary is missing; run android:dev:release:smoke:embedded first');
     } else {
       getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummaryText, {
-        expectedArtifactBase: 'android-smoke-dev-release',
+        expectedArtifactBase: releaseEvidence.smoke.artifactBase,
         requireSmokeApkDigest: true,
-        expectedSmokeApkPath: androidReleaseSmokeExpectedApkPath,
+        expectedSmokeApkPath,
         requireSourceApkDigest: true,
-        expectedSourceApkPath: androidReleaseSmokeExpectedSourceApkPath,
+        expectedSourceApkPath,
       }).forEach(error => {
         errors.push(`Android release smoke summary is invalid: ${error}`);
       });
@@ -191,8 +206,8 @@ export const getCameraQrValidationReadinessErrors = ({
       errors.push('Android release create-wallet smoke summary is missing; run android:dev:release:create-wallet-smoke:embedded first');
     } else {
       getAndroidCreateWalletSmokeSummaryErrors(androidReleaseCreateWalletSummaryText, {
-        expectedApkPath: androidReleaseCreateWalletExpectedApkPath,
-        expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+        expectedApkPath: expectedCreateWalletApkPath,
+        expectedArtifactBase: releaseEvidence.createWallet.artifactBase,
       }).forEach(error => {
         errors.push(`Android release create-wallet smoke summary is invalid: ${error}`);
       });
@@ -222,6 +237,16 @@ const parseArgs = argv => {
       options.includeAndroidSmoke = true;
     } else if (arg === '--include-android-release-smoke') {
       options.includeAndroidReleaseSmoke = true;
+    } else if (arg.startsWith('--android-release-variant=')) {
+      options.androidReleaseVariant = arg.slice('--android-release-variant='.length);
+    } else if (arg === '--android-release-variant') {
+      const value = argv[index + 1];
+      if (!value || value.startsWith('--')) {
+        options.unknown = '--android-release-variant requires a value';
+      } else {
+        options.androidReleaseVariant = value;
+        index += 1;
+      }
     } else if (arg === '--help' || arg === '-h') {
       options.help = true;
     } else {
@@ -279,6 +304,7 @@ const main = () => {
     console.log('Camera/QR validation handoff dry run');
     console.log(`Android smoke validation: ${options.includeAndroidSmoke ? 'included' : 'skipped'}`);
     console.log(`Android release smoke validation: ${options.includeAndroidReleaseSmoke ? 'included' : 'skipped'}`);
+    console.log(`Android release evidence variant: ${options.androidReleaseVariant}`);
     commands.forEach((step, index) => {
       console.log(`${index + 1}. ${step.label}`);
       console.log(`   ${renderCameraQrValidationCommand(step)}`);
@@ -301,8 +327,13 @@ const main = () => {
     includeAndroidSmoke: options.includeAndroidSmoke,
     androidSmokeSummaryText: readSummary(androidSmokeSummaryPath),
     includeAndroidReleaseSmoke: options.includeAndroidReleaseSmoke,
-    androidReleaseSmokeSummaryText: readSummary(androidReleaseSmokeSummaryPath),
-    androidReleaseCreateWalletSummaryText: readSummary(androidReleaseCreateWalletSummaryPath),
+    androidReleaseVariant: options.androidReleaseVariant,
+    androidReleaseSmokeSummaryText: readSummary(
+      getCameraQrReleaseEvidenceConfig(root, options.androidReleaseVariant).smokeSummaryPath,
+    ),
+    androidReleaseCreateWalletSummaryText: readSummary(
+      getCameraQrReleaseEvidenceConfig(root, options.androidReleaseVariant).createWalletSummaryPath,
+    ),
   });
 
   if (readinessErrors.length > 0) {

@@ -21,6 +21,11 @@ const smokeCommands = getCameraQrValidationCommands({ includeAndroidSmoke: true 
 const smokeRendered = smokeCommands.map(renderCameraQrValidationCommand).join('\n');
 const releaseSmokeCommands = getCameraQrValidationCommands({ includeAndroidReleaseSmoke: true });
 const releaseSmokeRendered = releaseSmokeCommands.map(renderCameraQrValidationCommand).join('\n');
+const prodReleaseSmokeCommands = getCameraQrValidationCommands({
+  includeAndroidReleaseSmoke: true,
+  androidReleaseVariant: 'prod',
+});
+const prodReleaseSmokeRendered = prodReleaseSmokeCommands.map(renderCameraQrValidationCommand).join('\n');
 const fixtureApkPath = path.resolve('package.json');
 const fixtureApkBytes = statSync(fixtureApkPath).size;
 const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath)).digest('hex');
@@ -57,11 +62,27 @@ const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath
 });
 
 [
-  'corepack yarn android:dev:release:create-wallet-verify',
+  'corepack yarn android:dev:release:verify-local',
+  'corepack yarn android:dev:release:create-wallet-smoke:embedded',
+  'corepack yarn android:dev:release:check-smoke-summary',
+  'corepack yarn android:dev:release:check-create-wallet-smoke-summary',
 ].forEach(expected => {
   assert(releaseSmokeRendered.includes(expected), `Expected Camera/QR release smoke handoff commands to include: ${expected}`);
   assert(!rendered.includes(expected), `Default Camera/QR handoff must not include Android release smoke command: ${expected}`);
   assert(!smokeRendered.includes(expected), `Debug Camera/QR smoke handoff must not include Android release smoke command: ${expected}`);
+});
+
+[
+  'corepack yarn android:dev:release:verify-local',
+  'corepack yarn android:prod:release:create-wallet-smoke:embedded',
+  'corepack yarn android:prod:release:check-smoke-summary',
+  'corepack yarn android:prod:release:check-create-wallet-smoke-summary',
+  'corepack yarn camera:qr-validation:summary --variant=prod',
+].forEach(expected => {
+  assert(
+    prodReleaseSmokeRendered.includes(expected),
+    `Expected production Camera/QR release smoke handoff commands to include: ${expected}`,
+  );
 });
 
 assert(
@@ -86,7 +107,7 @@ assert(
 );
 assert(
   releaseSmokeCommands.findIndex(step => step.args.includes('test:qr-render:unit')) <
-    releaseSmokeCommands.findIndex(step => step.args.includes('android:dev:release:create-wallet-verify')),
+    releaseSmokeCommands.findIndex(step => step.args.includes('android:dev:release:verify-local')),
   'Android Camera/QR release smoke must run after focused QR render unit validation',
 );
 assert(
@@ -110,7 +131,7 @@ assert(
   'Camera/QR validation summary must run after Android smoke summary validation when smoke is included',
 );
 assert(
-  releaseSmokeCommands.findIndex(step => step.args.includes('android:dev:release:create-wallet-verify')) <
+  releaseSmokeCommands.findIndex(step => step.args.includes('android:dev:release:check-create-wallet-smoke-summary')) <
     releaseSmokeCommands.findIndex(step => step.args.includes('camera:qr-validation:summary')),
   'Camera/QR validation summary must run after Android release smoke validation when release smoke is included',
 );
@@ -130,13 +151,22 @@ assert(
   ),
   'Invalid includeAndroidReleaseSmoke option must be rejected',
 );
+assert(
+  getCameraQrValidationHandoffErrors({
+    dryRun: false,
+    includeAndroidSmoke: false,
+    includeAndroidReleaseSmoke: true,
+    androidReleaseVariant: 'unknown',
+  }).some(error => error.includes('androidReleaseVariant must be one of')),
+  'Unsupported Android release evidence variant must be rejected',
+);
 
 const candidateSummary = [
   'Camera candidate audit',
   'Generated at: 2026-06-12T00:00:00.000Z',
-  'Metadata checked on: 2026-07-10',
+  'Metadata checked on: 2026-07-21',
   'Legacy camera latest: react-native-camera@4.2.1',
-  'VisionCamera latest: react-native-vision-camera@5.1.0',
+  'VisionCamera latest: react-native-vision-camera@5.1.1',
   'VisionCamera Nitro peers: yes',
   'VisionCamera required peer packages: react-native-nitro-modules, react-native-nitro-image',
   'VisionCamera peer dependency ranges: react@*, react-native@*, react-native-nitro-image@*, react-native-nitro-modules@*',
@@ -279,11 +309,18 @@ const androidReleaseCreateWalletSummary = [
   'Standard wallet name: StdFixture',
   'Standard wallet created: yes',
   'Standard mnemonic screen reached: yes',
+  'Standard wallet persisted after restart: yes',
+  'App process restart completed: yes',
+  'Unlock screen reached after restart: yes',
+  'Incorrect PIN rejected after restart: yes',
+  'Secure window flag on mnemonic screen: yes',
+  'Secure window flag after restart: no',
   'Vault wallet name: VaultFixture',
   'Vault next-step reached: yes',
   'No create-wallet error UI: yes',
   'Fatal/runtime logcat findings: no',
-  'App PID: 1234',
+  'Pre-restart App PID: 1234',
+  'App PID: 5678',
   'Captured logcat lines: 400',
   'UI hierarchy path: package.json',
   'Logcat path: package.json',
@@ -307,8 +344,7 @@ assert(
   }).length === 0,
   'Camera/QR readiness fixtures with Android smoke must pass',
 );
-assert(
-  getCameraQrValidationReadinessErrors({
+const releaseReadinessErrors = getCameraQrValidationReadinessErrors({
     candidateSummaryText: candidateSummary,
     migrationSummaryText: migrationSummary,
     includeAndroidReleaseSmoke: true,
@@ -317,8 +353,10 @@ assert(
     androidReleaseSmokeExpectedApkPath: fixtureApkPath,
     androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
     androidReleaseCreateWalletExpectedApkPath: fixtureApkPath,
-  }).length === 0,
-  'Camera/QR readiness fixtures with Android release smoke must pass',
+  });
+assert(
+  releaseReadinessErrors.length === 0,
+  `Camera/QR readiness fixtures with Android release smoke must pass:\n${releaseReadinessErrors.join('\n')}`,
 );
 assert(
   getCameraQrValidationReadinessErrors({

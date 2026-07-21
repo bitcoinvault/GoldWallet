@@ -167,10 +167,10 @@ Branch shape:
 - Preserve all guarded QR scanner callers.
 - Keep removed legacy camera/QR packages out of `package.json` and `react-native.config.js`; `react-native-camera` should not remain as a stale disabled Android autolink entry after the CameraKit migration.
 - Run `corepack yarn camera:qr-migration:audit` before scanner follow-up work so the current CameraKit permission/runtime/autolink baseline stays explicit.
-- Use `corepack yarn camera:qr-validation:handoff --include-android-release-smoke` when scanner work must prove the release APK path, because that sequence now validates release smoke and release create-wallet summaries after focused QR scanner/render tests.
+- Use `corepack yarn camera:qr-validation:handoff --include-android-release-smoke --android-release-variant=<dev|stage|prod|beta>` when scanner work must prove a release APK path. The sequence builds all release APKs and validates release smoke plus release create-wallet summaries for the selected variant after focused QR scanner/render tests.
 - Treat the remaining active pod version drift in `ios/Podfile.lock` as an iOS readiness blocker until `pod install` refreshes the lockfile on macOS. Removed camera pods are now absent from the guarded lockfile baseline.
 - Validate Android/iOS camera permissions and QR scan behavior manually before claiming scanner follow-up work complete.
-- Latest checked on 2026-07-10: `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.1.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
+- Latest checked on 2026-07-21: `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.1.1`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
 - `corepack yarn camera:candidate:audit` verifies those candidate/latest values, CameraKit peer ranges, QR renderer peer ranges, and QR renderer dependency ranges against live npm metadata before scanner dependency follow-up work.
 - VisionCamera remains deferred because its latest line requires `react-native-nitro-modules` and `react-native-nitro-image`; the live peer ranges are wildcarded, so the blocker is the additional Nitro native stack rather than a narrow semver incompatibility. CameraKit remains the installed scanner baseline.
 
