@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.921 - Sentry 8.19 release cohort
+
+- Branch: `feature/bem-37-921-sentry-8-19-release-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@sentry/react-native` from `8.18.0` to `8.19.0` and direct release tooling from `@sentry/cli@3.6.0` to `3.6.1`, the latest stable npm targets checked on 2026-07-21.
+- Refresh fail-closed Sentry Android warning, RN bundle-task compatibility, prerequisite, credential-plan, iOS static-readiness, native-inventory, and direct-outdated contracts for the new cohort.
+- Preserve the existing RN `0.86.0` bundle-task compatibility shim and keep credentialed source-map/dSYM upload outside the claimed evidence boundary.
+
+Findings:
+
+- Sentry RN `8.19.0` retains a compatible `react-native >=0.65.0` peer range and builds its Android native code on the current RN `0.86.0`, New Architecture, JDK 17, AGP `8.13.2`, and target SDK `36` baseline.
+- A scoped Yarn resolution deduplicates the SDK's exact `@sentry/cli@3.6.0` requests to one root `3.6.1` installation. The prerequisite audit executes the same resolver expression as `sentry.gradle.kts`, and its guard requires exact agreement between discovered package instances and aggregate/nested version lists.
+- Android `devDebug` and the complete `dev`/`stage`/`prod`/`beta` release matrix build with bundles, source maps, and manifest evidence. A fresh signed `devRelease` install reaches the expected controlled `No network` state on API 36 without fatal or React Native runtime errors.
+- The direct-outdated snapshot now contains 30 classified entries: 26 dedicated-branch blockers, 4 exotic/git-pinned dependencies, and no review-required entries. Sentry itself no longer appears as outdated.
+- Static iOS validation remains valid, but runtime/archive and source-map/dSYM upload are not claimed on Windows. Credentialed Sentry upload is also not claimed because `SENTRY_AUTH_TOKEN` and all three `sentry.properties` files are unavailable.
+
+Validation:
+
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn sentry:android-warning:audit` and summary check
+- `corepack yarn sentry:rn-bundle-task-compat:audit` and summary check
+- `SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT=dev corepack yarn sentry:release:prereq-audit` and summary check
+- `corepack yarn sentry:release:credential-plan` and plan check
+- `corepack yarn ios:release:readiness:audit` and summary check
+- TypeScript, unit, focused storage/network, shim, lint-baseline, modernization-log, Android dev assemble, full four-variant release verification, controlled signed `devRelease` API 36 emulator smoke, signed AAB proof, and diff checks
+
 ### BEM-37.920 - Sentry signed-AAB candidate evidence
 
 - Branch: `feature/bem-37-920-sentry-candidate-bound-evidence`

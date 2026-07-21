@@ -248,9 +248,33 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       kind: match[3],
     };
   }).filter(Boolean);
+  const parseVersionList = value =>
+    value === 'none'
+      ? []
+      : value
+          .split(',')
+          .map(version => version.trim())
+          .filter(Boolean);
+  const uniqueSorted = values => [...new Set(values)].sort();
+  const sameVersions = (left, right) =>
+    left.length === right.length && left.every((version, index) => version === right[index]);
+  const listedInstalledVersions = uniqueSorted(sentryCliInstallationEntries.map(entry => entry.version));
+  const summaryInstalledVersions = uniqueSorted(parseVersionList(sentryCliInstalledVersions));
+  const listedNestedVersions = uniqueSorted(
+    sentryCliInstallationEntries.filter(entry => entry.kind === 'nested').map(entry => entry.version),
+  );
+  const summaryNestedVersions = uniqueSorted(parseVersionList(sentryCliNestedVersions));
   const directSentryCliInstall = sentryCliInstallationEntries.find(
     entry => entry.relativePath === 'node_modules/@sentry/cli/package.json' && entry.kind === 'direct',
   );
+
+  if (!sameVersions(summaryInstalledVersions, listedInstalledVersions)) {
+    errors.push('@sentry/cli installed package versions must exactly match the listed package instances');
+  }
+
+  if (!sameVersions(summaryNestedVersions, listedNestedVersions)) {
+    errors.push('@sentry/cli nested package versions must exactly match the listed nested package instances');
+  }
 
   if (sentryCliDirectPackageInstalled !== 'yes') {
     errors.push('@sentry/cli direct package installed must be yes for release source-map validation');

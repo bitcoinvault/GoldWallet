@@ -200,11 +200,32 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     }
   }
 
+  let sentryAndroidResolvedCliPackagePath = 'missing';
+
+  try {
+    sentryAndroidResolvedCliPackagePath = execFileSync(
+      process.execPath,
+      [
+        '--print',
+        "require.resolve('@sentry/cli/package.json', { paths: [require.resolve('@sentry/react-native/package.json')] })",
+      ],
+      {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+      },
+    ).trim();
+  } catch (_error) {
+    // The direct-path readiness flag below remains false when resolution fails.
+  }
+
   const sentryAndroidGradleCliResolverDirect =
     androidBuildGradle.includes('apply from: "../../node_modules/@sentry/react-native/sentry.gradle"') &&
     sentryReactNativeGradle.includes('@sentry/cli/package.json') &&
     sentryReactNativeGradle.includes('@sentry/react-native/package.json') &&
-    sentryReactNativeGradle.includes('$reactRoot/node_modules/@sentry/cli');
+    sentryReactNativeGradle.includes('$reactRoot/node_modules/@sentry/cli') &&
+    path.resolve(sentryAndroidResolvedCliPackagePath) === path.resolve(sentryCliPackagePath);
   const sentryIosReleaseBuildPathDirect =
     iosProject.includes('../node_modules/@sentry/cli/bin/sentry-cli react-native xcode') &&
     iosProject.includes('../node_modules/@sentry/cli/bin/sentry-cli upload-dsym') &&

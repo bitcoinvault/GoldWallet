@@ -84,13 +84,52 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
-    name: '@sentry/react-native',
-    current: '8.18.0',
-    wanted: '8.18.0',
-    latest: '8.19.0',
+    name: '@react-navigation/bottom-tabs',
+    current: '7.18.11',
+    wanted: '7.18.11',
+    latest: '7.18.13',
     type: 'dependencies',
-    decision:
-      'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Sentry prerequisite summaries and no source-map upload claim without credentials',
+    decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  },
+  {
+    name: '@react-navigation/devtools',
+    current: '7.1.8',
+    wanted: '7.1.8',
+    latest: '7.1.10',
+    type: 'dependencies',
+    decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  },
+  {
+    name: '@react-navigation/native',
+    current: '7.3.11',
+    wanted: '7.3.11',
+    latest: '7.3.13',
+    type: 'dependencies',
+    decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  },
+  {
+    name: '@react-navigation/stack',
+    current: '7.10.14',
+    wanted: '7.10.14',
+    latest: '7.10.16',
+    type: 'dependencies',
+    decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
+  },
+  {
+    name: '@typescript-eslint/eslint-plugin',
+    current: '8.64.0',
+    wanted: '8.64.0',
+    latest: '8.65.0',
+    type: 'devDependencies',
+    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
+  },
+  {
+    name: '@typescript-eslint/parser',
+    current: '8.64.0',
+    wanted: '8.64.0',
+    latest: '8.65.0',
+    type: 'devDependencies',
+    decision: 'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
   },
   {
     name: 'babel-plugin-polyfill-regenerator',
@@ -112,7 +151,7 @@ const validEntries = [
     name: 'bl',
     current: '6.1.6',
     wanted: '6.1.6',
-    latest: '7.0.6',
+    latest: '7.0.7',
     type: 'resolutionDependencies',
     decision: 'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   },
@@ -149,6 +188,14 @@ const validEntries = [
     latest: '5.0.0',
     type: 'resolutionDependencies',
     decision: 'blocked - plist major drift belongs in a dedicated iOS/config tooling owner-path branch with xcode/config-plugin compatibility proof',
+  },
+  {
+    name: 'prettier',
+    current: '3.9.5',
+    wanted: '3.9.5',
+    latest: '3.9.6',
+    type: 'devDependencies',
+    decision: 'blocked - Prettier patch drift requires a dedicated formatting/tooling branch with no broad formatting churn, precommit, TypeScript, and baseline audit proof',
   },
   {
     name: 'react',
@@ -199,6 +246,14 @@ const validEntries = [
     type: 'devDependencies',
     decision: 'blocked - TypeScript 7 major drift requires a dedicated compiler branch with TypeScript check, Jest, lint baseline, and RN/Metro proof',
   },
+  {
+    name: 'undici',
+    current: '8.7.0',
+    wanted: '8.7.0',
+    latest: '8.8.0',
+    type: 'resolutionDependencies',
+    decision: 'blocked - undici minor drift belongs in a dedicated Sentry/tooling branch with release-service prerequisite summaries and no credentialed upload claim',
+  },
 ];
 
 const validSummary = formatDirectOutdatedSnapshotSummary(validEntries, '2026-07-05T00:00:00.000Z');
@@ -239,10 +294,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 23', 'Entries: 22'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 30', 'Entries: 29'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 23', 'Entries: 24').replace(
+  validSummary.replace('Entries: 30', 'Entries: 31').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
