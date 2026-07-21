@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 
 import { getAndroidAppBundleProjectMetadata, getAndroidAppBundleVariantConfig } from './androidAppBundleValidation.mjs';
 import { getAndroidSignedBundleSummaryErrors } from './androidSignedBundleSummary.mjs';
+import { getSentryAndroidCandidateEvidenceConfig } from './sentryAndroidCandidateEvidence.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const proofAab = path.join(root, 'local-docs', 'android-upload-signing-proof-prod-release.aab');
@@ -13,6 +14,12 @@ const runtimeConfig = getAndroidAppBundleVariantConfig(root, 'prod', {
   artifactBase: 'android-upload-signing-proof-prod-release-runtime',
 });
 const runtimeSmokeSummaryPath = path.join(root, 'local-docs', `${runtimeConfig.smokeArtifactBase}-summary.txt`);
+const sentryCandidateConfig = existsSync(proofAab)
+  ? getSentryAndroidCandidateEvidenceConfig(root, {
+      aabPath: proofAab,
+      artifactBase: 'android-upload-signing-proof-prod-release-sentry',
+    })
+  : null;
 const errors = [];
 
 if (!existsSync(proofAab)) errors.push(`Proof AAB is missing: ${proofAab}`);
@@ -27,6 +34,8 @@ if (errors.length === 0) {
       aabPath: proofAab,
       runtimeUniversalApkPath: runtimeConfig.universalApkPath,
       runtimeSmokeSummaryPath,
+      sentryCandidateConfig,
+      sentryCandidateType: 'local-signing-proof',
       metadata,
       localProof: true,
     }),
