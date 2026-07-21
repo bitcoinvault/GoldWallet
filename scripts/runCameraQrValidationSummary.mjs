@@ -1,13 +1,14 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getCameraQrReleaseEvidenceConfig } from './cameraQrReleaseEvidence.mjs';
 import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.mjs';
 import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';
 import { getCameraQrValidationSummaryErrors } from './cameraQrValidationSummaryGuard.mjs';
 import { collectControlledAndroidReleaseBlocker } from './androidControlledReleaseBlocker.mjs';
+import { supportedAndroidReleaseSmokeVariants } from './androidReleaseSmokeVariant.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -15,9 +16,6 @@ const outputPath = path.join(root, 'local-docs', 'camera-qr-validation-summary.t
 const candidateSummaryPath = path.join(root, 'local-docs', 'camera-candidate-summary.txt');
 const migrationSummaryPath = path.join(root, 'local-docs', 'camera-qr-migration-summary.txt');
 const androidSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-summary.txt');
-const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
-const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
-const androidReleaseSignedSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
 
 const readSummary = summaryPath => {
   if (!existsSync(summaryPath)) {
@@ -54,25 +52,82 @@ const getBulletLinesAfter = (content, label) => {
 
 const yesNo = value => (value === 'yes' ? 'yes' : 'no');
 
-const collectEvidence = () => {
+export const getCameraQrControlledReleaseBlocker = (androidReleaseVariant, controlledReleaseBlocker) => {
+  if (androidReleaseVariant === 'dev') {
+    return controlledReleaseBlocker;
+  }
+
+  return {
+    present: false,
+    valid: false,
+    outcome: 'not-applicable',
+    errors: [],
+  };
+};
+
+export const parseCameraQrValidationSummaryArgs = args => {
+  const options = { dryRun: false, androidReleaseVariant: 'dev' };
+  let variantSeen = false;
+
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index];
+
+    if (argument === '--dry-run') {
+      if (options.dryRun) {
+        throw new Error('Duplicate argument: --dry-run');
+      }
+      options.dryRun = true;
+      continue;
+    }
+
+    if (argument === '--variant' || argument.startsWith('--variant=')) {
+      if (variantSeen) {
+        throw new Error('Duplicate argument: --variant');
+      }
+
+      const variant = argument === '--variant' ? args[++index] : argument.slice('--variant='.length);
+      if (!variant || variant.startsWith('--')) {
+        throw new Error('Missing value for --variant');
+      }
+      if (!supportedAndroidReleaseSmokeVariants.includes(variant)) {
+        throw new Error(
+          `Unsupported Android release smoke variant: ${variant}. Expected one of: ${supportedAndroidReleaseSmokeVariants.join(', ')}`,
+        );
+      }
+
+      options.androidReleaseVariant = variant;
+      variantSeen = true;
+      continue;
+    }
+
+    throw new Error(`Unknown argument: ${argument}`);
+  }
+
+  return options;
+};
+
+const collectEvidence = androidReleaseVariant => {
+  const releaseEvidence = getCameraQrReleaseEvidenceConfig(root, androidReleaseVariant);
   const candidateSummary = readSummary(candidateSummaryPath);
   const migrationSummary = readSummary(migrationSummaryPath);
   const androidSmokeSummary = readSummary(androidSmokeSummaryPath);
-  const androidReleaseSmokeSummary = readSummary(androidReleaseSmokeSummaryPath);
-  const androidReleaseCreateWalletSmokeSummary = readSummary(androidReleaseCreateWalletSmokeSummaryPath);
-  const controlledReleaseBlocker = collectControlledAndroidReleaseBlocker(root);
+  const androidReleaseSmokeSummary = readSummary(releaseEvidence.smokeSummaryPath);
+  const androidReleaseCreateWalletSmokeSummary = readSummary(releaseEvidence.createWalletSummaryPath);
+  const controlledReleaseBlocker = getCameraQrControlledReleaseBlocker(
+    androidReleaseVariant,
+    collectControlledAndroidReleaseBlocker(root),
+  );
   const candidateErrors = candidateSummary ? getCameraCandidateSummaryErrors(candidateSummary) : ['missing Camera candidate summary'];
   const migrationErrors = migrationSummary ? getCameraQrMigrationSummaryErrors(migrationSummary) : ['missing Camera QR migration summary'];
   const androidSmokeErrors = androidSmokeSummary
     ? getAndroidEmbeddedSmokeSummaryErrors(androidSmokeSummary, { expectedArtifactBase: 'android-smoke-dev' })
     : ['missing Android dev smoke summary'];
   const androidReleaseSmokeErrors = androidReleaseSmokeSummary
-    ? getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummary, getAndroidReleaseSmokeEvidenceOptions(root))
+    ? getAndroidEmbeddedSmokeSummaryErrors(androidReleaseSmokeSummary, releaseEvidence.smokeEvidenceOptions)
     : ['missing Android release smoke summary'];
   const androidReleaseCreateWalletSmokeErrors = androidReleaseCreateWalletSmokeSummary
     ? getAndroidCreateWalletSmokeSummaryErrors(androidReleaseCreateWalletSmokeSummary, {
-        expectedApkPath: androidReleaseSignedSmokeApkPath,
-        expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+        ...releaseEvidence.createWalletEvidenceOptions,
       })
     : ['missing Android release create-wallet smoke summary'];
 
@@ -82,6 +137,7 @@ const collectEvidence = () => {
     androidSmokeSummary,
     androidReleaseSmokeSummary,
     androidReleaseCreateWalletSmokeSummary,
+    androidReleaseVariant,
     controlledReleaseBlocker,
     candidateErrors,
     migrationErrors,
@@ -102,14 +158,14 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
   const androidReleaseQrScannerValidated = yesNo(getLineValue(evidence.androidReleaseSmokeSummary, 'Validated QR scanner screen'));
   const androidReleaseCreateWalletPresent = evidence.androidReleaseCreateWalletSmokeSummary.length > 0;
   const androidReleaseCreateWalletValid = evidence.androidReleaseCreateWalletSmokeErrors.length === 0;
-  const androidValidationReady =
-    candidateSummaryValid && migrationSummaryValid && androidSmokePresent && androidSmokeValid && androidDevQrScannerValidated === 'yes';
+  const androidDevEvidenceReady = androidSmokePresent && androidSmokeValid && androidDevQrScannerValidated === 'yes';
   const androidReleaseEvidenceReady =
     androidReleaseSmokePresent &&
     androidReleaseSmokeValid &&
     androidReleaseQrScannerValidated === 'yes' &&
     androidReleaseCreateWalletPresent &&
     androidReleaseCreateWalletValid;
+  const androidValidationReady = candidateSummaryValid && migrationSummaryValid && (androidDevEvidenceReady || androidReleaseEvidenceReady);
   const releaseRuntimeProofState = androidReleaseEvidenceReady
     ? 'ready'
     : evidence.controlledReleaseBlocker.valid
@@ -130,6 +186,7 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Android smoke artifact base: ${getLineValue(evidence.androidSmokeSummary, 'Artifact base') || '<missing>'}`,
     `Android smoke outcome: ${getLineValue(evidence.androidSmokeSummary, 'Android smoke outcome') || '<missing>'}`,
     `Android dev QR scanner validated: ${androidDevQrScannerValidated}`,
+    `Android release evidence variant: ${evidence.androidReleaseVariant}`,
     `Android release smoke summary present: ${androidReleaseSmokePresent ? 'yes' : 'no'}`,
     `Android release smoke summary valid: ${androidReleaseSmokeValid ? 'yes' : 'no'}`,
     `Android release smoke artifact base: ${getLineValue(evidence.androidReleaseSmokeSummary, 'Artifact base') || '<missing>'}`,
@@ -165,14 +222,23 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Camera/QR Android validation evidence ready: ${androidValidationReady ? 'yes' : 'no'}`,
     `Android release evidence ready: ${androidReleaseEvidenceReady ? 'yes' : 'no'}`,
     'Secret values printed: no',
-    'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; rerun Android dev and release Camera/QR smoke before claiming Android validation; renew the dev/testnet Electrum TLS certificate before relying on full release Camera/QR proof; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
+    'Required action: keep Android CameraKit scanner evidence current before scanner-affecting changes; rerun Camera/QR smoke for each changed Android build variant before claiming that variant; renew the dev/testnet Electrum TLS certificate before relying on dev/testnet Camera/QR proof; run pod install on macOS and validate iOS scanner runtime before claiming iOS Camera/QR validation.',
     '',
   ].join('\n');
 };
 
 const main = () => {
-  const dryRun = process.argv.slice(2).includes('--dry-run');
-  const evidence = collectEvidence();
+  let options;
+
+  try {
+    options = parseCameraQrValidationSummaryArgs(process.argv.slice(2));
+  } catch (error) {
+    console.error(error.message);
+    return 1;
+  }
+
+  const { dryRun, androidReleaseVariant } = options;
+  const evidence = collectEvidence(androidReleaseVariant);
   const summary = formatSummary({ evidence });
   const errors = getCameraQrValidationSummaryErrors(summary);
 

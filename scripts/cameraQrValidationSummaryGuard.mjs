@@ -1,3 +1,5 @@
+import { supportedAndroidReleaseSmokeVariants } from './androidReleaseSmokeVariant.mjs';
+
 const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
   return line ? line.slice(label.length + 2).trim() : '';
@@ -56,6 +58,7 @@ export const getCameraQrValidationSummaryErrors = summary => {
   const qrEncoderResolution = getLineValue(summary, 'QR encoder resolution');
   const androidSmokeArtifactBase = getLineValue(summary, 'Android smoke artifact base');
   const androidSmokeOutcome = getLineValue(summary, 'Android smoke outcome');
+  const androidReleaseVariant = getLineValue(summary, 'Android release evidence variant');
   const androidReleaseSmokePresent = getLineValue(summary, 'Android release smoke summary present');
   const androidReleaseSmokeValid = getLineValue(summary, 'Android release smoke summary valid');
   const androidReleaseSmokeArtifactBase = getLineValue(summary, 'Android release smoke artifact base');
@@ -101,6 +104,14 @@ export const getCameraQrValidationSummaryErrors = summary => {
     errors.push(`QR encoder resolution must be qrcode@1.5.4. Received: ${qrEncoderResolution || 'missing'}`);
   }
 
+  if (!supportedAndroidReleaseSmokeVariants.includes(androidReleaseVariant)) {
+    errors.push(
+      `Android release evidence variant must be one of: ${supportedAndroidReleaseSmokeVariants.join(', ')}. Received: ${
+        androidReleaseVariant || 'missing'
+      }`,
+    );
+  }
+
   yesNoLabels.forEach(label => {
     const value = getLineValue(summary, label);
     if (!['yes', 'no'].includes(value)) {
@@ -142,6 +153,10 @@ export const getCameraQrValidationSummaryErrors = summary => {
     errors.push(`Valid Android smoke outcome must be passed. Received: ${androidSmokeOutcome || 'missing'}`);
   }
 
+  if (androidSmokePresent !== 'yes' && androidSmokeValid === 'yes') {
+    errors.push('Android dev smoke summary cannot be valid when it is not present');
+  }
+
   if (androidReleaseEvidenceReady === 'yes') {
     if (androidReleaseSmokePresent !== 'yes') {
       errors.push('Android release smoke summary must be present before release evidence is ready');
@@ -151,8 +166,9 @@ export const getCameraQrValidationSummaryErrors = summary => {
       errors.push('Android release smoke summary must be valid before release evidence is ready');
     }
 
-    if (androidReleaseSmokeArtifactBase !== 'android-smoke-dev-release') {
-      errors.push(`Android release smoke artifact base must be android-smoke-dev-release. Received: ${androidReleaseSmokeArtifactBase || 'missing'}`);
+    const expectedReleaseArtifactBase = `android-smoke-${androidReleaseVariant}-release`;
+    if (androidReleaseSmokeArtifactBase !== expectedReleaseArtifactBase) {
+      errors.push(`Android release smoke artifact base must be ${expectedReleaseArtifactBase}. Received: ${androidReleaseSmokeArtifactBase || 'missing'}`);
     }
 
     if (androidReleaseSmokeOutcome !== 'passed') {
@@ -171,9 +187,10 @@ export const getCameraQrValidationSummaryErrors = summary => {
       errors.push('Android release create-wallet smoke summary must be valid before release evidence is ready');
     }
 
-    if (androidReleaseCreateWalletArtifactBase !== 'android-create-wallet-smoke-dev-release') {
+    const expectedCreateWalletArtifactBase = `android-create-wallet-smoke-${androidReleaseVariant}-release`;
+    if (androidReleaseCreateWalletArtifactBase !== expectedCreateWalletArtifactBase) {
       errors.push(
-        `Android release create-wallet smoke artifact base must be android-create-wallet-smoke-dev-release. Received: ${
+        `Android release create-wallet smoke artifact base must be ${expectedCreateWalletArtifactBase}. Received: ${
           androidReleaseCreateWalletArtifactBase || 'missing'
         }`,
       );
@@ -186,12 +203,20 @@ export const getCameraQrValidationSummaryErrors = summary => {
     errors.push('Android release create-wallet smoke summary cannot be valid when it is not present');
   }
 
+  const androidDevEvidenceReady =
+    androidSmokePresent === 'yes' && androidSmokeValid === 'yes' && androidDevQrScannerValidated === 'yes';
+  const androidReleaseEvidenceComplete =
+    androidReleaseSmokePresent === 'yes' &&
+    androidReleaseSmokeValid === 'yes' &&
+    androidReleaseSmokeErrors === '0' &&
+    getLineValue(summary, 'Android release QR scanner validated') === 'yes' &&
+    androidReleaseCreateWalletPresent === 'yes' &&
+    androidReleaseCreateWalletValid === 'yes' &&
+    androidReleaseCreateWalletErrors === '0';
   const expectedAndroidEvidenceReady =
     getLineValue(summary, 'Camera candidate summary valid') === 'yes' &&
     getLineValue(summary, 'Camera QR migration summary valid') === 'yes' &&
-    androidSmokePresent === 'yes' &&
-    androidSmokeValid === 'yes' &&
-    androidDevQrScannerValidated === 'yes'
+    (androidDevEvidenceReady || androidReleaseEvidenceComplete)
       ? 'yes'
       : 'no';
 
@@ -199,16 +224,7 @@ export const getCameraQrValidationSummaryErrors = summary => {
     errors.push(`Camera/QR Android validation evidence ready must be ${expectedAndroidEvidenceReady} for the reported evidence`);
   }
 
-  const expectedAndroidReleaseEvidenceReady =
-    androidReleaseSmokePresent === 'yes' &&
-    androidReleaseSmokeValid === 'yes' &&
-    androidReleaseSmokeErrors === '0' &&
-    getLineValue(summary, 'Android release QR scanner validated') === 'yes' &&
-    androidReleaseCreateWalletPresent === 'yes' &&
-    androidReleaseCreateWalletValid === 'yes' &&
-    androidReleaseCreateWalletErrors === '0'
-      ? 'yes'
-      : 'no';
+  const expectedAndroidReleaseEvidenceReady = androidReleaseEvidenceComplete ? 'yes' : 'no';
 
   if (androidReleaseEvidenceReady !== expectedAndroidReleaseEvidenceReady) {
     errors.push(`Android release evidence ready must be ${expectedAndroidReleaseEvidenceReady} for the reported release evidence`);
@@ -219,6 +235,10 @@ export const getCameraQrValidationSummaryErrors = summary => {
     controlledReleaseBlockerOutcome === 'blocked-by-electrum-certificate-expired' &&
     controlledReleaseBlockerErrors === '0';
 
+  if (androidReleaseVariant !== 'dev' && controlledReleaseBlockerReady) {
+    errors.push('Controlled Electrum release blocker is valid only for the dev evidence variant');
+  }
+
   if (releaseRuntimeProofState === 'ready') {
     if (androidReleaseEvidenceReady !== 'yes') {
       errors.push('Camera/QR release runtime proof state ready requires Android release evidence ready');
@@ -226,6 +246,12 @@ export const getCameraQrValidationSummaryErrors = summary => {
   } else if (releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired') {
     if (!controlledReleaseBlockerReady) {
       errors.push('Camera/QR release runtime proof state blocked-by-electrum-certificate-expired requires a valid controlled release blocker summary');
+    }
+    if (androidReleaseVariant !== 'dev') {
+      errors.push('Camera/QR release runtime proof state blocked-by-electrum-certificate-expired requires the dev evidence variant');
+    }
+    if (androidReleaseEvidenceReady !== 'no') {
+      errors.push('Camera/QR release runtime proof state blocked-by-electrum-certificate-expired requires Android release evidence not ready');
     }
   } else if (releaseRuntimeProofState !== 'not ready') {
     errors.push(`Camera/QR release runtime proof state must be ready, blocked-by-electrum-certificate-expired, or not ready. Received: ${releaseRuntimeProofState || 'missing'}`);
@@ -239,11 +265,8 @@ export const getCameraQrValidationSummaryErrors = summary => {
     errors.push('Camera QR migration summary must be valid before Camera/QR validation evidence can be tracked');
   }
 
-  if (
-    androidValidationEvidenceReady === 'yes' &&
-    (androidSmokePresent !== 'yes' || androidSmokeValid !== 'yes' || androidDevQrScannerValidated !== 'yes')
-  ) {
-    errors.push('Ready Android Camera/QR evidence requires a present, valid Android dev smoke summary that proves QR scanner screen validation');
+  if (androidValidationEvidenceReady === 'yes' && !androidDevEvidenceReady && !androidReleaseEvidenceComplete) {
+    errors.push('Ready Android Camera/QR evidence requires valid dev or release smoke that proves QR scanner screen validation');
   }
 
   if (getLineValue(summary, 'iOS camera Podfile.lock cleanup complete') !== 'yes') {
@@ -270,8 +293,8 @@ export const getCameraQrValidationSummaryErrors = summary => {
     errors.push('Required action must mention Android CameraKit scanner evidence');
   }
 
-  if (!requiredAction.includes('rerun Android dev and release Camera/QR smoke')) {
-    errors.push('Required action must mention rerunning Android dev and release Camera/QR smoke before claiming Android validation');
+  if (!requiredAction.includes('rerun Camera/QR smoke for each changed Android build variant')) {
+    errors.push('Required action must mention rerunning Camera/QR smoke for each changed Android build variant');
   }
 
   if (!requiredAction.includes('Electrum TLS certificate')) {
