@@ -84,38 +84,6 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
-    name: '@react-navigation/bottom-tabs',
-    current: '7.18.11',
-    wanted: '7.18.11',
-    latest: '7.18.13',
-    type: 'dependencies',
-    decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
-  },
-  {
-    name: '@react-navigation/devtools',
-    current: '7.1.8',
-    wanted: '7.1.8',
-    latest: '7.1.10',
-    type: 'dependencies',
-    decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
-  },
-  {
-    name: '@react-navigation/native',
-    current: '7.3.11',
-    wanted: '7.3.11',
-    latest: '7.3.13',
-    type: 'dependencies',
-    decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
-  },
-  {
-    name: '@react-navigation/stack',
-    current: '7.10.14',
-    wanted: '7.10.14',
-    latest: '7.10.16',
-    type: 'dependencies',
-    decision: 'blocked - React Navigation patch drift requires a dedicated navigation smoke branch with tab navigation and Android emulator proof',
-  },
-  {
     name: '@typescript-eslint/eslint-plugin',
     current: '8.64.0',
     wanted: '8.64.0',
@@ -294,10 +262,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 30', 'Entries: 29'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 26', 'Entries: 25'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 30', 'Entries: 31').replace(
+  validSummary.replace('Entries: 26', 'Entries: 27').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),

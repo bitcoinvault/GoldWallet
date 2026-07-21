@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.922 - React Navigation patch cohort
+
+- Branch: `feature/bem-37-922-navigation-patch-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the coupled React Navigation patch family to the latest stable npm targets checked on 2026-07-21: `@react-navigation/native@7.3.13`, `@react-navigation/stack@7.10.16`, `@react-navigation/bottom-tabs@7.18.13`, and `@react-navigation/devtools@7.1.10`.
+- Keep `react-native-gesture-handler@3.1.0`, `react-native-screens@4.26.2`, and `react-native-safe-area-context@5.8.0` fixed while refreshing package, installation, peer-range, masked-view, native-inventory, and direct-outdated contracts.
+- Preserve the RN `0.86.0`, React `19.2.3`, New Architecture, JDK 17, AGP `8.13.2`, and target SDK `36` baseline.
+
+Findings:
+
+- Live npm peer metadata for stack and bottom-tabs requires `@react-navigation/native ^7.3.13` and accepts the installed React, React Native, screens, gesture-handler, and safe-area versions.
+- The direct-outdated snapshot now contains 26 classified entries: 22 dedicated-branch blockers, 4 exotic/git-pinned dependencies, and no review-required entries. React Navigation no longer appears as outdated.
+- JDK 17 Android `devDebug` and `prodRelease` builds succeed. The embedded production-mainnet release smoke passes onboarding, empty dashboard Create/Import flows, CameraKit QR navigation, all bottom tabs, Settings Terms WebView, and fatal/runtime logcat checks without Metro.
+- The dev/testnet smoke reaches the expected external `No network` state. Live endpoint evidence classifies `electrumx.testnet.btcv.stage.rnd.land` as `CERT_HAS_EXPIRED` since 2026-06-23; the controlled no-network smoke passes without fatal or React Native runtime findings.
+- The mainnet Electrum certificates remain authorized but expire on 2026-08-07, so DevOps certificate rotation is required before that date. Static iOS validation passes, but `Podfile.lock` refresh and runtime/archive validation remain blocked on this Windows machine without macOS/Xcode.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn check:navigation-runtime-cohort-guard`
+- `corepack yarn node:runtime:yarn check:navigation-runtime-cohort`
+- `corepack yarn node:runtime:yarn check:native-module-inventory-guard`
+- `corepack yarn node:runtime:yarn check:native-module-inventory`
+- `corepack yarn node:runtime:yarn masked-view:migration:audit` and summary check
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit` and summary check
+- `corepack yarn node:runtime:yarn electrum:endpoint-readiness:audit` and summary check
+- TypeScript, 55 unit tests, focused storage/network tests, shim, lint-baseline, modernization-log, and diff checks
+- JDK 17 Android `devDebug` and `prodRelease` builds with automatic Sentry upload disabled for the credential-free release proof
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:dev:smoke:embedded` reached the classified testnet certificate blocker; `android:dev:smoke:no-network:embedded` passed
+
 ### BEM-37.921 - Sentry 8.19 release cohort
 
 - Branch: `feature/bem-37-921-sentry-8-19-release-cohort`

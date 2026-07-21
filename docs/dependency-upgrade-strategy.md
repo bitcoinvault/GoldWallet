@@ -37,7 +37,7 @@ Reason: the first foundation checkpoint is complete, but recent proof branches s
 After each foundation checkpoint is stable, upgrade native modules in groups with similar risk:
 
 - Navigation and screen stack: `@react-navigation/*`, `react-native-screens`, `react-native-safe-area-context`, `react-native-gesture-handler`, masked view.
-- React Navigation is on the checked latest v7 patch baseline as of 2026-07-18: `@react-navigation/native@7.3.11`, `@react-navigation/stack@7.10.14`, `@react-navigation/bottom-tabs@7.18.11`, and `@react-navigation/devtools@7.1.8`. `react-native-screens@4.26.2` is the checked latest native screens baseline; `react-native-safe-area-context@5.8.0` and `react-native-gesture-handler@3.1.0` remain the current native navigation peers. Future navigation drift should stay in a dedicated navigation/smoke branch.
+- React Navigation is on the checked latest v7 patch baseline as of 2026-07-21: `@react-navigation/native@7.3.13`, `@react-navigation/stack@7.10.16`, `@react-navigation/bottom-tabs@7.18.13`, and `@react-navigation/devtools@7.1.10`. `react-native-screens@4.26.2` is the checked latest native screens baseline; `react-native-safe-area-context@5.8.0` and `react-native-gesture-handler@3.1.0` remain the current native navigation peers. Future navigation drift should stay in a dedicated navigation/smoke branch.
 - Device/platform services: Firebase, Sentry, CodePush, push notifications, device info, config, localize, webview.
 - Media and UI native modules: camera/scanner replacement, SVG, vector icons, fast image, share, slider, blur.
 
