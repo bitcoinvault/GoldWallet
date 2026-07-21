@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.925 - react-i18next runtime patch
+
+- Branch: `feature/bem-37-925-react-i18next-patch`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-i18next` from `17.0.9` to the live npm latest `17.0.10` while keeping `i18next@26.3.6` unchanged.
+- Preserve React Native `0.86.0`, React `19.2.3`, TypeScript `6.0.3`, localization dictionaries, and application language behavior.
+- Refresh the direct-outdated contract and prove the runtime patch through translation generation, a forced Android bundle, JDK 17 build, and emulator smoke.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-21 reports `react-i18next@17.0.10` as latest with peer ranges `i18next >=26.2.0`, React `>=16.8.0`, and TypeScript 5/6/7; the current app cohort satisfies all three.
+- Translation generation succeeds for all eight non-English dictionaries. Generated `scripts/missing-translations/*_to-improve.js` output was restored after the check because it is validation output, not branch scope.
+- The direct-outdated snapshot now reports 20 classified entries: 16 dedicated-branch blockers, 4 exotic/git-pinned dependencies, and no review-required entries.
+- TypeScript, 55 unit tests, focused storage/network tests, and the existing ESLint baseline of 36,280 errors and 0 warnings pass.
+- Independent review detected that the first nested Yarn/Gradle invocation printed a successful build but left the previous bundle and APK timestamps unchanged, so its initial smoke evidence was rejected. Direct `gradlew.bat` execution refreshed the embedded bundle at `2026-07-21T13:25:42+02:00` with SHA-256 `3EFD77C01B46DFF1068CAB55A17AE468720A533029D4E04F52D5FD82763BCD6F`.
+- The subsequent direct JDK 17 assemble repackaged `app-dev-debug.apk` at `2026-07-21T13:26:11+02:00` with SHA-256 `FDA1483FA9912C5D27AE5D4E45CC8393D3EFA7C0E9E40AF7AB10222300062991`.
+- Repeated fresh `devDebug` installation on `emulator-5554` uses that rebuilt APK, passes onboarding, PIN and transaction-password setup, reaches the expected controlled `No network` state, and reports no fatal or React Native runtime logcat findings.
+- iOS runtime and archive validation remain unclaimed on Windows; static iOS readiness remains the available proof boundary.
+
+Validation:
+
+- `corepack yarn info react-i18next version --json` and peer metadata checks
+- `corepack yarn node:runtime:yarn translate:check-missing`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit` and summary check
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit` and summary check
+- `corepack yarn node:runtime:yarn precommit`
+- `corepack yarn node:runtime:yarn test:unit --runInBand` passed 55 tests
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn lint:baseline:audit` passed the existing 36,280-error / 0-warning baseline
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10; Push-Location android; .\gradlew.bat :app:createBundleDevDebugJsAndAssets --rerun-tasks --info; Pop-Location`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10; Push-Location android; .\gradlew.bat :app:assembleDevDebug -x lint; Pop-Location`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:dev:smoke:no-network:embedded`
+
 ### BEM-37.924 - Tooling patch cohort
 
 - Branch: `feature/bem-37-924-tooling-patch-cohort`

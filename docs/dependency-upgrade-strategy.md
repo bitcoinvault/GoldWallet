@@ -75,7 +75,7 @@ Do these after the runtime foundation and native-module cohorts that own their v
 - Node/RN polyfills: `buffer`, `events`, `path-browserify`, `stream-browserify`, `readable-stream`, `util`, and `url`; keep these in small runtime cohorts because Metro and wallet crypto flows depend on the same rn-nodeify shims.
 - Lodash runtime is on checked latest `4.18.1` after `BEM-37.208`; `@types/lodash@4.17.24` is also checked latest.
 - CryptoJS runtime is on checked latest `4.2.0` after `BEM-37.206`; future crypto work should focus on behavior coverage and replacement strategy, not another blind package bump.
-- Localization runtime is on checked latest `i18next@26.3.6` and `react-i18next@17.0.9` after `BEM-37.823`; `react-i18next` accepts `i18next >=26.2.0`.
+- Localization runtime is on checked latest `i18next@26.3.6` and `react-i18next@17.0.10` after `BEM-37.925`; `react-i18next` accepts `i18next >=26.2.0`, React `>=16.8.0`, and TypeScript 5/6/7.
 - Toast UI runtime is on checked latest `react-native-toast-message@2.4.0` after `BEM-37.829`; future toast drift should stay in a dedicated notification UI branch with TypeScript/unit proof, Android build, and emulator smoke because the package is app-runtime UI even though current source usage is narrow.
 - UUID runtime is on checked latest `14.0.1` after `BEM-37.764`; future work should focus on source behavior or Metro compatibility only if new UUID import surfaces are added.
 - Stream polyfills are on `stream-browserify@3.0.0` and checked latest `readable-stream@4.7.0` after `BEM-37.320`; the previous `readable-stream/readable` alias blocker is handled by v4 `lib/_stream_*` aliases plus the postinstall rn-nodeify alias guard.

@@ -557,7 +557,7 @@
     "pbkdf2": "3.1.6",
     "process": "0.11.10",
     "react": "19.2.3",
-    "react-i18next": "17.0.9",
+    "react-i18next": "17.0.10",
     "react-localization": "2.0.6",
     "react-native": "0.86.0",
     "react-native-background-timer": "2.4.1",

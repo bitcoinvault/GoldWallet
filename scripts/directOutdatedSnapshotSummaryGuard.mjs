@@ -21,7 +21,6 @@ const requiredKnownEntries = [
   ['electrum-client', 'dependencies'],
   ['plist', 'resolutionDependencies'],
   ['react', 'dependencies'],
-  ['react-i18next', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
