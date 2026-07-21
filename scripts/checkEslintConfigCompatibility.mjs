@@ -21,17 +21,17 @@ const requireRuleValue = (ruleName, expectedValue) => {
   }
 };
 
-if (devDependencies['@typescript-eslint/eslint-plugin'] !== '8.64.0') {
+if (devDependencies['@typescript-eslint/eslint-plugin'] !== '8.65.0') {
   errors.push(
-    `@typescript-eslint/eslint-plugin must stay on 8.64.0 for this compatibility guard. Found ${
+    `@typescript-eslint/eslint-plugin must stay on 8.65.0 for this compatibility guard. Found ${
       devDependencies['@typescript-eslint/eslint-plugin'] || '<missing>'
     }`,
   );
 }
 
-if (devDependencies['@typescript-eslint/parser'] !== '8.64.0') {
+if (devDependencies['@typescript-eslint/parser'] !== '8.65.0') {
   errors.push(
-    `@typescript-eslint/parser must stay on 8.64.0 for this compatibility guard. Found ${devDependencies['@typescript-eslint/parser'] || '<missing>'}`,
+    `@typescript-eslint/parser must stay on 8.65.0 for this compatibility guard. Found ${devDependencies['@typescript-eslint/parser'] || '<missing>'}`,
   );
 }
 

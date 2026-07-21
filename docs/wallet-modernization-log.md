@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.924 - Tooling patch cohort
+
+- Branch: `feature/bem-37-924-tooling-patch-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the latest compatible lint, formatting, precommit, and Browserslist data cohort: `@typescript-eslint/eslint-plugin` and parser `8.65.0`, `lint-staged@17.1.0`, `prettier@3.9.6`, and the `caniuse-lite@1.0.30001806` resolution.
+- Keep ESLint `10.7.0`, TypeScript `6.0.3`, React Native `0.86.0`, and React `19.2.3` unchanged while refreshing version guards and live dependency snapshots.
+- Preserve the existing lint baseline without mass formatting and prove the lockfile through Node 24 tooling, Android bundle/build, and emulator smoke.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-21 reports all five updated entries as latest. TypeScript ESLint `8.65.0` still accepts ESLint 10 and TypeScript `<6.1.0`; TypeScript 7 remains blocked by the same parser/plugin and `ts-jest` peer ceilings.
+- The live direct-outdated snapshot drops from 26 to 21 classified entries after closing these five patch drifts: 17 dedicated-branch blockers, 4 exotic/git-pinned dependencies, and no review-required entries.
+- Precommit, TypeScript, 55 unit tests, focused storage/network tests, and the existing ESLint baseline of 36,280 errors and 0 warnings pass without formatting source files.
+- The first Android assemble attempt stopped in the RN settings autolinking command after the fresh postinstall. A direct RN config probe and complete JDK 17 rerun passed; the rerun completed native compilation and the embedded JavaScript bundle.
+- Fresh `devDebug` installation on `emulator-5554` passes onboarding, PIN and transaction-password setup, reaches the expected controlled `No network` state, and reports no fatal or React Native runtime logcat findings. The dev/testnet network state remains externally constrained by the already classified certificate blocker.
+- iOS runtime and archive validation remain unclaimed on Windows; only static iOS readiness checks are applicable here.
+
+Validation:
+
+- `corepack yarn node:runtime:yarn lint-staged:tooling:audit`
+- `corepack yarn node:runtime:yarn prettier:tooling:audit`
+- `corepack yarn node:runtime:yarn check:eslint-config-compatibility`
+- `corepack yarn node:runtime:yarn tooling:latest-snapshot:audit` and summary check
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit` and summary check
+- `corepack yarn node:runtime:yarn typescript7:compatibility-probe:audit` and summary check
+- `corepack yarn node:runtime:yarn ios:release:readiness:audit` and summary check
+- `corepack yarn node:runtime:yarn precommit`
+- `corepack yarn node:runtime:yarn test:unit --runInBand` passed 55 tests
+- `corepack yarn node:runtime:yarn test:storage-network:focused`
+- `corepack yarn node:runtime:yarn lint:baseline:audit` passed the existing 36,280-error / 0-warning baseline
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:dev:smoke:no-network:embedded`
+
 ### BEM-37.923 - Camera/QR production release evidence
 
 - Branch: `feature/bem-37-923-camera-qr-prod-evidence`
