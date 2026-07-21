@@ -14,6 +14,11 @@ import {
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { requireAndroidReleaseCandidateReadiness } from './androidReleaseVersioning.mjs';
 import { resolveAndroidUploadSigningConfiguration } from './androidUploadSigningReadiness.mjs';
+import {
+  captureSentryAndroidCandidateEvidence,
+  cleanSentryAndroidGeneratedOutputs,
+  getSentryAndroidCandidateEvidenceConfig,
+} from './sentryAndroidCandidateEvidence.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const localProof = process.argv.includes('--local-proof');
@@ -37,6 +42,10 @@ const runtimeConfig = getAndroidAppBundleVariantConfig(root, 'prod', {
   artifactBase: runtimeArtifactBase,
 });
 const runtimeSmokeSummaryPath = path.join(outputDir, `${runtimeConfig.smokeArtifactBase}-summary.txt`);
+const sentryCandidateType = localProof ? 'local-signing-proof' : 'production-signed-candidate';
+const sentryCandidateArtifactBase = localProof
+  ? 'android-upload-signing-proof-prod-release-sentry'
+  : 'android-prod-signed-bundle-sentry';
 const javaHome = process.env.JAVA_HOME;
 const javaBin = executable =>
   javaHome ? path.join(javaHome, 'bin', `${executable}${process.platform === 'win32' ? '.exe' : ''}`) : executable;
@@ -91,14 +100,20 @@ try {
   );
   const releaseReadiness = localProof ? null : requireAndroidReleaseCandidateReadiness({ root });
 
+  const generatedReactCleanup = cleanSentryAndroidGeneratedOutputs(root);
   rmSync(config.aabPath, { force: true });
   rmSync(outputAab, { force: true });
+  const gradleBuildStartedAtMs = Date.now();
+  const gradleEnvironment = { ...process.env, SENTRY_DISABLE_AUTO_UPLOAD: 'true' };
+  for (const key of Object.keys(gradleEnvironment)) {
+    if (['SENTRY_RELEASE', 'SENTRY_DIST'].includes(key.toUpperCase())) delete gradleEnvironment[key];
+  }
   run('build guarded signed prodRelease AAB', process.execPath, [
     'scripts/runAndroidGradle.mjs',
     config.gradleTask,
     '-PgoldwalletRequireUploadSigning=true',
   ], {
-    env: { ...process.env, SENTRY_DISABLE_AUTO_UPLOAD: process.env.SENTRY_DISABLE_AUTO_UPLOAD || 'true' },
+    env: gradleEnvironment,
   });
 
   if (!existsSync(config.aabPath) || statSync(config.aabPath).size === 0) {
@@ -156,6 +171,22 @@ try {
       `Signed AAB version metadata mismatch: expected ${builtMetadata.versionName} (${builtMetadata.versionCode}), received ${builtVersionName || 'missing'} (${builtVersionCode || 'missing'})`,
     );
   }
+
+  const sentryCandidateConfig = getSentryAndroidCandidateEvidenceConfig(root, {
+    aabPath: outputAab,
+    artifactBase: sentryCandidateArtifactBase,
+  });
+  const { evidence: sentryCandidateEvidence } = captureSentryAndroidCandidateEvidence({
+    config: sentryCandidateConfig,
+    metadata: builtMetadata,
+    candidateType: sentryCandidateType,
+    jarCommand: javaBin('jar'),
+    generatedReactOutputsCleaned: generatedReactCleanup.performed,
+    buildStartedAtMs: gradleBuildStartedAtMs,
+    sentryAutoUploadDisabled: true,
+    sentryUploadAttempted: false,
+    secretValuesPrinted: false,
+  });
 
   run('validate runtime from the exact signed AAB', process.execPath, [
     'scripts/runAndroidAppBundleValidation.mjs',
@@ -215,6 +246,19 @@ try {
     `Runtime universal APK bytes: ${statSync(runtimeConfig.universalApkPath).size}`,
     `Runtime universal APK SHA-256: ${hashFile(runtimeConfig.universalApkPath)}`,
     `Runtime smoke summary SHA-256: ${hashFile(runtimeSmokeSummaryPath)}`,
+    `Sentry candidate type: ${sentryCandidateType}`,
+    `Sentry candidate release: ${sentryCandidateEvidence.sentryRelease}`,
+    `Sentry candidate dist: ${sentryCandidateEvidence.sentryDist}`,
+    `Sentry embedded bundle SHA-256: ${sentryCandidateEvidence.embeddedBundle.sha256}`,
+    `Sentry generated bundle SHA-256: ${sentryCandidateEvidence.generatedBundle.sha256}`,
+    `Sentry source map SHA-256: ${sentryCandidateEvidence.sourceMap.sha256}`,
+    `Sentry candidate identity: ${sentryCandidateEvidence.candidateIdentity}`,
+    `Sentry candidate manifest SHA-256: ${hashFile(sentryCandidateConfig.manifestPath)}`,
+    'Sentry candidate bundle digest match: passed',
+    'Sentry generated React outputs cleaned before build: yes',
+    'Sentry automatic upload disabled: yes',
+    'Sentry upload attempted: no',
+    'Sentry upload validation: not claimed',
     ...(localProof ? ['Certificate identity: GoldWallet Local Signing Proof'] : []),
     ...(localProof ? ['Temporary keystore retained: no'] : []),
     `Production upload key used: ${localProof ? 'no' : 'yes'}`,

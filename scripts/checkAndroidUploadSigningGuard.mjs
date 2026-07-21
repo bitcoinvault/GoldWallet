@@ -40,9 +40,25 @@ for (const snippet of [
   'Candidate-bound emulator smoke: passed',
   'Runtime source AAB SHA-256',
   'getAndroidEmbeddedSmokeSummaryErrors',
+  'cleanSentryAndroidGeneratedOutputs',
+  'captureSentryAndroidCandidateEvidence',
+  "SENTRY_DISABLE_AUTO_UPLOAD: 'true'",
+  "['SENTRY_RELEASE', 'SENTRY_DIST'].includes(key.toUpperCase())",
+  'Sentry candidate manifest SHA-256',
+  'Sentry upload validation: not claimed',
 ]) {
   assert(signedBundleRunner.includes(snippet), `Signed-bundle runner must retain ${snippet}`);
 }
+assert(
+  signedBundleRunner.lastIndexOf('cleanSentryAndroidGeneratedOutputs(root)') <
+    signedBundleRunner.indexOf("'build guarded signed prodRelease AAB'"),
+  'Signed-bundle runner must clean generated React outputs before Gradle',
+);
+assert(
+  signedBundleRunner.lastIndexOf('captureSentryAndroidCandidateEvidence') <
+    signedBundleRunner.indexOf("'validate runtime from the exact signed AAB'"),
+  'Signed-bundle runner must capture Sentry candidate evidence before runtime validation',
+);
 
 const signingScript = read('android/upload-signing.gradle');
 for (const key of ['storeFile', 'storePassword', 'keyAlias', 'keyPassword']) {
@@ -77,6 +93,14 @@ assert.strictEqual(
 assert.strictEqual(
   packageJson.scripts['check:android-signed-bundle-summary-guard'],
   'node scripts/checkAndroidSignedBundleSummaryGuard.mjs',
+);
+assert.strictEqual(
+  packageJson.scripts['check:sentry-android-candidate-evidence-guard'],
+  'node scripts/checkSentryAndroidCandidateEvidenceGuard.mjs',
+);
+assert(
+  packageJson.scripts['android:release-readiness:check-light'].includes('check:sentry-android-candidate-evidence-guard'),
+  'Android release readiness must include the Sentry candidate evidence guard',
 );
 assert.strictEqual(
   packageJson.scripts['android:upload-signing:check-summary'],

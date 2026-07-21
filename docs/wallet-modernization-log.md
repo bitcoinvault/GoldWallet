@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.920 - Sentry signed-AAB candidate evidence
+
+- Branch: `feature/bem-37-920-sentry-candidate-bound-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Bind the Android Sentry JavaScript bundle and source map to the exact signed `prodRelease` AAB used by the existing release runtime and Play handoff path.
+- Remove stale generated React outputs before Gradle, force automatic Sentry upload off for evidence generation, and store strict hash-addressed evidence under ignored `local-docs/`.
+- Make both local-proof and production signed-bundle summary validation reject missing, stale, mismatched, or secret-bearing candidate evidence.
+
+Findings:
+
+- The initial draft could compare caller-created snapshots without extracting the bundle from an AAB and hard-coded successful process claims. It was not sufficient release evidence and was not wired into any release command.
+- The signed-bundle runner now deletes the previous `prodRelease` generated bundle and source map, forces `SENTRY_DISABLE_AUTO_UPLOAD=true`, verifies AAB metadata through pinned bundletool, extracts `base/assets/index.android.bundle` from those exact signed bytes through the JDK `jar` tool, and snapshots the fresh Gradle bundle and map.
+- Evidence is stored under `local-docs/sentry-android-candidates/<aab-sha256>/`. Its strict manifest binds the AAB, embedded and generated bundles, source map, release `io.goldwallet.wallet@<versionName>+<versionCode>`, dist, candidate type, debug-ID state, and candidate identity.
+- The local signing proof produced matching embedded/generated bundle hashes and passed the existing exact-AAB universal-APK runtime smoke on `emulator-5554` / API 36.
+- This branch proves exact-AAB embedded/generated bundle equality and guarded-build provenance for the fresh Android bundle/map outputs with automatic upload disabled. Because the current outputs have no debug IDs, it does not claim cryptographic bundle-to-map binding, credentialed Sentry upload, production upload-key identity, Google Play acceptance, iOS archive/runtime, or iOS dSYM/source-map delivery.
+
+Validation:
+
+- `corepack yarn check:sentry-android-candidate-evidence-guard`
+- `corepack yarn check:android-signed-bundle-summary-guard`
+- `corepack yarn check:android-upload-signing-guard`
+- `corepack yarn android:release-readiness:check-light`
+- `$env:JAVA_HOME='D:\tmp\jdks\temurin17\jdk-17.0.19+10'; $env:ANDROID_SERIAL='emulator-5554'; corepack yarn android:upload-signing:proof`
+- `corepack yarn android:upload-signing:check-proof`
+- JDK 17 signed AAB, pinned bundletool metadata/signature validation, 16 KB artifact checks, exact-AAB universal APK install, and embedded production emulator smoke
+- TypeScript, unit, focused storage/network, shim, lint-baseline, modernization-log, Android dev assemble, controlled dev `No network` smoke, and diff checks; full dev/testnet dashboard smoke remains blocked by the expired Electrum TLS certificate
+
 ### BEM-37.919 - Navigation runtime cohort refresh
 
 - Branch: `feature/bem-37-919-navigation-runtime-refresh`
