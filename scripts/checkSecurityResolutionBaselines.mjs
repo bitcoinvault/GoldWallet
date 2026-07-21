@@ -30,7 +30,7 @@ const requiredResolutions = new Map([
   ['tmp', '0.2.7'],
   ['word-wrap', '1.2.5'],
   ['**/xcode/uuid', '14.0.1'],
-  ['@sentry/**/undici', '8.7.0'],
+  ['@sentry/**/undici', '8.8.0'],
 ]);
 
 const vulnerableLockEntries = [
@@ -90,7 +90,7 @@ const expectedLockVersions = new Map([
   ['minimatch', ['3.1.5', '5.1.9', '8.0.7', '9.0.9', '10.2.5']],
   ['micromatch', ['4.0.8']],
   ['moment', ['2.30.1']],
-  ['picomatch', ['2.3.2', '4.0.4']],
+  ['picomatch', ['2.3.2', '4.0.4', '4.0.5']],
   ['plist', ['3.1.1']],
   ['protobufjs', ['8.7.1']],
   ['qs', ['6.15.3']],
@@ -102,7 +102,7 @@ const expectedLockVersions = new Map([
   ['tmpl', ['1.0.5']],
   ['tiny-secp256k1', ['2.2.4']],
   ['tmp', ['0.2.7']],
-  ['undici', ['7.28.0', '8.7.0']],
+  ['undici', ['7.28.0', '8.8.0']],
   ['uuid', ['14.0.0', '14.0.1']],
   ['word-wrap', ['1.2.5']],
   ['ws', ['6.2.4', '7.5.11']],

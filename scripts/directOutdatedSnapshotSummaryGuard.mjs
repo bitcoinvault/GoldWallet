@@ -25,7 +25,6 @@ const requiredKnownEntries = [
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
   ['typescript', 'devDependencies'],
-  ['undici', 'resolutionDependencies'],
 ];
 const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
 

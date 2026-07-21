@@ -26,6 +26,15 @@ const skippedCommands = getSentryReleaseValidationCommands({ skipAndroidRelease:
 const skippedRendered = skippedCommands.map(renderSentryReleaseValidationCommand).join('\n');
 const preflightCommands = getSentryReleaseValidationCommands({ preflightOnly: true, skipAndroidRelease: true });
 const preflightRendered = preflightCommands.map(renderSentryReleaseValidationCommand).join('\n');
+const developmentRendered = getSentryReleaseValidationCommands({ androidReleaseEvidenceVariant: 'dev' })
+  .map(renderSentryReleaseValidationCommand)
+  .join('\n');
+const stageRendered = getSentryReleaseValidationCommands({ androidReleaseEvidenceVariant: 'stage' })
+  .map(renderSentryReleaseValidationCommand)
+  .join('\n');
+const betaRendered = getSentryReleaseValidationCommands({ androidReleaseEvidenceVariant: 'beta' })
+  .map(renderSentryReleaseValidationCommand)
+  .join('\n');
 const packageJson = JSON.parse(readFileSync(path.resolve('package.json'), 'utf8'));
 const scripts = packageJson.scripts || {};
 const fixtureApkPath = path.resolve('package.json');
@@ -74,7 +83,7 @@ const classifiedNetworkBlockerFixture = [
 
 [
   'corepack yarn check:sentry-properties-generator',
-  'corepack yarn android:dev:release:create-wallet-verify',
+  'corepack yarn android:prod:release:create-wallet-verify',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn sentry:android-warning:audit',
   'corepack yarn sentry:android-warning:check-summary',
@@ -102,9 +111,20 @@ assert(
   'Sentry handoff rendered commands must not print SENTRY_AUTH_TOKEN assignments',
 );
 assert(
-  !skippedRendered.includes('android:dev:release:create-wallet-verify'),
+  !skippedRendered.includes(':release:create-wallet-verify'),
   'Skipped Sentry handoff must omit Android release create-wallet evidence refresh',
 );
+[
+  ['dev', developmentRendered],
+  ['stage', stageRendered],
+  ['prod', fullRendered],
+  ['beta', betaRendered],
+].forEach(([variant, rendered]) => {
+  assert(
+    rendered.includes(`corepack yarn android:${variant}:release:create-wallet-verify`),
+    `Sentry handoff must refresh the selected ${variant}Release evidence`,
+  );
+});
 assert(
   skippedRendered.includes('corepack yarn sentry:release:create-properties'),
   'Skipped Sentry handoff must still generate Sentry release properties',
@@ -131,7 +151,8 @@ assert(
   'package.json must expose a dry-run Sentry release validation preflight script',
 );
 assert(
-  scripts['sentry:release:validation:handoff-summary'] === 'node scripts/runSentryReleaseValidationHandoff.mjs --summary-only',
+  scripts['sentry:release:validation:handoff-summary'] ===
+    'node scripts/runSentryReleaseValidationHandoff.mjs --summary-only',
   'package.json must expose a Sentry release validation handoff summary script',
 );
 assert(
@@ -207,6 +228,13 @@ assert(
   ),
   'Invalid preflightOnly option must be rejected',
 );
+let unsupportedVariantRejected = false;
+try {
+  getSentryReleaseValidationCommands({ androidReleaseEvidenceVariant: 'internal' });
+} catch (error) {
+  unsupportedVariantRejected = /Unsupported Sentry Android release evidence variant: internal/.test(error.message);
+}
+assert(unsupportedVariantRejected, 'Sentry handoff must reject unsupported Android release evidence variants');
 
 const readyAndroidReleaseSmokeSummary = [
   'Generated at: 2026-06-10T00:00:00.000Z',
@@ -568,7 +596,10 @@ assert(
   getSentryReleaseValidationReadinessErrors({
     androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseNoNetworkSmokeSummaryText: '',
-    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace('Validated empty-dashboard CTA flow: yes', 'Validated empty-dashboard CTA flow: no'),
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace(
+      'Validated empty-dashboard CTA flow: yes',
+      'Validated empty-dashboard CTA flow: no',
+    ),
     sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
     createWalletEvidenceOptions,
     smokeEvidenceOptions,
@@ -615,17 +646,32 @@ assertNoErrors(
     requireReadyPrereqs: false,
     sentryReleasePrereqSummaryText: notReadySentryReleasePrereqSummary
       .replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no')
-      .replace('Android release smoke summary errors: 0', 'Android release smoke summary errors: 1\n- Expected line not found: Android smoke outcome: passed')
+      .replace(
+        'Android release smoke summary errors: 0',
+        'Android release smoke summary errors: 1\n- Expected line not found: Android smoke outcome: passed',
+      )
       .replace('Sentry release smoke evidence ready: yes', 'Sentry release smoke evidence ready: no')
-      .replace('Android release no-network smoke summary present: no', 'Android release no-network smoke summary present: yes')
-      .replace('Android release no-network smoke summary valid: no', 'Android release no-network smoke summary valid: yes')
+      .replace(
+        'Android release no-network smoke summary present: no',
+        'Android release no-network smoke summary present: yes',
+      )
+      .replace(
+        'Android release no-network smoke summary valid: no',
+        'Android release no-network smoke summary valid: yes',
+      )
       .replace(
         'Android release no-network smoke summary errors: 1\n- Android release no-network smoke summary artifact is missing',
         'Android release no-network smoke summary errors: 0',
       )
-      .replace('Sentry release no-network blocker evidence ready: no', 'Sentry release no-network blocker evidence ready: yes')
+      .replace(
+        'Sentry release no-network blocker evidence ready: no',
+        'Sentry release no-network blocker evidence ready: yes',
+      )
       .replace(missingNetworkBlockerFixture.join('\n'), classifiedNetworkBlockerFixture.join('\n'))
-      .replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no')
+      .replace(
+        'Android release create-wallet smoke summary valid: yes',
+        'Android release create-wallet smoke summary valid: no',
+      )
       .replace('Sentry release create-wallet evidence ready: yes', 'Sentry release create-wallet evidence ready: no'),
     createWalletEvidenceOptions,
     noNetworkSmokeEvidenceOptions: {
@@ -638,6 +684,63 @@ assertNoErrors(
     smokeEvidenceOptions,
   }),
   'Preflight-only Sentry release handoff readiness must accept controlled no-network blocker evidence without claiming full runtime proof',
+);
+
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseEvidenceVariant: 'prod',
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary.replace(
+      'Standard wallet created: yes',
+      'Standard wallet created: no',
+    ),
+    androidReleaseNoNetworkSmokeSummaryText: readyAndroidReleaseNoNetworkSmokeSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace(
+      'Validated empty-dashboard CTA flow: yes',
+      'Validated empty-dashboard CTA flow: no',
+    ),
+    requireReadyPrereqs: false,
+    sentryReleasePrereqSummaryText: notReadySentryReleasePrereqSummary,
+    createWalletEvidenceOptions,
+    noNetworkSmokeEvidenceOptions: {
+      expectedArtifactBase: 'android-smoke-dev-release-no-network',
+      requireSmokeApkDigest: true,
+      expectedSmokeApkPath: fixtureApkPath,
+      requireSourceApkDigest: true,
+      expectedSourceApkPath: fixtureApkPath,
+    },
+    smokeEvidenceOptions,
+  }).some(error => error.includes('expected prod')),
+  'Production Sentry handoff must reject dev prerequisite evidence and must not accept the dev-only no-network fallback',
+);
+
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseEvidenceVariant: 'prod',
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary.replace(
+      'Standard wallet created: yes',
+      'Standard wallet created: no',
+    ),
+    androidReleaseNoNetworkSmokeSummaryText: readyAndroidReleaseNoNetworkSmokeSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace(
+      'Validated empty-dashboard CTA flow: yes',
+      'Validated empty-dashboard CTA flow: no',
+    ),
+    requireReadyPrereqs: false,
+    sentryReleasePrereqSummaryText: notReadySentryReleasePrereqSummary.replace(
+      'Android release evidence variant: dev',
+      'Android release evidence variant: prod',
+    ),
+    createWalletEvidenceOptions,
+    noNetworkSmokeEvidenceOptions: {
+      expectedArtifactBase: 'android-smoke-dev-release-no-network',
+      requireSmokeApkDigest: true,
+      expectedSmokeApkPath: fixtureApkPath,
+      requireSourceApkDigest: true,
+      expectedSourceApkPath: fixtureApkPath,
+    },
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Android release smoke summary is invalid')),
+  'Production Sentry handoff must not accept the dev-only no-network fallback when the selected variant matches',
 );
 
 console.log('Sentry release validation handoff guard checks are valid.');
