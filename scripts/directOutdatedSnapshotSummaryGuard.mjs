@@ -15,7 +15,12 @@ const requiredKnownEntries = [
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
   ['@babel/traverse', 'resolutionDependencies'],
-  ['@sentry/react-native', 'dependencies'],
+  ['@react-navigation/bottom-tabs', 'dependencies'],
+  ['@react-navigation/devtools', 'dependencies'],
+  ['@react-navigation/native', 'dependencies'],
+  ['@react-navigation/stack', 'dependencies'],
+  ['@typescript-eslint/eslint-plugin', 'devDependencies'],
+  ['@typescript-eslint/parser', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
@@ -23,12 +28,14 @@ const requiredKnownEntries = [
   ['electrum-client', 'dependencies'],
   ['lint-staged', 'devDependencies'],
   ['plist', 'resolutionDependencies'],
+  ['prettier', 'devDependencies'],
   ['react', 'dependencies'],
   ['react-i18next', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
   ['typescript', 'devDependencies'],
+  ['undici', 'resolutionDependencies'],
 ];
 const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
 

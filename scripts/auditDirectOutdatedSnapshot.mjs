@@ -159,7 +159,7 @@ const knownDecisions = new Map([
   ],
   [
     'undici',
-    'blocked - undici major drift belongs in a dedicated Sentry/tooling branch with release-service prerequisite summaries and no credentialed upload claim',
+    'blocked - undici minor drift belongs in a dedicated Sentry/tooling branch with release-service prerequisite summaries and no credentialed upload claim',
   ],
   [
     'caniuse-lite',

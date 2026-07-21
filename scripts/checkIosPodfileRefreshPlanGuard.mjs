@@ -12,7 +12,7 @@ const validBlockedPlan = [
   'Podfile.lock refresh required: yes',
   'Podfile.lock drift issues: 2',
   '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.0',
-  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.18.0',
+  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.19.0',
   'Removed Podfile.lock pod references: 0',
   'macOS/Xcode required: yes',
   'iOS runtime delivery validation: not claimed',

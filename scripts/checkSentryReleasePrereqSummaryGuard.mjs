@@ -3,8 +3,8 @@ import { getSentryReleasePrereqSummaryErrors } from './sentryReleasePrereqSummar
 
 const sentryCliPackageInstanceFixture = [
   '@sentry/cli installed package instances: 1',
-  '- node_modules/@sentry/cli/package.json: 3.6.0 (direct)',
-  '@sentry/cli installed package versions: 3.6.0',
+  '- node_modules/@sentry/cli/package.json: 3.6.1 (direct)',
+  '@sentry/cli installed package versions: 3.6.1',
   '@sentry/cli nested package versions: none',
   '@sentry/cli direct package installed: yes',
   'Sentry CLI release build path uses direct package: yes',
@@ -31,20 +31,20 @@ const notReadySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: not ready',
-  '@sentry/react-native version: 8.18.0',
-  '@sentry/react-native latest: 8.18.0',
-  '@sentry/react-native highest published: 8.18.0',
+  '@sentry/react-native version: 8.19.0',
+  '@sentry/react-native latest: 8.19.0',
+  '@sentry/react-native highest published: 8.19.0',
   '@sentry/react-native published version present: yes',
   '@sentry/react-native matches latest dist-tag: yes',
   '@sentry/react-native at or above latest dist-tag: yes',
   '@sentry/react-native npm posture: matches-latest-dist-tag',
   '@sentry/react-native current: yes',
-  '@sentry/cli package version: 3.6.0',
-  '@sentry/cli latest: 3.6.0',
+  '@sentry/cli package version: 3.6.1',
+  '@sentry/cli latest: 3.6.1',
   '@sentry/cli current: yes',
   ...sentryCliPackageInstanceFixture,
   'Sentry CLI binary present: yes',
-  'Sentry CLI version output: sentry-cli 3.6.0',
+  'Sentry CLI version output: sentry-cli 3.6.1',
   'Sentry CLI executable: yes',
   'Sentry release integration wired: yes',
   'Sentry release integration errors: 0',
@@ -84,7 +84,7 @@ const notReadySummary = [
   'iOS Sentry dSYM upload phases: 3',
   'iOS Podfile.lock refresh required: yes',
   'iOS Podfile.lock drift issues: 1',
-  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.18.0',
+  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.19.0',
   'iOS macOS validation prerequisites ready: no',
   'iOS macOS validation blockers: 2',
   '- Current platform is win32; iOS archive/simulator validation requires macOS with Xcode.',
@@ -119,20 +119,20 @@ const readySummary = [
   'Sentry release prerequisite audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'Release source-map prerequisites: ready',
-  '@sentry/react-native version: 8.18.0',
-  '@sentry/react-native latest: 8.18.0',
-  '@sentry/react-native highest published: 8.18.0',
+  '@sentry/react-native version: 8.19.0',
+  '@sentry/react-native latest: 8.19.0',
+  '@sentry/react-native highest published: 8.19.0',
   '@sentry/react-native published version present: yes',
   '@sentry/react-native matches latest dist-tag: yes',
   '@sentry/react-native at or above latest dist-tag: yes',
   '@sentry/react-native npm posture: matches-latest-dist-tag',
   '@sentry/react-native current: yes',
-  '@sentry/cli package version: 3.6.0',
-  '@sentry/cli latest: 3.6.0',
+  '@sentry/cli package version: 3.6.1',
+  '@sentry/cli latest: 3.6.1',
   '@sentry/cli current: yes',
   ...sentryCliPackageInstanceFixture,
   'Sentry CLI binary present: yes',
-  'Sentry CLI version output: sentry-cli 3.6.0',
+  'Sentry CLI version output: sentry-cli 3.6.1',
   'Sentry CLI executable: yes',
   'Sentry release integration wired: yes',
   'Sentry release integration errors: 0',
@@ -280,12 +280,12 @@ assertRejected('Missing header fixture', notReadySummary.replace('Sentry release
 assertRejected('Bad timestamp fixture', notReadySummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected(
   'Missing Sentry SDK version fixture',
-  notReadySummary.replace('@sentry/react-native version: 8.18.0', '@sentry/react-native version: missing'),
+  notReadySummary.replace('@sentry/react-native version: 8.19.0', '@sentry/react-native version: missing'),
   '@sentry/react-native version must be present',
 );
 assertRejected(
   'Missing Sentry SDK latest fixture',
-  notReadySummary.replace('@sentry/react-native latest: 8.18.0', '@sentry/react-native latest: missing'),
+  notReadySummary.replace('@sentry/react-native latest: 8.19.0', '@sentry/react-native latest: missing'),
   '@sentry/react-native latest must be present',
 );
 assertRejected(
@@ -300,22 +300,22 @@ assertRejected(
 );
 assertRejected(
   'Missing Sentry CLI package version fixture',
-  notReadySummary.replace('@sentry/cli package version: 3.6.0', '@sentry/cli package version: missing'),
+  notReadySummary.replace('@sentry/cli package version: 3.6.1', '@sentry/cli package version: missing'),
   '@sentry/cli package version must be present',
 );
 assertRejected(
   'Missing Sentry CLI latest fixture',
-  notReadySummary.replace('@sentry/cli latest: 3.6.0', '@sentry/cli latest: missing'),
+  notReadySummary.replace('@sentry/cli latest: 3.6.1', '@sentry/cli latest: missing'),
   '@sentry/cli latest must be present',
 );
 assertRejected(
   'Stale Sentry CLI current fixture',
-  notReadySummary.replace('@sentry/cli latest: 3.6.0', '@sentry/cli latest: 4.0.0'),
+  notReadySummary.replace('@sentry/cli latest: 3.6.1', '@sentry/cli latest: 4.0.0'),
   '@sentry/cli current cannot be yes',
 );
 assertRejected(
   'Bad Sentry CLI installation count fixture',
-  notReadySummary.replace('@sentry/cli installed package instances: 1', '@sentry/cli installed package instances: 2'),
+  notReadySummary.replace('@sentry/cli installed package instances: 1', '@sentry/cli installed package instances: 0'),
   '@sentry/cli installed package instances count',
 );
 assertRejected(
@@ -325,8 +325,18 @@ assertRejected(
 );
 assertRejected(
   'Sentry CLI versions missing direct package fixture',
-  notReadySummary.replace('@sentry/cli installed package versions: 3.6.0', '@sentry/cli installed package versions: none'),
+  notReadySummary.replace('@sentry/cli installed package versions: 3.6.1', '@sentry/cli installed package versions: none'),
   '@sentry/cli installed package versions must list at least',
+);
+assertRejected(
+  'Mismatched Sentry CLI installed versions fixture',
+  notReadySummary.replace('@sentry/cli installed package versions: 3.6.1', '@sentry/cli installed package versions: 3.6.1, 9.9.9'),
+  'installed package versions must exactly match',
+);
+assertRejected(
+  'Mismatched Sentry CLI nested versions fixture',
+  notReadySummary.replace('@sentry/cli nested package versions: none', '@sentry/cli nested package versions: 9.9.9'),
+  'nested package versions must exactly match',
 );
 assertRejected(
   'Sentry release path using nested CLI fixture',
@@ -335,7 +345,7 @@ assertRejected(
 );
 assertRejected(
   'Mismatched Sentry CLI output fixture',
-  notReadySummary.replace('Sentry CLI version output: sentry-cli 3.6.0', 'Sentry CLI version output: sentry-cli 0.0.0'),
+  notReadySummary.replace('Sentry CLI version output: sentry-cli 3.6.1', 'Sentry CLI version output: sentry-cli 0.0.0'),
   'Sentry CLI version output must include',
 );
 assertRejected(
@@ -475,7 +485,7 @@ assertRejected(
   'Ready summary with stale iOS Podfile fixture',
   readySummary
     .replace('iOS Podfile.lock refresh required: no', 'iOS Podfile.lock refresh required: yes')
-    .replace('iOS Podfile.lock drift issues: 0', 'iOS Podfile.lock drift issues: 1\n- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.18.0'),
+    .replace('iOS Podfile.lock drift issues: 0', 'iOS Podfile.lock drift issues: 1\n- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.19.0'),
   'ready iOS archive/macOS validation prerequisites',
 );
 assertRejected(
