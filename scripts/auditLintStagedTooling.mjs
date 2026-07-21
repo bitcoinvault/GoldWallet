@@ -10,7 +10,7 @@ const root = path.resolve(__dirname, '..');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const lintStagedPackage = require('lint-staged/package.json');
 
-const expectedVersion = '17.0.8';
+const expectedVersion = '17.1.0';
 const expectedNodeEngine = '>=22.22.1';
 const errors = [];
 

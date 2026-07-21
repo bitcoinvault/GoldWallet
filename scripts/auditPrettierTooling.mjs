@@ -15,7 +15,7 @@ const prettierPluginPackage = require('eslint-plugin-prettier/package.json');
 const prettierPackage = require('prettier/package.json');
 
 const expected = {
-  prettier: '3.9.5',
+  prettier: '3.9.6',
   'eslint-plugin-prettier': '5.5.6',
   'eslint-config-prettier': '10.1.8',
 };
