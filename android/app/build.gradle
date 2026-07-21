@@ -30,6 +30,7 @@ project.ext.react = [
 
 react {
     entryFile = file("../../${goldwalletEntryFile}")
+    nodeExecutableAndArgs = [System.getenv("NODE_BINARY") ?: "node"]
     autolinkLibrariesWithApp()
 }
 

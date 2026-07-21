@@ -29,7 +29,17 @@ assert.strictEqual(
 );
 assert.strictEqual(
   productionConfig.unsignedApkPath,
-  path.join(fixtureRoot, 'android', 'app', 'build', 'outputs', 'apk', 'prod', 'release', 'app-prod-release-unsigned.apk'),
+  path.join(
+    fixtureRoot,
+    'android',
+    'app',
+    'build',
+    'outputs',
+    'apk',
+    'prod',
+    'release',
+    'app-prod-release-unsigned.apk',
+  ),
 );
 
 const developmentConfig = getSentryAndroidReleaseEvidenceConfig(fixtureRoot, {
@@ -50,11 +60,26 @@ assert.throws(
 );
 
 const auditSource = readFileSync(path.join(fixtureRoot, 'scripts', 'auditSentryReleasePrerequisites.mjs'), 'utf8');
+const handoffSource = readFileSync(path.join(fixtureRoot, 'scripts', 'runSentryReleaseValidationHandoff.mjs'), 'utf8');
 
 assert.match(auditSource, /getSentryAndroidReleaseEvidenceConfig\(root, env\)/);
 assert.match(auditSource, /getAndroidReleaseSmokeEvidenceOptions\(root, androidReleaseEvidenceConfig\.variant\)/);
 assert.match(auditSource, /expectedArtifactBase: androidReleaseEvidenceConfig\.createWalletArtifactBase/);
 assert.doesNotMatch(auditSource, /android-smoke-dev-release-summary\.txt/);
 assert.doesNotMatch(auditSource, /android-create-wallet-smoke-dev-release-summary\.txt/);
+
+assert.match(handoffSource, /getSentryAndroidReleaseEvidenceConfig\(root, process\.env\)/);
+assert.match(handoffSource, /androidReleaseEvidenceConfig\.smokeSummaryPath/);
+assert.match(handoffSource, /androidReleaseEvidenceConfig\.createWalletSmokeSummaryPath/);
+assert.match(handoffSource, /getAndroidReleaseSmokeEvidenceOptions\(root, androidReleaseEvidenceConfig\.variant\)/);
+assert.match(handoffSource, /expectedArtifactBase: androidReleaseEvidenceConfig\.createWalletArtifactBase/);
+assert.doesNotMatch(
+  handoffSource,
+  /const androidReleaseSmokeSummaryPath = path\.join\(root, 'local-docs', 'android-smoke-dev-release-summary\.txt'\)/,
+);
+assert.doesNotMatch(
+  handoffSource,
+  /const androidReleaseCreateWalletSmokeSummaryPath = path\.join\(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary\.txt'\)/,
+);
 
 console.log('Sentry Android release evidence variant guard passed.');

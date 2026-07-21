@@ -163,14 +163,6 @@ const validEntries = [
     type: 'devDependencies',
     decision: 'blocked - TypeScript 7 major drift requires a dedicated compiler branch with TypeScript check, Jest, lint baseline, and RN/Metro proof',
   },
-  {
-    name: 'undici',
-    current: '8.7.0',
-    wanted: '8.7.0',
-    latest: '8.8.0',
-    type: 'resolutionDependencies',
-    decision: 'blocked - undici minor drift belongs in a dedicated Sentry/tooling branch with release-service prerequisite summaries and no credentialed upload claim',
-  },
 ];
 
 const validSummary = formatDirectOutdatedSnapshotSummary(validEntries, '2026-07-05T00:00:00.000Z');
@@ -211,10 +203,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 20', 'Entries: 19'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 19', 'Entries: 18'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 20', 'Entries: 21').replace(
+  validSummary.replace('Entries: 19', 'Entries: 20').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),

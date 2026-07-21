@@ -10,6 +10,48 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.926 - Sentry CLI transport patch and variant-aware handoff
+
+- Branch: `feature/bem-37-926-sentry-undici-patch`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded Sentry CLI transport owner path from `undici@8.7.0` to the live npm latest `8.8.0` under the repo Node `24.16.0` baseline.
+- Keep `@sentry/react-native@8.19.0`, direct `@sentry/cli@3.6.1`, application runtime code, and credentialed source-map upload behavior unchanged.
+- Make the Sentry release-validation handoff use the same selected Android release evidence variant for refresh commands, smoke/create-wallet summaries, APK digests, and readiness checks.
+- Pin Android Gradle autolinking and React Native bundling to the repo-managed Node executable so a stale Gradle daemon environment cannot fall back to an unsupported system Node.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-21 reports `undici@8.8.0` as latest with Node engine `>=22.19.0`; the repo-managed Node `24.16.0` satisfies that requirement. The system PATH Node `22.18.0` does not, so validation remains routed through `node:runtime:yarn`.
+- `@sentry/cli@3.6.1` still requests `undici@^6.22.0`; the scoped `@sentry/**/undici` resolution remains a deliberate major owner-path override. The installed Sentry owner path resolves to `8.8.0`, while the independent `jsdom` owner path remains on `7.28.0`.
+- CommonJS probes confirm `fetch`, `ProxyAgent`, `request`, and Sentry CLI `getFallbackBinaryPath` remain callable. `sentry-cli 3.6.1`, Sentry Android warning, and RN bundle-task compatibility checks pass.
+- The live direct-outdated snapshot drops to 19 classified entries: 15 dedicated-branch blockers, 4 exotic/git-pinned dependencies, and no review-required entries.
+- A fresh install exposed a pre-existing checker mismatch: the integration lockfile already contained `picomatch@4.0.5`, while the security baseline allowed only `4.0.4`. The checker now reflects the unchanged `2.3.2`, `4.0.4`, and `4.0.5` lockfile set.
+- The Sentry prerequisite audit already selected `prodRelease` by default, but the handoff runner still hardcoded `devRelease` summary and APK paths. The handoff now derives all selected evidence from `SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT` (default `prod`), records and refreshes the matching variant, rejects prerequisite-variant mismatches, limits the controlled no-network fallback to `dev`, and reports the dev Electrum blocker as not applicable for `stage`/`prod`/`beta` summaries.
+- A clean autolinking cache reproduced a deterministic failure in the RN settings plugin's default Windows `cmd /c npx @react-native-community/cli config` path. The guarded Gradle runner now rejects Node versions other than `.nvmrc`, exports its absolute Node 24 executable through `NODE_BINARY`, prefers that executable in child `PATH`, and both settings autolinking and app bundling consume it directly. A second clean-cache `devRelease` and the complete `dev`/`stage`/`prod`/`beta` rerun pass. Release APK manifests, secure-storage packaging, and retired App Center checks also pass.
+- Fresh signed `prodRelease` emulator smoke passes onboarding, empty-dashboard actions, QR scanner, all bottom tabs, Settings Terms WebView, and fatal/runtime logcat checks without Metro. The follow-up create-wallet smoke passes standard-wallet mnemonic/persistence, incorrect/correct PIN restart behavior, secure-window checks, and the default 3-key vault public-key screen.
+- The non-secret Sentry preflight completes with Android runtime proof ready while upload remains explicitly unclaimed. Missing `SENTRY_AUTH_TOKEN`, missing local-only `sentry.properties` files, Windows without Xcode/CocoaPods, and 12 active iOS Podfile.lock drift issues remain the exact external validation boundary.
+
+Validation:
+
+- `npm view undici version engines dependencies --json`
+- `corepack yarn node:runtime:yarn why undici`
+- `corepack yarn node:runtime:yarn check:security-resolution-baselines`
+- Node 24 CommonJS owner-path probe and `corepack yarn node:runtime:yarn sentry-cli --version`
+- `corepack yarn node:runtime:yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit` and summary check
+- `corepack yarn node:runtime:yarn check:sentry-android-release-evidence-variant-guard`
+- `corepack yarn node:runtime:yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn check:node-runtime-yarn-runner-guard` plus clean-autolinking-cache `devRelease` validation
+- Sentry Android warning, RN bundle-task compatibility, release prerequisite, and non-secret validation preflight checks
+- TypeScript, 55 unit tests, focused storage/network tests, shim, lint-baseline, modernization-log, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:create-wallet-smoke:embedded`
+- Static iOS release-readiness and macOS prerequisite audits; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.925 - react-i18next runtime patch
 
 - Branch: `feature/bem-37-925-react-i18next-patch`

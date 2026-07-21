@@ -53,6 +53,7 @@ const blockerTypes = [
 export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
+  const androidReleaseEvidenceVariant = getLineValue(summary, 'Android release evidence variant');
   const releaseSourceMapPrereqs = getLineValue(summary, 'Release source-map prerequisites');
   const androidWarningSummaryValid = getLineValue(summary, 'Android warning summary valid');
   const rnBundleTaskCompatibilitySummaryValid = getLineValue(summary, 'RN bundle task compatibility summary valid');
@@ -81,6 +82,26 @@ export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
     errors.push(`Generated at must be an ISO timestamp. Received: ${generatedAt || 'missing'}`);
   }
 
+  if (!['dev', 'stage', 'prod', 'beta'].includes(androidReleaseEvidenceVariant)) {
+    errors.push(
+      `Android release evidence variant must be dev, stage, prod, or beta. Received: ${androidReleaseEvidenceVariant || 'missing'}`,
+    );
+  }
+
+  if (androidReleaseEvidenceVariant !== 'dev') {
+    if (getLineValue(summary, 'Sentry release no-network blocker evidence ready') !== 'no') {
+      errors.push('Non-dev Sentry handoff cannot report dev no-network blocker evidence as ready');
+    }
+
+    if (getLineValue(summary, 'Sentry release network blocker classified') !== 'no') {
+      errors.push('Non-dev Sentry handoff cannot report the dev Electrum network blocker as classified');
+    }
+
+    if (controlledBlockerOutcome !== 'not-applicable') {
+      errors.push('Non-dev Sentry handoff must report the controlled dev Electrum blocker as not-applicable');
+    }
+  }
+
   yesNoLabels.forEach(label => {
     const value = getLineValue(summary, label);
     if (!['yes', 'no'].includes(value)) {
@@ -103,11 +124,15 @@ export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
   }
 
   if (!handoffOutcomes.includes(handoffOutcome)) {
-    errors.push(`Handoff outcome must be one of ${handoffOutcomes.join(', ')}. Received: ${handoffOutcome || 'missing'}`);
+    errors.push(
+      `Handoff outcome must be one of ${handoffOutcomes.join(', ')}. Received: ${handoffOutcome || 'missing'}`,
+    );
   }
 
   if (!blockerTypes.includes(blockerType)) {
-    errors.push(`Handoff blocker type must be one of ${blockerTypes.join(', ')}. Received: ${blockerType || 'missing'}`);
+    errors.push(
+      `Handoff blocker type must be one of ${blockerTypes.join(', ')}. Received: ${blockerType || 'missing'}`,
+    );
   }
 
   if (!/^\d+$/.test(readinessErrorCount)) {
@@ -170,7 +195,9 @@ export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
   }
 
   if (!requiredAction.includes('do not claim Sentry release upload validation')) {
-    errors.push('Required action must keep Sentry release upload validation unclaimed until credentialed release validation runs');
+    errors.push(
+      'Required action must keep Sentry release upload validation unclaimed until credentialed release validation runs',
+    );
   }
 
   return errors;
