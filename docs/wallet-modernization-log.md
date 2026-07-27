@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.927 - Sentry SDK and CLI patch cohort
+
+- Branch: `feature/bem-37-927-sentry-8-20`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@sentry/react-native` from `8.19.0` to the live npm latest `8.20.0`.
+- Upgrade the repo-owned `@sentry/cli` from `3.6.1` to the live npm latest `3.6.2`.
+- Keep Android and iOS release paths on one direct CLI instance through the existing scoped Yarn resolution.
+- Preserve application runtime behavior, release versioning, Google Play handoff state, and credentialed Sentry upload behavior.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-27 reports `@sentry/react-native@8.20.0` and `@sentry/cli@3.6.2` as the stable latest targets.
+- Sentry `8.20.0` keeps compatible peers for the current React `19.2.3` and React Native `0.86.0` baseline and updates the Sentry JS family from `10.65.0` to `10.67.0`.
+- The SDK requests CLI `3.6.1`; without the existing scoped resolution Yarn installs nested CLI copies and Android resolves the nested package while iOS uses the direct package. Updating `**/@sentry/cli` to `3.6.2` keeps a single direct CLI instance for both release paths.
+- The Sentry RN bundle-task compatibility audit remains ready with the repo-owned React Native bundle args workaround.
+- Credentialed source-map upload remains explicitly unclaimed because `SENTRY_AUTH_TOKEN` and local `sentry.properties` files are not available. iOS archive/runtime validation still requires macOS, Xcode, CocoaPods, and a refreshed `ios/Podfile.lock`.
+
+Validation:
+
+- `npm view @sentry/react-native@8.20.0 version peerDependencies engines dependencies dist-tags --json`
+- `npm view @sentry/cli version --json`
+- `corepack yarn node:runtime:yarn why @sentry/react-native`
+- `corepack yarn node:runtime:yarn why @sentry/cli`
+- Sentry integration, usage, RN bundle-task compatibility, release prerequisite, warning, and non-secret handoff checks
+- TypeScript, unit tests, focused storage/network tests, shim, security-resolution, lint-baseline, modernization-log, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:create-wallet-smoke:embedded`
+- Static iOS release-readiness and macOS prerequisite audits; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.926 - Sentry CLI transport patch and variant-aware handoff
 
 - Branch: `feature/bem-37-926-sentry-undici-patch`
