@@ -10,6 +10,45 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.930 - React Native Firebase 26 major cohort
+
+- Branch: `feature/bem-37-930-rnfirebase-26`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the aligned React Native Firebase `app`, `analytics`, `crashlytics`, and `messaging` package family from `25.1.0` to the live npm latest `26.0.0`.
+- Validate the Firebase 26 New Architecture requirement against the React Native `0.86.2` foundation and rebuild Android debug plus all `dev`, `stage`, `prod`, and `beta` release variants.
+- Refresh current Firebase, native-module, and iOS static-readiness contracts without rewriting historical milestone evidence.
+- Repair the malformed second hunk in the existing Sentry `8.21.0` source-map helper patch after a clean dependency reinstall exposed the parse failure.
+
+Findings:
+
+- React Native Firebase `26.0.0`, published 2026-07-29, requires React Native New Architecture for App/Core and Messaging. The wallet already has `newArchEnabled=true`, JDK 17, React Native `0.86.2`, Android SDK 36, and iOS deployment target `15.1`.
+- The aligned package family resolves Firebase Android BoM `34.15.0`, Firebase Apple SDK `12.15.0`, and matching `@react-native-firebase/app@26.0.0` peers.
+- A forced dependency reinstall applies all repo patches, rn-nodeify shims, and Jetifier successfully after correcting missing context prefixes in `patches/@sentry+react-native+8.21.0.patch`.
+- Android `devDebug` and all four release variants build successfully. Firebase Analytics, App, Crashlytics, and Messaging configure at `26.0.0` for each variant.
+- Signed `devRelease` no-network emulator smoke passes onboarding and startup without fatal Android, React Native, TurboModule, or Firebase findings.
+- Signed `prodRelease` emulator smoke passes onboarding, the empty dashboard, Create/Import actions, QR scanner, all main tabs, and the Terms WebView without fatal runtime findings.
+- Signed `prodRelease` create-wallet smoke passes standard mnemonic creation, process restart, incorrect/correct PIN handling, wallet persistence, secure-window transitions, and the default 3-key vault flow.
+- The normal dev dashboard smoke remains externally blocked by the expired dev/testnet Electrum certificate (`Certificate expired at Tue Jun 23 16:52:40 GMT 2026`), not by Firebase 26.
+- Real FCM token/notification delivery, Analytics event delivery, and Crashlytics event delivery remain explicitly unclaimed until service-side/device evidence is captured.
+- iOS runtime/archive remains unclaimed on Windows. Static readiness reports 12 active `Podfile.lock` drifts, including `RNFBApp 12.7.5` versus package `26.0.0`; Firebase Apple SDK `12.15.0` requires the Firebase-supported macOS/Xcode toolchain before pod refresh and archive validation.
+
+Validation:
+
+- Live npm metadata, package changelogs, peer dependencies, SDK versions, and Firebase 26 New Architecture requirements
+- Clean `corepack yarn install --ignore-engines --force` with successful `patch-package`, rn-nodeify, shim restoration, and Jetifier postinstall
+- Firebase usage scope, Messaging modular API, notification-permission, native-module inventory, release-services, and iOS static-readiness guards/audits
+- TypeScript, 55 unit tests, focused storage/network tests, node shims, lint baseline, modernization-log IDs, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:release:validate-local`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:release:smoke:no-network:embedded`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:prod:release:smoke:verify`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:prod:release:create-wallet-smoke:embedded`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn rn:baseline:preflight`
+- Static iOS release-readiness audit and summary validation; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.929 - React Native 0.86.2 stable patch cohort
 
 - Branch: `feature/bem-37-929-rn-0-86-2-patch-cohort`

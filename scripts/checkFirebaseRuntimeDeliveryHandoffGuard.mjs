@@ -85,12 +85,12 @@ const partialReadyFirebaseSummary = [
 const readyFirebaseSummary = [
   'Firebase release-services audit',
   'Generated at: 2026-06-10T00:00:00.000Z',
-  'React Native Firebase package version set: 25.1.0',
-  'React Native Firebase latest version: 25.1.0',
-  'React Native Firebase latest published at: 2026-06-25T00:33:41.407Z',
+  'React Native Firebase package version set: 26.0.0',
+  'React Native Firebase latest version: 26.0.0',
+  'React Native Firebase latest published at: 2026-07-29T17:35:29.257Z',
   'React Native Firebase npm repository: git+https://github.com/invertase/react-native-firebase.git#main',
-  'React Native Firebase Messaging latest version: 25.1.0',
-  'React Native Firebase Messaging peer app version: 25.1.0',
+  'React Native Firebase Messaging latest version: 26.0.0',
+  'React Native Firebase Messaging peer app version: 26.0.0',
   'React Native Firebase package current: yes',
   'Android Google Services Gradle plugin: 4.5.0',
   'Android Firebase Crashlytics Gradle plugin: 3.0.7',
@@ -188,10 +188,17 @@ const readyAndroidReleaseCreateWalletSmokeSummary = [
   'Standard wallet name: Smoke Standard',
   'Standard wallet created: yes',
   'Standard mnemonic screen reached: yes',
+  'Standard wallet persisted after restart: yes',
+  'App process restart completed: yes',
+  'Unlock screen reached after restart: yes',
+  'Incorrect PIN rejected after restart: yes',
+  'Secure window flag on mnemonic screen: yes',
+  'Secure window flag after restart: no',
   'Vault wallet name: Smoke Vault',
   'Vault next-step reached: yes',
   'No create-wallet error UI: yes',
   'Fatal/runtime logcat findings: no',
+  'Pre-restart App PID: 1233',
   'App PID: 1234',
   'Captured logcat lines: 400',
   'UI hierarchy path: package.json',
@@ -200,17 +207,20 @@ const readyAndroidReleaseCreateWalletSmokeSummary = [
   'Screenshot bytes: 1234',
 ].join('\n');
 
-assert(
-  getFirebaseRuntimeDeliveryReadinessErrors({
-    firebaseSummaryText: readyFirebaseSummary,
-    pushBridgeSummaryText: readyPushBridgeSummary,
-    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
-    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
-    createWalletEvidenceOptions,
-    smokeEvidenceOptions,
-  }).length === 0,
-  'Ready Firebase runtime handoff summary fixtures must pass readiness checks',
-);
+const readyFixtureErrors = getFirebaseRuntimeDeliveryReadinessErrors({
+  firebaseSummaryText: readyFirebaseSummary,
+  pushBridgeSummaryText: readyPushBridgeSummary,
+  androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+  androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+  createWalletEvidenceOptions,
+  smokeEvidenceOptions,
+});
+
+if (readyFixtureErrors.length > 0) {
+  readyFixtureErrors.forEach(error => console.error(`- ${error}`));
+}
+
+assert(readyFixtureErrors.length === 0, 'Ready Firebase runtime handoff summary fixtures must pass readiness checks');
 assert(
   getFirebaseRuntimeDeliveryReadinessErrors({
     firebaseSummaryText: partialReadyFirebaseSummary,

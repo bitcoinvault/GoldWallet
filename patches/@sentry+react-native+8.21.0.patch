@@ -3,12 +3,12 @@ index 23e3c7a..cab4c5e 100644
 --- a/node_modules/@sentry/react-native/scripts/has-sourcemap-debugid.js
 +++ b/node_modules/@sentry/react-native/scripts/has-sourcemap-debugid.js
 @@ -18,5 +18,5 @@ try {
-  sourceMap = JSON.parse(fs.readFileSync(sourceMapPath, 'utf8'));
-} catch (e) {
-  console.log(`Sourcemap at ${sourceMapPath} was unable to be read.`, e);
+   sourceMap = JSON.parse(fs.readFileSync(sourceMapPath, 'utf8'));
+ } catch (e) {
+   console.log(`Sourcemap at ${sourceMapPath} was unable to be read.`, e);
 -  process.exist(1);
 +  process.exit(1);
-}
+ }
 @@ -27,5 +27,5 @@ if (typeof sourceMap.debugId === 'string' && sourceMap.debugId.length > 0) {
    console.log(sourceMap.debug_id);
  } else {
