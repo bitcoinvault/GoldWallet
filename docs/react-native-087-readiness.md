@@ -4,7 +4,7 @@ Checked: 2026-07-15
 
 ## Target State
 
-- Current stable target: `react-native@0.86.0`
+- Current stable target: `react-native@0.86.2`
 - Probed next target: `react-native@0.87.0-rc.1`
 - Current React peer accepted by both lines: `^19.2.3`
 - Required Node line for the RC: `^22.13.0 || ^24.3.0 || >=26.0.0`
@@ -12,7 +12,7 @@ Checked: 2026-07-15
 - ABI split decision: removed dead per-ABI override
 - Production upgrade decision: blocked
 
-React Native `0.86.0` is the current npm stable release. The official React Native release schedule lists `0.87.x` as a future line with a planned stable release on 2026-08-10, so the RC is compatibility evidence rather than the production target.
+React Native `0.86.2` is the current npm stable release. The official React Native release schedule lists `0.87.x` as a future line with a planned stable release on 2026-08-10, so the RC is compatibility evidence rather than the production target.
 
 ## Probe Results
 

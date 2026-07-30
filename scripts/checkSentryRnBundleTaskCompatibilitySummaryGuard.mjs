@@ -5,7 +5,7 @@ const validBlockedSummary = [
   'Generated at: 2026-06-11T00:00:00.000Z',
   'Sentry RN bundle task compatibility ready: no',
   '@sentry/react-native version: 8.21.0',
-  'react-native version: 0.86.0',
+  'react-native version: 0.86.2',
   'Sentry expects jsIntermediateSourceMapsDir Directory: yes',
   'Sentry fallback requires args property: yes',
   'RN BundleHermesCTask jsIntermediateSourceMapsDir type: RegularFileProperty',

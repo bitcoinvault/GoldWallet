@@ -9,7 +9,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 
 export const expectedReactPackageCoupling = {
   react: '19.2.3',
-  blockedReactPatch: '19.2.7',
+  blockedReactPatch: '19.2.8',
   reactTypes: '19.2.17',
   reactNativeTypes: 'bundled',
   reactTestRenderer: '19.2.3',
@@ -26,10 +26,10 @@ export const requiredReactPackageCouplingDocs = [
 export const requiredReactPackageCouplingSnippets = [
   ['docs/react-package-coupling-audit.md', 'React package coupling audit'],
   ['docs/react-package-coupling-audit.md', 'Current React: `19.2.3`'],
-  ['docs/react-package-coupling-audit.md', 'Latest React patch checked on 2026-07-11: `19.2.7`'],
-  ['docs/react-package-coupling-audit.md', 'React `19.2.7` remains blocked on this RN `0.86.0` baseline because `react-native-renderer` is exact-version sensitive at `19.2.3`.'],
+  ['docs/react-package-coupling-audit.md', 'Latest React patch checked on 2026-07-11: `19.2.8`'],
+  ['docs/react-package-coupling-audit.md', 'React `19.2.8` remains blocked on this RN `0.86.2` baseline because `react-native-renderer` is exact-version sensitive at `19.2.3`.'],
   ['docs/react-package-coupling-audit.md', 'Current React types: `19.2.17`'],
-  ['docs/react-package-coupling-audit.md', 'Current React Native types: bundled with `react-native@0.86.0`'],
+  ['docs/react-package-coupling-audit.md', 'Current React Native types: bundled with `react-native@0.86.2`'],
   ['docs/react-package-coupling-audit.md', 'Current react-test-renderer: `19.2.3`'],
   ['docs/react-package-coupling-audit.md', 'Current bundled React Native renderer: `19.2.3`'],
   ['docs/react-package-coupling-audit.md', 'Target React peer from RN target snapshot: `^19.2.3`'],
@@ -60,7 +60,7 @@ export const getReactPackageCouplingIssues = ({ dependencies, devDependencies, s
 
   if (devDependencies['@types/react-native']) {
     errors.push(
-      `package.json has @types/react-native@${devDependencies['@types/react-native']}; expected React Native types to be bundled with react-native@0.86.0`,
+      `package.json has @types/react-native@${devDependencies['@types/react-native']}; expected React Native types to be bundled with react-native@0.86.2`,
     );
   }
 

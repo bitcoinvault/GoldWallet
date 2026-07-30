@@ -11,10 +11,10 @@ const gradleWrapperProperties = read('android/gradle/wrapper/gradle-wrapper.prop
 const nvmrc = read('.nvmrc').trim();
 
 export const expectedReactNativeUpgradePathBaseline = {
-  reactNative: '0.86.0',
+  reactNative: '0.86.2',
   react: '19.2.3',
-  babelPreset: '0.86.0',
-  metroConfig: '0.86.0',
+  babelPreset: '0.86.2',
+  metroConfig: '0.86.2',
   nodeRuntime: '24.16.0',
   buildToolsVersion: '36.0.0',
   compileSdkVersion: '36',
@@ -46,10 +46,10 @@ export const requiredReactNativeUpgradePathDocs = [
 ];
 
 export const requiredReactNativeUpgradePathSnippets = [
-  ['docs/react-native-upgrade-path.md', 'React Native: `0.86.0`'],
+  ['docs/react-native-upgrade-path.md', 'React Native: `0.86.2`'],
   ['docs/react-native-upgrade-path.md', 'React: `19.2.3`'],
-  ['docs/react-native-upgrade-path.md', 'RN Babel preset: `0.86.0`'],
-  ['docs/react-native-upgrade-path.md', 'RN Metro config: `0.86.0`'],
+  ['docs/react-native-upgrade-path.md', 'RN Babel preset: `0.86.2`'],
+  ['docs/react-native-upgrade-path.md', 'RN Metro config: `0.86.2`'],
   ['docs/react-native-upgrade-path.md', 'Metro/dev Node runtime: `24.16.0`'],
   ['docs/react-native-upgrade-path.md', 'Android compile SDK: `36`'],
   ['docs/react-native-upgrade-path.md', 'Android target SDK: `36`'],
@@ -83,14 +83,14 @@ export const requiredReactNativeUpgradePathSnippets = [
   ['docs/dependency-upgrade-strategy.md', 'Try the latest target first when the change is feasible'],
   ['docs/dependency-upgrade-strategy.md', 'foundation:target:refresh-online'],
   ['docs/dependency-upgrade-strategy.md', 'foundation:target:check-summaries'],
-  ['docs/react-native-076-foundation-plan.md', 'react-native@0.86.0'],
+  ['docs/react-native-076-foundation-plan.md', 'react-native@0.86.2'],
   ['docs/react-native-076-foundation-plan.md', 'Do not repeat a package-only RN 0.76 branch'],
   ['docs/react-native-076-foundation-plan.md', 'Metro restart with Node 24 and `--reset-cache`'],
   ['docs/react-native-foundation-target-matrix.md', 'Milestone A: RN 0.85.3 Foundation'],
-  ['docs/react-native-foundation-target-matrix.md', 'Milestone B: RN 0.86.0 Latest Foundation'],
+  ['docs/react-native-foundation-target-matrix.md', 'Milestone B: RN 0.86.2 Latest Foundation'],
   ['docs/react-native-foundation-target-matrix.md', 'Milestone C: Future current line'],
-  ['docs/wallet-modernization-baseline.md', 'continue with milestone jumps from RN `0.86.0` toward a current supported line'],
-  ['docs/wallet-modernization-baseline.md', 'Continue from RN `0.86.0` on the current supported line'],
+  ['docs/wallet-modernization-baseline.md', 'continue with milestone jumps from RN `0.86.2` toward a current supported line'],
+  ['docs/wallet-modernization-baseline.md', 'Continue from RN `0.86.2` on the current supported line'],
   ['docs/wallet-modernization-baseline.md', 'React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`'],
   ['docs/wallet-modernization-baseline.md', 'React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`'],
   ['docs/wallet-modernization-baseline.md', 'Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`'],

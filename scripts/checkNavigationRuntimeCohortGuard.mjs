@@ -7,7 +7,7 @@ import {
 
 const dependencies = {
   react: '19.2.3',
-  'react-native': '0.86.0',
+  'react-native': '0.86.2',
   'react-native-safe-area-context': '5.8.0',
   ...Object.fromEntries(expectedNavigationRuntimeVersions),
 };

@@ -217,7 +217,7 @@ export const formatBabel8MigrationProbeSummary = (audit, generatedAt = new Date(
     `Transform error message: ${audit.transformErrorMessage}`,
     `First plugin path: ${audit.firstPluginPath}`,
     `Blocker classification: ${audit.blockerClassification}`,
-    'Required action: keep Babel 8 blocked on RN 0.86.0 until a dedicated RN/Metro/Babel branch proves the transform, Jest, Metro bundle, Android build, and emulator smoke paths.',
+    'Required action: keep Babel 8 blocked on RN 0.86.2 until a dedicated RN/Metro/Babel branch proves the transform, Jest, Metro bundle, Android build, and emulator smoke paths.',
     '',
   ].join('\n');
 

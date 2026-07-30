@@ -80,13 +80,13 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
     errors.push(`Generated at must be an ISO timestamp. Received: ${generatedAt || 'missing'}`);
   }
 
-  if (reactNativeVersion !== '0.86.0') {
-    errors.push(`React Native version must stay 0.86.0 for this blocker evidence. Received: ${reactNativeVersion || 'missing'}`);
+  if (reactNativeVersion !== '0.86.2') {
+    errors.push(`React Native version must stay 0.86.2 for this blocker evidence. Received: ${reactNativeVersion || 'missing'}`);
   }
 
-  if (rnBabelPresetVersion !== '0.86.0') {
+  if (rnBabelPresetVersion !== '0.86.2') {
     errors.push(
-      `React Native Babel preset version must stay 0.86.0 for this blocker evidence. Received: ${rnBabelPresetVersion || 'missing'}`,
+      `React Native Babel preset version must stay 0.86.2 for this blocker evidence. Received: ${rnBabelPresetVersion || 'missing'}`,
     );
   }
 
@@ -211,8 +211,8 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
     errors.push(`Blocker classification is stale. Received: ${blockerClassification || 'missing'}`);
   }
 
-  if (!requiredAction.includes('keep Babel 8 blocked on RN 0.86.0')) {
-    errors.push('Required action must keep Babel 8 blocked on RN 0.86.0');
+  if (!requiredAction.includes('keep Babel 8 blocked on RN 0.86.2')) {
+    errors.push('Required action must keep Babel 8 blocked on RN 0.86.2');
   }
 
   if (!requiredAction.includes('dedicated RN/Metro/Babel branch')) {

@@ -34,9 +34,9 @@ const requirePackageVersion = (sectionName, packageName, expectedVersion) => {
 requirePackageVersion('resolutions', '@babel/core', '7.29.7');
 requirePackageVersion('resolutions', '@babel/traverse', '7.29.7');
 
-if (packageJson.devDependencies?.['@react-native/babel-preset'] !== '0.86.0') {
+if (packageJson.devDependencies?.['@react-native/babel-preset'] !== '0.86.2') {
   errors.push(
-    `package.json devDependencies.@react-native/babel-preset must stay on 0.86.0 for this blocker evidence. Found ${
+    `package.json devDependencies.@react-native/babel-preset must stay on 0.86.2 for this blocker evidence. Found ${
       packageJson.devDependencies?.['@react-native/babel-preset'] || '<missing>'
     }`,
   );

@@ -42,7 +42,7 @@ const readyAudit = {
   warnings: [],
   podfileLockDriftIssues: [],
   removedPodfileLockDriftIssues: [],
-  reactNativeVersion: '0.86.0',
+  reactNativeVersion: '0.86.2',
   rnMinIosVersion: '15.1',
   rnMinXcodeVersion: '16.1',
   podfilePlatform: '15.1',

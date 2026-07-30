@@ -29,7 +29,7 @@ const isNonNegativeInteger = value => /^\d+$/.test(value) && Number(value) >= 0;
 const isPositiveInteger = value => /^\d+$/.test(value) && Number(value) > 0;
 
 const expectedCurrentPodfileLockDriftSnippets = [
-  'React-Core 0.65.3; package.json has react-native 0.86.0',
+  'React-Core 0.65.3; package.json has react-native 0.86.2',
   'RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.2',
   'react-native-config 1.4.4; package.json has react-native-config 1.6.1',
   'RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
@@ -86,7 +86,7 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   }
 
   [
-    ['React Native version', reactNativeVersion, '0.86.0'],
+    ['React Native version', reactNativeVersion, '0.86.2'],
     ['React Native minimum iOS', rnMinIos, '15.1'],
     ['React Native minimum Xcode', rnMinXcode, '16.1'],
     ['Podfile iOS platform', podfilePlatform, '15.1'],
