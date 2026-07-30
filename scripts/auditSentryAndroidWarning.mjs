@@ -12,7 +12,9 @@ const dependencies = packageJson.dependencies || {};
 const scripts = packageJson.scripts || {};
 const sentryGradlePath = 'node_modules/@sentry/react-native/sentry.gradle';
 const sentryGradleKtsPath = 'node_modules/@sentry/react-native/sentry.gradle.kts';
-const expectedSentryReactNativeVersion = '8.20.0';
+const sentryDebugIdPatchPath = 'patches/@sentry+react-native+8.21.0.patch';
+const sentryDebugIdScriptPath = 'node_modules/@sentry/react-native/scripts/has-sourcemap-debugid.js';
+const expectedSentryReactNativeVersion = '8.21.0';
 
 const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {
@@ -53,6 +55,24 @@ export const collectSentryAndroidWarningAudit = () => {
 
   if (!exists(sentryGradlePath) || !exists(sentryGradleKtsPath)) {
     errors.push(`${sentryGradlePath} or ${sentryGradleKtsPath} is missing; install dependencies before auditing the Android Sentry warning source`);
+  }
+
+  if (!exists(sentryDebugIdPatchPath)) {
+    errors.push(`${sentryDebugIdPatchPath} is missing`);
+  } else {
+    const sentryDebugIdPatch = read(sentryDebugIdPatchPath);
+    requireSnippet(errors, sentryDebugIdPatchPath, sentryDebugIdPatch, '-  process.exist(1);');
+    requireSnippet(errors, sentryDebugIdPatchPath, sentryDebugIdPatch, '+  process.exit(1);');
+  }
+
+  if (!exists(sentryDebugIdScriptPath)) {
+    errors.push(`${sentryDebugIdScriptPath} is missing; install dependencies before auditing the Sentry source-map helper`);
+  } else {
+    const sentryDebugIdScript = read(sentryDebugIdScriptPath);
+    requireSnippet(errors, sentryDebugIdScriptPath, sentryDebugIdScript, 'process.exit(1);');
+    if (sentryDebugIdScript.includes('process.exist(1);')) {
+      errors.push(`${sentryDebugIdScriptPath} still contains the invalid process.exist(1) call; run the repo postinstall`);
+    }
   }
 
   requireSnippet(errors, 'android/app/build.gradle', androidBuildGradle, 'node_modules/@sentry/react-native/sentry.gradle');
@@ -145,7 +165,7 @@ const printReport = audit => {
     console.log('Sentry Android warning baseline is stable; keep Sentry SDK/source-map changes in a dedicated release validation branch.');
   }
 
-  console.log('Sentry Android warning source is dependency-owned; this audit intentionally does not patch node_modules or disable source-map upload.');
+  console.log('Sentry Android warning source is dependency-owned; this audit verifies the committed patch without disabling source-map upload.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

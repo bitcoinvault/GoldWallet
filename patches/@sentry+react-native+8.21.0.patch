@@ -1,0 +1,11 @@
+diff --git a/node_modules/@sentry/react-native/scripts/has-sourcemap-debugid.js b/node_modules/@sentry/react-native/scripts/has-sourcemap-debugid.js
+index 23e3c7a..cab4c5e 100644
+--- a/node_modules/@sentry/react-native/scripts/has-sourcemap-debugid.js
++++ b/node_modules/@sentry/react-native/scripts/has-sourcemap-debugid.js
+@@ -27,5 +27,5 @@ if (typeof sourceMap.debugId === 'string' && sourceMap.debugId.length > 0) {
+   console.log(sourceMap.debug_id);
+ } else {
+   console.log(`${sourceMapPath} does not contain 'debugId' nor 'debug_id'.`);
+-  process.exist(1);
++  process.exit(1);
+ }
