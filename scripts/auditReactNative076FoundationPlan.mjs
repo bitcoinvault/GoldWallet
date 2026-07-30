@@ -11,13 +11,13 @@ const devDependencies = packageJson.devDependencies || {};
 const scripts = packageJson.scripts || {};
 
 const requiredPlanSnippets = [
-  'react-native@0.86.0',
+  'react-native@0.86.2',
   'react@19.2.3',
   'react-test-renderer@19.2.3',
   '@types/react@19.2.17',
-  '@react-native/babel-preset@0.86.0',
-  '@react-native/metro-config@0.86.0',
-  '@react-native/gradle-plugin@0.86.0',
+  '@react-native/babel-preset@0.86.2',
+  '@react-native/metro-config@0.86.2',
+  '@react-native/gradle-plugin@0.86.2',
   'Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`',
   'Unable to resolve module ./AppContainer-prod',
   'Do not repeat a package-only RN 0.76 branch',
@@ -29,7 +29,7 @@ const requiredPlanSnippets = [
 ];
 
 const requiredMatrixSnippets = [
-  'Milestone B: RN 0.86.0 Latest Foundation',
+  'Milestone B: RN 0.86.2 Latest Foundation',
   'React peer: `^19.2.3`',
   '`@types/react` peer: `^19.2.3`',
   'Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`',
@@ -41,23 +41,23 @@ const warnings = [];
 const plan = read('docs/react-native-076-foundation-plan.md');
 const matrix = read('docs/react-native-foundation-target-matrix.md');
 
-if (dependencies['react-native'] !== '0.86.0') {
-  errors.push(`package.json has react-native@${dependencies['react-native'] || '<missing>'}; expected current baseline 0.86.0`);
+if (dependencies['react-native'] !== '0.86.2') {
+  errors.push(`package.json has react-native@${dependencies['react-native'] || '<missing>'}; expected current baseline 0.86.2`);
 }
 
 if (dependencies.react !== '19.2.3') {
   errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current baseline 19.2.3`);
 }
 
-if (devDependencies['@react-native/babel-preset'] !== '0.86.0') {
+if (devDependencies['@react-native/babel-preset'] !== '0.86.2') {
   errors.push(
-    `package.json has @react-native/babel-preset@${devDependencies['@react-native/babel-preset'] || '<missing>'}; expected current baseline 0.86.0`,
+    `package.json has @react-native/babel-preset@${devDependencies['@react-native/babel-preset'] || '<missing>'}; expected current baseline 0.86.2`,
   );
 }
 
-if (devDependencies['@react-native/metro-config'] !== '0.86.0') {
+if (devDependencies['@react-native/metro-config'] !== '0.86.2') {
   errors.push(
-    `package.json has @react-native/metro-config@${devDependencies['@react-native/metro-config'] || '<missing>'}; expected current baseline 0.86.0`,
+    `package.json has @react-native/metro-config@${devDependencies['@react-native/metro-config'] || '<missing>'}; expected current baseline 0.86.2`,
   );
 }
 
@@ -78,13 +78,13 @@ requiredMatrixSnippets.forEach(snippet => {
 });
 
 if (!plan.includes('Sentry release/source-map upgrade') || !plan.includes('react-native-camera` replacement')) {
-  warnings.push('RN 0.86.0 checkpoint should keep release-service and camera replacement work out of scope.');
+  warnings.push('RN 0.86.2 checkpoint should keep release-service and camera replacement work out of scope.');
 }
 
 console.log('React Native 0.86 foundation checkpoint audit');
 console.log(`Current react-native: ${dependencies['react-native'] || '<missing>'}`);
 console.log(`Current react: ${dependencies.react || '<missing>'}`);
-console.log('Current checkpoint: react-native@0.86.0 with React 19 and Node 24');
+console.log('Current checkpoint: react-native@0.86.2 with React 19 and Node 24');
 
 if (warnings.length > 0) {
   console.log('Warnings:');

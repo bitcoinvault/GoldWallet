@@ -23,7 +23,7 @@ const validSummary = [
   'iOS camera Podfile.lock cleanup complete: yes',
   'iOS broader Podfile.lock refresh required: yes',
   'iOS broader Podfile.lock drift issues: 1',
-  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.0',
+  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.2',
   'iOS removed Podfile.lock drift issues: 0',
   'Camera QR migration wiring valid: yes',
   'Camera QR migration baseline stable: yes',
@@ -155,7 +155,7 @@ assertRejected(
   'Bad QR renderer peer range fixture',
   validSummary.replace(
     'QR renderer peer dependency ranges: react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0',
-    'QR renderer peer dependency ranges: react@*, react-native@>=0.86.0, react-native-svg@>=15.0.0',
+    'QR renderer peer dependency ranges: react@*, react-native@>=0.86.2, react-native-svg@>=15.0.0',
   ),
   'QR renderer peer dependency ranges',
 );

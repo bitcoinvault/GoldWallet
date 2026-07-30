@@ -1,4 +1,4 @@
-﻿import {
+import {
   expectedReactNativeTargetSnapshot,
   getReactNativeTargetSnapshotIssues,
   requiredReactNativeTargetSnapshotSnippets,
@@ -51,10 +51,10 @@ assertRejected(
     ...validEnvironment,
     docs: {
       ...validEnvironment.docs,
-      'docs/react-native-target-snapshot.md': validEnvironment.docs['docs/react-native-target-snapshot.md'].replace('npm `latest`: `0.86.0`', ''),
+      'docs/react-native-target-snapshot.md': validEnvironment.docs['docs/react-native-target-snapshot.md'].replace('npm `latest`: `0.86.2`', ''),
     },
   },
-  'npm `latest`: `0.86.0`',
+  'npm `latest`: `0.86.2`',
 );
 
 console.log('React Native target snapshot guard checks are valid.');

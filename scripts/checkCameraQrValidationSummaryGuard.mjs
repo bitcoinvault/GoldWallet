@@ -37,7 +37,7 @@ const validSummary = [
   'iOS camera Podfile.lock cleanup complete: yes',
   'iOS broader Podfile.lock refresh required: yes',
   'iOS broader Podfile.lock drift issues: 1',
-  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.0',
+  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.2',
   'iOS runtime validation claimed: no',
   'Camera candidate summary errors: 0',
   'Camera QR migration summary errors: 0',

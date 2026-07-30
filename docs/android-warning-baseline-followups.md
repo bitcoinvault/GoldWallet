@@ -1,6 +1,6 @@
 # Android Warning Baseline Follow-ups
 
-This document tracks targeted Android Gradle warning sources after the RN `0.86.0` modernization stream.
+This document tracks targeted Android Gradle warning sources after the RN `0.86.2` modernization stream.
 
 Checked on: 2026-07-15
 

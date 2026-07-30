@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.929 - React Native 0.86.2 stable patch cohort
+
+- Branch: `feature/bem-37-929-rn-0-86-2-patch-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the complete React Native foundation cohort from `0.86.0` to the live stable latest `0.86.2`: React Native, Babel preset, Codegen, Gradle plugin, Jest preset, Metro config, and TypeScript config.
+- Keep React and `react-test-renderer` pinned to the bundled renderer-compatible `19.2.3` instead of independently moving to the incompatible live `19.2.8` patch.
+- Refresh the active RN foundation, Android, iOS-static, native-module, Sentry, Camera/QR, and target-snapshot contracts without rewriting historical milestone evidence.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-30 reports `react-native@0.86.2` as `latest`, `0.87.0-rc.3` as `next`, and `0.88.0-nightly-20260730-8e7446412` as the observed nightly. Stable `0.86.2` remains the release target; RC/nightly are planning signals only.
+- React Native `0.86.2` still bundles renderer `19.2.3` and peers on React `^19.2.3`. The live React and test-renderer `19.2.8` cohort remains blocked because it does not match the bundled renderer exact version.
+- A fresh install applies all repo patches and node polyfill shims. The Sentry `8.21.0` source-map helper patch now covers both upstream `process.exist(1)` typos, including the JSON parse error branch exposed by the fresh install.
+- Live camera metadata moved VisionCamera from `5.1.1` to `5.2.0`; CameraKit `18.0.0` remains the installed compatible scanner because VisionCamera still adds the Nitro native stack.
+- All four Android `dev`, `stage`, `prod`, and `beta` release variants rebuild successfully with valid manifests, secure-storage packaging, source maps, and retired-AppCenter checks.
+- Signed `prodRelease` emulator smoke passes onboarding, empty-dashboard CTAs, CameraKit QR open/close, all bottom tabs, Settings Terms WebView, and fatal/runtime logcat checks. The create-wallet smoke also passes mnemonic, process restart, incorrect/correct PIN, persistence, secure-window, and default 3-key vault public-key flow.
+- The online direct-outdated refresh now reports 36 entries and 8 newly unclassified drifts after packages published since the previous snapshot. The broader online preflight also detects React Native Firebase `26.0.0` as a new major over the validated `25.1.0` family. Those upgrades require dedicated compatibility branches and are not mixed into this RN patch cohort.
+- iOS runtime/archive validation remains unclaimed on Windows. Static readiness reports the same 12 active `Podfile.lock` drift issues and requires macOS, Xcode 16.1+, and CocoaPods.
+
+Validation:
+
+- Live npm metadata for React Native `latest`/`next`/`nightly`, React peer, Node engine, and all six coupled `@react-native/*` packages
+- React Native target snapshot, upgrade path, renderer exact-version, React package coupling, React patch blocker, Android lightweight, Camera candidate, native-module, and Sentry compatibility guards/audits
+- `corepack yarn node:runtime:yarn android:dev:check-light`
+- TypeScript, 55 unit tests, focused storage/network tests, node shims, lint baseline, modernization-log IDs, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_RELEASE_VARIANTS=dev,stage,prod,beta corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:create-wallet-smoke:embedded`
+- Credentialed Sentry prerequisite preflight with local-only `decentraplanet` overrides; Android release/smoke/create-wallet evidence passed, while iOS delivery remained explicitly blocked
+- Online direct-outdated and broad RN preflight intentionally remain red on newly published Firebase `26.0.0` and eight unclassified dependency drifts pending dedicated branches
+
 ### BEM-37.928 - Sentry 8.21 Android release upload validation
 
 - Branch: `feature/bem-37-928-sentry-8-21-release-validation`

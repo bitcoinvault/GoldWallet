@@ -23,7 +23,7 @@ const rendererInfo = {
 const validEnvironment = {
   dependencies: {
     react: '19.2.3',
-    'react-native': '0.86.0',
+    'react-native': '0.86.2',
   },
   devDependencies: {
     'react-test-renderer': '19.2.3',
@@ -58,7 +58,7 @@ const assertRejected = (label, environment, expectedError) => {
 };
 
 assertAccepted('Valid React Native renderer version fixture', validEnvironment);
-assertRejected('Wrong React fixture', { ...validEnvironment, dependencies: { ...validEnvironment.dependencies, react: '19.2.7' } }, 'React package version 19.2.7');
+assertRejected('Wrong React fixture', { ...validEnvironment, dependencies: { ...validEnvironment.dependencies, react: '19.2.8' } }, 'React package version 19.2.8');
 assertRejected(
   'Wrong renderer fixture',
   {
@@ -66,7 +66,7 @@ assertRejected(
     rendererFiles: [
       {
         relativePath: 'node_modules/react-native/Libraries/Renderer/implementations/ReactNativeRenderer-dev.js',
-        content: rendererFixture.replaceAll('19.2.3', '19.2.7'),
+        content: rendererFixture.replaceAll('19.2.3', '19.2.8'),
       },
     ],
   },
@@ -74,8 +74,8 @@ assertRejected(
 );
 assertRejected(
   'Wrong test renderer fixture',
-  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'react-test-renderer': '19.2.7' } },
-  'react-test-renderer 19.2.7',
+  { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'react-test-renderer': '19.2.8' } },
+  'react-test-renderer 19.2.8',
 );
 assertRejected('Missing renderer files fixture', { ...validEnvironment, rendererFiles: [] }, 'No React Native renderer implementation files');
 assertAccepted(

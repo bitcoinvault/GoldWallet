@@ -16,7 +16,7 @@ export const expectedAndroidToolchainCurrentState = {
   compileSdk: '36',
   targetSdk: '36',
   ndk: '27.1.12297006',
-  rnGradlePlugin: '0.86.0',
+  rnGradlePlugin: '0.86.2',
   newArchEnabled: 'true',
   hermesEnabled: 'true',
 };

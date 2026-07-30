@@ -52,8 +52,8 @@ if (!staleSummary.includes('Live check outcome: stale') || !staleSummary.include
 }
 assertRejected(
   'Changed next fixture',
-  { ...validCurrent, next: '0.86.0-rc.3' },
-  'npm next react-native is 0.86.0-rc.3',
+  { ...validCurrent, next: '0.86.2-rc.3' },
+  'npm next react-native is 0.86.2-rc.3',
 );
 assertAccepted('Changed valid nightly fixture', {
   ...validCurrent,
@@ -65,7 +65,7 @@ assertRejected(
   { ...validCurrent, nightly: '0.88.0-dev' },
   'npm nightly tag format is invalid',
 );
-assertRejected('Stable next fixture', { ...validCurrent, next: '0.86.0' }, 'npm next channel classification is stable');
+assertRejected('Stable next fixture', { ...validCurrent, next: '0.86.2' }, 'npm next channel classification is stable');
 assertRejected(
   'Next equals latest fixture',
   { ...validCurrent, next: expectedReactNativeTargetSnapshot.npmLatestReactNative },

@@ -6,8 +6,8 @@ const packageJson = JSON.parse(read('package.json'));
 const appBuildGradle = read('android/app/build.gradle');
 const readinessDocPath = 'docs/react-native-087-readiness.md';
 
-if (packageJson.dependencies?.['react-native'] !== '0.86.0') {
-  errors.push('Production React Native must remain on stable 0.86.0 until the 0.87 blocker is cleared.');
+if (packageJson.dependencies?.['react-native'] !== '0.86.2') {
+  errors.push('Production React Native must remain on stable 0.86.2 until the 0.87 blocker is cleared.');
 }
 
 if (packageJson.dependencies?.['@react-native-async-storage/async-storage'] !== '3.1.1') {
@@ -48,7 +48,7 @@ if ((appBuildGradle.match(/proguard-android-optimize\.txt/g) || []).length !== 2
 }
 
 const requiredDocSnippets = [
-  'Current stable target: `react-native@0.86.0`',
+  'Current stable target: `react-native@0.86.2`',
   'Probed next target: `react-native@0.87.0-rc.1`',
   'Required Android cohort: AGP `9.2.1`, Gradle `9.4.1`, Kotlin `2.2.0`',
   'ABI split decision: removed dead per-ABI override',

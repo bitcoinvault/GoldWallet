@@ -68,7 +68,7 @@ assertRejected(
   { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'jest-environment-node': '29.7.0' } },
   'jest-environment-node@29.7.0',
 );
-assertRejected('Wrong renderer fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'react-test-renderer': '19.2.7' } }, 'react-test-renderer@19.2.7');
+assertRejected('Wrong renderer fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, 'react-test-renderer': '19.2.8' } }, 'react-test-renderer@19.2.8');
 assertRejected('Wrong JSX fixture', { ...validEnvironment, tsconfig: { compilerOptions: { ...validEnvironment.tsconfig.compilerOptions, jsx: 'react-jsx' } } }, 'jsx is react-jsx');
 assertRejected('Missing Jest preset fixture', { ...validEnvironment, jestConfigContent: 'module.exports = { transform: {} };' }, '@react-native/jest-preset preset');
 assertRejected('Missing script fixture', { ...validEnvironment, scripts: {} }, 'test:type-coupling:audit');
