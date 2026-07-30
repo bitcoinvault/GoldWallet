@@ -3,8 +3,8 @@ import { getSentryReleaseCredentialPlanErrors } from './sentryReleaseCredentialP
 const validPlan = [
   'Sentry release credential plan',
   'Generated at: 2026-06-12T00:00:00.000Z',
-  '@sentry/react-native version: 8.20.0',
-  '@sentry/react-native latest: 8.20.0',
+  '@sentry/react-native version: 8.21.0',
+  '@sentry/react-native latest: 8.21.0',
   '@sentry/react-native current: yes',
   '@sentry/cli package version: 3.6.2',
   '@sentry/cli latest: 3.6.2',
@@ -54,7 +54,7 @@ const validPlan = [
   'iOS Sentry dSYM upload phases: 3',
   'iOS Podfile.lock refresh required: yes',
   'iOS Podfile.lock drift issues: 1',
-  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.20.0',
+  '- ios/Podfile.lock has RNSentry 3.1.0; package.json has @sentry/react-native 8.21.0',
   'iOS macOS validation prerequisites ready: no',
   'iOS macOS validation blockers: 1',
   '- Current platform is win32; iOS archive/simulator validation requires macOS with Xcode.',
@@ -102,7 +102,7 @@ assertRejected('Missing no-secret line fixture', validPlan.replace('Secret value
 assertRejected('Missing upload claim fixture', validPlan.replace('Sentry release upload validation: not claimed', 'Sentry release upload validation: ready'), 'unclaimed');
 assertRejected('Bad missing file count fixture', validPlan.replace('Missing properties files: 3', 'Missing properties files: 2'), 'missing files');
 assertRejected('Missing command fixture', validPlan.replace('3. Run corepack yarn sentry:release:create-properties.', '3. Generate files manually.'), 'sentry:release:create-properties');
-assertRejected('Missing latest fixture', validPlan.replace('@sentry/react-native latest: 8.20.0\n', ''), '@sentry/react-native latest');
+assertRejected('Missing latest fixture', validPlan.replace('@sentry/react-native latest: 8.21.0\n', ''), '@sentry/react-native latest');
 assertRejected('Bad Android summary count fixture', validPlan.replace('Android release summary errors: 1', 'Android release summary errors: 0'), 'Android release summary errors');
 assertRejected(
   'Missing Electrum blocker classification fixture',

@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.928 - Sentry 8.21 Android release upload validation
+
+- Branch: `feature/bem-37-928-sentry-8-21-release-validation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `@sentry/react-native` from `8.20.0` to the live npm latest `8.21.0` while retaining the current React Native `0.86.0`, React `19.2.3`, and direct `@sentry/cli@3.6.2` baseline.
+- Validate the complete Android release cohort and perform a credentialed source-map upload for the dev release without committing credentials.
+- Patch the Sentry source-map debug-ID helper typo that otherwise throws during the fallback release/dist upload path.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-30 reports `@sentry/react-native@8.21.0` as latest. Its React and React Native peer ranges remain compatible with the current runtime, and the Sentry JavaScript family moves to `10.69.0`.
+- The system Node `22.18.0` cannot install the resulting lockfile because Sentry's resolved `undici@8.8.0` requires Node `>=22.19.0`. The repo-managed Node `24.16.0` install and postinstall complete successfully.
+- Android dev debug build and no-network emulator smoke pass. All four `dev`, `stage`, `prod`, and `beta` release variants build and pass manifest, secure-storage, removed-AppCenter, bundle, and source-map checks.
+- A credentialed dev release upload completed for Sentry release `io.goldwallet.wallet.dev@6.5.1+14`, distribution `14`, with artifact bundle ID `4afaa155-7cbd-5204-b636-3fd5ea42ed4b`. No token or local Sentry properties are committed.
+- Sentry `8.21.0` contains `process.exist(1)` in `has-sourcemap-debugid.js`. The committed `patch-package` patch changes it to `process.exit(1)`, and the Android warning audit verifies both the patch and installed result.
+- The normal dev dashboard remains externally blocked by the expired dev/testnet Electrum certificate; the controlled no-network smoke passes without fatal Android or React Native runtime findings.
+- iOS archive, runtime, and credentialed dSYM upload remain unclaimed on Windows. Static readiness still reports missing macOS/Xcode/CocoaPods validation and 12 active `Podfile.lock` drift issues, including stale RNSentry pod metadata.
+
+Validation:
+
+- `npm view @sentry/react-native version peerDependencies engines dependencies dist-tags --json`
+- Node `24.16.0` dependency install/postinstall with `patch-package`, rn-nodeify shim restoration, and Jetifier
+- Sentry Android warning, RN bundle-task compatibility, credential plan, release prerequisite, release-validation handoff, iOS Podfile refresh, iOS release-readiness, and native-module inventory guards
+- TypeScript, 55 unit tests, focused storage/network tests, shim, lint-baseline, modernization-log, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:release:smoke:no-network:embedded`
+- Credentialed Gradle task `app:createBundleDevReleaseJsAndAssets_SentryUpload_io.goldwallet.wallet.dev@6.5.1+14_14`; upload credentials remained local-only
+- Static iOS release-readiness and macOS prerequisite audits; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.927 - Sentry SDK and CLI patch cohort
 
 - Branch: `feature/bem-37-927-sentry-8-20`
