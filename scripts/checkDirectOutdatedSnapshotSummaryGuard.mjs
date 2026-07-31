@@ -84,6 +84,24 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
+    name: '@types/react',
+    current: '19.2.17',
+    wanted: '19.2.17',
+    latest: '19.2.18',
+    type: 'resolutionDependencies',
+    decision:
+      'blocked - React type patch drift must stay aligned with the React Native renderer baseline and move in a dedicated React/RN type branch with TypeScript and unit proof',
+  },
+  {
+    name: '@types/react',
+    current: '19.2.17',
+    wanted: '19.2.17',
+    latest: '19.2.18',
+    type: 'devDependencies',
+    decision:
+      'blocked - React type patch drift must stay aligned with the React Native renderer baseline and move in a dedicated React/RN type branch with TypeScript and unit proof',
+  },
+  {
     name: 'babel-plugin-polyfill-regenerator',
     current: '0.6.8',
     wanted: '0.6.8',
@@ -132,6 +150,14 @@ const validEntries = [
     decision: 'blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
   },
   {
+    name: 'react-i18next',
+    current: '17.0.10',
+    wanted: '17.0.10',
+    latest: '17.0.11',
+    type: 'dependencies',
+    decision: 'blocked - localization runtime patch drift requires a dedicated i18n branch with translation checks and Android emulator proof',
+  },
+  {
     name: 'react-native-prompt-android',
     current: '0.3.6',
     wanted: 'exotic',
@@ -148,6 +174,14 @@ const validEntries = [
     decision: 'blocked - React Native renderer exact-version coupling requires test renderer to stay aligned with React and RN',
   },
   {
+    name: 'redux-saga',
+    current: '1.5.0',
+    wanted: '1.5.0',
+    latest: '1.5.1',
+    type: 'dependencies',
+    decision: 'blocked - state runtime patch drift requires a dedicated Redux Saga branch with action, effect, wallet unit, and Android emulator proof',
+  },
+  {
     name: 'rn-nodeify',
     current: '10.3.0',
     wanted: 'exotic',
@@ -162,6 +196,14 @@ const validEntries = [
     latest: '7.0.2',
     type: 'devDependencies',
     decision: 'blocked - TypeScript 7 major drift requires a dedicated compiler branch with TypeScript check, Jest, lint baseline, and RN/Metro proof',
+  },
+  {
+    name: 'undici',
+    current: '8.8.0',
+    wanted: '8.8.0',
+    latest: '8.9.0',
+    type: 'resolutionDependencies',
+    decision: 'blocked - undici minor drift belongs in a dedicated Sentry/tooling branch with release-service prerequisite summaries and no credentialed upload claim',
   },
 ];
 
@@ -203,10 +245,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 19', 'Entries: 18'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 24', 'Entries: 23'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 19', 'Entries: 20').replace(
+  validSummary.replace('Entries: 24', 'Entries: 25').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),

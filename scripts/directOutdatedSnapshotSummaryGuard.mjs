@@ -15,16 +15,21 @@ const requiredKnownEntries = [
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
   ['@babel/traverse', 'resolutionDependencies'],
+  ['@types/react', 'resolutionDependencies'],
+  ['@types/react', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
   ['plist', 'resolutionDependencies'],
   ['react', 'dependencies'],
+  ['react-i18next', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
+  ['redux-saga', 'dependencies'],
   ['rn-nodeify', 'devDependencies'],
   ['typescript', 'devDependencies'],
+  ['undici', 'resolutionDependencies'],
 ];
 const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
 
@@ -140,6 +145,30 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
 
   if (!entryLines.some(line => line.startsWith('- react: ') && line.includes('React Native renderer exact-version coupling'))) {
     errors.push('React patch drift must remain tied to the React Native renderer exact-version coupling decision');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- @types/react: ')) &&
+    !entryLines.every(
+      line =>
+        !line.startsWith('- @types/react: ') ||
+        (line.includes('React Native renderer baseline') && line.includes('dedicated React/RN type branch')),
+    )
+  ) {
+    errors.push('React type drift must remain tied to the React Native renderer baseline and a dedicated React/RN type branch');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- redux-saga: ')) &&
+    !entryLines.some(
+      line =>
+        line.startsWith('- redux-saga: ') &&
+        line.includes('dedicated Redux Saga branch') &&
+        line.includes('wallet unit') &&
+        line.includes('Android emulator proof'),
+    )
+  ) {
+    errors.push('Redux Saga drift must remain tied to a dedicated state-runtime branch with wallet and Android proof');
   }
 
   const babelEntryLines = entryLines.filter(line => line.startsWith('- @babel/'));
