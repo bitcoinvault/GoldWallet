@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.942 - Sentry Gradle devRelease upload proof
+
+- Branch: `feature/bem-37-942-sentry-gradle-dev-upload-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Exercise the real Sentry Gradle finalizer during an Android `devRelease` build against an isolated deterministic release in `goldwallet-dev-android`.
+- Wrap the existing Metro configuration with Sentry's supported serializer so generated bundles and source maps carry the same debug ID.
+- Prevent Sentry CLI debug logging from exposing credential prefixes and add a repeatable managed-credential runner with redacted local evidence.
+- Pin generated upload properties to the verified non-production organization and project, force the direct CLI project, and remove inherited CLI endpoint overrides.
+- Extend the release-integration guard across Android Gradle, Metro, and iOS while rejecting both missing Metro wrapping and unsafe Android debug logging.
+
+Findings:
+
+- The first controlled Gradle upload reached Sentry but reported no source-map debug ID. The existing Metro configuration did not use `withSentryConfig`, so release/path matching was available but debug-ID symbolication was not proven.
+- The same first run showed that `project.ext.sentryCli.logLevel = "debug"` writes a masked but still identifying token prefix in Gradle logs. The committed configuration uses `info`, and the final proof log contains no Authorization header, bearer value, `auth.token`, or `SENTRY_AUTH_TOKEN` assignment.
+- The final JDK 17 `devRelease` build passes through the real Sentry Gradle upload task. Artifact bundle `4e574f79-0167-512b-b664-5402b2681b40` is processed for project `goldwallet-dev-android`, release `goldwallet-android-gradle-canary@6.5.1+14-dc406df176fd`, and dist `14`.
+- Metro and the generated Hermes source map agree on debug ID `e8c40da4-a7b7-40ea-9647-0f8dff19ab2d`. The runner binds the canary release to a SHA-256 identity of app sources, assets, package/Metro/Babel configuration, patches, and Android build inputs; its guard proves that changing a `src/` input changes the canary release.
+- Executed evidence is invalidated before credential and API preflight, so a failed retry cannot leave a stale passing summary.
+- This proves the Android non-production Gradle upload path. Production release upload, real-event symbolication, iOS source-map/dSYM upload, and macOS archive validation remain unclaimed.
+
+Validation:
+
+- `corepack yarn check:sentry-gradle-dev-upload-canary-guard`
+- `corepack yarn sentry:gradle-dev-upload-canary:dry-run`
+- JDK 17 `corepack yarn sentry:gradle-dev-upload-canary:execute`
+- Sentry project ID/slug API binding, Gradle `BUILD SUCCESSFUL`, upload-task execution, processed Bundle ID, project/release/dist, matching bundle/source-map debug IDs, and secret-safe log validation
+- Sentry release integration guard/audit and iOS static release-readiness audit
+- JDK 17 Android dev assembly plus real-emulator smoke after the Metro serializer change
+- TypeScript, unit, focused storage/network, node-shim, lint-baseline, modernization-log ID, formatting, secret-scan, and diff checks
+- Production event symbolication and iOS runtime/archive remain unclaimed
+
 ### BEM-37.941 - Sentry Android source-map transport canary
 
 - Branch: `feature/bem-37-941-sentry-android-upload-canary`

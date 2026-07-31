@@ -97,6 +97,7 @@ export const collectIosReleaseReadiness = () => {
   const sentryReleaseIntegrationErrors = getSentryReleaseIntegrationErrors({
     androidBuildGradle: read('android/app/build.gradle'),
     iosProject: pbxproj,
+    metroConfig: read('metro.config.js'),
   });
   errors.push(...sentryReleaseIntegrationErrors);
   const sentryBundlePhaseCount = (pbxproj.match(/@sentry\/cli\/bin\/sentry-cli react-native xcode/g) || []).length;

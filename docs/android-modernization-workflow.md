@@ -170,6 +170,8 @@ When a subset is used, run both `android:dev:release:check-summary` and `android
 
 `check:sentry-usage-scope` keeps `@sentry/react-native` runtime usage isolated to `App.tsx`, `Main.tsx`, and `logger/index.ts` until the dedicated Sentry release/source-map validation branch handles credentialed upload validation and remaining release tooling behavior.
 
+`check:sentry-release-integration` also requires the supported `withSentryConfig` Metro wrapper and Sentry CLI `info` logging. The Metro wrapper gives release bundles and Hermes source maps one shared debug ID; debug CLI logging is rejected because request diagnostics can include a masked credential prefix. Use `sentry:gradle-dev-upload-canary:execute` for an isolated `goldwallet-dev-android` proof of the actual Gradle finalizer path without claiming production upload or event symbolication.
+
 `check:sentry-release-integration-guard` verifies the Sentry release integration guard fixtures. `check:sentry-release-integration` verifies that Android still applies Sentry's Gradle integration and iOS still has Sentry source-map and dSYM upload phases before a Sentry SDK or release tooling upgrade.
 
 `check:codepush-usage-scope` keeps CodePush runtime and native integration references at zero after the CodePush removal branch.

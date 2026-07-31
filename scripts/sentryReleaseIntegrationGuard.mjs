@@ -1,7 +1,13 @@
 export const expectedSentryAndroidSnippets = [
   'project.ext.sentryCli',
-  'logLevel: "debug"',
+  'logLevel: "info"',
   'apply from: "../../node_modules/@sentry/react-native/sentry.gradle"',
+];
+
+export const expectedSentryMetroSnippets = [
+  "require('@sentry/react-native/metro')",
+  'module.exports = withSentryConfig(',
+  'mergeConfig(defaultConfig,',
 ];
 
 export const expectedSentryIosSnippets = [
@@ -11,12 +17,22 @@ export const expectedSentryIosSnippets = [
   'Upload Debug Symbols to Sentry',
 ];
 
-export const getSentryReleaseIntegrationErrors = ({ androidBuildGradle, iosProject }) => {
+export const getSentryReleaseIntegrationErrors = ({ androidBuildGradle, iosProject, metroConfig }) => {
   const errors = [];
 
   expectedSentryAndroidSnippets.forEach(snippet => {
     if (!androidBuildGradle.includes(snippet)) {
       errors.push(`Android Sentry integration is missing "${snippet}"`);
+    }
+  });
+
+  if (androidBuildGradle.includes('logLevel: "debug"')) {
+    errors.push('Android Sentry CLI debug logging can expose a credential prefix');
+  }
+
+  expectedSentryMetroSnippets.forEach(snippet => {
+    if (!metroConfig.includes(snippet)) {
+      errors.push(`Sentry Metro integration is missing "${snippet}"`);
     }
   });
 

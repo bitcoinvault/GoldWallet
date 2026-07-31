@@ -183,6 +183,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const scripts = packageJson.scripts || {};
   const androidBuildGradle = read('android/app/build.gradle');
   const iosProject = read('ios/GoldWallet.xcodeproj/project.pbxproj');
+  const metroConfig = read('metro.config.js');
   const sentryReactNativeGradle = [sentryReactNativeGradlePath, sentryReactNativeGradleKtsPath]
     .filter(existsSync)
     .map(filePath => readFileSync(filePath, 'utf8'))
@@ -263,7 +264,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     !iosProject.includes('@sentry/react-native/node_modules/@sentry/cli');
   const sentryCliReleaseBuildPathUsesDirectPackage =
     sentryAndroidGradleCliResolverDirect && sentryIosReleaseBuildPathDirect;
-  const releaseIntegrationErrors = getSentryReleaseIntegrationErrors({ androidBuildGradle, iosProject });
+  const releaseIntegrationErrors = getSentryReleaseIntegrationErrors({ androidBuildGradle, iosProject, metroConfig });
   const propertiesFileReadiness = [];
 
   requiredSentryPropertiesFiles.forEach(relativePath => {
