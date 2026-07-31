@@ -340,11 +340,19 @@ export const getSentryReleaseValidationHandoffSummary = ({
             : iosMacValidationPrereqsReady !== 'yes'
               ? 'ios-validation-not-ready'
               : 'release-evidence-not-ready';
+  const credentialAction =
+    sentryAuthTokenAvailable !== 'yes' && sentryPropertiesReady !== 'yes'
+      ? 'provide SENTRY_AUTH_TOKEN and generate local-only sentry.properties files'
+      : sentryAuthTokenAvailable !== 'yes'
+        ? 'provide SENTRY_AUTH_TOKEN'
+        : sentryPropertiesReady !== 'yes'
+          ? 'generate local-only sentry.properties files'
+          : null;
   const requiredAction =
     handoffOutcome === 'ready-for-credentialed-upload-test'
       ? 'run credentialed Android and iOS source-map/dSYM release validation and do not claim Sentry release upload validation until the upload proof passes.'
       : [
-          'provide SENTRY_AUTH_TOKEN and generate local-only sentry.properties files',
+          ...(credentialAction ? [credentialAction] : []),
           ...(releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired'
             ? [
                 'renew the dev/testnet Electrum TLS certificate and refresh full Android release smoke/create-wallet evidence',
@@ -645,7 +653,7 @@ const main = () => {
 
   if (options.preflightOnly) {
     console.log(
-      '\nSentry release validation preflight completed. Credentialed upload remains unclaimed until SENTRY_AUTH_TOKEN and sentry.properties files are present.',
+      '\nSentry release validation preflight completed. Credentialed upload remains unclaimed until Android and iOS source-map/dSYM release validation passes.',
     );
   } else {
     console.log('\nSentry release validation handoff completed.');

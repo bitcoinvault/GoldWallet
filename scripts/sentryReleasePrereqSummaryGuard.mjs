@@ -729,14 +729,20 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Present createSentryProperties.mjs must require and reject missing SENTRY_AUTH_TOKEN, write root/android/iOS properties, keep expected static defaults, support SENTRY_ORG/platform project overrides, support --root test output, and have a package script entry');
   }
 
-  if (
-    readiness === 'not ready' &&
+  const credentialSetupRequired =
+    envHasToken !== 'yes' || readyPropertiesFiles !== String(requiredSentryPropertiesFiles.length);
+  const iosSetupRequired = iosPodfileLockRefreshRequired === 'yes' || iosMacValidationPrereqsReady !== 'yes';
+  const missingCredentialAction =
+    credentialSetupRequired &&
     (!requiredAction.includes('SENTRY_AUTH_TOKEN') ||
-      !requiredSentryPropertiesFiles.every(relativePath => requiredAction.includes(relativePath)) ||
-      !requiredAction.includes('ios/Podfile.lock') ||
+      !requiredSentryPropertiesFiles.every(relativePath => requiredAction.includes(relativePath)));
+  const missingIosAction =
+    iosSetupRequired &&
+    (!requiredAction.includes('ios/Podfile.lock') ||
       !requiredAction.includes('macOS') ||
-      !requiredAction.includes('Xcode'))
-  ) {
+      !requiredAction.includes('Xcode'));
+
+  if (readiness === 'not ready' && (missingCredentialAction || missingIosAction)) {
     errors.push('Not ready summary must include SENTRY_AUTH_TOKEN, all sentry.properties paths, ios/Podfile.lock, macOS, and Xcode in the required action');
   }
 

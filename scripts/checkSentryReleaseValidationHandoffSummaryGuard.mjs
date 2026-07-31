@@ -97,6 +97,13 @@ assertAccepted(
     ),
 );
 assertRejected(
+  'Ready credentials with stale credential action fixture',
+  validBlockedSummary
+    .replace('SENTRY_AUTH_TOKEN available: no', 'SENTRY_AUTH_TOKEN available: yes')
+    .replace('Sentry properties files ready: no', 'Sentry properties files ready: yes'),
+  'must not request Sentry credentials',
+);
+assertRejected(
   'Missing header fixture',
   validBlockedSummary.replace('Sentry release validation handoff summary', 'Bad header'),
   'summary header',

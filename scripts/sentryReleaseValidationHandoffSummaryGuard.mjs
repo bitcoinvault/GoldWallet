@@ -200,5 +200,21 @@ export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
     );
   }
 
+  if (
+    sentryAuthTokenAvailable === 'yes' &&
+    sentryPropertiesReady === 'yes' &&
+    requiredAction.includes('provide SENTRY_AUTH_TOKEN')
+  ) {
+    errors.push('Required action must not request Sentry credentials when the token and properties are ready');
+  }
+
+  if (
+    (sentryAuthTokenAvailable === 'no' || sentryPropertiesReady === 'no') &&
+    !requiredAction.includes('SENTRY_AUTH_TOKEN') &&
+    !requiredAction.includes('sentry.properties')
+  ) {
+    errors.push('Required action must describe missing Sentry credential setup');
+  }
+
   return errors;
 };
