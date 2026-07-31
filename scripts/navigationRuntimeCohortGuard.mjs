@@ -1,18 +1,18 @@
 import semver from 'semver';
 
 export const expectedNavigationRuntimeVersions = new Map([
-  ['@react-navigation/bottom-tabs', '7.18.13'],
-  ['@react-navigation/devtools', '7.1.10'],
-  ['@react-navigation/native', '7.3.13'],
-  ['@react-navigation/stack', '7.10.16'],
+  ['@react-navigation/bottom-tabs', '7.18.14'],
+  ['@react-navigation/devtools', '7.1.11'],
+  ['@react-navigation/native', '7.3.14'],
+  ['@react-navigation/stack', '7.10.17'],
   ['react-native-gesture-handler', '3.1.0'],
   ['react-native-screens', '4.26.2'],
 ]);
 
 export const expectedNavigationRuntimeInstalledVersions = new Map([
   ...expectedNavigationRuntimeVersions,
-  ['@react-navigation/core', '7.21.10'],
-  ['@react-navigation/elements', '2.9.35'],
+  ['@react-navigation/core', '7.21.11'],
+  ['@react-navigation/elements', '2.9.36'],
   ['@react-navigation/routers', '7.6.4'],
 ]);
 

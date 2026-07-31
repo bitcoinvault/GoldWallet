@@ -13,25 +13,25 @@ const dependencies = {
 };
 const installedPackages = {
   '@react-navigation/bottom-tabs': {
-    version: '7.18.13',
+    version: '7.18.14',
     peerDependencies: {
-      '@react-navigation/native': '^7.3.13',
+      '@react-navigation/native': '^7.3.14',
       react: '>=18.2.0',
       'react-native': '*',
       'react-native-safe-area-context': '>=4.0.0',
       'react-native-screens': '>=4.0.0',
     },
   },
-  '@react-navigation/devtools': { version: '7.1.10', peerDependencies: { react: '>=18.2.0' } },
+  '@react-navigation/devtools': { version: '7.1.11', peerDependencies: { react: '>=18.2.0' } },
   '@react-navigation/core': {
-    version: '7.21.10',
+    version: '7.21.11',
     peerDependencies: { react: '>=18.2.0' },
   },
   '@react-navigation/elements': {
-    version: '2.9.35',
+    version: '2.9.36',
     peerDependencies: {
       '@react-native-masked-view/masked-view': '>=0.2.0',
-      '@react-navigation/native': '^7.3.13',
+      '@react-navigation/native': '^7.3.14',
       react: '>=18.2.0',
       'react-native': '*',
       'react-native-safe-area-context': '>=4.0.0',
@@ -41,13 +41,13 @@ const installedPackages = {
     },
   },
   '@react-navigation/native': {
-    version: '7.3.13',
+    version: '7.3.14',
     peerDependencies: { react: '>=18.2.0', 'react-native': '*' },
   },
   '@react-navigation/stack': {
-    version: '7.10.16',
+    version: '7.10.17',
     peerDependencies: {
-      '@react-navigation/native': '^7.3.13',
+      '@react-navigation/native': '^7.3.14',
       react: '>=18.2.0',
       'react-native': '*',
       'react-native-gesture-handler': '>=2.0.0',
@@ -74,7 +74,7 @@ assert(
       ...installedPackages,
       '@react-navigation/core': { ...installedPackages['@react-navigation/core'], version: '7.21.9' },
     },
-  }).some(error => error.includes('@react-navigation/core installed version must be 7.21.10')),
+  }).some(error => error.includes('@react-navigation/core installed version must be 7.21.11')),
 );
 assert(
   getNavigationRuntimeCohortErrors({
@@ -92,7 +92,7 @@ assert(
   getNavigationRuntimeCohortErrors({
     dependencies: { ...dependencies, '@react-navigation/native': '7.3.8' },
     installedPackages,
-  }).some(error => error.includes('@react-navigation/native dependency must be 7.3.13')),
+  }).some(error => error.includes('@react-navigation/native dependency must be 7.3.14')),
 );
 assert(
   getNavigationRuntimeCohortErrors({
@@ -146,7 +146,7 @@ assert(
         },
       },
     },
-  }).some(error => error.includes('does not accept 7.3.13')),
+  }).some(error => error.includes('does not accept 7.3.14')),
 );
 
 console.log('Navigation runtime cohort guard checks are valid.');
