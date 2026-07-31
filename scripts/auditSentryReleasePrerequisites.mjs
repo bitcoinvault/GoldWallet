@@ -66,6 +66,30 @@ const parseProperties = content =>
       .filter(line => line && !line.startsWith('#') && line.includes('='))
       .map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]),
   );
+
+export const getSentryPropertiesReadiness = ({ content, env = {} }) => {
+  const properties = parseProperties(content);
+  const expectedValues = {
+    'defaults.url': defaultSentryPropertiesValues['defaults.url'],
+    ...(env.SENTRY_ORG ? { 'defaults.org': env.SENTRY_ORG } : {}),
+    ...(env.SENTRY_PROJECT ? { 'defaults.project': env.SENTRY_PROJECT } : {}),
+  };
+  const missingKeys = requiredSentryPropertiesKeys.filter(key => !properties.has(key));
+  const invalidStaticKeys = Object.entries(expectedValues)
+    .filter(([key, expectedValue]) => properties.has(key) && properties.get(key) !== expectedValue)
+    .map(([key]) => key);
+
+  for (const key of ['defaults.org', 'defaults.project']) {
+    if (properties.has(key) && properties.get(key).trim() === '' && !invalidStaticKeys.includes(key)) {
+      invalidStaticKeys.push(key);
+    }
+  }
+
+  const hasBlankToken = properties.has('auth.token') && properties.get('auth.token').trim() === '';
+  const status = missingKeys.length === 0 && invalidStaticKeys.length === 0 && !hasBlankToken ? 'ready' : 'invalid';
+
+  return { status, missingKeys, invalidStaticKeys, hasBlankToken };
+};
 const npmViewVersion = packageName =>
   execFileSync(npmCommand, npmArgs(['view', packageName, 'version']), {
     cwd: root,
@@ -151,11 +175,6 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     .filter(existsSync)
     .map(filePath => readFileSync(filePath, 'utf8'))
     .join('\n');
-  const expectedSentryPropertiesValues = {
-    ...defaultSentryPropertiesValues,
-    'defaults.org': env.SENTRY_ORG || defaultSentryPropertiesValues['defaults.org'],
-    'defaults.project': env.SENTRY_PROJECT || defaultSentryPropertiesValues['defaults.project'],
-  };
   const sentryReactNativeVersion = packageJson.dependencies?.['@sentry/react-native'] || 'missing';
   const sentryCliPackage = existsSync(sentryCliPackagePath) ? JSON.parse(readFileSync(sentryCliPackagePath, 'utf8')) : null;
   const sentryCliPackageVersion = sentryCliPackage?.version || 'missing';
@@ -249,21 +268,11 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
       return;
     }
 
-    const content = read(relativePath);
-    const properties = parseProperties(content);
-    const missingKeys = requiredSentryPropertiesKeys.filter(key => !properties.has(key));
-    const invalidStaticKeys = Object.entries(expectedSentryPropertiesValues)
-      .filter(([key, expectedValue]) => properties.has(key) && properties.get(key) !== expectedValue)
-      .map(([key]) => key);
-    const hasBlankToken = properties.has('auth.token') && properties.get('auth.token') === '';
-    const status = missingKeys.length === 0 && invalidStaticKeys.length === 0 && !hasBlankToken ? 'ready' : 'invalid';
+    const readiness = getSentryPropertiesReadiness({ content: read(relativePath), env });
 
     propertiesFileReadiness.push({
       relativePath,
-      status,
-      missingKeys,
-      invalidStaticKeys,
-      hasBlankToken,
+      ...readiness,
     });
   });
 

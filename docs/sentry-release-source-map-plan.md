@@ -2,7 +2,7 @@
 
 ## Current State
 
-- The app uses `@sentry/react-native@8.19.0` with direct release tooling on `@sentry/cli@3.6.1`.
+- The app uses `@sentry/react-native@8.21.0` with direct release tooling on `@sentry/cli@3.6.2`.
 - Android applies `node_modules/@sentry/react-native/sentry.gradle` from `android/app/build.gradle`.
 - Android has `project.ext.sentryCli.logLevel = "debug"`.
 - iOS has Xcode build phases for Sentry React Native bundling and dSYM upload.
@@ -28,18 +28,27 @@
 - `corepack yarn sentry:release:prereq-check-summary` validates the generated local prerequisite summary, including per-file readiness counts and generator coverage.
 - `corepack yarn sentry:android-warning:audit` verifies that Sentry Gradle/source-map wiring remains tracked before any Sentry cleanup branch and writes `local-docs/sentry-android-warning-summary.txt`.
 - `corepack yarn sentry:android-warning:check-summary` validates the generated local Android warning summary.
-- `corepack yarn sentry:rn-bundle-task-compat:audit` records the static compatibility status between Sentry `8.19.0` bundle-task extraction and the RN `0.86.2` `BundleHermesCTask` property model.
+- `corepack yarn sentry:rn-bundle-task-compat:audit` records the static compatibility status between Sentry `8.21.0` bundle-task extraction and the RN `0.86.2` `BundleHermesCTask` property model.
 - `corepack yarn sentry:rn-bundle-task-compat:check-summary` validates the generated local compatibility summary.
 - The active RN `0.86.2` Android warning audit no longer reports Sentry `execResult`; Sentry still needs release/source-map validation with local credentials before claiming the SDK/tooling change complete for release artifacts.
-- The latest npm releases checked for the Sentry release path on 2026-07-21 are `@sentry/react-native@8.19.0` and direct `@sentry/cli@3.6.1`. The SDK is current on the RN `0.86.2` baseline, and the release CLI is pinned explicitly as dev tooling. A scoped resolution deduplicates the SDK's exact CLI `3.6.0` requests to root `3.6.1`.
+- The latest npm releases checked for the Sentry release path on 2026-07-31 are `@sentry/react-native@8.21.0` and direct `@sentry/cli@3.6.2`. The SDK is current on the RN `0.86.2` baseline, and the release CLI is pinned explicitly as dev tooling. The guarded Sentry owner path resolves `undici@8.9.0`, the latest version compatible with Node `24.16.0`.
 - The Sentry prerequisite audit now records live latest metadata for both packages and fails stale "current" claims when installed and latest versions differ.
-- `@sentry/react-native@8.19.0` declares `react-native >=0.65.0`, but release artifact behavior still has to be proven instead of patching `node_modules` or disabling source-map upload.
+- `@sentry/react-native@8.21.0` declares `react-native >=0.65.0`, but release artifact behavior still has to be proven instead of patching `node_modules` or disabling source-map upload.
 - Android release APK generation has now been proven locally for `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` with Sentry auto-upload disabled; Sentry source-map upload remains explicitly not claimed until `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are available.
-- Android release Gradle output on Sentry `8.19.0` is checked for `Could not extract bundle task arguments` after the repo-owned RN `0.86.2` bundle task args shim; final source-map upload validation still requires generated Sentry properties and a credentialed upload run.
+- Android release Gradle output on Sentry `8.21.0` is checked for `Could not extract bundle task arguments` after the repo-owned RN `0.86.2` bundle task args shim; final source-map upload validation still requires a credentialed upload run.
 - Static compatibility evidence shows Sentry expects `jsIntermediateSourceMapsDir` as a `Directory`, while RN `0.86.2` exposes it on `BundleHermesCTask` as a `RegularFileProperty`; Sentry's fallback also expects an `args` property that the RN task does not expose. Do not patch `node_modules` or add unsupported dynamic task properties in `android/app/build.gradle`.
 - The 2026-07-05 BEM-37.819 refresh updates current Android release build/manifest evidence for the Sentry package bump. Sentry release integration uses the direct root `@sentry/cli@3.6.0`, nested Sentry-owned CLI versions are absent, and the Sentry RN bundle task compatibility path is ready through the repo-owned legacy args shim.
 - BEM-37.920 binds Sentry Android candidate evidence to the exact signed AAB before any Play handoff: it cleans prior generated outputs, forces automatic upload off, extracts the embedded AAB bundle, snapshots the fresh Gradle bundle/map, and writes a strict hash-addressed manifest under ignored `local-docs/sentry-android-candidates/<aab-sha256>/`. The local signing proof validates this path on the API 36 emulator. This does not claim credentialed Sentry upload, Play acceptance, iOS dSYM/source-map delivery, or production upload-key identity.
 - The 2026-06-17 BEM-37.742 prerequisite gate makes Sentry source-map readiness depend on iOS readiness as well: the summary reports static iOS files valid, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, `ios/Podfile.lock` refresh required with 12 active drift issues, and macOS validation prerequisites not ready on this Windows host. Source-map/dSYM upload remains blocked by both missing local `SENTRY_AUTH_TOKEN` plus generated root/Android/iOS `sentry.properties` files and the required macOS/Xcode/CocoaPods Podfile/archive validation.
+
+## 2026-07-31 Release Services Refresh
+
+- BEM-37.935 refreshes the Sentry CLI transport to `undici@8.9.0` while keeping the already-current SDK `8.21.0` and CLI `3.6.2` fixed.
+- The properties readiness audit accepts persisted non-empty org/project overrides when a later shell does not inherit those variables. It still rejects a wrong URL, blank org/project/token, missing keys, and conflicts with explicitly supplied env values.
+- All three ignored Sentry properties files pass readiness checks without printing values. `SENTRY_AUTH_TOKEN` is not present in the current shell, so credentialed source-map upload remains explicitly unclaimed.
+- Android `dev`, `stage`, `prod`, and `beta` release APKs, JS bundles, source maps, manifests, secure-storage packaging, and retired App Center checks pass with automatic upload disabled.
+- Fresh signed `prodRelease` emulator validation passes onboarding, dashboard actions, QR, tabs, Terms WebView, standard-wallet creation, restart/PIN persistence, and the default 3-key vault public-key flow with no fatal/runtime findings.
+- iOS static readiness passes, but dSYM/source-map delivery and archive validation remain unclaimed until macOS/Xcode/CocoaPods refreshes the 12 active `ios/Podfile.lock` drifts.
 
 ## 2026-06-17 Preflight Refresh
 

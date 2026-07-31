@@ -30,7 +30,7 @@ const requiredResolutions = new Map([
   ['tmp', '0.2.7'],
   ['word-wrap', '1.2.5'],
   ['**/xcode/uuid', '14.0.1'],
-  ['@sentry/**/undici', '8.8.0'],
+  ['@sentry/**/undici', '8.9.0'],
 ]);
 
 const vulnerableLockEntries = [

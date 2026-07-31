@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.935 - Sentry release services current baseline
+
+- Branch: `feature/bem-37-935-sentry-release-services-current`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep the live npm latest `@sentry/react-native@8.21.0` and direct `@sentry/cli@3.6.2` fixed while upgrading the guarded Sentry CLI transport from `undici@8.8.0` to latest `8.9.0`.
+- Fix Sentry properties readiness so persisted non-default org/project targets remain valid across shells without weakening URL, required-key, blank-value, or explicit-env conflict checks.
+- Refresh full Android release, source-map, Sentry prerequisite, production runtime, wallet creation, and Windows-safe iOS evidence.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-31 reports Sentry React Native `8.21.0`, Sentry CLI `3.6.2`, and undici `8.9.0` as latest. Their RN/React/Node ranges accept the current RN `0.86.2`, React `19.2.3`, and Node `24.16.0` baselines.
+- The Sentry owner path resolves one direct CLI `3.6.2` installation and `undici@8.9.0`; CLI version plus CommonJS `request`/`fetch` probes pass.
+- The new properties guard proves persisted custom targets pass without inherited env, matching explicit env passes, and conflicting env, invalid URL, blank org/project/token, and missing keys fail.
+- Existing ignored root/Android/iOS Sentry properties are all ready without printing values. `SENTRY_AUTH_TOKEN` is absent from the current shell, so credentialed upload remains unclaimed.
+- Android `dev`, `stage`, `prod`, and `beta` release APKs, JS bundles, source maps, manifests, secure-storage packaging, and App Center retirement checks pass with Sentry auto-upload disabled.
+- Fresh signed `prodRelease` emulator smoke passes onboarding, dashboard CTAs, QR, all bottom tabs, Terms WebView, standard-wallet mnemonic creation, process restart, incorrect/correct PIN handling, persistence, and the default 3-key vault public-key path with no fatal/runtime findings.
+- The direct-outdated snapshot now reports 21 classified entries: 17 explicit blockers, 4 fork/exotic entries, and zero review-required entries.
+- Windows-safe iOS static validation passes with eight guarded schemes. iOS runtime/archive and dSYM delivery remain unclaimed because macOS/Xcode/CocoaPods are unavailable and `ios/Podfile.lock` still has 12 active drifts.
+
+Validation:
+
+- Live npm metadata for Sentry React Native, Sentry CLI, and undici
+- Clean install with patch-package, rn-nodeify shim restoration, and Jetifier postinstall
+- Sentry properties readiness guard, CLI/version/API probes, Android warning and RN bundle-task compatibility audits
+- Sentry prerequisite and credential-plan summaries with secret values suppressed
+- Full `dev`/`stage`/`prod`/`beta` Android release matrix, release summaries, APK manifests, secure-storage packaging, and App Center retirement checks
+- TypeScript, 55 unit tests, focused storage/network, QR, authenticator, watch-only, HD wallet, offline wallet, signer, node shims, security baselines, lint baseline, modernization-log IDs, and diff checks
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn ios:static:verify`; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.934 - JavaScript runtime patch cohort
 
 - Branch: `feature/bem-37-934-js-runtime-patch-cohort`
