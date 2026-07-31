@@ -17,7 +17,9 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@react-native-community/push-notification-ios` | `1.12.0` | `1.12.0` | iOS notification bridge; no Android impact. |
 | `react-native-code-push` | removed | `9.0.1` on 2026-06-24 | Removed in `BEM-37.583`; App Center CodePush was retired on 2025-03-31, the Microsoft `react-native-code-push` repository was archived on 2025-05-20, and upstream does not support New Architecture on React Native `>=0.76`. |
 | `@sentry/react-native` | `8.21.0` | `8.21.0` on 2026-07-30 | Latest checked SDK line; source-map and dSYM upload must still be proven with local credentials. |
-| `@sentry/cli` | `3.6.1` | `3.6.1` on 2026-07-21 | Explicit direct release-tooling dependency; a scoped resolution deduplicates SDK requests for `3.6.0`, and the prerequisite audit verifies that release build phases resolve the direct root CLI package. |
+| `@sentry/cli` | `3.6.2` | `3.6.2` on 2026-07-31 | Explicit direct release-tooling dependency; a scoped resolution deduplicates SDK requests to the direct root CLI package, and the prerequisite audit verifies that release build phases use it. |
+
+The Sentry CLI owner path uses the guarded latest `undici@8.9.0` resolution after BEM-37.935. Node `24.16.0`, the CLI version probe, CommonJS request/fetch APIs, Android debug/release builds, and production emulator smoke all pass on this transport baseline.
 
 ## Current Runtime Surface
 
