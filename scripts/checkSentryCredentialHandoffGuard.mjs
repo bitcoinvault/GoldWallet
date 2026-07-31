@@ -11,7 +11,7 @@ const requiredSnippets = [
   '## Credential Handoff Gate',
   'Credential owner input required before claiming release source-map validation:',
   '- provide `SENTRY_AUTH_TOKEN` in the local shell or CI secret store;',
-  '- confirm the Sentry org and project target, using `SENTRY_ORG` and `SENTRY_PROJECT` overrides only when the target differs from `cloudbest` / `goldwallet`;',
+  '- select `SENTRY_RELEASE_PROFILE=nonprod` or `SENTRY_RELEASE_PROFILE=prod`; use `SENTRY_ORG`, `SENTRY_ANDROID_PROJECT`, and `SENTRY_IOS_PROJECT` overrides only after a confirmed Sentry project move;',
   '- generate local-only `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` with `corepack yarn sentry:release:create-properties`;',
   '- keep generated Sentry properties files and token values out of commits, screenshots, and handoff artifacts.',
   'Evidence that must be attached to the credential handoff:',

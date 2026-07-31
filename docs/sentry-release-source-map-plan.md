@@ -15,9 +15,10 @@
 - The audit selects `prodRelease` runtime evidence by default and derives the full-smoke summary, signed APK, unsigned source APK, and create-wallet summary from one variant config. `SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT=dev|stage|prod|beta` provides an explicit override; the controlled Electrum no-network fallback is accepted only for `dev` and cannot satisfy a production-evidence claim.
 - The prerequisite audit records per-file readiness for the three required Sentry properties files, validates that `create-sentry-properties.sh` writes all three paths, confirms the expected non-secret defaults without printing token values, records local `@sentry/cli` package/bin executability, records whether the latest local Android release summary artifact is present and valid, and now also embeds iOS static/macOS prerequisite evidence for Podfile.lock drift plus Sentry iOS source-map/dSYM phase coverage.
 - `create-sentry-properties.sh` now rejects a missing `SENTRY_AUTH_TOKEN` before writing any properties files, so local release setup cannot accidentally create `auth.token=` files that look configured but fail during upload.
-- `create-sentry-properties.sh` accepts optional `SENTRY_ORG` and `SENTRY_PROJECT` overrides, defaulting to the current `cloudbest` / `goldwallet` release target, so a future rebrand or Sentry project move does not require editing the generator script.
+- `create-sentry-properties.sh` requires an explicit `SENTRY_RELEASE_PROFILE=nonprod|prod`. It writes separate Android/iOS project targets under the current `decentraplanet` organization and accepts platform-specific overrides only for a confirmed future project move.
 - `corepack yarn sentry:release:create-properties` is the cross-platform release setup command for generating the root, Android, and iOS Sentry properties files after `SENTRY_AUTH_TOKEN` is provided.
-- `corepack yarn check:sentry-properties-generator` validates the cross-platform `scripts/createSentryProperties.mjs` generator without touching repo-level Sentry files: it checks missing-token failure, `--root` temp output, root/Android/iOS file generation, org/project overrides, and secret-safe command output.
+- `corepack yarn check:sentry-properties-generator` validates the cross-platform `scripts/createSentryProperties.mjs` generator without touching repo-level Sentry files: it checks missing-token/profile failures, `--root` temp output, distinct root/Android/iOS project generation, platform-specific overrides, and secret-safe command output.
+- `corepack yarn check:sentry-project-routing-guard` and `corepack yarn sentry:project-routing:audit` verify 11 current DSN routes without retaining or printing DSN values. Non-production Android/iOS route to `goldwallet-dev-android` / `goldwallet-dev-ios`; production routes to `goldwallet-prod-android` / `goldwallet`.
 - `corepack yarn sentry:release:validation:handoff:dry-run` renders the Sentry source-map prerequisite sequence without printing token assignments.
 - `corepack yarn sentry:release:validation:handoff` validates the generator, optionally refreshes Android release APK evidence with Sentry auto-upload disabled, refreshes the Sentry RN bundle task compatibility summary, generates the three Sentry properties files from `SENTRY_AUTH_TOKEN`, refreshes the Sentry prerequisite summary, and validates aggregate release-services summaries.
 - `corepack yarn sentry:release:validation:preflight` runs the non-secret readiness path with `--preflight-only --skip-android-release` when current Android release evidence is already fresh and `SENTRY_AUTH_TOKEN` is unavailable. It validates Sentry-specific prerequisites and may accept a controlled `android-smoke-dev-release-no-network` blocker proof for a structurally valid `not ready` summary, but it does not run the final aggregate `release-services:check-summaries` gate and does not claim release upload readiness.
@@ -123,7 +124,7 @@
 Credential owner input required before claiming release source-map validation:
 
 - provide `SENTRY_AUTH_TOKEN` in the local shell or CI secret store;
-- confirm the Sentry org and project target, using `SENTRY_ORG` and `SENTRY_PROJECT` overrides only when the target differs from `cloudbest` / `goldwallet`;
+- select `SENTRY_RELEASE_PROFILE=nonprod` or `SENTRY_RELEASE_PROFILE=prod`; use `SENTRY_ORG`, `SENTRY_ANDROID_PROJECT`, and `SENTRY_IOS_PROJECT` overrides only after a confirmed Sentry project move;
 - generate local-only `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` with `corepack yarn sentry:release:create-properties`;
 - keep generated Sentry properties files and token values out of commits, screenshots, and handoff artifacts.
 
@@ -210,7 +211,7 @@ Scope:
 - Android emulator smoke after Metro `--reset-cache`.
 - Android release bundle/build check for at least one non-production flavor.
 - Confirm whether `SENTRY_AUTH_TOKEN` and generated `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` files are available locally.
-- If the release target changes, set `SENTRY_ORG` and `SENTRY_PROJECT` before generating properties instead of editing committed files.
+- If the release target changes, set `SENTRY_ORG`, `SENTRY_ANDROID_PROJECT`, and `SENTRY_IOS_PROJECT` before generating properties instead of editing committed files.
 - iOS release validation remains required on a Mac runner or device before calling the Sentry upgrade complete.
 
 ## Acceptance Criteria

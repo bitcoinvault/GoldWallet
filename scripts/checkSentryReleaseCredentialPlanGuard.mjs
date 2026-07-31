@@ -61,7 +61,7 @@ const validPlan = [
   'Sentry release upload validation: not claimed',
   'Credential handoff steps:',
   '1. Set SENTRY_AUTH_TOKEN in the local shell or CI secret store.',
-  '2. Optional: set SENTRY_ORG and SENTRY_PROJECT only when the target differs from cloudbest/goldwallet.',
+  '2. Set SENTRY_RELEASE_PROFILE to nonprod or prod; use SENTRY_ORG, SENTRY_ANDROID_PROJECT, and SENTRY_IOS_PROJECT overrides only for a confirmed Sentry project move.',
   '3. Run corepack yarn sentry:release:create-properties.',
   '4. Run corepack yarn sentry:release:prereq-audit.',
   '5. Run corepack yarn sentry:release:prereq-check-summary.',

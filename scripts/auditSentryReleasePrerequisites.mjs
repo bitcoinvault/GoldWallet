@@ -38,8 +38,12 @@ export const requiredAndroidReleaseVariants = ['dev', 'stage', 'prod', 'beta'];
 const missingAndroidReleaseSummaryError = 'Android release summary artifact is missing';
 export const defaultSentryPropertiesValues = {
   'defaults.url': 'https://sentry.io/',
-  'defaults.org': 'cloudbest',
-  'defaults.project': 'goldwallet',
+  'defaults.org': 'decentraplanet',
+};
+export const sentryProjectsByPropertiesPath = {
+  'sentry.properties': ['goldwallet-dev-android', 'goldwallet-prod-android'],
+  'android/sentry.properties': ['goldwallet-dev-android', 'goldwallet-prod-android'],
+  'ios/sentry.properties': ['goldwallet-dev-ios', 'goldwallet'],
 };
 const createScriptPath = path.join(root, 'create-sentry-properties.sh');
 const createNodeScriptPath = path.join(root, 'scripts', 'createSentryProperties.mjs');
@@ -67,12 +71,11 @@ const parseProperties = content =>
       .map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]),
   );
 
-export const getSentryPropertiesReadiness = ({ content, env = {} }) => {
+export const getSentryPropertiesReadiness = ({ content, env = {}, allowedProjects = [] }) => {
   const properties = parseProperties(content);
   const expectedValues = {
     'defaults.url': defaultSentryPropertiesValues['defaults.url'],
-    ...(env.SENTRY_ORG ? { 'defaults.org': env.SENTRY_ORG } : {}),
-    ...(env.SENTRY_PROJECT ? { 'defaults.project': env.SENTRY_PROJECT } : {}),
+    'defaults.org': env.SENTRY_ORG || defaultSentryPropertiesValues['defaults.org'],
   };
   const missingKeys = requiredSentryPropertiesKeys.filter(key => !properties.has(key));
   const invalidStaticKeys = Object.entries(expectedValues)
@@ -83,6 +86,15 @@ export const getSentryPropertiesReadiness = ({ content, env = {} }) => {
     if (properties.has(key) && properties.get(key).trim() === '' && !invalidStaticKeys.includes(key)) {
       invalidStaticKeys.push(key);
     }
+  }
+
+  if (
+    allowedProjects.length > 0 &&
+    properties.has('defaults.project') &&
+    !allowedProjects.includes(properties.get('defaults.project')) &&
+    !invalidStaticKeys.includes('defaults.project')
+  ) {
+    invalidStaticKeys.push('defaults.project');
   }
 
   const hasBlankToken = properties.has('auth.token') && properties.get('auth.token').trim() === '';
@@ -268,7 +280,9 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
       return;
     }
 
-    const readiness = getSentryPropertiesReadiness({ content: read(relativePath), env });
+    const projectOverride = relativePath === 'ios/sentry.properties' ? env.SENTRY_IOS_PROJECT : env.SENTRY_ANDROID_PROJECT;
+    const allowedProjects = projectOverride ? [projectOverride] : sentryProjectsByPropertiesPath[relativePath];
+    const readiness = getSentryPropertiesReadiness({ content: read(relativePath), env, allowedProjects });
 
     propertiesFileReadiness.push({
       relativePath,
@@ -348,8 +362,14 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const createScriptWritesRootProperties = />\s*sentry\.properties\b/.test(createScript);
   const createScriptWritesAndroidProperties = />\s*android\/sentry\.properties\b/.test(createScript);
   const createScriptWritesIosProperties = />\s*ios\/sentry\.properties\b/.test(createScript);
-  const createScriptSupportsOrgOverride = createScript.includes('SENTRY_ORG="${SENTRY_ORG:-cloudbest}"');
-  const createScriptSupportsProjectOverride = createScript.includes('SENTRY_PROJECT="${SENTRY_PROJECT:-goldwallet}"');
+  const createScriptSupportsOrgOverride = createScript.includes('SENTRY_ORG="${SENTRY_ORG:-decentraplanet}"');
+  const createScriptSupportsProjectOverride =
+    createScript.includes('SENTRY_RELEASE_PROFILE') &&
+    createScript.includes('SENTRY_ANDROID_PROJECT') &&
+    createScript.includes('SENTRY_IOS_PROJECT') &&
+    createScript.includes('goldwallet-dev-android') &&
+    createScript.includes('goldwallet-prod-android') &&
+    createScript.includes('goldwallet-dev-ios');
   const createScriptStaticDefaultsValid =
     createScript.includes(`defaults.url=${defaultSentryPropertiesValues['defaults.url']}`) &&
     createScriptSupportsOrgOverride &&
@@ -364,13 +384,17 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   const createNodeScriptStaticDefaultsValid =
     createNodeScript.includes(`'defaults.url': '${defaultSentryPropertiesValues['defaults.url']}'`) &&
     createNodeScript.includes(`'defaults.org': '${defaultSentryPropertiesValues['defaults.org']}'`) &&
-    createNodeScript.includes(`'defaults.project': '${defaultSentryPropertiesValues['defaults.project']}'`);
+    createNodeScript.includes('sentryReleaseProfiles') &&
+    createNodeScript.includes('goldwallet-dev-android') &&
+    createNodeScript.includes('goldwallet-prod-android') &&
+    createNodeScript.includes('goldwallet-dev-ios');
   const createNodeScriptSupportsOrgOverride =
     createNodeScript.includes('SENTRY_ORG') &&
     createNodeScript.includes("defaultSentryPropertiesValues['defaults.org']");
   const createNodeScriptSupportsProjectOverride =
-    createNodeScript.includes('SENTRY_PROJECT') &&
-    createNodeScript.includes("defaultSentryPropertiesValues['defaults.project']");
+    createNodeScript.includes('SENTRY_RELEASE_PROFILE') &&
+    createNodeScript.includes('SENTRY_ANDROID_PROJECT') &&
+    createNodeScript.includes('SENTRY_IOS_PROJECT');
   const createNodeScriptSupportsRootOverride = createNodeScript.includes("arg === '--root'");
   const createNodePackageScriptPresent = scripts['sentry:release:create-properties'] === 'node scripts/createSentryProperties.mjs';
   const envHasToken = Boolean(env.SENTRY_AUTH_TOKEN);
@@ -613,7 +637,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`create-sentry-properties.sh writes iOS properties: ${audit.createScriptWritesIosProperties ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh static defaults valid: ${audit.createScriptStaticDefaultsValid ? 'yes' : 'no'}`);
   lines.push(`create-sentry-properties.sh supports SENTRY_ORG override: ${audit.createScriptSupportsOrgOverride ? 'yes' : 'no'}`);
-  lines.push(`create-sentry-properties.sh supports SENTRY_PROJECT override: ${audit.createScriptSupportsProjectOverride ? 'yes' : 'no'}`);
+  lines.push(`create-sentry-properties.sh supports platform project overrides: ${audit.createScriptSupportsProjectOverride ? 'yes' : 'no'}`);
   lines.push(`createSentryProperties.mjs present: ${audit.hasCreateNodeScript ? 'yes' : 'no'}`);
   lines.push(`createSentryProperties.mjs requires SENTRY_AUTH_TOKEN: ${audit.createNodeScriptUsesToken ? 'yes' : 'no'}`);
   lines.push(`createSentryProperties.mjs rejects missing SENTRY_AUTH_TOKEN: ${audit.createNodeScriptRejectsMissingToken ? 'yes' : 'no'}`);
@@ -622,7 +646,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`createSentryProperties.mjs writes iOS properties: ${audit.createNodeScriptWritesIosProperties ? 'yes' : 'no'}`);
   lines.push(`createSentryProperties.mjs static defaults valid: ${audit.createNodeScriptStaticDefaultsValid ? 'yes' : 'no'}`);
   lines.push(`createSentryProperties.mjs supports SENTRY_ORG override: ${audit.createNodeScriptSupportsOrgOverride ? 'yes' : 'no'}`);
-  lines.push(`createSentryProperties.mjs supports SENTRY_PROJECT override: ${audit.createNodeScriptSupportsProjectOverride ? 'yes' : 'no'}`);
+  lines.push(`createSentryProperties.mjs supports platform project overrides: ${audit.createNodeScriptSupportsProjectOverride ? 'yes' : 'no'}`);
   lines.push(`createSentryProperties.mjs supports --root override: ${audit.createNodeScriptSupportsRootOverride ? 'yes' : 'no'}`);
   lines.push(`sentry:release:create-properties script present: ${audit.createNodePackageScriptPresent ? 'yes' : 'no'}`);
   lines.push(`SENTRY_AUTH_TOKEN available in current shell: ${audit.envHasToken ? 'yes' : 'no'}`);
@@ -759,7 +783,7 @@ const printReport = audit => {
   console.log(`create-sentry-properties.sh writes iOS properties: ${audit.createScriptWritesIosProperties ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh static defaults valid: ${audit.createScriptStaticDefaultsValid ? 'yes' : 'no'}`);
   console.log(`create-sentry-properties.sh supports SENTRY_ORG override: ${audit.createScriptSupportsOrgOverride ? 'yes' : 'no'}`);
-  console.log(`create-sentry-properties.sh supports SENTRY_PROJECT override: ${audit.createScriptSupportsProjectOverride ? 'yes' : 'no'}`);
+  console.log(`create-sentry-properties.sh supports platform project overrides: ${audit.createScriptSupportsProjectOverride ? 'yes' : 'no'}`);
   console.log(`createSentryProperties.mjs present: ${audit.hasCreateNodeScript ? 'yes' : 'no'}`);
   console.log(`createSentryProperties.mjs requires SENTRY_AUTH_TOKEN: ${audit.createNodeScriptUsesToken ? 'yes' : 'no'}`);
   console.log(`createSentryProperties.mjs rejects missing SENTRY_AUTH_TOKEN: ${audit.createNodeScriptRejectsMissingToken ? 'yes' : 'no'}`);
@@ -768,7 +792,7 @@ const printReport = audit => {
   console.log(`createSentryProperties.mjs writes iOS properties: ${audit.createNodeScriptWritesIosProperties ? 'yes' : 'no'}`);
   console.log(`createSentryProperties.mjs static defaults valid: ${audit.createNodeScriptStaticDefaultsValid ? 'yes' : 'no'}`);
   console.log(`createSentryProperties.mjs supports SENTRY_ORG override: ${audit.createNodeScriptSupportsOrgOverride ? 'yes' : 'no'}`);
-  console.log(`createSentryProperties.mjs supports SENTRY_PROJECT override: ${audit.createNodeScriptSupportsProjectOverride ? 'yes' : 'no'}`);
+  console.log(`createSentryProperties.mjs supports platform project overrides: ${audit.createNodeScriptSupportsProjectOverride ? 'yes' : 'no'}`);
   console.log(`createSentryProperties.mjs supports --root override: ${audit.createNodeScriptSupportsRootOverride ? 'yes' : 'no'}`);
   console.log(`sentry:release:create-properties script present: ${audit.createNodePackageScriptPresent ? 'yes' : 'no'}`);
   console.log(`SENTRY_AUTH_TOKEN available in current shell: ${audit.envHasToken ? 'yes' : 'no'}`);

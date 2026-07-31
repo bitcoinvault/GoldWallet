@@ -126,6 +126,8 @@ export const getSentryReleaseValidationCommands = (options = defaultOptions) => 
   }
 
   steps.push(
+    yarnStep('Validate Sentry project routing guard', 'check:sentry-project-routing-guard'),
+    yarnStep('Audit Sentry project routing', 'sentry:project-routing:audit'),
     yarnStep('Audit Sentry Android warning surface', 'sentry:android-warning:audit'),
     yarnStep('Validate Sentry Android warning summary', 'sentry:android-warning:check-summary'),
     yarnStep('Audit Sentry RN bundle task compatibility', 'sentry:rn-bundle-task-compat:audit'),

@@ -83,6 +83,8 @@ const classifiedNetworkBlockerFixture = [
 
 [
   'corepack yarn check:sentry-properties-generator',
+  'corepack yarn check:sentry-project-routing-guard',
+  'corepack yarn sentry:project-routing:audit',
   'corepack yarn android:prod:release:create-wallet-verify',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn sentry:android-warning:audit',
@@ -142,7 +144,7 @@ assert(
 );
 assert(
   scripts['sentry:release:validation:preflight'] ===
-    'yarn check:sentry-properties-readiness-guard && node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release',
+    'yarn check:sentry-properties-readiness-guard && yarn check:sentry-project-routing-guard && yarn sentry:project-routing:audit && node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release',
   'package.json must expose a Sentry properties guard and release validation preflight that skips credentialed upload and Android release refresh',
 );
 assert(
@@ -415,7 +417,7 @@ const readySentryReleasePrereqSummary = [
   'create-sentry-properties.sh writes iOS properties: yes',
   'create-sentry-properties.sh static defaults valid: yes',
   'create-sentry-properties.sh supports SENTRY_ORG override: yes',
-  'create-sentry-properties.sh supports SENTRY_PROJECT override: yes',
+  'create-sentry-properties.sh supports platform project overrides: yes',
   'createSentryProperties.mjs present: yes',
   'createSentryProperties.mjs requires SENTRY_AUTH_TOKEN: yes',
   'createSentryProperties.mjs rejects missing SENTRY_AUTH_TOKEN: yes',
@@ -424,7 +426,7 @@ const readySentryReleasePrereqSummary = [
   'createSentryProperties.mjs writes iOS properties: yes',
   'createSentryProperties.mjs static defaults valid: yes',
   'createSentryProperties.mjs supports SENTRY_ORG override: yes',
-  'createSentryProperties.mjs supports SENTRY_PROJECT override: yes',
+  'createSentryProperties.mjs supports platform project overrides: yes',
   'createSentryProperties.mjs supports --root override: yes',
   'sentry:release:create-properties script present: yes',
   'SENTRY_AUTH_TOKEN available in current shell: yes',
@@ -502,7 +504,7 @@ const notReadySentryReleasePrereqSummary = [
   'create-sentry-properties.sh writes iOS properties: yes',
   'create-sentry-properties.sh static defaults valid: yes',
   'create-sentry-properties.sh supports SENTRY_ORG override: yes',
-  'create-sentry-properties.sh supports SENTRY_PROJECT override: yes',
+  'create-sentry-properties.sh supports platform project overrides: yes',
   'createSentryProperties.mjs present: yes',
   'createSentryProperties.mjs requires SENTRY_AUTH_TOKEN: yes',
   'createSentryProperties.mjs rejects missing SENTRY_AUTH_TOKEN: yes',
@@ -511,7 +513,7 @@ const notReadySentryReleasePrereqSummary = [
   'createSentryProperties.mjs writes iOS properties: yes',
   'createSentryProperties.mjs static defaults valid: yes',
   'createSentryProperties.mjs supports SENTRY_ORG override: yes',
-  'createSentryProperties.mjs supports SENTRY_PROJECT override: yes',
+  'createSentryProperties.mjs supports platform project overrides: yes',
   'createSentryProperties.mjs supports --root override: yes',
   'sentry:release:create-properties script present: yes',
   'SENTRY_AUTH_TOKEN available in current shell: no',
