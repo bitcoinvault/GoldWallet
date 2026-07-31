@@ -3,7 +3,7 @@ import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.m
 const validSummary = [
   'Camera candidate audit',
   'Generated at: 2026-06-17T00:00:00.000Z',
-  'Metadata checked on: 2026-07-30',
+  'Metadata checked on: 2026-07-31',
   'Legacy camera latest: react-native-camera@4.2.1',
   'VisionCamera latest: react-native-vision-camera@5.2.0',
   'VisionCamera Nitro peers: yes',
@@ -12,6 +12,8 @@ const validSummary = [
   'CameraKit latest: react-native-camera-kit@18.0.0',
   'CameraKit node engine: >=18',
   'CameraKit peer dependency ranges: react@*, react-native@*',
+  'Permissions latest: react-native-permissions@5.6.1',
+  'Permissions peer dependency ranges: react@*, react-native@*, react-native-windows@*',
   'QR renderer latest: react-native-qrcode-svg@6.3.21',
   'QR renderer peer dependency ranges: react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0',
   'QR renderer dependencies: prop-types@^15.8.0, qrcode@^1.5.4, text-encoding@^0.7.0',
@@ -30,7 +32,10 @@ const validSummary = [
 const invalidSummary = validSummary
   .replace('VisionCamera Nitro peers: yes', 'VisionCamera Nitro peers: no')
   .replace('Live npm metadata: matched', 'Live npm metadata: stale')
-  .replace('Live npm metadata issues: 0', 'Live npm metadata issues: 1\n- VisionCamera latest live npm metadata is react-native-vision-camera@5.2.0; expected react-native-vision-camera@5.2.0')
+  .replace(
+    'Live npm metadata issues: 0',
+    'Live npm metadata issues: 1\n- VisionCamera latest live npm metadata is react-native-vision-camera@5.2.0; expected react-native-vision-camera@5.2.0',
+  )
   .replace('Camera candidate baseline stable: yes', 'Camera candidate baseline stable: no')
   .replace(
     'Required action: none; CameraKit scanner baseline is stable after the dedicated proof branch.',
@@ -59,7 +64,11 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid camera candidate summary fixture', validSummary);
 assertRejected('Invalid VisionCamera Nitro peer fixture', invalidSummary, 'VisionCamera Nitro peers');
-assertRejected('Missing metadata date fixture', validSummary.replace('Metadata checked on: 2026-07-30', 'Metadata checked on: 2026-06-17'), 'Metadata checked on');
+assertRejected(
+  'Missing metadata date fixture',
+  validSummary.replace('Metadata checked on: 2026-07-31', 'Metadata checked on: 2026-06-17'),
+  'Metadata checked on',
+);
 assertRejected(
   'Stable stale metadata fixture',
   validSummary.replace('Live npm metadata: matched', 'Live npm metadata: stale'),
@@ -81,11 +90,34 @@ assertRejected(
   ),
   'VisionCamera peer dependency ranges',
 );
-assertRejected('Bad QR renderer fixture', validSummary.replace('QR renderer latest: react-native-qrcode-svg@6.3.21', 'QR renderer latest: missing'), 'QR renderer latest');
+assertRejected(
+  'Bad QR renderer fixture',
+  validSummary.replace('QR renderer latest: react-native-qrcode-svg@6.3.21', 'QR renderer latest: missing'),
+  'QR renderer latest',
+);
 assertRejected(
   'Bad CameraKit peer range fixture',
-  validSummary.replace('CameraKit peer dependency ranges: react@*, react-native@*', 'CameraKit peer dependency ranges: react@*, react-native@>=0.86'),
+  validSummary.replace(
+    'CameraKit peer dependency ranges: react@*, react-native@*',
+    'CameraKit peer dependency ranges: react@*, react-native@>=0.86',
+  ),
   'CameraKit peer dependency ranges',
+);
+assertRejected(
+  'Bad permissions fixture',
+  validSummary.replace(
+    'Permissions latest: react-native-permissions@5.6.1',
+    'Permissions latest: react-native-permissions@5.5.0',
+  ),
+  'Permissions latest',
+);
+assertRejected(
+  'Bad permissions peer range fixture',
+  validSummary.replace(
+    'Permissions peer dependency ranges: react@*, react-native@*, react-native-windows@*',
+    'Permissions peer dependency ranges: react@*, react-native@>=0.86, react-native-windows@*',
+  ),
+  'Permissions peer dependency ranges',
 );
 assertRejected(
   'Bad QR renderer peer range fixture',
@@ -97,7 +129,10 @@ assertRejected(
 );
 assertRejected(
   'Bad QR renderer dependency fixture',
-  validSummary.replace('QR renderer dependencies: prop-types@^15.8.0, qrcode@^1.5.4, text-encoding@^0.7.0', 'QR renderer dependencies: qrcode@^2.0.0'),
+  validSummary.replace(
+    'QR renderer dependencies: prop-types@^15.8.0, qrcode@^1.5.4, text-encoding@^0.7.0',
+    'QR renderer dependencies: qrcode@^2.0.0',
+  ),
   'QR renderer dependencies',
 );
 assertRejected(
@@ -105,6 +140,10 @@ assertRejected(
   validSummary.replace('QR native renderer latest: react-native-svg@15.15.5', 'QR native renderer latest: missing'),
   'QR native renderer latest',
 );
-assertRejected('Missing header fixture', validSummary.replace('Camera candidate audit', 'Bad header'), 'summary header');
+assertRejected(
+  'Missing header fixture',
+  validSummary.replace('Camera candidate audit', 'Bad header'),
+  'summary header',
+);
 
 console.log('Camera candidate summary guard checks are valid.');

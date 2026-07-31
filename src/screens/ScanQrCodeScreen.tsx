@@ -2,20 +2,23 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import {
+  AppState,
   Dimensions,
   Image,
-  PermissionsAndroid,
   Platform,
   StatusBar,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { Camera, CameraType } from 'react-native-camera-kit';
+import { check, openSettings, PERMISSIONS, PermissionStatus, request, RESULTS } from 'react-native-permissions';
 
 import { images } from 'app/assets';
+import { Button } from 'app/components/Button';
 import type { Route, RootStackParams } from 'app/consts';
-import { getStatusBarHeight } from 'app/styles';
+import { getStatusBarHeight, palette, typography } from 'app/styles';
 
 const { width } = Dimensions.get('window');
 const i18n = require('../../loc');
@@ -26,8 +29,8 @@ interface Props {
 }
 
 interface State {
-  hasCameraPermission: boolean;
   isBarcodeRead: boolean;
+  permissionStatus: PermissionStatus | 'checking';
 }
 
 interface QrCodeReadEvent {
@@ -37,25 +40,73 @@ interface QrCodeReadEvent {
 }
 
 export default class ScanQrCodeScreen extends React.PureComponent<Props, State> {
-  state = {
-    hasCameraPermission: Platform.OS !== 'android',
+  state: State = {
     isBarcodeRead: false,
+    permissionStatus: 'checking',
   };
 
+  private isMountedScreen = false;
+
+  private appStateSubscription?: ReturnType<typeof AppState.addEventListener>;
+
   componentDidMount() {
-    if (Platform.OS === 'android') {
-      PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-        title: i18n.scanQrCode.permissionTitle,
-        message: i18n.scanQrCode.permissionMessage,
-        buttonPositive: i18n.scanQrCode.ok,
-        buttonNegative: i18n.scanQrCode.cancel,
-      }).then(result => {
-        this.setState({ hasCameraPermission: result === PermissionsAndroid.RESULTS.GRANTED });
-      });
-    }
+    this.isMountedScreen = true;
+    this.appStateSubscription = AppState.addEventListener('change', this.onAppStateChange);
+    void this.refreshCameraPermission(true);
+  }
+
+  componentWillUnmount() {
+    this.isMountedScreen = false;
+    this.appStateSubscription?.remove();
   }
 
   goBack = () => this.props.navigation.goBack();
+
+  getCameraPermission = () => (Platform.OS === 'android' ? PERMISSIONS.ANDROID.CAMERA : PERMISSIONS.IOS.CAMERA);
+
+  refreshCameraPermission = async (requestWhenDenied: boolean) => {
+    const permission = this.getCameraPermission();
+
+    try {
+      let permissionStatus = await check(permission);
+
+      if (permissionStatus === RESULTS.DENIED && requestWhenDenied) {
+        permissionStatus = await request(
+          permission,
+          Platform.OS === 'android'
+            ? {
+                title: i18n.scanQrCode.permissionTitle,
+                message: i18n.scanQrCode.permissionMessage,
+                buttonPositive: i18n.scanQrCode.ok,
+                buttonNegative: i18n.scanQrCode.cancel,
+              }
+            : undefined,
+        );
+      }
+
+      if (this.isMountedScreen) {
+        this.setState({ permissionStatus });
+      }
+    } catch {
+      if (this.isMountedScreen) {
+        this.setState({ permissionStatus: RESULTS.UNAVAILABLE });
+      }
+    }
+  };
+
+  onAppStateChange = (nextAppState: string) => {
+    if (nextAppState === 'active') {
+      void this.refreshCameraPermission(false);
+    }
+  };
+
+  openCameraSettings = async () => {
+    try {
+      await openSettings('application');
+    } catch {
+      // The close action remains available if system settings cannot be opened.
+    }
+  };
 
   onBarCodeScanned = (event: QrCodeReadEvent) => {
     const { onBarCodeScan } = this.props.route.params;
@@ -76,12 +127,37 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props, State> 
     onBarCodeScan(data);
   };
 
+  renderPermissionState = () => {
+    const { permissionStatus } = this.state;
+
+    if (permissionStatus === 'checking') {
+      return null;
+    }
+
+    const canRequestPermission = permissionStatus === RESULTS.DENIED;
+
+    return (
+      <View testID="qr-scanner-permission-state" style={styles.permissionContainer}>
+        <Text style={styles.permissionMessage}>{i18n.scanQrCode.permissionMessage}</Text>
+        <View style={styles.permissionButton}>
+          <Button
+            testID={canRequestPermission ? 'qr-scanner-request-permission-button' : 'qr-scanner-open-settings-button'}
+            title={canRequestPermission ? i18n.scanQrCode.ok : i18n.settings.header}
+            onPress={canRequestPermission ? () => this.refreshCameraPermission(true) : this.openCameraSettings}
+          />
+        </View>
+      </View>
+    );
+  };
+
   render() {
+    const hasCameraPermission = this.state.permissionStatus === RESULTS.GRANTED;
+
     return (
       <View style={{ flex: 1 }}>
         <>
           <StatusBar hidden />
-          {this.state.hasCameraPermission && (
+          {hasCameraPermission && (
             <Camera
               testID="qr-scanner-camera"
               cameraType={CameraType.Back}
@@ -91,9 +167,13 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props, State> 
               onReadCode={this.onBarCodeScanned}
             />
           )}
-          <View style={styles.crosshairContainer}>
-            <Image style={styles.crosshair} source={images.scanQRcrosshair} />
-          </View>
+          {hasCameraPermission ? (
+            <View style={styles.crosshairContainer}>
+              <Image style={styles.crosshair} source={images.scanQRcrosshair} />
+            </View>
+          ) : (
+            this.renderPermissionState()
+          )}
           <TouchableOpacity testID="qr-scanner-close-button" style={styles.closeButton} onPress={this.goBack}>
             <Image source={images.close} />
           </TouchableOpacity>
@@ -125,5 +205,22 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: getStatusBarHeight(),
     right: 20,
+  },
+  permissionContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    backgroundColor: palette.background,
+  },
+  permissionMessage: {
+    ...typography.body,
+    color: palette.textBlack,
+    textAlign: 'center',
+  },
+  permissionButton: {
+    width: '100%',
+    maxWidth: 320,
+    marginTop: 24,
   },
 });

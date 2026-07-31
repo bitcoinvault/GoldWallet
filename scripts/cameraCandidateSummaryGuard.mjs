@@ -34,6 +34,8 @@ export const getCameraCandidateSummaryErrors = summary => {
   const cameraKit = getLineValue(summary, 'CameraKit latest');
   const cameraKitNodeEngine = getLineValue(summary, 'CameraKit node engine');
   const cameraKitPeerRanges = getLineValue(summary, 'CameraKit peer dependency ranges');
+  const permissions = getLineValue(summary, 'Permissions latest');
+  const permissionsPeerRanges = getLineValue(summary, 'Permissions peer dependency ranges');
   const qrRenderer = getLineValue(summary, 'QR renderer latest');
   const qrRendererPeerRanges = getLineValue(summary, 'QR renderer peer dependency ranges');
   const qrRendererDependencies = getLineValue(summary, 'QR renderer dependencies');
@@ -53,8 +55,8 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push('Camera candidate summary header is missing');
   }
 
-  if (metadataCheckedOn !== '2026-07-30') {
-    errors.push(`Metadata checked on must be 2026-07-30. Received: ${metadataCheckedOn || 'missing'}`);
+  if (metadataCheckedOn !== '2026-07-31') {
+    errors.push(`Metadata checked on must be 2026-07-31. Received: ${metadataCheckedOn || 'missing'}`);
   }
 
   if (legacyCamera !== 'react-native-camera@4.2.1') {
@@ -70,7 +72,9 @@ export const getCameraCandidateSummaryErrors = summary => {
   }
 
   if (visionCameraRequiredPeers !== 'react-native-nitro-modules, react-native-nitro-image') {
-    errors.push(`VisionCamera required peer packages are unexpected. Received: ${visionCameraRequiredPeers || 'missing'}`);
+    errors.push(
+      `VisionCamera required peer packages are unexpected. Received: ${visionCameraRequiredPeers || 'missing'}`,
+    );
   }
 
   if (visionCameraPeerRanges !== 'react@*, react-native@*, react-native-nitro-image@*, react-native-nitro-modules@*') {
@@ -89,6 +93,14 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`CameraKit peer dependency ranges are unexpected. Received: ${cameraKitPeerRanges || 'missing'}`);
   }
 
+  if (permissions !== 'react-native-permissions@5.6.1') {
+    errors.push(`Permissions latest must be react-native-permissions@5.6.1. Received: ${permissions || 'missing'}`);
+  }
+
+  if (permissionsPeerRanges !== 'react@*, react-native@*, react-native-windows@*') {
+    errors.push(`Permissions peer dependency ranges are unexpected. Received: ${permissionsPeerRanges || 'missing'}`);
+  }
+
   if (qrRenderer !== 'react-native-qrcode-svg@6.3.21') {
     errors.push(`QR renderer latest must be react-native-qrcode-svg@6.3.21. Received: ${qrRenderer || 'missing'}`);
   }
@@ -102,7 +114,9 @@ export const getCameraCandidateSummaryErrors = summary => {
   }
 
   if (qrNativeRenderer !== 'react-native-svg@15.15.5') {
-    errors.push(`QR native renderer latest must be react-native-svg@15.15.5. Received: ${qrNativeRenderer || 'missing'}`);
+    errors.push(
+      `QR native renderer latest must be react-native-svg@15.15.5. Received: ${qrNativeRenderer || 'missing'}`,
+    );
   }
 
   if (qrEncoder !== 'qrcode@1.5.4') {
@@ -114,9 +128,13 @@ export const getCameraCandidateSummaryErrors = summary => {
   }
 
   if (!/^\d+$/.test(liveMetadataIssueCount)) {
-    errors.push(`Live npm metadata issues must be a non-negative integer. Received: ${liveMetadataIssueCount || 'missing'}`);
+    errors.push(
+      `Live npm metadata issues must be a non-negative integer. Received: ${liveMetadataIssueCount || 'missing'}`,
+    );
   } else if (Number(liveMetadataIssueCount) !== liveMetadataIssueLines.length) {
-    errors.push(`Live npm metadata issues count must be ${liveMetadataIssueLines.length}. Received: ${liveMetadataIssueCount}`);
+    errors.push(
+      `Live npm metadata issues count must be ${liveMetadataIssueLines.length}. Received: ${liveMetadataIssueCount}`,
+    );
   }
 
   if (liveMetadata === 'matched' && liveMetadataIssueCount !== '0') {
@@ -127,7 +145,10 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push('Stale live npm metadata summary must list at least one live metadata issue');
   }
 
-  if (selectedProofTarget !== 'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers') {
+  if (
+    selectedProofTarget !==
+    'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers'
+  ) {
     errors.push(`Selected proof target is unexpected. Received: ${selectedProofTarget || 'missing'}`);
   }
 

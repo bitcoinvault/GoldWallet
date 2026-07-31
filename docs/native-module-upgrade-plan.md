@@ -154,6 +154,7 @@ Branch shape:
 ### Group E - Camera And QR Scanning
 
 - `react-native-camera-kit` -> `18.0.0`
+- `react-native-permissions` -> `5.6.1` for guarded Android/iOS Camera access
 - Removed legacy `@remobile/react-native-qrcode-local-image` after no source usage remained.
 - `react-native-qrcode-svg`
 
@@ -164,13 +165,14 @@ Risk:
 Branch shape:
 
 - Keep `react-native-camera-kit` scanner usage scoped to the dedicated QR scanner screen.
+- Keep `react-native-permissions` configured to the iOS Camera handler only, and preserve blocked/settings plus foreground refresh behavior in the scanner screen.
 - Preserve all guarded QR scanner callers.
 - Keep removed legacy camera/QR packages out of `package.json` and `react-native.config.js`; `react-native-camera` should not remain as a stale disabled Android autolink entry after the CameraKit migration.
 - Run `corepack yarn camera:qr-migration:audit` before scanner follow-up work so the current CameraKit permission/runtime/autolink baseline stays explicit.
 - Use `corepack yarn camera:qr-validation:handoff --include-android-release-smoke --android-release-variant=<dev|stage|prod|beta>` when scanner work must prove a release APK path. The sequence builds all release APKs and validates release smoke plus release create-wallet summaries for the selected variant after focused QR scanner/render tests.
 - Treat the remaining active pod version drift in `ios/Podfile.lock` as an iOS readiness blocker until `pod install` refreshes the lockfile on macOS. Removed camera pods are now absent from the guarded lockfile baseline.
 - Validate Android/iOS camera permissions and QR scan behavior manually before claiming scanner follow-up work complete.
-- Latest checked on 2026-07-30: `react-native-camera-kit@18.0.0`, `react-native-vision-camera@5.2.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
+- Latest checked on 2026-07-31: `react-native-camera-kit@18.0.0`, `react-native-permissions@5.6.1`, `react-native-vision-camera@5.2.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4`.
 - `corepack yarn camera:candidate:audit` verifies those candidate/latest values, CameraKit peer ranges, QR renderer peer ranges, and QR renderer dependency ranges against live npm metadata before scanner dependency follow-up work.
 - VisionCamera remains deferred because its latest line requires `react-native-nitro-modules` and `react-native-nitro-image`; the live peer ranges are wildcarded, so the blocker is the additional Nitro native stack rather than a narrow semver incompatibility. CameraKit remains the installed scanner baseline.
 

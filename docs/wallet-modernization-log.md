@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.936 - Camera and QR permission lifecycle hardening
+
+- Branch: `feature/bem-37-936-camera-qr-permission-hardening`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep latest compatible `react-native-camera-kit@18.0.0` while adding current `react-native-permissions@5.6.1` for an explicit Android/iOS camera permission lifecycle.
+- Hide CameraKit until access is granted, expose retry/settings recovery for denied or blocked access, refresh permission state after returning to the foreground, and remove the AppState listener safely on unmount.
+- Configure only the iOS Camera permission handler and extend Camera/QR live metadata, migration, focused-test, native-module inventory, and handoff guards.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-31 reports CameraKit `18.0.0`, React Native Permissions `5.6.1`, VisionCamera `5.2.0`, QR renderer `6.3.21`, SVG `15.15.5`, and qrcode `1.5.4` as current latest targets. VisionCamera remains deferred because it requires the additional Nitro native stack.
+- The previous scanner rendered CameraKit immediately on iOS without requesting camera access even though CameraKit requires the host app to handle permissions; denied access could therefore leave a blank camera preview.
+- Eight focused scanner tests now cover Android and iOS requests, denied/blocked behavior, application settings, foreground refresh, unmount cleanup, QR-only configuration, callback delivery, empty scans, and duplicate suppression.
+- JDK 17 Android `devDebug` builds with the permissions module autolinked under New Architecture. The first dev smoke reached the expected `No network` state because the dev/testnet Electrum endpoint remains unavailable, so it is not used as Camera/QR runtime proof.
+- Full `dev`, `stage`, `prod`, and `beta` release validation passes. Signed `prodRelease` smoke validates onboarding, dashboard, CameraKit QR open/close with camera permission granted, all bottom tabs, Terms WebView, no fatal/runtime logcat findings, standard-wallet creation, restart, incorrect/correct PIN, persistence, and the default 3-key vault path.
+- Windows-safe iOS static validation passes with the Camera handler in `ios/Podfile`. iOS runtime remains unclaimed because macOS/Xcode/CocoaPods are unavailable and `ios/Podfile.lock` still has 12 broader native-module drifts.
+
+Validation:
+
+- Live npm version and peer metadata for CameraKit, React Native Permissions, VisionCamera, and the QR rendering cohort
+- `corepack yarn check:camera-candidate-summary-guard`; Camera candidate audit and summary check
+- Camera/QR migration audit, focused validation-script guards, native-module inventory, and native-module upgrade-plan checks
+- `corepack yarn test:qr-scanner:unit` (8 tests) and `corepack yarn test:qr-render:unit` (5 tests)
+- `corepack yarn camera:qr-validation:handoff --include-android-release-smoke --android-release-variant=prod`
+- Full `dev`/`stage`/`prod`/`beta` Android release matrix, APK manifests, secure-storage packaging, App Center retirement checks, prod release smoke, and prod create-wallet smoke
+- `corepack yarn test:unit --runInBand` (59 tests) and `corepack yarn test:storage-network:focused`
+- TypeScript, node shims, lint baseline, modernization-log IDs, changed-code Prettier, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `corepack yarn ios:static:verify`; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.935 - Sentry release services current baseline
 
 - Branch: `feature/bem-37-935-sentry-release-services-current`

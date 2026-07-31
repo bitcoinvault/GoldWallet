@@ -67,9 +67,18 @@ const fixtureApkSha256 = createHash('sha256').update(readFileSync(fixtureApkPath
   'corepack yarn android:dev:release:check-smoke-summary',
   'corepack yarn android:dev:release:check-create-wallet-smoke-summary',
 ].forEach(expected => {
-  assert(releaseSmokeRendered.includes(expected), `Expected Camera/QR release smoke handoff commands to include: ${expected}`);
-  assert(!rendered.includes(expected), `Default Camera/QR handoff must not include Android release smoke command: ${expected}`);
-  assert(!smokeRendered.includes(expected), `Debug Camera/QR smoke handoff must not include Android release smoke command: ${expected}`);
+  assert(
+    releaseSmokeRendered.includes(expected),
+    `Expected Camera/QR release smoke handoff commands to include: ${expected}`,
+  );
+  assert(
+    !rendered.includes(expected),
+    `Default Camera/QR handoff must not include Android release smoke command: ${expected}`,
+  );
+  assert(
+    !smokeRendered.includes(expected),
+    `Debug Camera/QR smoke handoff must not include Android release smoke command: ${expected}`,
+  );
 });
 
 [
@@ -164,7 +173,7 @@ assert(
 const candidateSummary = [
   'Camera candidate audit',
   'Generated at: 2026-06-12T00:00:00.000Z',
-  'Metadata checked on: 2026-07-30',
+  'Metadata checked on: 2026-07-31',
   'Legacy camera latest: react-native-camera@4.2.1',
   'VisionCamera latest: react-native-vision-camera@5.2.0',
   'VisionCamera Nitro peers: yes',
@@ -173,6 +182,8 @@ const candidateSummary = [
   'CameraKit latest: react-native-camera-kit@18.0.0',
   'CameraKit node engine: >=18',
   'CameraKit peer dependency ranges: react@*, react-native@*',
+  'Permissions latest: react-native-permissions@5.6.1',
+  'Permissions peer dependency ranges: react@*, react-native@*, react-native-windows@*',
   'QR renderer latest: react-native-qrcode-svg@6.3.21',
   'QR renderer peer dependency ranges: react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0',
   'QR renderer dependencies: prop-types@^15.8.0, qrcode@^1.5.4, text-encoding@^0.7.0',
@@ -345,15 +356,15 @@ assert(
   'Camera/QR readiness fixtures with Android smoke must pass',
 );
 const releaseReadinessErrors = getCameraQrValidationReadinessErrors({
-    candidateSummaryText: candidateSummary,
-    migrationSummaryText: migrationSummary,
-    includeAndroidReleaseSmoke: true,
-    androidReleaseSmokeSummaryText: androidReleaseSmokeSummary,
-    androidReleaseCreateWalletSummaryText: androidReleaseCreateWalletSummary,
-    androidReleaseSmokeExpectedApkPath: fixtureApkPath,
-    androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
-    androidReleaseCreateWalletExpectedApkPath: fixtureApkPath,
-  });
+  candidateSummaryText: candidateSummary,
+  migrationSummaryText: migrationSummary,
+  includeAndroidReleaseSmoke: true,
+  androidReleaseSmokeSummaryText: androidReleaseSmokeSummary,
+  androidReleaseCreateWalletSummaryText: androidReleaseCreateWalletSummary,
+  androidReleaseSmokeExpectedApkPath: fixtureApkPath,
+  androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
+  androidReleaseCreateWalletExpectedApkPath: fixtureApkPath,
+});
 assert(
   releaseReadinessErrors.length === 0,
   `Camera/QR readiness fixtures with Android release smoke must pass:\n${releaseReadinessErrors.join('\n')}`,
@@ -372,7 +383,10 @@ assert(
     candidateSummaryText: candidateSummary,
     migrationSummaryText: migrationSummary,
     includeAndroidSmoke: true,
-    androidSmokeSummaryText: androidSmokeSummary.replace('Validated QR scanner screen: yes', 'Validated QR scanner screen: no'),
+    androidSmokeSummaryText: androidSmokeSummary.replace(
+      'Validated QR scanner screen: yes',
+      'Validated QR scanner screen: no',
+    ),
   }).some(error => error.includes('Android smoke summary is invalid')),
   'Camera/QR readiness must reject invalid Android smoke evidence when requested',
 );
@@ -407,7 +421,10 @@ assert(
     candidateSummaryText: candidateSummary,
     migrationSummaryText: migrationSummary,
     includeAndroidReleaseSmoke: true,
-    androidReleaseSmokeSummaryText: androidReleaseSmokeSummary.replace('Validated QR scanner screen: yes', 'Validated QR scanner screen: no'),
+    androidReleaseSmokeSummaryText: androidReleaseSmokeSummary.replace(
+      'Validated QR scanner screen: yes',
+      'Validated QR scanner screen: no',
+    ),
     androidReleaseCreateWalletSummaryText: androidReleaseCreateWalletSummary,
     androidReleaseSmokeExpectedApkPath: fixtureApkPath,
     androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
@@ -421,7 +438,10 @@ assert(
     migrationSummaryText: migrationSummary,
     includeAndroidReleaseSmoke: true,
     androidReleaseSmokeSummaryText: androidReleaseSmokeSummary,
-    androidReleaseCreateWalletSummaryText: androidReleaseCreateWalletSummary.replace('Vault next-step reached: yes', 'Vault next-step reached: no'),
+    androidReleaseCreateWalletSummaryText: androidReleaseCreateWalletSummary.replace(
+      'Vault next-step reached: yes',
+      'Vault next-step reached: no',
+    ),
     androidReleaseSmokeExpectedApkPath: fixtureApkPath,
     androidReleaseSmokeExpectedSourceApkPath: fixtureApkPath,
     androidReleaseCreateWalletExpectedApkPath: fixtureApkPath,

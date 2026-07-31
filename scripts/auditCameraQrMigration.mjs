@@ -34,17 +34,28 @@ export const collectCameraQrMigrationAudit = () => {
   const cameraCandidateAudit = collectCameraCandidateAudit();
   const cameraVersion = dependencies['react-native-camera'];
   const cameraKitVersion = dependencies['react-native-camera-kit'];
+  const permissionsVersion = dependencies['react-native-permissions'];
   const localQrImageVersion = dependencies['@remobile/react-native-qrcode-local-image'];
   const qrRendererVersion = dependencies['react-native-qrcode-svg'];
   const qrNativeRendererVersion = dependencies['react-native-svg'];
   const rootQrcodeVersion = (packageJson.resolutions || {}).qrcode;
 
   if (cameraVersion) {
-    readinessIssues.push(`package.json still has react-native-camera@${cameraVersion}; expected removal after CameraKit QR migration`);
+    readinessIssues.push(
+      `package.json still has react-native-camera@${cameraVersion}; expected removal after CameraKit QR migration`,
+    );
   }
 
   if (cameraKitVersion !== '18.0.0') {
-    readinessIssues.push(`package.json has react-native-camera-kit@${cameraKitVersion || '<missing>'}; expected 18.0.0`);
+    readinessIssues.push(
+      `package.json has react-native-camera-kit@${cameraKitVersion || '<missing>'}; expected 18.0.0`,
+    );
+  }
+
+  if (permissionsVersion !== '5.6.1') {
+    readinessIssues.push(
+      `package.json has react-native-permissions@${permissionsVersion || '<missing>'}; expected current camera permission baseline 5.6.1`,
+    );
   }
 
   if (localQrImageVersion) {
@@ -54,15 +65,21 @@ export const collectCameraQrMigrationAudit = () => {
   }
 
   if (qrRendererVersion !== '6.3.21') {
-    readinessIssues.push(`package.json has react-native-qrcode-svg@${qrRendererVersion || '<missing>'}; expected current QR renderer baseline 6.3.21`);
+    readinessIssues.push(
+      `package.json has react-native-qrcode-svg@${qrRendererVersion || '<missing>'}; expected current QR renderer baseline 6.3.21`,
+    );
   }
 
   if (qrNativeRendererVersion !== '15.15.5') {
-    readinessIssues.push(`package.json has react-native-svg@${qrNativeRendererVersion || '<missing>'}; expected current QR native renderer baseline 15.15.5`);
+    readinessIssues.push(
+      `package.json has react-native-svg@${qrNativeRendererVersion || '<missing>'}; expected current QR native renderer baseline 15.15.5`,
+    );
   }
 
   if (rootQrcodeVersion !== '1.5.4') {
-    readinessIssues.push(`package.json resolutions has qrcode@${rootQrcodeVersion || '<missing>'}; expected current RN 0.86 QR renderer baseline 1.5.4`);
+    readinessIssues.push(
+      `package.json resolutions has qrcode@${rootQrcodeVersion || '<missing>'}; expected current RN 0.86 QR renderer baseline 1.5.4`,
+    );
   }
 
   const androidAppGradle = requireFile(errors, 'android/app/build.gradle');
@@ -72,16 +89,16 @@ export const collectCameraQrMigrationAudit = () => {
   const replacementPlan = requireFile(errors, 'docs/camera-replacement-plan.md');
   const nativeModulePlan = requireFile(errors, 'docs/native-module-upgrade-plan.md');
   const iosXcodeProject = requireFile(errors, 'ios/GoldWallet.xcodeproj/project.pbxproj');
+  const iosPodfile = requireFile(errors, 'ios/Podfile');
   const warningBaseline = requireFile(errors, 'local-docs/android-warning-audit-summary.txt');
   const iosPodfileLock = requireFile(errors, 'ios/Podfile.lock');
   const iosPodfileLockDrift = iosPodfileLock
     ? collectIosPodfileLockDrift({ packageJson, podfileLock: iosPodfileLock })
     : { podfileLockDriftIssues: [], removedPodfileLockDriftIssues: [] };
   const iosInfoPlists = ['ios/GoldWallet/Info.plist', 'ios/GoldWalletDev-Info.plist', 'ios/GoldWalletStage-Info.plist'];
-  const staleRemovedIosPods = [
-    'react-native-camera',
-    'react-native-qrcode-local-image',
-  ].filter(podName => iosPodfileLock.includes(podName));
+  const staleRemovedIosPods = ['react-native-camera', 'react-native-qrcode-local-image'].filter(podName =>
+    iosPodfileLock.includes(podName),
+  );
   const iosPodfileLockRefreshRequired = staleRemovedIosPods.length > 0;
 
   if (androidAppGradle.includes("missingDimensionStrategy 'react-native-camera', 'general'")) {
@@ -90,13 +107,19 @@ export const collectCameraQrMigrationAudit = () => {
 
   requireSnippet(errors, 'AndroidManifest.xml', androidManifest, 'android.permission.CAMERA');
   requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, "from 'react-native-camera-kit'");
-  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'PermissionsAndroid.request');
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, "from 'react-native-permissions'");
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'PERMISSIONS.ANDROID.CAMERA');
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'PERMISSIONS.IOS.CAMERA');
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, "AppState.addEventListener('change'");
+  requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, "openSettings('application')");
   requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'scanBarcode');
   requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, "allowedBarcodeTypes={['qr']}");
   requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'onReadCode={this.onBarCodeScanned}');
   requireSnippet(errors, 'ScanQrCodeScreen.tsx', scanQrScreen, 'onBarCodeScan(data)');
   if (reactNativeConfig.includes("'@remobile/react-native-qrcode-local-image'")) {
-    errors.push('react-native.config.js still disables Android autolinking for removed @remobile/react-native-qrcode-local-image');
+    errors.push(
+      'react-native.config.js still disables Android autolinking for removed @remobile/react-native-qrcode-local-image',
+    );
   }
   if (reactNativeConfig.includes("'react-native-camera'") || reactNativeConfig.includes('"react-native-camera"')) {
     errors.push('react-native.config.js still contains removed react-native-camera autolink configuration');
@@ -107,17 +130,36 @@ export const collectCameraQrMigrationAudit = () => {
   if (iosXcodeProject.includes('libRCTQRCodeLocalImage.a')) {
     errors.push('ios/GoldWallet.xcodeproj/project.pbxproj still references removed libRCTQRCodeLocalImage.a');
   }
-  requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'Branch: `feature/bem-37-camera-kit-qr-proof`');
+  requireSnippet(
+    errors,
+    'docs/camera-replacement-plan.md',
+    replacementPlan,
+    'Branch: `feature/bem-37-camera-kit-qr-proof`',
+  );
   requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'VisionCamera');
-  requireSnippet(errors, 'docs/camera-replacement-plan.md', replacementPlan, 'Current scanner package: `react-native-camera-kit@18.0.0`');
-  requireSnippet(errors, 'docs/native-module-upgrade-plan.md', nativeModulePlan, '`react-native-camera-kit` -> `18.0.0`');
+  requireSnippet(
+    errors,
+    'docs/camera-replacement-plan.md',
+    replacementPlan,
+    'Current scanner package: `react-native-camera-kit@18.0.0`',
+  );
+  requireSnippet(
+    errors,
+    'docs/native-module-upgrade-plan.md',
+    nativeModulePlan,
+    '`react-native-camera-kit` -> `18.0.0`',
+  );
+  requireSnippet(errors, 'ios/Podfile', iosPodfile, 'react-native-permissions/scripts/setup');
+  requireSnippet(errors, 'ios/Podfile', iosPodfile, "'Camera'");
 
   iosInfoPlists.forEach(relativePath => {
     requireSnippet(errors, relativePath, requireFile(errors, relativePath), 'NSCameraUsageDescription');
   });
 
   if (warningBaseline && /react-native-camera[\\/]android/.test(warningBaseline)) {
-    warnings.push('local Android warning audit summary still mentions react-native-camera; refresh the warning audit after migration.');
+    warnings.push(
+      'local Android warning audit summary still mentions react-native-camera; refresh the warning audit after migration.',
+    );
   }
 
   if (iosPodfileLockRefreshRequired) {
@@ -127,6 +169,7 @@ export const collectCameraQrMigrationAudit = () => {
   return {
     cameraVersion,
     cameraKitVersion,
+    permissionsVersion,
     localQrImageVersion,
     qrRendererVersion,
     qrNativeRendererVersion,
@@ -148,7 +191,8 @@ export const collectCameraQrMigrationAudit = () => {
     errors,
     readinessIssues,
     warnings,
-    baselineStable: errors.length === 0 && readinessIssues.length === 0 && cameraCandidateAudit.liveMetadataIssues.length === 0,
+    baselineStable:
+      errors.length === 0 && readinessIssues.length === 0 && cameraCandidateAudit.liveMetadataIssues.length === 0,
   };
 };
 
@@ -200,8 +244,8 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
     audit.baselineStable && audit.iosBroaderPodfileLockRefreshRequired
       ? 'Required action: none for Android/CameraKit scanner wiring; refresh broader ios/Podfile.lock with pod install on macOS before claiming iOS camera QR runtime validation.'
       : audit.baselineStable
-      ? 'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.'
-      : 'Required action: restore camera QR migration baseline and refresh ios/Podfile.lock with pod install on macOS before claiming iOS camera QR migration validation.',
+        ? 'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.'
+        : 'Required action: restore camera QR migration baseline and refresh ios/Podfile.lock with pod install on macOS before claiming iOS camera QR migration validation.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -219,7 +263,9 @@ const printReport = audit => {
   console.log(`iOS Podfile.lock refresh required: ${audit.iosPodfileLockRefreshRequired ? 'yes' : 'no'}`);
   console.log(`iOS stale removed camera pods: ${audit.staleRemovedIosPods.join(', ') || 'none'}`);
   console.log(`iOS camera Podfile.lock cleanup complete: ${audit.iosCameraPodfileLockCleanupComplete ? 'yes' : 'no'}`);
-  console.log(`iOS broader Podfile.lock refresh required: ${audit.iosBroaderPodfileLockRefreshRequired ? 'yes' : 'no'}`);
+  console.log(
+    `iOS broader Podfile.lock refresh required: ${audit.iosBroaderPodfileLockRefreshRequired ? 'yes' : 'no'}`,
+  );
   console.log(`iOS broader Podfile.lock drift issues: ${audit.iosBroaderPodfileLockDriftIssues.length}`);
 
   if (audit.warnings.length > 0) {
@@ -241,7 +287,9 @@ const printReport = audit => {
     console.log('Camera QR migration baseline is stable after the dedicated scanner replacement branch.');
   }
 
-  console.log('Camera QR migration wiring is present for Android/iOS permissions, current scanner runtime, removed legacy QR local-image dependency, and migration documentation.');
+  console.log(
+    'Camera QR migration wiring is present for Android/iOS permissions, current scanner runtime, removed legacy QR local-image dependency, and migration documentation.',
+  );
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
