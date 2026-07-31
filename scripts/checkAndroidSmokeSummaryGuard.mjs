@@ -12,6 +12,9 @@ const validSummary = [
   'Android smoke exit code: 0',
   'Android smoke reason: expected UI texts found and no fatal/runtime logcat findings',
   'Android serial: emulator-5554',
+  'Required runtime page size bytes: not required',
+  'Runtime page size bytes: 4096',
+  'Runtime page size check: not required',
   'Android package: io.goldwallet.wallet.dev',
   'Artifact base: android-smoke-dev',
   `Smoke APK path: ${fixtureFilePath}`,
@@ -67,22 +70,10 @@ const embeddedSummary = validSummary
     'Expected resource IDs: none',
     'Expected resource IDs: dashboard-header, no-wallets-icon, create-wallet-button, import-wallet-button, navigation-tab-0',
   )
-  .replace(
-    'Validated empty-dashboard CTA flow: no',
-    'Validated empty-dashboard CTA flow: yes',
-  )
-  .replace(
-    'Validated empty-tab navigation: no',
-    'Validated empty-tab navigation: yes',
-  )
-  .replace(
-    'Validated QR scanner screen: no',
-    'Validated QR scanner screen: yes',
-  )
-  .replace(
-    'Validated settings Terms WebView: no',
-    'Validated settings Terms WebView: yes',
-  );
+  .replace('Validated empty-dashboard CTA flow: no', 'Validated empty-dashboard CTA flow: yes')
+  .replace('Validated empty-tab navigation: no', 'Validated empty-tab navigation: yes')
+  .replace('Validated QR scanner screen: no', 'Validated QR scanner screen: yes')
+  .replace('Validated settings Terms WebView: no', 'Validated settings Terms WebView: yes');
 const invalidCleanStateSummary = validSummary.replace('Cleared app data: no', 'Cleared app data: maybe');
 const missingScreenshotSummary = validSummary.replace(
   'Screenshot path: package.json',
@@ -209,7 +200,10 @@ assertAccepted('Valid Android smoke summary fixture', validSummary);
 assertAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertEmbeddedAccepted('Valid embedded Android smoke summary fixture', embeddedSummary);
 assertDebugApkDigestAccepted('Valid debug Android smoke APK digest fixture', validSummary);
-assertDebugApkDigestRejected('Debug smoke missing data storage preflight fixture', removeDataStorageFields(validSummary));
+assertDebugApkDigestRejected(
+  'Debug smoke missing data storage preflight fixture',
+  removeDataStorageFields(validSummary),
+);
 assertDebugApkDigestRejected(
   'Missing debug source APK digest fixture',
   validSummary
@@ -222,6 +216,13 @@ assertRejected('Metro unreachable fixture', missingMetroSummary);
 assertRejected('Invalid clean-state fixture', invalidCleanStateSummary);
 assertRejected('Missing screenshot fixture', missingScreenshotSummary);
 assertRejected('Invalid timestamp fixture', invalidTimestampSummary);
+assertRejected('Missing runtime page size fixture', validSummary.replace('Runtime page size bytes: 4096\n', ''));
+assertRejected(
+  'Mismatched required runtime page size fixture',
+  validSummary
+    .replace('Required runtime page size bytes: not required', 'Required runtime page size bytes: 16384')
+    .replace('Runtime page size check: not required', 'Runtime page size check: passed'),
+);
 assertRejected('Missing resource IDs fixture', validSummary.replace('Expected resource IDs: none\n', ''));
 assertRejected(
   'Invalid empty-dashboard CTA fixture',

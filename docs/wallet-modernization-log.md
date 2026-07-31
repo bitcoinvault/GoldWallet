@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.940 - Android 16 KB exact signed-AAB runtime proof
+
+- Branch: `feature/bem-37-940-android-16kb-runtime-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Add a fail-fast Android runtime page-size probe and bind its exact result to emulator smoke summaries.
+- Exercise the existing local upload-signing proof against an API 36 `ps16k` emulator and require the universal APK generated from the exact signed `prodRelease` AAB.
+- Guard the runner wiring, page-size parser, device selection, offline-device handling, artifact paths, digests, dedicated persistent 16 KB summary, and signed-bundle summary contract.
+
+Findings:
+
+- The `GoldWallet_API_36_16K` x86_64 AVD reports `PAGE_SIZE=16384`; the proof rejects the regular 4 KB emulator before starting a build.
+- The exact locally signed `prodRelease` AAB passes pinned bundletool validation with `PAGE_ALIGNMENT_16K`. Its generated universal APK passes 16 KB ZIP alignment and all 60 native-library / 169 ELF `LOAD`-segment checks.
+- The universal APK installs and completes onboarding, empty-wallet dashboard, CTA navigation, QR scanner, and Terms WebView smoke on the 16 KB emulator without fatal or React Native runtime findings. The summary binds the AAB, APK, and runtime evidence by SHA-256.
+- A separate `devDebug` build succeeds and its 16 KB emulator smoke reaches the expected controlled `No network` state without fatal/runtime findings. Full dev dashboard proof remains externally blocked by the testnet Electrum certificate that expired on `2026-06-23`; this does not affect the successful production-runtime smoke.
+- A physical short Windows worktree such as `D:\w940` is required for this native release build because the canonical long worktree path can exceed Ninja's 260-character object-file path limit.
+- The proof uses and removes a random ignored local PKCS12 key. Production upload-key custody, Play upload/rollout acceptance, real Sentry upload, and iOS runtime/archive remain unclaimed.
+- The dedicated ignored 16 KB proof summary binds the runtime serial, required/observed page size, AAB, universal APK, and smoke summary. Its checker rejects stale or subsequently overwritten evidence.
+
+Validation:
+
+- `corepack yarn check:android-16kb-runtime-proof-guard`
+- `corepack yarn check:android-smoke-summary-guard`
+- `corepack yarn android:16kb:runtime:check-summary`
+- `ANDROID_SERIAL=emulator-5556 corepack yarn android:16kb:runtime:verify`
+- JDK 17 `corepack yarn android:dev:assemble` and `ANDROID_SERIAL=emulator-5556 corepack yarn android:dev:smoke:no-network:embedded`
+- API 36 `sdk_gphone16k_x86_64` runtime reports `PAGE_SIZE=16384`
+- Exact signed-AAB runtime summary reports `passed`, required/observed page size `16384`, and candidate-bound AAB/APK SHA-256 evidence
+- Changed-code formatting, TypeScript, unit, focused storage/network, node-shim, lint-baseline, modernization-log ID, secret-scan, and diff checks
+- iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.939 - Sentry managed CLI credential bridge
 
 - Branch: `feature/bem-37-939-sentry-managed-credential`

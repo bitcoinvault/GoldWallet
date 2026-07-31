@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { formatAdbFailureReason, runAdbProcessWithRetry } from './androidAdbRetry.mjs';
 import { getAndroidDataStoragePreflight, renderAndroidDataStorageFailure } from './androidDataStoragePreflight.mjs';
+import { getRequiredAndroidRuntimePageSize, parseAndroidRuntimePageSize } from './androidRuntimePageSize.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -21,6 +22,9 @@ const packageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.d
 const activityName = process.env.ANDROID_SMOKE_ACTIVITY || `${packageName}/io.goldwallet.wallet.MainActivity`;
 const androidSerial = process.env.ANDROID_SERIAL?.trim();
 let selectedAndroidSerial = androidSerial;
+const requiredRuntimePageSize = getRequiredAndroidRuntimePageSize();
+let runtimePageSize = 0;
+let runtimePageSizeCheck = requiredRuntimePageSize === null ? 'not required' : 'failed';
 const apkPath =
   process.env.ANDROID_SMOKE_APK ||
   path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
@@ -182,6 +186,9 @@ const writeSummary = exitCode => {
     `Android smoke exit code: ${exitCode}`,
     `Android smoke reason: ${smokeReason}`,
     `Android serial: ${selectedAndroidSerial || 'not selected'}`,
+    `Required runtime page size bytes: ${requiredRuntimePageSize ?? 'not required'}`,
+    `Runtime page size bytes: ${runtimePageSize || 'not checked'}`,
+    `Runtime page size check: ${runtimePageSizeCheck}`,
     `Android package: ${packageName}`,
     `Android activity: ${activityName}`,
     `Artifact base: ${outputBaseName}`,
@@ -278,10 +285,14 @@ const sleep = milliseconds => {
 
 const readUiHierarchy = label => {
   for (let attempt = 1; attempt <= 3; attempt += 1) {
-    run(`remove stale UI hierarchy ${label} attempt ${attempt}`, ['shell', 'rm', '-f', '/sdcard/goldwallet-window.xml'], {
-      printOutput: false,
-      recordOutput: false,
-    });
+    run(
+      `remove stale UI hierarchy ${label} attempt ${attempt}`,
+      ['shell', 'rm', '-f', '/sdcard/goldwallet-window.xml'],
+      {
+        printOutput: false,
+        recordOutput: false,
+      },
+    );
     let dumpOutput = '';
 
     try {
@@ -990,9 +1001,7 @@ try {
   }
 
   if (!isSafeOutputBaseName) {
-    throw new Error(
-      `ANDROID_SMOKE_OUTPUT_BASENAME must be a safe file basename. Received: ${requestedOutputBaseName}`,
-    );
+    throw new Error(`ANDROID_SMOKE_OUTPUT_BASENAME must be a safe file basename. Received: ${requestedOutputBaseName}`);
   }
 
   if (!Number.isFinite(startupWaitMs) || startupWaitMs < 0) {
@@ -1137,6 +1146,20 @@ try {
   selectedAndroidSerial = androidSerial || deviceSerials[0];
   append(`Using Android serial: ${selectedAndroidSerial}`);
 
+  const runtimePageSizeOutput = run('read Android runtime page size', ['shell', 'getconf', 'PAGE_SIZE'], {
+    printOutput: false,
+  }).trim();
+  runtimePageSize = parseAndroidRuntimePageSize(runtimePageSizeOutput);
+  append(`Using Android runtime page size: ${runtimePageSize}`);
+  if (requiredRuntimePageSize !== null) {
+    if (runtimePageSize !== requiredRuntimePageSize) {
+      throw new Error(
+        `Android runtime page size must be ${requiredRuntimePageSize} bytes. Received: ${runtimePageSize}`,
+      );
+    }
+    runtimePageSizeCheck = 'passed';
+  }
+
   cleanupPackageBeforeStoragePreflight();
   if (trimCachesBeforePreflight) {
     try {
@@ -1276,7 +1299,9 @@ try {
     append(`Found expected UI text(s): ${expectedTexts.join(', ')}`);
   }
 
-  const missingResourceIds = expectedResourceIds.filter(resourceId => !uiHierarchy.includes(`resource-id="${resourceId}"`));
+  const missingResourceIds = expectedResourceIds.filter(
+    resourceId => !uiHierarchy.includes(`resource-id="${resourceId}"`),
+  );
 
   if (missingResourceIds.length > 0) {
     throw new Error(`UI hierarchy is missing expected resource ID(s): ${missingResourceIds.join(', ')}`);
