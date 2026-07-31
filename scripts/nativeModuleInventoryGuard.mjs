@@ -27,7 +27,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['react-native-keychain', '10.0.0'],
   ['react-native-share', '12.3.1'],
   ['react-native-svg', '15.15.5'],
-  ['react-native-tcp-socket', '6.4.1'],
+  ['react-native-tcp-socket', '6.4.2'],
   ['react-native-vector-icons', '10.3.0'],
   ['react-native-version-number', '0.3.6'],
   ['react-native-webview', '14.0.1'],

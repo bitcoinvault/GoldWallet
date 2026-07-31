@@ -86,7 +86,7 @@ Branch shape:
 - `react-native-get-random-values` -> `2.0.0`
 - `react-native-secure-key-store` -> removed after validated historical migration
 - `react-native-keychain` -> `10.0.0`
-- `react-native-tcp-socket` -> `6.4.1`
+- `react-native-tcp-socket` -> `6.4.2`
 - `react-native-version-number` -> `0.3.6`
 - `react-native-webview` -> `14.0.1`
 
@@ -111,7 +111,7 @@ Branch shape:
 - `corepack yarn check:secure-storage-legacy-removal` prevents the removed package, adapter, environment switch, and runtime fallback references from returning.
 - `corepack yarn secure-storage:release-validation:handoff` validates the final Keychain-only posture and focused wallet storage contracts.
 - `tests/integration/Storage.test.js` locks the React Native `AppStorage` Keychain-only contract for encrypted wallet data.
-- `react-native-tcp-socket` is already on the latest checked same-major version after `BEM-36.50`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
+- `react-native-tcp-socket` is on the latest checked `6.4.2` after `BEM-37.932`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 - `react-native-randombytes` was removed after the dedicated crypto/runtime replacement branch; random values are provided by `react-native-get-random-values@2.0.0`, imported in `index.js` before app startup.
 - `react-native-version-number` is pinned to the already-resolved `0.3.6` after `BEM-36.69`; future app metadata work should validate displayed/build version behavior on both platforms.
 - `react-native-webview` is on latest checked `14.0.1` after `BEM-37.760`; future WebView work should focus on Terms screens validation, release builds, and the next RN baseline.

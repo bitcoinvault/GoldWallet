@@ -2,8 +2,8 @@
 
 This audit supports `BEM-36 - Native modules upgrade` before changing storage, environment, secure storage, Electrum networking, or WebView dependencies.
 
-Checked on: 2026-07-15
-Baseline refreshed on: 2026-07-15 after the RN `0.86.2` foundation checkpoint, storage/network latest-target refresh, validated legacy secure-storage removal, `react-native-webview@14.0.1` Terms WebView validation, and `axios@1.18.1` API-client validation.
+Checked on: 2026-07-31
+Baseline refreshed on: 2026-07-31 after the RN `0.86.2` foundation checkpoint, storage/network latest-target refresh, validated legacy secure-storage removal, `react-native-webview@14.0.1` Terms WebView validation, and the `axios@1.19.0` / `react-native-tcp-socket@6.4.2` network-runtime cohort.
 
 ## Current Repository State
 
@@ -15,7 +15,7 @@ Tracked package versions:
 - `react-native-config`: manifest and lockfile `1.6.1`
 - `react-native-localize`: manifest and lockfile `3.7.0`
 - `react-native-keychain`: manifest and lockfile `10.0.0`
-- `react-native-tcp-socket`: manifest and lockfile `6.4.1`
+- `react-native-tcp-socket`: manifest and lockfile `6.4.2`
 - `react-native-webview`: manifest and lockfile `14.0.1`
 
 Direct usage found in this audit:
@@ -26,7 +26,7 @@ Direct usage found in this audit:
 - `react-native-config`: app environment, Electrum host/protocol, explorer URL, Sentry DSNs, CodePush keys.
 - `react-native-localize`: mocked in tests and used through localization runtime.
 - `react-native-keychain`: `SecureStorageService`, React Native `AppStorage`, focused unit contracts, and encrypted-wallet storage integration tests.
-- `react-native-tcp-socket`: TLS Electrum socket implementation. Updated from `6.0.6` to `6.4.1` in `BEM-36.50`.
+- `react-native-tcp-socket`: TLS Electrum socket implementation. Updated from `6.0.6` through `6.4.1` to `6.4.2` in `BEM-37.932`.
 - `react-native-webview`: terms and conditions screens.
 - `react-native-get-random-values`: manifest and lockfile `2.0.0`; imported in `index.js` before app startup. Deprecated `react-native-randombytes` is removed.
 
@@ -121,7 +121,7 @@ dist-tags:
 engines:
 - node: >=16
 
-react-native-tcp-socket latest: 6.4.1
+react-native-tcp-socket latest: 6.4.2
 peerDependencies:
 - react-native: >=0.60.0
 
@@ -151,8 +151,8 @@ The 2026-06-12 generated latest snapshot confirms the tracked storage/network/co
 - `tests/unit/SecureStorageService.test.js` locks Keychain reads, writes, transaction-password hashing and verification, missing-value behavior, and removal.
 - `tests/integration/Storage.test.js` locks the Keychain-only encrypted wallet storage contract, including missing and failed reads.
 - `react-native-webview` is now on latest checked `14.0.1` after `BEM-37.760`; future changes should focus on Terms screens validation, release builds, and the next RN baseline.
-- `axios` is now on latest checked `1.18.1` after `BEM-37.763`; the app still imports the Metro-safe browser CJS bundle from `src/api/client.ts`, and future axios changes need focused API/Electrum/storage-network validation plus Android smoke.
-- `react-native-tcp-socket` is on latest `6.4.1`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
+- `axios` is on latest checked `1.19.0` after `BEM-37.932`; the app still imports the Metro-safe browser CJS bundle from `src/api/client.ts`, and future axios changes need focused API/Electrum/storage-network validation plus Android smoke.
+- `react-native-tcp-socket` is on latest `6.4.2` after `BEM-37.932`, but it is directly tied to Electrum connectivity and still needs network observation on every future socket/config branch.
 - Future config/env changes must preserve all current env variables used in `src/config/index.ts`.
 - AsyncStorage changes must keep Redux persist, `StoreService`, fee cache, and storage encryption tests green.
 - WebView changes need manual terms-screen checks because WebView loading is asynchronous and UI-driven.
