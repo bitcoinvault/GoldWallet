@@ -5,11 +5,24 @@ import { fileURLToPath, pathToFileURL } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const defaultRoot = path.resolve(__dirname, '..');
 
-export const sentryPropertiesRelativePaths = ['sentry.properties', 'android/sentry.properties', 'ios/sentry.properties'];
+export const sentryPropertiesRelativePaths = [
+  'sentry.properties',
+  'android/sentry.properties',
+  'ios/sentry.properties',
+];
 export const defaultSentryPropertiesValues = {
   'defaults.url': 'https://sentry.io/',
-  'defaults.org': 'cloudbest',
-  'defaults.project': 'goldwallet',
+  'defaults.org': 'decentraplanet',
+};
+export const sentryReleaseProfiles = {
+  nonprod: {
+    android: 'goldwallet-dev-android',
+    ios: 'goldwallet-dev-ios',
+  },
+  prod: {
+    android: 'goldwallet-prod-android',
+    ios: 'goldwallet',
+  },
 };
 
 const validateSentryPropertiesValue = (key, value) => {
@@ -32,10 +45,23 @@ const validateSentryPropertiesValue = (key, value) => {
   return value;
 };
 
-const resolveSentryPropertiesValue = (key, value, fallback) =>
-  validateSentryPropertiesValue(key, value || fallback);
+const resolveSentryPropertiesValue = (key, value, fallback) => validateSentryPropertiesValue(key, value || fallback);
 
-export const buildSentryPropertiesContent = env => {
+const resolveReleaseProfile = env => {
+  const profile = env.SENTRY_RELEASE_PROFILE;
+
+  if (!profile) {
+    throw new Error('SENTRY_RELEASE_PROFILE is required to generate Sentry release properties');
+  }
+
+  if (!Object.hasOwn(sentryReleaseProfiles, profile)) {
+    throw new Error(`SENTRY_RELEASE_PROFILE must be one of: ${Object.keys(sentryReleaseProfiles).join(', ')}`);
+  }
+
+  return sentryReleaseProfiles[profile];
+};
+
+export const buildSentryPropertiesContent = ({ env, project }) => {
   const token = env.SENTRY_AUTH_TOKEN;
 
   if (!token) {
@@ -49,11 +75,7 @@ export const buildSentryPropertiesContent = env => {
       env.SENTRY_ORG,
       defaultSentryPropertiesValues['defaults.org'],
     ),
-    'defaults.project': resolveSentryPropertiesValue(
-      'SENTRY_PROJECT',
-      env.SENTRY_PROJECT,
-      defaultSentryPropertiesValues['defaults.project'],
-    ),
+    'defaults.project': project,
     'auth.token': validateSentryPropertiesValue('SENTRY_AUTH_TOKEN', token),
   };
 
@@ -67,10 +89,27 @@ export const buildSentryPropertiesContent = env => {
 };
 
 export const writeSentryPropertiesFiles = ({ root = defaultRoot, env = process.env } = {}) => {
-  const content = buildSentryPropertiesContent(env);
+  if (!env.SENTRY_AUTH_TOKEN) {
+    throw new Error('SENTRY_AUTH_TOKEN is required to generate Sentry release properties');
+  }
+
+  validateSentryPropertiesValue('SENTRY_AUTH_TOKEN', env.SENTRY_AUTH_TOKEN);
+  const profile = resolveReleaseProfile(env);
+  const androidProject = resolveSentryPropertiesValue(
+    'SENTRY_ANDROID_PROJECT',
+    env.SENTRY_ANDROID_PROJECT,
+    profile.android,
+  );
+  const iosProject = resolveSentryPropertiesValue('SENTRY_IOS_PROJECT', env.SENTRY_IOS_PROJECT, profile.ios);
+  const projectsByPath = {
+    'sentry.properties': androidProject,
+    'android/sentry.properties': androidProject,
+    'ios/sentry.properties': iosProject,
+  };
 
   sentryPropertiesRelativePaths.forEach(relativePath => {
     const targetPath = path.join(root, relativePath);
+    const content = buildSentryPropertiesContent({ env, project: projectsByPath[relativePath] });
 
     mkdirSync(path.dirname(targetPath), { recursive: true });
     writeFileSync(targetPath, content, { mode: 0o600 });

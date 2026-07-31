@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.937 - Sentry release project routing hardening
+
+- Branch: `feature/bem-37-937-sentry-project-routing`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace the stale implicit `cloudbest/goldwallet` properties target with an explicit `SENTRY_RELEASE_PROFILE=nonprod|prod` contract for the current `decentraplanet` organization.
+- Generate separate Android/iOS properties targets: non-production uses `goldwallet-dev-android` and `goldwallet-dev-ios`; production uses `goldwallet-prod-android` and `goldwallet`.
+- Guard all 11 current Sentry DSN routes by project id without retaining or printing DSN/token values, and wire the audit into the Sentry validation handoff.
+
+Findings:
+
+- The authenticated current Sentry CLI can read the `decentraplanet` organization and all four GoldWallet release projects, while the legacy `@sentry/cli` used by the Gradle integration remains unauthorized without `SENTRY_AUTH_TOKEN` in the current shell.
+- Existing ignored root/Android Sentry properties still target the old generic project and are now correctly classified as invalid; iOS production properties match the guarded `goldwallet` target.
+- Current env DSNs consistently map non-production Android/iOS to project ids `5875208` / `5875201` and production Android/iOS to `5875213` / `5375289`.
+- No Sentry release or source map was uploaded. Credentialed validation remains blocked by the missing legacy CLI token in the current shell and by macOS/Xcode/CocoaPods plus active iOS lockfile drift.
+
+Validation:
+
+- Authenticated `sentry` CLI organization/project inventory for `decentraplanet`
+- Expected RED then GREEN `node scripts/checkCreateSentryPropertiesGuard.mjs`
+- `corepack yarn check:sentry-project-routing-guard` and `corepack yarn sentry:project-routing:audit` (11 routes, 0 errors)
+- Sentry prerequisite summary guard, credential-plan guard, credential-handoff guard, and release-validation-handoff guard
+- `corepack yarn sentry:release:validation:preflight` (passes with upload explicitly not claimed)
+- TypeScript, node shims, lint baseline, modernization-log IDs, changed-code Prettier, and diff checks
+- JDK 17 Android dev assembly and real emulator smoke
+- iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.936 - Camera and QR permission lifecycle hardening
 
 - Branch: `feature/bem-37-936-camera-qr-permission-hardening`
