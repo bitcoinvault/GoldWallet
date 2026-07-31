@@ -10379,6 +10379,11 @@ react-native-modal@14.0.0-rc.1:
   dependencies:
     react-native-animatable "1.4.0"
 
+react-native-permissions@5.6.1:
+  version "5.6.1"
+  resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-5.6.1.tgz#a2f5324bacc3ac124831544b53a1c980389bfd4d"
+  integrity sha512-9FwecmnUCHPwUZ+uwfcB7+CHES8cmwyY2gcVZQsZ3zloQCumle10KbDWuaOtgaEqNdzjLd5cyCpb7hKLw8H16A==
+
 "react-native-prompt-android@git+https://github.com/marcosrdz/react-native-prompt-android.git#87bf3adb5f22b4d1ecaa517e93347101372398f5":
   version "0.3.6"
   resolved "git+https://github.com/marcosrdz/react-native-prompt-android.git#87bf3adb5f22b4d1ecaa517e93347101372398f5"

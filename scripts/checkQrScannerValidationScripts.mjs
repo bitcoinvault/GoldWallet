@@ -30,12 +30,17 @@ if (!existsSync(path.join(root, testPath))) {
   const testSource = read(testPath);
   [
     "jest.mock('react-native-camera-kit'",
+    "'react-native-permissions'",
     "testID: 'camera-kit'",
     'requests Android camera permission before rendering CameraKit scanner',
     'keeps CameraKit scanner hidden when Android camera permission is denied',
+    'requests iOS camera permission instead of rendering an unapproved camera preview',
+    'opens application settings when camera permission is blocked',
+    'refreshes blocked camera permission when the app returns to the foreground',
+    'removes the app-state listener and ignores pending permission checks after unmount',
     'passes a non-empty QR value to the caller once and returns to the previous screen',
     'ignores an empty QR value without blocking the next valid scan',
-    'allowedBarcodeTypes).toEqual([\'qr\'])',
+    "allowedBarcodeTypes).toEqual(['qr'])",
     "onBarCodeScan).toHaveBeenCalledWith('bitcoin:BTcvExample')",
   ].forEach(snippet => {
     if (!testSource.includes(snippet)) {

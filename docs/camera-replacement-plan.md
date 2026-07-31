@@ -4,10 +4,12 @@
 
 - The app uses `react-native-camera-kit` only in `src/screens/ScanQrCodeScreen.tsx`.
 - Current scanner package: `react-native-camera-kit@18.0.0`.
+- Cross-platform permission package: `react-native-permissions@5.6.1`.
 - The screen uses CameraKit barcode scanning through `onReadCode`.
 - The scanner is opened from 8 current callers: authenticator list, create contact, import authenticator, import wallet, integrate key, recovery seed, recovery send, and send coins.
 - Android no longer requires `missingDimensionStrategy 'react-native-camera', 'general'`.
-- Android and iOS camera permissions are already present.
+- Android and iOS camera usage declarations are present, and the scanner now checks/requests both platform permissions before rendering CameraKit.
+- Blocked/unavailable permission states keep the scanner hidden, expose an application-settings action, and refresh permission state when the app returns to the foreground.
 - `react-native-camera` has been removed from the runtime dependency list.
 - The unused legacy QR local-image package `@remobile/react-native-qrcode-local-image` has been removed from the JS dependency list and Android autolink guard.
 - The latest legacy `react-native-camera` package checked on 2026-07-30 is still `4.2.1`, and it still does not solve the dependency-owned Android `jcenter()` warning cleanly.
@@ -15,10 +17,10 @@
 - `corepack yarn check:camera-usage-scope` guards the current runtime usage surface after the CameraKit migration.
 - `corepack yarn check:qr-scan-caller-guard` verifies the caller-inventory guard fixtures.
 - `corepack yarn check:qr-scan-callers` guards the current QR scanner caller inventory after the CameraKit migration.
-- `corepack yarn test:qr-scanner:unit` validates the scanner screen contract for Android camera permission, CameraKit QR-only configuration, callback delivery, empty scans, and duplicate-scan suppression.
+- `corepack yarn test:qr-scanner:unit` validates Android/iOS camera permission requests, blocked/settings and foreground-refresh behavior, lifecycle cleanup, CameraKit QR-only configuration, callback delivery, empty scans, and duplicate-scan suppression.
 - `corepack yarn check:qr-scanner-validation-scripts` keeps that focused scanner test wired into the lightweight Android gate and prepush validation.
-- `corepack yarn camera:candidate:audit` checks live npm metadata for the legacy camera, VisionCamera, CameraKit, QR renderer, QR native renderer, and QR encoder before scanner follow-up work, so stale candidate assumptions are visible before a dependency branch.
-- The candidate audit also guards CameraKit peer ranges (`react@*`, `react-native@*`), QR renderer peer ranges (`react@*`, `react-native@>=0.63.4`, `react-native-svg@>=14.0.0`), and QR renderer dependencies (`prop-types@^15.8.0`, `qrcode@^1.5.4`, `text-encoding@^0.7.0`) so latest-compatible scanner decisions do not rely only on package version numbers.
+- `corepack yarn camera:candidate:audit` checks live npm metadata for the legacy camera, VisionCamera, CameraKit, camera permissions, QR renderer, QR native renderer, and QR encoder before scanner follow-up work, so stale candidate assumptions are visible before a dependency branch.
+- The candidate audit also guards CameraKit peer ranges (`react@*`, `react-native@*`), permission peer ranges (`react@*`, `react-native@*`, `react-native-windows@*`), QR renderer peer ranges (`react@*`, `react-native@>=0.63.4`, `react-native-svg@>=14.0.0`), and QR renderer dependencies (`prop-types@^15.8.0`, `qrcode@^1.5.4`, `text-encoding@^0.7.0`) so latest-compatible scanner decisions do not rely only on package version numbers.
 - `corepack yarn camera:qr-migration:audit` checks the current scanner dependency, native permission, guarded autolink, warning-baseline, and migration-documentation state, separates removed camera-pod cleanup from broader iOS `Podfile.lock` drift, and writes `local-docs/camera-qr-migration-summary.txt`.
 - `corepack yarn camera:qr-migration:check-summary` validates the generated local camera QR migration summary.
 - `corepack yarn camera:qr-validation:handoff` and its dry-run now finish with the Camera/QR validation summary guard, summary generation, and summary check after the focused scanner/render validation steps.
@@ -29,6 +31,7 @@
 - The QR migration audit verifies that removed camera pods are absent from `ios/Podfile.lock`; the same summary also reports broader iOS `Podfile.lock` drift from the RN/native-module baseline, so a stable Android/CameraKit scanner baseline is not mistaken for complete iOS runtime validation.
 - The 2026-06-17 Camera/QR runtime validation refresh ran the full handoff with Android smoke included: CameraKit and QR renderer metadata matched live npm, focused scanner/render tests passed, `app-dev-debug.apk` installed on `emulator-5554`, first-run onboarding completed, empty dashboard CTA and tab navigation passed, the import-wallet QR scanner screen was opened and closed successfully, Settings Terms WebView passed, and no fatal/runtime logcat findings were reported. iOS camera QR runtime validation remains unclaimed until the broader `ios/Podfile.lock` drift is refreshed with `pod install` and the scanner is tested on macOS/device.
 - The 2026-07-30 Camera/QR readiness refresh confirmed `react-native-camera-kit@18.0.0`, `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and `qrcode@1.5.4` are still current npm latest packages. VisionCamera latest moved to `react-native-vision-camera@5.2.0` and still requires the Nitro native peer stack, so CameraKit remains the current compatible scanner target.
+- The 2026-07-31 permission hardening adds current `react-native-permissions@5.6.1`, configures only the iOS Camera pod handler, and replaces the Android-only permission request with a guarded Android/iOS lifecycle. Windows can prove Android runtime and iOS static wiring, but iOS scanner runtime still requires `pod install` plus simulator/device validation on macOS.
 - The controlled release blocker is scoped to `dev` evidence because it describes the dev/testnet Electrum certificate. `stage`, `prod`, and `beta` summaries report that blocker as not applicable and remain `not ready` until their own release evidence passes; they cannot inherit the dev blocker as a substitute for variant-specific proof.
 - On Windows the expected state is that Android/runtime dependency wiring can be guarded while iOS camera migration validation remains unclaimed until `pod install` refreshes the broader lockfile drift on macOS.
 

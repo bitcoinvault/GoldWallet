@@ -585,6 +585,7 @@
     "react-native-localize": "3.7.0",
     "react-native-logs": "5.6.0",
     "react-native-modal": "14.0.0-rc.1",
+    "react-native-permissions": "5.6.1",
     "react-native-prompt-android": "git+https://github.com/marcosrdz/react-native-prompt-android.git#87bf3adb5f22b4d1ecaa517e93347101372398f5",
     "react-native-qrcode-svg": "6.3.21",
     "react-native-rate": "1.2.12",
