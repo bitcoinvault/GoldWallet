@@ -13,7 +13,7 @@ const sagaEffects = require('redux-saga/effects');
 const expectedVersions = {
   redux: '5.0.1',
   'react-redux': '9.3.0',
-  'redux-saga': '1.5.0',
+  'redux-saga': '1.5.1',
   reselect: '5.2.0',
 };
 const errors = [];
