@@ -52,7 +52,7 @@ tasks.configureEach { task ->
 }
 
 project.ext.sentryCli = [
-    logLevel: "debug"
+    logLevel: "info"
 ]
 
 apply from: "../../node_modules/@sentry/react-native/sentry.gradle"

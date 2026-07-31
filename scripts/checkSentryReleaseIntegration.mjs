@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, '..');
 
 const errors = getSentryReleaseIntegrationErrors({
   androidBuildGradle: readFileSync(path.join(root, 'android', 'app', 'build.gradle'), 'utf8'),
+  metroConfig: readFileSync(path.join(root, 'metro.config.js'), 'utf8'),
   iosProject: readFileSync(
     path.join(root, 'ios', 'GoldWallet.xcodeproj', 'project.pbxproj'),
     'utf8',

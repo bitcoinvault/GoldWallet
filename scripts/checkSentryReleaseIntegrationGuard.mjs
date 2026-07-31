@@ -1,11 +1,13 @@
 import {
   expectedSentryAndroidSnippets,
   expectedSentryIosSnippets,
+  expectedSentryMetroSnippets,
   getSentryReleaseIntegrationErrors,
 } from './sentryReleaseIntegrationGuard.mjs';
 
 const validFixture = {
   androidBuildGradle: expectedSentryAndroidSnippets.join('\n'),
+  metroConfig: expectedSentryMetroSnippets.join('\n'),
   iosProject: [
     ...expectedSentryIosSnippets,
     ...Array.from({ length: 2 }, () => '../node_modules/@sentry/cli/bin/sentry-cli react-native xcode'),
@@ -36,6 +38,14 @@ assertAccepted('Known Sentry release integration', validFixture);
 assertRejected('Missing Android sentry.gradle integration', {
   ...validFixture,
   androidBuildGradle: 'project.ext.sentryCli',
+});
+assertRejected('Unsafe Android Sentry debug logging', {
+  ...validFixture,
+  androidBuildGradle: validFixture.androidBuildGradle.replace('logLevel: "info"', 'logLevel: "debug"'),
+});
+assertRejected('Missing Sentry Metro serializer', {
+  ...validFixture,
+  metroConfig: '',
 });
 assertRejected('Missing iOS dSYM upload phases', {
   ...validFixture,
