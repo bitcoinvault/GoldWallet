@@ -9,12 +9,23 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const scriptPath = path.join(root, 'scripts', 'createSentryProperties.mjs');
 const secret = 'dummy-token-for-guard';
+const sentryInputNames = [
+  'SENTRY_AUTH_TOKEN',
+  'SENTRY_RELEASE_PROFILE',
+  'SENTRY_ORG',
+  'SENTRY_ANDROID_PROJECT',
+  'SENTRY_IOS_PROJECT',
+];
 
 const runGenerator = ({ tempRoot, env }) => {
+  const isolatedEnv = { ...process.env };
+
+  sentryInputNames.forEach(name => delete isolatedEnv[name]);
+
   try {
     const stdout = execFileSync(process.execPath, [scriptPath, '--root', tempRoot], {
       cwd: root,
-      env: { ...process.env, ...env },
+      env: { ...isolatedEnv, ...env },
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,

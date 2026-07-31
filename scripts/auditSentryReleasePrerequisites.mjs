@@ -506,6 +506,30 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
   };
 };
 
+const getSentryReleasePrerequisiteRequiredAction = audit => {
+  if (audit.ready) {
+    return 'Required action: none; release source-map prerequisites are present locally.';
+  }
+
+  const credentialSetupRequired =
+    !audit.envHasToken || audit.readyPropertiesFiles.length !== requiredSentryPropertiesFiles.length;
+  const iosSetupRequired = audit.iosPodfileLockRefreshRequired || !audit.iosMacValidationPrereqsReady;
+
+  if (credentialSetupRequired && iosSetupRequired) {
+    return 'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN, refresh ios/Podfile.lock on macOS with Xcode/CocoaPods, then run iOS archive/simulator validation before claiming Sentry release validation.';
+  }
+
+  if (credentialSetupRequired) {
+    return 'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN before claiming Sentry release validation.';
+  }
+
+  if (iosSetupRequired) {
+    return 'Required action: refresh ios/Podfile.lock on macOS with Xcode/CocoaPods, then run iOS archive/simulator validation before claiming Sentry release validation.';
+  }
+
+  return 'Required action: resolve the remaining release evidence errors before claiming Sentry release validation.';
+};
+
 export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date().toISOString()) => {
   const lines = [
     'Sentry release prerequisite audit',
@@ -650,11 +674,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`createSentryProperties.mjs supports --root override: ${audit.createNodeScriptSupportsRootOverride ? 'yes' : 'no'}`);
   lines.push(`sentry:release:create-properties script present: ${audit.createNodePackageScriptPresent ? 'yes' : 'no'}`);
   lines.push(`SENTRY_AUTH_TOKEN available in current shell: ${audit.envHasToken ? 'yes' : 'no'}`);
-  lines.push(
-    audit.ready
-      ? 'Required action: none; release source-map prerequisites are present locally.'
-      : 'Required action: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN, refresh ios/Podfile.lock on macOS with Xcode/CocoaPods, then run iOS archive/simulator validation before claiming Sentry release validation.',
-  );
+  lines.push(getSentryReleasePrerequisiteRequiredAction(audit));
 
   return `${lines.join('\n')}\n`;
 };
@@ -799,9 +819,7 @@ const printReport = audit => {
 
   if (!audit.ready) {
     console.log('Release source-map validation is not ready locally.');
-    console.log(
-      'Required before claiming Sentry release validation: generate sentry.properties, android/sentry.properties, and ios/sentry.properties with SENTRY_AUTH_TOKEN, refresh ios/Podfile.lock on macOS with Xcode/CocoaPods, then run iOS archive/simulator validation.',
-    );
+    console.log(getSentryReleasePrerequisiteRequiredAction(audit));
   } else {
     console.log('Release source-map prerequisites are present locally.');
   }

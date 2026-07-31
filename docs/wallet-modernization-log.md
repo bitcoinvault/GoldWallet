@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.939 - Sentry managed CLI credential bridge
+
+- Branch: `feature/bem-37-939-sentry-managed-credential`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Reuse the authenticated official Sentry CLI session for the legacy `@sentry/cli` release path without requiring a copied token in the interactive shell.
+- Keep explicit `SENTRY_AUTH_TOKEN` precedence for CI and controlled shells, pass a managed credential only to the validation child process, and prepare the three ignored Sentry properties files.
+- Guard token format, command failure, output redaction, inherited test-environment isolation, project routing, and condition-aware prerequisite actions.
+
+Findings:
+
+- `sentry auth token` from the authenticated official CLI can supply the legacy CLI used by the React Native release integration. The managed wrapper reports only credential source and ignored file paths; it does not print or commit the token value.
+- Managed production preflight prepares ready root, Android, and iOS properties and validates all 11 guarded DSN routes with zero routing errors. Current Sentry packages remain `@sentry/react-native@8.21.0` and direct `@sentry/cli@3.6.2`.
+- Fresh JDK 17 Android release validation covers `dev`, `stage`, `prod`, and `beta`. Signed `prodRelease` emulator smoke passes onboarding, dashboard, QR, navigation, Terms WebView, standard-wallet creation, restart, incorrect/correct PIN, persistence, and the vault next step without fatal or React Native runtime findings.
+- Fresh controlled `devRelease` no-network evidence is bound to this worktree and retains the known testnet Electrum certificate blocker without treating reduced offline smoke as full network proof.
+- Sentry credential and properties prerequisites are ready, and Android runtime proof is ready. Sentry source-map/dSYM upload remains unclaimed because iOS still requires macOS/Xcode/CocoaPods, `ios/Podfile.lock` has 12 active dependency drifts, and no credentialed iOS archive was run.
+
+Validation:
+
+- `corepack yarn check:sentry-managed-credential-guard`
+- Sentry properties generator, credential handoff, project-routing, prerequisite-summary, and release-validation-handoff guards
+- `SENTRY_RELEASE_PROFILE=prod corepack yarn sentry:release:validation:managed:preflight`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:release:smoke:no-network:embedded`
+- Unit, focused storage/network, TypeScript, node-shim, lint baseline, modernization-log ID, changed-code formatting, secret-scan, and diff checks
+- iOS runtime/archive and Sentry upload remain unclaimed on Windows
+
 ### BEM-37.938 - AGP 9.3.1 direct toolchain probe refresh
 
 - Branch: `feature/bem-37-938-agp-931-toolchain-probe`

@@ -144,7 +144,7 @@ assert(
 );
 assert(
   scripts['sentry:release:validation:preflight'] ===
-    'yarn check:sentry-properties-readiness-guard && yarn check:sentry-project-routing-guard && yarn sentry:project-routing:audit && node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release',
+    'yarn check:sentry-managed-credential-guard && yarn check:sentry-properties-readiness-guard && yarn check:sentry-project-routing-guard && yarn sentry:project-routing:audit && node scripts/runSentryReleaseValidationHandoff.mjs --preflight-only --skip-android-release',
   'package.json must expose a Sentry properties guard and release validation preflight that skips credentialed upload and Android release refresh',
 );
 assert(
