@@ -146,8 +146,8 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     errors.push(`React Native Gradle plugin Kotlin metadata ceiling must be a semver-like version. Received: ${rnKotlinMetadataCeiling || 'missing'}`);
   }
 
-  if (!directProbeEvidence.includes('docs/wallet-modernization-log.md') || !directProbeEvidence.includes('BEM-37.900')) {
-    errors.push(`Direct AGP 9 probe evidence must point to the committed BEM-37.900 log entry. Received: ${directProbeEvidence || 'missing'}`);
+  if (!directProbeEvidence.includes('docs/wallet-modernization-log.md') || !directProbeEvidence.includes('BEM-37.938')) {
+    errors.push(`Direct AGP 9 probe evidence must point to the committed BEM-37.938 log entry. Received: ${directProbeEvidence || 'missing'}`);
   }
 
   if (directProbeEvidenceStatus !== 'committed') {
