@@ -40,6 +40,7 @@
 - Static compatibility evidence shows Sentry expects `jsIntermediateSourceMapsDir` as a `Directory`, while RN `0.86.2` exposes it on `BundleHermesCTask` as a `RegularFileProperty`; Sentry's fallback also expects an `args` property that the RN task does not expose. Do not patch `node_modules` or add unsupported dynamic task properties in `android/app/build.gradle`.
 - The 2026-07-05 BEM-37.819 refresh updates current Android release build/manifest evidence for the Sentry package bump. Sentry release integration uses the direct root `@sentry/cli@3.6.0`, nested Sentry-owned CLI versions are absent, and the Sentry RN bundle task compatibility path is ready through the repo-owned legacy args shim.
 - BEM-37.920 binds Sentry Android candidate evidence to the exact signed AAB before any Play handoff: it cleans prior generated outputs, forces automatic upload off, extracts the embedded AAB bundle, snapshots the fresh Gradle bundle/map, and writes a strict hash-addressed manifest under ignored `local-docs/sentry-android-candidates/<aab-sha256>/`. The local signing proof validates this path on the API 36 emulator. This does not claim credentialed Sentry upload, Play acceptance, iOS dSYM/source-map delivery, or production upload-key identity.
+- BEM-37.941 proves the Android upload transport independently of production release state. `sentry:android-upload-canary:execute` validates the exact BEM-37.940 signed-AAB candidate, uploads its binary bundle plus debug-ID-linked source map to the fixed `goldwallet-dev-android` project under a deterministic canary release, waits for artifact-bundle processing, and validates the returned Bundle ID, project, release, dist, and both debug IDs. The ignored summary records only hashes and non-secret evidence. This proves Android dev transport, not production upload, real-event symbolication, iOS source-map/dSYM delivery, or macOS archive readiness.
 - The 2026-06-17 BEM-37.742 prerequisite gate makes Sentry source-map readiness depend on iOS readiness as well: the summary reports static iOS files valid, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, `ios/Podfile.lock` refresh required with 12 active drift issues, and macOS validation prerequisites not ready on this Windows host. Source-map/dSYM upload remains blocked by both missing local `SENTRY_AUTH_TOKEN` plus generated root/Android/iOS `sentry.properties` files and the required macOS/Xcode/CocoaPods Podfile/archive validation.
 
 ## 2026-07-31 Release Services Refresh
@@ -50,6 +51,7 @@
 - Android `dev`, `stage`, `prod`, and `beta` release APKs, JS bundles, source maps, manifests, secure-storage packaging, and retired App Center checks pass with automatic upload disabled.
 - Fresh signed `prodRelease` emulator validation passes onboarding, dashboard actions, QR, tabs, Terms WebView, standard-wallet creation, restart/PIN persistence, and the default 3-key vault public-key flow with no fatal/runtime findings.
 - iOS static readiness passes, but dSYM/source-map delivery and archive validation remain unclaimed until macOS/Xcode/CocoaPods refreshes the 12 active `ios/Podfile.lock` drifts.
+- The isolated Android canary upload passes in `goldwallet-dev-android` with artifact bundle `29acab0d-9d11-5c7f-a9f4-e05207f96e2d`; a repeated execution confirms the same files are already present and fully processed. Production upload and event symbolication remain unclaimed.
 
 ## 2026-06-17 Preflight Refresh
 
@@ -142,7 +144,7 @@ Evidence that must be attached to the credential handoff:
 - current release-services aggregate summary;
 - iOS macOS/Xcode/CocoaPods blocker or validation result.
 
-Do not run or claim real Sentry release upload validation until `SENTRY_AUTH_TOKEN` is present and the three generated properties files are ready.
+Do not run or claim production Sentry release upload validation until `SENTRY_AUTH_TOKEN` is present and the three generated properties files are ready. The isolated Android dev canary is a separate transport-only proof and must keep production upload and event symbolication unclaimed.
 Do not commit `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, or token-derived output.
 Do not print `SENTRY_AUTH_TOKEN` or generated `auth.token` values in handoff artifacts.
 Do not claim iOS dSYM/source-map upload validation unless it ran on macOS/Xcode or a real CI equivalent.
@@ -157,6 +159,7 @@ Do not claim iOS dSYM/source-map upload validation unless it ran on macOS/Xcode 
 - prove iOS macOS validation prerequisites are ready, `ios/Podfile.lock` drift is zero, and the iOS source-map/dSYM phases remain present before claiming iOS symbol upload readiness;
 - leave release source-map upload as `not claimed` when credentials are missing.
 - require current signed-AAB candidate evidence whose embedded/generated bundle hashes match and whose manifest release/dist match the verified AAB metadata before attempting credentialed Android source-map upload.
+- use `corepack yarn sentry:android-upload-canary:execute` only for the fixed non-production transport proof; its success cannot satisfy production-event symbolication or iOS acceptance criteria.
 
 ## Why This Needs A Dedicated Branch
 
@@ -222,4 +225,3 @@ Scope:
 - Release source-map behavior is either proven working or explicitly blocked by missing local Sentry credentials.
 - iOS symbol upload path is not removed or silently disabled.
 - The remaining Sentry Gradle warning status is re-audited after the upgrade.
-

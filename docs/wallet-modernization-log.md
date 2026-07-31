@@ -10,6 +10,36 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.941 - Sentry Android source-map transport canary
+
+- Branch: `feature/bem-37-941-sentry-android-upload-canary`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upload the exact Android bundle and source map already bound to the BEM-37.940 signed-AAB proof into an isolated Sentry canary namespace.
+- Keep the canary fixed to the non-production `goldwallet-dev-android` project and derive a deterministic release name and debug ID from the candidate identity.
+- Guard credential redaction, Windows CLI invocation, artifact digests, project/release/dist routing, upload output, artifact-bundle processing, and persistent ignored evidence.
+
+Findings:
+
+- Sentry accepted and processed artifact bundle `29acab0d-9d11-5c7f-a9f4-e05207f96e2d` for project `goldwallet-dev-android`, release `goldwallet-android-sourcemap-canary@6.5.1+14-215afad411f1`, and dist `14`.
+- The uploaded binary bundle retains the exact candidate SHA-256. The copied source map receives deterministic debug ID `215afad4-11f1-4504-87d8-2bb6fc9570b9`, and Sentry reports that same ID for both the script and source map after `--wait` processing.
+- Repeating the command is idempotent: Sentry returns the same Bundle ID and confirms that all files are already present on the server.
+- Sentry reports no team association for the otherwise readable dev project, and its release-creation endpoint rejects explicit project association. Direct artifact-bundle upload succeeds without changing organization or project membership.
+- Android dev transport is proven. Production release upload, real-event symbolication, iOS source-map/dSYM upload, and macOS archive validation remain unclaimed.
+
+Validation:
+
+- `corepack yarn check:sentry-android-upload-canary-guard`
+- `corepack yarn sentry:android-upload-canary:dry-run`
+- `corepack yarn sentry:android-upload-canary:execute`
+- Exact BEM-37.940 Android 16 KB runtime-proof and candidate-manifest validation before every dry run or upload
+- Sentry artifact-bundle processing reports the expected project ID, canary release, dist, Bundle ID, and matching script/source-map debug IDs
+- Managed-credential and Sentry properties/routing checks pass. The broader preflight correctly remains incomplete in this isolated worktree because its separate ignored Android release/smoke summaries are not present; they are not copied between worktrees.
+- TypeScript, unit, focused storage/network, node-shim, lint-baseline, modernization-log ID, formatting, secret-scan, and diff checks
+- Production event symbolication and iOS runtime/archive remain unclaimed
+
 ### BEM-37.940 - Android 16 KB exact signed-AAB runtime proof
 
 - Branch: `feature/bem-37-940-android-16kb-runtime-proof`
