@@ -106,12 +106,20 @@ const knownDecisions = new Map([
     'blocked - React Native renderer exact-version coupling requires React to stay aligned with the RN target snapshot',
   ],
   [
+    '@types/react',
+    'blocked - React type patch drift must stay aligned with the React Native renderer baseline and move in a dedicated React/RN type branch with TypeScript and unit proof',
+  ],
+  [
     'react-native-gesture-handler',
     'blocked - gesture runtime patch drift requires a dedicated navigation/gesture smoke branch before bumping',
   ],
   [
     'react-i18next',
     'blocked - localization runtime patch drift requires a dedicated i18n branch with translation checks and Android emulator proof',
+  ],
+  [
+    'redux-saga',
+    'blocked - state runtime patch drift requires a dedicated Redux Saga branch with action, effect, wallet unit, and Android emulator proof',
   ],
   [
     'react-native-bootsplash',

@@ -15,7 +15,7 @@ const expectedDevDependencies = {
   'babel-jest': '30.4.1',
   'jest-circus': '30.4.2',
   'jest-environment-node': '30.4.1',
-  'ts-jest': '29.4.11',
+  'ts-jest': '29.4.12',
   '@types/jest': '30.0.0',
   '@react-native/jest-preset': '0.86.2',
 };
@@ -26,7 +26,7 @@ const expectedInstalledPackages = {
   'jest-environment-node': '30.4.1',
   'jest-runtime': '30.4.2',
   'jest-mock': '30.4.1',
-  'ts-jest': '29.4.11',
+  'ts-jest': '29.4.12',
   '@types/jest': '30.0.0',
   '@react-native/jest-preset': '0.86.2',
 };

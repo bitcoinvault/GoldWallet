@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.933 - Tooling and test latest cohort
+
+- Branch: `feature/bem-37-933-tooling-test-latest-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the latest compatible tooling/test cohort: `eslint@10.8.0`, `jsdom@30.0.1`, `lint-staged@17.3.0`, and `ts-jest@29.4.12`.
+- Keep the current React Native `0.86.2`, Jest `30.4.2`, TypeScript `6.0.3`, TypeScript ESLint `8.65.0`, and Node `24.16.0` baselines fixed.
+- Refresh ESLint, Jest, test/type coupling, precommit, tooling latest, TypeScript 7 blocker, and direct-outdated contracts without mixing unrelated runtime upgrades into this branch.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-31 reports all four selected versions as latest. Their Node engines accept the repo Node `24.16.0`; `ts-jest@29.4.12` still peers on TypeScript `<7` and therefore keeps TypeScript 7 blocked.
+- `jsdom@30.0.1` parses the DOM contract used by `tests/e2e/mailing/index.ts`; the helper probe and TypeScript compile pass.
+- The lockfile adds jsdom-owned `undici@8.9.0` and ESLint-owned `minimatch@10.2.6` / `brace-expansion@5.0.9`; owner-path inspection and API probes pass, while the separately scoped Sentry CLI resolution remains `undici@8.8.0`.
+- ESLint `10.8.0` loads through the existing flat-config bridge and preserves the current lint baseline exactly: 331 files, 36,280 errors, zero warnings.
+- `lint-staged@17.3.0` reports the expected CLI version, accepts Node `24.16.0`, and preserves the precommit order of Node, tooling, staged lint, and TypeScript checks.
+- Jest tooling and test/type coupling audits accept `ts-jest@29.4.12` alongside Jest `30.4.2`, Babel Jest `30.4.1`, and the guarded React Native Jest environment resolutions.
+- The refreshed tooling snapshot reports all 24 tracked entries current except the intentionally blocked TypeScript 7 target. The direct-outdated snapshot now records 20 explicit blockers, 4 fork/exotic entries, and zero review-required entries.
+- Android `devDebug` builds successfully. A fresh APK install on `emulator-5554` passes onboarding through the expected controlled `No network` screen with no fatal Android or React Native runtime findings.
+- Windows-safe iOS static validation passes with eight guarded schemes. iOS runtime/archive remains unclaimed because macOS/Xcode/CocoaPods are unavailable and `ios/Podfile.lock` still has 12 active drifts.
+
+Validation:
+
+- Live npm version, engine, and peer metadata for all four selected packages
+- Clean package install with successful patch-package, rn-nodeify shim restoration, and Jetifier postinstall
+- jsdom DOM helper probe, tooling latest audit/summary, ESLint flat-config compatibility, lint-staged tooling, Jest tooling, test/type coupling, and TypeScript 7 compatibility probe
+- Direct-outdated audit/summary with zero review-required entries
+- TypeScript, 55 unit tests, focused storage/network tests, node shims, lint baseline, modernization-log IDs, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn ios:static:verify`; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.932 - Network runtime latest patch cohort
 
 - Branch: `feature/bem-37-932-network-runtime-patch-cohort`
