@@ -13,7 +13,7 @@ const requiredStorageNetworkEntries = new Map([
   ['react-native-localize', 'latest 3.7.0'],
   ['react-native-get-random-values', 'latest 2.0.0'],
   ['react-native-keychain', 'latest 10.0.0'],
-  ['react-native-tcp-socket', 'latest 6.4.1'],
+  ['react-native-tcp-socket', 'latest 6.4.2'],
   ['react-native-webview', 'latest 14.0.1'],
 ]);
 

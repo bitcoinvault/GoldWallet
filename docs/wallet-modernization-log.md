@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.932 - Network runtime latest patch cohort
+
+- Branch: `feature/bem-37-932-network-runtime-patch-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the API client from `axios@1.18.1` to the live npm latest `1.19.0` and the Electrum native transport from `react-native-tcp-socket@6.4.1` to the live npm latest `6.4.2`.
+- Preserve the Metro-safe Axios browser CommonJS import and the existing Electrum TLS integration while refreshing storage/network and native-module contracts.
+- Validate focused storage, API, Electrum reconnect, secure-storage, wallet, Android debug/release, emulator, and Windows-safe iOS paths.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-31 reports `axios@1.19.0` and `react-native-tcp-socket@6.4.2` as latest. The socket package still peers on `react-native >=0.60.0`, which accepts the current RN `0.86.2` baseline.
+- The installed Axios browser CommonJS entry still exposes `create` and `isAxiosError`, preserving the import contract used by `src/api/client.ts`.
+- The refreshed storage/network snapshot reports all nine tracked packages current with zero deferred entries.
+- Android `devDebug` and targeted `prodRelease` builds pass. Production manifest, secure-storage packaging, and retired App Center checks remain valid.
+- Signed `prodRelease` emulator smoke passes onboarding, empty-dashboard actions, QR navigation, all four bottom tabs, Terms WebView, and fatal/runtime logcat checks.
+- The reduced dev no-network smoke passes with the expected `No network` UI and no fatal/runtime logcat findings. A separate runtime capture reaches a ready dev dashboard with no fatal findings, but does not emit Electrum success lines, so live Electrum connectivity remains unclaimed.
+- The controlled network-blocker audit confirms the external dev/testnet endpoint certificate expired on 2026-06-23. This prevents successful TLS observation and requires certificate renewal before the full dev connectivity gate can pass.
+- Windows-safe iOS static validation passes with eight guarded schemes. iOS runtime/archive remains unclaimed because macOS/Xcode/CocoaPods are unavailable and `ios/Podfile.lock` still has 12 active drifts.
+
+Validation:
+
+- Live npm latest metadata and peer metadata for Axios and React Native TCP Socket
+- Clean `corepack yarn install --ignore-engines` with successful patch-package, rn-nodeify shim restoration, and Jetifier postinstall
+- Axios browser CommonJS API probe for `create` and `isAxiosError`
+- Storage/network latest snapshot, usage, validation-script, native-module inventory, and rn-nodeify guards
+- TypeScript, 55 unit tests, focused storage/network tests, lint baseline, modernization-log IDs, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_RELEASE_VARIANTS=prod corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- Electrum runtime observation artifact plus `android:dev:network-blocker:audit` and summary validation; connectivity remains externally blocked by the expired testnet certificate
+- `corepack yarn ios:static:verify`; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.931 - React Navigation latest patch cohort
 
 - Branch: `feature/bem-37-931-react-navigation-patch-cohort`

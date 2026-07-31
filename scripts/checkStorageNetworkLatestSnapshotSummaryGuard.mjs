@@ -13,7 +13,7 @@ const validSummary = [
   '- react-native-localize: package 3.7.0, installed 3.7.0, latest 3.7.0, peers @expo/config-plugins@*, react@*, react-native@*, react-native-macos@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-get-random-values: package 2.0.0, installed 2.0.0, latest 2.0.0, peers react-native@>=0.81, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-keychain: package 10.0.0, installed 10.0.0, latest 10.0.0, peers none, engines node@>=16, decision current - latest npm package is installed and pinned for the storage/network baseline',
-  '- react-native-tcp-socket: package 6.4.1, installed 6.4.1, latest 6.4.1, peers react-native@>=0.60.0, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
+  '- react-native-tcp-socket: package 6.4.2, installed 6.4.2, latest 6.4.2, peers react-native@>=0.60.0, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   '- react-native-webview: package 14.0.1, installed 14.0.1, latest 14.0.1, peers react@*, react-native@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   'Current entries: 9',
   'Deferred entries: 0',
@@ -60,7 +60,7 @@ assertRejected(
   'Duplicate package fixture',
   validSummary.replace(
     '- react-native-webview: package 14.0.1, installed 14.0.1, latest 14.0.1, peers react@*, react-native@*, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
-    '- react-native-tcp-socket: package 6.4.1, installed 6.4.1, latest 6.4.1, peers react-native@>=0.60.0, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
+    '- react-native-tcp-socket: package 6.4.2, installed 6.4.2, latest 6.4.2, peers react-native@>=0.60.0, engines none, decision current - latest npm package is installed and pinned for the storage/network baseline',
   ),
   'Duplicate storage/network latest entry for react-native-tcp-socket',
 );
