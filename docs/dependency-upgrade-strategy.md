@@ -70,12 +70,12 @@ corepack yarn wallet:crypto-latest-snapshot:check-summary
 Do these after the runtime foundation and native-module cohorts that own their validation surface are stable:
 
 - State stack: Redux, React Redux, Redux Saga, Reselect.
-- State runtime is on checked latest stable after `BEM-37.207`: `redux@5.0.1`, `react-redux@9.3.0`, `redux-saga@1.5.0`, and `reselect@5.2.0`.
+- State runtime is on checked latest stable after `BEM-37.934`: `redux@5.0.1`, `react-redux@9.3.0`, `redux-saga@1.5.1`, and `reselect@5.2.0`.
 - Utility/runtime packages: Axios, Lodash, Dayjs, BigNumber, CryptoJS.
 - Node/RN polyfills: `buffer`, `events`, `path-browserify`, `stream-browserify`, `readable-stream`, `util`, and `url`; keep these in small runtime cohorts because Metro and wallet crypto flows depend on the same rn-nodeify shims.
 - Lodash runtime is on checked latest `4.18.1` after `BEM-37.208`; `@types/lodash@4.17.24` is also checked latest.
 - CryptoJS runtime is on checked latest `4.2.0` after `BEM-37.206`; future crypto work should focus on behavior coverage and replacement strategy, not another blind package bump.
-- Localization runtime is on checked latest `i18next@26.3.6` and `react-i18next@17.0.10` after `BEM-37.925`; `react-i18next` accepts `i18next >=26.2.0`, React `>=16.8.0`, and TypeScript 5/6/7.
+- Localization runtime is on checked latest `i18next@26.3.6` and `react-i18next@17.0.11` after `BEM-37.934`; `react-i18next` accepts `i18next >=26.2.0`, React `>=16.8.0`, and TypeScript 5/6/7.
 - Toast UI runtime is on checked latest `react-native-toast-message@2.4.0` after `BEM-37.829`; future toast drift should stay in a dedicated notification UI branch with TypeScript/unit proof, Android build, and emulator smoke because the package is app-runtime UI even though current source usage is narrow.
 - UUID runtime is on checked latest `14.0.1` after `BEM-37.764`; future work should focus on source behavior or Metro compatibility only if new UUID import surfaces are added.
 - Stream polyfills are on `stream-browserify@3.0.0` and checked latest `readable-stream@4.7.0` after `BEM-37.320`; the previous `readable-stream/readable` alias blocker is handled by v4 `lib/_stream_*` aliases plus the postinstall rn-nodeify alias guard.

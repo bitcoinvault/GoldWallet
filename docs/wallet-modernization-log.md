@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.934 - JavaScript runtime patch cohort
+
+- Branch: `feature/bem-37-934-js-runtime-patch-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the remaining compatible JavaScript runtime patches: `react-i18next@17.0.11` and `redux-saga@1.5.1`.
+- Keep the already-current `i18next@26.3.6`, React `19.2.3`, Redux `5.0.1`, React Redux `9.3.0`, and Reselect `5.2.0` baselines fixed.
+- Add a localization runtime audit for package alignment, required exports, the application provider, and the legacy `react-localization` wiring.
+- Refresh the state runtime and direct-outdated contracts without mixing React renderer types or Sentry transport changes into this branch.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-31 reports `react-i18next@17.0.11` and `redux-saga@1.5.1` as latest. The localization peer ranges accept the current i18next, React, and TypeScript baselines.
+- The localization audit confirms the required `I18nextProvider`, `Trans`, and `useTranslation` exports, i18next instance/translation APIs, the `App.tsx` provider, and `loc/index.js` runtime wiring.
+- The state audit confirms the Redux Saga effects API and the existing Reselect fixture on the updated runtime.
+- Translation completeness validation passes. Generated translation reports were not committed because this runtime patch does not change translation content.
+- The refreshed direct-outdated snapshot reports 22 classified entries: 18 explicit blockers, 4 fork/exotic entries, and zero review-required entries.
+- Android `devDebug` builds successfully on JDK 17. A fresh APK install on `emulator-5554` passes first-run terms, PIN, and transaction-password setup, reaches the expected controlled `No network` screen, and has no fatal Android or React Native runtime findings.
+- Windows-safe iOS static validation passes with eight guarded schemes. iOS runtime/archive remains unclaimed because macOS/Xcode/CocoaPods are unavailable and `ios/Podfile.lock` still has 12 active drifts.
+
+Validation:
+
+- Live npm version, engine, and peer metadata for both selected packages
+- Clean package install with successful patch-package, rn-nodeify shim restoration, and Jetifier postinstall
+- `corepack yarn localization:runtime:audit`
+- `corepack yarn state:runtime:audit`
+- `corepack yarn translate:check-missing`
+- Direct-outdated audit/summary with zero review-required entries
+- TypeScript, 55 unit tests, focused storage/network tests, node shims, security resolution baselines, lint baseline, modernization-log IDs, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn ios:static:verify`; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.933 - Tooling and test latest cohort
 
 - Branch: `feature/bem-37-933-tooling-test-latest-cohort`
