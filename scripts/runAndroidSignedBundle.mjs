@@ -12,6 +12,7 @@ import {
   getAndroidAppBundleVariantConfig,
 } from './androidAppBundleValidation.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
+import { getRequiredAndroidRuntimePageSize } from './androidRuntimePageSize.mjs';
 import { requireAndroidReleaseCandidateReadiness } from './androidReleaseVersioning.mjs';
 import { resolveAndroidUploadSigningConfiguration } from './androidUploadSigningReadiness.mjs';
 import {
@@ -57,7 +58,11 @@ const bundletoolJar =
 const passwordEnvironmentName = 'GOLDWALLET_SIGNED_BUNDLE_STORE_PASSWORD';
 const hashFile = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
 const getSummaryLineValue = (summary, label) =>
-  summary.split(/\r?\n/).find(line => line.startsWith(`${label}:`))?.slice(label.length + 1).trim() || '';
+  summary
+    .split(/\r?\n/)
+    .find(line => line.startsWith(`${label}:`))
+    ?.slice(label.length + 1)
+    .trim() || '';
 
 const run = (label, command, args, options = {}) => {
   console.log(`\n> ${label}`);
@@ -79,7 +84,11 @@ const run = (label, command, args, options = {}) => {
   return `${result.stdout || ''}${result.stderr || ''}`;
 };
 
-const certificateSha256 = output => output.match(/SHA256:\s*([A-F0-9:]+)/i)?.[1]?.replaceAll(':', '').toLowerCase();
+const certificateSha256 = output =>
+  output
+    .match(/SHA256:\s*([A-F0-9:]+)/i)?.[1]
+    ?.replaceAll(':', '')
+    .toLowerCase();
 
 try {
   if (!safe.ready) {
@@ -89,15 +98,11 @@ try {
   }
 
   mkdirSync(outputDir, { recursive: true });
-  run(
-    'require Android upload signing readiness',
-    process.execPath,
-    [
-      'scripts/auditAndroidUploadSigningReadiness.mjs',
-      '--require-ready',
-      ...(localProof ? ['--no-summary'] : []),
-    ],
-  );
+  run('require Android upload signing readiness', process.execPath, [
+    'scripts/auditAndroidUploadSigningReadiness.mjs',
+    '--require-ready',
+    ...(localProof ? ['--no-summary'] : []),
+  ]);
   const releaseReadiness = localProof ? null : requireAndroidReleaseCandidateReadiness({ root });
 
   const generatedReactCleanup = cleanSentryAndroidGeneratedOutputs(root);
@@ -108,38 +113,54 @@ try {
   for (const key of Object.keys(gradleEnvironment)) {
     if (['SENTRY_RELEASE', 'SENTRY_DIST'].includes(key.toUpperCase())) delete gradleEnvironment[key];
   }
-  run('build guarded signed prodRelease AAB', process.execPath, [
-    'scripts/runAndroidGradle.mjs',
-    config.gradleTask,
-    '-PgoldwalletRequireUploadSigning=true',
-  ], {
-    env: gradleEnvironment,
-  });
+  run(
+    'build guarded signed prodRelease AAB',
+    process.execPath,
+    ['scripts/runAndroidGradle.mjs', config.gradleTask, '-PgoldwalletRequireUploadSigning=true'],
+    {
+      env: gradleEnvironment,
+    },
+  );
 
   if (!existsSync(config.aabPath) || statSync(config.aabPath).size === 0) {
     throw new Error(`Signed prodRelease AAB is missing: ${config.aabPath}`);
   }
   copyFileSync(config.aabPath, outputAab);
 
-  const signatureOutput = run('verify AAB JAR signature', jarsignerCommand, ['-verify', '-verbose', '-certs', outputAab], {
-    capture: true,
-  });
+  const signatureOutput = run(
+    'verify AAB JAR signature',
+    jarsignerCommand,
+    ['-verify', '-verbose', '-certs', outputAab],
+    {
+      capture: true,
+    },
+  );
   if (!/jar verified\./i.test(signatureOutput)) throw new Error('jarsigner did not confirm a verified AAB signature');
 
   const keytoolEnvironment = { ...process.env, [passwordEnvironmentName]: credentials.storePassword };
-  const keystoreCertificateOutput = run('inspect configured upload certificate', keytoolCommand, [
-    '-list',
-    '-v',
-    '-keystore',
-    safe.storeFilePath,
-    '-alias',
-    credentials.keyAlias,
-    '-storepass:env',
-    passwordEnvironmentName,
-  ], { capture: true, env: keytoolEnvironment });
-  const aabCertificateOutput = run('inspect AAB signing certificate', keytoolCommand, ['-printcert', '-jarfile', outputAab], {
-    capture: true,
-  });
+  const keystoreCertificateOutput = run(
+    'inspect configured upload certificate',
+    keytoolCommand,
+    [
+      '-list',
+      '-v',
+      '-keystore',
+      safe.storeFilePath,
+      '-alias',
+      credentials.keyAlias,
+      '-storepass:env',
+      passwordEnvironmentName,
+    ],
+    { capture: true, env: keytoolEnvironment },
+  );
+  const aabCertificateOutput = run(
+    'inspect AAB signing certificate',
+    keytoolCommand,
+    ['-printcert', '-jarfile', outputAab],
+    {
+      capture: true,
+    },
+  );
   const configuredCertificateSha256 = certificateSha256(keystoreCertificateOutput);
   const aabCertificateSha256 = certificateSha256(aabCertificateOutput);
   if (!configuredCertificateSha256 || !aabCertificateSha256 || configuredCertificateSha256 !== aabCertificateSha256) {
@@ -152,18 +173,21 @@ try {
   if (!existsSync(bundletoolJar) || hashFile(bundletoolJar) !== BUNDLETOOL_SHA256) {
     throw new Error(`Official bundletool ${BUNDLETOOL_VERSION} is missing or has an unexpected SHA-256`);
   }
-  run('validate signed AAB with bundletool', javaCommand, ['-jar', bundletoolJar, 'validate', `--bundle=${outputAab}`], {
-    capture: true,
-  });
+  run(
+    'validate signed AAB with bundletool',
+    javaCommand,
+    ['-jar', bundletoolJar, 'validate', `--bundle=${outputAab}`],
+    {
+      capture: true,
+    },
+  );
   const builtMetadata = getAndroidAppBundleProjectMetadata(root);
-  const manifestOutput = run('inspect signed AAB manifest metadata', javaCommand, [
-    '-jar',
-    bundletoolJar,
-    'dump',
-    'manifest',
-    `--bundle=${outputAab}`,
-    '--module=base',
-  ], { capture: true });
+  const manifestOutput = run(
+    'inspect signed AAB manifest metadata',
+    javaCommand,
+    ['-jar', bundletoolJar, 'dump', 'manifest', `--bundle=${outputAab}`, '--module=base'],
+    { capture: true },
+  );
   const builtVersionCode = manifestOutput.match(/android:versionCode="(\d+)"/)?.[1];
   const builtVersionName = manifestOutput.match(/android:versionName="([^"]+)"/)?.[1];
   if (builtVersionCode !== builtMetadata.versionCode || builtVersionName !== builtMetadata.versionName) {
@@ -211,8 +235,10 @@ try {
   const runtimeNativeLibraryCount = getSummaryLineValue(runtimeSummary, '16 KB native libraries checked');
   const runtimeElfSegmentCount = getSummaryLineValue(runtimeSummary, '16 KB ELF LOAD segments checked');
   const runtimeSmokeSummary = readFileSync(runtimeSmokeSummaryPath, 'utf8');
+  const requiredRuntimePageSize = getRequiredAndroidRuntimePageSize();
   const runtimeSmokeErrors = getAndroidEmbeddedSmokeSummaryErrors(runtimeSmokeSummary, {
     expectedArtifactBase: runtimeConfig.smokeArtifactBase,
+    ...(requiredRuntimePageSize === null ? {} : { expectedRuntimePageSize: requiredRuntimePageSize }),
     requireDataStoragePreflight: true,
     requireSmokeApkDigest: true,
     expectedSmokeApkPath: runtimeConfig.universalApkPath,

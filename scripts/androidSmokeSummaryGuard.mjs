@@ -25,7 +25,11 @@ const isExistingFile = (filePath, requireNonEmpty = false) => {
 
 const fileSha256 = filePath => createHash('sha256').update(readFileSync(filePath)).digest('hex');
 
-const parseCsvLine = value => (value || '').split(',').map(item => item.trim()).filter(Boolean);
+const parseCsvLine = value =>
+  (value || '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean);
 
 const requireLineValue = (summary, label, expectedValue, errors) => {
   const actualValue = getLineValue(summary, label);
@@ -158,6 +162,34 @@ export const getAndroidSmokeSummaryErrors = (summary, options = {}) => {
     errors.push('Android serial is missing');
   }
 
+  const requiredRuntimePageSize = getLineValue(summary, 'Required runtime page size bytes');
+  const runtimePageSize = getLineValue(summary, 'Runtime page size bytes');
+  const runtimePageSizeCheck = getLineValue(summary, 'Runtime page size check');
+  if (!isPositiveInteger(runtimePageSize)) {
+    errors.push(`Runtime page size bytes must be a positive integer. Received: ${runtimePageSize || 'missing'}`);
+  }
+  if (requiredRuntimePageSize === 'not required') {
+    if (runtimePageSizeCheck !== 'not required') {
+      errors.push(`Runtime page size check must be not required. Received: ${runtimePageSizeCheck || 'missing'}`);
+    }
+  } else if (!isPositiveInteger(requiredRuntimePageSize)) {
+    errors.push(
+      `Required runtime page size bytes must be a positive integer or not required. Received: ${requiredRuntimePageSize || 'missing'}`,
+    );
+  } else if (runtimePageSize !== requiredRuntimePageSize || runtimePageSizeCheck !== 'passed') {
+    errors.push('Required Android runtime page size must match the observed page size and pass');
+  }
+  if (options.expectedRuntimePageSize) {
+    const expectedRuntimePageSize = String(options.expectedRuntimePageSize);
+    if (
+      requiredRuntimePageSize !== expectedRuntimePageSize ||
+      runtimePageSize !== expectedRuntimePageSize ||
+      runtimePageSizeCheck !== 'passed'
+    ) {
+      errors.push(`Android runtime smoke must prove page size ${expectedRuntimePageSize}`);
+    }
+  }
+
   if (!getLineValue(summary, 'Android package')) {
     errors.push('Android package is missing');
   }
@@ -188,7 +220,9 @@ export const getAndroidSmokeSummaryErrors = (summary, options = {}) => {
   }
 
   if (!['yes', 'no'].includes(validatedEmptyTabNavigation)) {
-    errors.push(`Validated empty-tab navigation must be yes or no. Received: ${validatedEmptyTabNavigation || 'missing'}`);
+    errors.push(
+      `Validated empty-tab navigation must be yes or no. Received: ${validatedEmptyTabNavigation || 'missing'}`,
+    );
   }
 
   if (!['yes', 'no'].includes(validatedQrScannerScreen)) {
@@ -264,7 +298,12 @@ export const getAndroidEmbeddedSmokeSummaryErrors = (summary, options = {}) => {
     ['Validated settings Terms WebView', 'yes'],
   ].forEach(([label, expectedValue]) => requireLineValue(summary, label, expectedValue, errors));
 
-  requireCsvItems(summary, 'Expected UI texts', ['Wallets', 'No wallets', 'Create new wallet', 'Import wallet'], errors);
+  requireCsvItems(
+    summary,
+    'Expected UI texts',
+    ['Wallets', 'No wallets', 'Create new wallet', 'Import wallet'],
+    errors,
+  );
   requireCsvItems(
     summary,
     'Expected resource IDs',
