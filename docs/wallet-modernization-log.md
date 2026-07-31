@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.931 - React Navigation latest patch cohort
+
+- Branch: `feature/bem-37-931-react-navigation-patch-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the aligned React Navigation package family to the live npm latest patches: native `7.3.14`, stack `7.10.17`, bottom-tabs `7.18.14`, and devtools `7.1.11`.
+- Keep the already-current native navigation peers fixed: `react-native-screens@4.26.2`, `react-native-gesture-handler@3.1.0`, and `react-native-safe-area-context@5.8.0`.
+- Refresh the current navigation cohort guard, compatibility audit, dependency strategy, masked-view state, and modernization baseline without rewriting historical milestone evidence.
+- Validate the navigation runtime in a signed `prodRelease` APK without Metro, including stack transitions, all bottom tabs, QR navigation, Terms WebView, wallet creation, process restart, and vault flow.
+
+Findings:
+
+- Live npm metadata checked on 2026-07-31 reports all four selected React Navigation versions as latest. Stack and bottom-tabs now peer on `@react-navigation/native ^7.3.14`; the installed React `19.2.3`, RN `0.86.2`, screens `4.26.2`, gesture-handler `3.1.0`, and safe-area-context `5.8.0` satisfy every required peer range.
+- The refreshed lockfile resolves matching transitives `@react-navigation/core@7.21.11` and `@react-navigation/elements@2.9.36`; routers remains `7.6.4`.
+- Android `devDebug` and targeted `prodRelease` builds pass. The production APK manifest, secure-storage packaging, and retired App Center checks remain valid.
+- Signed `prodRelease` emulator smoke passes onboarding, empty-dashboard Create/Import navigation, CameraKit QR open/close, all four bottom tabs, Settings Terms WebView, return navigation, and fatal/runtime logcat checks.
+- Signed `prodRelease` create-wallet smoke passes the standard-wallet mnemonic flow, process restart, incorrect/correct PIN handling, persistence, secure-window transitions, and default 3-key vault public-key flow.
+- The captured final dashboard screenshot is visually coherent with the header, empty state, CTAs, and bottom tab bar fully visible and non-overlapping.
+- Windows-safe iOS static validation passes with eight guarded schemes. iOS runtime/archive remains unclaimed because macOS/Xcode/CocoaPods are unavailable and `ios/Podfile.lock` still has 12 active drifts.
+- The refreshed online direct-outdated audit no longer lists React Navigation or Firebase, but remains intentionally red on six newly published, unrelated review-required entries. Those require separate compatibility branches and are not mixed into this runtime cohort.
+
+Validation:
+
+- Live npm latest metadata and peer dependencies for the four React Navigation packages plus all three native navigation peers
+- Clean `corepack yarn install --ignore-engines` with successful patch-package, rn-nodeify shim restoration, and Jetifier postinstall
+- `corepack yarn check:navigation-runtime-cohort-guard`
+- `corepack yarn check:navigation-runtime-cohort`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn masked-view:migration:audit`
+- `corepack yarn masked-view:migration:check-summary`
+- TypeScript, 55 unit tests, focused storage/network tests, node shims, lint baseline, modernization-log IDs, and diff checks
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn node:runtime:yarn android:dev:assemble`
+- `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 ANDROID_RELEASE_VARIANTS=prod corepack yarn node:runtime:yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn node:runtime:yarn android:prod:release:create-wallet-smoke:embedded`
+- `corepack yarn ios:static:verify`; iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.930 - React Native Firebase 26 major cohort
 
 - Branch: `feature/bem-37-930-rnfirebase-26`
