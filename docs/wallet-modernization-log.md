@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.938 - AGP 9.3.1 direct toolchain probe refresh
+
+- Branch: `feature/bem-37-938-agp-931-toolchain-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the live foundation target after stable Android Gradle Plugin moved from `9.3.0` to `9.3.1`.
+- Reproduce the complete latest-first Android toolchain probe on the current React Native `0.86.2` baseline with AGP `9.3.1`, Gradle `9.6.1`, Kotlin `2.4.10`, and JDK 17.
+- Keep the production Android toolchain unchanged and update the committed evidence contract so future AGP, Gradle, or Kotlin drift forces another direct probe.
+
+Findings:
+
+- The isolated probe reached `:gradle-plugin:settings-plugin:compileKotlin` and failed while analysing `node_modules/@react-native/gradle-plugin/settings-plugin/src/main/kotlin/com/facebook/react/ReactSettingsExtension.kt`.
+- Gradle `9.6.1` supplies Kotlin metadata `2.3.0`; the React Native Gradle plugin `0.86.2` compiles with Kotlin `2.1.0` and reports that it can read metadata only up to `2.2.0`.
+- The blocker therefore remains in the included React Native Gradle plugin path, not in GoldWallet application code. The validated production baseline remains AGP `8.13.2`, Gradle `8.13`, and Kotlin `2.1.20`.
+- Live npm metadata still keeps React Native `0.86.2` on the stable `latest` channel. `0.87.0-rc.3` and the `0.88.0` nightly remain planning channels rather than production targets.
+- The temporary AGP/Gradle/Kotlin changes were restored after the probe; no prerelease or blocked toolchain version is committed.
+- The restored baseline produced and installed the dev APK and completed a cold emulator launch without fatal or React Native runtime findings. The smoke reached a stable onboarding UI resource, but the empty-wallet dashboard flow remains externally blocked because the testnet Electrum certificate expired on `2026-06-23` and Android rejects its TLS chain.
+
+Validation:
+
+- expected compatibility failure `node scripts/runAndroidGradle.mjs :gradle-plugin:settings-plugin:compileKotlin --stacktrace` in isolated worktree `D:\wt\GoldWallet\bem-37-938-agp931-probe`
+- `corepack yarn check:android-toolchain-target-summary-guard`
+- `corepack yarn android:toolchain-target:audit`
+- `corepack yarn android:toolchain-target:check-summary`
+- `corepack yarn foundation:target:refresh-online`
+- `corepack yarn rn:baseline:preflight`
+- JDK 17 Android dev assembly plus real-emulator install/cold-start smoke on the restored production baseline; stable `dashboard-header` UI resource and no fatal/runtime logcat findings, with the Electrum-blocked dashboard flow explicitly unclaimed
+- TypeScript, node shims, lint baseline, modernization-log IDs, and diff checks
+- iOS runtime/archive remains unclaimed on Windows
+
 ### BEM-37.937 - Sentry release project routing hardening
 
 - Branch: `feature/bem-37-937-sentry-project-routing`
