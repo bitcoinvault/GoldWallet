@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.951 - Google Play immutable AAB handoff
+
+- Branch: `feature/bem-37-951-play-aab-snapshot-lock`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Serialize production signed-bundle and Google Play internal-track runs across all Git worktrees with one shared atomic lock.
+- Freeze the verified signed AAB into a candidate snapshot and manifest bound to package, track, version metadata, certificate, byte count, and SHA-256.
+- Verify the bytes actually consumed by the Google upload stream before any track update, validation, or commit.
+
+Findings:
+
+- The previous handoff validated a fixed AAB path and then opened that path lazily for upload; another build or file replacement could change the candidate between validation and stream consumption.
+- A worktree-local lock would not serialize agents in different worktrees. The lock now resolves through Git's common directory, and the standalone signed-bundle runner either owns it or proves ownership through the handoff token before touching shared build outputs.
+- A different snapshot for the same `versionCode` is rejected. The upload workflow uses metadata from the frozen candidate manifest and deletes the uncommitted Play edit if streamed bytes or digest differ.
+- Commit confirmation includes the frozen candidate's full SHA-256 and is checked before Google authentication, so approval identifies exact bytes rather than only package, track, status, and version code.
+- Crashed runs intentionally leave the shared lock in place for explicit operator inspection; the workflow never guesses that a lock is stale or removes another process's lock.
+- This tooling-only milestone does not change application runtime and does not require emulator smoke.
+
+Validation:
+
+- `corepack yarn check:android-play-candidate-artifact-guard`
+- `corepack yarn check:android-play-internal-handoff-guard`
+- `corepack yarn android:play:internal:dry-run`
+- `corepack yarn android:play:internal:check-summary`
+- `corepack yarn android:release-readiness:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.950 - Android release-version contract
 
 - Branch: `feature/bem-37-950-release-version-contract`

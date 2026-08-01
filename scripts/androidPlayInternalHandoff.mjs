@@ -5,6 +5,11 @@ import { spawnSync } from 'child_process';
 
 import { resolveAndroidPlayReleaseReadiness } from './androidReleaseVersioning.mjs';
 import { resolveAndroidUploadSigningConfiguration } from './androidUploadSigningReadiness.mjs';
+import {
+  createAndroidPlayCandidateUpload,
+  hashAndroidPlayCandidate,
+  resolveAndroidPlaySharedPaths,
+} from './androidPlayCandidateArtifact.mjs';
 
 export const PLAY_PACKAGE_NAME = 'io.goldwallet.wallet';
 export const PLAY_TRACK = 'internal';
@@ -94,8 +99,8 @@ export const resolveAndroidPlayInternalHandoff = ({ root, env = process.env, opt
   const serviceAccountLocationSafe = Boolean(
     serviceAccountPresent && (!isInsideRoot(root, serviceAccountPath) || ignoredPathCheck(root, serviceAccountPath)),
   );
-  const expectedConfirmation = `${PLAY_PACKAGE_NAME}:${release.release.versionCode}:${PLAY_TRACK}:${status}`;
-  const confirmationMatches = env.GOLDWALLET_PLAY_COMMIT_CONFIRMATION === expectedConfirmation;
+  const expectedConfirmationPrefix = `${PLAY_PACKAGE_NAME}:${release.release.versionCode}:${PLAY_TRACK}:${status}`;
+  const sharedPaths = resolveAndroidPlaySharedPaths(root);
   const blockers = [];
   if (!release.ready) blockers.push(release.requiredAction);
   if (!signing.safe.ready) {
@@ -121,10 +126,6 @@ export const resolveAndroidPlayInternalHandoff = ({ root, env = process.env, opt
       blockers.push(`Provide a structurally valid Google service-account credential JSON (${serviceAccountValidation.status}).`);
     }
   }
-  if (options.commit && !confirmationMatches) {
-    blockers.push(`Set GOLDWALLET_PLAY_COMMIT_CONFIRMATION to ${expectedConfirmation}.`);
-  }
-
   return {
     options,
     release,
@@ -134,11 +135,11 @@ export const resolveAndroidPlayInternalHandoff = ({ root, env = process.env, opt
     serviceAccountPresent,
     serviceAccountLocationSafe,
     serviceAccountValidation,
-    expectedConfirmation,
-    confirmationMatches,
+    expectedConfirmationPrefix,
     ready: blockers.length === 0,
     blockers,
     signedAabPath: path.join(root, 'local-docs', 'android-prod-signed-bundle.aab'),
+    ...sharedPaths,
   };
 };
 
@@ -151,6 +152,10 @@ export const runAndroidPlayEditWorkflow = async ({
   status,
   commit,
   streamFactory = createReadStream,
+  candidateUploadFactory = createAndroidPlayCandidateUpload,
+  expectedAabSha256 = '',
+  expectedAabBytes = 0,
+  fileHasher = hashAndroidPlayCandidate,
 }) => {
   let editId = '';
   let finalized = false;
@@ -170,15 +175,36 @@ export const runAndroidPlayEditWorkflow = async ({
   };
 
   try {
+    if (expectedAabSha256 && fileHasher(aabPath) !== expectedAabSha256) {
+      throw new Error('Android Play candidate snapshot digest changed before upload');
+    }
     const inserted = await client.edits.insert({ packageName, requestBody: {} });
     editId = inserted.data.id || '';
     if (!editId) throw new Error('Google Play edits.insert response did not contain an edit id');
 
-    const uploaded = await client.edits.bundles.upload({
-      packageName,
-      editId,
-      media: { mimeType: 'application/octet-stream', body: streamFactory(aabPath) },
-    });
+    const candidateUpload = expectedAabSha256
+      ? candidateUploadFactory(aabPath)
+      : { stream: streamFactory(aabPath), evidence: Promise.resolve(null), destroy() {} };
+    let uploaded;
+    try {
+      uploaded = await client.edits.bundles.upload({
+        packageName,
+        editId,
+        media: { mimeType: 'application/octet-stream', body: candidateUpload.stream },
+      });
+    } catch (error) {
+      candidateUpload.destroy();
+      throw error;
+    }
+    const uploadedEvidence = await candidateUpload.evidence;
+    const uploadedAabSha256 = uploadedEvidence?.sha256 || '';
+    const uploadedAabBytes = uploadedEvidence?.bytes || 0;
+    if (
+      expectedAabSha256 &&
+      (uploadedAabSha256 !== expectedAabSha256 || uploadedAabBytes !== expectedAabBytes)
+    ) {
+      throw new Error('Android Play candidate upload stream does not match the immutable snapshot manifest');
+    }
     const uploadedVersionCode = Number(uploaded.data.versionCode);
     if (uploadedVersionCode !== versionCode) {
       throw new Error(`Google Play uploaded versionCode ${uploadedVersionCode || 'missing'}; expected ${versionCode}`);
@@ -240,6 +266,7 @@ export const runAndroidPlayEditWorkflow = async ({
         uploadedVersionCode,
         retainedVersionCodes,
         submittedVersionCodes,
+        ...(uploadedAabSha256 ? { uploadedAabSha256, uploadedAabBytes } : {}),
       };
     }
 
@@ -252,6 +279,7 @@ export const runAndroidPlayEditWorkflow = async ({
       uploadedVersionCode,
       retainedVersionCodes,
       submittedVersionCodes,
+      ...(uploadedAabSha256 ? { uploadedAabSha256, uploadedAabBytes } : {}),
     };
   } catch (error) {
     try {
@@ -279,7 +307,6 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
     `Service account location safe: ${readiness.serviceAccountLocationSafe ? 'yes' : 'no'}`,
     `Service account structure valid: ${readiness.serviceAccountValidation.valid ? 'yes' : 'no'}`,
     `Service account validation status: ${readiness.serviceAccountValidation.status}`,
-    `Commit confirmation matches: ${readiness.confirmationMatches ? 'yes' : 'no'}`,
     `Execution ready: ${readiness.ready ? 'yes' : 'no'}`,
     'Electrum release gate required: yes',
     'Service account values printed: no',
@@ -305,6 +332,55 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
     errors.push('Android Play internal handoff summary has invalid service-account Play access evidence');
   }
   const apiEditValidated = /^API edit validated: yes$/m.test(summary);
+  const commitConfirmationMatches = summary.match(/^Commit confirmation matches: (yes|no)$/m)?.[1];
+  if (!commitConfirmationMatches) {
+    errors.push('Android Play internal handoff summary has invalid candidate commit confirmation evidence');
+  } else if (/^API edit committed: yes$/m.test(summary) && commitConfirmationMatches !== 'yes') {
+    errors.push('Committed Play edit must confirm the exact immutable candidate digest');
+  } else if (readiness.options.mode !== 'execute-commit' && commitConfirmationMatches !== 'no') {
+    errors.push('Non-commit Play handoff must not claim candidate commit confirmation');
+  }
+  const handoffLockAcquired = summary.match(/^Handoff lock acquired: (yes|not-claimed)$/m)?.[1];
+  const candidateSnapshotReady = summary.match(/^Candidate snapshot ready: (yes|not-claimed)$/m)?.[1];
+  const candidateSnapshotBytes = summary.match(/^Candidate snapshot bytes: (\d+)$/m)?.[1];
+  const candidateSnapshotSha256 = summary.match(/^Candidate snapshot SHA-256: ([a-f0-9]{64}|not-claimed)$/m)?.[1];
+  const candidateManifestReady = summary.match(/^Candidate manifest ready: (yes|not-claimed)$/m)?.[1];
+  const uploadedAabBytes = summary.match(/^Uploaded AAB bytes: (\d+)$/m)?.[1];
+  const uploadedAabSha256 = summary.match(/^Uploaded AAB SHA-256: ([a-f0-9]{64}|not-claimed)$/m)?.[1];
+  if (
+    !handoffLockAcquired ||
+    !candidateSnapshotReady ||
+    candidateSnapshotBytes === undefined ||
+    !candidateSnapshotSha256 ||
+    !candidateManifestReady ||
+    uploadedAabBytes === undefined ||
+    !uploadedAabSha256
+  ) {
+    errors.push('Android Play handoff summary has invalid candidate lock or snapshot evidence');
+  } else if (apiEditValidated) {
+    if (
+      handoffLockAcquired !== 'yes' ||
+      candidateSnapshotReady !== 'yes' ||
+      candidateManifestReady !== 'yes' ||
+      !/^[1-9]\d*$/.test(candidateSnapshotBytes) ||
+      uploadedAabBytes !== candidateSnapshotBytes ||
+      candidateSnapshotSha256 === 'not-claimed' ||
+      uploadedAabSha256 !== candidateSnapshotSha256
+    ) {
+      errors.push('Validated Play upload must use one locked immutable candidate snapshot');
+    }
+  } else if (
+    readiness.options.mode === 'dry-run' &&
+    (handoffLockAcquired !== 'not-claimed' ||
+      candidateSnapshotReady !== 'not-claimed' ||
+      candidateSnapshotBytes !== '0' ||
+      candidateSnapshotSha256 !== 'not-claimed' ||
+      candidateManifestReady !== 'not-claimed' ||
+      uploadedAabBytes !== '0' ||
+      uploadedAabSha256 !== 'not-claimed')
+  ) {
+    errors.push('Android Play dry-run must not claim candidate lock, snapshot, or upload evidence');
+  }
   const cleanupEvidence = [...summary.matchAll(/^Uncommitted edit cleanup: (not-applicable|attempted|succeeded|failed)$/gm)].map(
     match => match[1],
   );
