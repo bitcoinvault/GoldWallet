@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.947 - Google Play service-account preflight
+
+- Branch: `feature/bem-37-947-play-service-account-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Validate the configured Google Play service-account file locally before the live Electrum gate, signed AAB build, emulator evidence check, or Google authentication.
+- Require valid JSON, the Google Auth service-account fields, and a parseable RSA private key while keeping every credential value out of logs and summaries.
+- Extend the Play handoff summary and offline guard fixtures with explicit safe validation evidence and malformed-credential rejection.
+
+Findings:
+
+- The previous readiness check treated any existing ignored regular file, including `{}`, as a usable service-account credential and would discover the error only after expensive release validation.
+- The handoff now remains blocked with a bounded validation status for missing, unreadable, malformed, schema-invalid, or private-key-invalid credentials. This proves file structure only; account activity and Play access remain unclaimed until the live edit validates.
+- The current checkout still has no Play service-account JSON, upload-signing configuration, authoritative latest Play Console version code, or approved next release version; no upload or Google API write was attempted.
+- This milestone changes release tooling and evidence only. It does not change application runtime, native code, dependencies, Metro, or generated Android artifacts, so emulator smoke is not required.
+
+Validation:
+
+- `corepack yarn check:android-play-internal-handoff-guard`
+- `corepack yarn android:play:internal:dry-run`
+- `corepack yarn android:play:internal:check-summary`
+- `corepack yarn android:release-readiness:check-light`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.946 - Android release cold-codegen retry guard
 
 - Branch: `feature/bem-37-946-release-codegen-preflight`
