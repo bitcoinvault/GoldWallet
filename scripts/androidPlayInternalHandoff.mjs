@@ -154,11 +154,19 @@ export const runAndroidPlayEditWorkflow = async ({
 }) => {
   let editId = '';
   let finalized = false;
+  let editCleanupStatus = 'not-applicable';
   const cleanup = async () => {
-    if (!editId || finalized) return false;
-    await client.edits.delete({ packageName, editId });
-    finalized = true;
-    return true;
+    if (!editId || finalized || editCleanupStatus !== 'not-applicable') return editCleanupStatus;
+    editCleanupStatus = 'attempted';
+    try {
+      await client.edits.delete({ packageName, editId });
+      finalized = true;
+      editCleanupStatus = 'succeeded';
+    } catch (error) {
+      editCleanupStatus = 'failed';
+      throw error;
+    }
+    return editCleanupStatus;
   };
 
   try {
@@ -176,13 +184,47 @@ export const runAndroidPlayEditWorkflow = async ({
       throw new Error(`Google Play uploaded versionCode ${uploadedVersionCode || 'missing'}; expected ${versionCode}`);
     }
 
+    const currentTrack = await client.edits.tracks.get({ packageName, editId, track: PLAY_TRACK });
+    const currentReleases = currentTrack.data.releases || [];
+    const retainedVersionCodes = [
+      ...new Set(
+        currentReleases
+          .flatMap(release => release.versionCodes || [])
+          .map(candidate => String(candidate)),
+      ),
+    ].sort((left, right) => Number(left) - Number(right));
+    if (retainedVersionCodes.some(candidate => !/^[1-9]\d*$/.test(candidate))) {
+      throw new Error('Google Play internal track contains an invalid active versionCode');
+    }
+    if (retainedVersionCodes.includes(String(versionCode))) {
+      throw new Error(`Google Play internal track already contains candidate versionCode ${versionCode}`);
+    }
+    const submittedVersionCodes = [...new Set([...retainedVersionCodes, String(versionCode)])].sort(
+      (left, right) => Number(left) - Number(right),
+    );
+    const preservedReleases = currentReleases.map(release => {
+      const preserved = {};
+      for (const field of [
+        'name',
+        'versionCodes',
+        'releaseNotes',
+        'status',
+        'userFraction',
+        'countryTargeting',
+        'inAppUpdatePriority',
+      ]) {
+        if (release[field] !== undefined) preserved[field] = release[field];
+      }
+      return preserved;
+    });
+
     await client.edits.tracks.update({
       packageName,
       editId,
       track: PLAY_TRACK,
       requestBody: {
         track: PLAY_TRACK,
-        releases: [{ name: versionName, versionCodes: [String(versionCode)], status }],
+        releases: [...preservedReleases, { name: versionName, versionCodes: [String(versionCode)], status }],
       },
     });
     await client.edits.validate({ packageName, editId });
@@ -190,17 +232,34 @@ export const runAndroidPlayEditWorkflow = async ({
     if (commit) {
       await client.edits.commit({ packageName, editId });
       finalized = true;
-      return { editValidated: true, editCommitted: true, editDeleted: false, uploadedVersionCode };
+      return {
+        editValidated: true,
+        editCommitted: true,
+        editDeleted: false,
+        editCleanupStatus: 'not-applicable',
+        uploadedVersionCode,
+        retainedVersionCodes,
+        submittedVersionCodes,
+      };
     }
 
-    const editDeleted = await cleanup();
-    return { editValidated: true, editCommitted: false, editDeleted, uploadedVersionCode };
+    await cleanup();
+    return {
+      editValidated: true,
+      editCommitted: false,
+      editDeleted: editCleanupStatus === 'succeeded',
+      editCleanupStatus,
+      uploadedVersionCode,
+      retainedVersionCodes,
+      submittedVersionCodes,
+    };
   } catch (error) {
     try {
       await cleanup();
     } catch (cleanupError) {
       error.message = `${error.message}; Play edit cleanup also failed: ${cleanupError.message}`;
     }
+    error.playEditCleanupStatus = editCleanupStatus;
     throw error;
   }
 };
@@ -246,6 +305,38 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
     errors.push('Android Play internal handoff summary has invalid service-account Play access evidence');
   }
   const apiEditValidated = /^API edit validated: yes$/m.test(summary);
+  const cleanupEvidence = [...summary.matchAll(/^Uncommitted edit cleanup: (not-applicable|attempted|succeeded|failed)$/gm)].map(
+    match => match[1],
+  );
+  if (cleanupEvidence.length !== 1) {
+    errors.push('Android Play internal handoff summary must contain exactly one edit-cleanup record');
+  } else if (apiEditValidated && readiness.options.mode === 'execute-validate' && cleanupEvidence[0] !== 'succeeded') {
+    errors.push('Validated uncommitted Play edit must have succeeded cleanup evidence');
+  } else if (/^API edit committed: yes$/m.test(summary) && cleanupEvidence[0] !== 'not-applicable') {
+    errors.push('Committed Play edit must not claim uncommitted-edit cleanup');
+  }
+  const retainedEvidence = [...summary.matchAll(/^Previous active version codes retained: (.+)$/gm)].map(match => match[1]);
+  const submittedEvidence = [...summary.matchAll(/^Track version codes submitted: (.+)$/gm)].map(match => match[1]);
+  if (retainedEvidence.length !== 1 || submittedEvidence.length !== 1) {
+    errors.push('Android Play internal handoff summary must contain exactly one track-version preservation record');
+  } else if (apiEditValidated) {
+    const retainedCodes = retainedEvidence[0] === 'none' ? [] : retainedEvidence[0].split(',');
+    const submittedCodes = submittedEvidence[0].split(',');
+    const canonicalRetained = [...new Set(retainedCodes)].sort((left, right) => Number(left) - Number(right));
+    const expectedSubmitted = [...new Set([...canonicalRetained, String(readiness.release.release.versionCode)])].sort(
+      (left, right) => Number(left) - Number(right),
+    );
+    if (
+      retainedCodes.some(code => !/^[1-9]\d*$/.test(code)) ||
+      submittedCodes.some(code => !/^[1-9]\d*$/.test(code)) ||
+      retainedCodes.join(',') !== canonicalRetained.join(',') ||
+      submittedCodes.join(',') !== expectedSubmitted.join(',')
+    ) {
+      errors.push('Android Play internal handoff summary has invalid track-version preservation evidence');
+    }
+  } else if (retainedEvidence[0] !== 'not-claimed' || submittedEvidence[0] !== 'not-claimed') {
+    errors.push('Android Play handoff without API validation must not claim track-version preservation');
+  }
   if ((serviceAccountPlayAccess === 'confirmed') !== apiEditValidated) {
     errors.push('Service-account Play access evidence must match API edit validation');
   }

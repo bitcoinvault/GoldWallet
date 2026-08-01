@@ -47,7 +47,10 @@ const renderSummary = (readiness, result = {}, error = '') =>
     `Signed AAB bytes: ${existsSync(readiness.signedAabPath) ? statSync(readiness.signedAabPath).size : 0}`,
     `API edit validated: ${result.editValidated ? 'yes' : 'not-claimed'}`,
     `API edit committed: ${result.editCommitted ? 'yes' : 'not-claimed'}`,
+    `Previous active version codes retained: ${result.retainedVersionCodes ? result.retainedVersionCodes.join(',') || 'none' : 'not-claimed'}`,
+    `Track version codes submitted: ${result.submittedVersionCodes?.join(',') || 'not-claimed'}`,
     `Uncommitted edit deleted: ${result.editDeleted ? 'yes' : 'not-applicable'}`,
+    `Uncommitted edit cleanup: ${result.editCleanupStatus || error?.playEditCleanupStatus || 'not-applicable'}`,
     `Play upload validation: ${result.editValidated ? 'passed' : 'not claimed'}`,
     `Play internal release: ${result.editCommitted ? 'committed' : 'not claimed'}`,
     `Service account Play access: ${result.editValidated ? 'confirmed' : 'not claimed'}`,
@@ -108,7 +111,7 @@ try {
 } catch (error) {
   if (readiness) {
     mkdirSync(path.dirname(summaryPath), { recursive: true });
-    writeFileSync(summaryPath, renderSummary(readiness, {}, error.message));
+    writeFileSync(summaryPath, renderSummary(readiness, {}, error));
   }
   console.error(error.message);
   process.exit(1);
