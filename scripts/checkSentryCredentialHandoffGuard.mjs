@@ -24,7 +24,7 @@ const requiredSnippets = [
   '- current `sentry:rn-bundle-task-compat:audit` and `sentry:rn-bundle-task-compat:check-summary` output;',
   '- current release-services aggregate summary;',
   '- iOS macOS/Xcode/CocoaPods blocker or validation result.',
-  'Do not run or claim real Sentry release upload validation until `SENTRY_AUTH_TOKEN` is present and the three generated properties files are ready.',
+  'Do not run or claim production Sentry release upload validation until `SENTRY_AUTH_TOKEN` is present and the three generated properties files are ready. The isolated Android dev canary is a separate transport-only proof and must keep production upload and event symbolication unclaimed.',
   'Do not commit `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, or token-derived output.',
   'Do not print `SENTRY_AUTH_TOKEN` or generated `auth.token` values in handoff artifacts.',
   'Do not claim iOS dSYM/source-map upload validation unless it ran on macOS/Xcode or a real CI equivalent.',

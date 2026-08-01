@@ -10,6 +10,42 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.945 - Sentry production no-upload preflight
+
+- Branch: `feature/bem-37-945-sentry-production-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the current production Android release/runtime evidence consumed by the Sentry handoff after BEM-37.944 changed release inputs.
+- Add one fixed production preflight entry point that cannot forward upload arguments and always disables automatic Sentry upload.
+- Verify the live production Android/iOS Sentry project identity, status, and release access through the authenticated CLI without retaining the project response.
+
+Findings:
+
+- The first managed production preflight correctly rejected stale Android evidence: the release fingerprint predated the direct source-map parser dependency, and the stored production smoke summary predated the 16 KB runtime fields.
+- A fresh-worktree release pass exposed React Native codegen/CMake ordering while generated JNI inputs were cold. After the complete codegen graph finished, the controlled rerun rebuilt `dev`, `stage`, `prod`, and `beta` with one Gradle worker and upload disabled; every APK, bundle, and source map passed the release summary guards.
+- Full signed `prodRelease` smoke passed on the 16 KB API 36 emulator, including onboarding, dashboard, QR, tabs, Terms WebView, standard-wallet creation, restart/PIN persistence, and the default 3-key vault public-key flow.
+- The refreshed managed production preflight reports current Sentry packages, ready production Android runtime evidence, ready ignored properties, fixed production routing, and upload validation still not claimed.
+- The only remaining production handoff blocker is iOS validation: Windows cannot refresh the 12 active `ios/Podfile.lock` drifts or run Xcode archive/simulator, source-map, and dSYM validation.
+
+Validation:
+
+- `node scripts/checkSentryProductionPreflightGuard.mjs`
+- `corepack yarn node:runtime:yarn check:sentry-credential-handoff-guard`
+- `node scripts/runSentryProductionPreflight.mjs`
+- `corepack yarn node:runtime:yarn android:dev:release:validate-local` with `SENTRY_DISABLE_AUTO_UPLOAD=true` and one Gradle worker
+- `corepack yarn node:runtime:yarn android:dev:release:check-summary`
+- `corepack yarn node:runtime:yarn android:dev:release:check-apk-manifest`
+- `corepack yarn node:runtime:yarn android:dev:release:check-secure-storage-apks`
+- `corepack yarn node:runtime:yarn android:dev:release:check-appcenter-apks`
+- `corepack yarn node:runtime:yarn android:prod:release:smoke:embedded`
+- `corepack yarn node:runtime:yarn android:prod:release:create-wallet-smoke:embedded`
+- `corepack yarn node:runtime:yarn android:prod:release:check-smoke-summary`
+- `corepack yarn node:runtime:yarn android:prod:release:check-create-wallet-smoke-summary`
+- API 36 16 KB production emulator smoke and create-wallet flow
+- Production Sentry upload and iOS runtime/archive remain unclaimed
+
 ### BEM-37.944 - Sentry non-production event symbolication proof
 
 - Branch: `feature/bem-37-944-sentry-event-symbolication`
