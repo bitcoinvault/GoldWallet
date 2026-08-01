@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.946 - Android release cold-codegen retry guard
+
+- Branch: `feature/bem-37-946-release-codegen-preflight`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Keep Android release validation diagnostic output while allowing one bounded retry for the known React Native generated JNI/CMake ordering failure.
+- Reject generic Gradle, CMake, compilation, and spawn failures without retrying them.
+- Cover both observed missing-generated-`CMakeLists.txt` error forms and the existing transient Windows native-build exit code.
+
+Findings:
+
+- The moved BEM-37.945 worktree exposed intermittent CMake configuration failures when autolinking referenced generated JNI directories before their `CMakeLists.txt` files were available.
+- A genuinely fresh BEM-37.946 worktree with physical dependencies and no Android/CMake outputs completed `devRelease` on its first attempt: 922 tasks executed, with a valid APK, JavaScript bundle, source map, and release summary.
+- The default remains two attempts. Retry is permitted only for the existing configured Windows exit code or a failed build containing both a generated codegen JNI path and a known missing-CMake signature.
+- The standard dev/testnet release smoke reached the expected controlled `No network` screen because Electrum was unavailable. The dedicated no-network smoke accepted that external state and completed without fatal Android or React Native runtime findings.
+
+Validation:
+
+- `node scripts/checkAndroidReleaseGradleRetryGuard.mjs`
+- `node scripts/checkAndroidReleaseSummaryGuard.mjs`
+- cold `ANDROID_RELEASE_VARIANTS=dev corepack yarn node:runtime:yarn android:dev:release:validate-local`
+- `ANDROID_RELEASE_VARIANTS=dev node scripts/checkAndroidReleaseSummary.mjs`
+- `corepack yarn node:runtime:yarn android:dev:release:smoke:no-network:embedded`
+- Cold build executed with JDK 17, one Gradle worker, upload disabled, and no pre-existing `.cxx` or Android build outputs.
+
 ### BEM-37.945 - Sentry production no-upload preflight
 
 - Branch: `feature/bem-37-945-sentry-production-handoff`
