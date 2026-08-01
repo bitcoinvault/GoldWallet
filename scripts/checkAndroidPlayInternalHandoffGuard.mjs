@@ -99,7 +99,14 @@ const baseEnvironment = {
   GOLDWALLET_UPLOAD_KEY_PASSWORD: 'fixture-key-password',
 };
 
-const createFakeClient = ({ uploadedVersionCode = 15, failValidate = false } = {}) => {
+const createFakeClient = ({
+  uploadedVersionCode = 15,
+  failValidate = false,
+  failTrackGet = false,
+  failTrackUpdate = false,
+  failDelete = false,
+  activeReleases = [{ versionCodes: ['13', '14'], status: 'completed' }],
+} = {}) => {
   const calls = [];
   const client = {
     edits: {
@@ -114,8 +121,14 @@ const createFakeClient = ({ uploadedVersionCode = 15, failValidate = false } = {
         },
       },
       tracks: {
+        get: async request => {
+          calls.push(['track-get', request]);
+          if (failTrackGet) throw new Error('fixture track get failure');
+          return { data: { track: 'internal', releases: activeReleases } };
+        },
         update: async request => {
           calls.push(['track', request]);
+          if (failTrackUpdate) throw new Error('fixture track update failure');
           return { data: {} };
         },
       },
@@ -130,6 +143,7 @@ const createFakeClient = ({ uploadedVersionCode = 15, failValidate = false } = {
       },
       delete: async request => {
         calls.push(['delete', request]);
+        if (failDelete) throw new Error('fixture delete failure');
         return { data: {} };
       },
     },
@@ -253,15 +267,42 @@ try {
     commit: false,
     streamFactory: () => 'fixture-stream',
   });
-  assert.deepStrictEqual(validateFake.calls.map(([name]) => name), ['insert', 'upload', 'track', 'validate', 'delete']);
+  assert.deepStrictEqual(validateFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'track', 'validate', 'delete']);
   assert.deepStrictEqual(validateResult, {
     editValidated: true,
     editCommitted: false,
     editDeleted: true,
+    editCleanupStatus: 'succeeded',
     uploadedVersionCode: 15,
+    retainedVersionCodes: ['13', '14'],
+    submittedVersionCodes: ['13', '14', '15'],
   });
   assert.strictEqual(validateFake.calls[2][1].track, 'internal');
-  assert.deepStrictEqual(validateFake.calls[2][1].requestBody.releases[0].versionCodes, ['15']);
+  assert.strictEqual(validateFake.calls[3][1].track, 'internal');
+  assert.deepStrictEqual(validateFake.calls[3][1].requestBody.releases, [
+    { versionCodes: ['13', '14'], status: 'completed' },
+    { name: '6.5.3', versionCodes: ['15'], status: 'draft' },
+  ]);
+
+  const mixedReleases = [
+    { name: 'served', versionCodes: ['12'], status: 'completed', inAppUpdatePriority: 2 },
+    { name: 'paused', versionCodes: ['13'], status: 'halted', userFraction: 0.5 },
+    { name: 'pending', versionCodes: ['14'], status: 'draft', releaseNotes: [{ language: 'en-US', text: 'pending' }] },
+  ];
+  const mixedFake = createFakeClient({ activeReleases: mixedReleases });
+  await runAndroidPlayEditWorkflow({
+    client: mixedFake.client,
+    aabPath: 'fixture.aab',
+    versionCode: 15,
+    versionName: '6.5.3',
+    status: 'draft',
+    commit: false,
+    streamFactory: () => 'fixture-stream',
+  });
+  assert.deepStrictEqual(mixedFake.calls[3][1].requestBody.releases, [
+    ...mixedReleases,
+    { name: '6.5.3', versionCodes: ['15'], status: 'draft' },
+  ]);
 
   const commitOptions = parseAndroidPlayHandoffArgs(['--execute', '--commit']);
   const expectedConfirmation = 'io.goldwallet.wallet:15:internal:completed';
@@ -287,7 +328,7 @@ try {
     commit: true,
     streamFactory: () => 'fixture-stream',
   });
-  assert.deepStrictEqual(commitFake.calls.map(([name]) => name), ['insert', 'upload', 'track', 'validate', 'commit']);
+  assert.deepStrictEqual(commitFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'track', 'validate', 'commit']);
   assert.strictEqual(commitResult.editCommitted, true);
 
   const mismatchFake = createFakeClient({ uploadedVersionCode: 16 });
@@ -305,6 +346,51 @@ try {
   );
   assert.deepStrictEqual(mismatchFake.calls.map(([name]) => name), ['insert', 'upload', 'delete']);
 
+  const invalidTrackFake = createFakeClient({ activeReleases: [{ versionCodes: ['invalid'], status: 'completed' }] });
+  await assert.rejects(
+    runAndroidPlayEditWorkflow({
+      client: invalidTrackFake.client,
+      aabPath: 'fixture.aab',
+      versionCode: 15,
+      versionName: '6.5.3',
+      status: 'draft',
+      commit: false,
+      streamFactory: () => 'fixture-stream',
+    }),
+    /invalid active versionCode/,
+  );
+  assert.deepStrictEqual(invalidTrackFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'delete']);
+
+  const trackGetFailureFake = createFakeClient({ failTrackGet: true });
+  await assert.rejects(
+    runAndroidPlayEditWorkflow({
+      client: trackGetFailureFake.client,
+      aabPath: 'fixture.aab',
+      versionCode: 15,
+      versionName: '6.5.3',
+      status: 'draft',
+      commit: false,
+      streamFactory: () => 'fixture-stream',
+    }),
+    error => error.message.includes('fixture track get failure') && error.playEditCleanupStatus === 'succeeded',
+  );
+  assert.deepStrictEqual(trackGetFailureFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'delete']);
+
+  const cleanupFailureFake = createFakeClient({ failTrackUpdate: true, failDelete: true });
+  await assert.rejects(
+    runAndroidPlayEditWorkflow({
+      client: cleanupFailureFake.client,
+      aabPath: 'fixture.aab',
+      versionCode: 15,
+      versionName: '6.5.3',
+      status: 'draft',
+      commit: false,
+      streamFactory: () => 'fixture-stream',
+    }),
+    error => error.message.includes('cleanup also failed') && error.playEditCleanupStatus === 'failed',
+  );
+  assert.deepStrictEqual(cleanupFailureFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'track', 'delete']);
+
   const validationFailureFake = createFakeClient({ failValidate: true });
   await assert.rejects(
     runAndroidPlayEditWorkflow({
@@ -321,6 +407,7 @@ try {
   assert.deepStrictEqual(validationFailureFake.calls.map(([name]) => name), [
     'insert',
     'upload',
+    'track-get',
     'track',
     'validate',
     'delete',
@@ -345,11 +432,26 @@ try {
     'Electrum release gate required: yes',
     'Electrum release gate result: passed',
     'API edit validated: yes',
+    'Previous active version codes retained: 13,14',
+    'Track version codes submitted: 13,14,15',
+    'Uncommitted edit cleanup: succeeded',
     'Service account Play access: confirmed',
     'Service account values printed: no',
     '',
   ].join('\n');
   assert.deepStrictEqual(getAndroidPlayInternalHandoffSummaryErrors(safeSummary, validateReadiness), []);
+  for (const mutatedSummary of [
+    safeSummary.replace('Previous active version codes retained: 13,14', 'Previous active version codes retained: 14,13'),
+    safeSummary.replace('Previous active version codes retained: 13,14', 'Previous active version codes retained: 13,13,14'),
+    safeSummary.replace('Track version codes submitted: 13,14,15', 'Track version codes submitted: 13,14,15,99'),
+    safeSummary.replace('Track version codes submitted: 13,14,15', 'Track version codes submitted: 13,15'),
+  ]) {
+    assert(
+      getAndroidPlayInternalHandoffSummaryErrors(mutatedSummary, validateReadiness).some(error =>
+        error.includes('invalid track-version preservation evidence'),
+      ),
+    );
+  }
   assert(
     getAndroidPlayInternalHandoffSummaryErrors(
       safeSummary.replace('Electrum release gate result: passed\n', ''),

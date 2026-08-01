@@ -10,6 +10,35 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.949 - Google Play internal-track preservation
+
+- Branch: `feature/bem-37-949-play-track-preservation`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Read the current Google Play `internal` track inside the newly inserted edit before updating it.
+- Preserve every existing release boundary and supported rollout field, add the uploaded candidate as a separate release, and record the exact sorted version-code union required by the Android Publisher Track contract.
+- Bind local summary evidence to the retained and submitted version-code sets and reject malformed active-track data before update or commit.
+
+Findings:
+
+- The previous workflow submitted only the candidate version code. A successful `tracks.update` could therefore remove older version codes that Google requires the request to include when they must be retained.
+- The workflow now performs `tracks.get` after the bundle upload, preserves completed/draft/halted releases and their metadata, requires positive integer codes, rejects an already-present candidate, and cleans up the edit on invalid track data.
+- Fake-client guards cover mixed release states, validation, commit, upload mismatch, invalid active-track data, successful and failed cleanup, and canonical retained/submitted version-code evidence.
+- No live Google API request or upload was executed because release version, signing credentials, service account, and Electrum release readiness remain external blockers. This tooling-only milestone does not change app runtime and does not require emulator smoke.
+
+Validation:
+
+- `corepack yarn check:android-play-internal-handoff-guard`
+- `corepack yarn android:play:internal:dry-run`
+- `corepack yarn android:play:internal:check-summary`
+- `corepack yarn android:release-readiness:check-light`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.948 - Android upload-signing path safety
 
 - Branch: `feature/bem-37-948-upload-signing-path-safety`
