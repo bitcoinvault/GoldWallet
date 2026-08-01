@@ -40,6 +40,7 @@ const INPUT_DIRECTORIES = [
   'validation',
   'android/app/src',
 ];
+const GENERATED_INPUT_PATHS = new Set(['android/app/src/main/assets/modules.json']);
 
 const collectDirectoryFiles = (root, relativeDirectory) => {
   const directory = path.join(root, relativeDirectory);
@@ -58,6 +59,7 @@ const getInputPaths = root =>
     ...INPUT_DIRECTORIES.flatMap(relativeDirectory => collectDirectoryFiles(root, relativeDirectory)),
   ]
     .map(relativePath => relativePath.replaceAll('\\', '/'))
+    .filter(relativePath => !GENERATED_INPUT_PATHS.has(relativePath))
     .sort();
 
 const hashFiles = (root, relativePaths) => {

@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.944 - Sentry non-production event symbolication proof
+
+- Branch: `feature/bem-37-944-sentry-event-symbolication`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Stabilize the BEM-37.942 Gradle canary identity so ignored Sentry-generated module inventory cannot change the release name.
+- Send one synthetic JavaScript exception to the fixed `goldwallet-dev-android` project using the already validated Gradle artifact bundle and debug ID.
+- Poll the processed event through the authenticated Sentry API and require the generated bundle frame to resolve to the expected original `App.tsx` source line.
+- Keep event content free of wallet and identifying user data, explicitly suppress IP collection, and keep credentials, DSN values, and source content out of logs and committed files.
+
+Findings:
+
+- Release validation exposed that `android/app/src/main/assets/modules.json` is generated and removed by Sentry Gradle tasks. Including this ignored file in the canary input hash made identity depend on build residue. The identity collector now excludes that generated path, and its guard proves that changing the file does not change the release.
+- The corrected stable release is `goldwallet-android-gradle-canary@6.5.1+14-3d695d3fe994`. The real Gradle upload passes again in project `goldwallet-dev-android` (`5875208`) with artifact bundle `4e574f79-0167-512b-b664-5402b2681b40` and debug ID `e8c40da4-a7b7-40ea-9647-0f8dff19ab2d`.
+- The canary reads the configured dev Android DSN only after verifying its project ID, verifies the API slug/ID binding, and invalidates prior executed evidence before resolving the managed credential or sending an event.
+- Sentry event `940c51e321104620a794d0f7909c3770` resolves generated frame `index.android.bundle:1:3366532` to `D:\w940\App.tsx:41`. The verifier also binds the response to the exact event ID, project ID, distribution, and canary markers. The generated bundle frame is absent from the processed stack, proving non-production event symbolication rather than only upload transport.
+- The first controlled event confirmed that Sentry event columns are 1-based while source-map generated columns are 0-based. The final runner applies that conversion and validates the exact expected original line.
+- The synthetic event contains no mnemonic, wallet, address, transaction, PIN, password, or identifying user data. It uses the neutral `0.0.0.0` IP sentinel to prevent Sentry from deriving the sender address, and the verifier rejects any real IP, geolocation, identifier, email, username, name, or other non-empty user value. The final local summary and Gradle log contain no token, Authorization header, auth assignment, or DSN value.
+- This proves event symbolication only in the isolated Android development project. Production event symbolication, production release upload, iOS source-map/dSYM delivery, and macOS archive validation remain unclaimed.
+
+Validation:
+
+- `node scripts/checkSentryGradleDevUploadCanaryGuard.mjs`
+- JDK 17 `node scripts/runSentryGradleDevUploadCanary.mjs --execute`
+- `node scripts/checkSentryEventSymbolicationCanaryGuard.mjs`
+- `node scripts/runSentryEventSymbolicationCanary.mjs`
+- `node scripts/runSentryEventSymbolicationCanary.mjs --execute`
+- Fixed project slug/ID and DSN project-ID checks, processed event polling, exact source/line verification, generated-frame removal, and secret scans
+- Production event symbolication and iOS runtime/archive remain unclaimed
+
 ### BEM-37.943 - Android release evidence refresh after Sentry Metro integration
 
 - Branch: `feature/bem-37-943-android-release-evidence-refresh`
