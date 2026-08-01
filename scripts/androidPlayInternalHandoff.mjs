@@ -98,7 +98,19 @@ export const resolveAndroidPlayInternalHandoff = ({ root, env = process.env, opt
   const confirmationMatches = env.GOLDWALLET_PLAY_COMMIT_CONFIRMATION === expectedConfirmation;
   const blockers = [];
   if (!release.ready) blockers.push(release.requiredAction);
-  if (!signing.safe.ready) blockers.push('Provide a complete upload-signing configuration with an existing keystore.');
+  if (!signing.safe.ready) {
+    if (!signing.safe.propertiesPathSafety.safe) {
+      blockers.push(
+        signing.safe.propertiesPathSafety.state === 'not-regular'
+          ? 'Replace the upload-signing properties path with a regular file.'
+          : 'Move upload-signing properties outside the repository or to a git-ignored path.',
+      );
+    } else if (signing.safe.storeFileExists && !signing.safe.storeFilePathSafety.safe) {
+      blockers.push('Move the upload keystore outside the repository or to a git-ignored path.');
+    } else {
+      blockers.push('Provide a complete upload-signing configuration with a regular keystore file.');
+    }
+  }
   if (!serviceAccountPresent) {
     blockers.push('Set GOLDWALLET_PLAY_SERVICE_ACCOUNT_JSON to an existing ignored service-account JSON file.');
   } else {

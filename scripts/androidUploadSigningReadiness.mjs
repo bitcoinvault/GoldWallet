@@ -1,5 +1,6 @@
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, realpathSync, statSync } from 'fs';
 import path from 'path';
+import { spawnSync } from 'child_process';
 
 export const uploadSigningFields = Object.freeze([
   Object.freeze({ property: 'storeFile', environment: 'GOLDWALLET_UPLOAD_STORE_FILE', secret: false }),
@@ -25,13 +26,72 @@ const parseProperties = content => {
   return result;
 };
 
-export const resolveAndroidUploadSigningConfiguration = ({ root, env = process.env }) => {
+const isRegularFile = candidate => {
+  try {
+    return Boolean(candidate && existsSync(candidate) && statSync(candidate).isFile());
+  } catch {
+    return false;
+  }
+};
+
+const pathExists = candidate => {
+  try {
+    return Boolean(candidate && existsSync(candidate));
+  } catch {
+    return false;
+  }
+};
+
+const defaultIgnoredPathCheck = (root, candidate) =>
+  spawnSync('git', ['check-ignore', '--quiet', '--', candidate], { cwd: root, stdio: 'ignore' }).status === 0;
+
+const defaultTrackedPathCheck = (root, candidate) =>
+  spawnSync('git', ['ls-files', '--error-unmatch', '--', candidate], { cwd: root, stdio: 'ignore' }).status === 0;
+
+const defaultCommittedPathCheck = (root, candidate) => {
+  const relative = path.relative(root, candidate).split(path.sep).join('/');
+  return spawnSync('git', ['cat-file', '-e', `HEAD:${relative}`], { cwd: root, stdio: 'ignore' }).status === 0;
+};
+
+export const getSensitivePathSafety = ({
+  root,
+  candidate,
+  ignoredPathCheck = defaultIgnoredPathCheck,
+  trackedPathCheck = defaultTrackedPathCheck,
+  committedPathCheck = defaultCommittedPathCheck,
+  realpathResolver = realpathSync,
+}) => {
+  if (!candidate) return { safe: false, state: 'missing' };
+  let canonicalPath;
+  try {
+    canonicalPath = realpathResolver(candidate);
+  } catch {
+    canonicalPath = path.resolve(candidate);
+  }
+  const canonicalRoot = realpathResolver(root);
+  const relative = path.relative(canonicalRoot, canonicalPath);
+  const insideRoot = !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+  if (!insideRoot) return { safe: true, state: 'outside-repository' };
+  if (trackedPathCheck(canonicalRoot, canonicalPath) || committedPathCheck(canonicalRoot, canonicalPath)) {
+    return { safe: false, state: 'tracked' };
+  }
+  if (ignoredPathCheck(canonicalRoot, canonicalPath)) return { safe: true, state: 'ignored' };
+  return { safe: false, state: 'unignored' };
+};
+
+export const resolveAndroidUploadSigningConfiguration = ({
+  root,
+  env = process.env,
+  sensitivePathCheck = getSensitivePathSafety,
+}) => {
   const androidRoot = path.join(root, 'android');
   const propertiesSetting = env.GOLDWALLET_UPLOAD_KEYSTORE_PROPERTIES || 'keystore.properties';
   const propertiesPath = path.isAbsolute(propertiesSetting)
     ? propertiesSetting
     : path.resolve(androidRoot, propertiesSetting);
-  const properties = existsSync(propertiesPath) ? parseProperties(readFileSync(propertiesPath, 'utf8')) : {};
+  const propertiesPathExists = pathExists(propertiesPath);
+  const propertiesFileExists = isRegularFile(propertiesPath);
+  const properties = propertiesFileExists ? parseProperties(readFileSync(propertiesPath, 'utf8')) : {};
   const credentials = {};
   const sources = {};
 
@@ -59,7 +119,15 @@ export const resolveAndroidUploadSigningConfiguration = ({ root, env = process.e
       ? credentials.storeFile
       : path.resolve(androidRoot, credentials.storeFile)
     : '';
-  const storeFileExists = Boolean(storeFilePath && existsSync(storeFilePath));
+  const storeFileExists = isRegularFile(storeFilePath);
+  const propertiesPathSafety = propertiesPathExists
+    ? propertiesFileExists
+      ? sensitivePathCheck({ root, candidate: propertiesPath })
+      : { safe: false, state: 'not-regular' }
+    : { safe: true, state: 'absent' };
+  const storeFilePathSafety = storeFileExists
+    ? sensitivePathCheck({ root, candidate: storeFilePath })
+    : { safe: false, state: storeFilePath ? 'not-regular' : 'missing' };
 
   return {
     credentials,
@@ -67,13 +135,15 @@ export const resolveAndroidUploadSigningConfiguration = ({ root, env = process.e
       state: configured ? 'configured' : partial ? 'partial' : 'absent',
       configured,
       partial,
-      ready: configured && storeFileExists,
+      ready: configured && storeFileExists && propertiesPathSafety.safe && storeFilePathSafety.safe,
       missingFields,
       sources,
       propertiesPath,
-      propertiesFileExists: existsSync(propertiesPath),
+      propertiesFileExists,
+      propertiesPathSafety,
       storeFilePath,
       storeFileExists,
+      storeFilePathSafety,
     },
   };
 };
@@ -83,7 +153,9 @@ export const getAndroidUploadSigningSummaryErrors = (summary, resolved) => {
     'Android upload signing readiness',
     `Configuration state: ${resolved.safe.state}`,
     `Properties file present: ${resolved.safe.propertiesFileExists ? 'yes' : 'no'}`,
+    `Properties path status: ${resolved.safe.propertiesPathSafety.state}`,
     `Keystore file present: ${resolved.safe.storeFileExists ? 'yes' : 'no'}`,
+    `Keystore path status: ${resolved.safe.storeFilePathSafety.state}`,
     'Secret values printed: no',
   ];
   const errors = requiredLines
@@ -94,8 +166,9 @@ export const getAndroidUploadSigningSummaryErrors = (summary, resolved) => {
 
   if (!aliasVerification) errors.push('Android upload signing summary has invalid alias verification evidence');
   if (!productionReady) errors.push('Android upload signing summary has invalid production readiness evidence');
-  if (productionReady && productionReady !== (aliasVerification === 'passed' ? 'yes' : 'no')) {
-    errors.push('Android upload signing summary readiness does not match alias verification');
+  const expectedProductionReady = resolved.safe.ready && aliasVerification === 'passed' ? 'yes' : 'no';
+  if (productionReady !== expectedProductionReady) {
+    errors.push('Android upload signing summary readiness does not match safe configuration and alias verification');
   }
 
   for (const field of uploadSigningFields.filter(candidate => candidate.secret)) {

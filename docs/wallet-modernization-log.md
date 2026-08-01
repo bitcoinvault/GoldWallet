@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.948 - Android upload-signing path safety
+
+- Branch: `feature/bem-37-948-upload-signing-path-safety`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Canonicalize custom upload-signing properties and keystore paths before treating production signing as ready.
+- Reject tracked or unignored sensitive files inside the repository while allowing ignored in-repository files and files stored outside the repository.
+- Require the keystore path to resolve to a regular file and expose only bounded path-safety states in local summaries.
+
+Findings:
+
+- The previous resolver accepted any existing keystore path, including a directory, and did not apply the service-account-style Git safety gate to custom signing files.
+- Production readiness now requires both a regular keystore file and safe properties/keystore locations. A tracked path remains blocked even if an ignore rule also matches it.
+- Guard fixtures cover tracked, ignored, unignored, outside-repository, and non-regular keystore states without retaining a real key or password.
+- The current checkout still has no production upload-signing configuration, so no signed production artifact or Google Play upload is claimed. This tooling-only milestone does not change application runtime and does not require emulator smoke.
+
+Validation:
+
+- `corepack yarn check:android-upload-signing-guard`
+- `corepack yarn android:upload-signing:audit`
+- `corepack yarn android:upload-signing:check-summary`
+- `corepack yarn check:android-play-internal-handoff-guard`
+- `corepack yarn android:play:internal:dry-run`
+- `corepack yarn android:release-readiness:check-light`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.947 - Google Play service-account preflight
 
 - Branch: `feature/bem-37-947-play-service-account-preflight`
