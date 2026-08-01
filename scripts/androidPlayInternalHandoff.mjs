@@ -1,4 +1,5 @@
-import { createReadStream, existsSync, statSync } from 'fs';
+import { createReadStream, existsSync, readFileSync, statSync } from 'fs';
+import { createPrivateKey } from 'crypto';
 import path from 'path';
 import { spawnSync } from 'child_process';
 
@@ -17,6 +18,54 @@ const isInsideRoot = (root, candidate) => {
 
 const isGitIgnored = (root, candidate) =>
   spawnSync('git', ['check-ignore', '--quiet', '--', candidate], { cwd: root, stdio: 'ignore' }).status === 0;
+
+export const validateServiceAccountFile = (serviceAccountPath, fileReader = readFileSync) => {
+  if (!serviceAccountPath || !existsSync(serviceAccountPath)) {
+    return { valid: false, status: 'missing' };
+  }
+  try {
+    if (!statSync(serviceAccountPath).isFile()) return { valid: false, status: 'missing' };
+  } catch {
+    return { valid: false, status: 'unreadable' };
+  }
+
+  let content;
+  try {
+    content = fileReader(serviceAccountPath, 'utf8');
+  } catch {
+    return { valid: false, status: 'unreadable' };
+  }
+
+  let credential;
+  try {
+    credential = JSON.parse(content);
+  } catch {
+    return { valid: false, status: 'invalid-json' };
+  }
+
+  if (!credential || typeof credential !== 'object' || Array.isArray(credential)) {
+    return { valid: false, status: 'invalid-schema' };
+  }
+  if (
+    typeof credential.client_email !== 'string' ||
+    !credential.client_email.trim() ||
+    typeof credential.private_key !== 'string' ||
+    !credential.private_key.trim()
+  ) {
+    return { valid: false, status: 'invalid-schema' };
+  }
+
+  try {
+    const key = createPrivateKey(credential.private_key);
+    if (key.type !== 'private' || key.asymmetricKeyType !== 'rsa') {
+      return { valid: false, status: 'invalid-private-key' };
+    }
+  } catch {
+    return { valid: false, status: 'invalid-private-key' };
+  }
+
+  return { valid: true, status: 'valid' };
+};
 
 export const parseAndroidPlayHandoffArgs = args => {
   const execute = args.includes('--execute');
@@ -40,9 +89,8 @@ export const resolveAndroidPlayInternalHandoff = ({ root, env = process.env, opt
       ? serviceAccountSetting
       : path.resolve(root, serviceAccountSetting)
     : '';
-  const serviceAccountPresent = Boolean(
-    serviceAccountPath && existsSync(serviceAccountPath) && statSync(serviceAccountPath).isFile(),
-  );
+  const serviceAccountValidation = validateServiceAccountFile(serviceAccountPath);
+  const serviceAccountPresent = serviceAccountValidation.status !== 'missing';
   const serviceAccountLocationSafe = Boolean(
     serviceAccountPresent && (!isInsideRoot(root, serviceAccountPath) || ignoredPathCheck(root, serviceAccountPath)),
   );
@@ -53,8 +101,13 @@ export const resolveAndroidPlayInternalHandoff = ({ root, env = process.env, opt
   if (!signing.safe.ready) blockers.push('Provide a complete upload-signing configuration with an existing keystore.');
   if (!serviceAccountPresent) {
     blockers.push('Set GOLDWALLET_PLAY_SERVICE_ACCOUNT_JSON to an existing ignored service-account JSON file.');
-  } else if (!serviceAccountLocationSafe) {
-    blockers.push('Move the service-account JSON outside the repository or to a path confirmed by git check-ignore.');
+  } else {
+    if (!serviceAccountLocationSafe) {
+      blockers.push('Move the service-account JSON outside the repository or to a path confirmed by git check-ignore.');
+    }
+    if (!serviceAccountValidation.valid) {
+      blockers.push(`Provide a structurally valid Google service-account credential JSON (${serviceAccountValidation.status}).`);
+    }
   }
   if (options.commit && !confirmationMatches) {
     blockers.push(`Set GOLDWALLET_PLAY_COMMIT_CONFIRMATION to ${expectedConfirmation}.`);
@@ -68,6 +121,7 @@ export const resolveAndroidPlayInternalHandoff = ({ root, env = process.env, opt
     serviceAccountPath,
     serviceAccountPresent,
     serviceAccountLocationSafe,
+    serviceAccountValidation,
     expectedConfirmation,
     confirmationMatches,
     ready: blockers.length === 0,
@@ -152,6 +206,8 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
     `Upload signing ready: ${readiness.signing.safe.ready ? 'yes' : 'no'}`,
     `Service account file present: ${readiness.serviceAccountPresent ? 'yes' : 'no'}`,
     `Service account location safe: ${readiness.serviceAccountLocationSafe ? 'yes' : 'no'}`,
+    `Service account structure valid: ${readiness.serviceAccountValidation.valid ? 'yes' : 'no'}`,
+    `Service account validation status: ${readiness.serviceAccountValidation.status}`,
     `Commit confirmation matches: ${readiness.confirmationMatches ? 'yes' : 'no'}`,
     `Execution ready: ${readiness.ready ? 'yes' : 'no'}`,
     'Electrum release gate required: yes',
@@ -172,6 +228,17 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
   }
   if (/^API edit validated: yes$/m.test(summary) && electrumReleaseGateResult !== 'passed') {
     errors.push('Google Play API validation requires a passed Electrum release gate');
+  }
+  const serviceAccountPlayAccess = summary.match(/^Service account Play access: (confirmed|not claimed)$/m)?.[1];
+  if (!serviceAccountPlayAccess) {
+    errors.push('Android Play internal handoff summary has invalid service-account Play access evidence');
+  }
+  const apiEditValidated = /^API edit validated: yes$/m.test(summary);
+  if ((serviceAccountPlayAccess === 'confirmed') !== apiEditValidated) {
+    errors.push('Service-account Play access evidence must match API edit validation');
+  }
+  if (readiness.options.mode === 'dry-run' && serviceAccountPlayAccess === 'confirmed') {
+    errors.push('Android Play dry-run must not claim service-account Play access');
   }
   if (electrumReleaseGateResult === 'failed' && !/^Failure: yes; see console output$/m.test(summary)) {
     errors.push('A failed Electrum release gate must mark the Play handoff as failed');

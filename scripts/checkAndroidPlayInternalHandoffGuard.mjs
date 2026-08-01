@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { generateKeyPairSync } from 'crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
@@ -9,6 +10,7 @@ import {
   parseAndroidPlayHandoffArgs,
   resolveAndroidPlayInternalHandoff,
   runAndroidPlayEditWorkflow,
+  validateServiceAccountFile,
 } from './androidPlayInternalHandoff.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -83,6 +85,10 @@ const fixtureRoot = path.join(os.tmpdir(), `goldwallet-play-handoff-${process.pi
 const androidRoot = path.join(fixtureRoot, 'android');
 const keystorePath = path.join(androidRoot, 'upload.p12');
 const serviceAccountPath = path.join(fixtureRoot, 'play-service-account.json');
+const fixturePrivateKey = generateKeyPairSync('rsa', { modulusLength: 1024 }).privateKey.export({
+  type: 'pkcs8',
+  format: 'pem',
+});
 const baseEnvironment = {
   GOLDWALLET_PLAY_LATEST_VERSION_CODE: '14',
   GOLDWALLET_PLAY_SERVICE_ACCOUNT_JSON: serviceAccountPath,
@@ -143,7 +149,13 @@ try {
     }),
   );
   writeFileSync(keystorePath, 'fixture');
-  writeFileSync(serviceAccountPath, '{}');
+  writeFileSync(
+    serviceAccountPath,
+    JSON.stringify({
+      private_key: fixturePrivateKey,
+      client_email: 'fixture@goldwallet-fixture.iam.gserviceaccount.com',
+    }),
+  );
 
   const validateOptions = parseAndroidPlayHandoffArgs(['--execute']);
   const validateReadiness = resolveAndroidPlayInternalHandoff({
@@ -153,6 +165,7 @@ try {
     ignoredPathCheck: () => true,
   });
   assert.strictEqual(validateReadiness.ready, true);
+  assert.deepStrictEqual(validateReadiness.serviceAccountValidation, { valid: true, status: 'valid' });
   const unsafeCredentialReadiness = resolveAndroidPlayInternalHandoff({
     root: fixtureRoot,
     env: baseEnvironment,
@@ -172,6 +185,63 @@ try {
   });
   assert.strictEqual(directoryCredentialReadiness.serviceAccountPresent, false);
   assert.strictEqual(directoryCredentialReadiness.ready, false);
+  writeFileSync(serviceAccountPath, '{}');
+  const invalidSchemaCredentialReadiness = resolveAndroidPlayInternalHandoff({
+    root: fixtureRoot,
+    env: baseEnvironment,
+    options: validateOptions,
+    ignoredPathCheck: () => true,
+  });
+  assert.deepStrictEqual(invalidSchemaCredentialReadiness.serviceAccountValidation, {
+    valid: false,
+    status: 'invalid-schema',
+  });
+  assert.strictEqual(invalidSchemaCredentialReadiness.ready, false);
+  assert(
+    invalidSchemaCredentialReadiness.blockers.some(blocker => blocker.includes('invalid-schema')),
+    'Invalid service-account schema must block execution before build or Google authentication',
+  );
+  assert.deepStrictEqual(
+    validateServiceAccountFile(serviceAccountPath, () => {
+      throw new Error('fixture read failure');
+    }),
+    { valid: false, status: 'unreadable' },
+  );
+  writeFileSync(serviceAccountPath, '{');
+  const invalidJsonCredentialReadiness = resolveAndroidPlayInternalHandoff({
+    root: fixtureRoot,
+    env: baseEnvironment,
+    options: validateOptions,
+    ignoredPathCheck: () => true,
+  });
+  assert.deepStrictEqual(invalidJsonCredentialReadiness.serviceAccountValidation, {
+    valid: false,
+    status: 'invalid-json',
+  });
+  writeFileSync(
+    serviceAccountPath,
+    JSON.stringify({
+      private_key: 'not-a-private-key',
+      client_email: 'fixture@goldwallet-fixture.iam.gserviceaccount.com',
+    }),
+  );
+  const invalidPrivateKeyReadiness = resolveAndroidPlayInternalHandoff({
+    root: fixtureRoot,
+    env: baseEnvironment,
+    options: validateOptions,
+    ignoredPathCheck: () => true,
+  });
+  assert.deepStrictEqual(invalidPrivateKeyReadiness.serviceAccountValidation, {
+    valid: false,
+    status: 'invalid-private-key',
+  });
+  writeFileSync(
+    serviceAccountPath,
+    JSON.stringify({
+      private_key: fixturePrivateKey,
+      client_email: 'fixture@goldwallet-fixture.iam.gserviceaccount.com',
+    }),
+  );
   const validateFake = createFakeClient();
   const validateResult = await runAndroidPlayEditWorkflow({
     client: validateFake.client,
@@ -267,10 +337,14 @@ try {
     'Upload signing ready: yes',
     'Service account file present: yes',
     'Service account location safe: yes',
+    'Service account structure valid: yes',
+    'Service account validation status: valid',
     'Commit confirmation matches: no',
     'Execution ready: yes',
     'Electrum release gate required: yes',
     'Electrum release gate result: passed',
+    'API edit validated: yes',
+    'Service account Play access: confirmed',
     'Service account values printed: no',
     '',
   ].join('\n');
@@ -291,10 +365,17 @@ try {
   );
   assert(
     getAndroidPlayInternalHandoffSummaryErrors(
-      `${safeSummary.replace('Electrum release gate result: passed', 'Electrum release gate result: not-claimed')}API edit validated: yes\n`,
+      safeSummary.replace('Electrum release gate result: passed', 'Electrum release gate result: not-claimed'),
       validateReadiness,
     ).some(error => error.includes('API validation requires a passed Electrum release gate')),
     'Play API validation must require a passed Electrum gate',
+  );
+  assert(
+    getAndroidPlayInternalHandoffSummaryErrors(
+      safeSummary.replace('Service account Play access: confirmed', 'Service account Play access: not claimed'),
+      validateReadiness,
+    ).some(error => error.includes('must match API edit validation')),
+    'Play access evidence must match successful API edit validation',
   );
   const dryRunReadiness = resolveAndroidPlayInternalHandoff({
     root: fixtureRoot,
