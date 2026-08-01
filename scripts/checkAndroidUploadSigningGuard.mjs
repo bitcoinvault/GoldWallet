@@ -1,10 +1,12 @@
 import assert from 'assert';
+import { spawnSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 import {
+  getSensitivePathSafety,
   getAndroidUploadSigningSummaryErrors,
   resolveAndroidUploadSigningConfiguration,
 } from './androidUploadSigningReadiness.mjs';
@@ -129,22 +131,124 @@ try {
     path.join(androidRoot, 'keystore.properties'),
     ['storeFile=fixture-upload.p12', 'storePassword=fixture-store-secret', 'keyAlias=fixture', 'keyPassword=fixture-key-secret', ''].join('\n'),
   );
-  const configured = resolveAndroidUploadSigningConfiguration({ root: fixtureRoot, env: {} });
+  const configured = resolveAndroidUploadSigningConfiguration({
+    root: fixtureRoot,
+    env: {},
+    sensitivePathCheck: () => ({ safe: true, state: 'ignored' }),
+  });
   assert.strictEqual(configured.safe.state, 'configured');
   assert.strictEqual(configured.safe.ready, true);
   assert.strictEqual(configured.safe.sources.storePassword, 'properties');
+  assert.strictEqual(configured.safe.propertiesPathSafety.state, 'ignored');
+  assert.strictEqual(configured.safe.storeFilePathSafety.state, 'ignored');
+
+  const gitSafetyRoot = path.join(fixtureRoot, 'git-safety');
+  mkdirSync(gitSafetyRoot);
+  writeFileSync(path.join(gitSafetyRoot, '.gitignore'), '*.p12\n');
+  const ignoredPath = path.join(gitSafetyRoot, 'ignored.p12');
+  const trackedPath = path.join(gitSafetyRoot, 'tracked.p12');
+  const unignoredPath = path.join(gitSafetyRoot, 'unignored.key');
+  writeFileSync(ignoredPath, 'fixture');
+  writeFileSync(trackedPath, 'fixture');
+  writeFileSync(unignoredPath, 'fixture');
+  assert.strictEqual(spawnSync('git', ['init', '--quiet'], { cwd: gitSafetyRoot }).status, 0);
+  assert.strictEqual(spawnSync('git', ['config', 'user.name', 'GoldWallet Fixture'], { cwd: gitSafetyRoot }).status, 0);
+  assert.strictEqual(spawnSync('git', ['config', 'user.email', 'fixture@example.invalid'], { cwd: gitSafetyRoot }).status, 0);
+  assert.strictEqual(spawnSync('git', ['add', '-f', '--', trackedPath], { cwd: gitSafetyRoot }).status, 0);
+
+  const tracked = getSensitivePathSafety({ root: gitSafetyRoot, candidate: trackedPath });
+  assert.deepStrictEqual(tracked, { safe: false, state: 'tracked' });
+  assert.strictEqual(spawnSync('git', ['commit', '--quiet', '-m', 'fixture'], { cwd: gitSafetyRoot }).status, 0);
+  assert.strictEqual(spawnSync('git', ['rm', '--cached', '--quiet', '--', trackedPath], { cwd: gitSafetyRoot }).status, 0);
+  const committedButUntracked = getSensitivePathSafety({ root: gitSafetyRoot, candidate: trackedPath });
+  assert.deepStrictEqual(committedButUntracked, { safe: false, state: 'tracked' });
+  const ignored = getSensitivePathSafety({ root: gitSafetyRoot, candidate: ignoredPath });
+  assert.deepStrictEqual(ignored, { safe: true, state: 'ignored' });
+  const unignored = getSensitivePathSafety({ root: gitSafetyRoot, candidate: unignoredPath });
+  assert.deepStrictEqual(unignored, { safe: false, state: 'unignored' });
+  const outside = getSensitivePathSafety({
+    root: fixtureRoot,
+    candidate: path.join(os.tmpdir(), 'outside-upload.p12'),
+    ignoredPathCheck: () => false,
+    trackedPathCheck: () => false,
+    realpathResolver: candidate => path.resolve(candidate),
+  });
+  assert.deepStrictEqual(outside, { safe: true, state: 'outside-repository' });
+
+  const junctionRoot = path.join(fixtureRoot, 'junction-root');
+  const canonicalFixtureRoot = path.join(fixtureRoot, 'canonical-root');
+  const junctionCandidate = path.join(junctionRoot, 'tracked.p12');
+  const canonicalCandidate = path.join(canonicalFixtureRoot, 'tracked.p12');
+  const junctionCommitted = getSensitivePathSafety({
+    root: junctionRoot,
+    candidate: junctionCandidate,
+    ignoredPathCheck: () => true,
+    trackedPathCheck: () => false,
+    committedPathCheck: (checkedRoot, checkedCandidate) => {
+      assert.strictEqual(checkedRoot, canonicalFixtureRoot);
+      assert.strictEqual(checkedCandidate, canonicalCandidate);
+      return true;
+    },
+    realpathResolver: candidate => (candidate === junctionRoot ? canonicalFixtureRoot : canonicalCandidate),
+  });
+  assert.deepStrictEqual(junctionCommitted, { safe: false, state: 'tracked' });
+
+  const unsafeConfigured = resolveAndroidUploadSigningConfiguration({
+    root: fixtureRoot,
+    env: {},
+    sensitivePathCheck: () => ({ safe: false, state: 'tracked' }),
+  });
+  assert.strictEqual(unsafeConfigured.safe.ready, false);
+
+  const propertiesDirectory = path.join(fixtureRoot, 'properties-directory');
+  mkdirSync(propertiesDirectory);
+  const directoryProperties = resolveAndroidUploadSigningConfiguration({
+    root: fixtureRoot,
+    env: {
+      GOLDWALLET_UPLOAD_KEYSTORE_PROPERTIES: propertiesDirectory,
+      GOLDWALLET_UPLOAD_STORE_FILE: fixtureKeystore,
+      GOLDWALLET_UPLOAD_STORE_PASSWORD: 'fixture-store-secret',
+      GOLDWALLET_UPLOAD_KEY_ALIAS: 'fixture',
+      GOLDWALLET_UPLOAD_KEY_PASSWORD: 'fixture-key-secret',
+    },
+    sensitivePathCheck: () => ({ safe: true, state: 'ignored' }),
+  });
+  assert.strictEqual(directoryProperties.safe.propertiesFileExists, false);
+  assert.strictEqual(directoryProperties.safe.propertiesPathSafety.state, 'not-regular');
+  assert.strictEqual(directoryProperties.safe.ready, false);
+
+  rmSync(fixtureKeystore);
+  mkdirSync(fixtureKeystore);
+  const directoryKeystore = resolveAndroidUploadSigningConfiguration({
+    root: fixtureRoot,
+    env: {},
+    sensitivePathCheck: () => ({ safe: true, state: 'ignored' }),
+  });
+  assert.strictEqual(directoryKeystore.safe.storeFileExists, false);
+  assert.strictEqual(directoryKeystore.safe.storeFilePathSafety.state, 'not-regular');
+  assert.strictEqual(directoryKeystore.safe.ready, false);
 
   const validSummary = [
     'Android upload signing readiness',
     'Configuration state: configured',
     'Properties file present: yes',
+    'Properties path status: ignored',
     'Keystore file present: yes',
+    'Keystore path status: ignored',
     'Alias verification: passed',
     'Production signing ready: yes',
     'Secret values printed: no',
     '',
   ].join('\n');
   assert.deepStrictEqual(getAndroidUploadSigningSummaryErrors(validSummary, configured), []);
+  const unsafeSummary = validSummary
+    .replace('Properties path status: ignored', 'Properties path status: tracked')
+    .replace('Keystore path status: ignored', 'Keystore path status: tracked');
+  assert(
+    getAndroidUploadSigningSummaryErrors(unsafeSummary, unsafeConfigured).some(error =>
+      error.includes('does not match safe configuration and alias verification'),
+    ),
+  );
   assert(
     getAndroidUploadSigningSummaryErrors(`${validSummary}fixture-store-secret`, configured).some(error =>
       error.includes('leaks storePassword'),
@@ -152,7 +256,7 @@ try {
   );
   assert(
     getAndroidUploadSigningSummaryErrors(validSummary.replace('Alias verification: passed', 'Alias verification: failed'), configured).some(
-      error => error.includes('does not match alias verification'),
+      error => error.includes('does not match safe configuration and alias verification'),
     ),
   );
 } finally {

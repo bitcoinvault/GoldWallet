@@ -81,9 +81,10 @@ assert.deepStrictEqual(parseAndroidPlayHandoffArgs(['--execute', '--commit']), {
 assert.throws(() => parseAndroidPlayHandoffArgs(['--commit']), /--commit requires --execute/);
 assert.throws(() => parseAndroidPlayHandoffArgs(['--production']), /Unsupported Android Play handoff argument/);
 
-const fixtureRoot = path.join(os.tmpdir(), `goldwallet-play-handoff-${process.pid}`);
+const fixtureContainer = path.join(os.tmpdir(), `goldwallet-play-handoff-${process.pid}`);
+const fixtureRoot = path.join(fixtureContainer, 'repository');
 const androidRoot = path.join(fixtureRoot, 'android');
-const keystorePath = path.join(androidRoot, 'upload.p12');
+const keystorePath = path.join(fixtureContainer, 'upload.p12');
 const serviceAccountPath = path.join(fixtureRoot, 'play-service-account.json');
 const fixturePrivateKey = generateKeyPairSync('rsa', { modulusLength: 1024 }).privateKey.export({
   type: 'pkcs8',
@@ -396,7 +397,7 @@ try {
     ),
   );
 } finally {
-  rmSync(fixtureRoot, { recursive: true, force: true });
+  rmSync(fixtureContainer, { recursive: true, force: true });
 }
 
 console.log('Android Play internal handoff guard checks passed.');

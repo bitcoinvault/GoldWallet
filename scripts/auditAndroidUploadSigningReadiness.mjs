@@ -41,17 +41,25 @@ const sourceLines = uploadSigningFields.map(
 const productionReady = safe.ready && aliasVerification === 'passed';
 const requiredAction = productionReady
   ? 'Run the guarded production bundle command and complete Play Console upload validation.'
-  : safe.partial
-    ? `Complete the missing signing fields: ${safe.missingFields.join(', ')}.`
-    : safe.configured
-      ? 'Provide a readable upload keystore containing the configured alias.'
-      : 'Provide android/keystore.properties or all four GOLDWALLET_UPLOAD_* environment variables.';
+  : !safe.propertiesPathSafety.safe
+    ? safe.propertiesPathSafety.state === 'not-regular'
+      ? 'Remove the non-file upload-signing properties path or replace it with a regular file.'
+      : 'Move upload-signing properties outside the repository or to a path confirmed by git check-ignore.'
+    : safe.storeFileExists && !safe.storeFilePathSafety.safe
+      ? 'Move the upload keystore outside the repository or to a path confirmed by git check-ignore.'
+      : safe.partial
+        ? `Complete the missing signing fields: ${safe.missingFields.join(', ')}.`
+        : safe.configured
+          ? 'Provide a regular upload-keystore file containing the configured private-key alias.'
+          : 'Provide android/keystore.properties or all four GOLDWALLET_UPLOAD_* environment variables.';
 const summary = [
   'Android upload signing readiness',
   `Configuration state: ${safe.state}`,
   `Properties file present: ${safe.propertiesFileExists ? 'yes' : 'no'}`,
+  `Properties path status: ${safe.propertiesPathSafety.state}`,
   ...sourceLines,
   `Keystore file present: ${safe.storeFileExists ? 'yes' : 'no'}`,
+  `Keystore path status: ${safe.storeFilePathSafety.state}`,
   `Alias verification: ${aliasVerification}`,
   `Alias verification reason: ${aliasVerificationReason}`,
   `Production signing ready: ${productionReady ? 'yes' : 'no'}`,
