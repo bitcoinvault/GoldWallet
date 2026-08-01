@@ -13,6 +13,7 @@
     "@eslint/eslintrc": "3.3.6",
     "@eslint/js": "10.0.1",
     "@googleapis/androidpublisher": "36.0.0",
+    "@jridgewell/trace-mapping": "0.3.31",
     "@react-native-community/cli": "20.2.0",
     "@react-native-community/cli-platform-android": "20.2.0",
     "@react-native-community/cli-platform-ios": "20.2.0",

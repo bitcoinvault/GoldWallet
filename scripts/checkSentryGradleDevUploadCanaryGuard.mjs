@@ -24,12 +24,20 @@ try {
   writeFileSync(path.join(root, 'models', 'bitcoinUnits.js'), 'export const unitVersion = 1;\n');
   mkdirSync(path.join(root, 'logger'), { recursive: true });
   writeFileSync(path.join(root, 'logger', 'index.ts'), 'export const loggerVersion = 1;\n');
+  mkdirSync(path.join(root, 'android', 'app', 'src', 'main', 'assets'), { recursive: true });
+  writeFileSync(path.join(root, 'android', 'app', 'src', 'main', 'assets', 'modules.json'), '{"generated":1}\n');
   const config = getSentryGradleDevUploadCanaryConfig({
     root,
     metadata: { versionName: '6.5.1', versionCode: '14' },
   });
   assert(config.release.startsWith('goldwallet-android-gradle-canary@6.5.1+14-'));
   assert.notStrictEqual(config.summaryPath, config.dryRunSummaryPath);
+  writeFileSync(path.join(root, 'android', 'app', 'src', 'main', 'assets', 'modules.json'), '{"generated":2}\n');
+  const generatedModuleConfig = getSentryGradleDevUploadCanaryConfig({
+    root,
+    metadata: { versionName: '6.5.1', versionCode: '14' },
+  });
+  assert.strictEqual(generatedModuleConfig.identity, config.identity);
   writeFileSync(path.join(root, 'src', 'wallet.ts'), 'export const walletVersion = 2;\n');
   const changedSourceConfig = getSentryGradleDevUploadCanaryConfig({
     root,
