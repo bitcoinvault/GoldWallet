@@ -20,6 +20,11 @@ import {
   cleanSentryAndroidGeneratedOutputs,
   getSentryAndroidCandidateEvidenceConfig,
 } from './sentryAndroidCandidateEvidence.mjs';
+import {
+  acquireAndroidPlayRunLock,
+  assertAndroidPlayRunLockOwnership,
+  resolveAndroidPlaySharedPaths,
+} from './androidPlayCandidateArtifact.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const localProof = process.argv.includes('--local-proof');
@@ -90,7 +95,15 @@ const certificateSha256 = output =>
     ?.replaceAll(':', '')
     .toLowerCase();
 
+let standalonePlayLock;
 try {
+  const playSharedPaths = resolveAndroidPlaySharedPaths(root);
+  const playLockToken = process.env.GOLDWALLET_PLAY_LOCK_TOKEN || '';
+  if (playLockToken) {
+    assertAndroidPlayRunLockOwnership({ lockPath: playSharedPaths.runLockPath, token: playLockToken });
+  } else {
+    standalonePlayLock = acquireAndroidPlayRunLock({ lockPath: playSharedPaths.runLockPath });
+  }
   if (!safe.ready) {
     throw new Error(
       `Android upload signing is not ready (${safe.state}). Run corepack yarn android:upload-signing:audit for the required action.`,
@@ -299,5 +312,7 @@ try {
   console.log(`Signed bundle summary written to ${summaryPath}`);
 } catch (error) {
   console.error(error.message);
-  process.exit(1);
+  process.exitCode = 1;
+} finally {
+  if (standalonePlayLock) standalonePlayLock.release();
 }

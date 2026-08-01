@@ -24,6 +24,7 @@ assert.strictEqual(
 );
 
 for (const relativePath of [
+  'scripts/androidPlayCandidateArtifact.mjs',
   'scripts/androidPlayInternalHandoff.mjs',
   'scripts/runAndroidPlayInternalHandoff.mjs',
   'scripts/checkAndroidPlayInternalHandoffSummary.mjs',
@@ -31,6 +32,10 @@ for (const relativePath of [
   assert(existsSync(path.join(root, relativePath)), `${relativePath} must exist`);
 }
 
+assert.strictEqual(
+  packageJson.scripts['check:android-play-candidate-artifact-guard'],
+  'node scripts/checkAndroidPlayCandidateArtifactGuard.mjs',
+);
 assert.strictEqual(
   packageJson.scripts['android:play:internal:dry-run'],
   'node scripts/runAndroidPlayInternalHandoff.mjs',
@@ -46,6 +51,21 @@ assert.strictEqual(
 
 const runner = read('scripts/runAndroidPlayInternalHandoff.mjs');
 assert(runner.includes('runAndroidPlayEditWorkflow'));
+assert(runner.includes('acquireAndroidPlayRunLock'));
+assert(runner.includes('createAndroidPlayCandidateSnapshot'));
+assert(runner.includes('expectedAabSha256: candidateSnapshot.sha256'));
+assert(runner.includes('expectedAabBytes: candidateSnapshot.bytes'));
+assert(runner.includes('GOLDWALLET_PLAY_LOCK_TOKEN: runLock.token'));
+assert(runner.includes('${readiness.expectedConfirmationPrefix}:${candidateSnapshot.sha256}'));
+assert(
+  runner.indexOf('expectedCandidateConfirmation') < runner.indexOf('new auth.GoogleAuth'),
+  'Exact candidate digest confirmation must pass before Google authentication',
+);
+const signedBundleRunner = read('scripts/runAndroidSignedBundle.mjs');
+assert(signedBundleRunner.includes('assertAndroidPlayRunLockOwnership'));
+assert(signedBundleRunner.includes('acquireAndroidPlayRunLock'));
+assert(signedBundleRunner.includes('GOLDWALLET_PLAY_LOCK_TOKEN'));
+assert(signedBundleRunner.includes('if (standalonePlayLock) standalonePlayLock.release()'));
 assert(!runner.includes('private_key'), 'Runner must not print or parse service-account private key material');
 const playDryRunIndex = runner.indexOf('if (!options.execute)');
 const electrumReleaseGateIndex = runner.indexOf("['scripts/auditElectrumEndpointReadiness.mjs', '--require-ready']");
@@ -61,7 +81,7 @@ assert(
 
 const workflow = read('scripts/androidPlayInternalHandoff.mjs');
 assert(workflow.includes('GOLDWALLET_PLAY_SERVICE_ACCOUNT_JSON'));
-assert(workflow.includes('GOLDWALLET_PLAY_COMMIT_CONFIRMATION'));
+assert(runner.includes('GOLDWALLET_PLAY_COMMIT_CONFIRMATION'));
 for (const method of ['edits.insert', 'edits.bundles.upload', 'edits.tracks.update', 'edits.validate', 'edits.commit', 'edits.delete']) {
   assert(workflow.includes(method), `Play workflow must support ${method}`);
 }
@@ -288,6 +308,68 @@ try {
     { name: '6.5.3', versionCodes: ['15'], status: 'draft' },
   ]);
 
+  const verifiedDigestFake = createFakeClient();
+  const verifiedDigestResult = await runAndroidPlayEditWorkflow({
+    client: verifiedDigestFake.client,
+    aabPath: 'fixture.aab',
+    versionCode: 15,
+    versionName: '6.5.3',
+    status: 'draft',
+    commit: false,
+    streamFactory: () => 'fixture-stream',
+    expectedAabSha256: 'a'.repeat(64),
+    expectedAabBytes: 123,
+    fileHasher: () => 'a'.repeat(64),
+    candidateUploadFactory: () => ({
+      stream: 'fixture-stream',
+      evidence: Promise.resolve({ bytes: 123, sha256: 'a'.repeat(64) }),
+      destroy() {},
+    }),
+  });
+  assert.strictEqual(verifiedDigestResult.uploadedAabSha256, 'a'.repeat(64));
+  assert.strictEqual(verifiedDigestResult.uploadedAabBytes, 123);
+
+  const changedBeforeUploadFake = createFakeClient();
+  await assert.rejects(
+    runAndroidPlayEditWorkflow({
+      client: changedBeforeUploadFake.client,
+      aabPath: 'fixture.aab',
+      versionCode: 15,
+      versionName: '6.5.3',
+      status: 'draft',
+      commit: false,
+      streamFactory: () => 'fixture-stream',
+      expectedAabSha256: 'a'.repeat(64),
+      expectedAabBytes: 123,
+      fileHasher: () => 'b'.repeat(64),
+    }),
+    /digest changed before upload/,
+  );
+  assert.deepStrictEqual(changedBeforeUploadFake.calls, []);
+
+  const changedDuringUploadFake = createFakeClient();
+  await assert.rejects(
+    runAndroidPlayEditWorkflow({
+      client: changedDuringUploadFake.client,
+      aabPath: 'fixture.aab',
+      versionCode: 15,
+      versionName: '6.5.3',
+      status: 'draft',
+      commit: false,
+      streamFactory: () => 'fixture-stream',
+      expectedAabSha256: 'a'.repeat(64),
+      expectedAabBytes: 123,
+      fileHasher: () => 'a'.repeat(64),
+      candidateUploadFactory: () => ({
+        stream: 'fixture-stream',
+        evidence: Promise.resolve({ bytes: 123, sha256: 'b'.repeat(64) }),
+        destroy() {},
+      }),
+    }),
+    /upload stream does not match/,
+  );
+  assert.deepStrictEqual(changedDuringUploadFake.calls.map(([name]) => name), ['insert', 'upload', 'delete']);
+
   const mixedReleases = [
     { name: 'served', versionCodes: ['12'], status: 'completed', inAppUpdatePriority: 2 },
     { name: 'paused', versionCodes: ['13'], status: 'halted', userFraction: 0.5 },
@@ -309,19 +391,19 @@ try {
   ]);
 
   const commitOptions = parseAndroidPlayHandoffArgs(['--execute', '--commit']);
-  const expectedConfirmation = 'io.goldwallet.wallet:15:internal:completed';
+  const expectedConfirmationPrefix = 'io.goldwallet.wallet:15:internal:completed';
   const commitReadiness = resolveAndroidPlayInternalHandoff({
     root: fixtureRoot,
     env: {
       ...baseEnvironment,
       GOLDWALLET_PLAY_RELEASE_STATUS: 'completed',
-      GOLDWALLET_PLAY_COMMIT_CONFIRMATION: expectedConfirmation,
+      GOLDWALLET_PLAY_COMMIT_CONFIRMATION: `${expectedConfirmationPrefix}:${'a'.repeat(64)}`,
     },
     options: commitOptions,
     ignoredPathCheck: () => true,
   });
   assert.strictEqual(commitReadiness.ready, true);
-  assert.strictEqual(commitReadiness.expectedConfirmation, expectedConfirmation);
+  assert.strictEqual(commitReadiness.expectedConfirmationPrefix, expectedConfirmationPrefix);
   const commitFake = createFakeClient();
   const commitResult = await runAndroidPlayEditWorkflow({
     client: commitFake.client,
@@ -435,6 +517,13 @@ try {
     'Execution ready: yes',
     'Electrum release gate required: yes',
     'Electrum release gate result: passed',
+    'Handoff lock acquired: yes',
+    'Candidate snapshot ready: yes',
+    'Candidate snapshot bytes: 123',
+    `Candidate snapshot SHA-256: ${'a'.repeat(64)}`,
+    'Candidate manifest ready: yes',
+    'Uploaded AAB bytes: 123',
+    `Uploaded AAB SHA-256: ${'a'.repeat(64)}`,
     'API edit validated: yes',
     'Previous active version codes retained: 13,14',
     'Track version codes submitted: 13,14,15',
@@ -444,6 +533,19 @@ try {
     '',
   ].join('\n');
   assert.deepStrictEqual(getAndroidPlayInternalHandoffSummaryErrors(safeSummary, validateReadiness), []);
+  const committedSummary = safeSummary
+    .replace('Mode: execute-validate', 'Mode: execute-commit')
+    .replace('Release status: draft', 'Release status: completed')
+    .replace('Commit confirmation matches: no', 'Commit confirmation matches: yes')
+    .replace('Uncommitted edit cleanup: succeeded', 'Uncommitted edit cleanup: not-applicable')
+    .replace('API edit validated: yes', 'API edit validated: yes\nAPI edit committed: yes');
+  assert.deepStrictEqual(getAndroidPlayInternalHandoffSummaryErrors(committedSummary, commitReadiness), []);
+  assert(
+    getAndroidPlayInternalHandoffSummaryErrors(
+      committedSummary.replace('Commit confirmation matches: yes', 'Commit confirmation matches: no'),
+      commitReadiness,
+    ).some(error => error.includes('exact immutable candidate digest')),
+  );
   for (const mutatedSummary of [
     safeSummary.replace('Previous active version codes retained: 13,14', 'Previous active version codes retained: 14,13'),
     safeSummary.replace('Previous active version codes retained: 13,14', 'Previous active version codes retained: 13,13,14'),

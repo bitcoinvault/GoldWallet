@@ -13,12 +13,16 @@ import {
   resolveAndroidPlayInternalHandoff,
   runAndroidPlayEditWorkflow,
 } from './androidPlayInternalHandoff.mjs';
+import {
+  acquireAndroidPlayRunLock,
+  createAndroidPlayCandidateSnapshot,
+} from './androidPlayCandidateArtifact.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const summaryPath = path.join(root, 'local-docs', 'android-play-internal-handoff-summary.txt');
-const run = (label, command, args) => {
+const run = (label, command, args, env = process.env) => {
   console.log(`\n> ${label}`);
-  const result = spawnSync(command, args, { cwd: root, env: process.env, encoding: 'utf8', stdio: 'inherit' });
+  const result = spawnSync(command, args, { cwd: root, env, encoding: 'utf8', stdio: 'inherit' });
   if (result.error || result.status !== 0) {
     throw new Error(`${label} failed: ${result.error?.message || `exit ${result.status}`}`);
   }
@@ -31,20 +35,27 @@ const renderSummary = (readiness, result = {}, error = '') =>
     `Package: ${PLAY_PACKAGE_NAME}`,
     `Track: ${PLAY_TRACK}`,
     `Release status: ${readiness.status}`,
-    `Candidate version code: ${readiness.release.release.versionCode}`,
-    `Candidate version name: ${readiness.release.release.versionName}`,
+    `Candidate version code: ${candidateSnapshot?.versionCode ?? readiness.release.release.versionCode}`,
+    `Candidate version name: ${candidateSnapshot?.versionName ?? readiness.release.release.versionName}`,
     `Release version ready: ${readiness.release.ready ? 'yes' : 'no'}`,
     `Upload signing ready: ${readiness.signing.safe.ready ? 'yes' : 'no'}`,
     `Service account file present: ${readiness.serviceAccountPresent ? 'yes' : 'no'}`,
     `Service account location safe: ${readiness.serviceAccountLocationSafe ? 'yes' : 'no'}`,
     `Service account structure valid: ${readiness.serviceAccountValidation.valid ? 'yes' : 'no'}`,
     `Service account validation status: ${readiness.serviceAccountValidation.status}`,
-    `Commit confirmation matches: ${readiness.confirmationMatches ? 'yes' : 'no'}`,
+    `Commit confirmation matches: ${candidateConfirmationMatches ? 'yes' : 'no'}`,
     `Execution ready: ${readiness.ready ? 'yes' : 'no'}`,
     'Electrum release gate required: yes',
     `Electrum release gate result: ${electrumReleaseGateResult}`,
     `Signed AAB present: ${existsSync(readiness.signedAabPath) ? 'yes' : 'no'}`,
     `Signed AAB bytes: ${existsSync(readiness.signedAabPath) ? statSync(readiness.signedAabPath).size : 0}`,
+    `Handoff lock acquired: ${runLock ? 'yes' : 'not-claimed'}`,
+    `Candidate snapshot ready: ${candidateSnapshot ? 'yes' : 'not-claimed'}`,
+    `Candidate snapshot bytes: ${candidateSnapshot?.bytes || 0}`,
+    `Candidate snapshot SHA-256: ${candidateSnapshot?.sha256 || 'not-claimed'}`,
+    `Candidate manifest ready: ${candidateSnapshot ? 'yes' : 'not-claimed'}`,
+    `Uploaded AAB bytes: ${result.uploadedAabBytes || 0}`,
+    `Uploaded AAB SHA-256: ${result.uploadedAabSha256 || 'not-claimed'}`,
     `API edit validated: ${result.editValidated ? 'yes' : 'not-claimed'}`,
     `API edit committed: ${result.editCommitted ? 'yes' : 'not-claimed'}`,
     `Previous active version codes retained: ${result.retainedVersionCodes ? result.retainedVersionCodes.join(',') || 'none' : 'not-claimed'}`,
@@ -63,6 +74,9 @@ const renderSummary = (readiness, result = {}, error = '') =>
 
 let readiness;
 let electrumReleaseGateResult = 'not-claimed';
+let runLock;
+let candidateSnapshot;
+let candidateConfirmationMatches = false;
 try {
   const options = parseAndroidPlayHandoffArgs(process.argv.slice(2));
   readiness = resolveAndroidPlayInternalHandoff({ root, options });
@@ -75,11 +89,17 @@ try {
     process.exit(0);
   }
   if (!readiness.ready) throw new Error(`Android Play internal handoff is not ready: ${readiness.blockers.join(' ')}`);
+  runLock = acquireAndroidPlayRunLock({ lockPath: readiness.runLockPath });
 
   electrumReleaseGateResult = 'failed';
   run('validate Electrum release gate', process.execPath, ['scripts/auditElectrumEndpointReadiness.mjs', '--require-ready']);
   electrumReleaseGateResult = 'passed';
-  run('build verified production signed AAB', process.execPath, ['scripts/runAndroidSignedBundle.mjs']);
+  run(
+    'build verified production signed AAB',
+    process.execPath,
+    ['scripts/runAndroidSignedBundle.mjs'],
+    { ...process.env, GOLDWALLET_PLAY_LOCK_TOKEN: runLock.token },
+  );
   run('validate candidate-bound signed AAB runtime evidence', process.execPath, [
     'scripts/checkAndroidProductionSignedBundleSummary.mjs',
   ]);
@@ -90,6 +110,34 @@ try {
   for (const evidence of ['AAB JAR signature: verified', 'AAB version metadata match: passed', 'Production release version ready: yes']) {
     if (!signedSummary.includes(evidence)) throw new Error(`Signed AAB summary is missing: ${evidence}`);
   }
+  const signedVersionCode = Number(signedSummary.match(/^Version code: (\d+)$/m)?.[1]);
+  const signedVersionName = signedSummary.match(/^Version name: (.+)$/m)?.[1] || '';
+  const signedCertificateSha256 = signedSummary.match(/^Certificate SHA-256: ([a-f0-9]{64})$/m)?.[1] || '';
+  if (
+    signedVersionCode !== readiness.release.release.versionCode ||
+    signedVersionName !== readiness.release.release.versionName ||
+    !signedCertificateSha256
+  ) {
+    throw new Error('Signed AAB metadata changed after Play release readiness was resolved');
+  }
+  candidateSnapshot = createAndroidPlayCandidateSnapshot({
+    sourcePath: readiness.signedAabPath,
+    snapshotDirectory: readiness.candidateSnapshotDirectory,
+    packageName: PLAY_PACKAGE_NAME,
+    track: PLAY_TRACK,
+    versionCode: signedVersionCode,
+    versionName: signedVersionName,
+    certificateSha256: signedCertificateSha256,
+  });
+  if (!signedSummary.includes(`AAB SHA-256: ${candidateSnapshot.sha256}`)) {
+    throw new Error('Immutable candidate snapshot digest does not match signed AAB evidence');
+  }
+  const expectedCandidateConfirmation = `${readiness.expectedConfirmationPrefix}:${candidateSnapshot.sha256}`;
+  candidateConfirmationMatches =
+    options.commit && process.env.GOLDWALLET_PLAY_COMMIT_CONFIRMATION === expectedCandidateConfirmation;
+  if (options.commit && !candidateConfirmationMatches) {
+    throw new Error(`Set GOLDWALLET_PLAY_COMMIT_CONFIRMATION to ${expectedCandidateConfirmation}`);
+  }
 
   const googleAuth = new auth.GoogleAuth({
     keyFilename: readiness.serviceAccountPath,
@@ -99,11 +147,13 @@ try {
   const client = androidpublisher({ version: 'v3', auth: authClient });
   const result = await runAndroidPlayEditWorkflow({
     client,
-    aabPath: readiness.signedAabPath,
-    versionCode: readiness.release.release.versionCode,
-    versionName: readiness.release.release.versionName,
+    aabPath: candidateSnapshot.snapshotPath,
+    versionCode: candidateSnapshot.versionCode,
+    versionName: candidateSnapshot.versionName,
     status: readiness.status,
     commit: options.commit,
+    expectedAabSha256: candidateSnapshot.sha256,
+    expectedAabBytes: candidateSnapshot.bytes,
   });
   const summary = renderSummary(readiness, result);
   writeFileSync(summaryPath, summary);
@@ -114,5 +164,7 @@ try {
     writeFileSync(summaryPath, renderSummary(readiness, {}, error));
   }
   console.error(error.message);
-  process.exit(1);
+  process.exitCode = 1;
+} finally {
+  if (runLock) runLock.release();
 }

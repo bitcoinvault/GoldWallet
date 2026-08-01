@@ -287,6 +287,7 @@ for (const requiredScript of [
   'check:android-upload-signing-guard',
   'android:upload-signing:audit',
   'android:upload-signing:check-summary',
+  'check:android-play-candidate-artifact-guard',
   'check:android-play-internal-handoff-guard',
   'android:play:internal:dry-run',
   'android:play:internal:check-summary',
