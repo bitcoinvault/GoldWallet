@@ -30,6 +30,11 @@ const expectedSourcemapRelativePaths = Object.fromEntries(
 );
 const releaseInputFingerprint = getAndroidReleaseInputFingerprint(root);
 const releaseInputFingerprintFileCount = getAndroidReleaseInputFingerprintFileCount(root);
+const releaseVersionFingerprintInputs = [
+  'android/release-version.properties',
+  'android/release-version.gradle',
+  'android/release-version-contract.json',
+];
 const fixtureBundleContent = variant => `bundle-${variant}`;
 const fixtureSourcemapContent = JSON.stringify({
   version: 3,
@@ -67,6 +72,12 @@ variants.forEach(variant => {
 const lineEndingFixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-release-fingerprint-'));
 
 try {
+  releaseVersionFingerprintInputs.forEach(relativePath => {
+    assert(
+      androidReleaseFingerprintInputs.includes(relativePath),
+      `Android release input fingerprint must include ${relativePath}`,
+    );
+  });
   androidReleaseFingerprintInputs.forEach(relativePath => {
     const fixturePath = path.join(lineEndingFixtureRoot, relativePath);
 
@@ -84,6 +95,16 @@ try {
     getAndroidReleaseInputFingerprint(lineEndingFixtureRoot) === lfFingerprint,
     'Android release input fingerprint must be stable across LF and CRLF working-tree line endings',
   );
+
+  releaseVersionFingerprintInputs.forEach(relativePath => {
+    const fixturePath = path.join(lineEndingFixtureRoot, relativePath);
+    writeFileSync(fixturePath, 'changed-release-version-input\n');
+    assert(
+      getAndroidReleaseInputFingerprint(lineEndingFixtureRoot) !== lfFingerprint,
+      `Android release input fingerprint must change when ${relativePath} changes`,
+    );
+    writeFileSync(fixturePath, 'release-input\r\nline-two\r\n');
+  });
 } finally {
   rmSync(lineEndingFixtureRoot, { recursive: true, force: true });
 }

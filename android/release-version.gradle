@@ -1,4 +1,15 @@
 import java.util.Properties
+import groovy.json.JsonSlurper
+
+def releaseVersionContractFile = rootProject.file('release-version-contract.json')
+if (!releaseVersionContractFile.isFile()) {
+    throw new GradleException("Missing Android release version contract: ${releaseVersionContractFile}")
+}
+def releaseVersionContract = new JsonSlurper().parse(releaseVersionContractFile)
+def maxVersionCode = releaseVersionContract.maxVersionCode as long
+def maxCoreVersionNumber = new BigInteger(releaseVersionContract.maxCoreVersionNumber.toString())
+def maxVersionNameLength = releaseVersionContract.maxVersionNameLength as int
+def versionNamePattern = releaseVersionContract.versionNamePattern as String
 
 def releaseVersionFile = rootProject.file('release-version.properties')
 if (!releaseVersionFile.isFile()) {
@@ -14,11 +25,24 @@ def versionNameValue = releaseVersionProperties.getProperty('versionName')?.trim
 if (!versionCodeValue?.matches('[1-9][0-9]*')) {
     throw new GradleException('android/release-version.properties versionCode must be a positive integer')
 }
-if (!versionNameValue?.matches('[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?')) {
+def parsedVersionCode
+try {
+    parsedVersionCode = Long.parseLong(versionCodeValue)
+} catch (NumberFormatException ignored) {
+    throw new GradleException("android/release-version.properties versionCode must not exceed ${maxVersionCode}")
+}
+if (parsedVersionCode > maxVersionCode) {
+    throw new GradleException("android/release-version.properties versionCode must not exceed ${maxVersionCode}")
+}
+if (!versionNameValue || versionNameValue.length() > maxVersionNameLength || !versionNameValue.matches(versionNamePattern)) {
+    throw new GradleException('android/release-version.properties versionName must be a valid semantic version')
+}
+def coreVersionNumbers = versionNameValue.split('[-+]', 2)[0].split('\\.')
+if (coreVersionNumbers.any { new BigInteger(it) > maxCoreVersionNumber }) {
     throw new GradleException('android/release-version.properties versionName must be a valid semantic version')
 }
 
 ext.goldwalletReleaseVersion = [
-    versionCode: Integer.parseInt(versionCodeValue),
+    versionCode: parsedVersionCode as int,
     versionName: versionNameValue,
 ]

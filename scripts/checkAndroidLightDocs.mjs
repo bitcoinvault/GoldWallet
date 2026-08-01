@@ -281,6 +281,7 @@ for (const requiredScript of [
   'check:android-signed-bundle-summary-guard',
   'check:sentry-android-candidate-evidence-guard',
   'check:android-release-versioning-guard',
+  'check:android-release-version-gradle-contract',
   'android:release-version:audit',
   'android:release-version:check-summary',
   'check:android-upload-signing-guard',

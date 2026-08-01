@@ -1,10 +1,12 @@
-import { mkdirSync, rmSync, writeFileSync } from 'fs';
+import { copyFileSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { getAndroidReleaseApkManifestErrors, getAndroidReleaseExpectedVariantsFromEnv } from './checkAndroidReleaseApkManifest.mjs';
 
 const fixtureRoot = path.join(os.tmpdir(), `goldwallet-release-manifest-${process.pid}`);
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const variant = 'dev';
 const apkRelativePath = path.join('local-docs', 'fixture-dev-release.apk');
 const apkPath = path.join(fixtureRoot, apkRelativePath);
@@ -39,6 +41,10 @@ const checkFixture = overrides =>
 try {
   mkdirSync(path.dirname(apkPath), { recursive: true });
   mkdirSync(path.join(fixtureRoot, 'android'), { recursive: true });
+  copyFileSync(
+    path.join(root, 'android', 'release-version-contract.json'),
+    path.join(fixtureRoot, 'android', 'release-version-contract.json'),
+  );
 
   writeFileSync(
     path.join(fixtureRoot, 'local-docs', 'android-release-dev-summary.txt'),

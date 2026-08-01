@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { generateKeyPairSync } from 'crypto';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -153,6 +153,10 @@ const createFakeClient = ({
 
 try {
   mkdirSync(androidRoot, { recursive: true });
+  copyFileSync(
+    path.join(root, 'android', 'release-version-contract.json'),
+    path.join(androidRoot, 'release-version-contract.json'),
+  );
   writeFileSync(path.join(androidRoot, 'release-version.properties'), 'versionCode=15\nversionName=6.5.3\n');
   writeFileSync(
     path.join(androidRoot, 'play-release-baseline.json'),
