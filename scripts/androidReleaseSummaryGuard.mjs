@@ -274,6 +274,7 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
     const gradleAttempts = getLineValue(summary, `Variant ${variant} Gradle attempts`);
     const gradleAttemptExitCodes = getLineValue(summary, `Variant ${variant} Gradle attempt exit codes`);
     const gradleRetryReason = getLineValue(summary, `Variant ${variant} Gradle retry reason`);
+    const variantExitCode = getLineValue(summary, `Variant ${variant} exit code`);
     const apkPath = apkRelativePath ? path.join(root, apkRelativePath) : '';
     const bundlePath = bundleRelativePath ? path.join(root, bundleRelativePath) : '';
     const sourcemapPath = sourcemapRelativePath ? path.join(root, sourcemapRelativePath) : '';
@@ -381,8 +382,39 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
       errors.push(`Variant ${variant} Gradle attempt exit code count must match Gradle attempts`);
     }
 
+    if (
+      isPositiveInteger(gradleAttempts) &&
+      isPositiveInteger(gradleRetryMaxAttempts) &&
+      Number(gradleAttempts) > Number(gradleRetryMaxAttempts)
+    ) {
+      errors.push(`Variant ${variant} Gradle attempts must not exceed Gradle retry max attempts`);
+    }
+
+    if (attemptExitCodes.length > 0 && attemptExitCodes.at(-1) !== variantExitCode) {
+      errors.push(`Variant ${variant} final attempt exit code must match the variant exit code`);
+    }
+
+    if (attemptExitCodes.slice(0, -1).some(code => code === '0')) {
+      errors.push(`Variant ${variant} earlier Gradle attempts must be nonzero when a retry is recorded`);
+    }
+
     if (isPositiveInteger(gradleAttempts) && Number(gradleAttempts) > 1 && gradleRetryReason === 'none') {
       errors.push(`Variant ${variant} Gradle retry reason must describe retry when attempts exceed 1`);
+    }
+
+    if (isPositiveInteger(gradleAttempts) && Number(gradleAttempts) > 1) {
+      const retryAttempt = Number(gradleAttempts) - 1;
+      const retriedExitCode = attemptExitCodes[retryAttempt - 1];
+      const codegenReason = `attempt ${retryAttempt} encountered missing generated React Native JNI/CMake input; retrying next attempt`;
+      const transientReason = `attempt ${retryAttempt} exited with known transient Windows native-build code ${retriedExitCode}; retrying next attempt`;
+      const configuredTransientExitCodes = gradleRetryExitCodes === 'none' ? [] : gradleRetryExitCodes.split(', ');
+      const recognizedReason =
+        gradleRetryReason === codegenReason ||
+        (gradleRetryReason === transientReason && configuredTransientExitCodes.includes(retriedExitCode));
+
+      if (!recognizedReason) {
+        errors.push(`Variant ${variant} Gradle retry reason must match a recognized failed attempt`);
+      }
     }
 
     if (isPositiveInteger(gradleAttempts) && Number(gradleAttempts) === 1 && gradleRetryReason !== 'none') {

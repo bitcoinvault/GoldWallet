@@ -280,6 +280,16 @@ assertAccepted(
     ),
 );
 assertAccepted(
+  'Valid Android dev release summary fixture after a bounded generated-codegen retry',
+  validSummary
+    .replace('Variant dev Gradle attempts: 1', 'Variant dev Gradle attempts: 2')
+    .replace('Variant dev Gradle attempt exit codes: 0', 'Variant dev Gradle attempt exit codes: 1, 0')
+    .replace(
+      'Variant dev Gradle retry reason: none',
+      'Variant dev Gradle retry reason: attempt 1 encountered missing generated React Native JNI/CMake input; retrying next attempt',
+    ),
+);
+assertAccepted(
   'Valid Android beta-only release summary fixture',
   [
     'Android release validation',
@@ -327,6 +337,47 @@ assertAccepted(
     expectedBundleRelativePaths: { beta: fixtureBundleRelativePath('beta') },
     expectedSourcemapRelativePaths: { beta: fixtureSourcemapRelativePath('beta') },
   },
+);
+assertRejected(
+  'Retry attempts above configured maximum fixture',
+  validSummary
+    .replace('Variant dev Gradle attempts: 1', 'Variant dev Gradle attempts: 3')
+    .replace('Variant dev Gradle attempt exit codes: 0', 'Variant dev Gradle attempt exit codes: 1, 1, 0')
+    .replace(
+      'Variant dev Gradle retry reason: none',
+      'Variant dev Gradle retry reason: attempt 2 encountered missing generated React Native JNI/CMake input; retrying next attempt',
+    ),
+  'Gradle attempts must not exceed Gradle retry max attempts',
+);
+assertRejected(
+  'Retry history ending in a failed code fixture',
+  validSummary
+    .replace('Variant dev Gradle attempts: 1', 'Variant dev Gradle attempts: 2')
+    .replace('Variant dev Gradle attempt exit codes: 0', 'Variant dev Gradle attempt exit codes: 1, 1')
+    .replace(
+      'Variant dev Gradle retry reason: none',
+      'Variant dev Gradle retry reason: attempt 1 encountered missing generated React Native JNI/CMake input; retrying next attempt',
+    ),
+  'final attempt exit code must match the variant exit code',
+);
+assertRejected(
+  'Retry history with an earlier successful code fixture',
+  validSummary
+    .replace('Variant dev Gradle attempts: 1', 'Variant dev Gradle attempts: 2')
+    .replace('Variant dev Gradle attempt exit codes: 0', 'Variant dev Gradle attempt exit codes: 0, 0')
+    .replace(
+      'Variant dev Gradle retry reason: none',
+      'Variant dev Gradle retry reason: attempt 1 encountered missing generated React Native JNI/CMake input; retrying next attempt',
+    ),
+  'earlier Gradle attempts must be nonzero',
+);
+assertRejected(
+  'Retry history with an arbitrary reason fixture',
+  validSummary
+    .replace('Variant dev Gradle attempts: 1', 'Variant dev Gradle attempts: 2')
+    .replace('Variant dev Gradle attempt exit codes: 0', 'Variant dev Gradle attempt exit codes: 1, 0')
+    .replace('Variant dev Gradle retry reason: none', 'Variant dev Gradle retry reason: retrying without evidence'),
+  'Gradle retry reason must match a recognized failed attempt',
 );
 assertRejected(
   'Bad header fixture',

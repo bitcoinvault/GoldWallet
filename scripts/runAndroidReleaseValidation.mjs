@@ -4,6 +4,7 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { getAndroidReleaseInputFingerprint, getAndroidReleaseInputFingerprintFileCount } from './androidReleaseSummaryGuard.mjs';
+import { getAndroidReleaseGradleRetryReason } from './androidReleaseGradleRetry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -100,12 +101,6 @@ const env = {
   SENTRY_DISABLE_AUTO_UPLOAD: 'true',
 };
 
-const shouldRetryGradleResult = (result, attempt) => {
-  const status = String(result.status ?? 1);
-
-  return attempt < maxGradleAttempts && !result.error && transientGradleRetryExitCodes.includes(status);
-};
-
 const runGradleTaskWithBoundedRetry = task => {
   const attempts = [];
   let retryReason = 'none';
@@ -115,8 +110,11 @@ const runGradleTaskWithBoundedRetry = task => {
     result = spawnSync(process.execPath, [path.join(root, 'scripts', 'runAndroidGradle.mjs'), task, '--stacktrace'], {
       cwd: root,
       env,
-      stdio: 'inherit',
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
     });
+    process.stdout.write(result.stdout || '');
+    process.stderr.write(result.stderr || '');
 
     attempts.push({
       status: result.status ?? 1,
@@ -127,8 +125,14 @@ const runGradleTaskWithBoundedRetry = task => {
       break;
     }
 
-    if (shouldRetryGradleResult(result, attempt)) {
-      retryReason = `attempt ${attempt} exited with known transient Windows native-build code ${result.status}; retrying next attempt`;
+    const currentRetryReason = getAndroidReleaseGradleRetryReason({
+      result,
+      attempt,
+      maxAttempts: maxGradleAttempts,
+      transientExitCodes: transientGradleRetryExitCodes,
+    });
+    if (currentRetryReason) {
+      retryReason = currentRetryReason;
       console.warn(`Android release Gradle task ${task} ${retryReason}.`);
       continue;
     }
