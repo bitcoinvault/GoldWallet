@@ -1,8 +1,9 @@
 import assert from 'assert';
 import { createHash } from 'crypto';
-import { mkdirSync, rmSync, writeFileSync } from 'fs';
+import { copyFileSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import {
   BUNDLETOOL_SHA256,
@@ -15,6 +16,7 @@ import {
 } from './androidAppBundleValidation.mjs';
 
 const fixtureRoot = path.join(os.tmpdir(), `goldwallet-app-bundle-${process.pid}`);
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 assert.deepStrictEqual(supportedAndroidAppBundleVariants, ['dev', 'stage', 'prod', 'beta']);
 assert.strictEqual(BUNDLETOOL_VERSION, '1.18.3');
@@ -28,6 +30,10 @@ assert.throws(() => parseAndroidAppBundleVariant(['--variant=']), /Missing value
 assert.throws(() => parseAndroidAppBundleVariant(['--variant', '--skip-build']), /Missing value for --variant/);
 
 mkdirSync(path.join(fixtureRoot, 'android', 'app'), { recursive: true });
+copyFileSync(
+  path.join(root, 'android', 'release-version-contract.json'),
+  path.join(fixtureRoot, 'android', 'release-version-contract.json'),
+);
 writeFileSync(
   path.join(fixtureRoot, 'android', 'build.gradle'),
   "ext {\n  buildToolsVersion = '36.0.0'\n  minSdkVersion = 26\n  targetSdkVersion = 36\n}\n",

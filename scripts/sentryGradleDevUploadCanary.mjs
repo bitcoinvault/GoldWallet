@@ -26,6 +26,8 @@ const FIXED_INPUT_PATHS = [
   'android/settings.gradle',
   'android/gradle.properties',
   'android/release-version.properties',
+  'android/release-version.gradle',
+  'android/release-version-contract.json',
 ];
 const INPUT_DIRECTORIES = [
   'class',

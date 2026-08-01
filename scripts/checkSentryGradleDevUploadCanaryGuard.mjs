@@ -13,7 +13,15 @@ import {
 const root = path.join(os.tmpdir(), `goldwallet-sentry-gradle-canary-${process.pid}`);
 try {
   mkdirSync(path.join(root, 'android', 'app'), { recursive: true });
-  for (const relativePath of ['android/app/build.gradle', 'metro.config.js', 'package.json', 'yarn.lock']) {
+  for (const relativePath of [
+    'android/app/build.gradle',
+    'android/release-version.properties',
+    'android/release-version.gradle',
+    'android/release-version-contract.json',
+    'metro.config.js',
+    'package.json',
+    'yarn.lock',
+  ]) {
     const target = path.join(root, relativePath);
     mkdirSync(path.dirname(target), { recursive: true });
     writeFileSync(target, relativePath);
@@ -57,6 +65,24 @@ try {
     metadata: { versionName: '6.5.1', versionCode: '14' },
   });
   assert.notStrictEqual(changedLoggerConfig.identity, changedModelConfig.identity);
+  writeFileSync(path.join(root, 'android', 'release-version.gradle'), 'changed release version loader\n');
+  const changedReleaseVersionLoaderConfig = getSentryGradleDevUploadCanaryConfig({
+    root,
+    metadata: { versionName: '6.5.1', versionCode: '14' },
+  });
+  assert.notStrictEqual(changedReleaseVersionLoaderConfig.identity, changedLoggerConfig.identity);
+  writeFileSync(path.join(root, 'android', 'release-version-contract.json'), '{"changed":true}\n');
+  const changedReleaseVersionContractConfig = getSentryGradleDevUploadCanaryConfig({
+    root,
+    metadata: { versionName: '6.5.1', versionCode: '14' },
+  });
+  assert.notStrictEqual(changedReleaseVersionContractConfig.identity, changedReleaseVersionLoaderConfig.identity);
+  writeFileSync(path.join(root, 'android', 'release-version.properties'), 'versionCode=15\nversionName=6.5.2\n');
+  const changedReleaseVersionPropertiesConfig = getSentryGradleDevUploadCanaryConfig({
+    root,
+    metadata: { versionName: '6.5.1', versionCode: '14' },
+  });
+  assert.notStrictEqual(changedReleaseVersionPropertiesConfig.identity, changedReleaseVersionContractConfig.identity);
 
   const debugId = 'e8c40da4-a7b7-40ea-9647-0f8dff19ab2d';
   const output = `

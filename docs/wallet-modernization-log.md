@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.950 - Android release-version contract
+
+- Branch: `feature/bem-37-950-release-version-contract`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace independent Node and Gradle release-version rules with one tracked JSON contract.
+- Enforce Google Play's documented maximum `versionCode` of `2100000000` for both the candidate and authoritative Play Console input.
+- Accept the same complete SemVer grammar and core-number bounds in both environments, including combined prerelease and build metadata, while rejecting leading-zero or unsafe core components.
+
+Findings:
+
+- Node previously accepted full SemVer while Gradle rejected a valid value such as `6.5.3-rc.1+build.1`; Node also accepted version codes above the Play upload limit before Gradle's later integer conversion failed.
+- The shared contract is consumed directly by Node and Gradle. Bounded integer parsing now fails before release readiness or artifact generation.
+- A dedicated JDK 17 Gradle fixture applies the real repository script and proves stable/full-SemVer success plus over-limit and leading-zero rejection.
+- The standard lightweight release gate runs that real Gradle fixture, and Android release/Sentry fingerprints now include the version properties, Gradle loader, and shared contract so contract changes invalidate stale evidence.
+- Independent review found and closed unsafe SemVer core-number and 256-character length drift, incomplete release fingerprints, and missing standard-gate coverage for the Gradle fixture.
+- `rn:baseline:preflight` still stops at the pre-existing secure-storage release-validation fixture because its synthetic smoke summary lacks runtime page-size fields; the same focused guard fails on the unchanged integration branch, so that repair remains a separate milestone.
+- The current `6.5.1 (14)` candidate remains intentionally blocked by the newer public `6.5.2` listing and missing authoritative Play Console code. This tooling-only milestone does not change app runtime and does not require emulator smoke.
+
+Validation:
+
+- `corepack yarn check:android-release-versioning-guard`
+- `corepack yarn check:android-release-version-gradle-contract`
+- `corepack yarn android:release-version:audit`
+- `corepack yarn android:release-version:check-summary`
+- `corepack yarn android:release-readiness:check-light`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn rn:baseline:preflight` (reaches the inherited secure-storage fixture blocker described above)
+- `git diff --check`
+
 ### BEM-37.949 - Google Play internal-track preservation
 
 - Branch: `feature/bem-37-949-play-track-preservation`

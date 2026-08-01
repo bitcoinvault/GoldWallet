@@ -11,6 +11,8 @@ const summary = [
   `Package: ${readiness.baseline.packageName}`,
   `Candidate version code: ${readiness.release.versionCode}`,
   `Candidate version name: ${readiness.release.versionName}`,
+  `Google Play version code limit: ${readiness.release.contract.maxVersionCode}`,
+  'Candidate version code within Google Play limit: yes',
   `Public Play version name: ${readiness.baseline.publicVersionName}`,
   `Public Play baseline observed: ${readiness.baseline.observedAt}`,
   `Public Play baseline source: ${readiness.baseline.source}`,
