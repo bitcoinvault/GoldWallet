@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.943 - Android release evidence refresh after Sentry Metro integration
+
+- Branch: `feature/bem-37-943-android-release-evidence-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Rebuild the `dev`, `stage`, `prod`, and `beta` Android release variants after the BEM-37.942 Metro/Sentry serializer change invalidated the previous release-input fingerprint.
+- Refresh controlled runtime evidence on an Android API 36 emulator with a 16 KB runtime page size while keeping Sentry automatic upload disabled.
+- Re-run manifest, secure-storage, retired App Center, Electrum blocker, production dashboard, create-wallet, and Sentry prerequisite checks against the newly generated artifacts.
+
+Findings:
+
+- All four JDK 17 release builds pass with release-input fingerprint `67ec7cb7a2f9844e1603f88069e1d90f9920d7342e177bb99dc5022412c240f8`. Unsigned APK SHA-256 values are `ae3ba31f567793c55099591992feea6bce2c8cf252ff790a517d5e9178738f63` (dev), `413b8f513d3bf641b3bc449084d18f066fb002f46e4c5f603e6abad88ca0072c` (stage), `1927d4ba51891f8afabb4548d78c3e7da0869a29c726f4909c2e8355d4894ef3` (prod), and `3324f286e527c77783c54e7d2cec1fa04e16596965c88ad5957367ae700accf6` (beta).
+- Every variant contains the expected manifest configuration and `react-native-keychain`, excludes the retired legacy secure-storage and App Center artifacts, and produces a JS bundle plus source map with Sentry automatic upload disabled.
+- The exact refreshed dev APK passes the controlled no-network smoke on `emulator-5556` with a 16 KB runtime page size and no fatal/runtime logcat findings.
+- The full dev/testnet smoke remains blocked outside the app by `electrumx.testnet.btcv.stage.rnd.land:443`: Android records `SSLHandshakeException` and a certificate expiry of `Tue Jun 23 16:52:40 GMT 2026`. The blocker audit classifies this as `blocked-by-electrum-certificate-expired` rather than an application regression.
+- The refreshed prod APK passes dashboard runtime validation on the same 16 KB emulator. Standard-wallet creation reaches the mnemonic backup, persists across process restart, rejects an incorrect PIN, accepts the configured PIN, and the default 3-key vault path reaches the public-key integration screen without secret leakage or fatal/runtime findings.
+- The Sentry prerequisite summary is internally valid with current Android build, smoke, create-wallet, and blocker evidence. Production Sentry upload and iOS archive/source-map/dSYM delivery remain unclaimed; iOS still requires macOS/Xcode/CocoaPods and a Podfile.lock refresh.
+- No tracked runtime or build change was required: this milestone renews release evidence after the intentional BEM-37.942 input change and preserves the external Electrum blocker separately from code readiness.
+
+Validation:
+
+- JDK 17 `corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- Android release APK manifest, secure-storage, and retired App Center checks for `dev`, `stage`, `prod`, and `beta`
+- `corepack yarn android:dev:release:smoke:no-network:embedded` on `emulator-5556` with 16 KB runtime page size
+- Full dev release smoke plus Android release network-blocker audit and summary validation
+- `corepack yarn android:prod:release:create-wallet-smoke:embedded` plus prod smoke and create-wallet summary validation
+- Sentry release prerequisite audit and summary validation
+- Production Sentry upload, event symbolication, and iOS runtime/archive remain unclaimed
+
 ### BEM-37.942 - Sentry Gradle devRelease upload proof
 
 - Branch: `feature/bem-37-942-sentry-gradle-dev-upload-proof`
