@@ -57,6 +57,7 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
   const latestBabelCore = getLineValue(summary, 'Latest @babel/core');
   const latestBabelCli = getLineValue(summary, 'Latest @babel/cli');
   const latestBabelRuntime = getLineValue(summary, 'Latest @babel/runtime');
+  const latestBabelTraverse = getLineValue(summary, 'Latest stable Babel 8 @babel/traverse');
   const latestFlowStripTypes = getLineValue(summary, 'Latest @babel/plugin-transform-flow-strip-types');
   const latestPolyfillRegenerator = getLineValue(summary, 'Latest babel-plugin-polyfill-regenerator');
   const babel8NodeEngine = getLineValue(summary, 'Babel 8 node engine');
@@ -115,6 +116,7 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
     ['Latest @babel/core', latestBabelCore],
     ['Latest @babel/cli', latestBabelCli],
     ['Latest @babel/runtime', latestBabelRuntime],
+    ['Latest stable Babel 8 @babel/traverse', latestBabelTraverse],
     ['Latest @babel/plugin-transform-flow-strip-types', latestFlowStripTypes],
     ['Latest babel-plugin-polyfill-regenerator', latestPolyfillRegenerator],
   ].forEach(([label, actual]) => {
@@ -129,6 +131,12 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
 
   if (!latestFlowStripTypes.startsWith('8.')) {
     errors.push(`Latest @babel/plugin-transform-flow-strip-types must remain a Babel 8 target. Received: ${latestFlowStripTypes || 'missing'}`);
+  }
+
+  if (!latestBabelTraverse.startsWith('8.')) {
+    errors.push(
+      `Latest stable Babel 8 @babel/traverse must remain a Babel 8 target. Received: ${latestBabelTraverse || 'missing'}`,
+    );
   }
 
   if (!babel8NodeEngine.includes('^22.18.0') || !babel8NodeEngine.includes('>=24.11.0')) {
@@ -188,6 +196,14 @@ export const getBabel8MigrationProbeSummaryErrors = summary => {
 
     if (entry.matches !== 'yes') {
       errors.push(`${entry.name} isolated installed version must match the live latest target`);
+    }
+
+    if (entry.name.startsWith('@babel/') && !entry.expected.startsWith('8.')) {
+      errors.push(`${entry.name} isolated expected version must remain a Babel 8 target. Received: ${entry.expected}`);
+    }
+
+    if (entry.name.startsWith('@babel/') && !entry.installed.startsWith('8.')) {
+      errors.push(`${entry.name} isolated installed version must remain Babel 8. Received: ${entry.installed}`);
     }
   });
 

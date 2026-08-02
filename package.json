@@ -631,7 +631,7 @@
   },
   "resolutions": {
     "@babel/core": "7.29.7",
-    "@babel/traverse": "7.29.7",
+    "@babel/traverse": "7.29.8",
     "@types/react": "19.2.17",
     "bl": "6.1.6",
     "braces": "3.0.3",

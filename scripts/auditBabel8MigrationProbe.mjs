@@ -4,6 +4,7 @@ import { createRequire } from 'module';
 import { tmpdir } from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import semver from 'semver';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -45,6 +46,22 @@ const npmViewPackage = packageSpec => {
   }
 
   return metadata;
+};
+
+const npmViewLatestStableMajor = (packageName, major) => {
+  const versions = npmViewJson([packageName, 'versions']);
+  const latestStableVersion = semver.maxSatisfying(
+    (Array.isArray(versions) ? versions : [versions]).filter(
+      version => semver.valid(version) && !semver.prerelease(version),
+    ),
+    `${major}.x`,
+  );
+
+  if (!latestStableVersion) {
+    throw new Error(`No stable ${major}.x version found for ${packageName}`);
+  }
+
+  return npmViewPackage(`${packageName}@${latestStableVersion}`);
 };
 
 const readInstalledPackage = (tempDir, packageName) =>
@@ -150,7 +167,9 @@ export const collectBabel8MigrationProbe = () => {
     presetReact: npmViewPackage('@babel/preset-react@latest'),
     presetTypescript: npmViewPackage('@babel/preset-typescript@latest'),
     flowStripTypes: npmViewPackage('@babel/plugin-transform-flow-strip-types@latest'),
-    traverse: npmViewPackage('@babel/traverse@latest'),
+    // The npm latest tag can move back to Babel 7 even while stable Babel 8
+    // releases exist, so select the highest stable 8.x version explicitly.
+    traverse: npmViewLatestStableMajor('@babel/traverse', 8),
     polyfillRegenerator: npmViewPackage('babel-plugin-polyfill-regenerator@latest'),
   };
   const transformProbe = installAndRunTransformProbe({
@@ -202,7 +221,7 @@ export const formatBabel8MigrationProbeSummary = (audit, generatedAt = new Date(
     `Latest @babel/preset-typescript: ${audit.latest.presetTypescript.version || '<missing>'}`,
     `Latest @babel/plugin-transform-flow-strip-types: ${audit.latest.flowStripTypes.version || '<missing>'}`,
     `Latest @babel/runtime: ${audit.latest.runtime.version || '<missing>'}`,
-    `Latest @babel/traverse: ${audit.latest.traverse.version || '<missing>'}`,
+    `Latest stable Babel 8 @babel/traverse: ${audit.latest.traverse.version || '<missing>'}`,
     `Latest babel-plugin-polyfill-regenerator: ${audit.latest.polyfillRegenerator.version || '<missing>'}`,
     `Babel 8 node engine: ${audit.babel8NodeEngine}`,
     `Node engine satisfied: ${audit.nodeEngineSatisfied}`,

@@ -7,6 +7,8 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+const babel = require('@babel/core');
+const babelTraverse = require('@babel/traverse/package.json');
 const rnBabelPreset = require('@react-native/babel-preset/package.json');
 const probeDocPath = path.join(root, 'docs', 'babel-8-migration-probe.md');
 const errors = [];
@@ -32,7 +34,43 @@ const requirePackageVersion = (sectionName, packageName, expectedVersion) => {
 ].forEach(packageName => requirePackageVersion('devDependencies', packageName, '7.29.7'));
 
 requirePackageVersion('resolutions', '@babel/core', '7.29.7');
-requirePackageVersion('resolutions', '@babel/traverse', '7.29.7');
+requirePackageVersion('resolutions', '@babel/traverse', '7.29.8');
+
+if (babelTraverse.version !== '7.29.8') {
+  errors.push(`installed @babel/traverse must match the 7.29.8 resolution. Found ${babelTraverse.version || '<missing>'}`);
+}
+
+try {
+  const transformOptions = filename => ({
+    filename,
+    presets: [require.resolve('@react-native/babel-preset')],
+    babelrc: false,
+    configFile: false,
+  });
+  const tsxTransform = babel.transformSync(
+    "import React from 'react'; import { Text } from 'react-native'; interface Props { label: string } export const Probe = ({ label }: Props) => <Text>{label}</Text>;",
+    transformOptions('GoldWalletBabel7TsxProbe.tsx'),
+  );
+  const flowTransform = babel.transformSync(
+    "// @flow\nopaque type WalletId = string; type Props = { +label: string }; const walletId: WalletId = 'wallet'; export { walletId };",
+    transformOptions('GoldWalletBabel7FlowProbe.js'),
+  );
+
+  if (!tsxTransform?.code?.includes('react/jsx-runtime') || tsxTransform.code.includes('interface Props')) {
+    errors.push('current Babel 7 / React Native preset transform did not compile the representative TSX probe');
+  }
+
+  if (
+    !flowTransform?.code?.includes("'wallet'") ||
+    flowTransform.code.includes('opaque type') ||
+    flowTransform.code.includes('type Props') ||
+    flowTransform.code.includes('+label')
+  ) {
+    errors.push('current Babel 7 / React Native preset transform did not strip the representative Flow probe');
+  }
+} catch (error) {
+  errors.push(`current Babel 7 / React Native preset transform failed: ${error instanceof Error ? error.message : String(error)}`);
+}
 
 if (packageJson.devDependencies?.['@react-native/babel-preset'] !== '0.86.2') {
   errors.push(
@@ -62,7 +100,7 @@ if (!existsSync(probeDocPath)) {
     '@babel/plugin-transform-runtime@8.0.1',
     '@babel/plugin-transform-flow-strip-types@8.0.1',
     '@babel/traverse@8.0.4',
-    'full latest Babel 8 cohort',
+    'full stable Babel 8 cohort',
     'Node `^22.18.0 || >=24.11.0`',
     'not a Node-runtime blocker',
     '@react-native/babel-preset',
