@@ -14,6 +14,7 @@ const e2eUtils = read('tests/e2e/helpers/utils.ts');
 const e2eActions = read('tests/e2e/actions.ts');
 const e2eOnboardingPage = read('tests/e2e/pageObjects/pages/Onboarding.ts');
 const androidDetoxTestRunner = read('scripts/runDetoxAndroidTest.mjs');
+const iosDetoxBuildRunner = read('scripts/runDetoxIosBuild.mjs');
 const expectedDetoxVersion = packageJson.devDependencies.detox;
 const expectedStartDetoxScript = 'node scripts/runDetoxMetro.mjs';
 const expectedAndroidDetoxTestScript = 'node scripts/runDetoxAndroidTest.mjs android.emu.dev.debug';
@@ -25,6 +26,10 @@ const expectedDetoxJestEntries = {
   testEnvironment: 'detox/runners/jest/testEnvironment',
 };
 const errors = [];
+
+if (iosDetoxBuildRunner.includes('-UseNewBuildSystem=NO')) {
+  errors.push('scripts/runDetoxIosBuild.mjs must not request the removed legacy Xcode build system');
+}
 const expectedIosApps = new Map([
   ['ios.dev.debug', { build: 'node scripts/runDetoxIosBuild.mjs dev debug', binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/GoldWallet Dev.app' }],
   ['ios.dev.release', { build: 'node scripts/runDetoxIosBuild.mjs dev release', binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/GoldWallet Dev.app' }],

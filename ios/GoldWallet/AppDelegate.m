@@ -4,12 +4,47 @@
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
-#import <React/RCTBridge.h>
+#import <RCTDefaultReactNativeFactoryDelegate.h>
+#import <RCTReactNativeFactory.h>
+#import <RCTAppDependencyProvider.h>
 #import <Firebase.h>
 #import "RNBootSplash.h"
 #import "ReactNativeConfig.h"
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
+
+@interface ReactNativeDelegate : RCTDefaultReactNativeFactoryDelegate
+@end
+
+@interface AppDelegate ()
+@property (nonatomic, strong) ReactNativeDelegate *reactNativeDelegate;
+@property (nonatomic, strong) RCTReactNativeFactory *reactNativeFactory;
+@end
+
+@implementation ReactNativeDelegate
+
+- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
+{
+  return [self bundleURL];
+}
+
+- (NSURL *)bundleURL
+{
+#if DEBUG
+  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
+#else
+  return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+#endif
+}
+
+- (void)customizeRootView:(RCTRootView *)rootView
+{
+  [super customizeRootView:rootView];
+  rootView.backgroundColor = [UIColor systemBackgroundColor];
+  [RNBootSplash initWithStoryboard:@"Launch Screen" rootView:rootView];
+}
+
+@end
 
 @implementation AppDelegate
 
@@ -21,24 +56,16 @@
   
   [FIRMessaging messaging].autoInitEnabled = YES;
 
-  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
-  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
-                                                      moduleName:[ReactNativeConfig envFor:@"APPLICATION_NAME"]
-                                               initialProperties:nil];
-  if (@available(iOS 13.0, *)) {
-      rootView.backgroundColor = [UIColor systemBackgroundColor];
-  } else {
-      rootView.backgroundColor = [UIColor whiteColor];
-  }
-
+  self.reactNativeDelegate = [ReactNativeDelegate new];
+  self.reactNativeDelegate.dependencyProvider = [RCTAppDependencyProvider new];
+  self.reactNativeFactory = [[RCTReactNativeFactory alloc] initWithDelegate:self.reactNativeDelegate];
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  UIViewController *rootViewController = [UIViewController new];
-  rootViewController.view = rootView;
-  self.window.rootViewController = rootViewController;
-  [self.window makeKeyAndVisible];
+  [self.reactNativeFactory startReactNativeWithModuleName:[ReactNativeConfig envFor:@"APPLICATION_NAME"]
+                                                 inWindow:self.window
+                                            launchOptions:launchOptions];
+
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-  [RNBootSplash initWithStoryboard:@"Launch Screen" rootView:rootView];
   
   return YES;
 }
@@ -94,15 +121,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
          withCompletionHandler:(void (^)(void))completionHandler
 {
   [RNCPushNotificationIOS didReceiveNotificationResponse:response];
-}
-
-- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
-{
-  #if DEBUG
-    return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
-  #else
-    return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
-  #endif
 }
 
 @end

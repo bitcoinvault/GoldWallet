@@ -10,6 +10,7 @@ import {
 } from './iosSchemeConfigGuard.mjs';
 import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
 import { collectIosPodfileLockDrift } from './iosPodfileLockDrift.mjs';
+import { getIosRnTemplateBaselineErrors } from './iosRnTemplateBaselineGuard.mjs';
 
 const require = createRequire(import.meta.url);
 const plist = require('plist');
@@ -79,7 +80,8 @@ export const collectIosReleaseReadiness = () => {
 
   const podfile = read('ios/Podfile');
   const podfilePlatformMatch = podfile.match(/platform :ios, '([^']+)'/);
-  const podfilePlatform = podfilePlatformMatch ? podfilePlatformMatch[1] : null;
+  const usesRnMinimumIos = podfile.includes('platform :ios, min_ios_version_supported');
+  const podfilePlatform = podfilePlatformMatch ? podfilePlatformMatch[1] : usesRnMinimumIos ? rnMinIosVersion : null;
 
   if (!podfilePlatform) {
     errors.push('ios/Podfile is missing platform :ios');
@@ -94,14 +96,28 @@ export const collectIosReleaseReadiness = () => {
   const { podfileLockDriftIssues, removedPodfileLockDriftIssues } = collectIosPodfileLockDrift({ packageJson, podfileLock });
 
   const pbxproj = read('ios/GoldWallet.xcodeproj/project.pbxproj');
+  errors.push(
+    ...getIosRnTemplateBaselineErrors({
+      packageJson,
+      podfile,
+      pbxproj,
+      appDelegate: read('ios/GoldWallet/AppDelegate.m'),
+      xcodeEnv: read('ios/.xcode.env'),
+      macValidationHandoff: read('scripts/runIosMacValidationHandoff.mjs'),
+      detoxIosBuild: read('scripts/runDetoxIosBuild.mjs'),
+      gemfile: read('Gemfile'),
+    }),
+  );
   const sentryReleaseIntegrationErrors = getSentryReleaseIntegrationErrors({
     androidBuildGradle: read('android/app/build.gradle'),
     iosProject: pbxproj,
     metroConfig: read('metro.config.js'),
   });
   errors.push(...sentryReleaseIntegrationErrors);
-  const sentryBundlePhaseCount = (pbxproj.match(/@sentry\/cli\/bin\/sentry-cli react-native xcode/g) || []).length;
-  const sentryDsymPhaseCount = (pbxproj.match(/@sentry\/cli\/bin\/sentry-cli upload-dsym/g) || []).length;
+  const sentryBundlePhaseCount = (pbxproj.match(/@sentry\/react-native\/scripts\/sentry-xcode\.sh/g) || []).length;
+  const sentryDsymPhaseCount = (
+    pbxproj.match(/@sentry\/react-native\/scripts\/sentry-xcode-debug-files\.sh/g) || []
+  ).length;
 
   const deploymentTargets = [...pbxproj.matchAll(/IPHONEOS_DEPLOYMENT_TARGET = ([0-9.]+);/g)].map(match => match[1]);
   if (deploymentTargets.length === 0) {

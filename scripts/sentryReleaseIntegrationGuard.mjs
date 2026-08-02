@@ -11,9 +11,9 @@ export const expectedSentryMetroSnippets = [
 ];
 
 export const expectedSentryIosSnippets = [
-  '../node_modules/@sentry/cli/bin/sentry-cli react-native xcode',
-  '../node_modules/@sentry/cli/bin/sentry-cli upload-dsym',
-  '--sourcemap-output $DERIVED_FILE_DIR/main.jsbundle.map',
+  '$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh',
+  '../node_modules/@sentry/react-native/scripts/sentry-xcode.sh',
+  '../node_modules/@sentry/react-native/scripts/sentry-xcode-debug-files.sh',
   'Upload Debug Symbols to Sentry',
 ];
 
@@ -42,17 +42,16 @@ export const getSentryReleaseIntegrationErrors = ({ androidBuildGradle, iosProje
     }
   });
 
-  const iosBundlePhaseCount = (
-    iosProject.match(/@sentry\/cli\/bin\/sentry-cli react-native xcode/g) || []
+  const iosBundlePhaseCount = (iosProject.match(/@sentry\/react-native\/scripts\/sentry-xcode\.sh/g) || []).length;
+  const iosDsymPhaseCount = (
+    iosProject.match(/@sentry\/react-native\/scripts\/sentry-xcode-debug-files\.sh/g) || []
   ).length;
-  const iosDsymPhaseCount = (iosProject.match(/@sentry\/cli\/bin\/sentry-cli upload-dsym/g) || [])
-    .length;
 
-  if (iosBundlePhaseCount < 3) {
+  if (iosBundlePhaseCount !== 4) {
     errors.push(`iOS Sentry bundle/source-map phases changed unexpectedly (${iosBundlePhaseCount})`);
   }
 
-  if (iosDsymPhaseCount < 3) {
+  if (iosDsymPhaseCount !== 3) {
     errors.push(`iOS Sentry dSYM upload phases changed unexpectedly (${iosDsymPhaseCount})`);
   }
 

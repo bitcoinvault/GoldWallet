@@ -63,6 +63,7 @@ release-notes.json
 release-notes.txt
 
 ios/Pods/
+ios/.xcode.env.local
 .history
 .vscode
 /.env

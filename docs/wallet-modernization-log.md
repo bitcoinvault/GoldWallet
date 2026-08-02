@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.957 - React Native 0.86 iOS template baseline
+
+- Branch: `feature/bem-37-957-ios-rn086-template-baseline`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align the four-target iOS Podfile, native startup, Xcode build phases, and Ruby toolchain with the official React Native `0.86.2` and Xcode 16 contracts without generating CocoaPods artifacts on Windows.
+- Move project-owned Xcode language and compatibility settings from the legacy RN 0.65-era baseline to the RN 0.86 template baseline.
+- Add a fail-closed Windows-safe guard and mutation checks before the existing all-scheme macOS and Detox handoffs.
+
+Findings:
+
+- npm still reports React Native `0.86.2` as stable `latest`; `0.87.0-rc.3` remains a prerelease planning target and is not introduced into production dependencies.
+- The old Podfile loaded the legacy CLI native-modules helper directly, manually declared an autolinked `react-native-config` pod, omitted `prepare_react_native_project!` and the RN application root, and used the legacy one-argument post-install call.
+- The updated Podfile resolves the RN CocoaPods helper through Node, autolinks inside each concrete `GoldWallet`, Beta, Stage, and Dev target so RN Firebase script phases are retained, and calls the current post-install contract once.
+- The old AppDelegate created an `RCTBridge` directly. It now uses `RCTReactNativeFactory` plus the generated dependency provider while preserving Firebase, dynamic environment-specific module naming, BootSplash, push notifications, badge cleanup, and deep linking.
+- The Xcode project now uses object version `54`, compatibility `Xcode 12.0`, Swift `5.0`, and C++20. Its four bundle phases use `.xcode.env`, the RN environment wrapper, and the current Sentry wrapper; its three existing dSYM phases use the current Sentry debug-files wrapper.
+- The macOS and Detox build runners no longer request `-UseNewBuildSystem=NO`, which was removed by modern Xcode. The root `Gemfile` pins CocoaPods `1.16.2` and xcodeproj `1.27.0` as required for Xcode 16 compatibility, and the handoff installs the pinned Ruby bundle before auditing CocoaPods.
+- Windows-safe static verification passes. Runtime/archive readiness remains unclaimed because this host has no Ruby/CocoaPods or Xcode, and `ios/Podfile.lock` still has 12 active native dependency drifts that must be regenerated on macOS rather than edited manually.
+
+Validation:
+
+- Live `npm view react-native version dist-tags engines peerDependencies --json`
+- Official `@react-native-community/template@0.86.2` Podfile and Xcode project comparison
+- Current React Native Xcode 16 integration guidance and installed Sentry Xcode wrapper comparison
+- `corepack yarn check:ios-rn-template-baseline`
+- `node --check scripts/iosRnTemplateBaselineGuard.mjs`
+- `node --check scripts/checkIosRnTemplateBaseline.mjs`
+- `corepack yarn check:ios-static-validation-script-guard`
+- `corepack yarn check:ios-mac-validation-handoff-guard`
+- `corepack yarn check:detox-readiness`
+- `node scripts/checkSentryReleaseIntegrationGuard.mjs`
+- `corepack yarn check:ios-release-config-doc-guard`
+- `corepack yarn ios:static:verify`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- Production iOS `react-native bundle` with source map
+- JDK 17 `corepack yarn android:dev:assemble`
+- Android emulator smoke for the unchanged shared JavaScript runtime
+- `git diff --check`
+
 ### BEM-37.956 - Babel 7 traverse patch
 
 - Branch: `feature/bem-37-956-babel7-traverse-patch`

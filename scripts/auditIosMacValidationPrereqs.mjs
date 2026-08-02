@@ -35,7 +35,8 @@ export const collectIosMacValidationPrereqs = () => {
   });
   const xcodebuildVersion = runVersionCommand('xcodebuild', ['-version']);
   const podVersion = runVersionCommand('pod', ['--version']);
-  const bundlePodVersion = existsSync(path.join(root, 'ios', 'Gemfile'))
+  const bundlePodVersion =
+    existsSync(path.join(root, 'Gemfile')) || existsSync(path.join(root, 'ios', 'Gemfile'))
     ? runVersionCommand('bundle', ['exec', 'pod', '--version'])
     : null;
   const blockers = [];

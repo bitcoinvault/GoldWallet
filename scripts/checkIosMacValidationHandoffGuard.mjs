@@ -84,6 +84,8 @@ const commands = getIosMacValidationCommands({
 });
 const rendered = commands.map(renderIosMacValidationCommand).join('\n');
 
+assert(!rendered.includes('-UseNewBuildSystem=NO'), 'iOS handoff must not request the removed legacy Xcode build system');
+
 [
   'corepack yarn ios:mac-validation-prereq:audit',
   'corepack yarn ios:mac-validation-prereq:check-summary',
@@ -102,6 +104,13 @@ const rendered = commands.map(renderIosMacValidationCommand).join('\n');
 ].forEach(expected => {
   assert(rendered.includes(expected), `Expected handoff commands to include: ${expected}`);
 });
+
+assert(rendered.includes('cwd=. bundle install'), 'Bundler handoff must install the pinned Ruby toolchain before auditing CocoaPods');
+assert(
+  commands.findIndex(step => step.command === 'bundle' && step.args[0] === 'install') <
+    commands.findIndex(step => step.args.includes('ios:mac-validation-prereq:audit')),
+  'Bundler setup must run before the macOS prerequisite audit',
+);
 
 const releaseReadinessRuns = commands.filter(step => step.args.join(' ').includes('ios:release:readiness:audit')).length;
 assert(releaseReadinessRuns === 2, `Expected release readiness audit before and after xcodebuild, got ${releaseReadinessRuns}`);
@@ -126,10 +135,7 @@ assert(
   allSchemeCommands.filter(step => step.args.join(' ').includes('pod install')).length === 1,
   'All-schemes handoff must run pod install once before all scheme builds',
 );
-assert(
-  allSchemeCommands[0].args.join(' ').includes('ios:mac-validation-prereq:audit'),
-  'All-schemes handoff must start with macOS prerequisite audit',
-);
+assert(allSchemeCommands[0].command === 'bundle', 'All-schemes handoff must start by installing the pinned Ruby toolchain');
 assert(
   allSchemeCommands[allSchemeCommands.length - 1].args.join(' ').includes('ios:release:readiness:check-summary'),
   'All-schemes handoff must end with iOS release readiness summary validation',
