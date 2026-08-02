@@ -26,6 +26,8 @@ Findings:
 - The updated declarations still omit `lodash/fp` `map.convert`; removing the existing targeted suppression produces `TS2339`, so it is retained as `@ts-expect-error` and will fail once upstream declarations make it unnecessary.
 - Runtime React and `react-test-renderer` remain at the RN renderer-compatible `19.2.3` baseline. Their live `19.2.8` patches and `@types/react@19.2.18` are not mixed into this Lodash-only milestone.
 - The refreshed direct-outdated snapshot returns to zero review-required entries after the package update.
+- Post-merge Android release validation rebuilt `dev`, `stage`, `prod`, and `beta` with Sentry auto-upload disabled. Production release smoke then passed onboarding, empty-wallet actions, CameraKit QR, all tabs, Terms WebView, and fatal/runtime logcat checks on `emulator-5554` without Metro.
+- Production create-wallet smoke passed mnemonic secure-window protection, process restart, incorrect/correct PIN handling, wallet persistence, and the default 3-key vault public-key step. The final authenticated Sentry production preflight reports Android runtime proof ready, no upload, no secret output, and only the existing Windows iOS/macOS blocker.
 
 Validation:
 
@@ -39,6 +41,10 @@ Validation:
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn lint:baseline:audit`
 - `corepack yarn check:modernization-log-ids`
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:prod:release:smoke:verify` on `emulator-5554`
+- `corepack yarn android:prod:release:create-wallet-smoke:embedded` and its summary check on `emulator-5554`
+- `node scripts/runSentryProductionPreflight.mjs` (authenticated, no upload)
 - `git diff --check`
 
 ### BEM-37.954 - Sentry production release-evidence integrity
