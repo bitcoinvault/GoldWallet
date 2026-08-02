@@ -605,6 +605,7 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`Android release APK manifest valid: ${audit.androidReleaseApkManifestErrors.length === 0 ? 'yes' : 'no'}`);
   lines.push(`Android release APK manifest errors: ${audit.androidReleaseApkManifestErrors.length}`);
   audit.androidReleaseApkManifestErrors.forEach(error => lines.push(`- ${error}`));
+  lines.push(`Android release evidence ready: ${audit.androidReleaseEvidenceReady ? 'yes' : 'no'}`);
   lines.push(`Android release evidence variant: ${audit.androidReleaseEvidenceVariant}`);
   lines.push(`Android release smoke summary present: ${audit.hasAndroidReleaseSmokeSummary ? 'yes' : 'no'}`);
   lines.push(`Android release smoke summary valid: ${audit.androidReleaseSmokeSummaryErrors.length === 0 ? 'yes' : 'no'}`);

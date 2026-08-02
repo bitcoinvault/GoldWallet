@@ -5,6 +5,7 @@ const validBlockedSummary = [
   'Generated at: 2026-06-11T00:00:00.000Z',
   'Android release evidence variant: dev',
   'Android release evidence refresh skipped: yes',
+  'Android release build evidence ready: yes',
   'Android warning summary valid: yes',
   'RN bundle task compatibility summary valid: yes',
   'Release prerequisite summary valid: yes',
@@ -143,6 +144,25 @@ assertRejected(
   'Blocked without blocker fixture',
   validBlockedSummary.replace('Handoff blocker type: missing-sentry-credentials', 'Handoff blocker type: none'),
   'Blocked Sentry release handoff',
+);
+assertRejected(
+  'Stale Android release build evidence without action fixture',
+  validBlockedSummary.replace('Android release build evidence ready: yes', 'Android release build evidence ready: no'),
+  'refresh stale Android release build evidence',
+);
+assertRejected(
+  'Runtime-ready stale Android release evidence fixture',
+  validBlockedSummary
+    .replace('Android release build evidence ready: yes', 'Android release build evidence ready: no')
+    .replace(
+      'Controlled release blocker outcome: blocked-by-electrum-certificate-expired',
+      'Controlled release blocker outcome: not-applicable',
+    )
+    .replace(
+      'Sentry release runtime proof state: blocked-by-electrum-certificate-expired',
+      'Sentry release runtime proof state: ready',
+    ),
+  'Runtime-ready Sentry handoff requires current Android release build evidence',
 );
 assertRejected(
   'Bad readiness count fixture',

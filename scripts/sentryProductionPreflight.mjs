@@ -66,6 +66,7 @@ export const getSentryProductionPreflightSummaryErrors = summary => {
   const errors = [];
   const expected = {
     'Android release evidence variant': 'prod',
+    'Android release build evidence ready': 'yes',
     'Sentry packages current': 'yes',
     'SENTRY_AUTH_TOKEN available': 'yes',
     'Sentry properties files ready': 'yes',
@@ -78,6 +79,7 @@ export const getSentryProductionPreflightSummaryErrors = summary => {
   }
   const outcome = getSummaryValue(summary, 'Handoff outcome');
   const blocker = getSummaryValue(summary, 'Handoff blocker type');
+  const readinessErrors = getSummaryValue(summary, 'Readiness errors');
   if (outcome === 'ready-for-credentialed-upload-test' && blocker !== 'none') {
     errors.push('Ready production preflight must not retain a blocker');
   }
@@ -86,6 +88,12 @@ export const getSentryProductionPreflightSummaryErrors = summary => {
     !(outcome === 'blocked' && blocker === 'ios-validation-not-ready')
   ) {
     errors.push('Production preflight may only be ready or blocked by iOS validation');
+  }
+  if (outcome === 'blocked' && blocker === 'ios-validation-not-ready' && readinessErrors !== '1') {
+    errors.push('iOS-blocked production preflight must contain exactly one readiness error');
+  }
+  if (outcome === 'ready-for-credentialed-upload-test' && readinessErrors !== '0') {
+    errors.push('Ready production preflight must contain 0 readiness errors');
   }
   return errors;
 };
