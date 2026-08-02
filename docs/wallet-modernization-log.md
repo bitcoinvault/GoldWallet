@@ -25,7 +25,8 @@ Findings:
 - Its peer requirements remain `react-native-nitro-modules` and `react-native-nitro-image`, so CameraKit remains the selected compatible scanner and VisionCamera remains a separate native-stack migration.
 - The Camera/QR handoff guard contained inherited Android dev/release smoke fixtures from before the runtime page-size schema; both now carry the canonical non-required 4 KB observation.
 - The candidate summary guard now fails closed on stale live metadata, a non-stable baseline, nonzero reported errors, and error-count mismatches instead of accepting a self-consistent stale artifact.
-- This snapshot-only change does not modify app dependencies or runtime and does not require emulator smoke.
+- The integration-checkout preflight passed the Camera/QR block and later stopped on the stale failed standard Android smoke artifact. A fresh `devDebug` build succeeded, while the standard smoke reached the controlled `No network` screen because dev/testnet Electrum connectivity remains unavailable.
+- The dedicated no-network emulator smoke passed the complete first-run flow and found no fatal/runtime logcat findings. This snapshot-only change does not modify app dependencies or runtime.
 
 Validation:
 
@@ -35,7 +36,10 @@ Validation:
 - `corepack yarn camera:candidate:check-summary`
 - `corepack yarn check:camera-qr-validation-handoff-guard`
 - `corepack yarn camera:qr-validation:handoff:dry-run`
-- `corepack yarn rn:baseline:preflight` (Camera/QR block passed in the worktree; final integration-checkout rerun follows the local merge because Android smoke evidence contains checkout-bound absolute paths)
+- `corepack yarn rn:baseline:preflight` (Camera/QR block passed; later blocked by the standard Android smoke evidence while dev/testnet Electrum remained unavailable)
+- `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded` (reached the controlled `No network` screen; standard connected smoke not claimed)
+- `corepack yarn android:dev:smoke:no-network:embedded`
 - `corepack yarn check:rn-nodeify-shims`
 - `corepack yarn typescript:check`
 - `corepack yarn lint:baseline:audit`
