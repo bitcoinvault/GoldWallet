@@ -3,7 +3,7 @@ import { groupBy, orderBy, map, compose } from 'lodash/fp';
 import { Transaction } from 'app/consts';
 import { formatDate } from 'app/helpers/date';
 
-// @ts-ignore - type definition is missing in the latest @types/lodash.
+// @ts-expect-error - lodash/fp map.convert is still missing from @types/lodash 4.17.25.
 const mapNoCap = map.convert({ cap: false });
 
 type FP = (...args: any[]) => any;
