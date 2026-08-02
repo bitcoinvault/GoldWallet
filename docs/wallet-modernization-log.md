@@ -10,6 +10,37 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.955 - Lodash type definitions patch
+
+- Branch: `feature/bem-37-955-type-definitions-patch-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the direct `@types/lodash` development dependency from `4.17.24` to the live npm latest `4.17.25` without changing Lodash runtime behavior.
+- Add direct unit coverage for transaction ordering and date grouping through the wallet's `lodash/fp` pipeline.
+
+Findings:
+
+- The online foundation target refresh detected `@types/lodash@4.17.25` as the only new review-required direct outdated entry and failed closed before the package was classified or changed.
+- The updated declarations still omit `lodash/fp` `map.convert`; removing the existing targeted suppression produces `TS2339`, so it is retained as `@ts-expect-error` and will fail once upstream declarations make it unnecessary.
+- Runtime React and `react-test-renderer` remain at the RN renderer-compatible `19.2.3` baseline. Their live `19.2.8` patches and `@types/react@19.2.18` are not mixed into this Lodash-only milestone.
+- The refreshed direct-outdated snapshot returns to zero review-required entries after the package update.
+
+Validation:
+
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `node node_modules/jest/bin/jest.js tests/unit/transactions.test.ts --runInBand --forceExit`
+- The focused transaction grouping test with `TZ=Pacific/Kiritimati` and `TZ=Etc/GMT+12`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.954 - Sentry production release-evidence integrity
 
 - Branch: `feature/bem-37-954-sentry-release-evidence-integrity`
