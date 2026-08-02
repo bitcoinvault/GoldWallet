@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/ios-macos-validation.yml'
       - 'Gemfile'
+      - 'Gemfile.lock'
       - 'ios/**'
       - 'package.json'
       - 'scripts/**ios**'
@@ -16,6 +17,7 @@ on:
     paths:
       - '.github/workflows/ios-macos-validation.yml'
       - 'Gemfile'
+      - 'Gemfile.lock'
       - 'ios/**'
       - 'package.json'
       - 'scripts/**ios**'
@@ -43,6 +45,7 @@ jobs:
     timeout-minutes: 90
     env:
       DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+      BUNDLE_FROZEN: 'true'
       BUNDLE_PATH: vendor/bundle
       SENTRY_DISABLE_AUTO_UPLOAD: 'true'
       BUILD_ALL_SCHEMES: ${{ github.event_name == 'workflow_dispatch' && inputs.all_schemes }}
@@ -72,14 +75,49 @@ jobs:
       - name: Run project-owned iOS validation handoff
         shell: bash
         run: |
+          mkdir -p local-docs
           args=(--scheme 'GoldWallet Dev (Debug)' --configuration Debug)
           if [[ "$BUILD_ALL_SCHEMES" == 'true' ]]; then
             args=(--all-schemes)
           fi
-          corepack yarn ios:mac-validation:handoff "${args[@]}"
+          set +e
+          corepack yarn ios:mac-validation:handoff "${args[@]}" 2>&1 | tee local-docs/ios-macos-ci-handoff.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [[ "$status" -eq 0 ]]; then
+            outcome=success
+            runtime_validation=passed
+          else
+            outcome=failure
+            runtime_validation=failed
+          fi
+          cat > local-docs/ios-macos-ci-execution-summary.txt <<EOF
+          iOS macOS CI execution summary
+          Handoff outcome: $outcome
+          Handoff exit code: $status
+          iOS simulator build validation: $runtime_validation
+          Podfile.lock committed: not checked
+          Sentry auto upload: disabled
+          Secret values printed: no
+          EOF
+          exit "$status"
 
       - name: Enforce committed Podfile lock
-        run: git diff --exit-code -- ios/Podfile.lock
+        shell: bash
+        run: |
+          set +e
+          git diff --exit-code -- ios/Podfile.lock
+          status=$?
+          set -e
+          if [[ "$status" -eq 0 ]]; then
+            lock_committed=yes
+          else
+            lock_committed=no
+          fi
+          sed -i.bak "s/Podfile.lock committed: not checked/Podfile.lock committed: $lock_committed/" \
+            local-docs/ios-macos-ci-execution-summary.txt
+          rm -f local-docs/ios-macos-ci-execution-summary.txt.bak
+          exit "$status"
 
       - name: Publish validation summary
         if: always()
@@ -98,6 +136,8 @@ jobs:
             fi
             echo
             for summary in \
+              local-docs/ios-macos-ci-execution-summary.txt \
+              local-docs/ios-mac-validation-execution-summary.txt \
               local-docs/ios-mac-validation-prereqs-summary.txt \
               local-docs/ios-release-static-readiness-summary.txt; do
               if [[ -f "$summary" ]]; then
@@ -117,5 +157,6 @@ jobs:
           path: |
             ios/Podfile.lock
             local-docs/ios-*.txt
+            local-docs/ios-*.log
           if-no-files-found: error
           retention-days: 14

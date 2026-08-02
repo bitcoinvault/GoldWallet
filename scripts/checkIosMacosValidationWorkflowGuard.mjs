@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const workflowPath = '.github/workflows/ios-macos-validation.yml';
 const absoluteWorkflowPath = path.join(root, workflowPath);
+const gemfileLockPath = path.join(root, 'Gemfile.lock');
 
 const approvedActions = [
   'actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0',
@@ -67,6 +68,7 @@ const validateWorkflow = workflow => {
   requireMatch(/^\s+BUNDLE_PATH:\s*vendor\/bundle\s*$/m, 'workflow must install Ruby gems into the workspace');
   requireMatch(/^\s+SENTRY_DISABLE_AUTO_UPLOAD:\s*['"]true['"]\s*$/m, 'workflow must disable Sentry auto-upload');
   requireMatch(/^\s+node-version-file:\s*\.nvmrc\s*$/m, 'setup-node must use .nvmrc');
+  requireMatch(/^\s+BUNDLE_FROZEN:\s*['"]true['"]\s*$/m, 'workflow must keep the Ruby graph frozen');
   requireMatch(/corepack yarn install --frozen-lockfile/, 'workflow must install the frozen Yarn dependency graph');
   requireMatch(
     /corepack yarn ios:mac-validation:handoff "\$\{args\[@\]\}"/,
@@ -77,11 +79,29 @@ const validateWorkflow = workflow => {
     'workflow must fail until the generated Podfile.lock is reviewed and committed',
   );
   requireMatch(/args=\(--all-schemes\)/, 'workflow must support complete shared-scheme validation');
+  requireMatch(
+    /local-docs\/ios-macos-ci-execution-summary\.txt/,
+    'workflow must retain a dedicated simulator execution outcome',
+  );
+  requireMatch(/local-docs\/ios-macos-ci-handoff\.log/, 'workflow must retain the complete handoff log');
+  requireMatch(
+    /local-docs\/ios-mac-validation-execution-summary\.txt/,
+    'workflow must publish per-step simulator execution evidence',
+  );
+  requireMatch(/Handoff outcome: \$outcome/, 'execution summary must record the handoff outcome');
+  requireMatch(
+    /iOS simulator build validation: \$runtime_validation/,
+    'execution summary must record build validation',
+  );
   requireMatch(/GITHUB_STEP_SUMMARY/, 'workflow must publish a non-secret job summary');
   const artifactStep = getStepContaining(workflow, 'Retain Podfile and validation evidence');
   if (!/if:\s*always\(\)/.test(artifactStep)) errors.push('artifact upload must run even after validation failure');
-  if (!/ios\/Podfile\.lock/.test(artifactStep) || !/local-docs\/ios-\*\.txt/.test(artifactStep)) {
-    errors.push('workflow must retain Podfile.lock and iOS summaries');
+  if (
+    !/ios\/Podfile\.lock/.test(artifactStep) ||
+    !/local-docs\/ios-\*\.txt/.test(artifactStep) ||
+    !/local-docs\/ios-\*\.log/.test(artifactStep)
+  ) {
+    errors.push('workflow must retain Podfile.lock, iOS summaries, and the handoff log');
   }
 
   const uses = [...workflow.matchAll(/^\s+(?:-\s+)?uses:\s*(\S+(?:\s+#\s*\S+)?)\s*$/gm)].map(match => match[1]);
@@ -109,8 +129,25 @@ if (!existsSync(absoluteWorkflowPath)) {
   process.exit(1);
 }
 
-const workflow = readFileSync(absoluteWorkflowPath, 'utf8');
+if (!existsSync(gemfileLockPath)) {
+  console.error('iOS macOS validation workflow guard failed: missing Gemfile.lock');
+  process.exit(1);
+}
+
+const workflow = readFileSync(absoluteWorkflowPath, 'utf8').replace(/\r\n?/g, '\n');
 const errors = validateWorkflow(workflow);
+const gemfileLock = readFileSync(gemfileLockPath, 'utf8').replace(/\r\n?/g, '\n');
+
+['cocoapods (1.16.2)', 'xcodeproj (1.27.0)', 'x86_64-darwin-24', 'ruby 3.3.12', 'BUNDLED WITH\n  4.0.16'].forEach(
+  snippet => {
+    if (!gemfileLock.includes(snippet)) errors.push(`Gemfile.lock is missing the macOS CI contract: ${snippet}`);
+  },
+);
+const crlfErrors = validateWorkflow(workflow.replace(/\n/g, '\r\n'));
+
+if (crlfErrors.length > 0) {
+  errors.push(`valid CRLF workflow was rejected: ${crlfErrors.join('; ')}`);
+}
 const mutations = [
   ['floating runner', workflow.replace('runs-on: macos-15-intel', 'runs-on: macos-latest'), 'pinned macos-15-intel'],
   ['write permission', workflow.replace('contents: read', 'contents: write'), 'write permissions'],
