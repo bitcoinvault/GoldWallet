@@ -29,6 +29,8 @@ Findings:
 - The Babel 8 audit now selects the highest stable `8.x` traverse release instead of trusting npm's `latest` dist-tag, which currently points to Babel 7. Its summary guard rejects any isolated `@babel/*` cohort entry outside major 8 and includes a Babel 7 traverse mutation test.
 - The refreshed direct-outdated snapshot drops to 20 entries: 16 known major/version-coupling blockers, 4 exotic wallet dependencies, and 0 review-required entries.
 - Android installed and launched the embedded dev APK and completed first-run onboarding without fatal/runtime findings. Full empty-dashboard navigation is externally blocked because `electrumx.testnet.btcv.stage.rnd.land` presents a certificate that expired on 2026-06-23; a restricted smoke validated the expected `No network` fallback instead of disabling TLS checks.
+- Post-merge Android release validation rebuilt `dev`, `stage`, `prod`, and `beta` with Sentry auto-upload disabled. Production mainnet smoke passed onboarding, empty-wallet actions, CameraKit QR, all tabs, Terms WebView, and fatal/runtime logcat checks.
+- Production create-wallet smoke passed mnemonic secure-window protection, process restart, incorrect/correct PIN handling, wallet persistence, and the default 3-key vault public-key step. The authenticated Sentry production preflight reports Android runtime proof ready, no upload, no secret output, and only the existing Windows iOS/macOS blocker.
 
 Validation:
 
@@ -49,6 +51,10 @@ Validation:
 - JDK 17 `corepack yarn android:dev:assemble`
 - `corepack yarn android:dev:smoke:embedded` (full dashboard path blocked by expired testnet Electrum certificate)
 - Restricted embedded smoke with `ANDROID_SMOKE_EXPECT_TEXTS=No network` and `ANDROID_SMOKE_ALLOW_NETWORK_LOGCAT_FAILURES=true`
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:prod:release:smoke:verify` on `emulator-5554`
+- `corepack yarn android:prod:release:create-wallet-smoke:embedded` and its summary check on `emulator-5554`
+- `node scripts/runSentryProductionPreflight.mjs` (authenticated, no upload)
 - `git diff --check`
 
 ### BEM-37.955 - Lodash type definitions patch
