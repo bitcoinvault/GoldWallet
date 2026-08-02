@@ -22,4 +22,19 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('Babel 8 migration probe summary artifact is valid.');
+const babel7TraverseSummary = summary.replace(
+  /- @babel\/traverse: installed \d+\.\d+\.\d+, expected \d+\.\d+\.\d+, matches yes/,
+  '- @babel/traverse: installed 7.29.8, expected 7.29.8, matches yes',
+);
+const babel7TraverseErrors = getBabel8MigrationProbeSummaryErrors(babel7TraverseSummary);
+
+if (
+  !babel7TraverseErrors.some(
+    error => error.includes('@babel/traverse isolated') && error.includes('Babel 8'),
+  )
+) {
+  console.error('Babel 8 migration probe summary guard failed to reject a Babel 7 traverse cohort mutation.');
+  process.exit(1);
+}
+
+console.log('Babel 8 migration probe summary artifact and Babel 7 traverse mutation guard are valid.');

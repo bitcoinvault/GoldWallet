@@ -75,15 +75,6 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
-    name: '@babel/traverse',
-    current: '7.29.7',
-    wanted: '7.29.7',
-    latest: '8.0.4',
-    type: 'resolutionDependencies',
-    decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
-  },
-  {
     name: '@types/react',
     current: '19.2.17',
     wanted: '19.2.17',
@@ -221,10 +212,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 21', 'Entries: 20'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 20', 'Entries: 19'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 21', 'Entries: 22').replace(
+  validSummary.replace('Entries: 20', 'Entries: 21').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),

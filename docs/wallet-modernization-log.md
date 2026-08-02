@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.956 - Babel 7 traverse patch
+
+- Branch: `feature/bem-37-956-babel7-traverse-patch`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Update the enforced Babel 7 traversal layer from `@babel/traverse@7.29.7` to the live npm latest stable `7.29.8` without moving the Babel core/runtime/preset cohort to Babel 8.
+- Keep the direct-outdated and Babel major-migration guards aligned with supported Babel 7 patch movement while retaining the concrete React Native Babel 8 blocker.
+- Add separate representative current-baseline TSX and unambiguous `.js` Flow transforms to the blocker check before running Metro, Android build, and emulator proof.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-02 reports `@babel/traverse@7.29.8` as `latest`; its Node engine is `>=6.9.0`, satisfied by the repo Node `24.16.0` baseline.
+- Yarn keeps the direct Babel core/runtime/preset packages on `7.29.7` and resolves the `traverse@7.29.8` dependency subgraph with `generator`, `parser`, and `types@7.29.8` where required.
+- The current RN `0.86.2` preset successfully compiles a representative TSX/Flow-type probe through Babel 7. Babel 8 remains separately blocked because the RN preset still loads Babel 7-only `@babel/plugin-transform-flow-strip-types` and the isolated Babel 8 transform fails with `BABEL_VERSION_UNSUPPORTED`.
+- The Babel 8 audit now selects the highest stable `8.x` traverse release instead of trusting npm's `latest` dist-tag, which currently points to Babel 7. Its summary guard rejects any isolated `@babel/*` cohort entry outside major 8 and includes a Babel 7 traverse mutation test.
+- The refreshed direct-outdated snapshot drops to 20 entries: 16 known major/version-coupling blockers, 4 exotic wallet dependencies, and 0 review-required entries.
+- Android installed and launched the embedded dev APK and completed first-run onboarding without fatal/runtime findings. Full empty-dashboard navigation is externally blocked because `electrumx.testnet.btcv.stage.rnd.land` presents a certificate that expired on 2026-06-23; a restricted smoke validated the expected `No network` fallback instead of disabling TLS checks.
+
+Validation:
+
+- `npm view @babel/traverse@7.29.8 version engines dependencies peerDependencies dist-tags time.modified --json`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn babel8:migration-probe:audit`
+- `corepack yarn babel8:migration-probe:check-summary`
+- `corepack yarn babel8:migration-probe:check`
+- Production Android and iOS `react-native bundle` commands with source maps
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded` (full dashboard path blocked by expired testnet Electrum certificate)
+- Restricted embedded smoke with `ANDROID_SMOKE_EXPECT_TEXTS=No network` and `ANDROID_SMOKE_ALLOW_NETWORK_LOGCAT_FAILURES=true`
+- `git diff --check`
+
 ### BEM-37.955 - Lodash type definitions patch
 
 - Branch: `feature/bem-37-955-type-definitions-patch-cohort`

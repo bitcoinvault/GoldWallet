@@ -14,7 +14,6 @@ const requiredKnownEntries = [
   ['@babel/preset-react', 'devDependencies'],
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
-  ['@babel/traverse', 'resolutionDependencies'],
   ['@types/react', 'resolutionDependencies'],
   ['@types/react', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
