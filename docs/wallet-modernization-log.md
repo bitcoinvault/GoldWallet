@@ -10,6 +10,33 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.952 - Secure-storage smoke fixture schema
+
+- Branch: `feature/bem-37-952-secure-storage-smoke-fixture`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align the secure-storage release-validation fixture with the guarded Android smoke runtime page-size schema.
+
+Findings:
+
+- `rn:baseline:preflight` stopped before the secure-storage handoff dry-run because its synthetic successful smoke summary predated the required runtime page-size evidence fields.
+- The same focused guard failed on the unchanged integration branch, confirming an inherited fixture drift rather than an app or release-version regression.
+- The fixture now declares a non-required 4 KB observation consistently with the canonical Android smoke guard fixture. This tooling-only change does not affect app runtime and does not require emulator smoke.
+- The full `rn:baseline:preflight` passed this secure-storage block and then stopped on an independent live npm snapshot drift: `react-native-vision-camera` latest changed from `5.2.0` to `5.2.1`. That dependency snapshot belongs to a separate milestone.
+
+Validation:
+
+- `corepack yarn check:secure-storage-release-validation-handoff-guard`
+- `corepack yarn secure-storage:release-validation:handoff:dry-run --skip-android-smoke`
+- `corepack yarn rn:baseline:preflight` (secure-storage block passed; later blocked by the independent VisionCamera live latest drift noted above)
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.951 - Google Play immutable AAB handoff
 
 - Branch: `feature/bem-37-951-play-aab-snapshot-lock`
