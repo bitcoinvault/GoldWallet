@@ -279,6 +279,8 @@ export const getIosMacValidationCommands = options => {
     { label: 'Audit macOS/Xcode/CocoaPods prerequisites', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:audit'], cwd: root },
     { label: 'Validate macOS prerequisite summary', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:check-summary'], cwd: root },
     { label: 'Refresh iOS pods', ...podInstall },
+    { label: 'Re-audit macOS/Xcode/CocoaPods prerequisites after pod refresh', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:audit'], cwd: root },
+    { label: 'Re-validate macOS prerequisite summary', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:check-summary'], cwd: root },
     { label: 'Audit iOS release readiness after pod refresh', command: 'corepack', args: ['yarn', 'ios:release:readiness:audit'], cwd: root },
     { label: 'Validate iOS release readiness summary', command: 'corepack', args: ['yarn', 'ios:release:readiness:check-summary'], cwd: root },
     ...buildTargets.map(({ scheme, configuration }) => ({
