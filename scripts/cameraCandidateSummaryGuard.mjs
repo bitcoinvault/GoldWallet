@@ -49,22 +49,24 @@ export const getCameraCandidateSummaryErrors = summary => {
   const baselineStable = getLineValue(summary, 'Camera candidate baseline stable');
   const warningCount = getLineValue(summary, 'Warnings');
   const warningLines = getBulletLinesAfter(summary, 'Warnings');
+  const reportedErrorCount = getLineValue(summary, 'Errors');
+  const reportedErrorLines = getBulletLinesAfter(summary, 'Errors');
   const requiredAction = getLineValue(summary, 'Required action');
 
   if (!summary.startsWith('Camera candidate audit')) {
     errors.push('Camera candidate summary header is missing');
   }
 
-  if (metadataCheckedOn !== '2026-07-31') {
-    errors.push(`Metadata checked on must be 2026-07-31. Received: ${metadataCheckedOn || 'missing'}`);
+  if (metadataCheckedOn !== '2026-08-02') {
+    errors.push(`Metadata checked on must be 2026-08-02. Received: ${metadataCheckedOn || 'missing'}`);
   }
 
   if (legacyCamera !== 'react-native-camera@4.2.1') {
     errors.push(`Legacy camera latest must be react-native-camera@4.2.1. Received: ${legacyCamera || 'missing'}`);
   }
 
-  if (visionCamera !== 'react-native-vision-camera@5.2.0') {
-    errors.push(`VisionCamera latest must be react-native-vision-camera@5.2.0. Received: ${visionCamera || 'missing'}`);
+  if (visionCamera !== 'react-native-vision-camera@5.2.1') {
+    errors.push(`VisionCamera latest must be react-native-vision-camera@5.2.1. Received: ${visionCamera || 'missing'}`);
   }
 
   if (visionCameraNitroPeers !== 'yes') {
@@ -123,8 +125,8 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`QR encoder latest must be qrcode@1.5.4. Received: ${qrEncoder || 'missing'}`);
   }
 
-  if (!['matched', 'stale'].includes(liveMetadata)) {
-    errors.push(`Live npm metadata must be matched or stale. Received: ${liveMetadata || 'missing'}`);
+  if (liveMetadata !== 'matched') {
+    errors.push(`Live npm metadata must be matched. Received: ${liveMetadata || 'missing'}`);
   }
 
   if (!/^\d+$/.test(liveMetadataIssueCount)) {
@@ -145,6 +147,10 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push('Stale live npm metadata summary must list at least one live metadata issue');
   }
 
+  if (liveMetadataIssueCount !== '0') {
+    errors.push(`Live npm metadata issues must be 0. Received: ${liveMetadataIssueCount || 'missing'}`);
+  }
+
   if (
     selectedProofTarget !==
     'CameraKit selected and installed; VisionCamera deferred because latest line requires Nitro peers'
@@ -156,12 +162,22 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`Proof branch must be feature/bem-37-camera-kit-qr-proof. Received: ${proofBranch || 'missing'}`);
   }
 
-  if (!['yes', 'no'].includes(baselineStable || '')) {
-    errors.push(`Camera candidate baseline stable must be yes or no. Received: ${baselineStable || 'missing'}`);
+  if (baselineStable !== 'yes') {
+    errors.push(`Camera candidate baseline stable must be yes. Received: ${baselineStable || 'missing'}`);
   }
 
   if (Number(warningCount) !== warningLines.length) {
     errors.push(`Warnings count must be ${warningLines.length}. Received: ${warningCount || 'missing'}`);
+  }
+
+  if (!/^\d+$/.test(reportedErrorCount)) {
+    errors.push(`Errors must be a non-negative integer. Received: ${reportedErrorCount || 'missing'}`);
+  } else if (Number(reportedErrorCount) !== reportedErrorLines.length) {
+    errors.push(`Errors count must be ${reportedErrorLines.length}. Received: ${reportedErrorCount}`);
+  }
+
+  if (reportedErrorCount !== '0') {
+    errors.push(`Errors must be 0. Received: ${reportedErrorCount || 'missing'}`);
   }
 
   if (baselineStable === 'yes' && liveMetadata !== 'matched') {
@@ -170,10 +186,6 @@ export const getCameraCandidateSummaryErrors = summary => {
 
   if (baselineStable === 'yes' && !requiredAction.includes('none; CameraKit scanner baseline is stable')) {
     errors.push('Stable baseline summary must include the no-action camera candidate required action');
-  }
-
-  if (baselineStable === 'no' && !requiredAction.includes('restore camera candidate baseline')) {
-    errors.push('Unstable baseline summary must include the camera candidate restoration required action');
   }
 
   return errors;

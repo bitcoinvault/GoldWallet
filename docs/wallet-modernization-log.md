@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.953 - VisionCamera candidate snapshot refresh
+
+- Branch: `feature/bem-37-953-vision-camera-snapshot`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded Camera/QR candidate metadata after the live npm latest VisionCamera release moved from `5.2.0` to `5.2.1`.
+
+Findings:
+
+- Live npm metadata on 2026-08-02 reports `react-native-vision-camera@5.2.1` as latest.
+- Its peer requirements remain `react-native-nitro-modules` and `react-native-nitro-image`, so CameraKit remains the selected compatible scanner and VisionCamera remains a separate native-stack migration.
+- The Camera/QR handoff guard contained inherited Android dev/release smoke fixtures from before the runtime page-size schema; both now carry the canonical non-required 4 KB observation.
+- The candidate summary guard now fails closed on stale live metadata, a non-stable baseline, nonzero reported errors, and error-count mismatches instead of accepting a self-consistent stale artifact.
+- This snapshot-only change does not modify app dependencies or runtime and does not require emulator smoke.
+
+Validation:
+
+- `npm view react-native-vision-camera version dist-tags peerDependencies dependencies engines --json`
+- `corepack yarn check:camera-candidate-summary-guard`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn check:camera-qr-validation-handoff-guard`
+- `corepack yarn camera:qr-validation:handoff:dry-run`
+- `corepack yarn rn:baseline:preflight` (Camera/QR block passed in the worktree; final integration-checkout rerun follows the local merge because Android smoke evidence contains checkout-bound absolute paths)
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.952 - Secure-storage smoke fixture schema
 
 - Branch: `feature/bem-37-952-secure-storage-smoke-fixture`
