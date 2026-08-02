@@ -28,7 +28,6 @@ const result = spawnSync(
   [
     '-workspace',
     'ios/GoldWallet.xcworkspace',
-    '-UseNewBuildSystem=NO',
     '-scheme',
     scheme,
     '-configuration',

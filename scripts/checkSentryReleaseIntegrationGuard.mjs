@@ -10,8 +10,8 @@ const validFixture = {
   metroConfig: expectedSentryMetroSnippets.join('\n'),
   iosProject: [
     ...expectedSentryIosSnippets,
-    ...Array.from({ length: 2 }, () => '../node_modules/@sentry/cli/bin/sentry-cli react-native xcode'),
-    ...Array.from({ length: 2 }, () => '../node_modules/@sentry/cli/bin/sentry-cli upload-dsym'),
+    ...Array.from({ length: 3 }, () => '../node_modules/@sentry/react-native/scripts/sentry-xcode.sh'),
+    ...Array.from({ length: 2 }, () => '../node_modules/@sentry/react-native/scripts/sentry-xcode-debug-files.sh'),
   ].join('\n'),
 };
 

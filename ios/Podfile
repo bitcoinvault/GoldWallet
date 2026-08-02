@@ -1,42 +1,55 @@
-require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+# Resolve React Native's CocoaPods helpers through Node so hoisted installs use
+# the same package instance as the JavaScript toolchain.
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
 require_relative '../node_modules/react-native-permissions/scripts/setup'
 
-platform :ios, '15.1'
+platform :ios, min_ios_version_supported
+prepare_react_native_project!
 
 setup_permissions([
   'Camera',
 ])
 
-def sharedPods
+react_native_path = File.dirname(
+  Pod::Executable.execute_command('node', ['-p',
+    'require.resolve("react-native/package.json", {paths: [process.argv[1]]})', __dir__]).strip
+)
+
+def configure_goldwallet_target
   config = use_native_modules!
+
   use_react_native!(
     :path => config[:reactNativePath],
-    # to enable hermes on iOS, change `false` to `true` and then install pods
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
     :hermes_enabled => true
   )
-
-  pod 'react-native-config', :path => '../node_modules/react-native-config'
-
- 
 end
 
 target 'GoldWallet' do
-  sharedPods
+  configure_goldwallet_target
 end
 
 target 'GoldWallet Beta' do
-  sharedPods
+  configure_goldwallet_target
 end
 
 target 'GoldWallet Stage' do
-  sharedPods
+  configure_goldwallet_target
 end
 
 target 'GoldWallet Dev' do
-  sharedPods  
+  configure_goldwallet_target
+end
 
-  post_install do |installer|
-    react_native_post_install(installer)
-  end
+post_install do |installer|
+  react_native_post_install(
+    installer,
+    react_native_path,
+    :mac_catalyst_enabled => false
+  )
 end

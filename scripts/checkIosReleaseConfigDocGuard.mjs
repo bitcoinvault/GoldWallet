@@ -9,6 +9,15 @@ const doc = readFileSync(docPath, 'utf8');
 
 const requiredSnippets = [
   'After `BEM-37.794`',
+  'After `BEM-37.957`',
+  '`corepack yarn check:ios-rn-template-baseline`',
+  'object version `54`',
+  'Swift `5.0`',
+  'C++20',
+  '`RCTReactNativeFactory`',
+  'CocoaPods `1.16.2`',
+  'xcodeproj `1.27.0`',
+  'Sentry Xcode script',
   '`corepack yarn check:ios-release-config-doc-guard`',
   'Current CodePush posture is removed',
   'iOS Info.plist files no longer contain native `CodePushDeploymentKey` placeholders',

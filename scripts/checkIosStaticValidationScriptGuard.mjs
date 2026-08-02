@@ -8,6 +8,7 @@ const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'ut
 const script = packageJson.scripts?.['ios:static:verify'] || '';
 
 const requiredParts = [
+  'yarn check:ios-rn-template-baseline',
   'yarn check:ios-release-readiness-audit-guard',
   'yarn check:ios-release-readiness-summary-guard',
   'yarn ios:release:readiness:audit',
@@ -55,6 +56,7 @@ const assertOrder = (before, after) => {
 };
 
 assertOrder('yarn ios:podfile-refresh:check-plan', 'yarn check:ios-validation-handoff-summary-guard');
+assertOrder('yarn check:ios-rn-template-baseline', 'yarn ios:release:readiness:audit');
 assertOrder('yarn check:ios-validation-handoff-summary-guard', 'yarn ios:validation:handoff-summary');
 assertOrder('yarn ios:validation:handoff-summary', 'yarn ios:validation:handoff-summary:check');
 assertOrder('yarn ios:validation:handoff-summary:check', 'yarn ios:mac-validation:handoff:preflight:dry-run --all-schemes');

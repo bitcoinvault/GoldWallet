@@ -264,13 +264,18 @@ export const getIosMacValidationPreflightReadinessErrors = ({
 export const getIosMacValidationCommands = options => {
   const sdk = options.sdk || defaultOptions.sdk;
   const preferBundleExecPod =
-    options.preferBundleExecPod ?? existsSync(path.join(root, 'ios', 'Gemfile'));
+    options.preferBundleExecPod ??
+    (existsSync(path.join(root, 'Gemfile')) || existsSync(path.join(root, 'ios', 'Gemfile')));
   const podInstall = preferBundleExecPod
     ? { command: 'bundle', args: ['exec', 'pod', 'install'], cwd: path.join(root, 'ios') }
     : { command: 'pod', args: ['install'], cwd: path.join(root, 'ios') };
+  const rubySetup = preferBundleExecPod
+    ? [{ label: 'Install locked Ruby dependencies', command: 'bundle', args: ['install'], cwd: root }]
+    : [];
   const buildTargets = getIosBuildTargets(options);
 
   return [
+    ...rubySetup,
     { label: 'Audit macOS/Xcode/CocoaPods prerequisites', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:audit'], cwd: root },
     { label: 'Validate macOS prerequisite summary', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:check-summary'], cwd: root },
     { label: 'Refresh iOS pods', ...podInstall },
@@ -282,7 +287,6 @@ export const getIosMacValidationCommands = options => {
       args: [
         '-workspace',
         'ios/GoldWallet.xcworkspace',
-        '-UseNewBuildSystem=NO',
         '-scheme',
         scheme,
         '-configuration',

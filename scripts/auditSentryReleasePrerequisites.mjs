@@ -259,8 +259,8 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     sentryReactNativeGradle.includes('$reactRoot/node_modules/@sentry/cli') &&
     path.resolve(sentryAndroidResolvedCliPackagePath) === path.resolve(sentryCliPackagePath);
   const sentryIosReleaseBuildPathDirect =
-    iosProject.includes('../node_modules/@sentry/cli/bin/sentry-cli react-native xcode') &&
-    iosProject.includes('../node_modules/@sentry/cli/bin/sentry-cli upload-dsym') &&
+    iosProject.includes('../node_modules/@sentry/react-native/scripts/sentry-xcode.sh') &&
+    iosProject.includes('../node_modules/@sentry/react-native/scripts/sentry-xcode-debug-files.sh') &&
     !iosProject.includes('@sentry/react-native/node_modules/@sentry/cli');
   const sentryCliReleaseBuildPathUsesDirectPackage =
     sentryAndroidGradleCliResolverDirect && sentryIosReleaseBuildPathDirect;
