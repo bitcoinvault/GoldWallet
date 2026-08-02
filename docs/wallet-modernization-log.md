@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.958 - iOS macOS CI validation handoff
+
+- Branch: `feature/bem-37-958-ios-macos-ci-handoff`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the existing CocoaPods refresh and iOS simulator-build handoff onto a read-only GitHub Actions macOS Intel runner instead of treating the Windows Xcode blocker as an indefinite manual step.
+- Validate the default Dev Debug scheme on relevant pull requests and expose an explicit all-eight-schemes dispatch mode.
+- Retain the generated `ios/Podfile.lock` and iOS validation summaries as reviewable artifacts without committing from CI or accessing release secrets.
+
+Findings:
+
+- GitHub's pinned `macos-15-intel` image provides the required Xcode 16.4 toolchain and reduces legacy-pod architecture risk, while the project requires Xcode 16.1 or newer for React Native 0.86.2.
+- The workflow uses the repo `.nvmrc`, frozen Yarn graph, root Gemfile, and project-owned `ios:mac-validation:handoff`; it does not duplicate CocoaPods or Xcode build logic in YAML.
+- The existing handoff had retained its pre-`pod install` prerequisite summary for the final readiness check. It now re-audits macOS/Xcode/CocoaPods after the lockfile refresh, so a successful pod refresh and simulator build can reach the ready state instead of failing on stale drift evidence.
+- Pull requests run the focused `GoldWallet Dev (Debug)` simulator build. Manual dispatch can run all eight shared Debug/Release schemes after the refreshed Podfile artifact is reviewed.
+- The first CI run may produce a new lockfile artifact, but the job fails closed while `ios/Podfile.lock` differs from the repository. After review and commit of that artifact, the repeated run must complete with zero lockfile diff.
+- CI has `contents: read`, no secret expressions, no signing, no repository write path, explicit Sentry auto-upload disablement, and fail-closed build semantics. A dedicated mutation-tested guard rejects floating runners/actions, write permissions, secrets, unfrozen installs, and bypassed failures.
+
+Validation:
+
+- `corepack yarn check:ios-macos-validation-workflow-guard`
+- `corepack yarn ios:static:verify`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
+Runtime note:
+
+- Windows cannot execute this macOS/Xcode workflow locally. The actual CocoaPods refresh and simulator build must run after this branch is pushed and dispatched or included in a pull request; readiness is not claimed before that GitHub Actions result is reviewed.
+
 ### BEM-37.957 - React Native 0.86 iOS template baseline
 
 - Branch: `feature/bem-37-957-ios-rn086-template-baseline`

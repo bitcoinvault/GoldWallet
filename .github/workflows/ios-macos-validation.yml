@@ -1,0 +1,121 @@
+name: iOS macOS validation
+
+on:
+  push:
+    branches: [upgrade/wallet-modernization]
+    paths:
+      - '.github/workflows/ios-macos-validation.yml'
+      - 'Gemfile'
+      - 'ios/**'
+      - 'package.json'
+      - 'scripts/**ios**'
+      - 'scripts/**Ios**'
+      - 'yarn.lock'
+  pull_request:
+    branches: [develop]
+    paths:
+      - '.github/workflows/ios-macos-validation.yml'
+      - 'Gemfile'
+      - 'ios/**'
+      - 'package.json'
+      - 'scripts/**ios**'
+      - 'scripts/**Ios**'
+      - 'yarn.lock'
+  workflow_dispatch:
+    inputs:
+      all_schemes:
+        description: Build all eight shared iOS schemes
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-macos-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Build iOS simulator
+    runs-on: macos-15-intel
+    timeout-minutes: 90
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+      BUNDLE_PATH: vendor/bundle
+      SENTRY_DISABLE_AUTO_UPLOAD: 'true'
+      BUILD_ALL_SCHEMES: ${{ github.event_name == 'workflow_dispatch' && inputs.all_schemes }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install JavaScript dependencies
+        run: |
+          corepack enable
+          corepack yarn install --frozen-lockfile
+
+      - name: Validate Xcode selection
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Run project-owned iOS validation handoff
+        shell: bash
+        run: |
+          args=(--scheme 'GoldWallet Dev (Debug)' --configuration Debug)
+          if [[ "$BUILD_ALL_SCHEMES" == 'true' ]]; then
+            args=(--all-schemes)
+          fi
+          corepack yarn ios:mac-validation:handoff "${args[@]}"
+
+      - name: Enforce committed Podfile lock
+        run: git diff --exit-code -- ios/Podfile.lock
+
+      - name: Publish validation summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## iOS macOS validation'
+            echo
+            echo 'Runner: `macos-15-intel`'
+            echo 'Xcode: `16.4`'
+            echo "All schemes requested: \`$BUILD_ALL_SCHEMES\`"
+            if git diff --quiet -- ios/Podfile.lock; then
+              echo 'Podfile.lock changed from repository: `no`'
+            else
+              echo 'Podfile.lock changed from repository: `yes`'
+            fi
+            echo
+            for summary in \
+              local-docs/ios-mac-validation-prereqs-summary.txt \
+              local-docs/ios-release-static-readiness-summary.txt; do
+              if [[ -f "$summary" ]]; then
+                echo "### \`$(basename "$summary")\`"
+                echo '```text'
+                cat "$summary"
+                echo '```'
+              fi
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain Podfile and validation evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ios-macos-validation-${{ github.run_id }}
+          path: |
+            ios/Podfile.lock
+            local-docs/ios-*.txt
+          if-no-files-found: error
+          retention-days: 14

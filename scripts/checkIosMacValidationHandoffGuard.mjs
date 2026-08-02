@@ -111,6 +111,16 @@ assert(
     commands.findIndex(step => step.args.includes('ios:mac-validation-prereq:audit')),
   'Bundler setup must run before the macOS prerequisite audit',
 );
+const prerequisiteAuditIndexes = commands
+  .map((step, index) => (step.args.includes('ios:mac-validation-prereq:audit') ? index : -1))
+  .filter(index => index !== -1);
+const podInstallIndex = commands.findIndex(step => step.args.join(' ') === 'exec pod install');
+
+assert(prerequisiteAuditIndexes.length === 2, `Expected prerequisite audits before and after pod install, got ${prerequisiteAuditIndexes.length}`);
+assert(
+  prerequisiteAuditIndexes[0] < podInstallIndex && podInstallIndex < prerequisiteAuditIndexes[1],
+  'The macOS prerequisite summary must be refreshed after pod install before final readiness is evaluated',
+);
 
 const releaseReadinessRuns = commands.filter(step => step.args.join(' ').includes('ios:release:readiness:audit')).length;
 assert(releaseReadinessRuns === 2, `Expected release readiness audit before and after xcodebuild, got ${releaseReadinessRuns}`);
