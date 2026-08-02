@@ -1,5 +1,6 @@
 import {
   getIosMacValidationCommands,
+  getIosMacValidationExecutionSummary,
   getIosMacValidationHandoffErrors,
   getIosMacValidationPreflightCommands,
   getIosMacValidationPreflightReadinessErrors,
@@ -150,6 +151,22 @@ assert(
   allSchemeCommands[allSchemeCommands.length - 1].args.join(' ').includes('ios:release:readiness:check-summary'),
   'All-schemes handoff must end with iOS release readiness summary validation',
 );
+
+const failedExecutionSummary = getIosMacValidationExecutionSummary({
+  results: [
+    { label: 'Install locked Ruby dependencies', command: 'bundle', status: 0 },
+    { label: 'Build GoldWallet Dev (Debug) on simulator', command: 'xcodebuild', status: 65 },
+  ],
+  totalSteps: 9,
+  totalBuilds: 1,
+});
+assert(failedExecutionSummary.includes('Execution outcome: failure'), 'Execution summary must preserve failure outcome');
+assert(
+  failedExecutionSummary.includes('Failed step: Build GoldWallet Dev (Debug) on simulator'),
+  'Execution summary must identify the failed simulator scheme',
+);
+assert(failedExecutionSummary.includes('Failed step exit code: 65'), 'Execution summary must preserve the build exit code');
+assert(failedExecutionSummary.includes('Simulator builds passed: 0/1'), 'Execution summary must not claim a failed build');
 
 const preflightCommands = getIosMacValidationPreflightCommands({
   scheme: 'GoldWallet (Release)',

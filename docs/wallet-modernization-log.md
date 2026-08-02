@@ -10,6 +10,26 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.958.1 - iOS macOS CI review hardening
+
+- Branch: `feature/bem-37-958-1-ios-workflow-guard-eol`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Normalize the iOS macOS workflow guard input before applying exact mutation fixtures so Windows CRLF checkouts validate the same contract as LF checkouts.
+- Commit the Ruby/CocoaPods dependency graph generated with Ruby 3.3.12 and Bundler 4.0.16 for the Intel Darwin runner, and require frozen Bundler mode in CI.
+- Emit dedicated CI and project-owned per-step execution summaries before propagating any handoff failure, and retain the complete handoff log, so uploaded pre-build readiness reports cannot be mistaken for successful simulator-build evidence.
+- Exercise the complete workflow validator against an explicit CRLF fixture while retaining all fail-closed security, dependency, execution-evidence, and lockfile mutations.
+
+Validation:
+
+- `corepack yarn check:ios-macos-validation-workflow-guard`
+- `corepack yarn ios:static:verify`
+- Docker Ruby 3.3 / Bundler 4.0.16 `bundle lock --add-platform x86_64-darwin-24`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.958 - iOS macOS CI validation handoff
 
 - Branch: `feature/bem-37-958-ios-macos-ci-handoff`

@@ -1,5 +1,5 @@
 import { spawnSync } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
@@ -9,6 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const iosReleaseReadinessSummaryPath = path.join(root, 'local-docs', 'ios-release-static-readiness-summary.txt');
 const iosMacValidationPrereqSummaryPath = path.join(root, 'local-docs', 'ios-mac-validation-prereqs-summary.txt');
+const iosMacValidationExecutionSummaryPath = path.join(root, 'local-docs', 'ios-mac-validation-execution-summary.txt');
 
 export const iosMacValidationSchemes = {
   'GoldWallet Dev (Debug)': 'Debug',
@@ -381,6 +382,40 @@ const runStep = step => {
   return result.status ?? 1;
 };
 
+export const getIosMacValidationExecutionSummary = ({ results, totalSteps, totalBuilds }) => {
+  const completedBuilds = results.filter(result => result.command === 'xcodebuild');
+  const passedBuilds = completedBuilds.filter(result => result.status === 0).length;
+  const failed = results.find(result => result.status !== 0);
+  const completed = !failed && results.length === totalSteps;
+  const lines = [
+    'iOS macOS validation execution summary',
+    `Execution outcome: ${completed ? 'success' : 'failure'}`,
+    `Commands completed: ${results.length}/${totalSteps}`,
+    `Simulator builds passed: ${passedBuilds}/${totalBuilds}`,
+    `Failed step: ${failed?.label || 'none'}`,
+    `Failed step exit code: ${failed?.status ?? 0}`,
+    `iOS simulator build validation: ${completed && passedBuilds === totalBuilds ? 'passed' : 'failed'}`,
+    'Secret values printed: no',
+    'Step results:',
+    ...results.map(result => `- ${result.label}: ${result.status === 0 ? 'passed' : `failed (${result.status})`}`),
+    '',
+  ];
+
+  return lines.join('\n');
+};
+
+const writeIosMacValidationExecutionSummary = ({ results, commands }) => {
+  mkdirSync(path.dirname(iosMacValidationExecutionSummaryPath), { recursive: true });
+  writeFileSync(
+    iosMacValidationExecutionSummaryPath,
+    getIosMacValidationExecutionSummary({
+      results,
+      totalSteps: commands.length,
+      totalBuilds: commands.filter(step => step.command === 'xcodebuild').length,
+    }),
+  );
+};
+
 const main = () => {
   const options = parseArgs(process.argv.slice(2));
 
@@ -453,8 +488,12 @@ const main = () => {
     return 1;
   }
 
+  const executionResults = [];
+
   for (const step of commands) {
     const status = runStep(step);
+    executionResults.push({ label: step.label, command: step.command, status });
+    writeIosMacValidationExecutionSummary({ results: executionResults, commands });
 
     if (status !== 0) {
       return status;
@@ -467,11 +506,14 @@ const main = () => {
   });
 
   if (readinessErrors.length > 0) {
+    executionResults.push({ label: 'Evaluate final iOS readiness', command: 'internal', status: 1 });
+    writeIosMacValidationExecutionSummary({ results: executionResults, commands: [...commands, { command: 'internal' }] });
     console.error('\niOS macOS validation handoff readiness is blocked:');
     readinessErrors.forEach(error => console.error(`- ${error}`));
     return 1;
   }
 
+  writeIosMacValidationExecutionSummary({ results: executionResults, commands });
   console.log('\niOS macOS validation handoff completed.');
   return 0;
 };
