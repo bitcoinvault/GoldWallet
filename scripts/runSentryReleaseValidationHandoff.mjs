@@ -253,6 +253,9 @@ export const getSentryReleaseValidationHandoffSummary = ({
     getSummaryLineValue(sentryReleasePrereqSummaryText || '', 'Invalid files') === '0'
       ? 'yes'
       : 'no';
+  const androidReleaseBuildEvidenceReady = yesNoFromLine(
+    getSummaryLineValue(sentryReleasePrereqSummaryText || '', 'Android release evidence ready'),
+  );
   const releaseSmokeEvidenceReady = yesNoFromLine(
     getSummaryLineValue(sentryReleasePrereqSummaryText || '', 'Sentry release smoke evidence ready'),
   );
@@ -276,10 +279,16 @@ export const getSentryReleaseValidationHandoffSummary = ({
   const iosMacValidationPrereqsReady = yesNoFromLine(
     getSummaryLineValue(sentryReleasePrereqSummaryText || '', 'iOS macOS validation prerequisites ready'),
   );
+  const fullAndroidRuntimeEvidenceReady =
+    releaseSmokeEvidenceReady === 'yes' && releaseCreateWalletEvidenceReady === 'yes';
+  const controlledNetworkBlockerReady =
+    androidReleaseBuildEvidenceReady === 'yes' &&
+    releaseNoNetworkBlockerReady === 'yes' &&
+    releaseNetworkBlockerClassified === 'yes';
   const releaseRuntimeProofState =
-    releaseSmokeEvidenceReady === 'yes' && releaseCreateWalletEvidenceReady === 'yes'
+    androidReleaseBuildEvidenceReady === 'yes' && fullAndroidRuntimeEvidenceReady
       ? 'ready'
-      : releaseNoNetworkBlockerReady === 'yes' && releaseNetworkBlockerClassified === 'yes'
+      : controlledNetworkBlockerReady
         ? 'blocked-by-electrum-certificate-expired'
         : 'not ready';
   const readinessErrors = [];
@@ -310,11 +319,15 @@ export const getSentryReleaseValidationHandoffSummary = ({
     readinessErrors.push('Sentry properties files are not ready.');
   }
 
+  if (androidReleaseBuildEvidenceReady !== 'yes') {
+    readinessErrors.push('Current Android release build evidence is not ready.');
+  }
+
   if (releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired') {
     readinessErrors.push(
       'Full Android release runtime proof is blocked by the controlled dev/testnet Electrum certificate issue.',
     );
-  } else if (releaseRuntimeProofState !== 'ready') {
+  } else if (!fullAndroidRuntimeEvidenceReady) {
     readinessErrors.push(
       'Full Android release smoke and release create-wallet evidence must pass before Sentry upload validation.',
     );
@@ -335,11 +348,13 @@ export const getSentryReleaseValidationHandoffSummary = ({
         ? 'summary-invalid'
         : sentryAuthTokenAvailable !== 'yes' || sentryPropertiesReady !== 'yes'
           ? 'missing-sentry-credentials'
-          : releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired'
-            ? 'blocked-by-electrum-certificate-expired'
-            : iosMacValidationPrereqsReady !== 'yes'
-              ? 'ios-validation-not-ready'
-              : 'release-evidence-not-ready';
+          : androidReleaseBuildEvidenceReady !== 'yes'
+            ? 'release-evidence-not-ready'
+            : releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired'
+              ? 'blocked-by-electrum-certificate-expired'
+              : iosMacValidationPrereqsReady !== 'yes'
+                ? 'ios-validation-not-ready'
+                : 'release-evidence-not-ready';
   const credentialAction =
     sentryAuthTokenAvailable !== 'yes' && sentryPropertiesReady !== 'yes'
       ? 'provide SENTRY_AUTH_TOKEN and generate local-only sentry.properties files'
@@ -353,11 +368,12 @@ export const getSentryReleaseValidationHandoffSummary = ({
       ? 'run credentialed Android and iOS source-map/dSYM release validation and do not claim Sentry release upload validation until the upload proof passes.'
       : [
           ...(credentialAction ? [credentialAction] : []),
+          ...(androidReleaseBuildEvidenceReady === 'yes' ? [] : ['refresh current Android release build evidence']),
           ...(releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired'
             ? [
                 'renew the dev/testnet Electrum TLS certificate and refresh full Android release smoke/create-wallet evidence',
               ]
-            : releaseRuntimeProofState === 'ready'
+            : fullAndroidRuntimeEvidenceReady
               ? []
               : ['refresh full Android release smoke/create-wallet evidence']),
           'refresh iOS pods on macOS/Xcode',
@@ -369,6 +385,7 @@ export const getSentryReleaseValidationHandoffSummary = ({
     `Generated at: ${generatedAt}`,
     `Android release evidence variant: ${androidReleaseEvidenceVariant}`,
     `Android release evidence refresh skipped: ${options.skipAndroidRelease ? 'yes' : 'no'}`,
+    `Android release build evidence ready: ${androidReleaseBuildEvidenceReady}`,
     `Android warning summary valid: ${androidWarningSummaryValid ? 'yes' : 'no'}`,
     `RN bundle task compatibility summary valid: ${rnBundleTaskCompatibilitySummaryValid ? 'yes' : 'no'}`,
     `Release prerequisite summary valid: ${prereqSummaryValid ? 'yes' : 'no'}`,
@@ -460,6 +477,10 @@ export const getSentryReleaseValidationReadinessErrors = ({
       errors.push(
         `Sentry release prerequisite summary uses Android evidence variant ${prereqEvidenceVariant}; expected ${androidReleaseEvidenceVariant}`,
       );
+    }
+
+    if (getSummaryLineValue(sentryReleasePrereqSummaryText, 'Android release evidence ready') !== 'yes') {
+      errors.push('Current Android release build evidence is not ready; rerun android:dev:release:validate-local');
     }
 
     if (

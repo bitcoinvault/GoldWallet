@@ -67,6 +67,7 @@ assert.deepStrictEqual(posixInvocation.args, ['project', 'view', 'decentraplanet
 
 const summary = `
 Android release evidence variant: prod
+Android release build evidence ready: yes
 Sentry packages current: yes
 SENTRY_AUTH_TOKEN available: yes
 Sentry properties files ready: yes
@@ -74,6 +75,8 @@ Sentry release upload validation: not claimed
 Sentry release runtime proof state: ready
 Handoff outcome: blocked
 Handoff blocker type: ios-validation-not-ready
+Readiness errors: 1
+- iOS archive/simulator validation is not ready on this Windows host.
 Secret values printed: no
 `;
 assert.deepStrictEqual(getSentryProductionPreflightSummaryErrors(summary), []);
@@ -88,6 +91,14 @@ assert(
 );
 assert(
   getSentryProductionPreflightSummaryErrors(
+    summary.replace('Android release build evidence ready: yes', 'Android release build evidence ready: no'),
+  ).length > 0,
+);
+assert(
+  getSentryProductionPreflightSummaryErrors(summary.replace('Readiness errors: 1', 'Readiness errors: 2')).length > 0,
+);
+assert(
+  getSentryProductionPreflightSummaryErrors(
     summary.replace('Handoff outcome: blocked', 'Handoff outcome: ready-for-credentialed-upload-test'),
   ).length > 0,
 );
@@ -95,7 +106,11 @@ assert.deepStrictEqual(
   getSentryProductionPreflightSummaryErrors(
     summary
       .replace('Handoff outcome: blocked', 'Handoff outcome: ready-for-credentialed-upload-test')
-      .replace('Handoff blocker type: ios-validation-not-ready', 'Handoff blocker type: none'),
+      .replace('Handoff blocker type: ios-validation-not-ready', 'Handoff blocker type: none')
+      .replace(
+        'Readiness errors: 1\n- iOS archive/simulator validation is not ready on this Windows host.',
+        'Readiness errors: 0',
+      ),
   ),
   [],
 );

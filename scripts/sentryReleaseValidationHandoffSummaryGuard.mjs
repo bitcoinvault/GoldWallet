@@ -25,6 +25,7 @@ const getBulletLinesAfter = (content, label) => {
 
 const yesNoLabels = [
   'Android release evidence refresh skipped',
+  'Android release build evidence ready',
   'Android warning summary valid',
   'RN bundle task compatibility summary valid',
   'Release prerequisite summary valid',
@@ -54,6 +55,7 @@ export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
   const errors = [];
   const generatedAt = getLineValue(summary, 'Generated at');
   const androidReleaseEvidenceVariant = getLineValue(summary, 'Android release evidence variant');
+  const androidReleaseBuildEvidenceReady = getLineValue(summary, 'Android release build evidence ready');
   const releaseSourceMapPrereqs = getLineValue(summary, 'Release source-map prerequisites');
   const androidWarningSummaryValid = getLineValue(summary, 'Android warning summary valid');
   const rnBundleTaskCompatibilitySummaryValid = getLineValue(summary, 'RN bundle task compatibility summary valid');
@@ -174,6 +176,7 @@ export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
 
     if (
       androidWarningSummaryValid !== 'yes' ||
+      androidReleaseBuildEvidenceReady !== 'yes' ||
       rnBundleTaskCompatibilitySummaryValid !== 'yes' ||
       prereqSummaryValid !== 'yes' ||
       credentialPlanValid !== 'yes' ||
@@ -194,10 +197,32 @@ export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
     errors.push('Blocked Sentry release handoff must name a blocker type');
   }
 
+  if (runtimeProofState === 'ready' && androidReleaseBuildEvidenceReady !== 'yes') {
+    errors.push('Runtime-ready Sentry handoff requires current Android release build evidence');
+  }
+
+  if (
+    handoffOutcome === 'blocked' &&
+    androidReleaseBuildEvidenceReady === 'no' &&
+    androidWarningSummaryValid === 'yes' &&
+    rnBundleTaskCompatibilitySummaryValid === 'yes' &&
+    prereqSummaryValid === 'yes' &&
+    credentialPlanValid === 'yes' &&
+    sentryAuthTokenAvailable === 'yes' &&
+    sentryPropertiesReady === 'yes' &&
+    blockerType !== 'release-evidence-not-ready'
+  ) {
+    errors.push('Stale Android release build evidence must use blocker type release-evidence-not-ready');
+  }
+
   if (!requiredAction.includes('do not claim Sentry release upload validation')) {
     errors.push(
       'Required action must keep Sentry release upload validation unclaimed until credentialed release validation runs',
     );
+  }
+
+  if (androidReleaseBuildEvidenceReady === 'no' && !requiredAction.includes('refresh current Android release build evidence')) {
+    errors.push('Required action must refresh stale Android release build evidence');
   }
 
   if (

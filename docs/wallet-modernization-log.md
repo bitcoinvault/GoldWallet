@@ -10,6 +10,38 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.954 - Sentry production release-evidence integrity
+
+- Branch: `feature/bem-37-954-sentry-release-evidence-integrity`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the no-upload managed Sentry production preflight fail closed when Android release build evidence is stale, even if release smoke and create-wallet evidence still pass.
+
+Findings:
+
+- The prerequisite audit already computed full Android release-evidence readiness from the release summary, current-input fingerprint, required variants, and APK manifests, but did not serialize that aggregate result.
+- The handoff derived runtime readiness only from release smoke and create-wallet evidence. With a stale `510`-file fingerprint against `513` current release inputs, it could report runtime proof `ready` and classify only the Windows iOS blocker.
+- The prerequisite summary now records `Android release evidence ready`; its guard verifies that the value exactly matches the detailed release and manifest evidence.
+- The handoff and production checker now require current Android release build evidence, classify stale evidence as `release-evidence-not-ready` before iOS, and require an explicit refresh action.
+- The official authenticated Sentry CLI verified access to the `decentraplanet` organization and production Android/iOS project routing without printing credentials. No release or source map was uploaded.
+
+Validation:
+
+- `corepack yarn check:sentry-managed-credential-guard`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn check:sentry-release-validation-handoff-summary-guard`
+- `node scripts/checkSentryProductionPreflightGuard.mjs`
+- `SENTRY_RELEASE_PROFILE=prod corepack yarn sentry:release:validation:managed:preflight` (final integration-checkout validation after the local merge; no upload)
+- `node scripts/runSentryProductionPreflight.mjs` (final integration-checkout validation after current Android release evidence is refreshed; no upload)
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.953 - VisionCamera candidate snapshot refresh
 
 - Branch: `feature/bem-37-953-vision-camera-snapshot`

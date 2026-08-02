@@ -63,6 +63,7 @@ const notReadySummary = [
   'Android release summary errors: 0',
   'Android release APK manifest valid: yes',
   'Android release APK manifest errors: 0',
+  'Android release evidence ready: yes',
   'Android release evidence variant: prod',
   'Android release smoke summary present: yes',
   'Android release smoke summary valid: yes',
@@ -150,6 +151,7 @@ const readySummary = [
   'Android release summary errors: 0',
   'Android release APK manifest valid: yes',
   'Android release APK manifest errors: 0',
+  'Android release evidence ready: yes',
   'Android release evidence variant: prod',
   'Android release smoke summary present: yes',
   'Android release smoke summary valid: yes',
@@ -420,13 +422,22 @@ assertRejected(
 );
 assertRejected(
   'Stale Android release inputs fixture',
-  notReadySummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
+  notReadySummary
+    .replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no')
+    .replace('Android release evidence ready: yes', 'Android release evidence ready: no'),
   'current release inputs',
 );
 assertRejected(
   'Ready summary with stale Android release inputs fixture',
-  readySummary.replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no'),
+  readySummary
+    .replace('Android release summary current inputs covered: yes', 'Android release summary current inputs covered: no')
+    .replace('Android release evidence ready: yes', 'Android release evidence ready: no'),
   'current Android release evidence',
+);
+assertRejected(
+  'False-ready Android release evidence fixture',
+  notReadySummary.replace('Android release evidence ready: yes', 'Android release evidence ready: no'),
+  'must match the release summary',
 );
 assertRejected(
   'Invalid Android release APK manifest fixture',

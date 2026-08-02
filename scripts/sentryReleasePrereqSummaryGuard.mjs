@@ -64,6 +64,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseSummaryErrors = getLineValue(summary, 'Android release summary errors');
   const androidReleaseApkManifestValid = getLineValue(summary, 'Android release APK manifest valid');
   const androidReleaseApkManifestErrors = getLineValue(summary, 'Android release APK manifest errors');
+  const androidReleaseEvidenceReady = getLineValue(summary, 'Android release evidence ready');
   const androidReleaseEvidenceVariant = getLineValue(summary, 'Android release evidence variant');
   const androidReleaseSmokeSummaryPresent = getLineValue(summary, 'Android release smoke summary present');
   const androidReleaseSmokeSummaryValid = getLineValue(summary, 'Android release smoke summary valid');
@@ -395,6 +396,23 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
 
   if (androidReleaseApkManifestValid === 'yes' && androidReleaseApkManifestErrors !== '0') {
     errors.push('Valid Android release APK manifest proof must have 0 manifest errors');
+  }
+
+  if (!['yes', 'no'].includes(androidReleaseEvidenceReady)) {
+    errors.push(`Android release evidence ready must be yes or no. Received: ${androidReleaseEvidenceReady || 'missing'}`);
+  }
+
+  const computedAndroidReleaseEvidenceReady =
+    androidReleaseSummaryPresent === 'yes' &&
+    androidReleaseSummaryRequiredVariantsCovered === 'yes' &&
+    androidReleaseSummaryValid === 'yes' &&
+    androidReleaseSummaryCurrentInputsCovered === 'yes' &&
+    androidReleaseSummaryErrors === '0' &&
+    androidReleaseApkManifestValid === 'yes' &&
+    androidReleaseApkManifestErrors === '0';
+
+  if ((androidReleaseEvidenceReady === 'yes') !== computedAndroidReleaseEvidenceReady) {
+    errors.push('Android release evidence ready must match the release summary, current-input, and APK manifest evidence');
   }
 
   if (!supportedAndroidReleaseSmokeVariants.includes(androidReleaseEvidenceVariant)) {
