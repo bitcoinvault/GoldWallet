@@ -7,21 +7,36 @@ import { getIosRnTemplateBaselineErrors } from './iosRnTemplateBaselineGuard.mjs
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
+const readText = relativePath => read(relativePath).replace(/\r\n?/g, '\n');
 const environment = {
   packageJson: JSON.parse(read('package.json')),
-  podfile: read('ios/Podfile'),
-  pbxproj: read('ios/GoldWallet.xcodeproj/project.pbxproj'),
-  appDelegate: read('ios/GoldWallet/AppDelegate.m'),
-  xcodeEnv: read('ios/.xcode.env'),
-  macValidationHandoff: read('scripts/runIosMacValidationHandoff.mjs'),
-  detoxIosBuild: read('scripts/runDetoxIosBuild.mjs'),
-  gemfile: read('Gemfile'),
+  podfile: readText('ios/Podfile'),
+  pbxproj: readText('ios/GoldWallet.xcodeproj/project.pbxproj'),
+  appDelegate: readText('ios/GoldWallet/AppDelegate.m'),
+  xcodeEnv: readText('ios/.xcode.env'),
+  macValidationHandoff: readText('scripts/runIosMacValidationHandoff.mjs'),
+  detoxIosBuild: readText('scripts/runDetoxIosBuild.mjs'),
+  gemfile: readText('Gemfile'),
 };
 const errors = getIosRnTemplateBaselineErrors(environment);
 
 if (errors.length > 0) {
   console.error('iOS React Native template baseline check failed:');
   errors.forEach(error => console.error(`- ${error}`));
+  process.exit(1);
+}
+
+const crlfEnvironment = Object.fromEntries(
+  Object.entries(environment).map(([key, value]) => [
+    key,
+    typeof value === 'string' ? value.replace(/\r\n?/g, '\n').replace(/\n/g, '\r\n') : value,
+  ]),
+);
+const crlfErrors = getIosRnTemplateBaselineErrors(crlfEnvironment);
+
+if (crlfErrors.length > 0) {
+  console.error('iOS React Native template baseline guard rejected a valid CRLF checkout:');
+  crlfErrors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 

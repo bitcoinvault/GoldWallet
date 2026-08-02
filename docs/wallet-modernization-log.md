@@ -30,6 +30,8 @@ Findings:
 - The Xcode project now uses object version `54`, compatibility `Xcode 12.0`, Swift `5.0`, and C++20. Its four bundle phases use `.xcode.env`, the RN environment wrapper, and the current Sentry wrapper; its three existing dSYM phases use the current Sentry debug-files wrapper.
 - The macOS and Detox build runners no longer request `-UseNewBuildSystem=NO`, which was removed by modern Xcode. The root `Gemfile` pins CocoaPods `1.16.2` and xcodeproj `1.27.0` as required for Xcode 16 compatibility, and the handoff installs the pinned Ruby bundle before auditing CocoaPods.
 - Windows-safe static verification passes. Runtime/archive readiness remains unclaimed because this host has no Ruby/CocoaPods or Xcode, and `ios/Podfile.lock` still has 12 active native dependency drifts that must be regenerated on macOS rather than edited manually.
+- Post-merge validation rebuilt all four Android release variants and passed the production mainnet onboarding and create-wallet persistence smokes. The authenticated production Sentry preflight remained upload-free and secret-free; its only delivery blocker is the outstanding macOS iOS validation.
+- The baseline guard normalizes CRLF checkouts before matching multiline Podfile contracts and regression-tests the complete fixture with Windows line endings.
 
 Validation:
 
@@ -54,6 +56,10 @@ Validation:
 - Production iOS `react-native bundle` with source map
 - JDK 17 `corepack yarn android:dev:assemble`
 - Android emulator smoke for the unchanged shared JavaScript runtime
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:prod:release:smoke:embedded`
+- `corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `SENTRY_RELEASE_PROFILE=prod corepack yarn sentry:release:validation:managed:preflight` (authenticated, no upload)
 - `git diff --check`
 
 ### BEM-37.956 - Babel 7 traverse patch

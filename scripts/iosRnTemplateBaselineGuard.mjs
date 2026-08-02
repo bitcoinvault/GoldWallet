@@ -1,4 +1,5 @@
 const occurrences = (content, pattern) => [...content.matchAll(pattern)].length;
+const normalizeEol = content => content.replace(/\r\n?/g, '\n');
 
 export const getIosRnTemplateBaselineErrors = ({
   packageJson,
@@ -12,6 +13,13 @@ export const getIosRnTemplateBaselineErrors = ({
 }) => {
   const errors = [];
   const reactNativeVersion = packageJson.dependencies?.['react-native'];
+  podfile = normalizeEol(podfile);
+  pbxproj = normalizeEol(pbxproj);
+  appDelegate = normalizeEol(appDelegate);
+  xcodeEnv = normalizeEol(xcodeEnv);
+  macValidationHandoff = normalizeEol(macValidationHandoff);
+  detoxIosBuild = normalizeEol(detoxIosBuild);
+  gemfile = normalizeEol(gemfile);
 
   if (reactNativeVersion !== '0.86.2') {
     errors.push(`React Native iOS template baseline expects react-native 0.86.2. Found: ${reactNativeVersion || 'missing'}`);
