@@ -39,7 +39,7 @@ const expectedCurrentPodfileLockDriftSnippets = [
   'RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.1.0',
   'RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
   'RNScreens 3.6.0; package.json has react-native-screens 4.26.2',
-  'RNSentry 3.1.0; package.json has @sentry/react-native 8.21.0',
+  'RNSentry 3.1.0; package.json has @sentry/react-native 8.22.0',
   'RNVectorIcons 6.6.0; package.json has react-native-vector-icons 10.3.0',
 ];
 
