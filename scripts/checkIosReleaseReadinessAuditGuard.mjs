@@ -7,6 +7,7 @@ import {
   formatIosReleaseReadinessSummary,
   writeIosReleaseReadinessSummary,
 } from './auditIosReleaseReadiness.mjs';
+import { trackedPodPackagePairs } from './iosPodfileLockDrift.mjs';
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,6 +23,12 @@ const assert = (condition, message) => {
 assert(typeof collectIosReleaseReadiness === 'function', 'auditIosReleaseReadiness must export collectIosReleaseReadiness');
 assert(typeof formatIosReleaseReadinessSummary === 'function', 'auditIosReleaseReadiness must export formatIosReleaseReadinessSummary');
 assert(typeof writeIosReleaseReadinessSummary === 'function', 'auditIosReleaseReadiness must export writeIosReleaseReadinessSummary');
+assert(
+  trackedPodPackagePairs.some(
+    ([podName, packageName]) => podName === 'react-native-safe-area-context' && packageName === 'react-native-safe-area-context',
+  ),
+  'iOS Podfile.lock drift must track react-native-safe-area-context',
+);
 
 const source = readFileSync(path.join(root, 'scripts', 'auditIosReleaseReadiness.mjs'), 'utf8');
 

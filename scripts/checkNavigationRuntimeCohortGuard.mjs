@@ -8,30 +8,29 @@ import {
 const dependencies = {
   react: '19.2.3',
   'react-native': '0.86.2',
-  'react-native-safe-area-context': '5.8.0',
   ...Object.fromEntries(expectedNavigationRuntimeVersions),
 };
 const installedPackages = {
   '@react-navigation/bottom-tabs': {
-    version: '7.18.14',
+    version: '7.18.16',
     peerDependencies: {
-      '@react-navigation/native': '^7.3.14',
+      '@react-navigation/native': '^7.3.16',
       react: '>=18.2.0',
       'react-native': '*',
       'react-native-safe-area-context': '>=4.0.0',
       'react-native-screens': '>=4.0.0',
     },
   },
-  '@react-navigation/devtools': { version: '7.1.11', peerDependencies: { react: '>=18.2.0' } },
+  '@react-navigation/devtools': { version: '7.1.12', peerDependencies: { react: '>=18.2.0' } },
   '@react-navigation/core': {
-    version: '7.21.11',
+    version: '7.21.12',
     peerDependencies: { react: '>=18.2.0' },
   },
   '@react-navigation/elements': {
-    version: '2.9.36',
+    version: '2.9.38',
     peerDependencies: {
       '@react-native-masked-view/masked-view': '>=0.2.0',
-      '@react-navigation/native': '^7.3.14',
+      '@react-navigation/native': '^7.3.16',
       react: '>=18.2.0',
       'react-native': '*',
       'react-native-safe-area-context': '>=4.0.0',
@@ -41,13 +40,13 @@ const installedPackages = {
     },
   },
   '@react-navigation/native': {
-    version: '7.3.14',
+    version: '7.3.16',
     peerDependencies: { react: '>=18.2.0', 'react-native': '*' },
   },
   '@react-navigation/stack': {
-    version: '7.10.17',
+    version: '7.10.22',
     peerDependencies: {
-      '@react-navigation/native': '^7.3.14',
+      '@react-navigation/native': '^7.3.16',
       react: '>=18.2.0',
       'react-native': '*',
       'react-native-gesture-handler': '>=2.0.0',
@@ -60,8 +59,12 @@ const installedPackages = {
     version: '3.1.0',
     peerDependencies: { react: '*', 'react-native': '*' },
   },
+  'react-native-safe-area-context': {
+    version: '5.8.1',
+    peerDependencies: { react: '*', 'react-native': '*' },
+  },
   'react-native-screens': {
-    version: '4.26.2',
+    version: '4.27.0',
     peerDependencies: { react: '*', 'react-native': '*' },
   },
 };
@@ -72,9 +75,21 @@ assert(
     dependencies,
     installedPackages: {
       ...installedPackages,
+      'react-native-safe-area-context': {
+        ...installedPackages['react-native-safe-area-context'],
+        peerDependencies: { react: '*', 'react-native': '>=0.87.0' },
+      },
+    },
+  }).some(error => error.includes('react-native-safe-area-context peer react-native range >=0.87.0 does not accept 0.86.2')),
+);
+assert(
+  getNavigationRuntimeCohortErrors({
+    dependencies,
+    installedPackages: {
+      ...installedPackages,
       '@react-navigation/core': { ...installedPackages['@react-navigation/core'], version: '7.21.9' },
     },
-  }).some(error => error.includes('@react-navigation/core installed version must be 7.21.11')),
+  }).some(error => error.includes('@react-navigation/core installed version must be 7.21.12')),
 );
 assert(
   getNavigationRuntimeCohortErrors({
@@ -92,7 +107,7 @@ assert(
   getNavigationRuntimeCohortErrors({
     dependencies: { ...dependencies, '@react-navigation/native': '7.3.8' },
     installedPackages,
-  }).some(error => error.includes('@react-navigation/native dependency must be 7.3.14')),
+  }).some(error => error.includes('@react-navigation/native dependency must be 7.3.16')),
 );
 assert(
   getNavigationRuntimeCohortErrors({
@@ -107,7 +122,7 @@ assert(
         },
       },
     },
-  }).some(error => error.includes('@react-navigation/stack peer react-native-safe-area-context range >=6.0.0 does not accept 5.8.0')),
+  }).some(error => error.includes('@react-navigation/stack peer react-native-safe-area-context range >=6.0.0 does not accept 5.8.1')),
 );
 assert(
   getNavigationRuntimeCohortErrors({
@@ -129,9 +144,9 @@ assert(
     dependencies,
     installedPackages: {
       ...installedPackages,
-      'react-native-screens': { ...installedPackages['react-native-screens'], version: '4.26.1' },
+      'react-native-screens': { ...installedPackages['react-native-screens'], version: '4.26.2' },
     },
-  }).some(error => error.includes('react-native-screens installed version must be 4.26.2')),
+  }).some(error => error.includes('react-native-screens installed version must be 4.27.0')),
 );
 assert(
   getNavigationRuntimeCohortErrors({
@@ -146,7 +161,7 @@ assert(
         },
       },
     },
-  }).some(error => error.includes('does not accept 7.3.14')),
+  }).some(error => error.includes('does not accept 7.3.16')),
 );
 
 console.log('Navigation runtime cohort guard checks are valid.');

@@ -10,6 +10,57 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.967 - React Navigation and native navigation cohort
+
+- Branch: `feature/bem-37-967-navigation-native-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the aligned React Navigation family to native `7.3.16`, stack `7.10.22`, bottom-tabs `7.18.16`, and devtools `7.1.12` instead of stepping through each intermediate patch.
+- Upgrade the coupled native navigation surface to `react-native-screens@4.27.0` and `react-native-safe-area-context@5.8.1`, while keeping already-current `react-native-gesture-handler@3.1.0` unchanged.
+- Refresh direct, installed, transitive peer-range, native-inventory, iOS drift, masked-view, and current-baseline contracts, then prove stack/tab runtime behavior on the exact production release APK.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-10 reports all six selected versions as current latest and their peer ranges accept React `19.2.3`, React Native `0.86.2`, Screens `4.27.0`, Safe Area Context `5.8.1`, and Gesture Handler `3.1.0`. Yarn resolves the matching transitive navigation cohort: core `7.21.12`, elements `2.9.38`, and routers `7.6.4`.
+- Upstream changes include nested-route `beforeRemove`, stale inert-state reset, and stack-gesture fixes in React Navigation; an Android container-state restoration crash fix and fast-navigation transition fix in Screens; and detached Fabric SafeAreaView state-update protection in Safe Area Context.
+- The navigation cohort guard now owns Safe Area Context directly in addition to the general native-module inventory, preventing future navigation-only drift from bypassing the peer/runtime contract.
+- JDK 17 `devDebug` assembly passes. The debug APK SHA-256 is `5d42f01af95375cb71e1606669bd821c373f8a4d70eda18b80e6a3a1d7f34594`.
+- The complete `dev`, `stage`, `prod`, and `beta` release matrix passes with release-input fingerprint `cbc86648a330d6d490e66181ae201432d3e37dbcaa3bdf8f81e09c7bc7df52bb` across `513` files. Source APK hashes are `d07dac1441b25a28c4ffa03d08212a5ddd18a0ed35a36794c3874abf52e2259b` (`dev`), `d07e2960b79d1a3abf97d205af4913375d6eb5332d717394f870c4fa1397d683` (`stage`), `d3e6ff27fb9f7d277d97747b180d370b30c62ebba3704ce70bca141a5f00f0bb` (`prod`), and `45b33dcc03f3c19ba98bd69075f2516dd58416957ea9aa25a667027f6d6d250a` (`beta`). Bundle, source-map, manifest, Keychain-only storage, and retired App Center checks pass for all variants.
+- The exact locally signed `prodRelease` APK passes clean onboarding, Create/Import stack transitions, QR scanner open/close, all four bottom tabs, and Settings Terms WebView on `emulator-5554`, with no fatal/runtime logcat findings. The final screenshot also shows the header and bottom navigation respecting the system safe areas without overlap.
+- The Android warning audit reports zero targeted or unexpected targeted warnings, and the masked-view migration remains complete with stack `7.10.22`.
+- The online direct-outdated snapshot no longer contains any selected navigation package. It still reports `30` unrelated entries, including three review-required tooling packages, so the aggregate online snapshot remains intentionally unclaimed in this branch.
+- Static iOS readiness remains valid, but iOS runtime is not claimed on Windows. The drift helper now also tracks Safe Area Context and reports `13` active drifts, including `react-native-safe-area-context 3.3.2` versus package `5.8.1` and RNScreens `3.6.0` versus package `4.27.0`; macOS/Xcode/CocoaPods refresh and simulator/device navigation checks remain required.
+
+Validation:
+
+- live npm manifests and upstream commit comparison for the selected navigation/native packages
+- Node `24.16.0` `corepack yarn install --frozen-lockfile`
+- `corepack yarn check:navigation-runtime-cohort-guard`
+- `corepack yarn check:navigation-runtime-cohort`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn masked-view:migration:audit`
+- `corepack yarn masked-view:migration:check-summary`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn ios:release:readiness:check-summary`
+- JDK 17 `corepack yarn android:dev:assemble`
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `corepack yarn android:dev:audit-warnings`
+- `corepack yarn ios:static:verify`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- visual inspection of `local-docs/android-smoke-prod-release.png`
+
 ### BEM-37.966 - CameraKit 18.0.1 Camera/QR closure
 
 - Branch: `feature/bem-37-966-camera-kit-18-0-1`

@@ -10,8 +10,8 @@ const validBlockedWindowsSummary = [
   'Ready for macOS archive validation: no',
   'Ready for macOS pod/archive validation: no',
   'Podfile.lock refresh required: yes',
-  'Release Podfile.lock drift issues: 12',
-  'Prereq Podfile.lock drift issues: 12',
+  'Release Podfile.lock drift issues: 13',
+  'Prereq Podfile.lock drift issues: 13',
   'xcodebuild available: no',
   'xcodebuild version: <not available>',
   'pod available: no',
@@ -28,7 +28,7 @@ const validBlockedWindowsSummary = [
   '- Current platform is win32; iOS archive/simulator validation requires macOS with Xcode.',
   '- xcodebuild is unavailable; install/run Xcode on macOS before claiming iOS validation.',
   '- CocoaPods is unavailable; install pod or run through bundle exec pod on macOS.',
-  '- ios/Podfile.lock refresh is required; release drift 12, prereq drift 12.',
+  '- ios/Podfile.lock refresh is required; release drift 13, prereq drift 13.',
   'Secret values printed: no',
   'Required action: refresh ios/Podfile.lock with pod install on macOS, then run `corepack yarn ios:mac-validation:handoff --all-schemes` before claiming iOS runtime delivery.',
   '',
@@ -108,7 +108,7 @@ assertRejected(
 );
 assertRejected(
   'Drift mismatch fixture',
-  validBlockedWindowsSummary.replace('Prereq Podfile.lock drift issues: 12', 'Prereq Podfile.lock drift issues: 11'),
+  validBlockedWindowsSummary.replace('Prereq Podfile.lock drift issues: 13', 'Prereq Podfile.lock drift issues: 12'),
   'drift counts must match',
 );
 assertRejected(
@@ -118,7 +118,7 @@ assertRejected(
     .replace('- Current platform is win32; iOS archive/simulator validation requires macOS with Xcode.\n', '')
     .replace('- xcodebuild is unavailable; install/run Xcode on macOS before claiming iOS validation.\n', '')
     .replace('- CocoaPods is unavailable; install pod or run through bundle exec pod on macOS.\n', '')
-    .replace('- ios/Podfile.lock refresh is required; release drift 12, prereq drift 12.\n', ''),
+    .replace('- ios/Podfile.lock refresh is required; release drift 13, prereq drift 13.\n', ''),
   'Not-ready iOS handoff must list at least one blocker',
 );
 assertRejected(
