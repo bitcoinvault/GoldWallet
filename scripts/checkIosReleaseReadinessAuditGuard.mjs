@@ -45,6 +45,9 @@ const readyAudit = {
   reactNativeVersion: '0.86.2',
   rnMinIosVersion: '15.1',
   rnMinXcodeVersion: '16.1',
+  firebaseAppleSdkVersion: '12.17.0',
+  firebaseMinXcodeVersion: '26.2',
+  effectiveMinXcodeVersion: '26.2',
   podfilePlatform: '15.1',
   deploymentTargets: ['15.1'],
   schemeCount: 8,
@@ -52,7 +55,8 @@ const readyAudit = {
   sentryDsymPhaseCount: 3,
   codePushPlistPlaceholderCount: 0,
   remoteNotificationPlistCount: 4,
-  xcodebuildVersion: 'Xcode 16.1; Build version 16B40',
+  xcodebuildVersion: 'Xcode 26.2; Build version 17C52',
+  xcodebuildSupported: true,
 };
 const readySummary = formatIosReleaseReadinessSummary(readyAudit, '2026-06-10T00:00:00.000Z');
 const readySummaryErrors = getIosReleaseReadinessSummaryErrors(readySummary);

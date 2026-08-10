@@ -32,6 +32,9 @@ export const getIosPodfileRefreshPlanErrors = plan => {
   const errors = [];
   const generatedAt = getLineValue(plan, 'Generated at');
   const platform = getLineValue(plan, 'Platform');
+  const firebaseAppleSdk = getLineValue(plan, 'Firebase Apple SDK');
+  const firebaseMinimumXcode = getLineValue(plan, 'Firebase minimum Xcode');
+  const effectiveMinimumXcode = getLineValue(plan, 'Effective minimum Xcode');
   const staticFilesValid = getLineValue(plan, 'Static iOS release files valid');
   const guardedSchemeCount = getLineValue(plan, 'Guarded iOS schemes');
   const refreshRequired = getLineValue(plan, 'Podfile.lock refresh required');
@@ -53,6 +56,18 @@ export const getIosPodfileRefreshPlanErrors = plan => {
 
   if (!platform) {
     errors.push('Platform must be recorded');
+  }
+
+  if (firebaseAppleSdk !== '12.17.0') {
+    errors.push(`Firebase Apple SDK must be 12.17.0. Received: ${firebaseAppleSdk || 'missing'}`);
+  }
+
+  if (firebaseMinimumXcode !== '26.2') {
+    errors.push(`Firebase minimum Xcode must be 26.2. Received: ${firebaseMinimumXcode || 'missing'}`);
+  }
+
+  if (effectiveMinimumXcode !== '26.2') {
+    errors.push(`Effective minimum Xcode must be 26.2. Received: ${effectiveMinimumXcode || 'missing'}`);
   }
 
   [
@@ -106,6 +121,9 @@ export const getIosPodfileRefreshPlanErrors = plan => {
 
   [
     'cwd=ios pod install',
+    'corepack yarn ios:mac-validation-prereq:audit',
+    'corepack yarn ios:mac-validation-prereq:check-summary',
+    'node scripts/checkIosMacValidationPrereqSummary.mjs --require-toolchain',
     'corepack yarn ios:release:readiness:audit',
     'corepack yarn ios:release:readiness:check-summary',
     'corepack yarn ios:mac-validation:handoff',
@@ -115,6 +133,27 @@ export const getIosPodfileRefreshPlanErrors = plan => {
       errors.push(`plan is missing required command: ${snippet}`);
     }
   });
+
+  const commandLines = plan.split(/\r?\n/).filter(line => /^\d+\. cwd=/.test(line));
+  const commandIndex = snippet => commandLines.findIndex(line => line.includes(snippet));
+  const prereqAuditIndex = commandIndex('corepack yarn ios:mac-validation-prereq:audit');
+  const prereqSummaryCheckIndex = commandIndex('corepack yarn ios:mac-validation-prereq:check-summary');
+  const toolchainGateIndex = commandIndex('node scripts/checkIosMacValidationPrereqSummary.mjs --require-toolchain');
+  const podInstallIndex = commandIndex('cwd=ios pod install');
+
+  if (
+    prereqAuditIndex === -1 ||
+    prereqSummaryCheckIndex === -1 ||
+    toolchainGateIndex === -1 ||
+    podInstallIndex === -1 ||
+    !(prereqAuditIndex < prereqSummaryCheckIndex &&
+      prereqSummaryCheckIndex < toolchainGateIndex &&
+      toolchainGateIndex < podInstallIndex)
+  ) {
+    errors.push(
+      'Command plan must refresh and validate the current macOS prerequisite summary, then pass the toolchain gate before pod install',
+    );
+  }
 
   if (!requiredAction.includes('pod install') || !requiredAction.includes('archive/simulator validation') || !requiredAction.includes('--all-schemes')) {
     errors.push('Required action must name pod install, archive/simulator validation, and --all-schemes');

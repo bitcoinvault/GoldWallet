@@ -1,3 +1,5 @@
+import { compareNumericVersions, parseNumericVersion } from './auditIosMacValidationPrereqs.mjs';
+
 const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
 
@@ -35,7 +37,7 @@ const expectedCurrentPodfileLockDriftSnippets = [
   'RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
   'RNDeviceInfo 6.2.1; package.json has react-native-device-info 15.0.2',
   'RNFastImage 8.3.7; package.json has react-native-fast-image 8.6.3',
-  'RNFBApp 12.7.5; package.json has @react-native-firebase/app 26.0.0',
+  'RNFBApp 12.7.5; package.json has @react-native-firebase/app 26.1.0',
   'RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.1.0',
   'RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
   'RNScreens 3.6.0; package.json has react-native-screens 4.26.2',
@@ -51,6 +53,9 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   const reactNativeVersion = getLineValue(summary, 'React Native version');
   const rnMinIos = getLineValue(summary, 'React Native minimum iOS');
   const rnMinXcode = getLineValue(summary, 'React Native minimum Xcode');
+  const firebaseAppleSdk = getLineValue(summary, 'Firebase Apple SDK');
+  const firebaseMinimumXcode = getLineValue(summary, 'Firebase minimum Xcode');
+  const effectiveMinimumXcode = getLineValue(summary, 'Effective minimum Xcode');
   const podfilePlatform = getLineValue(summary, 'Podfile iOS platform');
   const deploymentTargets = getLineValue(summary, 'Xcode deployment targets');
   const schemeCount = getLineValue(summary, 'Guarded iOS schemes');
@@ -62,6 +67,7 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
   const removedPodfileLockReferenceCount = getLineValue(summary, 'Removed Podfile.lock pod references');
   const podfileLockDriftCount = getLineValue(summary, 'Podfile.lock drift issues');
   const xcodebuildVersion = getLineValue(summary, 'xcodebuild version');
+  const xcodebuildSupported = getLineValue(summary, 'xcodebuild supported');
   const iosRuntimeDeliveryValidation = getLineValue(summary, 'iOS runtime delivery validation');
   const errorCount = getLineValue(summary, 'Errors');
   const warningCount = getLineValue(summary, 'Warnings');
@@ -95,6 +101,18 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
       errors.push(`${label} must be ${expected}. Received: ${actual || 'missing'}`);
     }
   });
+
+  if (firebaseAppleSdk !== '12.17.0') {
+    errors.push(`Firebase Apple SDK must be 12.17.0. Received: ${firebaseAppleSdk || 'missing'}`);
+  }
+
+  if (firebaseMinimumXcode !== '26.2') {
+    errors.push(`Firebase minimum Xcode must be 26.2. Received: ${firebaseMinimumXcode || 'missing'}`);
+  }
+
+  if (effectiveMinimumXcode !== '26.2') {
+    errors.push(`Effective minimum Xcode must be 26.2. Received: ${effectiveMinimumXcode || 'missing'}`);
+  }
 
   if (!deploymentTargets.split(',').map(value => value.trim()).includes('15.1')) {
     errors.push(`Xcode deployment targets must include 15.1. Received: ${deploymentTargets || 'missing'}`);
@@ -154,6 +172,26 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
     errors.push('xcodebuild version line is missing');
   }
 
+  if (!['yes', 'no'].includes(xcodebuildSupported)) {
+    errors.push(`xcodebuild supported must be yes or no. Received: ${xcodebuildSupported || 'missing'}`);
+  }
+
+  if (xcodebuildVersion === '<not available on this machine>' && xcodebuildSupported !== 'no') {
+    errors.push('xcodebuild cannot be supported when it is unavailable');
+  }
+
+  if (xcodebuildVersion !== '<not available on this machine>') {
+    const installedXcodeVersion = parseNumericVersion(xcodebuildVersion)?.join('.') || null;
+    const comparison = compareNumericVersions(installedXcodeVersion, effectiveMinimumXcode);
+    const expectedSupported = comparison !== null && comparison >= 0 ? 'yes' : 'no';
+    if (xcodebuildSupported !== expectedSupported) {
+      errors.push(
+        `xcodebuild supported must match Xcode ${effectiveMinimumXcode}+ comparison. ` +
+          `Version: ${installedXcodeVersion || 'unparseable'}, reported: ${xcodebuildSupported || 'missing'}`,
+      );
+    }
+  }
+
   if (iosRuntimeDeliveryValidation !== 'not claimed') {
     errors.push(`iOS runtime delivery validation must be not claimed. Received: ${iosRuntimeDeliveryValidation || 'missing'}`);
   }
@@ -181,12 +219,31 @@ export const getIosReleaseReadinessSummaryErrors = summary => {
     if (!hasLine(summary, expectedWarning)) {
       errors.push('Missing xcodebuild unavailable warning line');
     }
+  } else if (xcodebuildSupported === 'no') {
+    const installedXcodeVersion = parseNumericVersion(xcodebuildVersion)?.join('.') || '<unparseable>';
+    const expectedWarning =
+      `- Installed Xcode ${installedXcodeVersion} is below the effective iOS dependency minimum ` +
+      `${effectiveMinimumXcode} required by Firebase Apple SDK ${firebaseAppleSdk}.`;
+
+    if (!isPositiveInteger(warningCount)) {
+      errors.push(`Warnings must be positive when installed Xcode is unsupported. Received: ${warningCount || 'missing'}`);
+    }
+
+    if (!hasLine(summary, expectedWarning)) {
+      errors.push('Missing unsupported xcodebuild warning line');
+    }
   } else if (!isPositiveInteger(warningCount) && warningCount !== '0') {
     errors.push(`Warnings must be 0 or a positive integer. Received: ${warningCount || 'missing'}`);
   }
 
-  if (ready === 'yes' && (xcodebuildVersion === '<not available on this machine>' || podfileLockRefreshRequired !== 'no' || podfileLockDriftCount !== '0')) {
-    errors.push('Ready summary must have xcodebuild available and no Podfile.lock drift');
+  if (
+    ready === 'yes' &&
+    (xcodebuildVersion === '<not available on this machine>' ||
+      xcodebuildSupported !== 'yes' ||
+      podfileLockRefreshRequired !== 'no' ||
+      podfileLockDriftCount !== '0')
+  ) {
+    errors.push('Ready summary must have supported xcodebuild and no Podfile.lock drift');
   }
 
   if (podfileLockRefreshRequired === 'yes' && !requiredAction.includes('refresh ios/Podfile.lock with pod install on macOS')) {

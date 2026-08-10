@@ -29,6 +29,7 @@ export const getIosRnTemplateBaselineErrors = ({
     "require.resolve(\n    \"react-native/scripts/react_native_pods.rb\"",
     'platform :ios, min_ios_version_supported',
     'prepare_react_native_project!',
+    '$RNFirebaseDisableSPM = true',
     'def configure_goldwallet_target',
     ':app_path => "#{Pod::Config.instance.installation_root}/.."',
     ':hermes_enabled => true',
@@ -41,6 +42,15 @@ export const getIosRnTemplateBaselineErrors = ({
       errors.push(`ios/Podfile is missing the RN 0.86 template baseline snippet: ${snippet}`);
     }
   });
+
+  const firebaseSpmOptOutMatch = /^\$RNFirebaseDisableSPM = true$/m.exec(podfile);
+  if (occurrences(podfile, /^\$RNFirebaseDisableSPM = true$/gm) !== 1) {
+    errors.push('ios/Podfile must set $RNFirebaseDisableSPM = true exactly once');
+  }
+
+  if (firebaseSpmOptOutMatch && firebaseSpmOptOutMatch.index > podfile.indexOf("target 'GoldWallet' do")) {
+    errors.push('ios/Podfile must disable RN Firebase SPM before the concrete app targets are evaluated');
+  }
 
   ['GoldWallet', 'GoldWallet Beta', 'GoldWallet Stage', 'GoldWallet Dev'].forEach(targetName => {
     if (!podfile.includes(`target '${targetName}' do\n  configure_goldwallet_target\nend`)) {

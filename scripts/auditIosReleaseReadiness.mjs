@@ -11,6 +11,12 @@ import {
 import { getSentryReleaseIntegrationErrors } from './sentryReleaseIntegrationGuard.mjs';
 import { collectIosPodfileLockDrift } from './iosPodfileLockDrift.mjs';
 import { getIosRnTemplateBaselineErrors } from './iosRnTemplateBaselineGuard.mjs';
+import {
+  compareNumericVersions,
+  getEffectiveMinimumXcodeVersion,
+  getFirebaseMinimumXcodeVersion,
+  parseNumericVersion,
+} from './auditIosMacValidationPrereqs.mjs';
 
 const require = createRequire(import.meta.url);
 const plist = require('plist');
@@ -67,12 +73,16 @@ export const collectIosReleaseReadiness = () => {
   });
 
   const packageJson = JSON.parse(read('package.json'));
+  const rnFirebasePackageJson = JSON.parse(read('node_modules/@react-native-firebase/app/package.json'));
   const podfileLock = read('ios/Podfile.lock');
   const rnHelpers = read('node_modules/react-native/scripts/cocoapods/helpers.rb');
   const rnMinIosMatch = rnHelpers.match(/min_ios_version_supported\s*\n\s*return '([^']+)'/);
   const rnMinXcodeMatch = rnHelpers.match(/min_xcode_version_supported\s*\n\s*return '([^']+)'/);
   const rnMinIosVersion = rnMinIosMatch ? rnMinIosMatch[1] : null;
   const rnMinXcodeVersion = rnMinXcodeMatch ? rnMinXcodeMatch[1] : null;
+  const firebaseAppleSdkVersion = rnFirebasePackageJson.sdkVersions?.ios?.firebase || '<unknown>';
+  const firebaseMinXcodeVersion = getFirebaseMinimumXcodeVersion(firebaseAppleSdkVersion);
+  const effectiveMinXcodeVersion = getEffectiveMinimumXcodeVersion(rnMinXcodeVersion || '<unknown>', firebaseMinXcodeVersion);
 
   if (!rnMinIosVersion) {
     errors.push('Unable to read React Native minimum iOS version from node_modules/react-native/scripts/cocoapods/helpers.rb');
@@ -215,8 +225,19 @@ export const collectIosReleaseReadiness = () => {
     }
   }
 
+  const installedXcodeVersion = parseNumericVersion(xcodebuildVersion)?.join('.') || null;
+  const installedXcodeComparison = compareNumericVersions(installedXcodeVersion, effectiveMinXcodeVersion);
+  const xcodebuildSupported = Boolean(installedXcodeVersion) && installedXcodeComparison !== null && installedXcodeComparison >= 0;
+
+  if (xcodebuildVersion && !xcodebuildSupported) {
+    warnings.push(
+      `Installed Xcode ${installedXcodeVersion || '<unparseable>'} is below the effective iOS dependency minimum ` +
+        `${effectiveMinXcodeVersion} required by Firebase Apple SDK ${firebaseAppleSdkVersion}.`,
+    );
+  }
+
   const staticReady = errors.length === 0;
-  const archiveReady = staticReady && podfileLockDriftIssues.length === 0 && Boolean(xcodebuildVersion);
+  const archiveReady = staticReady && podfileLockDriftIssues.length === 0 && xcodebuildSupported;
 
   return {
     ready: archiveReady,
@@ -228,6 +249,9 @@ export const collectIosReleaseReadiness = () => {
     reactNativeVersion: packageJson.dependencies['react-native'],
     rnMinIosVersion,
     rnMinXcodeVersion,
+    firebaseAppleSdkVersion,
+    firebaseMinXcodeVersion,
+    effectiveMinXcodeVersion,
     podfilePlatform,
     deploymentTargets: [...new Set(deploymentTargets)].sort(compareVersions),
     schemeCount: actualSchemeConfigs.size,
@@ -236,6 +260,7 @@ export const collectIosReleaseReadiness = () => {
     codePushPlistPlaceholderCount,
     remoteNotificationPlistCount,
     xcodebuildVersion,
+    xcodebuildSupported,
   };
 };
 
@@ -247,6 +272,9 @@ export const formatIosReleaseReadinessSummary = (audit, generatedAt = new Date()
   `React Native version: ${audit.reactNativeVersion}`,
   `React Native minimum iOS: ${audit.rnMinIosVersion || '<unknown>'}`,
   `React Native minimum Xcode: ${audit.rnMinXcodeVersion || '<unknown>'}`,
+  `Firebase Apple SDK: ${audit.firebaseAppleSdkVersion || '<unknown>'}`,
+  `Firebase minimum Xcode: ${audit.firebaseMinXcodeVersion || '<unknown>'}`,
+  `Effective minimum Xcode: ${audit.effectiveMinXcodeVersion || '<unknown>'}`,
   `Podfile iOS platform: ${audit.podfilePlatform || '<missing>'}`,
   `Xcode deployment targets: ${audit.deploymentTargets.join(', ') || '<none>'}`,
   `Guarded iOS schemes: ${audit.schemeCount}`,
@@ -260,6 +288,7 @@ export const formatIosReleaseReadinessSummary = (audit, generatedAt = new Date()
   `Podfile.lock drift issues: ${audit.podfileLockDriftIssues.length}`,
   ...audit.podfileLockDriftIssues.map(issue => `- ${issue}`),
   `xcodebuild version: ${audit.xcodebuildVersion || '<not available on this machine>'}`,
+  `xcodebuild supported: ${audit.xcodebuildSupported ? 'yes' : 'no'}`,
   'iOS runtime delivery validation: not claimed',
   `Errors: ${audit.errors.length}`,
   ...audit.errors.map(error => `- ${error}`),

@@ -10,6 +10,76 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.961 - React Native Firebase 26.1 release cohort
+
+- Branch: `feature/bem-37-961-rn-firebase-26-1`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the aligned React Native Firebase `app`, `analytics`, `crashlytics`, and `messaging` packages from `26.0.0` to the latest checked stable `26.1.0` as one native release-services cohort.
+- Refresh the Firebase JavaScript dependency tree to `12.17.0` and Android Firebase BoM to `34.16.0` while retaining the current Google Services, Crashlytics, and strict-version-matcher Gradle plugins.
+- Keep the existing iOS CocoaPods integration explicit on React Native `0.86.2`; React Native Firebase `26.1.0` otherwise auto-selects Swift Package Manager for React Native `0.75+`.
+- Refresh version-sensitive native inventory, iOS readiness, Firebase release-service, runtime-delivery, and aggregate handoff guards and documentation.
+- Rebuild Android debug and all four release variants, then re-prove production onboarding, navigation, QR, Terms WebView, create-wallet persistence, and import-wallet persistence before accepting the native SDK update.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-10 reports the complete React Native Firebase cohort at `26.1.0`, published on 2026-08-03; the installed app, analytics, crashlytics, and messaging packages are aligned and the messaging peer dependency requires the same app version.
+- The cohort resolves Firebase JavaScript `12.17.0`, Apple Firebase SDK `12.17.0`, Android Firebase BoM `34.16.0`, and Google Play Services Auth `21.5.0`. The existing Google Services `4.5.0`, Crashlytics `3.0.7`, and strict-version-matcher `1.2.4` Android plugins remain current for this milestone.
+- React Native Firebase `26.1.0` introduces automatic Swift Package Manager selection on React Native `0.75+`. The project still has a CocoaPods workspace and a committed Podfile, so `$RNFirebaseDisableSPM = true` is declared exactly once before all targets and protected by mutation-tested ordering, duplicate, and commented-line bypass guards. A future SPM migration must be a dedicated macOS/Xcode milestone.
+- Independent review found that the existing iOS prerequisite path enforced only React Native's Xcode `16.1` floor. Official Firebase Apple SDK release notes require Xcode `26.2+` from SDK `12.12.0`; the selected `12.17.0` SDK therefore raises the effective floor to `26.2`. The prerequisite audit now parses and compares the installed Xcode version, its summary guard rejects unsupported ready claims, and the existing `macos-15-intel` workflow selects its available Xcode `26.2` installation explicitly.
+- Follow-up review found two remaining paths that could under-enforce that floor: the standalone release-readiness summary could still accept a ready Xcode `16.1` fixture, and the executable handoff validated only summary structure before running `pod install`. Release readiness and the Podfile refresh plan now carry the Firebase/effective Xcode fields, and a dedicated toolchain-only gate requires macOS, Xcode `26.2+`, and CocoaPods before the mutating pod refresh while allowing the drift that refresh is expected to repair.
+- Final review found that the standalone Podfile refresh plan initially called that gate without first regenerating the separate macOS prerequisite artifact. The plan now runs prerequisite audit and summary validation immediately before the gate, and its mutation tests reject stale-summary ordering or any `pod install` placed before the toolchain gate.
+- The aggregate release-service guard fixtures needed the current Android page-size evidence fields after the release smoke summary contract had become stricter; the fixtures now fail closed against the same schema as generated emulator evidence.
+- Android debug assembly and the `dev`, `stage`, `prod`, and `beta` release matrix pass with React Native Firebase `26.1.0`; generated manifests, secure-storage packaging, and retired App Center exclusion checks remain valid.
+- Signed `prodRelease` runtime proof passes onboarding, empty-wallet CTAs, QR scanner open/close, tab navigation, Terms WebView, standard wallet creation and post-restart PIN persistence, 3-key vault navigation, public watch-only wallet import, and post-restart import persistence without fatal/runtime logcat findings.
+- The `devRelease` app independently reaches the expected external `No network` state. Fresh logcat evidence still classifies `electrumx.testnet.btcv.stage.rnd.land:443 tls` as `blocked-by-electrum-certificate-expired`; its certificate expired on 2026-06-23. This is an infrastructure blocker and is not reported as full dev release runtime success.
+- Firebase package/wiring and aggregate release-service summaries are valid, but real FCM delivery, Analytics delivery, and Crashlytics event delivery remain explicitly unclaimed. Sentry upload also remains unclaimed without local credentials.
+- Full iOS delivery remains blocked on this Windows host: Xcode and CocoaPods are unavailable and `ios/Podfile.lock` has 12 active drifts, including RNFBApp `12.7.5` versus package `26.1.0`. The existing macOS workflow must refresh pods and build the shared schemes before iOS runtime readiness is claimed.
+
+Validation:
+
+- Live npm metadata and published package manifest inspection for all four `@react-native-firebase/*@26.1.0` packages
+- `corepack yarn install --no-frozen-lockfile`
+- `corepack yarn install --frozen-lockfile`
+- `corepack yarn check:ios-rn-template-baseline`
+- `corepack yarn check:ios-mac-validation-prereq-summary-guard`
+- `corepack yarn check:ios-release-readiness-audit-guard`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn check:ios-podfile-refresh-plan-guard`
+- `corepack yarn check:ios-macos-validation-workflow-guard`
+- `corepack yarn check:ios-mac-validation-handoff-guard`
+- `corepack yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn check:firebase-usage-guard`
+- `corepack yarn check:firebase-usage-scope`
+- `corepack yarn check:firebase-messaging-modular-usage-guard`
+- `corepack yarn check:firebase-messaging-modular-usage`
+- `corepack yarn ios:static:verify`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- JDK 17 `corepack yarn android:dev:assemble`
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `corepack yarn android:prod:release:smoke:verify`
+- `corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `corepack yarn android:prod:release:check-create-wallet-smoke-summary`
+- `corepack yarn android:prod:release:import-wallet-smoke:embedded`
+- `corepack yarn android:prod:release:check-import-wallet-smoke-summary`
+- `corepack yarn android:dev:release:smoke:embedded` (expected external Electrum TLS failure captured)
+- `corepack yarn android:dev:release:smoke:no-network:embedded`
+- `corepack yarn android:dev:release:network-blocker:audit`
+- `corepack yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn firebase:release-services:audit`
+- `corepack yarn firebase:release-services:check-summary`
+- `corepack yarn release-services:validation:handoff --skip-android-release`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.960 - Sentry React Native 8.22 release cohort
 
 - Branch: `feature/bem-37-960-sentry-8-22-upgrade`
