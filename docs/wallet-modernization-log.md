@@ -10,6 +10,60 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.966 - CameraKit 18.0.1 Camera/QR closure
+
+- Branch: `feature/bem-37-966-camera-kit-18-0-1`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the selected CameraKit scanner from `18.0.0` to the latest checked stable `18.0.1` without changing the existing QR rendering cohort or scanner contract.
+- Extend the Camera/QR migration evidence so a fresh worktree verifies the installed package, the upstream iOS crash/leak fixes, and published package hygiene instead of trusting only `package.json`.
+- Rebuild Android debug and all four release variants, then re-prove the production QR scanner and create-wallet persistence paths before accepting the native package patch.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-10 reports `react-native-camera-kit@18.0.1` as current latest. `react-native-qrcode-svg@6.3.21`, `react-native-svg@15.15.5`, and the forced `qrcode@1.5.4` resolution remain current and unchanged.
+- Published CameraKit changes replace per-view iOS `CMMotionManager` instances with one shared manager and queue, stop updates through the shared manager, and weakly capture the accelerometer callback. These changes address an iOS teardown crash and strong-reference leak; Android runtime code and the scanner API used by `ScanQrCodeScreen` are unchanged.
+- The installed package audit proves the exact `18.0.1` manifest and the required iOS source markers. It also rejects packages containing excluded Gradle wrapper/state, IDE, local-properties, or test artifacts; the installed tarball contains none.
+- Camera candidate and migration audits now treat the ignored Android warning summary as optional local evidence. This removes a real fresh-worktree failure while preserving tracked package, native wiring, source, documentation, live npm, and generated-summary checks as the authoritative gate.
+- VisionCamera latest moved to `5.2.2` but still requires `react-native-nitro-modules` and `react-native-nitro-image`. CameraKit therefore remains the highest current compatible scanner target without introducing another native architecture cohort.
+- JDK 17 debug assembly passes. The exact debug APK has SHA-256 `3d89e6cd594ae8011ae1267ee845e3553a7340bd4c981686903d323f1d986fa4`. The first smoke attempt also exposed insufficient emulator storage; uninstalling only the prior GoldWallet test package restored enough space for the controlled rerun.
+- The normal `dev` smoke completes onboarding but cannot reach the empty dashboard because `electrumx.testnet.btcv.stage.rnd.land:443` presents a certificate that expired on 2026-06-23. The no-network smoke passes the expected `No network` UI with no fatal/runtime findings, and the blocker audit records `blocked-by-electrum-certificate-expired`; full dev/testnet QR runtime is not claimed.
+- The complete `dev`, `stage`, `prod`, and `beta` release matrix passes on AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17.0.19`. The release-input fingerprint is `de2903bd9d3424e22d208cc2f370f3a3266e9816b9323f2df3a2c17881cc8883`; source APK hashes are `fb8fee2bfd54305122cb3c1c794b24819b2af419076241d6d3da038fa761685e` (`dev`), `41e89bb3e81a7ea770c6d3f3d4c58d498639362852dad2c63b926068296757cc` (`stage`), `6ef223de8d3ca922aafa6bc741726499c2d83cfdb8dfb8cc84fcd9197566824e` (`prod`), and `c4628214900730007d65e7bdd9bb285c115860e9eb8eb270e2a66bfb6e67b458` (`beta`). Bundle, source-map, manifest, secure-storage, and retired App Center checks pass for every variant.
+- The exact locally signed `prodRelease` APK passes clean onboarding, empty-dashboard controls, tab navigation, QR scanner opening, and Terms WebView on `emulator-5554`, with no fatal/runtime logcat findings. Standard-wallet creation reaches the mnemonic, persists across a process restart, rejects an incorrect PIN, accepts the configured PIN, and keeps the mnemonic screen protected; the default 3-key vault path reaches public-key integration.
+- Camera/QR release runtime proof is ready for Android. iOS source and wiring checks pass, removed camera pods remain absent, and the `18.0.1` fixes are present in installed source, but iOS runtime remains unclaimed on Windows. A macOS `pod install` and simulator/device scanner run are still required because `ios/Podfile.lock` retains 12 broader RN/native dependency drifts.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --frozen-lockfile` and patched postinstall
+- `corepack yarn check:camera-candidate-summary-guard`
+- `corepack yarn check:camera-qr-migration-summary-guard`
+- `corepack yarn check:camera-qr-validation-handoff-guard`
+- `corepack yarn check:camera-qr-validation-summary-guard`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn camera:candidate:audit`
+- `corepack yarn camera:candidate:check-summary`
+- `corepack yarn camera:qr-migration:audit`
+- `corepack yarn camera:qr-migration:check-summary`
+- `corepack yarn camera:qr-validation:handoff --include-android-release-smoke --android-release-variant=prod`
+- `corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+- JDK 17 `corepack yarn android:dev:assemble`
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `corepack yarn ios:static:verify`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.965 - React Native Firebase 26.2 release cohort
 
 - Branch: `feature/bem-37-965-rn-firebase-26-2`
