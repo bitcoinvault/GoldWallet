@@ -11,7 +11,8 @@ import { getAndroidImportWalletSmokeSummaryErrors } from './checkAndroidImportWa
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const releaseVariant = parseAndroidReleaseSmokeVariant(process.argv.slice(2));
-const { artifactBase, signedApkPath } = getAndroidReleaseImportWalletSmokeVariantConfig(root, releaseVariant);
+const { activityName, artifactBase, packageName, signedApkPath } =
+  getAndroidReleaseImportWalletSmokeVariantConfig(root, releaseVariant);
 const summaryPath = path.join(root, 'local-docs', `${artifactBase}-summary.txt`);
 
 if (!existsSync(summaryPath)) {
@@ -20,8 +21,10 @@ if (!existsSync(summaryPath)) {
 }
 
 const errors = getAndroidImportWalletSmokeSummaryErrors(readFileSync(summaryPath, 'utf8'), {
+  expectedActivityName: activityName,
   expectedApkPath: signedApkPath,
   expectedArtifactBase: artifactBase,
+  expectedPackageName: packageName,
 });
 
 if (errors.length > 0) {

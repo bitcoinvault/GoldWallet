@@ -19,6 +19,7 @@ const validBlockedSummary = [
   'Sentry release no-network blocker evidence ready: yes',
   'Sentry release network blocker classified: yes',
   'Sentry release create-wallet evidence ready: no',
+  'Sentry release import-wallet evidence ready: no',
   'Controlled release blocker outcome: blocked-by-electrum-certificate-expired',
   'Sentry release runtime proof state: blocked-by-electrum-certificate-expired',
   'iOS macOS validation prerequisites ready: no',
@@ -31,7 +32,7 @@ const validBlockedSummary = [
   '- Full Android release runtime proof is blocked by the controlled dev/testnet Electrum certificate issue.',
   '- iOS archive/simulator validation is not ready on this Windows host.',
   'Secret values printed: no',
-  'Required action: provide SENTRY_AUTH_TOKEN, generate local-only sentry.properties files, renew the dev/testnet Electrum TLS certificate, refresh full Android release smoke/create-wallet evidence, refresh iOS pods on macOS/Xcode, and do not claim Sentry release upload validation until credentialed release validation passes.',
+  'Required action: provide SENTRY_AUTH_TOKEN, generate local-only sentry.properties files, renew the dev/testnet Electrum TLS certificate, refresh full Android release smoke/create-wallet/import-wallet evidence, refresh iOS pods on macOS/Xcode, and do not claim Sentry release upload validation until credentialed release validation passes.',
   '',
 ].join('\n');
 
@@ -66,6 +67,7 @@ assertAccepted(
     .replace('Sentry properties files ready: no', 'Sentry properties files ready: yes')
     .replace('Sentry release smoke evidence ready: no', 'Sentry release smoke evidence ready: yes')
     .replace('Sentry release create-wallet evidence ready: no', 'Sentry release create-wallet evidence ready: yes')
+    .replace('Sentry release import-wallet evidence ready: no', 'Sentry release import-wallet evidence ready: yes')
     .replace(
       'Sentry release no-network blocker evidence ready: yes',
       'Sentry release no-network blocker evidence ready: no',
@@ -93,7 +95,7 @@ assertAccepted(
       'Readiness errors: 0',
     )
     .replace(
-      'provide SENTRY_AUTH_TOKEN, generate local-only sentry.properties files, renew the dev/testnet Electrum TLS certificate, refresh full Android release smoke/create-wallet evidence, refresh iOS pods on macOS/Xcode, and do not claim Sentry release upload validation until credentialed release validation passes.',
+      'provide SENTRY_AUTH_TOKEN, generate local-only sentry.properties files, renew the dev/testnet Electrum TLS certificate, refresh full Android release smoke/create-wallet/import-wallet evidence, refresh iOS pods on macOS/Xcode, and do not claim Sentry release upload validation until credentialed release validation passes.',
       'run credentialed Android and iOS source-map/dSYM release validation and do not claim Sentry release upload validation until the upload proof passes.',
     ),
 );

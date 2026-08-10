@@ -12,6 +12,9 @@ const outputBaseName = isSafeOutputBaseName ? requestedOutputBaseName : 'android
 const summaryPath = path.join(root, 'local-docs', `${outputBaseName}-summary.txt`);
 const debugApkPath = path.join(root, 'android', 'app', 'build', 'outputs', 'apk', 'dev', 'debug', 'app-dev-debug.apk');
 const expectedApkPath = process.env.ANDROID_IMPORT_WALLET_SMOKE_EXPECTED_APK || debugApkPath;
+const expectedPackageName = process.env.ANDROID_SMOKE_PACKAGE || 'io.goldwallet.wallet.dev';
+const expectedActivityName =
+  process.env.ANDROID_SMOKE_ACTIVITY || `${expectedPackageName}/io.goldwallet.wallet.MainActivity`;
 
 const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}:`));
@@ -79,7 +82,13 @@ const requireFileEvidence = (summary, expectedSourceApkPath, errors, requireArti
 
 export const getAndroidImportWalletSmokeSummaryErrors = (summary, options = {}) => {
   const errors = [];
-  const { expectedApkPath: expectedSourceApkPath, expectedArtifactBase, requireArtifacts = true } = options;
+  const {
+    expectedActivityName,
+    expectedApkPath: expectedSourceApkPath,
+    expectedArtifactBase,
+    expectedPackageName,
+    requireArtifacts = true,
+  } = options;
 
   if (!isIsoTimestamp(getLineValue(summary, 'Generated at'))) {
     errors.push('Generated at must be an ISO timestamp');
@@ -124,6 +133,18 @@ export const getAndroidImportWalletSmokeSummaryErrors = (summary, options = {}) 
     );
   }
 
+  if (expectedPackageName && getLineValue(summary, 'Android package') !== expectedPackageName) {
+    errors.push(
+      `Android package must be ${expectedPackageName}. Received: ${getLineValue(summary, 'Android package') || 'missing'}`,
+    );
+  }
+
+  if (expectedActivityName && getLineValue(summary, 'Android activity') !== expectedActivityName) {
+    errors.push(
+      `Android activity must be ${expectedActivityName}. Received: ${getLineValue(summary, 'Android activity') || 'missing'}`,
+    );
+  }
+
   if (!/^(R[a-km-zA-HJ-NP-Z1-9]{20,}|royale1[a-z0-9]{20,})$/.test(getLineValue(summary, 'Import fixture address'))) {
     errors.push('Import fixture address must be a public BTCV address');
   }
@@ -155,6 +176,110 @@ export const getAndroidImportWalletSmokeSummaryErrors = (summary, options = {}) 
   return errors;
 };
 
+export const getAndroidImportWalletControlledNetworkBlockerSummaryErrors = (summary, options = {}) => {
+  const errors = [];
+  const {
+    expectedActivityName,
+    expectedApkPath: expectedSourceApkPath,
+    expectedArtifactBase,
+    expectedPackageName,
+    minimumGeneratedAtMs,
+    requireArtifacts = true,
+  } = options;
+
+  if (!isIsoTimestamp(getLineValue(summary, 'Generated at'))) {
+    errors.push('Generated at must be an ISO timestamp');
+  }
+
+  if (
+    Number.isFinite(minimumGeneratedAtMs) &&
+    Date.parse(getLineValue(summary, 'Generated at')) < minimumGeneratedAtMs
+  ) {
+    errors.push('Generated at must be from the current import-wallet smoke invocation');
+  }
+
+  [
+    'Android import-wallet smoke outcome: failed',
+    'Android import-wallet smoke exit code: 1',
+    'Android import-wallet smoke reason: Import-wallet blocked by no-network UI.',
+    'Import fixture type: public-watch-only-address',
+    'Import success screen reached: no',
+    'Imported wallet visible on dashboard: no',
+    'App process restart completed: no',
+    'Unlock screen reached after restart: no',
+    'Incorrect PIN rejected after restart: no',
+    'Imported wallet visible after restart: no',
+    'No import-wallet error UI: no',
+    'Secure window flag after import: not checked',
+    'Secure window flag after restart: not checked',
+    'Fatal/runtime logcat findings: no',
+  ].forEach(expectedLine => {
+    if (!hasLine(summary, expectedLine)) {
+      errors.push(`Expected controlled network blocker line not found: ${expectedLine}`);
+    }
+  });
+
+  if (expectedArtifactBase && getLineValue(summary, 'Artifact base') !== expectedArtifactBase) {
+    errors.push(
+      `Artifact base must be ${expectedArtifactBase}. Received: ${getLineValue(summary, 'Artifact base') || 'missing'}`,
+    );
+  }
+
+  if (expectedPackageName && getLineValue(summary, 'Android package') !== expectedPackageName) {
+    errors.push(
+      `Android package must be ${expectedPackageName}. Received: ${getLineValue(summary, 'Android package') || 'missing'}`,
+    );
+  }
+
+  if (expectedActivityName && getLineValue(summary, 'Android activity') !== expectedActivityName) {
+    errors.push(
+      `Android activity must be ${expectedActivityName}. Received: ${getLineValue(summary, 'Android activity') || 'missing'}`,
+    );
+  }
+
+  if (!/^(R[a-km-zA-HJ-NP-Z1-9]{20,}|royale1[a-z0-9]{20,})$/.test(getLineValue(summary, 'Import fixture address'))) {
+    errors.push('Import fixture address must be a public BTCV address');
+  }
+
+  if (/^(Mnemonic|Seed phrase|Private key|WIF|Secret):/im.test(summary)) {
+    errors.push('Summary must not contain secret-bearing fields');
+  }
+
+  ['Captured logcat lines', 'Screenshot bytes'].forEach(label => {
+    if (!isPositiveInteger(getLineValue(summary, label))) {
+      errors.push(`${label} must be a positive integer`);
+    }
+  });
+
+  requireFileEvidence(summary, expectedSourceApkPath, errors, requireArtifacts);
+  if (requireArtifacts) {
+    requireExistingFile(summary, 'UI hierarchy path', errors);
+    requireExistingFile(summary, 'Logcat path', errors);
+    requireExistingFile(summary, 'Screenshot path', errors);
+  }
+
+  return errors;
+};
+
+export const getAndroidImportWalletSmokeStepStatus = ({
+  status,
+  summary,
+  evidenceVariant,
+  evidenceOptions = {},
+}) => {
+  if (status === 0) {
+    return 0;
+  }
+
+  if (evidenceVariant !== 'dev') {
+    return status;
+  }
+
+  return getAndroidImportWalletControlledNetworkBlockerSummaryErrors(summary || '', evidenceOptions).length === 0
+    ? 0
+    : status;
+};
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!existsSync(summaryPath)) {
     console.error(`Missing Android import-wallet smoke summary artifact: ${summaryPath}`);
@@ -170,8 +295,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   }
 
   getAndroidImportWalletSmokeSummaryErrors(readFileSync(summaryPath, 'utf8'), {
+    expectedActivityName,
     expectedApkPath,
     expectedArtifactBase: outputBaseName,
+    expectedPackageName,
   }).forEach(error => errors.push(error));
 
   if (errors.length > 0) {

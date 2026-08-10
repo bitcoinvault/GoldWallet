@@ -287,6 +287,10 @@ const hasImportError = hierarchy =>
   ].some(marker => hierarchy.includes(marker));
 
 const assertNoImportError = hierarchy => {
+  if (hierarchy.includes('No network')) {
+    throw new Error('Import-wallet blocked by no-network UI.');
+  }
+
   if (hasImportError(hierarchy)) {
     throw new Error('Import-wallet error UI is visible.');
   }
