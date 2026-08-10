@@ -124,7 +124,9 @@ const collectReleaseSourceFingerprintFiles = (root, relativeRoot) => {
     return [];
   }
 
-  const entries = readdirSync(absoluteRoot, { withFileTypes: true }).sort((left, right) => left.name.localeCompare(right.name));
+  const entries = readdirSync(absoluteRoot, { withFileTypes: true }).sort((left, right) =>
+    left.name.localeCompare(right.name),
+  );
 
   return entries.flatMap(entry => {
     const childRelativePath = path.join(relativeRoot, entry.name);
@@ -168,7 +170,10 @@ const readFingerprintContent = filePath => {
     : normalizeAndroidReleaseFingerprintContent(content);
 };
 
-export const getAndroidReleaseInputFingerprint = (root = process.cwd(), inputs = getAndroidReleaseInputFingerprintFiles(root)) => {
+export const getAndroidReleaseInputFingerprint = (
+  root = process.cwd(),
+  inputs = getAndroidReleaseInputFingerprintFiles(root),
+) => {
   const hash = createHash('sha256');
 
   inputs.forEach(relativePath => {
@@ -205,6 +210,10 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
   const kotlinGradlePlugin = getLineValue(summary, 'Kotlin Gradle Plugin');
   const compileSdk = getLineValue(summary, 'Compile SDK');
   const targetSdk = getLineValue(summary, 'Target SDK');
+  const androidSdkResolutionSource = getLineValue(summary, 'Android SDK resolution source');
+  const explicitAndroidHomePresent = getLineValue(summary, 'Explicit ANDROID_HOME present');
+  const explicitAndroidSdkRootPresent = getLineValue(summary, 'Explicit ANDROID_SDK_ROOT present');
+  const androidLocalPropertiesPresent = getLineValue(summary, 'Android local.properties present');
   const releaseInputFingerprint = getLineValue(summary, 'Release input fingerprint');
   const releaseInputFingerprintFiles = getLineValue(summary, 'Release input fingerprint files');
   const gradleRetryMaxAttempts = getLineValue(summary, 'Gradle retry max attempts');
@@ -224,14 +233,13 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
     }
   });
 
-  [
-    'Sentry auto upload disabled for local build: yes',
-    'Sentry release upload validation: not claimed',
-  ].forEach(expectedLine => {
-    if (!hasLine(summary, expectedLine)) {
-      errors.push(`Expected line not found: ${expectedLine}`);
-    }
-  });
+  ['Sentry auto upload disabled for local build: yes', 'Sentry release upload validation: not claimed'].forEach(
+    expectedLine => {
+      if (!hasLine(summary, expectedLine)) {
+        errors.push(`Expected line not found: ${expectedLine}`);
+      }
+    },
+  );
 
   if (variants.join(',') !== expectedVariants.join(',')) {
     errors.push(`Variants are unexpected: ${variants.join(', ') || 'missing'}`);
@@ -241,13 +249,64 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
     errors.push(`Variant count must be ${expectedVariants.length}. Received: ${variantCount || 'missing'}`);
   }
 
-  if (!isSha256(releaseInputFingerprint)) {
-    errors.push(`Release input fingerprint must be a lowercase SHA-256 digest. Received: ${releaseInputFingerprint || 'missing'}`);
-  } else if (releaseInputFingerprint !== currentReleaseInputFingerprint) {
-    errors.push('Release input fingerprint does not match current release inputs; rerun android:dev:release:validate-local');
+  const allowedAndroidSdkResolutionSources = new Set([
+    'ANDROID_HOME',
+    'ANDROID_SDK_ROOT',
+    'ANDROID_HOME+ANDROID_SDK_ROOT',
+    'LOCALAPPDATA',
+    'HOME_LIBRARY',
+    'HOME_ANDROID',
+    'none',
+  ]);
+  if (!allowedAndroidSdkResolutionSources.has(androidSdkResolutionSource)) {
+    errors.push(`Android SDK resolution source is invalid: ${androidSdkResolutionSource || 'missing'}`);
   }
 
-  if (!isPositiveInteger(releaseInputFingerprintFiles) || Number(releaseInputFingerprintFiles) !== currentReleaseInputFingerprintFileCount) {
+  [
+    ['Explicit ANDROID_HOME present', explicitAndroidHomePresent],
+    ['Explicit ANDROID_SDK_ROOT present', explicitAndroidSdkRootPresent],
+    ['Android local.properties present', androidLocalPropertiesPresent],
+  ].forEach(([label, value]) => {
+    if (!['yes', 'no'].includes(value)) errors.push(`${label} must be yes or no. Received: ${value || 'missing'}`);
+  });
+
+  const expectedExplicitSdkFlags = {
+    ANDROID_HOME: ['yes', 'no'],
+    ANDROID_SDK_ROOT: ['no', 'yes'],
+    'ANDROID_HOME+ANDROID_SDK_ROOT': ['yes', 'yes'],
+    LOCALAPPDATA: ['no', 'no'],
+    HOME_LIBRARY: ['no', 'no'],
+    HOME_ANDROID: ['no', 'no'],
+    none: ['no', 'no'],
+  }[androidSdkResolutionSource];
+  if (
+    expectedExplicitSdkFlags &&
+    (explicitAndroidHomePresent !== expectedExplicitSdkFlags[0] ||
+      explicitAndroidSdkRootPresent !== expectedExplicitSdkFlags[1])
+  ) {
+    errors.push(
+      `Android SDK resolution source ${androidSdkResolutionSource} requires explicit SDK flags ${expectedExplicitSdkFlags.join('/')}`,
+    );
+  }
+
+  if (androidSdkResolutionSource === 'none' && androidLocalPropertiesPresent !== 'yes') {
+    errors.push('Android SDK resolution may be none only when android/local.properties is present');
+  }
+
+  if (!isSha256(releaseInputFingerprint)) {
+    errors.push(
+      `Release input fingerprint must be a lowercase SHA-256 digest. Received: ${releaseInputFingerprint || 'missing'}`,
+    );
+  } else if (releaseInputFingerprint !== currentReleaseInputFingerprint) {
+    errors.push(
+      'Release input fingerprint does not match current release inputs; rerun android:dev:release:validate-local',
+    );
+  }
+
+  if (
+    !isPositiveInteger(releaseInputFingerprintFiles) ||
+    Number(releaseInputFingerprintFiles) !== currentReleaseInputFingerprintFileCount
+  ) {
     errors.push(
       `Release input fingerprint files must be ${currentReleaseInputFingerprintFileCount}. Received: ${
         releaseInputFingerprintFiles || 'missing'
@@ -256,11 +315,15 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
   }
 
   if (!isPositiveInteger(gradleRetryMaxAttempts)) {
-    errors.push(`Gradle retry max attempts must be a positive integer. Received: ${gradleRetryMaxAttempts || 'missing'}`);
+    errors.push(
+      `Gradle retry max attempts must be a positive integer. Received: ${gradleRetryMaxAttempts || 'missing'}`,
+    );
   }
 
   if (gradleRetryExitCodes !== 'none' && !/^\d+(, \d+)*$/.test(gradleRetryExitCodes)) {
-    errors.push(`Gradle retry exit codes must be comma-separated integer exit codes or none. Received: ${gradleRetryExitCodes || 'missing'}`);
+    errors.push(
+      `Gradle retry exit codes must be comma-separated integer exit codes or none. Received: ${gradleRetryExitCodes || 'missing'}`,
+    );
   }
 
   expectedVariants.forEach(variant => {
@@ -297,16 +360,7 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
 
     const expectedApkRelativePath =
       options.expectedApkRelativePaths?.[variant] ||
-      path.join(
-        'android',
-        'app',
-        'build',
-        'outputs',
-        'apk',
-        variant,
-        'release',
-        `app-${variant}-release-unsigned.apk`,
-      );
+      path.join('android', 'app', 'build', 'outputs', 'apk', variant, 'release', `app-${variant}-release-unsigned.apk`);
     const expectedBundleRelativePath =
       options.expectedBundleRelativePaths?.[variant] ||
       path.join(
@@ -349,27 +403,39 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
     }
 
     if (!isSha256(apkSha256)) {
-      errors.push(`Variant ${variant} Release APK sha256 must be a lowercase SHA-256 digest. Received: ${apkSha256 || 'missing'}`);
+      errors.push(
+        `Variant ${variant} Release APK sha256 must be a lowercase SHA-256 digest. Received: ${apkSha256 || 'missing'}`,
+      );
     }
 
     if (!isPositiveInteger(bundleSize)) {
-      errors.push(`Variant ${variant} Release JS bundle bytes must be a positive integer. Received: ${bundleSize || 'missing'}`);
+      errors.push(
+        `Variant ${variant} Release JS bundle bytes must be a positive integer. Received: ${bundleSize || 'missing'}`,
+      );
     }
 
     if (!isSha256(bundleSha256)) {
-      errors.push(`Variant ${variant} Release JS bundle sha256 must be a lowercase SHA-256 digest. Received: ${bundleSha256 || 'missing'}`);
+      errors.push(
+        `Variant ${variant} Release JS bundle sha256 must be a lowercase SHA-256 digest. Received: ${bundleSha256 || 'missing'}`,
+      );
     }
 
     if (!isPositiveInteger(sourcemapSize)) {
-      errors.push(`Variant ${variant} Release source map bytes must be a positive integer. Received: ${sourcemapSize || 'missing'}`);
+      errors.push(
+        `Variant ${variant} Release source map bytes must be a positive integer. Received: ${sourcemapSize || 'missing'}`,
+      );
     }
 
     if (!isSha256(sourcemapSha256)) {
-      errors.push(`Variant ${variant} Release source map sha256 must be a lowercase SHA-256 digest. Received: ${sourcemapSha256 || 'missing'}`);
+      errors.push(
+        `Variant ${variant} Release source map sha256 must be a lowercase SHA-256 digest. Received: ${sourcemapSha256 || 'missing'}`,
+      );
     }
 
     if (!isPositiveInteger(gradleAttempts)) {
-      errors.push(`Variant ${variant} Gradle attempts must be a positive integer. Received: ${gradleAttempts || 'missing'}`);
+      errors.push(
+        `Variant ${variant} Gradle attempts must be a positive integer. Received: ${gradleAttempts || 'missing'}`,
+      );
     }
 
     const attemptExitCodes = gradleAttemptExitCodes
@@ -378,7 +444,9 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
       .filter(Boolean);
 
     if (attemptExitCodes.length === 0 || attemptExitCodes.some(code => !/^\d+$/.test(code))) {
-      errors.push(`Variant ${variant} Gradle attempt exit codes must be comma-separated integers. Received: ${gradleAttemptExitCodes || 'missing'}`);
+      errors.push(
+        `Variant ${variant} Gradle attempt exit codes must be comma-separated integers. Received: ${gradleAttemptExitCodes || 'missing'}`,
+      );
     }
 
     if (isPositiveInteger(gradleAttempts) && attemptExitCodes.length !== Number(gradleAttempts)) {
@@ -440,7 +508,9 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
       errors.push(`Variant ${variant} Release JS bundle file does not exist: ${bundleRelativePath || 'missing'}`);
     } else {
       if (isNonNegativeInteger(bundleSize) && statSync(bundlePath).size !== Number(bundleSize)) {
-        errors.push(`Variant ${variant} Release JS bundle byte count does not match file size for ${bundleRelativePath}`);
+        errors.push(
+          `Variant ${variant} Release JS bundle byte count does not match file size for ${bundleRelativePath}`,
+        );
       }
 
       if (isSha256(bundleSha256) && sha256File(bundlePath) !== bundleSha256) {
@@ -452,11 +522,15 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
       errors.push(`Variant ${variant} Release source map file does not exist: ${sourcemapRelativePath || 'missing'}`);
     } else {
       if (isNonNegativeInteger(sourcemapSize) && statSync(sourcemapPath).size !== Number(sourcemapSize)) {
-        errors.push(`Variant ${variant} Release source map byte count does not match file size for ${sourcemapRelativePath}`);
+        errors.push(
+          `Variant ${variant} Release source map byte count does not match file size for ${sourcemapRelativePath}`,
+        );
       }
 
       if (isSha256(sourcemapSha256) && sha256File(sourcemapPath) !== sourcemapSha256) {
-        errors.push(`Variant ${variant} Release source map sha256 does not match file digest for ${sourcemapRelativePath}`);
+        errors.push(
+          `Variant ${variant} Release source map sha256 does not match file digest for ${sourcemapRelativePath}`,
+        );
       }
 
       if (!isLikelySourceMap(sourcemapPath)) {
@@ -478,15 +552,21 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
   }
 
   if (androidGradlePlugin !== '8.13.2') {
-    errors.push(`Android Gradle Plugin must be 8.13.2 for the validated release baseline. Received: ${androidGradlePlugin || 'missing'}`);
+    errors.push(
+      `Android Gradle Plugin must be 8.13.2 for the validated release baseline. Received: ${androidGradlePlugin || 'missing'}`,
+    );
   }
 
   if (gradleWrapper !== '8.13') {
-    errors.push(`Gradle wrapper must be 8.13 for the validated release baseline. Received: ${gradleWrapper || 'missing'}`);
+    errors.push(
+      `Gradle wrapper must be 8.13 for the validated release baseline. Received: ${gradleWrapper || 'missing'}`,
+    );
   }
 
   if (kotlinGradlePlugin !== '2.1.20') {
-    errors.push(`Kotlin Gradle Plugin must be 2.1.20 for the validated release baseline. Received: ${kotlinGradlePlugin || 'missing'}`);
+    errors.push(
+      `Kotlin Gradle Plugin must be 2.1.20 for the validated release baseline. Received: ${kotlinGradlePlugin || 'missing'}`,
+    );
   }
 
   if (compileSdk !== '36') {

@@ -3,8 +3,12 @@ import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } 
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
-import { getAndroidReleaseInputFingerprint, getAndroidReleaseInputFingerprintFileCount } from './androidReleaseSummaryGuard.mjs';
+import {
+  getAndroidReleaseInputFingerprint,
+  getAndroidReleaseInputFingerprintFileCount,
+} from './androidReleaseSummaryGuard.mjs';
 import { getAndroidReleaseGradleRetryReason } from './androidReleaseGradleRetry.mjs';
+import { getAndroidSdkResolution } from './runAndroidGradle.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -31,18 +35,32 @@ if (invalidVariants.length > 0) {
 }
 
 if (!Number.isInteger(maxGradleAttempts) || maxGradleAttempts < 1) {
-  console.error(`ANDROID_RELEASE_GRADLE_MAX_ATTEMPTS must be a positive integer. Received: ${process.env.ANDROID_RELEASE_GRADLE_MAX_ATTEMPTS}`);
+  console.error(
+    `ANDROID_RELEASE_GRADLE_MAX_ATTEMPTS must be a positive integer. Received: ${process.env.ANDROID_RELEASE_GRADLE_MAX_ATTEMPTS}`,
+  );
   process.exit(1);
 }
 
 if (transientGradleRetryExitCodes.some(code => !/^\d+$/.test(code))) {
-  console.error(`ANDROID_RELEASE_GRADLE_RETRY_EXIT_CODES must be comma-separated integer exit codes. Received: ${process.env.ANDROID_RELEASE_GRADLE_RETRY_EXIT_CODES}`);
+  console.error(
+    `ANDROID_RELEASE_GRADLE_RETRY_EXIT_CODES must be comma-separated integer exit codes. Received: ${process.env.ANDROID_RELEASE_GRADLE_RETRY_EXIT_CODES}`,
+  );
   process.exit(1);
 }
 
 const capitalize = value => `${value[0].toUpperCase()}${value.slice(1)}`;
 const getApkPath = variant =>
-  path.join(root, 'android', 'app', 'build', 'outputs', 'apk', variant, 'release', `app-${variant}-release-unsigned.apk`);
+  path.join(
+    root,
+    'android',
+    'app',
+    'build',
+    'outputs',
+    'apk',
+    variant,
+    'release',
+    `app-${variant}-release-unsigned.apk`,
+  );
 const getReleaseVariantName = variant => `${variant}Release`;
 const getReleaseBundlePath = variant =>
   path.join(
@@ -95,6 +113,14 @@ const androidToolchainEvidence = {
   compileSdk: getFirstMatch(androidBuildGradle, /compileSdkVersion\s*=\s*(\d+)/),
   targetSdk: getFirstMatch(androidBuildGradle, /targetSdkVersion\s*=\s*(\d+)/),
 };
+let androidSdkResolution;
+try {
+  androidSdkResolution = getAndroidSdkResolution();
+} catch (error) {
+  console.error(`Android SDK configuration is invalid: ${error.message}`);
+  process.exit(1);
+}
+const androidLocalPropertiesPresent = existsSync(path.join(root, 'android', 'local.properties'));
 
 const env = {
   ...process.env,
@@ -178,7 +204,8 @@ const javaVersion = spawnSync(javaCommand, ['-version'], {
   cwd: root,
   encoding: 'utf8',
 });
-const javaVersionLine = `${javaVersion.stderr || ''}${javaVersion.stdout || ''}`.split(/\r?\n/)[0]?.trim() || 'unavailable';
+const javaVersionLine =
+  `${javaVersion.stderr || ''}${javaVersion.stdout || ''}`.split(/\r?\n/)[0]?.trim() || 'unavailable';
 const summary = [
   'Android release validation',
   `Generated at: ${new Date().toISOString()}`,
@@ -192,6 +219,10 @@ const summary = [
   `Kotlin Gradle Plugin: ${androidToolchainEvidence.kotlin}`,
   `Compile SDK: ${androidToolchainEvidence.compileSdk}`,
   `Target SDK: ${androidToolchainEvidence.targetSdk}`,
+  `Android SDK resolution source: ${androidSdkResolution.source}`,
+  `Explicit ANDROID_HOME present: ${androidSdkResolution.explicitAndroidHomePresent ? 'yes' : 'no'}`,
+  `Explicit ANDROID_SDK_ROOT present: ${androidSdkResolution.explicitAndroidSdkRootPresent ? 'yes' : 'no'}`,
+  `Android local.properties present: ${androidLocalPropertiesPresent ? 'yes' : 'no'}`,
   `Release input fingerprint: ${getAndroidReleaseInputFingerprint(root)}`,
   `Release input fingerprint files: ${getAndroidReleaseInputFingerprintFileCount(root)}`,
   'Sentry auto upload disabled for local build: yes',

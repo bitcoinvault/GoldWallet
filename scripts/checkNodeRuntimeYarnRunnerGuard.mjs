@@ -1,10 +1,19 @@
 import { getCorepackJsCandidates, getNpmCommand, getYarnWithNvmrcNodeInvocation } from './runYarnWithNvmrcNode.mjs';
-import { getAndroidGradleEnvironment } from './runAndroidGradle.mjs';
+import { getAndroidGradleEnvironment, getAndroidSdkResolution, resolveAndroidSdkRoot } from './runAndroidGradle.mjs';
 
 const assert = (condition, message) => {
   if (!condition) {
     console.error(message);
     process.exit(1);
+  }
+};
+
+const assertThrows = (label, callback, expectedMessage) => {
+  try {
+    callback();
+    assert(false, `${label} must throw`);
+  } catch (error) {
+    assert(error.message.includes(expectedMessage), `${label} rejection message is wrong: ${error.message}`);
   }
 };
 
@@ -74,6 +83,108 @@ assert(
 assert(
   androidGradleEnvironment.Path.split(';').filter(entry => entry.toLowerCase() === 'd:\\node-24').length === 1,
   'Android Gradle Windows PATH must not duplicate the current Node directory with different casing',
+);
+
+const localAppDataSdk = 'C:\\Users\\Test\\AppData\\Local\\Android\\Sdk';
+const windowsSdkEnvironment = getAndroidGradleEnvironment({
+  env: {
+    LoCaLaPpDaTa: 'C:\\Users\\Test\\AppData\\Local',
+    Path: 'C:\\Windows\\System32',
+  },
+  nodeExecPath: 'D:\\node-24\\node.exe',
+  platform: 'win32',
+  pathExists: candidate => candidate.toLowerCase() === localAppDataSdk.toLowerCase(),
+});
+
+assert(
+  windowsSdkEnvironment.ANDROID_HOME === localAppDataSdk && windowsSdkEnvironment.ANDROID_SDK_ROOT === localAppDataSdk,
+  'Android Gradle must project the installed LOCALAPPDATA SDK into both Android SDK environment variables',
+);
+assert(
+  resolveAndroidSdkRoot({
+    env: { android_home: 'D:\\AndroidSdk' },
+    platform: 'win32',
+    pathExists: candidate => candidate === 'D:\\AndroidSdk',
+  }) === 'D:\\AndroidSdk',
+  'Android Gradle must prefer a valid explicit Android SDK path over the LOCALAPPDATA fallback',
+);
+assert(
+  getAndroidSdkResolution({
+    env: { Android_Sdk_Root: 'E:\\AndroidSdk' },
+    platform: 'win32',
+    pathExists: candidate => candidate === 'E:\\AndroidSdk',
+  }).source === 'ANDROID_SDK_ROOT',
+  'Android Gradle must support a valid explicit mixed-case ANDROID_SDK_ROOT',
+);
+assert(
+  getAndroidSdkResolution({
+    env: { ANDROID_HOME: 'D:\\AndroidSdk', ANDROID_SDK_ROOT: 'd:\\androidsdk\\' },
+    platform: 'win32',
+    pathExists: candidate => candidate.toLowerCase() === 'd:\\androidsdk',
+  }).source === 'ANDROID_HOME+ANDROID_SDK_ROOT',
+  'Android Gradle must accept equivalent explicit Windows SDK paths',
+);
+const normalizedSdkEnvironment = getAndroidGradleEnvironment({
+  env: { android_home: 'D:\\AndroidSdk', Path: 'C:\\Windows\\System32' },
+  nodeExecPath: 'D:\\node-24\\node.exe',
+  platform: 'win32',
+  pathExists: candidate => candidate === 'D:\\AndroidSdk',
+});
+assert(
+  normalizedSdkEnvironment.ANDROID_HOME === 'D:\\AndroidSdk' &&
+    normalizedSdkEnvironment.ANDROID_SDK_ROOT === 'D:\\AndroidSdk' &&
+    !('android_home' in normalizedSdkEnvironment),
+  'Android Gradle must canonicalize case-insensitive Windows Android SDK environment keys',
+);
+assertThrows(
+  'Invalid explicit Android SDK path',
+  () =>
+    resolveAndroidSdkRoot({
+      env: { ANDROID_HOME: 'D:\\missing', LOCALAPPDATA: 'C:\\Users\\Test\\AppData\\Local' },
+      platform: 'win32',
+      pathExists: candidate => candidate.toLowerCase() === localAppDataSdk.toLowerCase(),
+    }),
+  'Explicit Android SDK path does not exist',
+);
+assertThrows(
+  'Conflicting explicit Android SDK variables',
+  () =>
+    resolveAndroidSdkRoot({
+      env: { ANDROID_HOME: 'D:\\AndroidSdk', ANDROID_SDK_ROOT: 'E:\\AndroidSdk' },
+      platform: 'win32',
+      pathExists: () => true,
+    }),
+  'point to different SDK paths',
+);
+assertThrows(
+  'Conflicting case-insensitive Android SDK aliases',
+  () =>
+    resolveAndroidSdkRoot({
+      env: { ANDROID_HOME: 'D:\\AndroidSdk', android_home: 'E:\\AndroidSdk' },
+      platform: 'win32',
+      pathExists: () => true,
+    }),
+  'Conflicting case-insensitive ANDROID_HOME values',
+);
+assert(
+  resolveAndroidSdkRoot({
+    env: { HOME: '/Users/test' },
+    platform: 'darwin',
+    pathExists: candidate => candidate === '/Users/test/Library/Android/sdk',
+  }) === '/Users/test/Library/Android/sdk',
+  'Android Gradle must discover the standard macOS Android SDK path',
+);
+assert(
+  resolveAndroidSdkRoot({
+    env: { HOME: '/home/test' },
+    platform: 'linux',
+    pathExists: candidate => candidate === '/home/test/Android/Sdk',
+  }) === '/home/test/Android/Sdk',
+  'Android Gradle must discover the standard Linux Android SDK path',
+);
+assert(
+  getAndroidSdkResolution({ env: {}, platform: 'linux', pathExists: () => false }).source === 'none',
+  'Android Gradle must report no SDK source when neither explicit variables nor a fallback are available',
 );
 
 const posixAndroidGradleEnvironment = getAndroidGradleEnvironment({

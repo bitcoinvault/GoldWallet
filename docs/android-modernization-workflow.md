@@ -18,7 +18,7 @@ Use JDK 17 for local Android work:
 $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 ```
 
-The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to `java` from `PATH`. The AGP 8.13 baseline requires JDK 17.
+The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to `java` from `PATH`. The AGP 8.13 baseline requires JDK 17. It accepts a valid `ANDROID_HOME`/`ANDROID_SDK_ROOT`, fails fast when explicit paths are missing or inconsistent, and uses the standard Windows/macOS/Linux SDK location only when neither variable is set. On Windows it falls back to `%LOCALAPPDATA%\Android\Sdk`; this keeps fresh Git worktrees buildable without committing `android/local.properties` while preventing a broken explicit configuration from being silently masked.
 
 ## Checks
 
