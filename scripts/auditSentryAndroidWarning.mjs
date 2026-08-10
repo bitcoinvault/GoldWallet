@@ -12,9 +12,9 @@ const dependencies = packageJson.dependencies || {};
 const scripts = packageJson.scripts || {};
 const sentryGradlePath = 'node_modules/@sentry/react-native/sentry.gradle';
 const sentryGradleKtsPath = 'node_modules/@sentry/react-native/sentry.gradle.kts';
-const sentryDebugIdPatchPath = 'patches/@sentry+react-native+8.21.0.patch';
+const sentryDebugIdPatchPath = 'patches/@sentry+react-native+8.22.0.patch';
 const sentryDebugIdScriptPath = 'node_modules/@sentry/react-native/scripts/has-sourcemap-debugid.js';
-const expectedSentryReactNativeVersion = '8.21.0';
+const expectedSentryReactNativeVersion = '8.22.0';
 
 const requireSnippet = (errors, label, content, snippet) => {
   if (!content.includes(snippet)) {

@@ -10,6 +10,63 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.960 - Sentry React Native 8.22 release cohort
+
+- Branch: `feature/bem-37-960-sentry-8-22-upgrade`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the current Sentry React Native SDK from `8.21.0` to the latest checked stable `8.22.0` without changing the separately pinned release CLI and transport cohort.
+- Move the versioned `patch-package` correction to the new SDK package and keep the source-map helper fail path executable.
+- Refresh Sentry, iOS readiness, native-module inventory, dependency strategy, and release-service guards and current-state documentation for the new SDK baseline.
+- Rebuild all Android release variants and re-prove production onboarding, navigation, QR, Terms WebView, create-wallet persistence, and import-wallet persistence before accepting the native SDK update.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-10 reports `@sentry/react-native@8.22.0` as stable `latest`; its React Native peer range remains `>=0.65.0`, which includes the repository RN `0.86.2` baseline.
+- The SDK cohort keeps Sentry JavaScript dependencies on `10.69.0` and `@sentry/cli@3.6.2`; the Android SDK moves from `8.50.1` to `8.51.0`.
+- The published `8.22.0` package still contains both `process.exist(1)` typos in `scripts/has-sourcemap-debugid.js`, so the versioned patch remains necessary and applies during a clean Yarn install.
+- The release notes add optional iOS MetricKit and legacy `NativeModules` instrumentation, fix Hermes `debug_meta`, Expo upload configuration, and machine-dependent RNSentry Podfile checksum behavior; none requires enabling a new runtime feature in this package-only milestone.
+- Fresh Android release output covers `dev`, `stage`, `prod`, and `beta`; the APK manifests are valid, all APKs include `react-native-keychain`, and all exclude legacy secure storage and retired App Center artifacts.
+- Signed `prodRelease` runtime proof passes onboarding, empty-wallet CTAs, QR scanner open/close, tab navigation, Terms WebView, standard wallet creation and post-restart PIN persistence, 3-key vault navigation, public watch-only wallet import, and post-restart import persistence without fatal/runtime logcat findings.
+- The authenticated managed Sentry preflight reports packages current, release runtime proof ready, properties ready, routing errors `0`, and secret values printed `no`; credentialed upload remains deliberately unclaimed.
+- Independent review corrected a stale documentation claim inherited from the previous SDK baseline: Android ingest and symbolication are not claimed for `8.22.0` until the credentialed Gradle upload and event-symbolication canaries are rerun against this SDK.
+- Full iOS release delivery remains blocked on this Windows host: Xcode and CocoaPods are unavailable and `ios/Podfile.lock` has 12 active drifts, including RNSentry `3.1.0` versus package `8.22.0`. This must be refreshed and validated by the existing macOS workflow before iOS source-map/dSYM readiness can be claimed.
+- The aggregate release-services refresh separately discovered live React Native Firebase `26.1.0` drift from the repository `26.0.0` cohort and failed closed at the Firebase summary. That native dependency family is intentionally deferred to its own validated milestone instead of being mixed into this Sentry branch.
+
+Validation:
+
+- Live `npm view @sentry/react-native version time peerDependencies dependencies --json`
+- Published `@sentry/react-native@8.22.0` tarball inspection
+- Clean `corepack yarn install --no-frozen-lockfile` with `patch-package` application
+- `corepack yarn sentry:android-warning:audit`
+- `corepack yarn sentry:android-warning:check-summary`
+- `corepack yarn sentry:rn-bundle-task-compat:audit`
+- `corepack yarn sentry:rn-bundle-task-compat:check-summary`
+- `corepack yarn sentry:release:prereq-audit`
+- `corepack yarn sentry:release:prereq-check-summary`
+- `corepack yarn ios:static:verify`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `corepack yarn android:dev:assemble`
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn android:dev:release:check-apk-manifest`
+- `corepack yarn android:dev:release:check-secure-storage-apks`
+- `corepack yarn android:dev:release:check-appcenter-apks`
+- `corepack yarn android:prod:release:smoke:verify`
+- `corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `corepack yarn android:prod:release:check-create-wallet-smoke-summary`
+- `corepack yarn android:prod:release:import-wallet-smoke:embedded`
+- `corepack yarn android:prod:release:check-import-wallet-smoke-summary`
+- `SENTRY_RELEASE_PROFILE=prod corepack yarn sentry:release:validation:managed:preflight` (authenticated, no upload)
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.959 - Production import-wallet release evidence
 
 - Branch: `feature/bem-37-959-sentry-import-wallet-evidence`

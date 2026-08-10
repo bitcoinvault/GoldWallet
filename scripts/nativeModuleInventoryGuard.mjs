@@ -9,7 +9,7 @@ export const expectedNativeModuleDependencies = new Map([
   ['@react-native-firebase/app', '26.0.0'],
   ['@react-native-firebase/crashlytics', '26.0.0'],
   ['@react-native-firebase/messaging', '26.0.0'],
-  ['@sentry/react-native', '8.21.0'],
+  ['@sentry/react-native', '8.22.0'],
   ['jail-monkey', '3.0.0'],
   ['react-native-background-timer', '2.4.1'],
   ['react-native-biometrics', '3.0.1'],
