@@ -56,5 +56,16 @@ assertRejected(
   },
   'npm `latest`: `0.86.2`',
 );
+assertRejected(
+  'Contradictory current RC fixture',
+  {
+    ...validEnvironment,
+    docs: {
+      ...validEnvironment.docs,
+      'docs/react-native-foundation-target-matrix.md': `${validEnvironment.docs['docs/react-native-foundation-target-matrix.md']}\n0.87.0-rc.3`,
+    },
+  },
+  'stale current-snapshot RN prerelease value(s): 0.87.0-rc.3',
+);
 
 console.log('React Native target snapshot guard checks are valid.');

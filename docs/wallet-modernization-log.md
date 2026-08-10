@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.962 - React Native 0.87 RC4 acceptance probe
+
+- Branch: `feature/bem-37-962-rn-087-rc4-probe`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the live React Native target snapshot after npm `next` moved to `0.87.0-rc.4` on the scheduled 0.87 release date.
+- Probe the complete RN `0.87.0-rc.4` package cohort and its required AGP `9.2.1`, Gradle `9.4.1`, and Kotlin `2.2.0` toolchain in isolated worktrees without introducing prerelease dependencies into production.
+- Re-test the earlier AsyncStorage/AGP 9 blocker through TypeScript, wallet tests, Metro, Android assembly, and emulator runtime rather than carrying the RC1 diagnosis forward unverified.
+- Record the exact production acceptance conditions for the future stable RN 0.87 branch.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-10 reports RN `0.86.2` as stable `latest`, `0.87.0-rc.4` as prerelease `next`, and `0.88.0-nightly-20260810-8415753e2` as nightly. Production remains on stable `0.86.2`.
+- The complete RC4 cohort installs on Node `24.16.0`; postinstall shims, React Native CLI config, TypeScript, all `13` unit suites and `60` tests, the focused storage/network suite, and a production Metro bundle pass.
+- AGP 9 defaults still reject AsyncStorage `3.1.1` because its Android build applies `kotlin-android`; a direct built-in-Kotlin patch then exposes incompatible KSP/legacy Android variant assumptions and is not suitable for historical wallet-storage migration.
+- Android's documented temporary compatibility path, `android.builtInKotlin=false` together with `android.newDsl=false`, preserves AsyncStorage's legacy Kotlin/KSP integration. With those probe-only flags, `assembleDevDebug` completes all `795` executed tasks and produces the embedded dev APK.
+- The first successful configuration run from the long worktree reached CMake but exceeded Ninja's 260-character object-path limit. A physical short-path checkout at `D:\x962` removed that Windows-only environment failure; junction and drive-letter aliases are insufficient because React Native codegen detects mixed filesystem roots.
+- The RC4 APK installed and cold-launched on `emulator-5554`. Automated onboarding passed Terms, PIN creation, and transaction-password creation without a fatal React Native, JavaScript, or Android runtime crash.
+- Full dashboard smoke did not pass: the dev/testnet Electrum TLS certificate expired on 2026-06-23, and the external `No network` overlay prevented the email skip from reaching the dashboard. Dashboard CTA, navigation, QR, and Terms WebView evidence therefore remain unclaimed for RC4.
+- AsyncStorage upstream `main` still declares AGP `8.7.2`, applies `kotlin-android`, and uses KSP/Room for legacy storage. The temporary AGP flags are removed in AGP 10, so they are a bridge for the stable RN 0.87 checkpoint rather than completion of the upstream migration.
+- No RC package, AGP 9 toolchain, compatibility flag, generated APK, screenshot, or local probe artifact is included in the production diff.
+
+Validation:
+
+- Live `npm view react-native dist-tags --json`
+- Published `@react-native/gradle-plugin@0.87.0-rc.4` manifest inspection
+- Read-only AsyncStorage upstream `main` and pull-request inspection
+- Node 24 `corepack yarn install`
+- `corepack yarn check:rn-nodeify-shims`
+- React Native CLI config
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- RC4 production Android Metro bundle
+- JDK 17 default AGP 9 `assembleDevDebug` (expected AsyncStorage built-in Kotlin failure captured)
+- JDK 17 AGP 9 `assembleDevDebug` with `android.builtInKotlin=false` and `android.newDsl=false` (passed: `795` executed tasks)
+- `corepack yarn android:dev:smoke:embedded` (APK install/launch and onboarding passed; expected external Electrum TLS blocker prevented full dashboard smoke)
+- `corepack yarn check:rn-087-readiness`
+- `corepack yarn rn:target-snapshot:current`
+- `corepack yarn rn:target-snapshot:check-summary`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.961 - React Native Firebase 26.1 release cohort
 
 - Branch: `feature/bem-37-961-rn-firebase-26-1`
