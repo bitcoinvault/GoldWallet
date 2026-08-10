@@ -10,6 +10,66 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.965 - React Native Firebase 26.2 release cohort
+
+- Branch: `feature/bem-37-965-rn-firebase-26-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the aligned React Native Firebase `app`, `analytics`, `crashlytics`, and `messaging` packages from `26.1.0` to the latest checked stable `26.2.0` as one native release-services cohort.
+- Refresh version-sensitive native inventory, Firebase release-service, runtime-delivery, iOS readiness, aggregate handoff guards, and current modernization documentation without changing unrelated runtime dependencies.
+- Rebuild Android debug and all four release variants, then re-prove production onboarding, navigation, QR, Terms WebView, create-wallet persistence, and import-wallet persistence before accepting the patch cohort.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-10 reports the complete React Native Firebase cohort at `26.2.0`, published between `13:46` and `13:49` UTC from git head `b7efa8ca2781b5102975ee5169ee6fc52e9c1588`; the four packages remain aligned and Messaging requires the matching app package.
+- The patch cohort keeps Firebase JavaScript `12.17.0`, Firebase Apple SDK `12.17.0`, Android Firebase BoM `34.16.0`, and Google Play Services Auth `21.5.0` unchanged. Published changes refresh generated TurboModule sources, improve the optional iOS SPM path, add an Expo SPM-disable option, and restore the Crashlytics dSYM upload script phase.
+- GoldWallet remains on the explicitly guarded CocoaPods path through `$RNFirebaseDisableSPM = true`; the SPM fixes are therefore compatibility preparation rather than iOS runtime evidence. Firebase Apple SDK `12.17.0` still sets the effective Xcode floor to `26.2`.
+- The inherited Node `22.18.0` environment correctly failed the frozen install because `undici@8.9.0` requires Node `>=22.19.0`. The repository install and all subsequent JavaScript checks passed on Node `24.16.0`; this was an environment mismatch, not a dependency rollback reason.
+- A first Android CMake run from the original long worktree exceeded Windows' 260-character generated object-path limit after Firebase codegen. Moving the same branch to the physical short path `D:\f965` and cleaning only ignored Android build output removed the environment failure; no source workaround or generated file was committed.
+- JDK 17 debug assembly and the complete `dev`, `stage`, `prod`, and `beta` release matrix pass on AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, and compile/target SDK `36`. The release-input fingerprint is `f97a7d58e2367a0b4caf7c82f2bc63f227b0678d7a4980a5779fe27ae255a91d`; the source APK hashes are `35bfd5c61823b929592bd86121e9b3880b146ba78a7e2f5425f2d70c0a8034bb` (`dev`), `ef15068f317b8e4ef0aa5c588d6e56a81c5f75a78adc3681f6b66b7edd68e324` (`stage`), `019c80d03004b1180dccc130a3db0eff9f5e6655da5b107247e2a7529777a264` (`prod`), and `2598895cc015c5815cb65afd5c72913d5df52c28a2ccd5b558aab4d2634e9d4b` (`beta`). Bundle, source-map, manifest, secure-storage, and retired App Center exclusion checks pass for all variants.
+- The exact current signed `prodRelease` APK passes clean onboarding, empty dashboard, Create/Import navigation, QR scanner, all tabs, and Terms WebView on `emulator-5554`. Standard-wallet creation and public watch-only import both persist across a process restart, reject an incorrect PIN, unlock with the configured test PIN, and produce no fatal/runtime logcat findings; the default 3-key vault path reaches public-key integration.
+- Full `devRelease` smoke remains blocked by the external `electrumx.testnet.btcv.stage.rnd.land:443` TLS certificate, which expired on 2026-06-23. The controlled no-network smoke passes and the network audit records `blocked-by-electrum-certificate-expired`; this is not classified as a Firebase regression or full dev runtime success.
+- Firebase package alignment, Android release evidence, and release-services aggregate summaries are valid. Real FCM notification delivery, Analytics delivery, Crashlytics event/dSYM delivery, and Sentry upload remain explicitly unclaimed. Full iOS delivery is also unclaimed on Windows because Xcode/CocoaPods are unavailable and `ios/Podfile.lock` has 12 active drifts, including RNFBApp `12.7.5` versus package `26.2.0`.
+
+Validation:
+
+- live npm metadata plus published package manifest/changelog inspection for all four `@react-native-firebase/*@26.2.0` packages
+- Node `24.16.0` `corepack yarn install --frozen-lockfile` and patched postinstall
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn check:native-module-upgrade-plan-guard`
+- `corepack yarn check:native-module-upgrade-plan`
+- `corepack yarn check:firebase-release-services-summary-guard`
+- `corepack yarn check:firebase-runtime-delivery-handoff-guard`
+- `corepack yarn check:firebase-usage-guard`
+- `corepack yarn check:firebase-usage-scope`
+- `corepack yarn check:firebase-messaging-modular-usage-guard`
+- `corepack yarn check:firebase-messaging-modular-usage`
+- `corepack yarn check:ios-release-readiness-summary-guard`
+- `corepack yarn ios:static:verify`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- JDK 17 `corepack yarn android:dev:assemble`
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:check-create-wallet-smoke-summary`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:import-wallet-smoke:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:check-import-wallet-smoke-summary`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:release:smoke:embedded` (expected external Electrum TLS failure captured)
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:release:smoke:no-network:embedded`
+- `corepack yarn android:dev:release:network-blocker:audit`
+- `corepack yarn android:dev:release:network-blocker:check-summary`
+- `corepack yarn release-services:validation:handoff --skip-android-release --codepush-decision remove --codepush-beta-strategy beta-has-no-ota`
+- `corepack yarn release-services:check-summaries`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.964 - Sentry 8.22 production release readiness
 
 - Branch: `feature/bem-37-964-sentry-822-release-readiness`
