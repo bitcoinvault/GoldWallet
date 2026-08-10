@@ -28,6 +28,20 @@ export const getCameraQrMigrationSummaryErrors = summary => {
   const generatedAt = getLineValue(summary, 'Generated at');
   const cameraVersion = getLineValue(summary, 'react-native-camera manifest version');
   const cameraKitVersion = getLineValue(summary, 'react-native-camera-kit manifest version');
+  const cameraKitInstalledVersion = getLineValue(summary, 'CameraKit installed package version');
+  const cameraKitIosSharedMotionManagerFixReady = getLineValue(
+    summary,
+    'CameraKit iOS shared motion manager fix ready',
+  );
+  const cameraKitIosWeakCallbackCaptureReady = getLineValue(
+    summary,
+    'CameraKit iOS weak callback capture ready',
+  );
+  const cameraKitPackageHygieneValid = getLineValue(summary, 'CameraKit package hygiene valid');
+  const cameraKitUnexpectedDevelopmentArtifacts = getLineValue(
+    summary,
+    'CameraKit unexpected development artifacts',
+  );
   const qrLocalImageVersion = getLineValue(summary, 'QR local-image manifest version');
   const qrRendererVersion = getLineValue(summary, 'QR renderer version');
   const qrNativeRendererVersion = getLineValue(summary, 'QR native renderer version');
@@ -72,8 +86,14 @@ export const getCameraQrMigrationSummaryErrors = summary => {
     errors.push('react-native-camera manifest version is missing');
   }
 
-  if (cameraKitVersion !== '18.0.0') {
-    errors.push(`react-native-camera-kit manifest version must be 18.0.0. Received: ${cameraKitVersion || 'missing'}`);
+  if (cameraKitVersion !== '18.0.1') {
+    errors.push(`react-native-camera-kit manifest version must be 18.0.1. Received: ${cameraKitVersion || 'missing'}`);
+  }
+
+  if (cameraKitInstalledVersion !== '18.0.1') {
+    errors.push(
+      `CameraKit installed package version must be 18.0.1. Received: ${cameraKitInstalledVersion || 'missing'}`,
+    );
   }
 
   if (!qrLocalImageVersion) {
@@ -92,8 +112,8 @@ export const getCameraQrMigrationSummaryErrors = summary => {
     errors.push('qrcode resolution is missing');
   }
 
-  if (cameraKitLatest !== 'react-native-camera-kit@18.0.0') {
-    errors.push(`CameraKit latest target must be react-native-camera-kit@18.0.0. Received: ${cameraKitLatest || 'missing'}`);
+  if (cameraKitLatest !== 'react-native-camera-kit@18.0.1') {
+    errors.push(`CameraKit latest target must be react-native-camera-kit@18.0.1. Received: ${cameraKitLatest || 'missing'}`);
   }
 
   if (cameraKitPeerRanges !== 'react@*, react-native@*') {
@@ -124,11 +144,32 @@ export const getCameraQrMigrationSummaryErrors = summary => {
     errors.push(`Live QR targets must be matched or stale. Received: ${liveQrTargets || 'missing'}`);
   }
 
-  [iosPodfileLockRefreshRequired, iosCameraPodfileLockCleanupComplete, iosBroaderPodfileLockRefreshRequired, wiringValid, baselineStable].forEach(value => {
+  [
+    cameraKitIosSharedMotionManagerFixReady,
+    cameraKitIosWeakCallbackCaptureReady,
+    cameraKitPackageHygieneValid,
+    iosPodfileLockRefreshRequired,
+    iosCameraPodfileLockCleanupComplete,
+    iosBroaderPodfileLockRefreshRequired,
+    wiringValid,
+    baselineStable,
+  ].forEach(value => {
     if (!['yes', 'no'].includes(value)) {
       errors.push(`Boolean summary values must be yes or no. Received: ${value || 'missing'}`);
     }
   });
+
+  if (!cameraKitUnexpectedDevelopmentArtifacts) {
+    errors.push('CameraKit unexpected development artifacts line is missing');
+  }
+
+  if (cameraKitPackageHygieneValid === 'yes' && cameraKitUnexpectedDevelopmentArtifacts !== 'none') {
+    errors.push('CameraKit package hygiene cannot be valid when unexpected development artifacts are listed');
+  }
+
+  if (cameraKitPackageHygieneValid === 'no' && cameraKitUnexpectedDevelopmentArtifacts === 'none') {
+    errors.push('CameraKit package hygiene cannot be invalid when unexpected development artifacts is none');
+  }
 
   if (!iosStaleRemovedCameraPods) {
     errors.push('iOS stale removed camera pods line is missing');
@@ -173,6 +214,16 @@ export const getCameraQrMigrationSummaryErrors = summary => {
     errors.push('Stable baseline summary must have matched live QR targets');
   }
 
+  if (
+    baselineStable === 'yes' &&
+    (cameraKitInstalledVersion !== '18.0.1' ||
+      cameraKitIosSharedMotionManagerFixReady !== 'yes' ||
+      cameraKitIosWeakCallbackCaptureReady !== 'yes' ||
+      cameraKitPackageHygieneValid !== 'yes')
+  ) {
+    errors.push('Stable Camera/QR baseline must prove the installed CameraKit 18.0.1 fix and package hygiene');
+  }
+
   if (baselineStable === 'yes' && iosPodfileLockRefreshRequired !== 'no') {
     errors.push('Stable Camera/QR baseline summary must have no stale removed camera pods in Podfile.lock');
   }
@@ -192,8 +243,8 @@ export const getCameraQrMigrationSummaryErrors = summary => {
   if (
     baselineStable === 'yes' &&
     iosBroaderPodfileLockRefreshRequired === 'yes' &&
-    !requiredAction.includes('none for Android/CameraKit scanner wiring') &&
-    !requiredAction.includes('pod install on macOS')
+    (!requiredAction.includes('none for Android/CameraKit scanner wiring') ||
+      !requiredAction.includes('pod install on macOS'))
   ) {
     errors.push('Stable baseline with broader iOS drift must include the Android/CameraKit no-action and macOS pod install required action');
   }

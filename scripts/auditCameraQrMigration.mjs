@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { collectCameraCandidateAudit } from './auditCameraCandidates.mjs';
@@ -27,6 +27,76 @@ const requireFile = (errors, relativePath) => {
   return read(relativePath);
 };
 
+const requireJsonFile = (errors, relativePath) => {
+  const content = requireFile(errors, relativePath);
+
+  if (!content) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(content);
+  } catch (error) {
+    errors.push(`${relativePath} is not valid JSON: ${error.message}`);
+    return {};
+  }
+};
+
+export const inspectCameraKitIosSource = source => ({
+  sharedMotionManagerFixReady:
+    source.includes('private static let motionManager = CMMotionManager()') &&
+    source.includes('private static let motionQueue = OperationQueue()') &&
+    source.includes('Self.motionManager.startAccelerometerUpdates(') &&
+    source.includes('to: Self.motionQueue,') &&
+    source.includes('Self.motionManager.stopAccelerometerUpdates()') &&
+    !source.includes('private var motionManager: CMMotionManager?'),
+  weakCallbackCaptureReady:
+    source.includes('withHandler: { [weak self]') && source.includes('guard let self else { return }'),
+});
+
+const listPackageEntries = (absoluteDirectory, relativeDirectory = '') => {
+  if (!existsSync(absoluteDirectory)) {
+    return [];
+  }
+
+  return readdirSync(absoluteDirectory, { withFileTypes: true }).flatMap(entry => {
+    const relativePath = path.posix.join(relativeDirectory, entry.name);
+    const nestedEntries = entry.isDirectory()
+      ? listPackageEntries(path.join(absoluteDirectory, entry.name), relativePath)
+      : [];
+
+    return [relativePath, ...nestedEntries];
+  });
+};
+
+export const getCameraKitDevelopmentArtifacts = packageEntries => {
+  const exactAndroidArtifacts = new Set([
+    'android/local.properties',
+    'android/gradlew',
+    'android/gradlew.bat',
+  ]);
+  const androidArtifactDirectories = ['android/.gradle', 'android/.idea', 'android/gradle'];
+
+  return packageEntries
+    .map(relativePath => relativePath.replace(/\\/g, '/'))
+    .filter(relativePath => {
+      const isAndroidArtifact =
+        exactAndroidArtifacts.has(relativePath) ||
+        androidArtifactDirectories.some(
+          artifactDirectory =>
+            relativePath === artifactDirectory || relativePath.startsWith(`${artifactDirectory}/`),
+        );
+      const isSourceTestArtifact =
+        /^src\/(?:.*\/)?__tests__(?:\/|$)/.test(relativePath) ||
+        /^src\/.*\.(?:test|spec)\.[^/]+$/i.test(relativePath);
+      const isIosUserStateArtifact =
+        /^ios\/(?:.*\/)?xcuserdata(?:\/|$)/.test(relativePath) ||
+        /^ios\/.*\.xcuserstate$/i.test(relativePath);
+
+      return isAndroidArtifact || isSourceTestArtifact || isIosUserStateArtifact;
+    });
+};
+
 export const collectCameraQrMigrationAudit = () => {
   const errors = [];
   const readinessIssues = [];
@@ -39,6 +109,23 @@ export const collectCameraQrMigrationAudit = () => {
   const qrRendererVersion = dependencies['react-native-qrcode-svg'];
   const qrNativeRendererVersion = dependencies['react-native-svg'];
   const rootQrcodeVersion = (packageJson.resolutions || {}).qrcode;
+  const cameraKitInstalledManifest = requireJsonFile(
+    errors,
+    'node_modules/react-native-camera-kit/package.json',
+  );
+  const cameraKitInstalledVersion = cameraKitInstalledManifest.version;
+  const cameraKitIosSource = requireFile(
+    errors,
+    'node_modules/react-native-camera-kit/ios/ReactNativeCameraKit/RealCamera.swift',
+  );
+  const cameraKitIosInspection = inspectCameraKitIosSource(cameraKitIosSource);
+  const cameraKitIosSharedMotionManagerFixReady = cameraKitIosInspection.sharedMotionManagerFixReady;
+  const cameraKitIosWeakCallbackCaptureReady = cameraKitIosInspection.weakCallbackCaptureReady;
+  const cameraKitPackageRoot = 'node_modules/react-native-camera-kit';
+  const cameraKitDevelopmentArtifacts = getCameraKitDevelopmentArtifacts(
+    listPackageEntries(path.join(root, cameraKitPackageRoot)),
+  ).map(relativePath => `${cameraKitPackageRoot}/${relativePath}`);
+  const cameraKitPackageHygieneValid = cameraKitDevelopmentArtifacts.length === 0;
 
   if (cameraVersion) {
     readinessIssues.push(
@@ -46,9 +133,29 @@ export const collectCameraQrMigrationAudit = () => {
     );
   }
 
-  if (cameraKitVersion !== '18.0.0') {
+  if (cameraKitVersion !== '18.0.1') {
     readinessIssues.push(
-      `package.json has react-native-camera-kit@${cameraKitVersion || '<missing>'}; expected 18.0.0`,
+      `package.json has react-native-camera-kit@${cameraKitVersion || '<missing>'}; expected 18.0.1`,
+    );
+  }
+
+  if (cameraKitInstalledVersion !== '18.0.1') {
+    errors.push(
+      `installed react-native-camera-kit manifest is ${cameraKitInstalledVersion || '<missing>'}; expected 18.0.1`,
+    );
+  }
+
+  if (!cameraKitIosSharedMotionManagerFixReady) {
+    errors.push('installed CameraKit iOS source is missing the 18.0.1 shared motion-manager teardown fix');
+  }
+
+  if (!cameraKitIosWeakCallbackCaptureReady) {
+    errors.push('installed CameraKit iOS source is missing the 18.0.1 weak accelerometer callback capture');
+  }
+
+  if (!cameraKitPackageHygieneValid) {
+    errors.push(
+      `installed CameraKit package contains excluded development artifacts: ${cameraKitDevelopmentArtifacts.join(', ')}`,
     );
   }
 
@@ -90,7 +197,9 @@ export const collectCameraQrMigrationAudit = () => {
   const nativeModulePlan = requireFile(errors, 'docs/native-module-upgrade-plan.md');
   const iosXcodeProject = requireFile(errors, 'ios/GoldWallet.xcodeproj/project.pbxproj');
   const iosPodfile = requireFile(errors, 'ios/Podfile');
-  const warningBaseline = requireFile(errors, 'local-docs/android-warning-audit-summary.txt');
+  const warningBaseline = exists('local-docs/android-warning-audit-summary.txt')
+    ? read('local-docs/android-warning-audit-summary.txt')
+    : '';
   const iosPodfileLock = requireFile(errors, 'ios/Podfile.lock');
   const iosPodfileLockDrift = iosPodfileLock
     ? collectIosPodfileLockDrift({ packageJson, podfileLock: iosPodfileLock })
@@ -141,13 +250,13 @@ export const collectCameraQrMigrationAudit = () => {
     errors,
     'docs/camera-replacement-plan.md',
     replacementPlan,
-    'Current scanner package: `react-native-camera-kit@18.0.0`',
+    'Current scanner package: `react-native-camera-kit@18.0.1`',
   );
   requireSnippet(
     errors,
     'docs/native-module-upgrade-plan.md',
     nativeModulePlan,
-    '`react-native-camera-kit` -> `18.0.0`',
+    '`react-native-camera-kit` -> `18.0.1`',
   );
   requireSnippet(errors, 'ios/Podfile', iosPodfile, 'react-native-permissions/scripts/setup');
   requireSnippet(errors, 'ios/Podfile', iosPodfile, "'Camera'");
@@ -169,6 +278,11 @@ export const collectCameraQrMigrationAudit = () => {
   return {
     cameraVersion,
     cameraKitVersion,
+    cameraKitInstalledVersion,
+    cameraKitIosSharedMotionManagerFixReady,
+    cameraKitIosWeakCallbackCaptureReady,
+    cameraKitPackageHygieneValid,
+    cameraKitDevelopmentArtifacts,
     permissionsVersion,
     localQrImageVersion,
     qrRendererVersion,
@@ -202,6 +316,11 @@ export const formatCameraQrMigrationSummary = (audit, generatedAt = new Date().t
     `Generated at: ${generatedAt}`,
     `react-native-camera manifest version: ${audit.cameraVersion || '<missing>'}`,
     `react-native-camera-kit manifest version: ${audit.cameraKitVersion || '<missing>'}`,
+    `CameraKit installed package version: ${audit.cameraKitInstalledVersion || '<missing>'}`,
+    `CameraKit iOS shared motion manager fix ready: ${audit.cameraKitIosSharedMotionManagerFixReady ? 'yes' : 'no'}`,
+    `CameraKit iOS weak callback capture ready: ${audit.cameraKitIosWeakCallbackCaptureReady ? 'yes' : 'no'}`,
+    `CameraKit package hygiene valid: ${audit.cameraKitPackageHygieneValid ? 'yes' : 'no'}`,
+    `CameraKit unexpected development artifacts: ${audit.cameraKitDevelopmentArtifacts.join(', ') || 'none'}`,
     `QR local-image manifest version: ${audit.localQrImageVersion || '<missing>'}`,
     `QR renderer version: ${audit.qrRendererVersion || '<missing>'}`,
     `QR native renderer version: ${audit.qrNativeRendererVersion || '<missing>'}`,
@@ -255,6 +374,14 @@ const printReport = audit => {
   console.log('Camera QR migration audit');
   console.log(`react-native-camera manifest version: ${audit.cameraVersion || '<missing>'}`);
   console.log(`react-native-camera-kit manifest version: ${audit.cameraKitVersion || '<missing>'}`);
+  console.log(`CameraKit installed package version: ${audit.cameraKitInstalledVersion || '<missing>'}`);
+  console.log(
+    `CameraKit iOS shared motion manager fix ready: ${audit.cameraKitIosSharedMotionManagerFixReady ? 'yes' : 'no'}`,
+  );
+  console.log(
+    `CameraKit iOS weak callback capture ready: ${audit.cameraKitIosWeakCallbackCaptureReady ? 'yes' : 'no'}`,
+  );
+  console.log(`CameraKit package hygiene valid: ${audit.cameraKitPackageHygieneValid ? 'yes' : 'no'}`);
   console.log(
     `QR render pair: react-native-qrcode-svg@${audit.qrRendererVersion || '<missing>'}, react-native-svg@${
       audit.qrNativeRendererVersion || '<missing>'

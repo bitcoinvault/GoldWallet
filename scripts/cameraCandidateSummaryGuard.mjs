@@ -57,16 +57,16 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push('Camera candidate summary header is missing');
   }
 
-  if (metadataCheckedOn !== '2026-08-02') {
-    errors.push(`Metadata checked on must be 2026-08-02. Received: ${metadataCheckedOn || 'missing'}`);
+  if (metadataCheckedOn !== '2026-08-10') {
+    errors.push(`Metadata checked on must be 2026-08-10. Received: ${metadataCheckedOn || 'missing'}`);
   }
 
   if (legacyCamera !== 'react-native-camera@4.2.1') {
     errors.push(`Legacy camera latest must be react-native-camera@4.2.1. Received: ${legacyCamera || 'missing'}`);
   }
 
-  if (visionCamera !== 'react-native-vision-camera@5.2.1') {
-    errors.push(`VisionCamera latest must be react-native-vision-camera@5.2.1. Received: ${visionCamera || 'missing'}`);
+  if (visionCamera !== 'react-native-vision-camera@5.2.2') {
+    errors.push(`VisionCamera latest must be react-native-vision-camera@5.2.2. Received: ${visionCamera || 'missing'}`);
   }
 
   if (visionCameraNitroPeers !== 'yes') {
@@ -83,8 +83,8 @@ export const getCameraCandidateSummaryErrors = summary => {
     errors.push(`VisionCamera peer dependency ranges are unexpected. Received: ${visionCameraPeerRanges || 'missing'}`);
   }
 
-  if (cameraKit !== 'react-native-camera-kit@18.0.0') {
-    errors.push(`CameraKit latest must be react-native-camera-kit@18.0.0. Received: ${cameraKit || 'missing'}`);
+  if (cameraKit !== 'react-native-camera-kit@18.0.1') {
+    errors.push(`CameraKit latest must be react-native-camera-kit@18.0.1. Received: ${cameraKit || 'missing'}`);
   }
 
   if (cameraKitNodeEngine !== '>=18') {

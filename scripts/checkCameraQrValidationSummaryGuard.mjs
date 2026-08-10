@@ -7,7 +7,7 @@ import {
 const validSummary = [
   'Camera/QR validation summary',
   'Generated at: 2026-06-17T00:00:00.000Z',
-  'CameraKit package: react-native-camera-kit@18.0.0',
+  'CameraKit package: react-native-camera-kit@18.0.1',
   'QR renderer package: react-native-qrcode-svg@6.3.21',
   'QR native renderer package: react-native-svg@15.15.5',
   'QR encoder resolution: qrcode@1.5.4',
@@ -152,7 +152,7 @@ if (parseCameraQrValidationSummaryArgs(['--dry-run', '--variant=prod']).androidR
 });
 assertRejected('Missing header fixture', validSummary.replace('Camera/QR validation summary', 'Bad summary'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-17T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
-assertRejected('Bad CameraKit package fixture', validSummary.replace('react-native-camera-kit@18.0.0', 'react-native-camera-kit@17.0.0'), 'CameraKit package');
+assertRejected('Bad CameraKit package fixture', validSummary.replace('react-native-camera-kit@18.0.1', 'react-native-camera-kit@17.0.0'), 'CameraKit package');
 assertRejected(
   'Unsupported release variant fixture',
   validSummary.replace('Android release evidence variant: dev', 'Android release evidence variant: unknown'),

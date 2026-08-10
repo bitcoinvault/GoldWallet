@@ -73,8 +73,9 @@ dependencies:
 - The QR render surface is small and now guarded, but it covers sensitive flows: receive address QR, contact QR, wallet secret export, xpub export, and authenticator QR display.
 - `BEM-37.408` adds focused unit coverage for those five guarded QR render screens so future `react-native-svg`, `react-native-qrcode-svg`, or QR payload changes must keep the expected values wired into `QRCode`.
 - The 2026-06-17 live npm refresh still reports `react-native-svg@15.15.5`, `react-native-qrcode-svg@6.3.21`, `qrcode@1.5.4`, and `react-native-camera-kit@18.0.0` as the latest package targets.
+- The 2026-08-10 refresh keeps the QR rendering trio unchanged and current, while the scanner moves independently to `react-native-camera-kit@18.0.1`; the CameraKit patch changes iOS motion-manager lifetime and package contents rather than QR encoding/rendering contracts.
 - The current RN `0.86.2` baseline keeps this QR renderer pair compatible: `react-native-svg` peers on `react` and `react-native` wildcard ranges, while `react-native-qrcode-svg` peers on `react-native >=0.63.4` and `react-native-svg >=14.0.0`.
-- `camera:qr-migration:audit` reports `react-native-camera` absent, `react-native-camera-kit@18.0.0` installed, QR renderer/native/encoder versions aligned, removed camera pods absent from `ios/Podfile.lock`, and only broader non-camera iOS Podfile.lock drift remaining.
+- `camera:qr-migration:audit` reports `react-native-camera` absent, `react-native-camera-kit@18.0.1` installed, QR renderer/native/encoder versions aligned, removed camera pods absent from `ios/Podfile.lock`, and only broader non-camera iOS Podfile.lock drift remaining.
 - Focused unit validation passes for both guarded QR surfaces: `test:qr-scanner:unit` covers Android camera permission gating, CameraKit QR-only configuration, callback delivery, empty scans, and duplicate-scan suppression; `test:qr-render:unit` covers the five QR rendering screens.
 
 ## Decision

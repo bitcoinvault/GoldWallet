@@ -88,8 +88,8 @@ export const getCameraQrValidationSummaryErrors = summary => {
     errors.push(`Generated at must be an ISO timestamp. Received: ${generatedAt || 'missing'}`);
   }
 
-  if (cameraKitPackage !== 'react-native-camera-kit@18.0.0') {
-    errors.push(`CameraKit package must be react-native-camera-kit@18.0.0. Received: ${cameraKitPackage || 'missing'}`);
+  if (cameraKitPackage !== 'react-native-camera-kit@18.0.1') {
+    errors.push(`CameraKit package must be react-native-camera-kit@18.0.1. Received: ${cameraKitPackage || 'missing'}`);
   }
 
   if (qrRendererPackage !== 'react-native-qrcode-svg@6.3.21') {

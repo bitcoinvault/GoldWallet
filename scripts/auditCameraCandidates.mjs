@@ -1,5 +1,5 @@
 import { execFileSync } from 'child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -7,15 +7,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'camera-candidate-summary.txt');
 const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8');
+const readOptional = relativePath => {
+  const absolutePath = path.join(root, relativePath);
+  return existsSync(absolutePath) ? readFileSync(absolutePath, 'utf8') : '';
+};
 
 const packageJson = JSON.parse(read('package.json'));
 const dependencies = packageJson.dependencies || {};
-export const cameraCandidateMetadataCheckedOn = '2026-08-02';
+export const cameraCandidateMetadataCheckedOn = '2026-08-10';
 const npmCommand = process.platform === 'win32' ? 'cmd.exe' : 'npm';
 const npmArgs = args => (process.platform === 'win32' ? ['/d', '/s', '/c', 'npm', ...args] : args);
 const expectedCameraMetadata = {
   legacyCameraLatest: 'react-native-camera@4.2.1',
-  visionCameraLatest: 'react-native-vision-camera@5.2.1',
+  visionCameraLatest: 'react-native-vision-camera@5.2.2',
   visionCameraRequiredPeers: ['react-native-nitro-modules', 'react-native-nitro-image'],
   visionCameraPeerRanges: {
     react: '*',
@@ -23,7 +27,7 @@ const expectedCameraMetadata = {
     'react-native-nitro-image': '*',
     'react-native-nitro-modules': '*',
   },
-  cameraKitLatest: 'react-native-camera-kit@18.0.0',
+  cameraKitLatest: 'react-native-camera-kit@18.0.1',
   cameraKitNodeEngine: '>=18',
   cameraKitPeerRanges: {
     react: '*',
@@ -166,7 +170,7 @@ export const collectCameraCandidateAudit = () => {
   const currentPermissions = dependencies['react-native-permissions'];
   const cameraPlan = read('docs/camera-replacement-plan.md');
   const followupPlan = read('docs/android-warning-baseline-followups.md');
-  const warningBaseline = read('local-docs/android-warning-audit-summary.txt');
+  const warningBaseline = readOptional('local-docs/android-warning-audit-summary.txt');
 
   if (currentCamera) {
     errors.push(
@@ -174,8 +178,8 @@ export const collectCameraCandidateAudit = () => {
     );
   }
 
-  if (currentCameraKit !== '18.0.0') {
-    errors.push(`package.json has react-native-camera-kit@${currentCameraKit || '<missing>'}; expected 18.0.0`);
+  if (currentCameraKit !== '18.0.1') {
+    errors.push(`package.json has react-native-camera-kit@${currentCameraKit || '<missing>'}; expected 18.0.1`);
   }
 
   if (currentPermissions !== '5.6.1') {
@@ -183,14 +187,14 @@ export const collectCameraCandidateAudit = () => {
   }
 
   [
-    'react-native-vision-camera@5.2.1',
+    'react-native-vision-camera@5.2.2',
     'react-native-nitro-modules',
     'react-native-nitro-image',
-    'react-native-camera-kit@18.0.0',
+    'react-native-camera-kit@18.0.1',
     'react-native-permissions@5.6.1',
     'react-native-qrcode-svg@6.3.21',
     'qrcode@1.5.4',
-    'Current scanner package: `react-native-camera-kit@18.0.0`',
+    'Current scanner package: `react-native-camera-kit@18.0.1`',
     'CameraKit selected for the first migration branch',
   ].forEach(snippet => {
     if (!cameraPlan.includes(snippet)) {

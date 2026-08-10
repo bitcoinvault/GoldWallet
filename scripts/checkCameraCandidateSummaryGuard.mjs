@@ -3,13 +3,13 @@ import { getCameraCandidateSummaryErrors } from './cameraCandidateSummaryGuard.m
 const validSummary = [
   'Camera candidate audit',
   'Generated at: 2026-06-17T00:00:00.000Z',
-  'Metadata checked on: 2026-08-02',
+  'Metadata checked on: 2026-08-10',
   'Legacy camera latest: react-native-camera@4.2.1',
-  'VisionCamera latest: react-native-vision-camera@5.2.1',
+  'VisionCamera latest: react-native-vision-camera@5.2.2',
   'VisionCamera Nitro peers: yes',
   'VisionCamera required peer packages: react-native-nitro-modules, react-native-nitro-image',
   'VisionCamera peer dependency ranges: react@*, react-native@*, react-native-nitro-image@*, react-native-nitro-modules@*',
-  'CameraKit latest: react-native-camera-kit@18.0.0',
+  'CameraKit latest: react-native-camera-kit@18.0.1',
   'CameraKit node engine: >=18',
   'CameraKit peer dependency ranges: react@*, react-native@*',
   'Permissions latest: react-native-permissions@5.6.1',
@@ -34,7 +34,7 @@ const invalidSummary = validSummary
   .replace('Live npm metadata: matched', 'Live npm metadata: stale')
   .replace(
     'Live npm metadata issues: 0',
-    'Live npm metadata issues: 1\n- VisionCamera latest live npm metadata is react-native-vision-camera@5.2.1; expected react-native-vision-camera@5.2.1',
+    'Live npm metadata issues: 1\n- VisionCamera latest live npm metadata is react-native-vision-camera@5.2.1; expected react-native-vision-camera@5.2.2',
   )
   .replace('Camera candidate baseline stable: yes', 'Camera candidate baseline stable: no')
   .replace(
@@ -70,7 +70,7 @@ assertRejected(
     .replace('Live npm metadata: matched', 'Live npm metadata: stale')
     .replace(
       'Live npm metadata issues: 0',
-      'Live npm metadata issues: 1\n- VisionCamera latest live npm metadata is react-native-vision-camera@5.2.2; expected react-native-vision-camera@5.2.1',
+      'Live npm metadata issues: 1\n- VisionCamera latest live npm metadata is react-native-vision-camera@5.2.3; expected react-native-vision-camera@5.2.2',
     )
     .replace('Camera candidate baseline stable: yes', 'Camera candidate baseline stable: no')
     .replace('Errors: 0', 'Errors: 1\n- Live npm candidate metadata is stale')
@@ -82,7 +82,7 @@ assertRejected(
 );
 assertRejected(
   'Missing metadata date fixture',
-  validSummary.replace('Metadata checked on: 2026-08-02', 'Metadata checked on: 2026-06-17'),
+  validSummary.replace('Metadata checked on: 2026-08-10', 'Metadata checked on: 2026-08-02'),
   'Metadata checked on',
 );
 assertRejected(

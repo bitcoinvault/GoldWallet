@@ -1,15 +1,24 @@
 import { getCameraQrMigrationSummaryErrors } from './cameraQrMigrationSummaryGuard.mjs';
+import {
+  getCameraKitDevelopmentArtifacts,
+  inspectCameraKitIosSource,
+} from './auditCameraQrMigration.mjs';
 
 const validSummary = [
   'Camera QR migration audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'react-native-camera manifest version: <missing>',
-  'react-native-camera-kit manifest version: 18.0.0',
+  'react-native-camera-kit manifest version: 18.0.1',
+  'CameraKit installed package version: 18.0.1',
+  'CameraKit iOS shared motion manager fix ready: yes',
+  'CameraKit iOS weak callback capture ready: yes',
+  'CameraKit package hygiene valid: yes',
+  'CameraKit unexpected development artifacts: none',
   'QR local-image manifest version: <missing>',
   'QR renderer version: 6.3.21',
   'QR native renderer version: 15.15.5',
   'qrcode resolution: 1.5.4',
-  'CameraKit latest target: react-native-camera-kit@18.0.0',
+  'CameraKit latest target: react-native-camera-kit@18.0.1',
   'CameraKit peer dependency ranges: react@*, react-native@*',
   'QR renderer latest target: react-native-qrcode-svg@6.3.21',
   'QR renderer peer dependency ranges: react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0',
@@ -39,12 +48,17 @@ const invalidSummary = [
   'Camera QR migration audit',
   'Generated at: 2026-05-28T00:00:00.000Z',
   'react-native-camera manifest version: ^3.33.0',
-  'react-native-camera-kit manifest version: 18.0.0',
+  'react-native-camera-kit manifest version: 18.0.1',
+  'CameraKit installed package version: 18.0.1',
+  'CameraKit iOS shared motion manager fix ready: yes',
+  'CameraKit iOS weak callback capture ready: yes',
+  'CameraKit package hygiene valid: yes',
+  'CameraKit unexpected development artifacts: none',
   'QR local-image manifest version: 1.0.4',
   'QR renderer version: 6.3.21',
   'QR native renderer version: 15.15.5',
   'qrcode resolution: 1.5.4',
-  'CameraKit latest target: react-native-camera-kit@18.0.0',
+  'CameraKit latest target: react-native-camera-kit@18.0.1',
   'CameraKit peer dependency ranges: react@*, react-native@*',
   'QR renderer latest target: react-native-qrcode-svg@6.3.21',
   'QR renderer peer dependency ranges: react@*, react-native@>=0.63.4, react-native-svg@>=14.0.0',
@@ -53,7 +67,7 @@ const invalidSummary = [
   'QR encoder latest target: qrcode@1.5.4',
   'Live QR targets: stale',
   'Live QR target issues: 1',
-  '- CameraKit latest live npm metadata is react-native-camera-kit@19.0.0; expected react-native-camera-kit@18.0.0',
+  '- CameraKit latest live npm metadata is react-native-camera-kit@19.0.0; expected react-native-camera-kit@18.0.1',
   'iOS Podfile.lock refresh required: yes',
   'iOS stale removed camera pods: react-native-camera, react-native-qrcode-local-image',
   'iOS camera Podfile.lock cleanup complete: no',
@@ -95,11 +109,91 @@ const assertRejected = (label, summary, expectedError) => {
   }
 };
 
+const validCameraKitIosSource = `
+private static let motionManager = CMMotionManager()
+private static let motionQueue = OperationQueue()
+Self.motionManager.startAccelerometerUpdates(
+  to: Self.motionQueue,
+  withHandler: { [weak self] _, _ in
+    guard let self else { return }
+  }
+)
+Self.motionManager.stopAccelerometerUpdates()
+`;
+
+const validCameraKitIosInspection = inspectCameraKitIosSource(validCameraKitIosSource);
+if (!validCameraKitIosInspection.sharedMotionManagerFixReady || !validCameraKitIosInspection.weakCallbackCaptureReady) {
+  console.error('Valid CameraKit iOS source fixture should prove the 18.0.1 CoreMotion fixes.');
+  process.exit(1);
+}
+
+[
+  [
+    'per-instance start manager mutation',
+    validCameraKitIosSource.replace(
+      'Self.motionManager.startAccelerometerUpdates(',
+      'CMMotionManager().startAccelerometerUpdates(',
+    ),
+  ],
+  [
+    'per-instance start queue mutation',
+    validCameraKitIosSource.replace('to: Self.motionQueue,', 'to: OperationQueue(),'),
+  ],
+].forEach(([label, source]) => {
+  if (inspectCameraKitIosSource(source).sharedMotionManagerFixReady) {
+    console.error(`CameraKit iOS source inspection accepted ${label}.`);
+    process.exit(1);
+  }
+});
+
+[
+  'android/.gradle/8.13/fileHashes/fileHashes.bin',
+  'android/.idea/modules.xml',
+  'android/local.properties',
+  'android/gradle/wrapper/gradle-wrapper.properties',
+  'android/gradlew',
+  'android/gradlew.bat',
+  'src/features/__tests__/scanner.ts',
+  'src/components/Camera.test.tsx',
+  'src/components/Camera.spec.ts',
+  'ios/CameraKit.xcodeproj/xcuserdata/user.xcuserdatad/xcschemes/CameraKit.xcscheme',
+  'ios/CameraKit.xcodeproj/project.xcworkspace/xcuserdata/user.xcuserdatad/UserInterfaceState.xcuserstate',
+].forEach(relativePath => {
+  const artifacts = getCameraKitDevelopmentArtifacts([relativePath]);
+  if (!artifacts.includes(relativePath)) {
+    console.error(`CameraKit package hygiene inspection accepted excluded artifact: ${relativePath}`);
+    process.exit(1);
+  }
+});
+
 assertAccepted('Valid camera QR migration summary fixture', validSummary);
 assertAccepted('Invalid-baseline camera QR migration summary fixture', invalidSummary);
 assertRejected('Missing header fixture', validSummary.replace('Camera QR migration audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
 assertRejected('Bad warning count fixture', validSummary.replace('Warnings: 1', 'Warnings: 0'), 'Warnings count');
+assertRejected(
+  'Bad installed CameraKit version fixture',
+  validSummary.replace('CameraKit installed package version: 18.0.1', 'CameraKit installed package version: 18.0.0'),
+  'CameraKit installed package version',
+);
+assertRejected(
+  'Missing CameraKit iOS motion-manager fix fixture',
+  validSummary.replace('CameraKit iOS shared motion manager fix ready: yes', 'CameraKit iOS shared motion manager fix ready: no'),
+  'installed CameraKit 18.0.1 fix',
+);
+assertRejected(
+  'Missing CameraKit weak callback fixture',
+  validSummary.replace('CameraKit iOS weak callback capture ready: yes', 'CameraKit iOS weak callback capture ready: no'),
+  'installed CameraKit 18.0.1 fix',
+);
+assertRejected(
+  'Invalid CameraKit package hygiene fixture',
+  validSummary.replace(
+    'CameraKit package hygiene valid: yes\nCameraKit unexpected development artifacts: none',
+    'CameraKit package hygiene valid: yes\nCameraKit unexpected development artifacts: node_modules/react-native-camera-kit/android/local.properties',
+  ),
+  'package hygiene cannot be valid',
+);
 assertRejected(
   'Missing iOS pod refresh fixture',
   invalidSummary.replace('iOS Podfile.lock refresh required: yes', 'iOS Podfile.lock refresh required: no'),
@@ -116,12 +210,20 @@ assertRejected(
   'iOS broader Podfile.lock drift issues count',
 );
 assertRejected(
-  'Missing broader iOS pod install action fixture',
+  'Missing Android no-action clause fixture',
   validSummary.replace(
     'Required action: none for Android/CameraKit scanner wiring; refresh broader ios/Podfile.lock with pod install on macOS before claiming iOS camera QR runtime validation.',
-    'Required action: none; camera QR migration baseline is stable after the dedicated scanner replacement branch.',
+    'Required action: refresh broader ios/Podfile.lock with pod install on macOS before claiming iOS camera QR runtime validation.',
   ),
-  'macOS pod install required action',
+  'Android/CameraKit no-action and macOS pod install required action',
+);
+assertRejected(
+  'Missing broader iOS pod install clause fixture',
+  validSummary.replace(
+    'Required action: none for Android/CameraKit scanner wiring; refresh broader ios/Podfile.lock with pod install on macOS before claiming iOS camera QR runtime validation.',
+    'Required action: none for Android/CameraKit scanner wiring; refresh broader ios/Podfile.lock before claiming iOS camera QR runtime validation.',
+  ),
+  'Android/CameraKit no-action and macOS pod install required action',
 );
 assertRejected(
   'Stable stale live QR target fixture',
