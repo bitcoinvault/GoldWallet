@@ -5,7 +5,7 @@ import { requiredSentryPropertiesFiles } from './auditSentryReleasePrerequisites
 import {
   getSentryReleaseValidationCommands,
   getSentryReleaseValidationHandoffErrors,
-  getSentryReleaseValidationReadinessErrors,
+  getSentryReleaseValidationReadinessErrors as getRawSentryReleaseValidationReadinessErrors,
   renderSentryReleaseValidationCommand,
 } from './runSentryReleaseValidationHandoff.mjs';
 
@@ -26,6 +26,12 @@ const skippedCommands = getSentryReleaseValidationCommands({ skipAndroidRelease:
 const skippedRendered = skippedCommands.map(renderSentryReleaseValidationCommand).join('\n');
 const preflightCommands = getSentryReleaseValidationCommands({ preflightOnly: true, skipAndroidRelease: true });
 const preflightRendered = preflightCommands.map(renderSentryReleaseValidationCommand).join('\n');
+const controlledImportRefreshStep = fullCommands.find(step =>
+  step.args.includes('android:prod:release:import-wallet-smoke:embedded'),
+);
+const controlledImportValidationStep = fullCommands.find(step =>
+  step.args.includes('android:prod:release:check-import-wallet-smoke-summary'),
+);
 const developmentRendered = getSentryReleaseValidationCommands({ androidReleaseEvidenceVariant: 'dev' })
   .map(renderSentryReleaseValidationCommand)
   .join('\n');
@@ -50,6 +56,13 @@ const smokeEvidenceOptions = {
 const createWalletEvidenceOptions = {
   expectedApkPath: fixtureApkPath,
   expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
+};
+const importWalletEvidenceOptions = {
+  expectedActivityName: 'io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+  expectedApkPath: fixtureApkPath,
+  expectedArtifactBase: 'android-import-wallet-smoke-dev-release',
+  expectedPackageName: 'io.goldwallet.wallet.dev',
+  requireArtifacts: false,
 };
 const readyDataStoragePreflightLines = [
   'Data storage preflight: passed',
@@ -86,6 +99,8 @@ const classifiedNetworkBlockerFixture = [
   'corepack yarn check:sentry-project-routing-guard',
   'corepack yarn sentry:project-routing:audit',
   'corepack yarn android:prod:release:create-wallet-verify',
+  'corepack yarn android:prod:release:import-wallet-smoke:embedded',
+  'corepack yarn android:prod:release:check-import-wallet-smoke-summary',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn sentry:android-warning:audit',
   'corepack yarn sentry:android-warning:check-summary',
@@ -116,6 +131,10 @@ assert(
   !skippedRendered.includes(':release:create-wallet-verify'),
   'Skipped Sentry handoff must omit Android release create-wallet evidence refresh',
 );
+assert(
+  !skippedRendered.includes(':release:import-wallet-smoke:embedded'),
+  'Skipped Sentry handoff must omit Android release import-wallet evidence refresh',
+);
 [
   ['dev', developmentRendered],
   ['stage', stageRendered],
@@ -125,6 +144,11 @@ assert(
   assert(
     rendered.includes(`corepack yarn android:${variant}:release:create-wallet-verify`),
     `Sentry handoff must refresh the selected ${variant}Release evidence`,
+  );
+  assert(
+    rendered.includes(`corepack yarn android:${variant}:release:import-wallet-smoke:embedded`) &&
+      rendered.includes(`corepack yarn android:${variant}:release:check-import-wallet-smoke-summary`),
+    `Sentry handoff must refresh and validate the selected ${variant}Release import-wallet evidence`,
   );
 });
 assert(
@@ -314,6 +338,54 @@ const readyAndroidReleaseCreateWalletSmokeSummary = [
   'Screenshot bytes: 1234',
 ].join('\n');
 
+const readyAndroidReleaseImportWalletSmokeSummary = [
+  'Generated at: 2026-06-10T00:00:00.000Z',
+  'Android import-wallet smoke outcome: passed',
+  'Android import-wallet smoke exit code: 0',
+  'Android import-wallet smoke reason: completed',
+  'Android serial: emulator-5554',
+  'Android package: io.goldwallet.wallet.dev',
+  'Android activity: io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+  'Artifact base: android-import-wallet-smoke-dev-release',
+  `Source APK path: ${fixtureApkPath}`,
+  `Source APK bytes: ${fixtureApkBytes}`,
+  `Source APK sha256: ${fixtureApkSha256}`,
+  'Import fixture type: public-watch-only-address',
+  'Import fixture address: royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u',
+  'Imported wallet name: ImportSmoke',
+  'Import success screen reached: yes',
+  'Imported wallet visible on dashboard: yes',
+  'App process restart completed: yes',
+  'Unlock screen reached after restart: yes',
+  'Incorrect PIN rejected after restart: yes',
+  'Imported wallet visible after restart: yes',
+  'No import-wallet error UI: yes',
+  'Secure window flag after import: no',
+  'Secure window flag after restart: no',
+  'Fatal/runtime logcat findings: no',
+  'Pre-restart App PID: 1234',
+  'App PID: 5678',
+  'Captured logcat lines: 400',
+  'UI hierarchy path: package.json',
+  'Logcat path: package.json',
+  'Screenshot path: package.json',
+  'Screenshot bytes: 1234',
+].join('\n');
+
+const controlledNetworkBlockedImportWalletSmokeSummary = readyAndroidReleaseImportWalletSmokeSummary
+  .replace('Android import-wallet smoke outcome: passed', 'Android import-wallet smoke outcome: failed')
+  .replace('Android import-wallet smoke exit code: 0', 'Android import-wallet smoke exit code: 1')
+  .replace('Android import-wallet smoke reason: completed', 'Android import-wallet smoke reason: Import-wallet blocked by no-network UI.')
+  .replace('Import success screen reached: yes', 'Import success screen reached: no')
+  .replace('Imported wallet visible on dashboard: yes', 'Imported wallet visible on dashboard: no')
+  .replace('App process restart completed: yes', 'App process restart completed: no')
+  .replace('Unlock screen reached after restart: yes', 'Unlock screen reached after restart: no')
+  .replace('Incorrect PIN rejected after restart: yes', 'Incorrect PIN rejected after restart: no')
+  .replace('Imported wallet visible after restart: yes', 'Imported wallet visible after restart: no')
+  .replace('No import-wallet error UI: yes', 'No import-wallet error UI: no')
+  .replace('Secure window flag after import: no', 'Secure window flag after import: not checked')
+  .replace('Secure window flag after restart: no', 'Secure window flag after restart: not checked');
+
 const readyAndroidReleaseNoNetworkSmokeSummary = [
   'Generated at: 2026-06-10T00:00:00.000Z',
   'Android smoke outcome: passed',
@@ -407,6 +479,10 @@ const readySentryReleasePrereqSummary = [
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
   'Sentry release create-wallet evidence ready: yes',
+  'Android release import-wallet smoke summary present: yes',
+  'Android release import-wallet smoke summary valid: yes',
+  'Android release import-wallet smoke summary errors: 0',
+  'Sentry release import-wallet evidence ready: yes',
   'iOS release static readiness valid: yes',
   'iOS macOS archive validation ready: yes',
   'iOS Sentry bundle/source-map phases: 4',
@@ -492,6 +568,10 @@ const notReadySentryReleasePrereqSummary = [
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
   'Sentry release create-wallet evidence ready: yes',
+  'Android release import-wallet smoke summary present: yes',
+  'Android release import-wallet smoke summary valid: yes',
+  'Android release import-wallet smoke summary errors: 0',
+  'Sentry release import-wallet evidence ready: yes',
   'iOS release static readiness valid: yes',
   'iOS macOS archive validation ready: no',
   'iOS Sentry bundle/source-map phases: 4',
@@ -534,6 +614,13 @@ const partialSentryReleasePrereqSummary = [
   '@sentry/cli current: yes',
   'Sentry release integration wired: yes',
 ].join('\n');
+
+const getSentryReleaseValidationReadinessErrors = options =>
+  getRawSentryReleaseValidationReadinessErrors({
+    androidReleaseImportWalletSmokeSummaryText: readyAndroidReleaseImportWalletSmokeSummary,
+    importWalletEvidenceOptions,
+    ...options,
+  });
 
 assertNoErrors(
   getSentryReleaseValidationReadinessErrors({
@@ -641,6 +728,87 @@ assert(
   }).some(error => error.includes('Android release create-wallet smoke summary is invalid')),
   'Sentry release readiness check must reject invalid Android release create-wallet smoke evidence',
 );
+assert(
+  controlledImportRefreshStep?.controlledImportEvidence?.summaryPath &&
+    controlledImportRefreshStep.controlledImportEvidence.variant === 'prod' &&
+    controlledImportRefreshStep.controlledImportEvidence.evidenceOptions.expectedPackageName === 'io.goldwallet.wallet',
+  'Sentry handoff import refresh must carry fail-closed controlled-network evidence metadata',
+);
+assert(
+  controlledImportRefreshStep.startsControlledImportEvidence === true &&
+    controlledImportValidationStep?.controlledImportEvidence === controlledImportRefreshStep.controlledImportEvidence,
+  'Sentry handoff import refresh and checker must share current-invocation controlled evidence state',
+);
+
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseEvidenceVariant: 'dev',
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseImportWalletSmokeSummaryText: controlledNetworkBlockedImportWalletSmokeSummary,
+    androidReleaseNoNetworkSmokeSummaryText: readyAndroidReleaseNoNetworkSmokeSummary,
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    requireReadyPrereqs: false,
+    sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
+    createWalletEvidenceOptions,
+    noNetworkSmokeEvidenceOptions: {
+      expectedArtifactBase: 'android-smoke-dev-release-no-network',
+      requireSmokeApkDigest: true,
+      expectedSmokeApkPath: fixtureApkPath,
+      requireSourceApkDigest: true,
+      expectedSourceApkPath: fixtureApkPath,
+    },
+    smokeEvidenceOptions,
+  }).some(error =>
+    error.includes('Sentry release import-wallet evidence ready (yes) does not match current raw import-wallet evidence (no)'),
+  ),
+  'Summary-only readiness must reject stale prerequisite success when current import-wallet evidence is blocked',
+);
+
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseImportWalletSmokeSummaryText: '',
+    androidReleaseNoNetworkSmokeSummaryText: '',
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
+    createWalletEvidenceOptions,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Android release import-wallet smoke summary is missing')),
+  'Sentry release readiness check must reject missing raw import-wallet evidence even when the prerequisite summary is ready',
+);
+
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseImportWalletSmokeSummaryText: readyAndroidReleaseImportWalletSmokeSummary.replace(
+      'Android package: io.goldwallet.wallet.dev',
+      'Android package: io.goldwallet.wallet',
+    ),
+    androidReleaseNoNetworkSmokeSummaryText: '',
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
+    createWalletEvidenceOptions,
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Android package must be io.goldwallet.wallet.dev')),
+  'Sentry release readiness check must reject import-wallet evidence from another Android variant',
+);
+
+assert(
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseCreateWalletSmokeSummaryText: readyAndroidReleaseCreateWalletSmokeSummary,
+    androidReleaseImportWalletSmokeSummaryText: readyAndroidReleaseImportWalletSmokeSummary.replace(
+      `Source APK sha256: ${fixtureApkSha256}`,
+      `Source APK sha256: ${'0'.repeat(64)}`,
+    ),
+    androidReleaseNoNetworkSmokeSummaryText: '',
+    androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary,
+    sentryReleasePrereqSummaryText: readySentryReleasePrereqSummary,
+    createWalletEvidenceOptions: { ...createWalletEvidenceOptions, requireArtifacts: true },
+    importWalletEvidenceOptions: { ...importWalletEvidenceOptions, requireArtifacts: true },
+    smokeEvidenceOptions,
+  }).some(error => error.includes('Source APK sha256 does not match the current file digest')),
+  'Sentry release readiness check must reject import-wallet evidence whose APK digest is stale',
+);
 
 assertNoErrors(
   getSentryReleaseValidationReadinessErrors({
@@ -648,6 +816,7 @@ assertNoErrors(
       'Standard wallet created: yes',
       'Standard wallet created: no',
     ),
+    androidReleaseImportWalletSmokeSummaryText: controlledNetworkBlockedImportWalletSmokeSummary,
     androidReleaseNoNetworkSmokeSummaryText: readyAndroidReleaseNoNetworkSmokeSummary,
     androidReleaseSmokeSummaryText: readyAndroidReleaseSmokeSummary.replace(
       'Validated empty-dashboard CTA flow: yes',
@@ -682,7 +851,11 @@ assertNoErrors(
         'Android release create-wallet smoke summary valid: yes',
         'Android release create-wallet smoke summary valid: no',
       )
-      .replace('Sentry release create-wallet evidence ready: yes', 'Sentry release create-wallet evidence ready: no'),
+      .replace('Sentry release create-wallet evidence ready: yes', 'Sentry release create-wallet evidence ready: no')
+      .replace(
+        'Android release import-wallet smoke summary valid: yes\nAndroid release import-wallet smoke summary errors: 0\nSentry release import-wallet evidence ready: yes',
+        'Android release import-wallet smoke summary valid: no\nAndroid release import-wallet smoke summary errors: 1\n- Android release import-wallet smoke unavailable while Electrum is offline\nSentry release import-wallet evidence ready: no',
+      ),
     createWalletEvidenceOptions,
     noNetworkSmokeEvidenceOptions: {
       expectedArtifactBase: 'android-smoke-dev-release-no-network',

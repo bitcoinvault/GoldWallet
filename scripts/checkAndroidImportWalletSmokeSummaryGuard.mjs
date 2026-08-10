@@ -2,7 +2,11 @@ import assert from 'assert';
 import path from 'path';
 
 import { getAndroidReleaseImportWalletSmokeVariantConfig } from './androidReleaseSmokeVariant.mjs';
-import { getAndroidImportWalletSmokeSummaryErrors } from './checkAndroidImportWalletSmokeSummary.mjs';
+import {
+  getAndroidImportWalletControlledNetworkBlockerSummaryErrors,
+  getAndroidImportWalletSmokeStepStatus,
+  getAndroidImportWalletSmokeSummaryErrors,
+} from './checkAndroidImportWalletSmokeSummary.mjs';
 
 const fixtureRoot = path.resolve('D:/fixture/GoldWallet');
 const prodConfig = getAndroidReleaseImportWalletSmokeVariantConfig(fixtureRoot, 'prod');
@@ -51,8 +55,10 @@ const validSummary = [
 
 assert.deepStrictEqual(
   getAndroidImportWalletSmokeSummaryErrors(validSummary, {
+    expectedActivityName: prodConfig.activityName,
     expectedApkPath: prodConfig.signedApkPath,
     expectedArtifactBase: prodConfig.artifactBase,
+    expectedPackageName: prodConfig.packageName,
     requireArtifacts: false,
   }),
   [],
@@ -63,6 +69,114 @@ const failedSummary = validSummary
   .replace('Imported wallet visible on dashboard: yes', 'Imported wallet visible on dashboard: no');
 
 assert.ok(getAndroidImportWalletSmokeSummaryErrors(failedSummary, { requireArtifacts: false }).length >= 2);
+
+assert.ok(
+  getAndroidImportWalletSmokeSummaryErrors(validSummary, {
+    expectedPackageName: 'io.goldwallet.wallet.dev',
+    requireArtifacts: false,
+  }).some(error => error.includes('Android package must be io.goldwallet.wallet.dev')),
+);
+
+const contradictoryControlledNetworkBlockerSummary = validSummary
+  .replace('Android import-wallet smoke outcome: passed', 'Android import-wallet smoke outcome: failed')
+  .replace('Android import-wallet smoke exit code: 0', 'Android import-wallet smoke exit code: 1')
+  .replace('Android import-wallet smoke reason: completed', 'Android import-wallet smoke reason: Import-wallet blocked by no-network UI.');
+
+assert.ok(
+  getAndroidImportWalletControlledNetworkBlockerSummaryErrors(contradictoryControlledNetworkBlockerSummary, {
+    requireArtifacts: false,
+  }).some(error => error.includes('Import success screen reached: no')),
+  'Controlled no-network evidence must reject contradictory success-state fields',
+);
+
+const controlledNetworkBlockerSummary = contradictoryControlledNetworkBlockerSummary
+  .replace('Import success screen reached: yes', 'Import success screen reached: no')
+  .replace('Imported wallet visible on dashboard: yes', 'Imported wallet visible on dashboard: no')
+  .replace('App process restart completed: yes', 'App process restart completed: no')
+  .replace('Unlock screen reached after restart: yes', 'Unlock screen reached after restart: no')
+  .replace('Incorrect PIN rejected after restart: yes', 'Incorrect PIN rejected after restart: no')
+  .replace('Imported wallet visible after restart: yes', 'Imported wallet visible after restart: no')
+  .replace('No import-wallet error UI: yes', 'No import-wallet error UI: no')
+  .replace('Secure window flag after import: no', 'Secure window flag after import: not checked')
+  .replace('Secure window flag after restart: no', 'Secure window flag after restart: not checked');
+
+assert.deepStrictEqual(
+  getAndroidImportWalletControlledNetworkBlockerSummaryErrors(controlledNetworkBlockerSummary, {
+    expectedActivityName: prodConfig.activityName,
+    expectedApkPath: prodConfig.signedApkPath,
+    expectedArtifactBase: prodConfig.artifactBase,
+    expectedPackageName: prodConfig.packageName,
+    requireArtifacts: false,
+  }),
+  [],
+);
+
+assert.ok(
+  getAndroidImportWalletControlledNetworkBlockerSummaryErrors(
+    controlledNetworkBlockerSummary.replace(
+      'Android import-wallet smoke reason: Import-wallet blocked by no-network UI.',
+      'Android import-wallet smoke reason: Import-wallet error UI is visible.',
+    ),
+    { requireArtifacts: false },
+  ).some(error => error.includes('controlled network blocker line')),
+);
+
+assert.strictEqual(
+  getAndroidImportWalletSmokeStepStatus({
+    status: 1,
+    summary: controlledNetworkBlockerSummary,
+    evidenceVariant: 'dev',
+    evidenceOptions: {
+      expectedActivityName: prodConfig.activityName,
+      expectedApkPath: prodConfig.signedApkPath,
+      expectedArtifactBase: prodConfig.artifactBase,
+      expectedPackageName: prodConfig.packageName,
+      requireArtifacts: false,
+    },
+  }),
+  0,
+);
+assert.strictEqual(
+  getAndroidImportWalletSmokeStepStatus({
+    status: 1,
+    summary: controlledNetworkBlockerSummary,
+    evidenceVariant: 'prod',
+    evidenceOptions: { requireArtifacts: false },
+  }),
+  1,
+  'Production import-wallet failures must never use the dev-only controlled network fallback',
+);
+assert.strictEqual(
+  getAndroidImportWalletSmokeStepStatus({
+    status: 1,
+    summary: controlledNetworkBlockerSummary.replace(
+      'Android import-wallet smoke reason: Import-wallet blocked by no-network UI.',
+      'Android import-wallet smoke reason: Import-wallet error UI is visible.',
+    ),
+    evidenceVariant: 'dev',
+    evidenceOptions: { requireArtifacts: false },
+  }),
+  1,
+);
+assert.strictEqual(
+  getAndroidImportWalletSmokeStepStatus({
+    status: 1,
+    summary: controlledNetworkBlockerSummary,
+    evidenceVariant: 'dev',
+    evidenceOptions: {
+      minimumGeneratedAtMs: Date.parse('2026-07-14T12:00:01.000Z'),
+      requireArtifacts: false,
+    },
+  }),
+  1,
+);
+
+assert.ok(
+  getAndroidImportWalletSmokeSummaryErrors(validSummary, {
+    expectedActivityName: 'io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+    requireArtifacts: false,
+  }).some(error => error.includes('Android activity must be io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity')),
+);
 
 const missingRestartEvidenceSummary = validSummary.replace('App process restart completed: yes\n', '');
 

@@ -79,6 +79,10 @@ const notReadySummary = [
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
   'Sentry release create-wallet evidence ready: yes',
+  'Android release import-wallet smoke summary present: yes',
+  'Android release import-wallet smoke summary valid: yes',
+  'Android release import-wallet smoke summary errors: 0',
+  'Sentry release import-wallet evidence ready: yes',
   'iOS release static readiness valid: yes',
   'iOS macOS archive validation ready: no',
   'iOS Sentry bundle/source-map phases: 4',
@@ -167,6 +171,10 @@ const readySummary = [
   'Android release create-wallet smoke summary valid: yes',
   'Android release create-wallet smoke summary errors: 0',
   'Sentry release create-wallet evidence ready: yes',
+  'Android release import-wallet smoke summary present: yes',
+  'Android release import-wallet smoke summary valid: yes',
+  'Android release import-wallet smoke summary errors: 0',
+  'Sentry release import-wallet evidence ready: yes',
   'iOS release static readiness valid: yes',
   'iOS macOS archive validation ready: yes',
   'iOS Sentry bundle/source-map phases: 4',
@@ -221,6 +229,19 @@ const notReadyNoNetworkSummary = notReadySummary
       '- Validated QR scanner screen must be yes. Received: no',
       '- Validated settings Terms WebView must be yes. Received: no',
       'Sentry release smoke evidence ready: no',
+    ].join('\n'),
+  )
+  .replace(
+    [
+      'Android release import-wallet smoke summary valid: yes',
+      'Android release import-wallet smoke summary errors: 0',
+      'Sentry release import-wallet evidence ready: yes',
+    ].join('\n'),
+    [
+      'Android release import-wallet smoke summary valid: no',
+      'Android release import-wallet smoke summary errors: 1',
+      '- Android release import-wallet smoke unavailable while Electrum is offline',
+      'Sentry release import-wallet evidence ready: no',
     ].join('\n'),
   )
   .replace(
@@ -491,6 +512,29 @@ assertRejected(
   'Missing Sentry release create-wallet evidence fixture',
   readySummary.replace('Sentry release create-wallet evidence ready: yes', 'Sentry release create-wallet evidence ready: no'),
   'release create-wallet evidence',
+);
+assertRejected(
+  'Missing Android release import-wallet smoke fixture',
+  notReadySummary.replace('Android release import-wallet smoke summary present: yes', 'Android release import-wallet smoke summary present: no'),
+  'Android release import-wallet smoke summary must be present',
+);
+assertRejected(
+  'Invalid Android release import-wallet smoke fixture',
+  notReadySummary.replace('Android release import-wallet smoke summary valid: yes', 'Android release import-wallet smoke summary valid: no'),
+  'valid Android release import-wallet smoke summary',
+);
+assertRejected(
+  'Missing Sentry release import-wallet evidence fixture',
+  readySummary.replace('Sentry release import-wallet evidence ready: yes', 'Sentry release import-wallet evidence ready: no'),
+  'release import-wallet evidence',
+);
+assertRejected(
+  'Import-wallet valid flag with listed errors fixture',
+  readySummary.replace(
+    'Android release import-wallet smoke summary errors: 0',
+    'Android release import-wallet smoke summary errors: 1\n- Android package must be io.goldwallet.wallet',
+  ),
+  'must have 0 errors',
 );
 assertRejected(
   'Ready summary with stale iOS Podfile fixture',

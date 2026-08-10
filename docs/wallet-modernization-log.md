@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.959 - Production import-wallet release evidence
+
+- Branch: `feature/bem-37-959-sentry-import-wallet-evidence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Require the existing production import-wallet persistence smoke as a first-class Android release and Sentry runtime proof instead of accepting onboarding and create-wallet evidence alone.
+- Bind import-wallet evidence to the selected release variant and the same locally signed APK used by the general and create-wallet release smokes.
+- Refresh and validate import-wallet evidence in the Sentry and aggregate release-services handoffs, while preserving the controlled dev/testnet Electrum fallback semantics.
+- Extend fail-closed summary and command-sequence guards so missing, stale, invalid, or variant-mismatched import evidence cannot be reported as release-ready.
+
+Findings:
+
+- The production import-wallet smoke already proves public watch-only BTCV import, dashboard visibility, process restart, incorrect/correct PIN behavior, persisted wallet visibility, secure-window cleanup, and fatal/runtime logcat safety.
+- The final Sentry and release-services gates previously validated the general release smoke and create-wallet persistence smoke but did not consume the import-wallet summary, so an old or broken import flow could remain outside the aggregate runtime proof.
+- The aggregate release-services runner also refreshed `devRelease` while its checker defaulted to production evidence. Both now derive the same selected variant from `SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT`, with `prod` as the default.
+- Final review hardened the controlled Electrum exception so only current, internally coherent `dev` evidence can be deferred; production failures remain immediate, and `--summary-only` cross-checks raw smoke results against the prerequisite summary before writing release readiness.
+- CodePush/AppCenter are already removed from runtime and native projects; their remaining decision/readiness tooling is a separate post-removal consolidation milestone.
+- CameraKit `18.0.0` remains the current compatible scanner baseline; deterministic native QR payload decoding remains a separate emulator milestone.
+
+Validation:
+
+- `corepack yarn check:android-import-wallet-smoke-summary-guard`
+- `corepack yarn check:sentry-android-release-evidence-variant-guard`
+- `corepack yarn check:sentry-release-prereq-summary-guard`
+- `corepack yarn check:sentry-release-validation-handoff-summary-guard`
+- `corepack yarn check:sentry-release-validation-handoff-guard`
+- `corepack yarn check:release-services-summary-guard`
+- `corepack yarn check:release-services-validation-handoff-guard`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:prod:release:smoke:embedded`
+- `corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `corepack yarn android:prod:release:import-wallet-smoke:embedded`
+- `SENTRY_RELEASE_PROFILE=prod corepack yarn sentry:release:validation:managed:preflight` (authenticated, no upload)
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.958.1 - iOS macOS CI review hardening
 
 - Branch: `feature/bem-37-958-1-ios-workflow-guard-eol`

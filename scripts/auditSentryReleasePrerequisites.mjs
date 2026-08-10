@@ -14,6 +14,7 @@ import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard
 import { getAndroidNoNetworkSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getAndroidReleaseNetworkBlockerSummaryErrors } from './androidReleaseNetworkBlockerSummaryGuard.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
+import { getAndroidImportWalletSmokeSummaryErrors } from './checkAndroidImportWalletSmokeSummary.mjs';
 import { collectIosReleaseReadiness } from './auditIosReleaseReadiness.mjs';
 import { collectIosMacValidationPrereqs } from './auditIosMacValidationPrereqs.mjs';
 import { getSentryAndroidReleaseEvidenceConfig } from './sentryAndroidReleaseEvidenceVariant.mjs';
@@ -353,6 +354,19 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
         expectedArtifactBase: androidReleaseEvidenceConfig.createWalletArtifactBase,
       })
     : ['Android release create-wallet smoke summary artifact is missing'];
+  const androidReleaseImportWalletSmokeSummaryPath = androidReleaseEvidenceConfig.importWalletSmokeSummaryPath;
+  const hasAndroidReleaseImportWalletSmokeSummary = existsSync(androidReleaseImportWalletSmokeSummaryPath);
+  const androidReleaseImportWalletSmokeSummary = hasAndroidReleaseImportWalletSmokeSummary
+    ? readFileSync(androidReleaseImportWalletSmokeSummaryPath, 'utf8')
+    : '';
+  const androidReleaseImportWalletSmokeSummaryErrors = hasAndroidReleaseImportWalletSmokeSummary
+    ? getAndroidImportWalletSmokeSummaryErrors(androidReleaseImportWalletSmokeSummary, {
+        expectedActivityName: androidReleaseEvidenceConfig.activityName,
+        expectedApkPath: androidReleaseSignedSmokeApkPath,
+        expectedArtifactBase: androidReleaseEvidenceConfig.importWalletArtifactBase,
+        expectedPackageName: androidReleaseEvidenceConfig.packageName,
+      })
+    : ['Android release import-wallet smoke summary artifact is missing'];
   const iosReleaseReadiness = collectIosReleaseReadiness();
   const iosMacValidationPrereqs = collectIosMacValidationPrereqs();
 
@@ -414,6 +428,8 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseNetworkBlockerOutcome === 'blocked-by-electrum-certificate-expired';
   const androidReleaseCreateWalletSmokeEvidenceReady =
     hasAndroidReleaseCreateWalletSmokeSummary && androidReleaseCreateWalletSmokeSummaryErrors.length === 0;
+  const androidReleaseImportWalletSmokeEvidenceReady =
+    hasAndroidReleaseImportWalletSmokeSummary && androidReleaseImportWalletSmokeSummaryErrors.length === 0;
   const ready =
     missingFiles.length === 0 &&
     invalidFiles.length === 0 &&
@@ -424,6 +440,7 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     androidReleaseEvidenceReady &&
     androidReleaseSmokeEvidenceReady &&
     androidReleaseCreateWalletSmokeEvidenceReady &&
+    androidReleaseImportWalletSmokeEvidenceReady &&
     iosReleaseReadiness.staticReady &&
     iosReleaseReadiness.ready &&
     iosMacValidationPrereqs.ready;
@@ -474,6 +491,9 @@ export const collectSentryReleasePrerequisites = ({ env = process.env } = {}) =>
     hasAndroidReleaseCreateWalletSmokeSummary,
     androidReleaseCreateWalletSmokeSummaryErrors,
     androidReleaseCreateWalletSmokeEvidenceReady,
+    hasAndroidReleaseImportWalletSmokeSummary,
+    androidReleaseImportWalletSmokeSummaryErrors,
+    androidReleaseImportWalletSmokeEvidenceReady,
     iosReleaseStaticReady: iosReleaseReadiness.staticReady,
     iosMacArchiveReady: iosReleaseReadiness.ready,
     iosSentryBundlePhaseCount: iosReleaseReadiness.sentryBundlePhaseCount,
@@ -644,6 +664,15 @@ export const formatSentryReleasePrereqSummary = (audit, generatedAt = new Date()
   lines.push(`Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`);
   audit.androidReleaseCreateWalletSmokeSummaryErrors.forEach(error => lines.push(`- ${error}`));
   lines.push(`Sentry release create-wallet evidence ready: ${audit.androidReleaseCreateWalletSmokeEvidenceReady ? 'yes' : 'no'}`);
+  lines.push(`Android release import-wallet smoke summary present: ${audit.hasAndroidReleaseImportWalletSmokeSummary ? 'yes' : 'no'}`);
+  lines.push(
+    `Android release import-wallet smoke summary valid: ${
+      audit.androidReleaseImportWalletSmokeSummaryErrors.length === 0 ? 'yes' : 'no'
+    }`,
+  );
+  lines.push(`Android release import-wallet smoke summary errors: ${audit.androidReleaseImportWalletSmokeSummaryErrors.length}`);
+  audit.androidReleaseImportWalletSmokeSummaryErrors.forEach(error => lines.push(`- ${error}`));
+  lines.push(`Sentry release import-wallet evidence ready: ${audit.androidReleaseImportWalletSmokeEvidenceReady ? 'yes' : 'no'}`);
   lines.push(`iOS release static readiness valid: ${audit.iosReleaseStaticReady ? 'yes' : 'no'}`);
   lines.push(`iOS macOS archive validation ready: ${audit.iosMacArchiveReady ? 'yes' : 'no'}`);
   lines.push(`iOS Sentry bundle/source-map phases: ${audit.iosSentryBundlePhaseCount}`);
@@ -786,6 +815,15 @@ const printReport = audit => {
   console.log(`Android release create-wallet smoke summary errors: ${audit.androidReleaseCreateWalletSmokeSummaryErrors.length}`);
   audit.androidReleaseCreateWalletSmokeSummaryErrors.forEach(error => console.log(`- ${error}`));
   console.log(`Sentry release create-wallet evidence ready: ${audit.androidReleaseCreateWalletSmokeEvidenceReady ? 'yes' : 'no'}`);
+  console.log(`Android release import-wallet smoke summary present: ${audit.hasAndroidReleaseImportWalletSmokeSummary ? 'yes' : 'no'}`);
+  console.log(
+    `Android release import-wallet smoke summary valid: ${
+      audit.androidReleaseImportWalletSmokeSummaryErrors.length === 0 ? 'yes' : 'no'
+    }`,
+  );
+  console.log(`Android release import-wallet smoke summary errors: ${audit.androidReleaseImportWalletSmokeSummaryErrors.length}`);
+  audit.androidReleaseImportWalletSmokeSummaryErrors.forEach(error => console.log(`- ${error}`));
+  console.log(`Sentry release import-wallet evidence ready: ${audit.androidReleaseImportWalletSmokeEvidenceReady ? 'yes' : 'no'}`);
   console.log(`iOS release static readiness valid: ${audit.iosReleaseStaticReady ? 'yes' : 'no'}`);
   console.log(`iOS macOS archive validation ready: ${audit.iosMacArchiveReady ? 'yes' : 'no'}`);
   console.log(`iOS Sentry bundle/source-map phases: ${audit.iosSentryBundlePhaseCount}`);

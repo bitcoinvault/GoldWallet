@@ -37,6 +37,7 @@ const yesNoLabels = [
   'Sentry release no-network blocker evidence ready',
   'Sentry release network blocker classified',
   'Sentry release create-wallet evidence ready',
+  'Sentry release import-wallet evidence ready',
   'iOS macOS validation prerequisites ready',
   'Secret values printed',
 ];
@@ -66,6 +67,9 @@ export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
   const sentryPropertiesReady = getLineValue(summary, 'Sentry properties files ready');
   const uploadValidation = getLineValue(summary, 'Sentry release upload validation');
   const runtimeProofState = getLineValue(summary, 'Sentry release runtime proof state');
+  const releaseSmokeEvidenceReady = getLineValue(summary, 'Sentry release smoke evidence ready');
+  const releaseCreateWalletEvidenceReady = getLineValue(summary, 'Sentry release create-wallet evidence ready');
+  const releaseImportWalletEvidenceReady = getLineValue(summary, 'Sentry release import-wallet evidence ready');
   const controlledBlockerOutcome = getLineValue(summary, 'Controlled release blocker outcome');
   const iosMacValidationPrereqsReady = getLineValue(summary, 'iOS macOS validation prerequisites ready');
   const handoffOutcome = getLineValue(summary, 'Handoff outcome');
@@ -199,6 +203,15 @@ export const getSentryReleaseValidationHandoffSummaryErrors = summary => {
 
   if (runtimeProofState === 'ready' && androidReleaseBuildEvidenceReady !== 'yes') {
     errors.push('Runtime-ready Sentry handoff requires current Android release build evidence');
+  }
+
+  if (
+    runtimeProofState === 'ready' &&
+    (releaseSmokeEvidenceReady !== 'yes' ||
+      releaseCreateWalletEvidenceReady !== 'yes' ||
+      releaseImportWalletEvidenceReady !== 'yes')
+  ) {
+    errors.push('Runtime-ready Sentry handoff requires release smoke, create-wallet, and import-wallet evidence');
   }
 
   if (

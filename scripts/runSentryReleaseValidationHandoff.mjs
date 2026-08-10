@@ -5,6 +5,11 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseNoNetworkSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
+import {
+  getAndroidImportWalletControlledNetworkBlockerSummaryErrors,
+  getAndroidImportWalletSmokeStepStatus,
+  getAndroidImportWalletSmokeSummaryErrors,
+} from './checkAndroidImportWalletSmokeSummary.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getAndroidNoNetworkSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getSentryAndroidWarningSummaryErrors } from './sentryAndroidWarningSummaryGuard.mjs';
@@ -109,6 +114,16 @@ const yarnStep = (label, script, scriptArgsOrExtra = [], maybeExtra = {}) => {
 export const getSentryReleaseValidationCommands = (options = defaultOptions) => {
   const resolvedOptions = { ...defaultOptions, ...options };
   const androidReleaseEvidenceConfig = getAndroidReleaseEvidenceConfig(resolvedOptions);
+  const controlledImportEvidence = {
+    variant: androidReleaseEvidenceConfig.variant,
+    summaryPath: androidReleaseEvidenceConfig.importWalletSmokeSummaryPath,
+    evidenceOptions: {
+      expectedActivityName: androidReleaseEvidenceConfig.activityName,
+      expectedApkPath: androidReleaseEvidenceConfig.signedSmokeApkPath,
+      expectedArtifactBase: androidReleaseEvidenceConfig.importWalletArtifactBase,
+      expectedPackageName: androidReleaseEvidenceConfig.packageName,
+    },
+  };
   const steps = [yarnStep('Validate Sentry properties generator', 'check:sentry-properties-generator')];
 
   if (!resolvedOptions.skipAndroidRelease) {
@@ -121,6 +136,19 @@ export const getSentryReleaseValidationCommands = (options = defaultOptions) => 
             SENTRY_DISABLE_AUTO_UPLOAD: 'true',
           },
         },
+      ),
+      yarnStep(
+        `Refresh ${androidReleaseEvidenceConfig.variant}Release import-wallet evidence`,
+        `android:${androidReleaseEvidenceConfig.variant}:release:import-wallet-smoke:embedded`,
+        {
+          controlledImportEvidence,
+          startsControlledImportEvidence: true,
+        },
+      ),
+      yarnStep(
+        `Validate ${androidReleaseEvidenceConfig.variant}Release import-wallet evidence`,
+        `android:${androidReleaseEvidenceConfig.variant}:release:check-import-wallet-smoke-summary`,
+        { controlledImportEvidence },
       ),
     );
   }
@@ -272,6 +300,9 @@ export const getSentryReleaseValidationHandoffSummary = ({
   const releaseCreateWalletEvidenceReady = yesNoFromLine(
     getSummaryLineValue(sentryReleasePrereqSummaryText || '', 'Sentry release create-wallet evidence ready'),
   );
+  const releaseImportWalletEvidenceReady = yesNoFromLine(
+    getSummaryLineValue(sentryReleasePrereqSummaryText || '', 'Sentry release import-wallet evidence ready'),
+  );
   const controlledBlockerOutcome = devNetworkFallbackApplicable
     ? getSummaryLineValue(sentryReleasePrereqSummaryText || '', 'Android release network blocker outcome') ||
       'not-applicable'
@@ -280,7 +311,9 @@ export const getSentryReleaseValidationHandoffSummary = ({
     getSummaryLineValue(sentryReleasePrereqSummaryText || '', 'iOS macOS validation prerequisites ready'),
   );
   const fullAndroidRuntimeEvidenceReady =
-    releaseSmokeEvidenceReady === 'yes' && releaseCreateWalletEvidenceReady === 'yes';
+    releaseSmokeEvidenceReady === 'yes' &&
+    releaseCreateWalletEvidenceReady === 'yes' &&
+    releaseImportWalletEvidenceReady === 'yes';
   const controlledNetworkBlockerReady =
     androidReleaseBuildEvidenceReady === 'yes' &&
     releaseNoNetworkBlockerReady === 'yes' &&
@@ -329,7 +362,7 @@ export const getSentryReleaseValidationHandoffSummary = ({
     );
   } else if (!fullAndroidRuntimeEvidenceReady) {
     readinessErrors.push(
-      'Full Android release smoke and release create-wallet evidence must pass before Sentry upload validation.',
+      'Full Android release smoke, create-wallet, and import-wallet evidence must pass before Sentry upload validation.',
     );
   }
 
@@ -371,11 +404,11 @@ export const getSentryReleaseValidationHandoffSummary = ({
           ...(androidReleaseBuildEvidenceReady === 'yes' ? [] : ['refresh current Android release build evidence']),
           ...(releaseRuntimeProofState === 'blocked-by-electrum-certificate-expired'
             ? [
-                'renew the dev/testnet Electrum TLS certificate and refresh full Android release smoke/create-wallet evidence',
+                'renew the dev/testnet Electrum TLS certificate and refresh full Android release smoke/create-wallet/import-wallet evidence',
               ]
             : fullAndroidRuntimeEvidenceReady
               ? []
-              : ['refresh full Android release smoke/create-wallet evidence']),
+              : ['refresh full Android release smoke/create-wallet/import-wallet evidence']),
           'refresh iOS pods on macOS/Xcode',
           'do not claim Sentry release upload validation until credentialed release validation passes.',
         ].join(', ');
@@ -399,6 +432,7 @@ export const getSentryReleaseValidationHandoffSummary = ({
     `Sentry release no-network blocker evidence ready: ${releaseNoNetworkBlockerReady}`,
     `Sentry release network blocker classified: ${releaseNetworkBlockerClassified}`,
     `Sentry release create-wallet evidence ready: ${releaseCreateWalletEvidenceReady}`,
+    `Sentry release import-wallet evidence ready: ${releaseImportWalletEvidenceReady}`,
     `Controlled release blocker outcome: ${controlledBlockerOutcome}`,
     `Sentry release runtime proof state: ${releaseRuntimeProofState}`,
     `iOS macOS validation prerequisites ready: ${iosMacValidationPrereqsReady}`,
@@ -443,6 +477,7 @@ const writeSummaryArtifact = summary => {
 export const getSentryReleaseValidationReadinessErrors = ({
   androidReleaseEvidenceVariant = 'dev',
   androidReleaseCreateWalletSmokeSummaryText,
+  androidReleaseImportWalletSmokeSummaryText,
   androidReleaseNoNetworkSmokeSummaryText,
   androidReleaseSmokeSummaryText,
   requireReadyPrereqs = true,
@@ -451,12 +486,19 @@ export const getSentryReleaseValidationReadinessErrors = ({
     expectedApkPath: path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk'),
     expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
   },
+  importWalletEvidenceOptions = {
+    expectedActivityName: 'io.goldwallet.wallet.dev/io.goldwallet.wallet.MainActivity',
+    expectedApkPath: path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk'),
+    expectedArtifactBase: 'android-import-wallet-smoke-dev-release',
+    expectedPackageName: 'io.goldwallet.wallet.dev',
+  },
   smokeEvidenceOptions = getAndroidReleaseSmokeEvidenceOptions(root),
   noNetworkSmokeEvidenceOptions = getAndroidReleaseNoNetworkSmokeEvidenceOptions(root),
 }) => {
   const errors = [];
   const releaseSmokeErrors = [];
   const createWalletErrors = [];
+  const importWalletErrors = [];
   const noNetworkErrors = androidReleaseNoNetworkSmokeSummaryText
     ? getAndroidNoNetworkSmokeSummaryErrors(androidReleaseNoNetworkSmokeSummaryText, noNetworkSmokeEvidenceOptions)
     : ['Android release no-network smoke summary is missing'];
@@ -516,6 +558,19 @@ export const getSentryReleaseValidationReadinessErrors = ({
     );
   }
 
+  if (!androidReleaseImportWalletSmokeSummaryText) {
+    errors.push(
+      `Android release import-wallet smoke summary is missing; run android:${androidReleaseEvidenceVariant}:release:import-wallet-smoke:embedded first`,
+    );
+  } else {
+    importWalletErrors.push(
+      ...getAndroidImportWalletSmokeSummaryErrors(
+        androidReleaseImportWalletSmokeSummaryText,
+        importWalletEvidenceOptions,
+      ),
+    );
+  }
+
   if (releaseSmokeErrors.length > 0 && !(requireReadyPrereqs === false && noNetworkBlockerEvidenceReady)) {
     releaseSmokeErrors.forEach(error => errors.push(`Android release smoke summary is invalid: ${error}`));
   }
@@ -523,6 +578,50 @@ export const getSentryReleaseValidationReadinessErrors = ({
   if (createWalletErrors.length > 0 && !(requireReadyPrereqs === false && noNetworkBlockerEvidenceReady)) {
     createWalletErrors.forEach(error =>
       errors.push(`Android release create-wallet smoke summary is invalid: ${error}`),
+    );
+  }
+
+  const controlledImportNetworkBlockerReady =
+    requireReadyPrereqs === false &&
+    noNetworkBlockerEvidenceReady &&
+    Boolean(androidReleaseImportWalletSmokeSummaryText) &&
+    getAndroidImportWalletControlledNetworkBlockerSummaryErrors(
+      androidReleaseImportWalletSmokeSummaryText,
+      importWalletEvidenceOptions,
+    ).length === 0;
+
+  if (sentryReleasePrereqSummaryText) {
+    [
+      {
+        label: 'Sentry release smoke evidence ready',
+        rawEvidenceName: 'smoke',
+        ready: Boolean(androidReleaseSmokeSummaryText) && releaseSmokeErrors.length === 0,
+      },
+      {
+        label: 'Sentry release create-wallet evidence ready',
+        rawEvidenceName: 'create-wallet',
+        ready: Boolean(androidReleaseCreateWalletSmokeSummaryText) && createWalletErrors.length === 0,
+      },
+      {
+        label: 'Sentry release import-wallet evidence ready',
+        rawEvidenceName: 'import-wallet',
+        ready: Boolean(androidReleaseImportWalletSmokeSummaryText) && importWalletErrors.length === 0,
+      },
+    ].forEach(({ label, rawEvidenceName, ready }) => {
+      const declaredReadiness = getSummaryLineValue(sentryReleasePrereqSummaryText, label);
+      const currentReadiness = ready ? 'yes' : 'no';
+
+      if (declaredReadiness && declaredReadiness !== currentReadiness) {
+        errors.push(
+          `${label} (${declaredReadiness}) does not match current raw ${rawEvidenceName} evidence (${currentReadiness})`,
+        );
+      }
+    });
+  }
+
+  if (importWalletErrors.length > 0 && !controlledImportNetworkBlockerReady) {
+    importWalletErrors.forEach(error =>
+      errors.push(`Android release import-wallet smoke summary is invalid: ${error}`),
     );
   }
 
@@ -568,6 +667,10 @@ const runStep = step => {
     return 1;
   }
 
+  if (step.startsControlledImportEvidence) {
+    step.controlledImportEvidence.minimumGeneratedAtMs = Date.now();
+  }
+
   const invocation = getSpawnInvocation(step);
   const result = spawnSync(invocation.command, invocation.args, {
     cwd: step.cwd,
@@ -584,8 +687,55 @@ const runStep = step => {
     return 1;
   }
 
-  return result.status ?? 1;
+  const status = result.status ?? 1;
+
+  if (status !== 0 && step.controlledImportEvidence) {
+    const deferredStatus = getAndroidImportWalletSmokeStepStatus({
+      status,
+      summary: readSummary(step.controlledImportEvidence.summaryPath),
+      evidenceVariant: step.controlledImportEvidence.variant,
+      evidenceOptions: {
+        ...step.controlledImportEvidence.evidenceOptions,
+        minimumGeneratedAtMs: step.controlledImportEvidence.minimumGeneratedAtMs,
+      },
+    });
+
+    if (deferredStatus === 0) {
+      console.log(
+        'Import-wallet smoke reported the controlled no-network UI; deferring final acceptance to the classified Electrum blocker gates.',
+      );
+    }
+
+    return deferredStatus;
+  }
+
+  return status;
 };
+
+const getCurrentSentryReleaseValidationReadinessErrors = ({
+  androidReleaseEvidenceConfig,
+  requireReadyPrereqs,
+}) =>
+  getSentryReleaseValidationReadinessErrors({
+    androidReleaseEvidenceVariant: androidReleaseEvidenceConfig.variant,
+    androidReleaseCreateWalletSmokeSummaryText: readSummary(androidReleaseEvidenceConfig.createWalletSmokeSummaryPath),
+    androidReleaseImportWalletSmokeSummaryText: readSummary(androidReleaseEvidenceConfig.importWalletSmokeSummaryPath),
+    androidReleaseNoNetworkSmokeSummaryText: readSummary(androidReleaseNoNetworkSmokeSummaryPath),
+    androidReleaseSmokeSummaryText: readSummary(androidReleaseEvidenceConfig.smokeSummaryPath),
+    requireReadyPrereqs,
+    sentryReleasePrereqSummaryText: readSummary(sentryReleasePrereqSummaryPath),
+    createWalletEvidenceOptions: {
+      expectedApkPath: androidReleaseEvidenceConfig.signedSmokeApkPath,
+      expectedArtifactBase: androidReleaseEvidenceConfig.createWalletArtifactBase,
+    },
+    importWalletEvidenceOptions: {
+      expectedActivityName: androidReleaseEvidenceConfig.activityName,
+      expectedApkPath: androidReleaseEvidenceConfig.signedSmokeApkPath,
+      expectedArtifactBase: androidReleaseEvidenceConfig.importWalletArtifactBase,
+      expectedPackageName: androidReleaseEvidenceConfig.packageName,
+    },
+    smokeEvidenceOptions: getAndroidReleaseSmokeEvidenceOptions(root, androidReleaseEvidenceConfig.variant),
+  });
 
 const main = () => {
   const options = parseArgs(process.argv.slice(2));
@@ -614,6 +764,17 @@ const main = () => {
   }
 
   if (options.summaryOnly) {
+    const readinessErrors = getCurrentSentryReleaseValidationReadinessErrors({
+      androidReleaseEvidenceConfig,
+      requireReadyPrereqs: false,
+    });
+
+    if (readinessErrors.length > 0) {
+      console.error('Sentry release validation handoff raw Android evidence is invalid:');
+      readinessErrors.forEach(error => console.error(`- ${error}`));
+      return 1;
+    }
+
     return writeSummaryArtifact(buildSummaryFromCurrentArtifacts(resolvedOptions));
   }
 
@@ -640,18 +801,9 @@ const main = () => {
     }
   }
 
-  const readinessErrors = getSentryReleaseValidationReadinessErrors({
-    androidReleaseEvidenceVariant: androidReleaseEvidenceConfig.variant,
-    androidReleaseCreateWalletSmokeSummaryText: readSummary(androidReleaseEvidenceConfig.createWalletSmokeSummaryPath),
-    androidReleaseNoNetworkSmokeSummaryText: readSummary(androidReleaseNoNetworkSmokeSummaryPath),
-    androidReleaseSmokeSummaryText: readSummary(androidReleaseEvidenceConfig.smokeSummaryPath),
+  const readinessErrors = getCurrentSentryReleaseValidationReadinessErrors({
+    androidReleaseEvidenceConfig,
     requireReadyPrereqs: !options.preflightOnly,
-    sentryReleasePrereqSummaryText: readSummary(sentryReleasePrereqSummaryPath),
-    createWalletEvidenceOptions: {
-      expectedApkPath: androidReleaseEvidenceConfig.signedSmokeApkPath,
-      expectedArtifactBase: androidReleaseEvidenceConfig.createWalletArtifactBase,
-    },
-    smokeEvidenceOptions: getAndroidReleaseSmokeEvidenceOptions(root, androidReleaseEvidenceConfig.variant),
   });
 
   if (readinessErrors.length > 0) {

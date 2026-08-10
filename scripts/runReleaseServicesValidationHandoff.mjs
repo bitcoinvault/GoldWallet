@@ -1,10 +1,13 @@
 import { spawnSync } from 'child_process';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import {
   getReleaseServicesSummaryArtifactErrors,
   getReleaseServicesSummaryArtifactState,
 } from './checkReleaseServicesSummaryArtifacts.mjs';
+import { getAndroidImportWalletSmokeStepStatus } from './checkAndroidImportWalletSmokeSummary.mjs';
+import { getSentryAndroidReleaseEvidenceConfig } from './sentryAndroidReleaseEvidenceVariant.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -64,6 +67,17 @@ const yarnStep = (label, script, scriptArgs = [], extra = {}) => ({
 export const getReleaseServicesValidationCommands = (options = defaultOptions) => {
   options = { ...defaultOptions, ...options };
   const steps = [];
+  const androidReleaseEvidenceConfig = getSentryAndroidReleaseEvidenceConfig(root);
+  const controlledImportEvidence = {
+    variant: androidReleaseEvidenceConfig.variant,
+    summaryPath: androidReleaseEvidenceConfig.importWalletSmokeSummaryPath,
+    evidenceOptions: {
+      expectedActivityName: androidReleaseEvidenceConfig.activityName,
+      expectedApkPath: androidReleaseEvidenceConfig.signedSmokeApkPath,
+      expectedArtifactBase: androidReleaseEvidenceConfig.importWalletArtifactBase,
+      expectedPackageName: androidReleaseEvidenceConfig.packageName,
+    },
+  };
   const codePushDecisionArgs = ['--decision', options.codePushDecision || defaultOptions.codePushDecision];
 
   if (options.codePushReplacementTarget && options.codePushReplacementTarget !== 'none') {
@@ -74,11 +88,31 @@ export const getReleaseServicesValidationCommands = (options = defaultOptions) =
 
   if (!options.skipAndroidRelease) {
     steps.push(
-      yarnStep('Refresh Android release create-wallet evidence', 'android:dev:release:create-wallet-verify', [], {
-        env: {
-          SENTRY_DISABLE_AUTO_UPLOAD: 'true',
+      yarnStep(
+        `Refresh ${androidReleaseEvidenceConfig.variant}Release create-wallet evidence`,
+        `android:${androidReleaseEvidenceConfig.variant}:release:create-wallet-verify`,
+        [],
+        {
+          env: {
+            SENTRY_DISABLE_AUTO_UPLOAD: 'true',
+          },
         },
-      }),
+      ),
+      yarnStep(
+        `Refresh ${androidReleaseEvidenceConfig.variant}Release import-wallet evidence`,
+        `android:${androidReleaseEvidenceConfig.variant}:release:import-wallet-smoke:embedded`,
+        [],
+        {
+          controlledImportEvidence,
+          startsControlledImportEvidence: true,
+        },
+      ),
+      yarnStep(
+        `Validate ${androidReleaseEvidenceConfig.variant}Release import-wallet evidence`,
+        `android:${androidReleaseEvidenceConfig.variant}:release:check-import-wallet-smoke-summary`,
+        [],
+        { controlledImportEvidence },
+      ),
     );
   }
 
@@ -202,6 +236,10 @@ const runStep = step => {
   console.log(`\n${step.label}`);
   console.log(renderReleaseServicesValidationCommand(step));
 
+  if (step.startsControlledImportEvidence) {
+    step.controlledImportEvidence.minimumGeneratedAtMs = Date.now();
+  }
+
   const invocation = getSpawnInvocation(step);
   const result = spawnSync(invocation.command, invocation.args, {
     cwd: step.cwd,
@@ -218,7 +256,30 @@ const runStep = step => {
     return 1;
   }
 
-  return result.status ?? 1;
+  const status = result.status ?? 1;
+
+  if (status !== 0 && step.controlledImportEvidence) {
+    const summaryPath = step.controlledImportEvidence.summaryPath;
+    const deferredStatus = getAndroidImportWalletSmokeStepStatus({
+      status,
+      summary: existsSync(summaryPath) ? readFileSync(summaryPath, 'utf8') : '',
+      evidenceVariant: step.controlledImportEvidence.variant,
+      evidenceOptions: {
+        ...step.controlledImportEvidence.evidenceOptions,
+        minimumGeneratedAtMs: step.controlledImportEvidence.minimumGeneratedAtMs,
+      },
+    });
+
+    if (deferredStatus === 0) {
+      console.log(
+        'Import-wallet smoke reported the controlled no-network UI; deferring final acceptance to the classified Electrum blocker gates.',
+      );
+    }
+
+    return deferredStatus;
+  }
+
+  return status;
 };
 
 const main = () => {

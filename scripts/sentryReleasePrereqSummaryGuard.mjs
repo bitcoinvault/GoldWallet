@@ -86,6 +86,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseCreateWalletSmokeSummaryValid = getLineValue(summary, 'Android release create-wallet smoke summary valid');
   const androidReleaseCreateWalletSmokeSummaryErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
   const sentryReleaseCreateWalletEvidenceReady = getLineValue(summary, 'Sentry release create-wallet evidence ready');
+  const androidReleaseImportWalletSmokeSummaryPresent = getLineValue(summary, 'Android release import-wallet smoke summary present');
+  const androidReleaseImportWalletSmokeSummaryValid = getLineValue(summary, 'Android release import-wallet smoke summary valid');
+  const androidReleaseImportWalletSmokeSummaryErrors = getLineValue(summary, 'Android release import-wallet smoke summary errors');
+  const sentryReleaseImportWalletEvidenceReady = getLineValue(summary, 'Sentry release import-wallet evidence ready');
   const iosReleaseStaticReady = getLineValue(summary, 'iOS release static readiness valid');
   const iosMacArchiveReady = getLineValue(summary, 'iOS macOS archive validation ready');
   const iosSentryBundlePhaseCount = getLineValue(summary, 'iOS Sentry bundle/source-map phases');
@@ -136,6 +140,10 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
   const androidReleaseCreateWalletSmokeSummaryErrorLines = getBulletLinesAfter(
     summary,
     'Android release create-wallet smoke summary errors',
+  );
+  const androidReleaseImportWalletSmokeSummaryErrorLines = getBulletLinesAfter(
+    summary,
+    'Android release import-wallet smoke summary errors',
   );
   const iosPodfileLockDriftIssueLines = getBulletLinesAfter(summary, 'iOS Podfile.lock drift issues');
   const iosMacValidationBlockerLines = getBulletLinesAfter(summary, 'iOS macOS validation blockers');
@@ -534,6 +542,46 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Sentry release create-wallet evidence must be ready before source-map release validation is useful');
   }
 
+  if (!/^\d+$/.test(androidReleaseImportWalletSmokeSummaryErrors)) {
+    errors.push(
+      `Android release import-wallet smoke summary errors must be a non-negative integer. Received: ${
+        androidReleaseImportWalletSmokeSummaryErrors || 'missing'
+      }`,
+    );
+  } else if (Number(androidReleaseImportWalletSmokeSummaryErrors) !== androidReleaseImportWalletSmokeSummaryErrorLines.length) {
+    errors.push(
+      `Android release import-wallet smoke summary errors count is ${androidReleaseImportWalletSmokeSummaryErrors}, but listed ${androidReleaseImportWalletSmokeSummaryErrorLines.length}`,
+    );
+  }
+
+  if (
+    androidReleaseImportWalletSmokeSummaryValid === 'yes' &&
+    androidReleaseImportWalletSmokeSummaryErrors !== '0'
+  ) {
+    errors.push('A valid Android release import-wallet smoke summary must have 0 errors');
+  }
+
+  if (
+    sentryReleaseImportWalletEvidenceReady === 'yes' &&
+    (androidReleaseImportWalletSmokeSummaryPresent !== 'yes' ||
+      androidReleaseImportWalletSmokeSummaryValid !== 'yes' ||
+      androidReleaseImportWalletSmokeSummaryErrors !== '0')
+  ) {
+    errors.push('Ready Sentry import-wallet evidence requires a present valid summary with 0 errors');
+  }
+
+  if (androidReleaseImportWalletSmokeSummaryPresent !== 'yes') {
+    errors.push('Android release import-wallet smoke summary must be present for Sentry release validation');
+  }
+
+  if (androidReleaseImportWalletSmokeSummaryValid !== 'yes' && !devNoNetworkFallbackReady) {
+    errors.push('Sentry release prerequisites require a valid Android release import-wallet smoke summary');
+  }
+
+  if (sentryReleaseImportWalletEvidenceReady !== 'yes' && !devNoNetworkFallbackReady) {
+    errors.push('Sentry release import-wallet evidence must be ready before source-map release validation is useful');
+  }
+
   if (!['yes', 'no'].includes(iosReleaseStaticReady)) {
     errors.push(`iOS release static readiness valid must be yes or no. Received: ${iosReleaseStaticReady || 'missing'}`);
   }
@@ -609,6 +657,9 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     androidReleaseCreateWalletSmokeSummaryPresent,
     androidReleaseCreateWalletSmokeSummaryValid,
     sentryReleaseCreateWalletEvidenceReady,
+    androidReleaseImportWalletSmokeSummaryPresent,
+    androidReleaseImportWalletSmokeSummaryValid,
+    sentryReleaseImportWalletEvidenceReady,
     iosReleaseStaticReady,
     iosMacArchiveReady,
     iosPodfileLockRefreshRequired,
@@ -707,6 +758,9 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       androidReleaseCreateWalletSmokeSummaryPresent !== 'yes' ||
       androidReleaseCreateWalletSmokeSummaryValid !== 'yes' ||
       sentryReleaseCreateWalletEvidenceReady !== 'yes' ||
+      androidReleaseImportWalletSmokeSummaryPresent !== 'yes' ||
+      androidReleaseImportWalletSmokeSummaryValid !== 'yes' ||
+      sentryReleaseImportWalletEvidenceReady !== 'yes' ||
       iosReleaseStaticReady !== 'yes' ||
       iosMacArchiveReady !== 'yes' ||
       iosPodfileLockRefreshRequired !== 'no' ||
@@ -714,7 +768,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
       iosMacValidationPrereqsReady !== 'yes' ||
       iosMacValidationBlockers !== '0')
   ) {
-    errors.push('Ready summary must have wired Sentry release integration, direct Sentry CLI release build path, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, current Android release evidence with valid APK manifests, ready Android release smoke evidence, ready Android release create-wallet evidence, and ready iOS archive/macOS validation prerequisites');
+    errors.push('Ready summary must have wired Sentry release integration, direct Sentry CLI release build path, executable Sentry CLI, present properties files, 0 missing files, 0 invalid files, all properties files ready, current Android release evidence with valid APK manifests, ready Android release smoke evidence, ready Android release create-wallet and import-wallet evidence, and ready iOS archive/macOS validation prerequisites');
   }
 
   if (

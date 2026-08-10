@@ -73,9 +73,27 @@ const removeDecisionCommands = getReleaseServicesValidationCommands({
   codePushBetaStrategy: 'beta-has-no-ota',
 });
 const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesValidationCommand).join('\n');
+const controlledImportRefreshStep = fullCommands.find(step =>
+  step.args.includes('android:prod:release:import-wallet-smoke:embedded'),
+);
+const controlledImportValidationStep = fullCommands.find(step =>
+  step.args.includes('android:prod:release:check-import-wallet-smoke-summary'),
+);
+const originalReleaseEvidenceVariant = process.env.SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT;
+process.env.SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT = 'dev';
+const developmentRendered = getReleaseServicesValidationCommands({ skipAndroidRelease: false })
+  .map(renderReleaseServicesValidationCommand)
+  .join('\n');
+if (originalReleaseEvidenceVariant === undefined) {
+  delete process.env.SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT;
+} else {
+  process.env.SENTRY_ANDROID_RELEASE_EVIDENCE_VARIANT = originalReleaseEvidenceVariant;
+}
 
 [
-  'corepack yarn android:dev:release:create-wallet-verify',
+  'corepack yarn android:prod:release:create-wallet-verify',
+  'corepack yarn android:prod:release:import-wallet-smoke:embedded',
+  'corepack yarn android:prod:release:check-import-wallet-smoke-summary',
   'SENTRY_DISABLE_AUTO_UPLOAD=true',
   'corepack yarn check:sentry-properties-generator',
   'corepack yarn sentry:android-warning:audit',
@@ -127,8 +145,29 @@ const removeDecisionRendered = removeDecisionCommands.map(renderReleaseServicesV
 });
 
 assert(
-  !skippedRendered.includes('android:dev:release:create-wallet-verify'),
+  !skippedRendered.includes(':release:create-wallet-verify'),
   'Skipped release-services handoff must omit Android release create-wallet evidence refresh',
+);
+assert(
+  !skippedRendered.includes(':release:import-wallet-smoke:embedded'),
+  'Skipped release-services handoff must omit Android release import-wallet evidence refresh',
+);
+assert(
+  controlledImportRefreshStep?.controlledImportEvidence?.summaryPath &&
+    controlledImportRefreshStep.controlledImportEvidence.variant === 'prod' &&
+    controlledImportRefreshStep.controlledImportEvidence.evidenceOptions.expectedPackageName === 'io.goldwallet.wallet',
+  'Release-services import refresh must carry fail-closed controlled-network evidence metadata',
+);
+assert(
+  controlledImportRefreshStep.startsControlledImportEvidence === true &&
+    controlledImportValidationStep?.controlledImportEvidence === controlledImportRefreshStep.controlledImportEvidence,
+  'Release-services import refresh and checker must share current-invocation controlled evidence state',
+);
+assert(
+  developmentRendered.includes('corepack yarn android:dev:release:create-wallet-verify') &&
+    developmentRendered.includes('corepack yarn android:dev:release:import-wallet-smoke:embedded') &&
+    developmentRendered.includes('corepack yarn android:dev:release:check-import-wallet-smoke-summary'),
+  'Release-services handoff must use the selected Sentry Android release evidence variant',
 );
 assert(
   skippedRendered.includes('corepack yarn sentry:release:prereq-audit'),

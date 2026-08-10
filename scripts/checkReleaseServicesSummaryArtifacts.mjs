@@ -4,6 +4,10 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseApkManifestErrors } from './checkAndroidReleaseApkManifest.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import {
+  getAndroidImportWalletControlledNetworkBlockerSummaryErrors,
+  getAndroidImportWalletSmokeSummaryErrors,
+} from './checkAndroidImportWalletSmokeSummary.mjs';
+import {
   getAndroidReleaseNoNetworkSmokeEvidenceOptions,
   getAndroidReleaseSmokeEvidenceOptions,
 } from './androidReleaseSmokeEvidence.mjs';
@@ -94,6 +98,20 @@ export const releaseServicesSummaryArtifacts = [
       return getAndroidCreateWalletSmokeSummaryErrors(summary, {
         expectedApkPath: config.signedSmokeApkPath,
         expectedArtifactBase: config.createWalletArtifactBase,
+      });
+    },
+  },
+  {
+    label: 'Android release import-wallet smoke',
+    relativePath: `local-docs/${androidReleaseEvidenceConfig.importWalletArtifactBase}-summary.txt`,
+    getErrors: (summary, rootPath) => {
+      const config = getAndroidReleaseEvidenceConfig(rootPath);
+
+      return getAndroidImportWalletSmokeSummaryErrors(summary, {
+        expectedActivityName: config.activityName,
+        expectedApkPath: config.signedSmokeApkPath,
+        expectedArtifactBase: config.importWalletArtifactBase,
+        expectedPackageName: config.packageName,
       });
     },
   },
@@ -254,7 +272,25 @@ export const getReleaseServicesSummaryArtifactState = ({ rootPath = root } = {})
     };
   }
 
-  const unexpectedErrors = errors.filter(error => !isControlledElectrumBlockerError(error));
+  const config = getAndroidReleaseEvidenceConfig(rootPath);
+  const importWalletSummary = readSummaryArtifact(
+    rootPath,
+    `local-docs/${config.importWalletArtifactBase}-summary.txt`,
+  );
+  const controlledImportNetworkBlockerReady =
+    androidReleaseEvidenceVariant === 'dev' &&
+    Boolean(importWalletSummary) &&
+    getAndroidImportWalletControlledNetworkBlockerSummaryErrors(importWalletSummary, {
+      expectedActivityName: config.activityName,
+      expectedApkPath: config.signedSmokeApkPath,
+      expectedArtifactBase: config.importWalletArtifactBase,
+      expectedPackageName: config.packageName,
+    }).length === 0;
+  const unexpectedErrors = errors.filter(
+    error =>
+      !isControlledElectrumBlockerError(error) &&
+      !(controlledImportNetworkBlockerReady && error.startsWith('Android release import-wallet smoke:')),
+  );
 
   if (unexpectedErrors.length > 0 || androidReleaseEvidenceVariant !== 'dev') {
     return {
@@ -289,7 +325,7 @@ const main = () => {
 
   if (state.status === controlledElectrumBlockerOutcome) {
     console.log(`Release-services summary artifacts are valid under controlled blocker: ${controlledElectrumBlockerOutcome}.`);
-    console.log('Full release and release create-wallet runtime proof remain unclaimed until the dev/testnet Electrum TLS certificate is fixed.');
+    console.log('Full release, create-wallet, and import-wallet runtime proof remain unclaimed until the dev/testnet Electrum TLS certificate is fixed.');
     return 0;
   }
 
