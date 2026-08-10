@@ -1,3 +1,5 @@
+import { compareNumericVersions, parseNumericVersion } from './auditIosMacValidationPrereqs.mjs';
+
 const getLineValue = (content, label) => {
   const line = content.split(/\r?\n/).find(candidate => candidate.startsWith(`${label}: `));
   return line ? line.slice(label.length + 2).trim() : '';
@@ -30,7 +32,11 @@ export const getIosMacValidationPrereqSummaryErrors = summary => {
   const ready = getLineValue(summary, 'Ready for macOS pod/archive validation');
   const xcodebuildAvailable = getLineValue(summary, 'xcodebuild available');
   const xcodebuildVersion = getLineValue(summary, 'xcodebuild version');
+  const xcodebuildSupported = getLineValue(summary, 'xcodebuild supported');
   const minimumXcode = getLineValue(summary, 'React Native minimum Xcode');
+  const firebaseAppleSdk = getLineValue(summary, 'Firebase Apple SDK');
+  const firebaseMinimumXcode = getLineValue(summary, 'Firebase minimum Xcode');
+  const effectiveMinimumXcode = getLineValue(summary, 'Effective minimum Xcode');
   const podAvailable = getLineValue(summary, 'pod available');
   const bundlePodAvailable = getLineValue(summary, 'bundle exec pod available');
   const podfileLockRefreshRequired = getLineValue(summary, 'Podfile.lock refresh required');
@@ -60,6 +66,10 @@ export const getIosMacValidationPrereqSummaryErrors = summary => {
     errors.push(`xcodebuild available must be yes or no. Received: ${xcodebuildAvailable || 'missing'}`);
   }
 
+  if (!['yes', 'no'].includes(xcodebuildSupported)) {
+    errors.push(`xcodebuild supported must be yes or no. Received: ${xcodebuildSupported || 'missing'}`);
+  }
+
   if (xcodebuildAvailable === 'yes' && !xcodebuildVersion.includes('Xcode')) {
     errors.push(`xcodebuild version must include Xcode when available. Received: ${xcodebuildVersion || 'missing'}`);
   }
@@ -68,8 +78,36 @@ export const getIosMacValidationPrereqSummaryErrors = summary => {
     errors.push(`xcodebuild version must be <not available> when unavailable. Received: ${xcodebuildVersion || 'missing'}`);
   }
 
+  if (xcodebuildAvailable === 'no' && xcodebuildSupported !== 'no') {
+    errors.push('xcodebuild cannot be supported when it is unavailable');
+  }
+
   if (minimumXcode !== '16.1') {
     errors.push(`React Native minimum Xcode must be 16.1. Received: ${minimumXcode || 'missing'}`);
+  }
+
+  if (firebaseAppleSdk !== '12.17.0') {
+    errors.push(`Firebase Apple SDK must be 12.17.0. Received: ${firebaseAppleSdk || 'missing'}`);
+  }
+
+  if (firebaseMinimumXcode !== '26.2') {
+    errors.push(`Firebase minimum Xcode must be 26.2. Received: ${firebaseMinimumXcode || 'missing'}`);
+  }
+
+  if (effectiveMinimumXcode !== '26.2') {
+    errors.push(`Effective minimum Xcode must be 26.2. Received: ${effectiveMinimumXcode || 'missing'}`);
+  }
+
+  if (xcodebuildAvailable === 'yes') {
+    const installedXcodeVersion = parseNumericVersion(xcodebuildVersion)?.join('.') || null;
+    const comparison = compareNumericVersions(installedXcodeVersion, effectiveMinimumXcode);
+    const expectedSupported = comparison !== null && comparison >= 0 ? 'yes' : 'no';
+    if (xcodebuildSupported !== expectedSupported) {
+      errors.push(
+        `xcodebuild supported must match Xcode ${effectiveMinimumXcode}+ comparison. ` +
+          `Version: ${installedXcodeVersion || 'unparseable'}, reported: ${xcodebuildSupported || 'missing'}`,
+      );
+    }
   }
 
   if (!['yes', 'no'].includes(podAvailable)) {
@@ -118,6 +156,10 @@ export const getIosMacValidationPrereqSummaryErrors = summary => {
     errors.push('Ready summary must have xcodebuild available');
   }
 
+  if (ready === 'yes' && xcodebuildSupported !== 'yes') {
+    errors.push('Ready summary must use a supported xcodebuild version');
+  }
+
   if (ready === 'yes' && podAvailable !== 'yes' && bundlePodAvailable !== 'yes') {
     errors.push('Ready summary must have CocoaPods available through pod or bundle exec pod');
   }
@@ -143,4 +185,31 @@ export const getIosMacValidationPrereqSummaryErrors = summary => {
   }
 
   return errors;
+};
+
+export const getIosMacValidationToolchainErrors = summary => {
+  const errors = getIosMacValidationPrereqSummaryErrors(summary);
+  const platform = getLineValue(summary, 'Platform');
+  const xcodebuildAvailable = getLineValue(summary, 'xcodebuild available');
+  const xcodebuildSupported = getLineValue(summary, 'xcodebuild supported');
+  const podAvailable = getLineValue(summary, 'pod available');
+  const bundlePodAvailable = getLineValue(summary, 'bundle exec pod available');
+
+  if (platform !== 'darwin') {
+    errors.push(`Mutating CocoaPods steps require darwin. Received: ${platform || 'missing'}`);
+  }
+
+  if (xcodebuildAvailable !== 'yes') {
+    errors.push('Mutating CocoaPods steps require xcodebuild availability');
+  }
+
+  if (xcodebuildSupported !== 'yes') {
+    errors.push('Mutating CocoaPods steps require a supported Xcode version');
+  }
+
+  if (podAvailable !== 'yes' && bundlePodAvailable !== 'yes') {
+    errors.push('Mutating CocoaPods steps require CocoaPods through pod or bundle exec pod');
+  }
+
+  return [...new Set(errors)];
 };

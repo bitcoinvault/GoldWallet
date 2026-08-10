@@ -44,7 +44,7 @@ jobs:
     runs-on: macos-15-intel
     timeout-minutes: 90
     env:
-      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
       BUNDLE_FROZEN: 'true'
       BUNDLE_PATH: vendor/bundle
       SENTRY_DISABLE_AUTO_UPLOAD: 'true'
@@ -127,7 +127,7 @@ jobs:
             echo '## iOS macOS validation'
             echo
             echo 'Runner: `macos-15-intel`'
-            echo 'Xcode: `16.4`'
+            echo 'Xcode: `26.2`'
             echo "All schemes requested: \`$BUILD_ALL_SCHEMES\`"
             if git diff --quiet -- ios/Podfile.lock; then
               echo 'Podfile.lock changed from repository: `no`'

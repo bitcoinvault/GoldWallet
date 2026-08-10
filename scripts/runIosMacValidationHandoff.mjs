@@ -279,6 +279,12 @@ export const getIosMacValidationCommands = options => {
     ...rubySetup,
     { label: 'Audit macOS/Xcode/CocoaPods prerequisites', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:audit'], cwd: root },
     { label: 'Validate macOS prerequisite summary', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:check-summary'], cwd: root },
+    {
+      label: 'Require supported macOS/Xcode/CocoaPods toolchain',
+      command: 'node',
+      args: ['scripts/checkIosMacValidationPrereqSummary.mjs', '--require-toolchain'],
+      cwd: root,
+    },
     { label: 'Refresh iOS pods', ...podInstall },
     { label: 'Re-audit macOS/Xcode/CocoaPods prerequisites after pod refresh', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:audit'], cwd: root },
     { label: 'Re-validate macOS prerequisite summary', command: 'corepack', args: ['yarn', 'ios:mac-validation-prereq:check-summary'], cwd: root },
@@ -452,7 +458,7 @@ const main = () => {
     console.log(
       options.preflightOnly
         ? 'Dry run complete. Run without --dry-run to execute static iOS preflight without claiming runtime validation.'
-        : 'Dry run complete. Run without --dry-run on macOS with Xcode 16.1+ and CocoaPods to execute.',
+        : 'Dry run complete. Run without --dry-run on macOS with Xcode 26.2+ and CocoaPods to execute.',
     );
     return 0;
   }
@@ -483,7 +489,7 @@ const main = () => {
   }
 
   if (process.platform !== 'darwin') {
-    console.error('iOS macOS validation handoff requires macOS with Xcode 16.1+ and CocoaPods.');
+    console.error('iOS macOS validation handoff requires macOS with Xcode 26.2+ and CocoaPods.');
     console.error('Use --dry-run or --preflight-only on Windows without claiming iOS runtime validation.');
     return 1;
   }

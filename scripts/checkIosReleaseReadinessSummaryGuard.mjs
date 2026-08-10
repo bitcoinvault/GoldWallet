@@ -7,7 +7,7 @@ const currentPodfileLockDriftLines = [
   '- ios/Podfile.lock has RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
   '- ios/Podfile.lock has RNDeviceInfo 6.2.1; package.json has react-native-device-info 15.0.2',
   '- ios/Podfile.lock has RNFastImage 8.3.7; package.json has react-native-fast-image 8.6.3',
-  '- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 26.0.0',
+  '- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 26.1.0',
   '- ios/Podfile.lock has RNGestureHandler 1.10.3; package.json has react-native-gesture-handler 3.1.0',
   '- ios/Podfile.lock has RNLocalize 1.4.3; package.json has react-native-localize 3.7.0',
   '- ios/Podfile.lock has RNScreens 3.6.0; package.json has react-native-screens 4.26.2',
@@ -23,6 +23,9 @@ const validWindowsSummary = [
   'React Native version: 0.86.2',
   'React Native minimum iOS: 15.1',
   'React Native minimum Xcode: 16.1',
+  'Firebase Apple SDK: 12.17.0',
+  'Firebase minimum Xcode: 26.2',
+  'Effective minimum Xcode: 26.2',
   'Podfile iOS platform: 15.1',
   'Xcode deployment targets: 15.1',
   'Guarded iOS schemes: 8',
@@ -35,6 +38,7 @@ const validWindowsSummary = [
   `Podfile.lock drift issues: ${currentPodfileLockDriftLines.length}`,
   ...currentPodfileLockDriftLines,
   'xcodebuild version: <not available on this machine>',
+  'xcodebuild supported: no',
   'iOS runtime delivery validation: not claimed',
   'Errors: 0',
   'Warnings: 1',
@@ -49,7 +53,8 @@ const validMacSummary = validWindowsSummary
     `Podfile.lock refresh required: yes\nRemoved Podfile.lock pod references: 0\nPodfile.lock drift issues: ${currentPodfileLockDriftLines.length}\n${currentPodfileLockDriftLines.join('\n')}`,
     'Podfile.lock refresh required: no\nRemoved Podfile.lock pod references: 0\nPodfile.lock drift issues: 0',
   )
-  .replace('xcodebuild version: <not available on this machine>', 'xcodebuild version: Xcode 16.1; Build version 16B40')
+  .replace('xcodebuild version: <not available on this machine>', 'xcodebuild version: Xcode 26.2; Build version 17C52')
+  .replace('xcodebuild supported: no', 'xcodebuild supported: yes')
   .replace(
     'Warnings: 1\n- iOS compile/archive validation is blocked on this machine: xcodebuild requires macOS with Xcode.',
     'Warnings: 0',
@@ -89,6 +94,22 @@ const removeDriftLine = driftLine =>
 
 assertAccepted('Valid Windows iOS release readiness summary fixture', validWindowsSummary);
 assertAccepted('Valid macOS iOS release readiness summary fixture', validMacSummary);
+assertAccepted(
+  'Unsupported macOS Xcode summary fixture',
+  validMacSummary
+    .replace('Ready for macOS archive validation: yes', 'Ready for macOS archive validation: no')
+    .replace('xcodebuild version: Xcode 26.2; Build version 17C52', 'xcodebuild version: Xcode 26.1; Build version 17B55')
+    .replace('xcodebuild supported: yes', 'xcodebuild supported: no')
+    .replace('Warnings: 0', 'Warnings: 1\n- Installed Xcode 26.1.0 is below the effective iOS dependency minimum 26.2 required by Firebase Apple SDK 12.17.0.'),
+);
+assertRejected(
+  'Unsupported Xcode ready fixture',
+  validMacSummary
+    .replace('xcodebuild version: Xcode 26.2; Build version 17C52', 'xcodebuild version: Xcode 26.1; Build version 17B55')
+    .replace('xcodebuild supported: yes', 'xcodebuild supported: no')
+    .replace('Warnings: 0', 'Warnings: 1\n- Installed Xcode 26.1.0 is below the effective iOS dependency minimum 26.2 required by Firebase Apple SDK 12.17.0.'),
+  'Ready summary must have supported xcodebuild',
+);
 assertRejected(
   'Bad header fixture',
   validWindowsSummary.replace('iOS release static readiness audit', 'Bad header'),
@@ -108,6 +129,11 @@ assertRejected(
   'Wrong React Native fixture',
   validWindowsSummary.replace('React Native version: 0.86.2', 'React Native version: 0.84.0'),
   'React Native version',
+);
+assertRejected(
+  'Wrong effective Xcode fixture',
+  validWindowsSummary.replace('Effective minimum Xcode: 26.2', 'Effective minimum Xcode: 16.1'),
+  'Effective minimum Xcode',
 );
 assertRejected(
   'Missing Sentry bundle phase fixture',
@@ -147,7 +173,7 @@ assertRejected(
 );
 assertRejected(
   'Missing Firebase pod drift fixture',
-  removeDriftLine('- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 26.0.0'),
+  removeDriftLine('- ios/Podfile.lock has RNFBApp 12.7.5; package.json has @react-native-firebase/app 26.1.0'),
   'RNFBApp 12.7.5',
 );
 assertRejected(

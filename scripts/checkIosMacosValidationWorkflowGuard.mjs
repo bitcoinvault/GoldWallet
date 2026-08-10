@@ -62,8 +62,8 @@ const validateWorkflow = workflow => {
   requireMatch(/^\s+runs-on:\s*macos-15-intel\s*$/m, 'workflow must use the pinned macos-15-intel runner image');
   requireMatch(/^\s+timeout-minutes:\s*[1-9]\d*\s*$/m, 'workflow job must define a positive timeout');
   requireMatch(
-    /^\s+DEVELOPER_DIR:\s*\/Applications\/Xcode_16\.4\.app\/Contents\/Developer\s*$/m,
-    'workflow must select Xcode 16.4 explicitly',
+    /^\s+DEVELOPER_DIR:\s*\/Applications\/Xcode_26\.2\.app\/Contents\/Developer\s*$/m,
+    'workflow must select Firebase-compatible Xcode 26.2 explicitly',
   );
   requireMatch(/^\s+BUNDLE_PATH:\s*vendor\/bundle\s*$/m, 'workflow must install Ruby gems into the workspace');
   requireMatch(/^\s+SENTRY_DISABLE_AUTO_UPLOAD:\s*['"]true['"]\s*$/m, 'workflow must disable Sentry auto-upload');
@@ -119,7 +119,7 @@ const validateWorkflow = workflow => {
   rejectMatch(/\$\{\{\s*secrets\./i, 'secret expressions are forbidden');
   rejectMatch(/continue-on-error:\s*true/, 'the iOS build gate must fail closed');
   rejectMatch(/macos-latest/, 'floating macos-latest runners are forbidden');
-  rejectMatch(/Xcode_(?:26|27)/, 'unvalidated Xcode major versions are forbidden');
+  rejectMatch(/Xcode_(?:16|27)/, 'unsupported Xcode major versions are forbidden');
 
   return errors;
 };
@@ -150,6 +150,7 @@ if (crlfErrors.length > 0) {
 }
 const mutations = [
   ['floating runner', workflow.replace('runs-on: macos-15-intel', 'runs-on: macos-latest'), 'pinned macos-15-intel'],
+  ['unsupported Xcode', workflow.replace(/Xcode_26\.2/g, 'Xcode_16.4'), 'Firebase-compatible Xcode 26.2'],
   ['write permission', workflow.replace('contents: read', 'contents: write'), 'write permissions'],
   ['secret access', `${workflow}\nenv:\n  TOKEN: \${{ secrets.TOKEN }}\n`, 'secret expressions'],
   ['floating action', `${workflow}\n      - uses: vendor/action@main\n`, 'unapproved action'],

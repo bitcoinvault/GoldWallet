@@ -43,6 +43,10 @@ if (crlfErrors.length > 0) {
 const mutations = [
   ['legacy native modules helper', { ...environment, podfile: `${environment.podfile}\nrequire_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'` }],
   ['abstract target autolinking', { ...environment, podfile: `${environment.podfile}\nabstract_target 'BrokenShared' do\nend` }],
+  ['Firebase SPM enabled before macOS validation', { ...environment, podfile: environment.podfile.replace('$RNFirebaseDisableSPM = true', '$RNFirebaseDisableSPM = false') }],
+  ['duplicate Firebase SPM opt-out', { ...environment, podfile: `${environment.podfile}\n$RNFirebaseDisableSPM = true` }],
+  ['late Firebase SPM opt-out', { ...environment, podfile: environment.podfile.replace('$RNFirebaseDisableSPM = true\n', '').replace("target 'GoldWallet' do", "target 'GoldWallet' do\n  $RNFirebaseDisableSPM = true") }],
+  ['commented early and active late Firebase SPM opt-out', { ...environment, podfile: environment.podfile.replace('$RNFirebaseDisableSPM = true', '# $RNFirebaseDisableSPM = true').replace("target 'GoldWallet' do\n  configure_goldwallet_target\nend", "target 'GoldWallet' do\n  configure_goldwallet_target\nend\n\n$RNFirebaseDisableSPM = true") }],
   ['missing concrete Firebase-safe autolink', { ...environment, podfile: environment.podfile.replace("target 'GoldWallet Dev' do\n  configure_goldwallet_target\nend", "target 'GoldWallet Dev' do\nend") }],
   ['missing app path', { ...environment, podfile: environment.podfile.replace(':app_path => "#{Pod::Config.instance.installation_root}/..",', '') }],
   ['legacy Swift', { ...environment, pbxproj: environment.pbxproj.replace('SWIFT_VERSION = 5.0;', 'SWIFT_VERSION = 4.2;') }],

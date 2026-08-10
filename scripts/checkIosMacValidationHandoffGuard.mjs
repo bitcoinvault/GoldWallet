@@ -90,6 +90,7 @@ assert(!rendered.includes('-UseNewBuildSystem=NO'), 'iOS handoff must not reques
 [
   'corepack yarn ios:mac-validation-prereq:audit',
   'corepack yarn ios:mac-validation-prereq:check-summary',
+  'node scripts/checkIosMacValidationPrereqSummary.mjs --require-toolchain',
   'bundle exec pod install',
   'corepack yarn ios:release:readiness:audit',
   'corepack yarn ios:release:readiness:check-summary',
@@ -116,11 +117,18 @@ const prerequisiteAuditIndexes = commands
   .map((step, index) => (step.args.includes('ios:mac-validation-prereq:audit') ? index : -1))
   .filter(index => index !== -1);
 const podInstallIndex = commands.findIndex(step => step.args.join(' ') === 'exec pod install');
+const toolchainGateIndex = commands.findIndex(
+  step => step.command === 'node' && step.args.join(' ') === 'scripts/checkIosMacValidationPrereqSummary.mjs --require-toolchain',
+);
 
 assert(prerequisiteAuditIndexes.length === 2, `Expected prerequisite audits before and after pod install, got ${prerequisiteAuditIndexes.length}`);
 assert(
   prerequisiteAuditIndexes[0] < podInstallIndex && podInstallIndex < prerequisiteAuditIndexes[1],
   'The macOS prerequisite summary must be refreshed after pod install before final readiness is evaluated',
+);
+assert(
+  prerequisiteAuditIndexes[0] < toolchainGateIndex && toolchainGateIndex < podInstallIndex,
+  'The supported macOS/Xcode/CocoaPods gate must pass before pod install can mutate Podfile.lock',
 );
 
 const releaseReadinessRuns = commands.filter(step => step.args.join(' ').includes('ios:release:readiness:audit')).length;
@@ -227,8 +235,12 @@ const readyPrereqSummary = [
   'Platform: darwin',
   'Ready for macOS pod/archive validation: yes',
   'xcodebuild available: yes',
-  'xcodebuild version: Xcode 16.1; Build version 16B40',
+  'xcodebuild version: Xcode 26.2; Build version 17C52',
+  'xcodebuild supported: yes',
   'React Native minimum Xcode: 16.1',
+  'Firebase Apple SDK: 12.17.0',
+  'Firebase minimum Xcode: 26.2',
+  'Effective minimum Xcode: 26.2',
   'pod available: yes',
   'bundle exec pod available: no',
   'Podfile.lock refresh required: no',
@@ -243,7 +255,8 @@ const blockedPrereqSummary = readyPrereqSummary
   .replace('Platform: darwin', 'Platform: win32')
   .replace('Ready for macOS pod/archive validation: yes', 'Ready for macOS pod/archive validation: no')
   .replace('xcodebuild available: yes', 'xcodebuild available: no')
-  .replace('xcodebuild version: Xcode 16.1; Build version 16B40', 'xcodebuild version: <not available>')
+  .replace('xcodebuild version: Xcode 26.2; Build version 17C52', 'xcodebuild version: <not available>')
+  .replace('xcodebuild supported: yes', 'xcodebuild supported: no')
   .replace('pod available: yes', 'pod available: no')
   .replace('Podfile.lock refresh required: no', 'Podfile.lock refresh required: yes')
   .replace('Podfile.lock drift issues: 0', 'Podfile.lock drift issues: 1')
@@ -261,6 +274,9 @@ const readyReleaseSummary = [
   'React Native version: 0.86.2',
   'React Native minimum iOS: 15.1',
   'React Native minimum Xcode: 16.1',
+  'Firebase Apple SDK: 12.17.0',
+  'Firebase minimum Xcode: 26.2',
+  'Effective minimum Xcode: 26.2',
   'Podfile iOS platform: 15.1',
   'Xcode deployment targets: 15.1',
   'Guarded iOS schemes: 8',
@@ -271,7 +287,8 @@ const readyReleaseSummary = [
   'Podfile.lock refresh required: no',
   'Removed Podfile.lock pod references: 0',
   'Podfile.lock drift issues: 0',
-  'xcodebuild version: Xcode 16.1; Build version 16B40',
+  'xcodebuild version: Xcode 26.2; Build version 17C52',
+  'xcodebuild supported: yes',
   'iOS runtime delivery validation: not claimed',
   'Errors: 0',
   'Warnings: 0',
@@ -283,7 +300,8 @@ const blockedReleaseSummary = readyReleaseSummary
   .replace('Ready for macOS archive validation: yes', 'Ready for macOS archive validation: no')
   .replace('Podfile.lock refresh required: no', 'Podfile.lock refresh required: yes')
   .replace('Podfile.lock drift issues: 0', 'Podfile.lock drift issues: 1\n- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.2')
-  .replace('xcodebuild version: Xcode 16.1; Build version 16B40', 'xcodebuild version: <not available on this machine>')
+  .replace('xcodebuild version: Xcode 26.2; Build version 17C52', 'xcodebuild version: <not available on this machine>')
+  .replace('xcodebuild supported: yes', 'xcodebuild supported: no')
   .replace('Warnings: 0', 'Warnings: 1\n- iOS compile/archive validation is blocked on this machine: xcodebuild requires macOS with Xcode.')
   .replace(
     'Required action: run pod install and iOS archive/simulator validation on macOS before claiming iOS runtime delivery.',

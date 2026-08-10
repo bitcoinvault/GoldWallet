@@ -11,6 +11,10 @@ require_relative '../node_modules/react-native-permissions/scripts/setup'
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
+# RN Firebase 26.1 enables SPM automatically on RN >= 0.75. Keep the current
+# CocoaPods dependency path until the SPM archive flow is validated on macOS.
+$RNFirebaseDisableSPM = true
+
 setup_permissions([
   'Camera',
 ])
