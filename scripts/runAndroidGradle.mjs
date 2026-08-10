@@ -1,5 +1,5 @@
 import { spawnSync } from 'child_process';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -7,10 +7,112 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const normalizeVersion = version => (version || '').trim().replace(/^v/, '');
 
+const getEnvironmentValues = (env, name, platform) =>
+  Object.entries(env)
+    .filter(([key]) => (platform === 'win32' ? key.toLowerCase() === name.toLowerCase() : key === name))
+    .map(([, value]) => String(value || '').trim())
+    .filter(Boolean);
+
+const getDistinctPathValues = (values, platform) => {
+  const pathApi = platform === 'win32' ? path.win32 : path.posix;
+  const normalizedValues = new Map();
+
+  values.forEach(value => {
+    const normalized = pathApi.normalize(value);
+    const root = pathApi.parse(normalized).root;
+    const canonical = normalized.length > root.length ? normalized.replace(/[\\/]+$/, '') : normalized;
+    const comparisonValue = platform === 'win32' ? canonical.toLowerCase() : canonical;
+    if (!normalizedValues.has(comparisonValue)) normalizedValues.set(comparisonValue, canonical);
+  });
+
+  return [...normalizedValues.values()];
+};
+
+export const getAndroidSdkResolution = ({
+  env = process.env,
+  platform = process.platform,
+  pathExists = existsSync,
+} = {}) => {
+  const pathApi = platform === 'win32' ? path.win32 : path.posix;
+  const androidHomeValues = getDistinctPathValues(getEnvironmentValues(env, 'ANDROID_HOME', platform), platform);
+  const androidSdkRootValues = getDistinctPathValues(getEnvironmentValues(env, 'ANDROID_SDK_ROOT', platform), platform);
+  const explicitAndroidHomePresent = androidHomeValues.length > 0;
+  const explicitAndroidSdkRootPresent = androidSdkRootValues.length > 0;
+
+  if (androidHomeValues.length > 1) {
+    throw new Error('Conflicting case-insensitive ANDROID_HOME values are configured. Keep one SDK path.');
+  }
+
+  if (androidSdkRootValues.length > 1) {
+    throw new Error('Conflicting case-insensitive ANDROID_SDK_ROOT values are configured. Keep one SDK path.');
+  }
+
+  const androidHome = androidHomeValues[0] || '';
+  const androidSdkRoot = androidSdkRootValues[0] || '';
+
+  if (androidHome && androidSdkRoot) {
+    const [normalizedHome] = getDistinctPathValues([androidHome], platform);
+    const [normalizedRoot] = getDistinctPathValues([androidSdkRoot], platform);
+    const pathsMatch =
+      platform === 'win32'
+        ? normalizedHome.toLowerCase() === normalizedRoot.toLowerCase()
+        : normalizedHome === normalizedRoot;
+
+    if (!pathsMatch) {
+      throw new Error('ANDROID_HOME and ANDROID_SDK_ROOT point to different SDK paths. Make them consistent.');
+    }
+  }
+
+  const explicitRoot = androidHome || androidSdkRoot;
+  if (explicitRoot) {
+    if (!pathExists(explicitRoot)) {
+      throw new Error(`Explicit Android SDK path does not exist: ${explicitRoot}`);
+    }
+
+    return {
+      root: explicitRoot,
+      source:
+        androidHome && androidSdkRoot
+          ? 'ANDROID_HOME+ANDROID_SDK_ROOT'
+          : androidHome
+            ? 'ANDROID_HOME'
+            : 'ANDROID_SDK_ROOT',
+      explicitAndroidHomePresent,
+      explicitAndroidSdkRootPresent,
+    };
+  }
+
+  const home = getEnvironmentValues(env, 'HOME', platform)[0] || '';
+  const localAppData = getEnvironmentValues(env, 'LOCALAPPDATA', platform)[0] || '';
+  const fallbackCandidates = [
+    platform === 'win32' && localAppData
+      ? { root: pathApi.join(localAppData, 'Android', 'Sdk'), source: 'LOCALAPPDATA' }
+      : null,
+    platform === 'darwin' && home
+      ? { root: pathApi.join(home, 'Library', 'Android', 'sdk'), source: 'HOME_LIBRARY' }
+      : null,
+    platform !== 'win32' && platform !== 'darwin' && home
+      ? { root: pathApi.join(home, 'Android', 'Sdk'), source: 'HOME_ANDROID' }
+      : null,
+  ].filter(Boolean);
+  const fallback = fallbackCandidates.find(candidate => pathExists(candidate.root));
+
+  return {
+    root: fallback?.root || '',
+    source: fallback?.source || 'none',
+    explicitAndroidHomePresent,
+    explicitAndroidSdkRootPresent,
+  };
+};
+
+export const resolveAndroidSdkRoot = options => getAndroidSdkResolution(options).root;
+
 export const getAndroidGradleEnvironment = ({
   env = process.env,
   nodeExecPath = process.execPath,
   platform = process.platform,
+  pathExists = existsSync,
+  sdkResolution,
 } = {}) => {
   const isWindows = platform === 'win32';
   const pathKey = isWindows ? 'Path' : 'PATH';
@@ -25,10 +127,16 @@ export const getAndroidGradleEnvironment = ({
   const pathEntries = sourcePaths.flatMap(sourcePath => sourcePath.split(delimiter)).filter(Boolean);
   const normalizePathEntry = entry => (isWindows ? entry.toLowerCase() : entry);
   const gradleEnv = { ...env };
+  const androidSdkResolution = sdkResolution || getAndroidSdkResolution({ env, platform, pathExists });
+  const androidSdkRoot = androidSdkResolution.root;
 
   if (isWindows) {
     Object.keys(gradleEnv)
       .filter(key => key.toLowerCase() === 'path')
+      .forEach(key => delete gradleEnv[key]);
+
+    Object.keys(gradleEnv)
+      .filter(key => ['android_home', 'android_sdk_root'].includes(key.toLowerCase()))
       .forEach(key => delete gradleEnv[key]);
   }
 
@@ -43,6 +151,11 @@ export const getAndroidGradleEnvironment = ({
     seenPathEntries.add(normalizedEntry);
     return true;
   });
+
+  if (androidSdkRoot) {
+    gradleEnv.ANDROID_HOME = androidSdkRoot;
+    gradleEnv.ANDROID_SDK_ROOT = androidSdkRoot;
+  }
 
   return {
     ...gradleEnv,
@@ -97,9 +210,23 @@ const main = () => {
     return 1;
   }
 
+  let androidSdkResolution;
+  let gradleEnvironment;
+  try {
+    androidSdkResolution = getAndroidSdkResolution();
+    gradleEnvironment = getAndroidGradleEnvironment({ sdkResolution: androidSdkResolution });
+  } catch (error) {
+    console.error(`Android SDK configuration is invalid: ${error.message}`);
+    return 1;
+  }
+
+  if (androidSdkResolution.root) {
+    console.log(`Android SDK resolved from ${androidSdkResolution.source}: ${androidSdkResolution.root}`);
+  }
+
   const result = spawnSync(gradleCommand, args, {
     cwd: androidDir,
-    env: getAndroidGradleEnvironment(),
+    env: gradleEnvironment,
     stdio: 'inherit',
     shell: process.platform === 'win32',
   });

@@ -17,8 +17,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const variants = ['dev', 'stage', 'prod', 'beta'];
 const fixtureApkRelativePath = variant => path.join('local-docs', `android-release-summary-${variant}-fixture.apk`);
-const fixtureBundleRelativePath = variant => path.join('local-docs', `android-release-summary-${variant}-fixture.bundle`);
-const fixtureSourcemapRelativePath = variant => path.join('local-docs', `android-release-summary-${variant}-fixture.map`);
+const fixtureBundleRelativePath = variant =>
+  path.join('local-docs', `android-release-summary-${variant}-fixture.bundle`);
+const fixtureSourcemapRelativePath = variant =>
+  path.join('local-docs', `android-release-summary-${variant}-fixture.map`);
 const expectedApkRelativePaths = Object.fromEntries(
   variants.map(variant => [variant, fixtureApkRelativePath(variant)]),
 );
@@ -177,6 +179,10 @@ const validSummary = [
   'Kotlin Gradle Plugin: 2.1.20',
   'Compile SDK: 36',
   'Target SDK: 36',
+  'Android SDK resolution source: LOCALAPPDATA',
+  'Explicit ANDROID_HOME present: no',
+  'Explicit ANDROID_SDK_ROOT present: no',
+  'Android local.properties present: no',
   `Release input fingerprint: ${releaseInputFingerprint}`,
   `Release input fingerprint files: ${releaseInputFingerprintFileCount}`,
   'Sentry auto upload disabled for local build: yes',
@@ -325,6 +331,10 @@ assertAccepted(
     'Kotlin Gradle Plugin: 2.1.20',
     'Compile SDK: 36',
     'Target SDK: 36',
+    'Android SDK resolution source: LOCALAPPDATA',
+    'Explicit ANDROID_HOME present: no',
+    'Explicit ANDROID_SDK_ROOT present: no',
+    'Android local.properties present: no',
     `Release input fingerprint: ${releaseInputFingerprint}`,
     `Release input fingerprint files: ${releaseInputFingerprintFileCount}`,
     'Sentry auto upload disabled for local build: yes',
@@ -438,8 +448,62 @@ assertRejected(
   validSummary.replace('Kotlin Gradle Plugin: 2.1.20', 'Kotlin Gradle Plugin: 2.4.0'),
   'Kotlin Gradle Plugin must be 2.1.20',
 );
-assertRejected('Bad Compile SDK fixture', validSummary.replace('Compile SDK: 36', 'Compile SDK: 35'), 'Compile SDK must be 36');
-assertRejected('Bad Target SDK fixture', validSummary.replace('Target SDK: 36', 'Target SDK: 35'), 'Target SDK must be 36');
+assertRejected(
+  'Bad Compile SDK fixture',
+  validSummary.replace('Compile SDK: 36', 'Compile SDK: 35'),
+  'Compile SDK must be 36',
+);
+assertRejected(
+  'Bad Target SDK fixture',
+  validSummary.replace('Target SDK: 36', 'Target SDK: 35'),
+  'Target SDK must be 36',
+);
+assertRejected(
+  'Missing Android SDK resolution source fixture',
+  validSummary.replace('Android SDK resolution source: LOCALAPPDATA\n', ''),
+  'Android SDK resolution source',
+);
+assertRejected(
+  'Fallback with explicit SDK variable fixture',
+  validSummary.replace('Explicit ANDROID_HOME present: no', 'Explicit ANDROID_HOME present: yes'),
+  'LOCALAPPDATA requires explicit SDK flags no/no',
+);
+assertRejected(
+  'ANDROID_HOME source without explicit home fixture',
+  validSummary.replace('Android SDK resolution source: LOCALAPPDATA', 'Android SDK resolution source: ANDROID_HOME'),
+  'ANDROID_HOME requires explicit SDK flags yes/no',
+);
+assertRejected(
+  'ANDROID_SDK_ROOT source without explicit root fixture',
+  validSummary.replace(
+    'Android SDK resolution source: LOCALAPPDATA',
+    'Android SDK resolution source: ANDROID_SDK_ROOT',
+  ),
+  'ANDROID_SDK_ROOT requires explicit SDK flags no/yes',
+);
+assertRejected(
+  'Dual explicit SDK source with one flag fixture',
+  validSummary
+    .replace(
+      'Android SDK resolution source: LOCALAPPDATA',
+      'Android SDK resolution source: ANDROID_HOME+ANDROID_SDK_ROOT',
+    )
+    .replace('Explicit ANDROID_HOME present: no', 'Explicit ANDROID_HOME present: yes'),
+  'ANDROID_HOME+ANDROID_SDK_ROOT requires explicit SDK flags yes/yes',
+);
+assertRejected(
+  'No SDK source without local properties fixture',
+  validSummary.replace('Android SDK resolution source: LOCALAPPDATA', 'Android SDK resolution source: none'),
+  'may be none only when android/local.properties is present',
+);
+assertRejected(
+  'No SDK source with local properties and explicit variable fixture',
+  validSummary
+    .replace('Android SDK resolution source: LOCALAPPDATA', 'Android SDK resolution source: none')
+    .replace('Explicit ANDROID_HOME present: no', 'Explicit ANDROID_HOME present: yes')
+    .replace('Android local.properties present: no', 'Android local.properties present: yes'),
+  'none requires explicit SDK flags no/no',
+);
 assertRejected(
   'Missing release input fingerprint fixture',
   validSummary.replace(`Release input fingerprint: ${releaseInputFingerprint}\n`, ''),

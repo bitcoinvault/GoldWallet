@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.963 - Android release validation SDK discovery
+
+- Branch: `feature/bem-37-963-android-release-validation-refresh`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the stable RN `0.86.2` Android release evidence after the Sentry `8.22.0`, React Native Firebase `26.1.0`, and RN 0.87 readiness milestones.
+- Build all `dev`, `stage`, `prod`, and `beta` release variants and validate their APK manifests, embedded JS bundles, source maps, secure-storage packaging, and retired App Center exclusion.
+- Run the exact current `prodRelease` APK through the clean emulator onboarding, dashboard, navigation, QR, and Terms WebView smoke path without Metro.
+- Make the central Android Gradle runner discover a standard local Android SDK in a fresh worktree without requiring a committed `android/local.properties` file.
+
+Findings:
+
+- The first fresh-worktree release run failed before compilation because neither `ANDROID_HOME` nor `ANDROID_SDK_ROOT` was set and `android/local.properties` was intentionally absent. The installed SDK was already available under `%LOCALAPPDATA%\Android\Sdk`.
+- `scripts/runAndroidGradle.mjs` now accepts a valid explicit SDK location, rejects missing or inconsistent explicit paths, and falls back to the standard Windows/macOS/Linux SDK location only when neither Android SDK variable is configured. Windows SDK variable aliases are normalized and conflicting case-insensitive values fail before spawning Gradle.
+- The resolver is guarded for `%LOCALAPPDATA%`, macOS and Linux defaults, explicit `ANDROID_HOME`, explicit `ANDROID_SDK_ROOT`, equivalent and conflicting dual variables, invalid explicit paths, mixed-case Windows keys, conflicting aliases, and no available SDK.
+- With both Android SDK variables explicitly removed and no local properties file, the central runner configured Gradle successfully and the full release validator built all four release variants on AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17.0.19`.
+- The release summary records the non-secret SDK resolution source, explicit-variable presence, and local-properties presence so fresh-worktree fallback evidence is bound to the build run instead of inferred from later machine state.
+- Every release variant produced a non-empty unsigned APK, React Native bundle, and source map. Manifest validation, react-native-keychain presence, legacy secure-storage exclusion, and App Center exclusion passed for all four APKs.
+- The locally signed copy of the exact current `prodRelease` APK passed emulator smoke on `emulator-5554`: Terms, PIN, transaction password, email skip, success close, empty dashboard, Create/Import navigation, QR scanner, all empty-state tabs, and the Settings Terms WebView round trip. The process logcat contained no fatal Android or React Native runtime finding.
+- This proves the local production release runtime path, not Google Play publication readiness. Publication remains blocked by candidate `6.5.1` not exceeding public Play `6.5.2`, missing upload-signing configuration, and missing Play service-account JSON. Sentry source-map upload also remains unclaimed because the local release build intentionally disables auto-upload.
+
+Validation:
+
+- `corepack yarn android:release-readiness:check-light`
+- expected first-run failure `corepack yarn android:dev:release:verify-local` without Android SDK env or `android/local.properties`
+- `corepack yarn check:node-runtime-yarn-runner-guard`
+- expected fail-fast `ANDROID_HOME=D:\missing-goldwallet-sdk node scripts/runAndroidGradle.mjs help`
+- `corepack yarn check:android-release-summary-guard`
+- `node scripts/runAndroidGradle.mjs :app:tasks --quiet` with `ANDROID_HOME` and `ANDROID_SDK_ROOT` removed
+- `corepack yarn android:dev:release:verify-local` with `ANDROID_HOME` and `ANDROID_SDK_ROOT` removed
+- `corepack yarn android:prod:release:smoke:verify`
+
 ### BEM-37.962 - React Native 0.87 RC4 acceptance probe
 
 - Branch: `feature/bem-37-962-rn-087-rc4-probe`
