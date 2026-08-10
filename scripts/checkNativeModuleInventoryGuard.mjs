@@ -9,8 +9,13 @@ if (expectedNativeModuleDependencies.get('react-native-gesture-handler') !== '3.
   process.exit(1);
 }
 
-if (expectedNativeModuleDependencies.get('react-native-screens') !== '4.26.2') {
-  console.error('Native module inventory should require react-native-screens@4.26.2.');
+if (expectedNativeModuleDependencies.get('react-native-safe-area-context') !== '5.8.1') {
+  console.error('Native module inventory should require react-native-safe-area-context@5.8.1.');
+  process.exit(1);
+}
+
+if (expectedNativeModuleDependencies.get('react-native-screens') !== '4.27.0') {
+  console.error('Native module inventory should require react-native-screens@4.27.0.');
   process.exit(1);
 }
 
@@ -30,7 +35,12 @@ const outdatedGestureHandlerFixture = {
 
 const outdatedScreensFixture = {
   ...expectedDependencies,
-  'react-native-screens': '4.26.1',
+  'react-native-screens': '4.26.2',
+};
+
+const outdatedSafeAreaFixture = {
+  ...expectedDependencies,
+  'react-native-safe-area-context': '5.8.0',
 };
 
 const assertAccepted = (label, dependencies) => {
@@ -57,5 +67,6 @@ assertRejected('Missing native module dependency', missingDependencyFixture);
 assertRejected('Changed native module dependency version', changedDependencyFixture);
 assertRejected('Outdated react-native-gesture-handler version', outdatedGestureHandlerFixture);
 assertRejected('Outdated react-native-screens version', outdatedScreensFixture);
+assertRejected('Outdated react-native-safe-area-context version', outdatedSafeAreaFixture);
 
 console.log('Native module inventory guard checks are valid.');

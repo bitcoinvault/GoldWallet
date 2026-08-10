@@ -36,6 +36,7 @@ export const trackedPodPackagePairs = [
   ['RNFBApp', '@react-native-firebase/app'],
   ['RNGestureHandler', 'react-native-gesture-handler'],
   ['RNLocalize', 'react-native-localize'],
+  ['react-native-safe-area-context', 'react-native-safe-area-context'],
   ['RNScreens', 'react-native-screens'],
   ['RNSentry', '@sentry/react-native'],
   ['RNVectorIcons', 'react-native-vector-icons'],
