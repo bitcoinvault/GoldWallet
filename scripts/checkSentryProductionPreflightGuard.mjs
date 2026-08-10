@@ -116,6 +116,15 @@ assert.deepStrictEqual(
 );
 
 const runner = readFileSync('scripts/runSentryProductionPreflight.mjs', 'utf8');
+const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
+assert.strictEqual(
+  packageJson.scripts['sentry:release:validation:production:preflight'],
+  'node scripts/runSentryProductionPreflight.mjs',
+);
+assert.strictEqual(
+  packageJson.scripts['check:sentry-production-preflight-guard'],
+  'node scripts/checkSentryProductionPreflightGuard.mjs',
+);
 assert(runner.includes("[managedRunner, '--preflight-only', '--skip-android-release']"));
 assert(!runner.includes('[managedRunner, ...process.argv'));
 assert(!runner.includes('[managedRunner, ...args'));
