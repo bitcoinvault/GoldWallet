@@ -10,6 +10,39 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.964 - Sentry 8.22 production release readiness
+
+- Branch: `feature/bem-37-964-sentry-822-release-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Turn the existing managed Sentry credential bridge into an explicit, fail-closed production/non-production profile workflow.
+- Expose the existing production project and no-upload handoff validator through package scripts and guard its command contract.
+- Refresh the complete Android release/runtime evidence required by the Sentry production preflight after the Sentry `8.22.0`, React Native Firebase `26.1.0`, and Android SDK-discovery milestones.
+
+Findings:
+
+- The previous `sentry:release:validation:managed:preflight` command failed before its checks when `SENTRY_RELEASE_PROFILE` was not inherited. Managed runs now accept `--profile=prod|nonprod`; missing, unsupported, duplicate, and argument/environment-conflicting profiles fail before the authenticated CLI token is read. Unsupported or duplicate handoff flags and incompatible summary modes also fail before credential lookup; help and dry-run do not materialize local credential files.
+- `sentry:release:validation:managed:preflight` selects production explicitly, while `sentry:release:validation:managed:preflight:nonprod` keeps non-production project generation separate. Direct managed-runner use must still provide the profile argument or environment variable.
+- `sentry:release:validation:production:preflight` verifies live read/release access to `goldwallet-prod-android` and `goldwallet`, disables automatic upload, prepares only ignored properties files, and runs the guarded production handoff without creating a release or uploading source maps.
+- Fresh JDK 17 release validation builds `dev`, `stage`, `prod`, and `beta` on AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and Sentry `8.22.0`. All APK manifests, JS bundles, source maps, Keychain packaging, legacy secure-storage exclusion, and App Center exclusion checks pass.
+- The exact current `prodRelease` APK passes clean onboarding, empty dashboard, Create/Import navigation, QR, all tabs, and Terms WebView on `emulator-5554`. Standard-wallet creation and public watch-only import both persist across a process restart, reject an incorrect PIN, unlock with the configured test PIN, and produce no fatal/runtime logcat findings; the vault path reaches the public-key integration screen.
+- Android Sentry runtime proof is ready, the managed credential is available, all three ignored properties files are ready, and package/project routing is current. The production handoff is blocked only by iOS validation: this Windows host has no Xcode/CocoaPods and `ios/Podfile.lock` retains 12 guarded drifts. Sentry release/source-map/dSYM upload remains unclaimed.
+
+Validation:
+
+- Node `24.16.0` frozen install and patched postinstall
+- `corepack yarn check:sentry-managed-credential-guard`
+- `corepack yarn check:sentry-production-preflight-guard`
+- `corepack yarn sentry:release:validation:preflight:dry-run`
+- `corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:import-wallet-verify`
+- `corepack yarn sentry:release:validation:production:preflight`
+- production project checks and handoff performed without Sentry upload; iOS archive/source-map/dSYM validation remains unclaimed on Windows
+
 ### BEM-37.963 - Android release validation SDK discovery
 
 - Branch: `feature/bem-37-963-android-release-validation-refresh`

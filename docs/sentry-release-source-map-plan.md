@@ -46,6 +46,7 @@
 - BEM-37.944 closes the Android non-production symbolication gate. The canary excludes Sentry's generated `android/app/src/main/assets/modules.json` from release identity, repeats the real Gradle upload under a stable isolated release, sends a synthetic no-wallet-data event with the uploaded debug ID, and requires Sentry's processed stack to replace the generated bundle frame with the exact expected `App.tsx` line. This does not validate production routing or iOS delivery.
 - BEM-37.945 adds `node scripts/runSentryProductionPreflight.mjs`, a no-upload production handoff gate. It replaces inherited routing overrides with the fixed production organization/projects, verifies their live ID/status/release access through the authenticated Sentry CLI without printing the response, forces prod Android evidence plus `SENTRY_DISABLE_AUTO_UPLOAD=true`, and accepts only a ready handoff or the explicit Windows iOS/macOS blocker.
 - BEM-37.954 makes that production gate fail closed on stale Android release build evidence. The prerequisite summary now exposes the already-computed aggregate release-evidence readiness, the handoff propagates it, and the production checker requires it before an iOS-only blocker can be accepted. A current release fingerprint for all required variants plus valid APK manifests is therefore mandatory even when release smoke evidence itself is still valid.
+- BEM-37.964 exposes that no-upload production gate as `sentry:release:validation:production:preflight` and makes managed credential routing explicit through `--profile=prod|nonprod`. Missing, unsupported, duplicate, or conflicting profiles fail before credential lookup. Fresh RN `0.86.2` / Sentry `8.22.0` Android release, production smoke, create-wallet, and public watch-only import evidence makes Android runtime proof ready; the production handoff remains blocked only by the explicit iOS/macOS validation requirement, and no release or source map was uploaded.
 - The 2026-06-17 BEM-37.742 prerequisite gate makes Sentry source-map readiness depend on iOS readiness as well: the summary reports static iOS files valid, 4 Sentry bundle/source-map phases, 3 Sentry dSYM upload phases, `ios/Podfile.lock` refresh required with 12 active drift issues, and macOS validation prerequisites not ready on this Windows host. Source-map/dSYM upload remains blocked by both missing local `SENTRY_AUTH_TOKEN` plus generated root/Android/iOS `sentry.properties` files and the required macOS/Xcode/CocoaPods Podfile/archive validation.
 
 ## 2026-07-31 Release Services Refresh
@@ -132,11 +133,12 @@
 
 Credential owner input required before claiming release source-map validation:
 
-- provide `SENTRY_AUTH_TOKEN` in the local shell or CI secret store, or use an authenticated official `sentry` CLI through `corepack yarn sentry:release:validation:managed:preflight`;
-- select `SENTRY_RELEASE_PROFILE=nonprod` or `SENTRY_RELEASE_PROFILE=prod`; use `SENTRY_ORG`, `SENTRY_ANDROID_PROJECT`, and `SENTRY_IOS_PROJECT` overrides only after a confirmed Sentry project move;
+- provide `SENTRY_AUTH_TOKEN` in the local shell or CI secret store, or use an authenticated official `sentry` CLI through `corepack yarn sentry:release:validation:managed:preflight` for production or `corepack yarn sentry:release:validation:managed:preflight:nonprod` for non-production;
+- select the release profile explicitly. The package preflight commands pass `--profile=prod|nonprod`; direct managed-runner use must pass that option or set `SENTRY_RELEASE_PROFILE`. Conflicting argument and environment profiles fail before credential lookup. Use `SENTRY_ORG`, `SENTRY_ANDROID_PROJECT`, and `SENTRY_IOS_PROJECT` overrides only after a confirmed Sentry project move;
 - generate local-only `sentry.properties`, `android/sentry.properties`, and `ios/sentry.properties` with `corepack yarn sentry:release:create-properties`;
 - keep generated Sentry properties files and token values out of commits, screenshots, and handoff artifacts.
 - the managed command captures `sentry auth token`, passes it only in the child-process environment, prepares the three ignored properties files, and never prints the credential value;
+- managed help, dry-run, unsupported flags, duplicate flags, and incompatible summary modes are resolved before credential lookup; help and dry-run do not materialize local credential files;
 
 Evidence that must be attached to the credential handoff:
 
@@ -158,7 +160,8 @@ Do not claim iOS dSYM/source-map upload validation unless it ran on macOS/Xcode 
 
 ## Source Map Upload Acceptance Gate
 
-- run `corepack yarn sentry:release:validation:handoff` with `SENTRY_AUTH_TOKEN` available, or `corepack yarn sentry:release:validation:managed` with an authenticated official CLI;
+- run `corepack yarn sentry:release:validation:handoff` with `SENTRY_AUTH_TOKEN` and an explicit `SENTRY_RELEASE_PROFILE` available, or run `corepack yarn sentry:release:validation:managed --profile=prod` with an authenticated official CLI;
+- run `corepack yarn sentry:release:validation:production:preflight` first to verify the fixed production project identities, current local release evidence, and upload-disabled handoff state without creating a Sentry release or uploading files;
 - keep `SENTRY_DISABLE_AUTO_UPLOAD=true` only for Android release evidence refresh, not for the final upload validation claim;
 - prove Android release artifact generation still covers `dev`, `stage`, `prod`, and `beta` variants;
 - prove the Sentry release prerequisite summary reports `Release source-map prerequisites: ready`;
