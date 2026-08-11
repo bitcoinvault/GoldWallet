@@ -83,6 +83,22 @@ const validEntries = [
     decision:
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
+  ...[
+    '@react-native/babel-preset',
+    '@react-native/codegen',
+    '@react-native/gradle-plugin',
+    '@react-native/jest-preset',
+    '@react-native/metro-config',
+    '@react-native/typescript-config',
+  ].map(name => ({
+    name,
+    current: '0.86.2',
+    wanted: '0.86.2',
+    latest: '0.87.0',
+    type: 'devDependencies',
+    decision:
+      'blocked - React Native 0.87 framework packages must move together in a dedicated RN 0.87 runtime branch with aligned codegen, Gradle plugin, Metro, Babel, TypeScript config, Android build, and emulator smoke proof',
+  })),
   {
     name: '@types/react',
     current: '19.2.17',
@@ -149,15 +165,6 @@ const validEntries = [
     latest: '5.0.0',
     type: 'resolutionDependencies',
     decision: 'blocked - plist major drift belongs in a dedicated iOS/config tooling owner-path branch with xcode/config-plugin compatibility proof',
-  },
-  {
-    name: 'protobufjs',
-    current: '8.7.1',
-    wanted: '8.7.1',
-    latest: '8.7.2',
-    type: 'resolutionDependencies',
-    decision:
-      'blocked - protobufjs major drift belongs in a dedicated Firebase/storage-network branch with focused tests, Android build, and emulator smoke proof',
   },
   {
     name: 'react',
@@ -248,10 +255,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 24', 'Entries: 23'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 29', 'Entries: 28'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 24', 'Entries: 25').replace(
+  validSummary.replace('Entries: 29', 'Entries: 30').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -291,9 +298,9 @@ assertRejected(
   'CommonJS transitive consumer',
 );
 assertRejected(
-  'Missing protobufjs owner-path fixture',
-  validSummary.replace('dedicated Firebase/storage-network branch', 'generic dependency branch'),
-  'dedicated Firebase/storage-network branch',
+  'Split React Native framework cohort fixture',
+  validSummary.replace('React Native 0.87 framework packages must move together', 'generic React Native update'),
+  'React Native 0.87 framework drift',
 );
 assertRejected(
   'Missing undici owner-path fixture',

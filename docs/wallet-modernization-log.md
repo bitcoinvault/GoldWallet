@@ -2634,6 +2634,57 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.971 - Protobufjs 8.7.2 Firebase owner-path patch
+
+- Branch: `feature/bem-37-971-protobufjs-8-7-2`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the guarded Firebase/Firestore `@grpc/proto-loader` owner path from `protobufjs@8.7.1` to current latest `8.7.2`.
+- Add a durable owner-path check for the complete React Native Firebase to proto-loader dependency chain, CommonJS API, message encode/decode, and `loadSync` service definitions.
+- Refresh the direct-outdated contract without mixing the six React Native framework packages currently tagged latest at `0.87.0` into this runtime resolution branch.
+
+Findings:
+
+- Live npm metadata on 2026-08-11 reports `protobufjs@8.7.2` as latest with Node `>=12.0.0` and the unchanged `long@^5.3.2` dependency surface.
+- The installed `@grpc/proto-loader@0.7.15` still requests `protobufjs@^7.2.5`; the major resolution remains deliberate and is now checked through `@react-native-firebase/app -> firebase -> @firebase/firestore -> @grpc/proto-loader -> protobufjs`.
+- The runtime guard loads `protobufjs` through CommonJS, encodes and decodes a typed message, and proves that proto-loader exposes the expected `goldwallet.Ping` and `goldwallet.WalletProbe` definitions from a temporary proto fixture.
+- Live direct outdated now reports 29 entries: 25 known blockers, 4 exotic/git-pinned entries, and 0 review-required entries. Six RN framework packages are tagged latest at `0.87.0`, while `react-native@latest` remains `0.86.2` and `next` remains `0.87.0-rc.4`; they remain one dedicated future runtime cohort.
+- Unit tests pass at 13 suites / 60 tests, the focused storage/network suite passes, Android light checks pass, and a clean JDK 17 `devDebug` build completes 877 tasks.
+- The full embedded smoke installs and launches the fresh APK and completes Terms, PIN, transaction-password, and email onboarding. Dashboard proof remains externally blocked by the dev/testnet Electrum certificate that expired on 2026-06-23; no fatal Android, JavaScript syntax, or bundle-loading error was found.
+- The dedicated no-network embedded smoke passes with the expected `No network` UI, and the blocker audit classifies the full smoke as `blocked-by-electrum-certificate-expired`.
+- Static iOS release files remain valid. Runtime/archive validation is not claimed on Windows; `ios/Podfile.lock` still requires a macOS CocoaPods refresh and Xcode validation.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view protobufjs version engines dependencies dist-tags --json`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% npm view react-native version dist-tags --json` and matching live metadata checks for the six `@react-native/*` framework packages listed by direct outdated
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn why protobufjs`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:protobufjs-owner-path`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:security-resolution-baselines`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn direct-outdated:snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn storage-network:latest-snapshot:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:rn-nodeify-shims`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn lint:baseline:audit` passed with the existing 333-file / 36,522-finding formatting baseline
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:unit --runInBand`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:check-light`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:embedded` reached the expected external Electrum certificate blocker after successful onboarding
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn android:dev:network-blocker:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.902 - Protobufjs 8.7.1 Firebase owner-path patch
 
 - Branch: `feature/bem-37-902-protobufjs-8-7-1`

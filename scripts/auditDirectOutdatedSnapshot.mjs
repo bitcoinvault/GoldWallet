@@ -66,6 +66,30 @@ const knownDecisions = new Map([
     'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
+    '@react-native/babel-preset',
+    'blocked - React Native 0.87 framework packages must move together in a dedicated RN 0.87 runtime branch with aligned codegen, Gradle plugin, Metro, Babel, TypeScript config, Android build, and emulator smoke proof',
+  ],
+  [
+    '@react-native/codegen',
+    'blocked - React Native 0.87 framework packages must move together in a dedicated RN 0.87 runtime branch with aligned codegen, Gradle plugin, Metro, Babel, TypeScript config, Android build, and emulator smoke proof',
+  ],
+  [
+    '@react-native/gradle-plugin',
+    'blocked - React Native 0.87 framework packages must move together in a dedicated RN 0.87 runtime branch with aligned codegen, Gradle plugin, Metro, Babel, TypeScript config, Android build, and emulator smoke proof',
+  ],
+  [
+    '@react-native/jest-preset',
+    'blocked - React Native 0.87 framework packages must move together in a dedicated RN 0.87 runtime branch with aligned codegen, Gradle plugin, Metro, Babel, TypeScript config, Android build, and emulator smoke proof',
+  ],
+  [
+    '@react-native/metro-config',
+    'blocked - React Native 0.87 framework packages must move together in a dedicated RN 0.87 runtime branch with aligned codegen, Gradle plugin, Metro, Babel, TypeScript config, Android build, and emulator smoke proof',
+  ],
+  [
+    '@react-native/typescript-config',
+    'blocked - React Native 0.87 framework packages must move together in a dedicated RN 0.87 runtime branch with aligned codegen, Gradle plugin, Metro, Babel, TypeScript config, Android build, and emulator smoke proof',
+  ],
+  [
     '@sentry/react-native',
     'blocked - Sentry SDK patch drift requires a dedicated release-services branch with Sentry prerequisite summaries and no source-map upload claim without credentials',
   ],
@@ -152,10 +176,6 @@ const knownDecisions = new Map([
   [
     'plist',
     'blocked - plist major drift belongs in a dedicated iOS/config tooling owner-path branch with xcode/config-plugin compatibility proof',
-  ],
-  [
-    'protobufjs',
-    'blocked - protobufjs major drift belongs in a dedicated Firebase/storage-network branch with focused tests, Android build, and emulator smoke proof',
   ],
   [
     'send',

@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { collectProtobufjsOwnerPathState } from './checkProtobufjsOwnerPath.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -18,7 +19,7 @@ const requiredResolutions = new Map([
   ['moment', '2.30.1'],
   ['micromatch', '4.0.8'],
   ['plist', '3.1.1'],
-  ['protobufjs', '8.7.1'],
+  ['protobufjs', '8.7.2'],
   ['qs', '6.15.3'],
   ['sha.js', '2.4.12'],
   ['shell-quote', '1.10.0'],
@@ -92,7 +93,7 @@ const expectedLockVersions = new Map([
   ['moment', ['2.30.1']],
   ['picomatch', ['2.3.2', '4.0.4', '4.0.5']],
   ['plist', ['3.1.1']],
-  ['protobufjs', ['8.7.1']],
+  ['protobufjs', ['8.7.2']],
   ['qs', ['6.15.3']],
   ['send', ['1.2.1']],
   ['serve-static', ['2.2.1']],
@@ -152,6 +153,9 @@ const collectLockVersions = lockContent => {
 const errors = [];
 const resolutions = packageJson.resolutions || {};
 const lockVersions = collectLockVersions(yarnLock);
+const protobufjsOwnerPath = collectProtobufjsOwnerPathState();
+
+protobufjsOwnerPath.errors.forEach(error => errors.push(`protobufjs owner path: ${error}`));
 
 for (const [name, version] of requiredResolutions) {
   if (resolutions[name] !== version) {
