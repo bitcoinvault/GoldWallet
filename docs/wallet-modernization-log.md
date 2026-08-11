@@ -2777,6 +2777,28 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit` and `ios:release:readiness:check-summary`
 - `git diff --check`
 
+### BEM-37.973.1 - Secure-storage evidence portability
+
+- Branch: `feature/bem-37-973-1-secure-storage-evidence-portability`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Make the migration source fingerprint stable across LF and CRLF worktrees while preserving byte-exact APK hashing and fail-closed content-drift detection.
+
+Findings:
+
+- The first-party migration runtime proof was valid in its feature worktree but failed after local merge because the source fingerprint hashed checkout-specific line endings.
+- Migration inputs are text files, so canonical LF hashing binds the proof to source content instead of a platform checkout representation. A guard now proves that LF and CRLF fixtures match while a real content change still fails.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-first-party-migration-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SECURE_STORAGE_HISTORICAL_SEED_APK=<ignored-seed-apk> ANDROID_SERIAL=emulator-5554 corepack yarn secure-storage:first-party-migration:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:first-party-migration:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.902 - Protobufjs 8.7.1 Firebase owner-path patch
 
 - Branch: `feature/bem-37-902-protobufjs-8-7-1`
