@@ -206,15 +206,6 @@ const validEntries = [
     type: 'devDependencies',
     decision: 'blocked - TypeScript 7 major drift requires a dedicated compiler branch with TypeScript check, Jest, lint baseline, and RN/Metro proof',
   },
-  {
-    name: 'undici',
-    current: '8.9.0',
-    wanted: '8.9.0',
-    latest: '8.10.0',
-    type: 'resolutionDependencies',
-    decision:
-      'blocked - undici minor drift belongs in a dedicated Sentry/tooling branch with release-service prerequisite summaries and no credentialed upload claim',
-  },
 ];
 
 const validSummary = formatDirectOutdatedSnapshotSummary(validEntries, '2026-07-05T00:00:00.000Z');
@@ -255,10 +246,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 29', 'Entries: 28'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 28', 'Entries: 27'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 29', 'Entries: 30').replace(
+  validSummary.replace('Entries: 28', 'Entries: 29').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -301,11 +292,6 @@ assertRejected(
   'Split React Native framework cohort fixture',
   validSummary.replace('React Native 0.87 framework packages must move together', 'generic React Native update'),
   'React Native 0.87 framework drift',
-);
-assertRejected(
-  'Missing undici owner-path fixture',
-  validSummary.replace('dedicated Sentry/tooling branch', 'generic dependency branch'),
-  'dedicated Sentry/tooling branch',
 );
 assertRejected(
   'Secret printed fixture',

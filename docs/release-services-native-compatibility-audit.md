@@ -19,7 +19,7 @@ This audit records the current Firebase, push, CodePush, and Sentry surface befo
 | `@sentry/react-native` | `8.22.0` | `8.22.0` on 2026-08-10 | Latest checked SDK line; the Android SDK moves to `8.51.0`, while source-map and dSYM upload must still be proven with local credentials. |
 | `@sentry/cli` | `3.6.2` | `3.6.2` on 2026-07-31 | Explicit direct release-tooling dependency; a scoped resolution deduplicates SDK requests to the direct root CLI package, and the prerequisite audit verifies that release build phases use it. |
 
-The Sentry CLI owner path uses the guarded latest `undici@8.9.0` resolution after BEM-37.935. Node `24.16.0`, the CLI version probe, CommonJS request/fetch APIs, Android debug/release builds, and production emulator smoke all pass on this transport baseline. BEM-37.960 keeps the versioned SDK patch because the published `8.22.0` source-map helper still contains both guarded `process.exist(1)` typos.
+The Sentry CLI owner path uses the guarded latest `undici@8.10.0` resolution after BEM-37.972, while jsdom keeps its independent `undici@8.9.0` path. Node `24.16.0`, owner-context resolution, the SDK/CLI dependency chain, active CLI binary/version, CommonJS request/fetch/proxy APIs, and local HTTP response streaming are guarded on this transport baseline. BEM-37.960 keeps the versioned SDK patch because the published `8.22.0` source-map helper still contains both guarded `process.exist(1)` typos.
 
 ## Current Runtime Surface
 

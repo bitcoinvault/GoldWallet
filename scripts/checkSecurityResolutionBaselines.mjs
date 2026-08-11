@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { collectProtobufjsOwnerPathState } from './checkProtobufjsOwnerPath.mjs';
+import { collectSentryCliTransportState } from './checkSentryCliTransport.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -31,7 +32,7 @@ const requiredResolutions = new Map([
   ['tmp', '0.2.7'],
   ['word-wrap', '1.2.5'],
   ['**/xcode/uuid', '14.0.1'],
-  ['@sentry/**/undici', '8.9.0'],
+  ['@sentry/**/undici', '8.10.0'],
 ]);
 
 const vulnerableLockEntries = [
@@ -103,7 +104,7 @@ const expectedLockVersions = new Map([
   ['tmpl', ['1.0.5']],
   ['tiny-secp256k1', ['2.2.4']],
   ['tmp', ['0.2.7']],
-  ['undici', ['7.28.0', '8.8.0', '8.9.0']],
+  ['undici', ['7.28.0', '8.9.0', '8.10.0']],
   ['uuid', ['14.0.0', '14.0.1']],
   ['word-wrap', ['1.2.5']],
   ['ws', ['6.2.4', '7.5.11']],
@@ -154,8 +155,10 @@ const errors = [];
 const resolutions = packageJson.resolutions || {};
 const lockVersions = collectLockVersions(yarnLock);
 const protobufjsOwnerPath = collectProtobufjsOwnerPathState();
+const sentryCliTransport = collectSentryCliTransportState();
 
 protobufjsOwnerPath.errors.forEach(error => errors.push(`protobufjs owner path: ${error}`));
+sentryCliTransport.errors.forEach(error => errors.push(`Sentry CLI transport: ${error}`));
 
 for (const [name, version] of requiredResolutions) {
   if (resolutions[name] !== version) {
