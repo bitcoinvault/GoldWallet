@@ -93,24 +93,6 @@ const validEntries = [
       'blocked - React type patch drift must stay aligned with the React Native renderer baseline and move in a dedicated React/RN type branch with TypeScript and unit proof',
   },
   {
-    name: '@typescript-eslint/eslint-plugin',
-    current: '8.65.0',
-    wanted: '8.65.0',
-    latest: '8.67.0',
-    type: 'devDependencies',
-    decision:
-      'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
-  },
-  {
-    name: '@typescript-eslint/parser',
-    current: '8.65.0',
-    wanted: '8.65.0',
-    latest: '8.67.0',
-    type: 'devDependencies',
-    decision:
-      'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
-  },
-  {
     name: '@types/react',
     current: '19.2.17',
     wanted: '19.2.17',
@@ -159,15 +141,6 @@ const validEntries = [
     latest: 'exotic',
     type: 'dependencies',
     decision: 'exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
-  },
-  {
-    name: 'eslint',
-    current: '10.8.0',
-    wanted: '10.8.0',
-    latest: '10.8.1',
-    type: 'devDependencies',
-    decision:
-      'blocked - ESLint patch drift requires a dedicated lint/tooling branch with lint-staged, precommit, TypeScript, and baseline audit proof',
   },
   {
     name: 'plist',
@@ -275,10 +248,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 27', 'Entries: 26'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 24', 'Entries: 23'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 27', 'Entries: 28').replace(
+  validSummary.replace('Entries: 24', 'Entries: 25').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),

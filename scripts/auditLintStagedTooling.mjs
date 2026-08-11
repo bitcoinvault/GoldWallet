@@ -42,8 +42,13 @@ if (!packageJson['lint-staged']?.['./**/*.{ts,tsx,js,jsx}']?.includes('eslint --
   errors.push('package.json lint-staged config must keep eslint --fix for ./**/*.{ts,tsx,js,jsx}');
 }
 
-if (packageJson.scripts.precommit !== 'yarn check:node-runtime-version && yarn lint-staged:tooling:audit && yarn lint-staged && yarn typescript:check') {
-  errors.push('package.json precommit script must run Node runtime, lint-staged tooling, lint-staged, and TypeScript checks in order');
+if (
+  packageJson.scripts.precommit !==
+  'yarn check:node-runtime-version && yarn lint-staged:tooling:audit && yarn check:eslint-config-compatibility && yarn lint-staged && yarn typescript:check'
+) {
+  errors.push(
+    'package.json precommit script must run Node runtime, lint-staged tooling, ESLint compatibility, lint-staged, and TypeScript checks in order',
+  );
 }
 
 const cliVersion = execFileSync(process.execPath, [path.join(root, 'node_modules', 'lint-staged', 'bin', 'lint-staged.js'), '--version'], {

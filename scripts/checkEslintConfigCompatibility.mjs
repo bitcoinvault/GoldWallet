@@ -1,9 +1,14 @@
 import { existsSync, readFileSync } from 'fs';
+import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import semver from 'semver';
+
+import { ESLint } from 'eslint';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
+const require = createRequire(import.meta.url);
 const eslintConfig = JSON.parse(readFileSync(path.join(root, '.eslintrc'), 'utf8'));
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const extendsEntries = Array.isArray(eslintConfig.extends)
@@ -21,23 +26,69 @@ const requireRuleValue = (ruleName, expectedValue) => {
   }
 };
 
-if (devDependencies['@typescript-eslint/eslint-plugin'] !== '8.65.0') {
+const expectedVersions = {
+  '@typescript-eslint/eslint-plugin': '8.67.0',
+  '@typescript-eslint/parser': '8.67.0',
+  eslint: '10.8.1',
+};
+const installedPackages = Object.fromEntries(
+  Object.keys(expectedVersions).map(packageName => [packageName, require(`${packageName}/package.json`)]),
+);
+
+if (devDependencies['@typescript-eslint/eslint-plugin'] !== expectedVersions['@typescript-eslint/eslint-plugin']) {
   errors.push(
-    `@typescript-eslint/eslint-plugin must stay on 8.65.0 for this compatibility guard. Found ${
+    `@typescript-eslint/eslint-plugin must stay on ${expectedVersions['@typescript-eslint/eslint-plugin']} for this compatibility guard. Found ${
       devDependencies['@typescript-eslint/eslint-plugin'] || '<missing>'
     }`,
   );
 }
 
-if (devDependencies['@typescript-eslint/parser'] !== '8.65.0') {
+if (devDependencies['@typescript-eslint/parser'] !== expectedVersions['@typescript-eslint/parser']) {
   errors.push(
-    `@typescript-eslint/parser must stay on 8.65.0 for this compatibility guard. Found ${devDependencies['@typescript-eslint/parser'] || '<missing>'}`,
+    `@typescript-eslint/parser must stay on ${expectedVersions['@typescript-eslint/parser']} for this compatibility guard. Found ${devDependencies['@typescript-eslint/parser'] || '<missing>'}`,
   );
 }
 
-if (devDependencies.eslint !== '10.8.0') {
-  errors.push(`eslint must stay on 10.8.0 for the flat-config bridge. Found ${devDependencies.eslint || '<missing>'}`);
+if (devDependencies.eslint !== expectedVersions.eslint) {
+  errors.push(`eslint must stay on ${expectedVersions.eslint} for the flat-config bridge. Found ${devDependencies.eslint || '<missing>'}`);
 }
+
+Object.entries(expectedVersions).forEach(([packageName, expectedVersion]) => {
+  if (installedPackages[packageName].version !== expectedVersion) {
+    errors.push(
+      `node_modules has ${packageName}@${installedPackages[packageName].version}; expected ${expectedVersion}`,
+    );
+  }
+});
+
+const parserPackage = installedPackages['@typescript-eslint/parser'];
+const pluginPackage = installedPackages['@typescript-eslint/eslint-plugin'];
+const eslintPackage = installedPackages.eslint;
+const typescriptVersion = devDependencies.typescript;
+
+if (parserPackage.version !== pluginPackage.version) {
+  errors.push(`@typescript-eslint parser/plugin versions must match. Found ${parserPackage.version} and ${pluginPackage.version}`);
+}
+
+[
+  ['parser ESLint', eslintPackage.version, parserPackage.peerDependencies?.eslint],
+  ['parser TypeScript', typescriptVersion, parserPackage.peerDependencies?.typescript],
+  ['plugin ESLint', eslintPackage.version, pluginPackage.peerDependencies?.eslint],
+  ['plugin TypeScript', typescriptVersion, pluginPackage.peerDependencies?.typescript],
+  ['plugin parser', parserPackage.version, pluginPackage.peerDependencies?.['@typescript-eslint/parser']],
+].forEach(([label, version, range]) => {
+  if (!version || !range || !semver.satisfies(version, range, { includePrerelease: true })) {
+    errors.push(`${label} peer range ${range || '<missing>'} does not accept ${version || '<missing>'}`);
+  }
+});
+
+Object.entries(installedPackages).forEach(([packageName, installedPackage]) => {
+  const nodeEngine = installedPackage.engines?.node;
+
+  if (!nodeEngine || !semver.satisfies(process.version, nodeEngine)) {
+    errors.push(`${packageName} Node engine ${nodeEngine || '<missing>'} does not accept ${process.version}`);
+  }
+});
 
 if (devDependencies['@eslint/js'] !== '10.0.1') {
   errors.push(
@@ -106,6 +157,17 @@ requireRuleValue('@typescript-eslint/no-unused-expressions', 'off');
 requireRuleValue('no-unused-vars', 'off');
 requireRuleValue('@typescript-eslint/no-unused-vars', 'off');
 requireRuleValue('@typescript-eslint/no-unsafe-function-type', 'warn');
+
+try {
+  const eslint = new ESLint({ cwd: root });
+  const calculatedConfig = await eslint.calculateConfigForFile('src/Navigator.tsx');
+
+  if (!calculatedConfig?.plugins?.['@typescript-eslint']) {
+    errors.push('ESLint flat config must load the @typescript-eslint plugin for TypeScript sources');
+  }
+} catch (error) {
+  errors.push(`ESLint flat config failed to load through the ESLint API: ${error.message}`);
+}
 
 if (errors.length > 0) {
   console.error('ESLint config compatibility check failed:');
