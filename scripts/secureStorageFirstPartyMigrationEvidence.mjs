@@ -32,7 +32,8 @@ export const sha256MigrationInputs = root => {
 
     hash.update(relativePath.replace(/\\/g, '/'));
     hash.update('\0');
-    hash.update(readFileSync(filePath));
+    const canonicalText = readFileSync(filePath, 'utf8').replace(/\r\n?/g, '\n');
+    hash.update(canonicalText, 'utf8');
     hash.update('\0');
   }
 

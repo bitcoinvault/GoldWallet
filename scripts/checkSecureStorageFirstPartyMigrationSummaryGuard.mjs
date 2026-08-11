@@ -1,7 +1,12 @@
-import { readFileSync } from 'fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import {
+  migrationInputPaths,
+  sha256MigrationInputs,
+} from './secureStorageFirstPartyMigrationEvidence.mjs';
 import { getSecureStorageFirstPartyMigrationSummaryErrors } from './secureStorageFirstPartyMigrationSummaryGuard.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -74,6 +79,34 @@ assert(
   ),
   'Inaccessible migrated wallet must fail',
 );
+
+const lineEndingFixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-migration-evidence-'));
+const lfRoot = path.join(lineEndingFixtureRoot, 'lf');
+const crlfRoot = path.join(lineEndingFixtureRoot, 'crlf');
+
+try {
+  for (const relativePath of migrationInputPaths) {
+    const lfPath = path.join(lfRoot, relativePath);
+    const crlfPath = path.join(crlfRoot, relativePath);
+    mkdirSync(path.dirname(lfPath), { recursive: true });
+    mkdirSync(path.dirname(crlfPath), { recursive: true });
+    writeFileSync(lfPath, 'first line\nsecond line\n');
+    writeFileSync(crlfPath, 'first line\r\nsecond line\r\n');
+  }
+
+  assert(
+    sha256MigrationInputs(lfRoot) === sha256MigrationInputs(crlfRoot),
+    'Migration source hash must be stable across LF and CRLF checkouts',
+  );
+
+  writeFileSync(path.join(crlfRoot, migrationInputPaths[0]), 'changed content\r\n');
+  assert(
+    sha256MigrationInputs(lfRoot) !== sha256MigrationInputs(crlfRoot),
+    'Migration source hash must still reject content changes',
+  );
+} finally {
+  rmSync(lineEndingFixtureRoot, { recursive: true, force: true });
+}
 
 const runner = readFileSync(path.join(root, 'scripts', 'runSecureStorageFirstPartyMigrationValidation.mjs'), 'utf8');
 for (const marker of [
