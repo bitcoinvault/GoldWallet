@@ -19,7 +19,7 @@ const packageJson = JSON.parse(read('package.json'));
 
 assert.strictEqual(
   packageJson.devDependencies['@googleapis/androidpublisher'],
-  '36.0.0',
+  '37.0.0',
   'Use the pinned official Android Publisher API client',
 );
 
@@ -37,6 +37,14 @@ assert.strictEqual(
   'node scripts/checkAndroidPlayCandidateArtifactGuard.mjs',
 );
 assert.strictEqual(
+  packageJson.scripts['check:google-api-tooling-cohort'],
+  'node scripts/checkGoogleApiToolingCohort.mjs',
+);
+assert(
+  packageJson.scripts['android:release-readiness:check-light'].includes('yarn check:google-api-tooling-cohort'),
+  'Android release readiness must validate the Google API tooling cohort',
+);
+assert.strictEqual(
   packageJson.scripts['android:play:internal:dry-run'],
   'node scripts/runAndroidPlayInternalHandoff.mjs',
 );
@@ -51,6 +59,7 @@ assert.strictEqual(
 
 const runner = read('scripts/runAndroidPlayInternalHandoff.mjs');
 assert(runner.includes('runAndroidPlayEditWorkflow'));
+assert(runner.includes('assertGoogleApiToolingCohort'));
 assert(runner.includes('acquireAndroidPlayRunLock'));
 assert(runner.includes('createAndroidPlayCandidateSnapshot'));
 assert(runner.includes('expectedAabSha256: candidateSnapshot.sha256'));
@@ -68,10 +77,24 @@ assert(signedBundleRunner.includes('GOLDWALLET_PLAY_LOCK_TOKEN'));
 assert(signedBundleRunner.includes('if (standalonePlayLock) standalonePlayLock.release()'));
 assert(!runner.includes('private_key'), 'Runner must not print or parse service-account private key material');
 const playDryRunIndex = runner.indexOf('if (!options.execute)');
+const googleApiPreflightIndex = runner.indexOf('assertGoogleApiToolingCohort();');
 const electrumReleaseGateIndex = runner.indexOf("['scripts/auditElectrumEndpointReadiness.mjs', '--require-ready']");
 const signedBundleIndex = runner.indexOf("['scripts/runAndroidSignedBundle.mjs']");
 const signedBundleSummaryIndex = runner.indexOf('scripts/checkAndroidProductionSignedBundleSummary.mjs');
 assert(electrumReleaseGateIndex > playDryRunIndex, 'Play dry-run must finish before the live Electrum release gate');
+assert(googleApiPreflightIndex > 0, 'Google API tooling preflight must run');
+assert(
+  googleApiPreflightIndex < electrumReleaseGateIndex,
+  'Google API tooling preflight must pass before the Electrum gate',
+);
+assert(
+  googleApiPreflightIndex < signedBundleIndex,
+  'Google API tooling preflight must pass before the signed AAB build',
+);
+assert(
+  googleApiPreflightIndex < runner.indexOf('new auth.GoogleAuth'),
+  'Google API tooling preflight must pass before Google authentication',
+);
 assert(electrumReleaseGateIndex < signedBundleIndex, 'Electrum release gate must pass before the signed AAB build');
 assert(signedBundleSummaryIndex > signedBundleIndex, 'Candidate-bound runtime evidence must be checked after the signed AAB build');
 assert(
