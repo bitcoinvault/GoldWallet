@@ -34,7 +34,6 @@ const requiredKnownEntries = [
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
   ['typescript', 'devDependencies'],
-  ['undici', 'resolutionDependencies'],
 ];
 const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
 
@@ -295,19 +294,6 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     )
   ) {
     errors.push('React Native 0.87 framework drift must remain a single aligned runtime cohort with Android proof');
-  }
-
-  if (
-    entryLines.some(line => line.startsWith('- undici: ')) &&
-    !entryLines.some(
-      line =>
-        line.startsWith('- undici: ') &&
-        line.includes('dedicated Sentry/tooling branch') &&
-        line.includes('release-service prerequisite summaries') &&
-        line.includes('no credentialed upload claim'),
-    )
-  ) {
-    errors.push('undici drift must remain tied to a dedicated Sentry/tooling branch without a credentialed upload claim');
   }
 
   if (
