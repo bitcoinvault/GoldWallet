@@ -17,6 +17,7 @@ import {
   acquireAndroidPlayRunLock,
   createAndroidPlayCandidateSnapshot,
 } from './androidPlayCandidateArtifact.mjs';
+import { assertGoogleApiToolingCohort } from './googleApiToolingCohort.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const summaryPath = path.join(root, 'local-docs', 'android-play-internal-handoff-summary.txt');
@@ -79,6 +80,7 @@ let candidateSnapshot;
 let candidateConfirmationMatches = false;
 try {
   const options = parseAndroidPlayHandoffArgs(process.argv.slice(2));
+  assertGoogleApiToolingCohort();
   readiness = resolveAndroidPlayInternalHandoff({ root, options });
   mkdirSync(path.dirname(summaryPath), { recursive: true });
 

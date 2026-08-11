@@ -10,6 +10,54 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.968 - Google API tooling cohort
+
+- Branch: `feature/bem-37-968-google-api-tooling-cohort`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the official Node-only Google API clients as one tooling cohort: `@googleapis/androidpublisher` from `36.0.0` to latest checked `37.0.0` and `googleapis` from `173.0.0` to latest checked `174.0.1`.
+- Add one credential-free cohort check covering the exact installed versions, shared Google API dependency line, Android Publisher edit methods, the complete Gmail OAuth helper surface, and exclusion from the tracked mobile runtime dependency/import surface.
+- Wire the cohort check into Android release-readiness and refresh the pinned Play handoff contract without changing the upload, track-preservation, commit-confirmation, or credential boundaries.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-11 reports Android Publisher `37.0.0` and `googleapis 174.0.1` as current latest stable releases. Both support the repository Node `24.16.0` baseline.
+- Android Publisher `37.0.0` is a generated breaking release, but the complete GoldWallet surface remains available: `auth.GoogleAuth`, `edits.insert`, `edits.bundles.upload`, `edits.tracks.get`, `edits.tracks.update`, `edits.validate`, `edits.commit`, and `edits.delete`.
+- `googleapis 174.0.1` preserves the complete Gmail helper surface used by the repository: `google.auth.OAuth2`, `generateAuthUrl`, `getToken`, and `setCredentials`. No credential exchange or network request is required by the cohort probe.
+- Both direct packages resolve `googleapis-common@8.0.1`. The owner graph keeps hoisted `gaxios@7.1.4` and one nested `gaxios@7.1.3` under `gcp-metadata`; both actual client construction paths pass, so no unsupported resolution override or manual deduplication is introduced.
+- The clients remain exact `devDependencies`. The persistent guard enumerates tracked JavaScript/TypeScript sources, excludes only known tooling/test/config paths, rejects bare and subpath static, CommonJS, side-effect, and dynamic imports across all mobile runtime roots, and exercises positive/negative parser fixtures. There is no React Native, React, Android native, or iOS runtime API change.
+- The direct Play runner invokes the reusable package/API compatibility assertion before the Electrum gate, AAB build, Google authentication, or edit creation. Upload and commit commands therefore cannot bypass the same client-surface preflight used by the aggregate release-readiness gate.
+- The full Play fake-client guard and secret-safe internal-track dry-run pass. Execution remains fail-closed on three existing prerequisites: release version `6.5.1` is not above public Play `6.5.2`, upload signing is absent, and no ignored Play service-account JSON is configured. No Google authentication, edit, upload, validation, or commit was attempted.
+- The online direct-outdated snapshot falls from `30` to `28` entries and removes both Google packages. It intentionally remains red with one unrelated review-required entry, `@types/jsdom@30.0.0`, which belongs to a separate E2E mail-parser milestone.
+- The first Android debug build stopped in slider codegen because Windows could not initialize a child `cmd` process and returned `-1073741502` / `0xC0000142`. The exact task passed unchanged with one Gradle worker, and the complete retry then built successfully; this was a transient process-start failure rather than a package/API incompatibility.
+- JDK 17 debug assembly and the complete `dev`, `stage`, `prod`, and `beta` release matrix pass. The release-input fingerprint is `ad875a4b6af3fd53b68655b57b7f955f757ae80339c4db41bf39775ae3ba9ff7` across `513` files. Source APK hashes are `e120a6aa604099c31c86e4bbaed00b61d91de5317c8c6a5f9d673f3b0903832d` (`dev`), `db5694c0cda4eed53cf5c7afa20352e342e9584da3f720c12a761fb988b86ca9` (`stage`), `9c4cd979a3140e43490067ece61e63b98b2ebff30a9d3c3b5941c9f2df10eba1` (`prod`), and `a5ed18eb4353580311064dc91911fa54d83328b41ab83eceb8130836ab61f3e9` (`beta`). Bundle, source-map, manifest, secure-storage, and retired App Center checks pass for every variant.
+- The exact locally signed `prodRelease` APK with SHA-256 `71422fb362be4337fefeb9a37db20dec5054dc307896b0a543b9d54fdd289975` passes clean onboarding, Create/Import stack transitions, QR scanner open/close, all four tabs, and Settings Terms WebView on `emulator-5554` without Metro. No fatal/runtime logcat findings were reported, and visual inspection of the final screenshot found no layout overlap or broken surface.
+- iOS files and native dependencies are unchanged. iOS runtime/archive validation remains separately blocked on macOS/Xcode/CocoaPods and is not claimed by this Node-tooling milestone.
+
+Validation:
+
+- live npm manifests and published Android Publisher changelog/diff inspection
+- Node `24.16.0` `corepack yarn install --frozen-lockfile`
+- `corepack yarn check:google-api-tooling-cohort`
+- `corepack yarn check:android-play-internal-handoff-guard`
+- `corepack yarn android:release-readiness:check-light`
+- `corepack yarn android:play:internal:dry-run`
+- `corepack yarn android:play:internal:check-summary`
+- `corepack yarn direct-outdated:snapshot:audit` (expected aggregate failure retained only for the separate `@types/jsdom` decision and stale aggregate contract)
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `corepack yarn android:dev:assemble`
+- JDK 17 `SENTRY_DISABLE_AUTO_UPLOAD=true corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+- visual inspection of `local-docs/android-smoke-prod-release.png`
+
 ### BEM-37.967 - React Navigation and native navigation cohort
 
 - Branch: `feature/bem-37-967-navigation-native-cohort`

@@ -26,7 +26,7 @@ All modernization work should be developed on focused task branches and merged i
 - jest-environment-node: `30.4.1`
 - ts-jest: `29.4.12`
 - Detox: `20.51.4`
-- Google Play Android Publisher client: `@googleapis/androidpublisher 36.0.0` (release tooling only)
+- Google API tooling: `@googleapis/androidpublisher 37.0.0` for Play release handoff and `googleapis 174.0.1` for the Gmail OAuth helper (Node-only development tooling)
 - RN Babel preset: `0.86.2`
 - RN Metro config: `0.86.2`
 - Android New Architecture: enabled
