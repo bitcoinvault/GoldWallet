@@ -15,6 +15,12 @@ const requiredKnownEntries = [
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
   ['@babel/traverse', 'resolutionDependencies'],
+  ['@react-native/babel-preset', 'devDependencies'],
+  ['@react-native/codegen', 'devDependencies'],
+  ['@react-native/gradle-plugin', 'devDependencies'],
+  ['@react-native/jest-preset', 'devDependencies'],
+  ['@react-native/metro-config', 'devDependencies'],
+  ['@react-native/typescript-config', 'devDependencies'],
   ['@types/react', 'resolutionDependencies'],
   ['@types/react', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
@@ -23,7 +29,6 @@ const requiredKnownEntries = [
   ['caniuse-lite', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
   ['plist', 'resolutionDependencies'],
-  ['protobufjs', 'resolutionDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
@@ -277,18 +282,19 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     errors.push('Prettier drift must remain tied to a dedicated formatting/tooling branch decision without broad formatting churn');
   }
 
+  const reactNativeFrameworkLines = entryLines.filter(line => line.startsWith('- @react-native/'));
   if (
-    entryLines.some(line => line.startsWith('- protobufjs: ')) &&
-    !entryLines.some(
+    reactNativeFrameworkLines.length > 0 &&
+    !reactNativeFrameworkLines.every(
       line =>
-        line.startsWith('- protobufjs: ') &&
-        line.includes('dedicated Firebase/storage-network branch') &&
-        line.includes('focused tests') &&
+        line.includes('React Native 0.87 framework packages must move together') &&
+        line.includes('dedicated RN 0.87 runtime branch') &&
+        line.includes('aligned codegen') &&
         line.includes('Android build') &&
         line.includes('emulator smoke proof'),
     )
   ) {
-    errors.push('protobufjs drift must remain tied to a dedicated Firebase/storage-network branch with focused and Android proof');
+    errors.push('React Native 0.87 framework drift must remain a single aligned runtime cohort with Android proof');
   }
 
   if (
