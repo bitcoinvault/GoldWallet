@@ -5,7 +5,7 @@ const validSummary = [
   'Generated at: 2026-05-31T00:00:00.000Z',
   'Node version: v24.16.0',
   'Expected Node version: v24.16.0',
-  'Entries: 24',
+  'Entries: 25',
   '- typescript: package 6.0.3, installed 6.0.3, latest 7.0.2, decision blocked - TypeScript 7 major drift requires a dedicated compiler branch with TypeScript check, Jest, lint baseline, and RN/Metro proof',
   '- jest: package 30.4.2, installed 30.4.2, latest 30.4.2, decision current - latest Jest runtime verified with RN preset environment resolutions and focused suites',
   '- babel-jest: package 30.4.1, installed 30.4.1, latest 30.4.1, decision current - latest Jest transformer verified with the Jest 30 runtime',
@@ -16,6 +16,7 @@ const validSummary = [
   '- babel-plugin-istanbul: package 8.0.0, installed 8.0.0, latest 8.0.0, decision current - latest coverage instrumentation verified with Jest coverage',
   '- mailosaur: package 11.1.1, installed 11.1.1, latest 11.1.1, decision current - latest E2E mail helper verified with TypeScript',
   '- jsdom: package 30.0.1, installed 30.0.1, latest 30.0.1, decision current - latest E2E mail DOM parser verified with TypeScript and helper probe',
+  '- @types/jsdom: package 30.0.0, installed 30.0.0, latest 30.0.0, decision current - latest JSDOM declarations verified against the E2E mail parser and TypeScript baseline',
   '- jetifier: package 2.0.0, installed 2.0.0, latest 2.0.0, decision current - latest AndroidX migration helper verified with postinstall, Android build, and emulator smoke',
   '- @typescript-eslint/eslint-plugin: package 8.65.0, installed 8.65.0, latest 8.65.0, decision current - parser/plugin pair verified through the ESLint 10 flat-config bridge',
   '- @typescript-eslint/parser: package 8.65.0, installed 8.65.0, latest 8.65.0, decision current - parser/plugin pair verified through the ESLint 10 flat-config bridge',
@@ -76,10 +77,10 @@ assertRejected(
   validSummary.replace('Node version: v24.16.0', 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 24', 'Entries: 2'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 25', 'Entries: 2'), 'Entries count');
 assertRejected(
   'Unexpected tooling package fixture',
-  validSummary.replace('Entries: 24', 'Entries: 25').replace(
+  validSummary.replace('Entries: 25', 'Entries: 26').replace(
     'Deferred entries: 0',
     '- extra-tooling: package 1.0.0, installed 1.0.0, latest 1.0.0, decision current - latest extra tooling\nDeferred entries: 0',
   ),
@@ -149,7 +150,12 @@ assertRejected(
 assertRejected(
   'Missing E2E mail DOM parser fixture',
   validSummary.replace('- jsdom:', '- missing-dom-parser:'),
-  'E2E mail DOM parser tooling',
+  'Missing tooling latest entry for jsdom',
+);
+assertRejected(
+  'Missing E2E mail DOM parser types fixture',
+  validSummary.replace('- @types/jsdom:', '- missing-dom-parser-types:'),
+  'Missing tooling latest entry for @types/jsdom',
 );
 assertRejected(
   'Missing AndroidX tooling fixture',

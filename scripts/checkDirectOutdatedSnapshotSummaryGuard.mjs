@@ -75,6 +75,15 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
+    name: '@babel/traverse',
+    current: '7.29.8',
+    wanted: '7.29.8',
+    latest: '8.0.4',
+    type: 'resolutionDependencies',
+    decision:
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+  },
+  {
     name: '@types/react',
     current: '19.2.17',
     wanted: '19.2.17',
@@ -82,6 +91,24 @@ const validEntries = [
     type: 'resolutionDependencies',
     decision:
       'blocked - React type patch drift must stay aligned with the React Native renderer baseline and move in a dedicated React/RN type branch with TypeScript and unit proof',
+  },
+  {
+    name: '@typescript-eslint/eslint-plugin',
+    current: '8.65.0',
+    wanted: '8.65.0',
+    latest: '8.67.0',
+    type: 'devDependencies',
+    decision:
+      'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
+  },
+  {
+    name: '@typescript-eslint/parser',
+    current: '8.65.0',
+    wanted: '8.65.0',
+    latest: '8.67.0',
+    type: 'devDependencies',
+    decision:
+      'blocked - TypeScript ESLint patch drift requires a dedicated lint/tooling branch with precommit, lint-staged, TypeScript, and baseline audit proof',
   },
   {
     name: '@types/react',
@@ -117,6 +144,15 @@ const validEntries = [
     decision: 'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   },
   {
+    name: 'caniuse-lite',
+    current: '1.0.30001806',
+    wanted: '1.0.30001806',
+    latest: '1.0.30001809',
+    type: 'resolutionDependencies',
+    decision:
+      'blocked - Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof',
+  },
+  {
     name: 'electrum-client',
     current: '2.0.0',
     wanted: 'exotic',
@@ -125,12 +161,30 @@ const validEntries = [
     decision: 'exotic - BitcoinVault Electrum fork is tracked by git dependency snapshot; keep network compatibility changes in a dedicated branch',
   },
   {
+    name: 'eslint',
+    current: '10.8.0',
+    wanted: '10.8.0',
+    latest: '10.8.1',
+    type: 'devDependencies',
+    decision:
+      'blocked - ESLint patch drift requires a dedicated lint/tooling branch with lint-staged, precommit, TypeScript, and baseline audit proof',
+  },
+  {
     name: 'plist',
     current: '3.1.1',
     wanted: '3.1.1',
     latest: '5.0.0',
     type: 'resolutionDependencies',
     decision: 'blocked - plist major drift belongs in a dedicated iOS/config tooling owner-path branch with xcode/config-plugin compatibility proof',
+  },
+  {
+    name: 'protobufjs',
+    current: '8.7.1',
+    wanted: '8.7.1',
+    latest: '8.7.2',
+    type: 'resolutionDependencies',
+    decision:
+      'blocked - protobufjs major drift belongs in a dedicated Firebase/storage-network branch with focused tests, Android build, and emulator smoke proof',
   },
   {
     name: 'react',
@@ -172,6 +226,15 @@ const validEntries = [
     type: 'devDependencies',
     decision: 'blocked - TypeScript 7 major drift requires a dedicated compiler branch with TypeScript check, Jest, lint baseline, and RN/Metro proof',
   },
+  {
+    name: 'undici',
+    current: '8.9.0',
+    wanted: '8.9.0',
+    latest: '8.10.0',
+    type: 'resolutionDependencies',
+    decision:
+      'blocked - undici minor drift belongs in a dedicated Sentry/tooling branch with release-service prerequisite summaries and no credentialed upload claim',
+  },
 ];
 
 const validSummary = formatDirectOutdatedSnapshotSummary(validEntries, '2026-07-05T00:00:00.000Z');
@@ -212,10 +275,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 20', 'Entries: 19'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 27', 'Entries: 26'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 20', 'Entries: 21').replace(
+  validSummary.replace('Entries: 27', 'Entries: 28').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -253,6 +316,16 @@ assertRejected(
   'Missing bl blocker fixture',
   validSummary.replace('CommonJS transitive consumers', 'generic major update'),
   'CommonJS transitive consumer',
+);
+assertRejected(
+  'Missing protobufjs owner-path fixture',
+  validSummary.replace('dedicated Firebase/storage-network branch', 'generic dependency branch'),
+  'dedicated Firebase/storage-network branch',
+);
+assertRejected(
+  'Missing undici owner-path fixture',
+  validSummary.replace('dedicated Sentry/tooling branch', 'generic dependency branch'),
+  'dedicated Sentry/tooling branch',
 );
 assertRejected(
   'Secret printed fixture',

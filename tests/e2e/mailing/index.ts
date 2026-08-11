@@ -1,7 +1,7 @@
-import { JSDOM } from 'jsdom';
 import mailosaur from 'mailosaur';
 import type { SearchCriteria, Message } from 'mailosaur';
 
+import { getCodeFromHtmlBody } from '../../helpers/parseVerificationCode';
 import { envData } from '../data';
 
 const API_KEY = process.env['MAILOSAUR_API_KEY'];
@@ -57,7 +57,7 @@ const mailing: Mailing = {
       subject,
     });
 
-    return getCodeFormHtmlBody(message.html!.body!);
+    return getCodeFromHtmlBody(message.html!.body!);
   },
 
   async ignoreEmail(email: string) {
@@ -94,22 +94,6 @@ async function getMessage(criteria: SearchCriteria): Promise<Message> {
  */
 async function deleteMessage(id: string): Promise<void> {
   return client.messages.del(id);
-}
-
-/**
- * Parses provided html and returns verification code
- * @param {string} htmlBody
- * @returns {string} code found in provided html
- */
-function getCodeFormHtmlBody(htmlBody: string): string {
-  const dom = new JSDOM(htmlBody);
-  const pinCodeElement = dom.window.document.querySelector('#id_pincode');
-
-  if (!pinCodeElement?.textContent) {
-    throw new Error('Email verification code element #id_pincode was not found.');
-  }
-
-  return pinCodeElement.textContent;
 }
 
 export default mailing;

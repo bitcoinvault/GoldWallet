@@ -10,6 +10,52 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.969 - JSDOM type and outdated-contract refresh
+
+- Branch: `feature/bem-37-969-jsdom-types-30`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the E2E-only JSDOM declarations from `@types/jsdom@28.0.3` to latest checked `30.0.0`, aligned with the existing `jsdom@30.0.1` runtime.
+- Add a credential-free cohort guard for exact package placement, installed versions, declaration dependencies, and the Mailosaur verification-code helper contract, backed by focused tests of the actual shared parser.
+- Refresh the exact direct-outdated guard fixture from 20 to the current 27 known entries without upgrading the seven independently blocked owner paths.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-11 reports `@types/jsdom@30.0.0` as latest and explicitly published for TypeScript 6; the repository uses TypeScript `6.0.3` and Node `24.16.0`.
+- The declaration update moves only its type-side `undici-types` owner path from 7.x to `8.10.0`; application runtime and Metro dependencies remain unchanged.
+- The complete repository TypeScript check accepts the E2E Mailosaur helper, while the focused parser suite exercises the actual shared `getCodeFromHtmlBody` implementation for positive, missing-element, and empty-element paths.
+- The tooling latest snapshot now tracks 25 packages and includes `@types/jsdom` beside its runtime owner rather than relying on documentation-only version drift detection.
+- The live direct-outdated snapshot reports 27 entries: 23 have explicit compatibility blockers, 4 are exotic/git-pinned wallet dependencies, and 0 require an unclassified decision.
+- The full dev emulator smoke installed and launched the embedded APK, completed Terms, PIN, transaction-password, and email-skip onboarding, then stopped at the controlled `No network` screen. The guarded blocker audit attributes this to the expired dev/testnet Electrum TLS certificate for `electrumx.testnet.btcv.stage.rnd.land:443` (expired 2026-06-23), not to a JavaScript or Android runtime crash.
+- The dedicated no-network smoke passed on `emulator-5554` with the expected UI and no fatal/runtime logcat findings. This is reduced blocker proof only; dashboard, Camera/QR, tab, and Terms WebView validation remain unclaimed until the Electrum certificate is fixed and the full smoke is rerun.
+
+Validation:
+
+- `npm view @types/jsdom version engines peerDependencies dependencies dist-tags time --json`
+- `corepack yarn install --frozen-lockfile`
+- `corepack yarn check:jsdom-types-cohort`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded` on `Medium_Phone_API_36.0` (blocked after onboarding by the expired dev/testnet Electrum certificate)
+- `corepack yarn android:dev:smoke:no-network:embedded` on `Medium_Phone_API_36.0` (passed reduced no-network runtime proof)
+- `corepack yarn check:android-dev-network-blocker-summary-guard`
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.968 - Google API tooling cohort
 
 - Branch: `feature/bem-37-968-google-api-tooling-cohort`

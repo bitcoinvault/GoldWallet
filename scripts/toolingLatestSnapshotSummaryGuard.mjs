@@ -42,6 +42,7 @@ const requiredToolingEntries = [
   'babel-plugin-istanbul',
   'mailosaur',
   'jsdom',
+  '@types/jsdom',
   'jetifier',
   '@typescript-eslint/eslint-plugin',
   '@typescript-eslint/parser',
@@ -186,6 +187,10 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
 
   if (!entryLines.some(line => line.includes('jsdom'))) {
     errors.push('summary must include E2E mail DOM parser tooling');
+  }
+
+  if (!entryLines.some(line => line.startsWith('@types/jsdom: package '))) {
+    errors.push('summary must include E2E mail DOM parser type tooling');
   }
 
   if (!entryLines.some(line => line.includes('jetifier'))) {
