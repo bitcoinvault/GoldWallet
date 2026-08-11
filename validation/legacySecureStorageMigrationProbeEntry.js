@@ -1,25 +1,43 @@
 const { NativeModules } = require('react-native');
 
-const legacySecureKeyStore = NativeModules.RNSecureKeyStore;
-const originalRemove = legacySecureKeyStore?.remove?.bind(legacySecureKeyStore);
+const legacySecureStorage = NativeModules.GoldWalletLegacySecureStorage;
+const originalGet = legacySecureStorage?.get?.bind(legacySecureStorage);
+const originalRemove = legacySecureStorage?.remove?.bind(legacySecureStorage);
 
-if (!originalRemove) {
-  throw new Error('Historical migration probe requires the RNSecureKeyStore native module.');
+if (!originalGet || !originalRemove) {
+  throw new Error('Historical migration probe requires the first-party migration bridge.');
 }
 
 global.GOLDWALLET_LEGACY_STORAGE_MIGRATION_PROBE_ENTRY = true;
 
-legacySecureKeyStore.remove = async key => {
+legacySecureStorage.get = async key => {
+  const value = await originalGet(key);
+
+  if (value != null) {
+    console.warn(`GOLDWALLET_LEGACY_MIGRATION_FOUND:${key}`);
+  }
+
+  return value;
+};
+
+legacySecureStorage.remove = async key => {
   const result = await originalRemove(key);
 
+  console.warn(`GOLDWALLET_LEGACY_MIGRATION_MIGRATED:${key}`);
   console.warn(`GOLDWALLET_LEGACY_MIGRATION_REMOVED:${key}`);
   return result;
 };
 
-setTimeout(() => {
-  ['pin', 'transactionPassword', 'data_encrypted', 'data'].forEach(key => {
-    legacySecureKeyStore.get(key).catch(() => undefined);
-  });
+setTimeout(async () => {
+  for (const key of ['pin', 'transactionPassword', 'data_encrypted', 'data']) {
+    try {
+      const value = await originalGet(key);
+
+      console.warn(`GOLDWALLET_LEGACY_MIGRATION_ABSENT:${key}:${value == null ? 'yes' : 'no'}`);
+    } catch (_) {
+      console.warn(`GOLDWALLET_LEGACY_MIGRATION_ABSENT:${key}:error`);
+    }
+  }
 }, 12000);
 
 require('../index');

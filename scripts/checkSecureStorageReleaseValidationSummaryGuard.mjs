@@ -7,6 +7,8 @@ const validSummary = [
   'Legacy secure-storage package: <removed>',
   'Migration summary valid: yes',
   'Removal readiness summary valid: yes',
+  'First-party migration summary present: yes',
+  'First-party migration summary valid: yes',
   'Android dev smoke summary present: yes',
   'Android dev smoke summary valid: yes',
   'Android smoke artifact base: android-smoke-dev',
@@ -25,11 +27,11 @@ const validSummary = [
   'Full Android runtime proof ready: yes',
   'Focused validation script: test:storage-network:focused',
   'Keychain primary write: yes',
-  'Legacy fallback reads active: no',
+  'Legacy fallback reads active: yes',
   'Legacy writes disabled: yes',
-  'Legacy cleanup after successful migration: no',
-  'Legacy fallback instrumentation active: no',
-  'Removal release validation claimed: yes',
+  'Legacy cleanup after successful migration: yes',
+  'Legacy fallback instrumentation active: yes',
+  'Removal release validation claimed: no',
   'Legacy package removal ready: yes',
   'Android warning source still expected: no',
   'Migration summary errors: 0',
@@ -37,11 +39,12 @@ const validSummary = [
   'Android dev smoke summary errors: 0',
   'Android release smoke summary errors: 0',
   'Android release create-wallet smoke summary errors: 0',
-  'Android release network blocker summary errors: 0',
+  'Android dev network blocker summary errors: 0',
+  'First-party migration summary errors: 0',
   'Secure-storage release validation evidence ready: yes',
   'Android release evidence ready: yes',
   'Secret values printed: no',
-  'Required action: none; keep the validated Keychain-only secure-storage baseline.',
+  'Required action: keep the first-party migration bridge through a validated cross-platform rollout window before removing fallback reads.',
   '',
 ].join('\n');
 
@@ -80,8 +83,8 @@ const controlledBlockerSummary = validSummary
   .replace('Android release create-wallet smoke summary errors: 0', 'Android release create-wallet smoke summary errors: 2')
   .replace('Android release evidence ready: yes', 'Android release evidence ready: no')
   .replace(
-    'Required action: none; keep the validated Keychain-only secure-storage baseline.',
-    'Required action: fix the dev/testnet Electrum TLS certificate and rerun full Android dev and release smoke; keep the validated Keychain-only secure-storage baseline.',
+    'Required action: keep the first-party migration bridge through a validated cross-platform rollout window before removing fallback reads.',
+    'Required action: fix the dev/testnet Electrum TLS certificate and rerun full Android dev and release smoke; keep the first-party migration bridge through a validated cross-platform rollout window.',
   );
 
 const assertAccepted = (label, summary) => {
@@ -112,6 +115,16 @@ assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026
 assertRejected('Bad current package fixture', validSummary.replace('react-native-keychain@10.0.0', 'react-native-keychain@9.0.0'), 'Current secure-storage package');
 assertRejected('Invalid migration summary fixture', validSummary.replace('Migration summary valid: yes', 'Migration summary valid: no'), 'Migration summary must be valid');
 assertRejected('Invalid removal summary fixture', validSummary.replace('Removal readiness summary valid: yes', 'Removal readiness summary valid: no'), 'Removal readiness summary must be valid');
+assertRejected(
+  'Missing first-party migration fixture',
+  validSummary.replace('First-party migration summary present: yes', 'First-party migration summary present: no'),
+  'First-party migration summary must be present',
+);
+assertRejected(
+  'Invalid first-party migration fixture',
+  validSummary.replace('First-party migration summary valid: yes', 'First-party migration summary valid: no'),
+  'First-party migration summary must be valid',
+);
 assertRejected('Missing smoke fixture', validSummary.replace('Android dev smoke summary present: yes', 'Android dev smoke summary present: no'), 'Android dev smoke summary must be present');
 assertRejected('Failed smoke fixture', validSummary.replace('Android smoke outcome: passed', 'Android smoke outcome: failed'), 'Android smoke outcome must be passed');
 assertRejected(
@@ -139,13 +152,13 @@ assertRejected(
   controlledBlockerSummary.replace('Full Android runtime proof ready: no', 'Full Android runtime proof ready: yes'),
   'Full Android runtime proof must remain no',
 );
-assertRejected('Fallback restored fixture', validSummary.replace('Legacy fallback reads active: no', 'Legacy fallback reads active: yes'), 'Legacy fallback reads must remain disabled');
+assertRejected('Fallback removed fixture', validSummary.replace('Legacy fallback reads active: yes', 'Legacy fallback reads active: no'), 'Legacy fallback reads must remain active');
 assertRejected(
   'No fallback instrumentation fixture',
-  validSummary.replace('Legacy fallback instrumentation active: no', 'Legacy fallback instrumentation active: yes'),
+  validSummary.replace('Legacy fallback instrumentation active: yes', 'Legacy fallback instrumentation active: no'),
   'Legacy fallback instrumentation',
 );
-assertRejected('Removal unclaimed fixture', validSummary.replace('Removal release validation claimed: yes', 'Removal release validation claimed: no'), 'Removal release validation must remain claimed');
+assertRejected('Removal overclaimed fixture', validSummary.replace('Removal release validation claimed: no', 'Removal release validation claimed: yes'), 'must remain unclaimed');
 assertRejected('Removal not ready fixture', validSummary.replace('Legacy package removal ready: yes', 'Legacy package removal ready: no'), 'Legacy package removal must remain ready');
 assertRejected('Secret printed fixture', validSummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');
 

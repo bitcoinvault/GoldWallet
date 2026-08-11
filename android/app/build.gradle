@@ -202,6 +202,7 @@ repositories {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation("com.facebook.react:react-android")
+    implementation "androidx.security:security-crypto:1.1.0"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     androidTestImplementation('com.wix:detox:20.51.4')
 

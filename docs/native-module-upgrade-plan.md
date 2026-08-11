@@ -107,10 +107,11 @@ Branch shape:
 - `react-native-device-info` is on checked `15.0.2` after `BEM-37.109`; the app's used APIs remain available (`isEmulator`, `isPinOrFingerprintSet`, app/build metadata), and the package no longer contributes an Android `jcenter()` warning.
 - `react-native-exit-app` is on checked `2.0.0` after `BEM-37.106`; the package no longer contributes an Android `jcenter()` warning on the RN `0.86.2` baseline. Future exit-app work should validate factory reset and terms rejection behavior.
 - `react-native-localize` is on checked `3.7.0` after `BEM-37.107`; the package no longer contributes an Android `jcenter()` warning on the RN `0.86.2` baseline. Future localization work should focus on app language behavior and RN baseline changes.
-- `react-native-keychain@10.0.0` is the only secure-storage backend after the guarded historical migration and fallback-free upgrade-in-place validation.
-- `corepack yarn check:secure-storage-legacy-removal` prevents the removed package, adapter, environment switch, and runtime fallback references from returning.
-- `corepack yarn secure-storage:release-validation:handoff` validates the final Keychain-only posture and focused wallet storage contracts.
-- `tests/integration/Storage.test.js` locks the React Native `AppStorage` Keychain-only contract for encrypted wallet data.
+- `react-native-keychain@10.0.0` is the only current write backend. A first-party read/remove-only bridge keeps the exact historical Android and iOS schemas available during the migration rollout window without restoring `react-native-secure-key-store`.
+- `corepack yarn check:secure-storage-legacy-removal` prevents the removed package and adapter from returning while requiring Android/iOS bridge registration, historical schema markers, fail-closed Keychain-read handling, deletion-marker protection, native commit checking, and awaited factory-reset cleanup.
+- `corepack yarn secure-storage:release-validation:handoff` validates the Keychain-primary migration-window posture and focused wallet storage contracts.
+- `corepack yarn secure-storage:first-party-migration:verify` proves Android `prodRelease` upgrade-in-place from a retained historical seed without clearing app data. iOS runtime migration remains a macOS handoff and first-party fallback removal is not ready.
+- `tests/integration/Storage.test.js` locks the React Native `AppStorage` Keychain-first and legacy-migration contract for encrypted wallet data.
 - `react-native-tcp-socket` is on the latest checked `6.4.2` after `BEM-37.932`; future socket/config branches should focus on Electrum/network behavior rather than another blind package bump.
 - `react-native-randombytes` was removed after the dedicated crypto/runtime replacement branch; random values are provided by `react-native-get-random-values@2.0.0`, imported in `index.js` before app startup.
 - `react-native-version-number` is pinned to the already-resolved `0.3.6` after `BEM-36.69`; future app metadata work should validate displayed/build version behavior on both platforms.

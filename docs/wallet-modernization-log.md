@@ -2738,6 +2738,45 @@ Validation:
 - `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:modernization-log-ids`
 - `git diff --check`
 
+### BEM-37.973 - Secure-storage rollout safety
+
+- Branch: `feature/bem-37-973-secure-storage-rollout-safety`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Replace the unsafe fallback-free posture with a first-party, read/remove-only migration bridge for the exact historical Android EncryptedSharedPreferences and iOS Keychain schemas.
+- Keep every new write in `react-native-keychain@10.0.0`, migrate on read, and remove a historical value only after its Keychain write succeeds.
+- Add repeatable Android historical upgrade-in-place validation and fail-closed release/removal guards without restoring the retired third-party package.
+
+Findings:
+
+- The retained historical `prodRelease` seed stored PIN, transaction-password hash, encrypted flag, and wallet data only in `secret_shared_prefs`. The current locally signed `prodRelease` installed over it with `adb install -r` without clearing app data.
+- All four values migrated through `GoldWalletLegacySecureStorage`, were absent from the historical store after successful Keychain writes, and the existing wallet remained accessible after storage-password and PIN verification. Incorrect PIN rejection and fatal/runtime logcat checks passed.
+- Review hardening separates a confirmed Keychain miss from a Keychain read error, so a transient current-backend failure cannot overwrite newer state with a stale legacy value.
+- Explicit deletion now writes a Keychain deletion marker before attempting legacy cleanup. Failed cleanup leaves the marker active and cannot restore deleted PIN, transaction-password, encrypted-flag, or wallet data; factory reset awaits both secure-storage deletions before exiting.
+- Android rejects a failed `EncryptedSharedPreferences.commit()`. The focused contracts now include 17 secure-storage unit tests, 14 storage integration tests, and an awaited factory-reset regression test.
+- Historical runtime proof is bound to a unique run ID, candidate APK SHA-256, and deterministic migration-input SHA-256. Resume verifies its checkpoint and the installed historical seed APK hash rather than trusting a package PID or stale local summary.
+- The dev debug APK builds and completes Terms, PIN, transaction-password, and email onboarding. Full dashboard proof remains externally blocked by the dev/testnet Electrum TLS certificate expired on 2026-06-23; the dedicated no-network smoke passes and the blocker audit is valid.
+- The iOS bridge uses historical service `RNSecureKeyStoreKeyChain` with account/generic attributes based on the encoded key and belongs to all four app target source phases. The removed third-party pod was deleted from `ios/Podfile.lock`; 13 unrelated active version drifts remain.
+- iOS migration runtime and migration-release deployment/adoption are not proven on Windows. The first-party bridge must remain until those cross-platform rollout gates pass.
+
+Validation:
+
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn install --frozen-lockfile`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn typescript:check`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn test:storage-network:focused`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% node node_modules/jest/bin/jest.js tests/unit/factoryReset.test.js --runInBand --forceExit`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-legacy-removal`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn check:secure-storage-first-party-migration-summary-guard`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:embedded` reached the classified external certificate blocker after successful onboarding
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% ANDROID_SECURE_STORAGE_HISTORICAL_SEED_APK=<ignored-seed-apk> ANDROID_SERIAL=emulator-5554 corepack yarn secure-storage:first-party-migration:verify`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn secure-storage:release-validation:summary` and `secure-storage:release-validation:check-summary`
+- `PATH=D:\tmp\node\node-v24.16.0-win-x64;%PATH% corepack yarn ios:release:readiness:audit` and `ios:release:readiness:check-summary`
+- `git diff --check`
+
 ### BEM-37.902 - Protobufjs 8.7.1 Firebase owner-path patch
 
 - Branch: `feature/bem-37-902-protobufjs-8-7-1`

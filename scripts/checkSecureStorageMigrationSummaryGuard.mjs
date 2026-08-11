@@ -10,13 +10,14 @@ const validSummary = [
   'Stores PIN: yes',
   'Stores transaction password hash: yes',
   'Keychain primary write: yes',
-  'Legacy secure-storage fallback reads active: no',
-  'Legacy secure-storage runtime removed: yes',
+  'Legacy secure-storage fallback reads active: yes',
+  'Legacy third-party runtime removed: yes',
+  'First-party migration bridge active: yes',
   'Focused validation script: test:storage-network:focused',
   'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
   'Secure-storage migration baseline stable: yes',
   'Errors: 0',
-  'Required action: none; keep secure storage on the validated Keychain-only baseline.',
+  'Required action: keep the first-party migration bridge through a validated cross-platform rollout window.',
   '',
 ].join('\n');
 
@@ -27,6 +28,7 @@ const assertRejected = (summary, expected) => {
 
 if (getSecureStorageMigrationSummaryErrors(validSummary).length > 0) throw new Error('Valid secure-storage migration fixture was rejected');
 assertRejected(validSummary.replace('Legacy secure-storage package: <removed>', 'Legacy secure-storage package: react-native-secure-key-store@2.0.10'), 'must be <removed>');
-assertRejected(validSummary.replace('Legacy secure-storage fallback reads active: no', 'Legacy secure-storage fallback reads active: yes'), 'must be no');
-assertRejected(validSummary.replace('Legacy secure-storage runtime removed: yes', 'Legacy secure-storage runtime removed: no'), 'must be yes');
+assertRejected(validSummary.replace('Legacy secure-storage fallback reads active: yes', 'Legacy secure-storage fallback reads active: no'), 'must be yes');
+assertRejected(validSummary.replace('Legacy third-party runtime removed: yes', 'Legacy third-party runtime removed: no'), 'must be yes');
+assertRejected(validSummary.replace('First-party migration bridge active: yes', 'First-party migration bridge active: no'), 'must be yes');
 console.log('Secure-storage migration summary guard checks are valid.');

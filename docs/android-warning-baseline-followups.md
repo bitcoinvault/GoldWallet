@@ -11,7 +11,7 @@ Checked on: 2026-07-15
 
 No targeted Android Gradle warning sources remain.
 
-The final tracked source, `react-native-secure-key-store`, was removed after the historical legacy-only migration proof validated PIN, transaction-password, encrypted-flag, and wallet-data migration into Keychain followed by an upgrade to a fallback-free release.
+The final tracked warning source, `react-native-secure-key-store`, remains removed. `BEM-37.973` replaces its unsafe fallback-free posture with a first-party read/remove-only migration bridge: Android historical PIN, transaction-password, encrypted-flag, and wallet-data migration is validated, while iOS runtime migration and rollout adoption still block removal of the bridge.
 
 ## Decisions
 

@@ -62,8 +62,9 @@ assert(
 
 const partialReadyMigrationSummary = [
   'Keychain primary write: yes',
-  'Legacy secure-storage fallback reads active: no',
-  'Legacy secure-storage runtime removed: yes',
+  'Legacy secure-storage fallback reads active: yes',
+  'Legacy third-party runtime removed: yes',
+  'First-party migration bridge active: yes',
   'Secure-storage migration baseline stable: yes',
 ].join('\n');
 
@@ -77,19 +78,21 @@ const readyMigrationSummary = [
   'Stores PIN: yes',
   'Stores transaction password hash: yes',
   'Keychain primary write: yes',
-  'Legacy secure-storage fallback reads active: no',
-  'Legacy secure-storage runtime removed: yes',
+  'Legacy secure-storage fallback reads active: yes',
+  'Legacy third-party runtime removed: yes',
+  'First-party migration bridge active: yes',
   'Focused validation script: test:storage-network:focused',
   'Focused validation command: yarn test:secure-storage:unit && yarn test:storage && yarn test:authenticator && yarn test:wallet-core:offline',
   'Secure-storage migration baseline stable: yes',
   'Errors: 0',
-  'Required action: none; keep secure storage on the validated Keychain-only baseline.',
+  'Required action: keep the first-party migration bridge through a validated cross-platform rollout window.',
 ].join('\n');
 
 const partialBlockedRemovalSummary = [
-  'Removal release validation claimed: yes',
+  'Removal release validation claimed: no',
   'Legacy package removal ready: yes',
-  'Required action: none; keep the removed legacy backend from returning.',
+  'Fallback removal ready: no',
+  'Required action: ship and validate the cross-platform migration window before removing the first-party fallback bridge.',
 ].join('\n');
 
 const blockedRemovalSummary = [
@@ -97,19 +100,57 @@ const blockedRemovalSummary = [
   'Generated at: 2026-06-10T00:00:00.000Z',
   'Current secure-storage package: react-native-keychain@10.0.0',
   'Legacy secure-storage package: <removed>',
-  'Current posture: Keychain-only after validated historical migration',
+  'Current posture: Keychain primary with first-party legacy migration bridge',
   'Keychain primary write: yes',
-  'Legacy fallback reads active: no',
+  'Legacy fallback reads active: yes',
   'Legacy package absent: yes',
   'Legacy adapter absent: yes',
   'Keychain-only tests present: yes',
   'Historical legacy migration proof guarded: yes',
-  'Removal release validation claimed: yes',
+  'First-party migration bridge active: yes',
+  'iOS migration runtime validated: no',
+  'Migration release deployment confirmed: no',
+  'Removal release validation claimed: no',
   'Android warning source still expected: no',
   'Legacy package removal ready: yes',
+  'Fallback removal ready: no',
   'Errors: 0',
-  'Required action: none; keep the removed legacy backend from returning.',
+  'Required action: ship and validate the cross-platform migration window before removing the first-party fallback bridge.',
 ].join('\n');
+
+const readyFirstPartyMigrationSummary = [
+  'Secure-storage first-party migration validation',
+  'Generated at: 2026-08-11T00:00:00.000Z',
+  'Outcome: passed',
+  'Exit code: 0',
+  'Validation run id: 11111111-1111-4111-8111-111111111111',
+  `Migration source sha256: ${'a'.repeat(64)}`,
+  'Seed APK present: yes',
+  'Candidate APK present: yes',
+  `Candidate APK sha256: ${'b'.repeat(64)}`,
+  'Seed wallet persisted: yes',
+  'Candidate installed with adb install -r: yes',
+  'Candidate uses first-party migration bridge: yes',
+  'Candidate excludes third-party legacy package: yes',
+  'PIN migrated and removed: yes',
+  'Transaction password migrated and removed: yes',
+  'Encrypted flag migrated and removed: yes',
+  'Wallet data migrated and removed: yes',
+  'Wallet accessible after candidate update: yes',
+  'Incorrect PIN rejected after candidate update: yes',
+  'Correct PIN accepted after candidate update: yes',
+  'Storage password accepted after candidate update: yes',
+  'Legacy cleanup evidence derived from runtime: yes',
+  'Legacy fallback instrumentation observed: yes',
+  'Fatal/runtime logcat findings: no',
+  'Secret values printed: no',
+  'Required action: keep the first-party migration bridge through a validated cross-platform rollout window.',
+].join('\n');
+
+const readyFirstPartyMigrationEvidence = {
+  candidateApkSha256: 'b'.repeat(64),
+  migrationSourceSha256: 'a'.repeat(64),
+};
 
 const readyAndroidSmokeSummary = [
   'Generated at: 2026-06-10T00:00:00.000Z',
@@ -149,17 +190,19 @@ const readyAndroidSmokeSummary = [
 const readyFixtureErrors = getSecureStorageReleaseValidationReadinessErrors({
   migrationSummary: readyMigrationSummary,
   removalSummary: blockedRemovalSummary,
+  firstPartyMigrationSummary: readyFirstPartyMigrationSummary,
   androidSmokeSummary: readyAndroidSmokeSummary,
 });
 
 assert(
   readyFixtureErrors.length === 0,
-  `Secure-storage readiness fixture must pass after legacy removal:\n${readyFixtureErrors.map(error => `- ${error}`).join('\n')}`,
+  `Secure-storage readiness fixture must pass during the migration window:\n${readyFixtureErrors.map(error => `- ${error}`).join('\n')}`,
 );
 assert(
   getSecureStorageReleaseValidationReadinessErrors({
     migrationSummary: partialReadyMigrationSummary,
     removalSummary: blockedRemovalSummary,
+    firstPartyMigrationSummary: readyFirstPartyMigrationSummary,
     androidSmokeSummary: readyAndroidSmokeSummary,
   }).some(error => error.includes('Secure-storage migration summary is invalid')),
   'Secure-storage readiness check must reject partial migration summaries',
@@ -168,22 +211,25 @@ assert(
   getSecureStorageReleaseValidationReadinessErrors({
     migrationSummary: readyMigrationSummary,
     removalSummary: partialBlockedRemovalSummary,
+    firstPartyMigrationSummary: readyFirstPartyMigrationSummary,
     androidSmokeSummary: readyAndroidSmokeSummary,
   }).some(error => error.includes('Secure-storage removal readiness summary is invalid')),
   'Secure-storage readiness check must reject partial removal readiness summaries',
 );
 assert(
   getSecureStorageReleaseValidationReadinessErrors({
-    migrationSummary: readyMigrationSummary.replace('Legacy secure-storage fallback reads active: no', 'Legacy secure-storage fallback reads active: yes'),
+    migrationSummary: readyMigrationSummary.replace('Legacy secure-storage fallback reads active: yes', 'Legacy secure-storage fallback reads active: no'),
     removalSummary: blockedRemovalSummary,
+    firstPartyMigrationSummary: readyFirstPartyMigrationSummary,
     androidSmokeSummary: readyAndroidSmokeSummary,
-  }).some(error => error.includes('Legacy secure-storage fallback reads active: no')),
-  'Secure-storage readiness check must reject restored fallback reads',
+  }).some(error => error.includes('Legacy secure-storage fallback reads active: yes')),
+  'Secure-storage readiness check must reject removed fallback reads before rollout proof',
 );
 assert(
   getSecureStorageReleaseValidationReadinessErrors({
     migrationSummary: readyMigrationSummary,
     removalSummary: blockedRemovalSummary.replace('Legacy package removal ready: yes', 'Legacy package removal ready: no'),
+    firstPartyMigrationSummary: readyFirstPartyMigrationSummary,
     androidSmokeSummary: readyAndroidSmokeSummary,
   }).some(error => error.includes('Legacy package removal ready: yes')),
   'Secure-storage readiness check must reject removal readiness regression',
@@ -192,6 +238,7 @@ assert(
   getSecureStorageReleaseValidationReadinessErrors({
     migrationSummary: readyMigrationSummary,
     removalSummary: blockedRemovalSummary,
+    firstPartyMigrationSummary: readyFirstPartyMigrationSummary,
     androidSmokeSummary: '',
   }).some(error => error.includes('Android dev smoke summary is missing')),
   'Secure-storage readiness check must report missing Android dev smoke summary',
@@ -200,9 +247,38 @@ assert(
   getSecureStorageReleaseValidationReadinessErrors({
     migrationSummary: readyMigrationSummary,
     removalSummary: blockedRemovalSummary,
+    firstPartyMigrationSummary: readyFirstPartyMigrationSummary,
     androidSmokeSummary: readyAndroidSmokeSummary.replace('Validated empty-tab navigation: yes', 'Validated empty-tab navigation: no'),
   }).some(error => error.includes('Android dev smoke summary is invalid')),
   'Secure-storage readiness check must reject invalid Android dev smoke evidence',
+);
+assert(
+  getSecureStorageReleaseValidationReadinessErrors({
+    migrationSummary: readyMigrationSummary,
+    removalSummary: blockedRemovalSummary,
+    firstPartyMigrationSummary: '',
+    androidSmokeSummary: readyAndroidSmokeSummary,
+  }).some(error => error.includes('first-party migration summary is missing')),
+  'Secure-storage readiness check must report missing first-party migration proof',
+);
+assert(
+  getSecureStorageReleaseValidationReadinessErrors({
+    migrationSummary: readyMigrationSummary,
+    removalSummary: blockedRemovalSummary,
+    firstPartyMigrationSummary: readyFirstPartyMigrationSummary,
+    expectedFirstPartyMigrationEvidence: {
+      ...readyFirstPartyMigrationEvidence,
+      migrationSourceSha256: 'c'.repeat(64),
+    },
+    androidSmokeSummary: readyAndroidSmokeSummary,
+  }).some(error => error.includes('Migration source sha256 does not match')),
+  'Secure-storage readiness check must reject stale first-party migration source evidence',
+);
+assert(
+  getSecureStorageReleaseValidationCommands({ skipAndroidSmoke: true }).some(
+    step => step.args.join(' ') === 'yarn secure-storage:first-party-migration:check-summary',
+  ),
+  'Secure-storage handoff command list must validate hash-bound first-party migration evidence',
 );
 
 console.log('Secure-storage release validation handoff guard checks are valid.');
