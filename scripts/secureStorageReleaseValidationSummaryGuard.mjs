@@ -6,6 +6,8 @@ const getLineValue = (content, label) => {
 const yesNoLabels = [
   'Migration summary valid',
   'Removal readiness summary valid',
+  'First-party migration summary present',
+  'First-party migration summary valid',
   'Android dev smoke summary present',
   'Android dev smoke summary valid',
   'Android release smoke summary present',
@@ -56,13 +58,14 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
   const androidSmokeErrors = getLineValue(summary, 'Android dev smoke summary errors');
   const androidReleaseSmokeErrors = getLineValue(summary, 'Android release smoke summary errors');
   const androidReleaseCreateWalletSmokeErrors = getLineValue(summary, 'Android release create-wallet smoke summary errors');
-  const androidReleaseNetworkBlockerErrors = getLineValue(summary, 'Android release network blocker summary errors');
+  const androidDevNetworkBlockerErrors = getLineValue(summary, 'Android dev network blocker summary errors');
+  const firstPartyMigrationErrors = getLineValue(summary, 'First-party migration summary errors');
   const requiredAction = getLineValue(summary, 'Required action');
   const controlledBlockerValid =
     controlledNetworkBlockerOutcome === 'blocked-by-electrum-certificate-expired' &&
     controlledNetworkBlockerAccepted === 'yes' &&
     androidDevSmokeStorageStepsCompleted === 'yes' &&
-    androidReleaseNetworkBlockerErrors === '0';
+    androidDevNetworkBlockerErrors === '0';
 
   if (!summary.startsWith('Secure-storage release validation summary')) {
     errors.push('summary header is missing or invalid');
@@ -93,7 +96,8 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     ['Android dev smoke summary errors', androidSmokeErrors],
     ['Android release smoke summary errors', androidReleaseSmokeErrors],
     ['Android release create-wallet smoke summary errors', androidReleaseCreateWalletSmokeErrors],
-    ['Android release network blocker summary errors', androidReleaseNetworkBlockerErrors],
+    ['Android dev network blocker summary errors', androidDevNetworkBlockerErrors],
+    ['First-party migration summary errors', firstPartyMigrationErrors],
   ].forEach(([label, value]) => {
     if (!isNonNegativeInteger(value)) {
       errors.push(`${label} must be a non-negative integer. Received: ${value || 'missing'}`);
@@ -121,8 +125,8 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
       errors.push('Controlled network blocker accepted requires completed Android dev secure-storage steps');
     }
 
-    if (androidReleaseNetworkBlockerErrors !== '0') {
-      errors.push('Controlled network blocker accepted requires 0 Android release network blocker summary errors');
+    if (androidDevNetworkBlockerErrors !== '0') {
+      errors.push('Controlled network blocker accepted requires 0 Android dev network blocker summary errors');
     }
 
     if (fullAndroidRuntimeProofReady !== 'no') {
@@ -197,6 +201,14 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     errors.push('Removal readiness summary must be valid before secure-storage release validation can be tracked');
   }
 
+  if (getLineValue(summary, 'First-party migration summary present') !== 'yes') {
+    errors.push('First-party migration summary must be present before secure-storage release validation can be tracked');
+  }
+
+  if (getLineValue(summary, 'First-party migration summary valid') !== 'yes' || firstPartyMigrationErrors !== '0') {
+    errors.push('First-party migration summary must be valid before secure-storage release validation can be tracked');
+  }
+
   if (getLineValue(summary, 'Android dev smoke summary present') !== 'yes') {
     errors.push('Android dev smoke summary must be present before secure-storage release validation can be tracked');
   }
@@ -209,24 +221,24 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     errors.push('Keychain primary write must stay enabled');
   }
 
-  if (getLineValue(summary, 'Legacy fallback reads active') !== 'no') {
-    errors.push('Legacy fallback reads must remain disabled after legacy removal');
+  if (getLineValue(summary, 'Legacy fallback reads active') !== 'yes') {
+    errors.push('Legacy fallback reads must remain active during the migration window');
   }
 
   if (getLineValue(summary, 'Legacy writes disabled') !== 'yes') {
     errors.push('Legacy writes must stay disabled during staged migration');
   }
 
-  if (getLineValue(summary, 'Legacy cleanup after successful migration') !== 'no') {
-    errors.push('Legacy cleanup must be absent after legacy removal');
+  if (getLineValue(summary, 'Legacy cleanup after successful migration') !== 'yes') {
+    errors.push('Legacy cleanup must remain active after a successful Keychain migration');
   }
 
-  if (getLineValue(summary, 'Legacy fallback instrumentation active') !== 'no') {
-    errors.push('Legacy fallback instrumentation must be absent after legacy removal');
+  if (getLineValue(summary, 'Legacy fallback instrumentation active') !== 'yes') {
+    errors.push('Legacy fallback instrumentation must remain active during the migration window');
   }
 
-  if (getLineValue(summary, 'Removal release validation claimed') !== 'yes') {
-    errors.push('Removal release validation must remain claimed after historical migration validation');
+  if (getLineValue(summary, 'Removal release validation claimed') !== 'no') {
+    errors.push('Fallback removal release validation must remain unclaimed until cross-platform rollout evidence exists');
   }
 
   if (getLineValue(summary, 'Legacy package removal ready') !== 'yes') {
@@ -245,8 +257,8 @@ export const getSecureStorageReleaseValidationSummaryErrors = summary => {
     errors.push('Secure-storage release validation summary must not print secret values');
   }
 
-  if (!requiredAction.includes('keep the validated Keychain-only secure-storage baseline')) {
-    errors.push('Required action must preserve the validated Keychain-only baseline');
+  if (!requiredAction.includes('keep the first-party migration bridge') || !requiredAction.includes('validated cross-platform rollout window')) {
+    errors.push('Required action must preserve the first-party bridge through a validated cross-platform rollout window');
   }
 
   return errors;

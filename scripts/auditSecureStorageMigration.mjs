@@ -26,16 +26,14 @@ export const collectSecureStorageMigrationAudit = () => {
 
   if (dependencies['react-native-keychain'] !== '10.0.0') errors.push('react-native-keychain must remain at 10.0.0');
   if (dependencies['react-native-secure-key-store']) errors.push('react-native-secure-key-store must be absent');
-  if (existsSync(path.join(root, 'src/services/LegacySecureKeyStore.ts'))) errors.push('legacy native adapter must be absent');
+  if (existsSync(path.join(root, 'src/services/LegacySecureKeyStore.ts'))) errors.push('third-party legacy native adapter must be absent');
 
   for (const [label, source] of [
     ['SecureStorageService', service],
     ['AppStorage', appStorage],
   ]) {
     if (!source.includes("from 'react-native-keychain'")) errors.push(`${label} must use react-native-keychain`);
-    if (source.includes('RNSecureKeyStore') || source.includes('LegacySecureKeyStore')) {
-      errors.push(`${label} must not reference legacy secure storage`);
-    }
+    if (!source.includes('LegacySecureStorageMigration')) errors.push(`${label} must use the first-party migration bridge`);
   }
 
   if (!service.includes('Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY')) {
@@ -61,12 +59,15 @@ export const collectSecureStorageMigrationAudit = () => {
     keychainPrimaryWrite:
       service.includes('return Keychain.setGenericPassword(key, value, secureStorageOptions(key))') &&
       appStorage.includes('return Keychain.setGenericPassword(key, value, secureStorageOptions(key))'),
-    legacyFallbackReadsActive: service.includes('RNSecureKeyStore.get') || appStorage.includes('RNSecureKeyStore.get'),
+    legacyFallbackReadsActive:
+      service.includes('LegacySecureStorageMigration.get') && appStorage.includes('LegacySecureStorageMigration.get'),
     legacyRuntimeRemoved:
       !dependencies['react-native-secure-key-store'] &&
-      !existsSync(path.join(root, 'src/services/LegacySecureKeyStore.ts')) &&
-      !service.includes('RNSecureKeyStore') &&
-      !appStorage.includes('RNSecureKeyStore'),
+      !existsSync(path.join(root, 'src/services/LegacySecureKeyStore.ts')),
+    migrationBridgeActive:
+      existsSync(path.join(root, 'src/services/LegacySecureStorageMigration.ts')) &&
+      existsSync(path.join(root, 'android/app/src/main/java/io/goldwallet/LegacySecureStorageMigrationModule.java')) &&
+      existsSync(path.join(root, 'ios/GoldWallet/GoldWalletLegacySecureStorage.m')),
     focusedValidation: 'test:storage-network:focused',
     focusedValidationCommand,
     errors,
@@ -86,15 +87,16 @@ export const formatSecureStorageMigrationSummary = (audit, generatedAt = new Dat
     `Stores transaction password hash: ${audit.storesTransactionPassword ? 'yes' : 'no'}`,
     `Keychain primary write: ${audit.keychainPrimaryWrite ? 'yes' : 'no'}`,
     `Legacy secure-storage fallback reads active: ${audit.legacyFallbackReadsActive ? 'yes' : 'no'}`,
-    `Legacy secure-storage runtime removed: ${audit.legacyRuntimeRemoved ? 'yes' : 'no'}`,
+    `Legacy third-party runtime removed: ${audit.legacyRuntimeRemoved ? 'yes' : 'no'}`,
+    `First-party migration bridge active: ${audit.migrationBridgeActive ? 'yes' : 'no'}`,
     `Focused validation script: ${audit.focusedValidation}`,
     `Focused validation command: ${audit.focusedValidationCommand}`,
     `Secure-storage migration baseline stable: ${audit.baselineStable ? 'yes' : 'no'}`,
     `Errors: ${audit.errors.length}`,
     ...audit.errors.map(error => `- ${error}`),
     audit.baselineStable
-      ? 'Required action: none; keep secure storage on the validated Keychain-only baseline.'
-      : 'Required action: restore the validated Keychain-only secure-storage baseline.',
+      ? 'Required action: keep the first-party migration bridge through a validated cross-platform rollout window.'
+      : 'Required action: restore the Keychain-primary secure-storage migration window.',
     '',
   ].join('\n');
 
@@ -107,7 +109,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     audit.errors.forEach(error => console.error(`- ${error}`));
     process.exitCode = 1;
   } else {
-    console.log('Keychain-only secure-storage baseline is stable.');
+    console.log('Keychain-primary secure-storage migration window is stable.');
   }
   console.log(`Secure-storage migration summary written to ${path.relative(root, summaryPath)}`);
 }

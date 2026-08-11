@@ -14,13 +14,21 @@ import {
   Authenticator,
 } from './';
 import logger from '../logger';
+import LegacySecureStorageMigration, {
+  LEGACY_SECURE_STORAGE_DELETION_MARKER,
+} from '../src/services/LegacySecureStorageMigration';
 
 const encryption = require('../encryption');
+
+const migrationLogCategory = 'secure-storage-migration';
 
 const secureStorageOptions = key => ({
   service: key,
   accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
 });
+
+const logMigrationInfo = message => logger.info({ category: migrationLogCategory, message });
+const logMigrationWarning = message => logger.warn({ category: migrationLogCategory, message });
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -54,7 +62,24 @@ export class AppStorage {
 
   async removeItem(key) {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return Keychain.resetGenericPassword(secureStorageOptions(key));
+      await Keychain.setGenericPassword(LEGACY_SECURE_STORAGE_DELETION_MARKER, 'deleted', secureStorageOptions(key));
+
+      try {
+        await LegacySecureStorageMigration.remove(key);
+      } catch (_) {
+        logMigrationWarning(
+          'Legacy secure-storage wallet cleanup failed; the Keychain deletion marker remains active.',
+        );
+        return true;
+      }
+
+      try {
+        await Keychain.resetGenericPassword(secureStorageOptions(key));
+      } catch (_) {
+        logMigrationWarning('Keychain wallet deletion marker cleanup failed; the wallet value remains deleted.');
+      }
+
+      return true;
     }
 
     return AsyncStorage.removeItem(key);
@@ -69,9 +94,48 @@ export class AppStorage {
    */
   getItem(key) {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+      const readAndMigrateLegacyValue = () =>
+        LegacySecureStorageMigration.get(key)
+          .then(value => {
+            if (!value) {
+              return null;
+            }
+
+            logMigrationInfo('Legacy secure-storage wallet value found; migrating it to Keychain.');
+            return Keychain.setGenericPassword(key, value, secureStorageOptions(key))
+              .then(() => {
+                logMigrationInfo('Legacy secure-storage wallet value migrated to Keychain.');
+                return LegacySecureStorageMigration.remove(key)
+                  .then(() => {
+                    logMigrationInfo('Migrated legacy secure-storage wallet value removed from the legacy backend.');
+                    return value;
+                  })
+                  .catch(() => {
+                    logMigrationWarning(
+                      'Legacy secure-storage wallet cleanup failed after migration; the value remains readable.',
+                    );
+                    return value;
+                  });
+              })
+              .catch(() => {
+                logMigrationWarning('Legacy secure-storage wallet migration write failed; returning the legacy value.');
+                return value;
+              });
+          })
+          .catch(() => null);
+
       return Keychain.getGenericPassword(secureStorageOptions(key))
-        .then(credentials => (credentials ? credentials.password : null))
-        .catch(() => null);
+        .then(credentials => {
+          if (!credentials) {
+            return readAndMigrateLegacyValue();
+          }
+
+          return credentials.username === LEGACY_SECURE_STORAGE_DELETION_MARKER ? null : credentials.password;
+        })
+        .catch(() => {
+          logMigrationWarning('Keychain wallet read failed; legacy fallback was skipped.');
+          return null;
+        });
     } else {
       return AsyncStorage.getItem(key);
     }

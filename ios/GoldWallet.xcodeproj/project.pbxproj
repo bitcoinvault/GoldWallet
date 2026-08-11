@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
+		973000000000000000000001 /* GoldWalletLegacySecureStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 973000000000000000000005 /* GoldWalletLegacySecureStorage.m */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		30CFD19F92C51B23CB0C72C1 /* libPods-GoldWallet Dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EF03D929CCD83ED66518457F /* libPods-GoldWallet Dev.a */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
@@ -22,6 +23,7 @@
 		A23B9D9B2538F64C000E53DE /* Launch Screen beta.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A23B9D982538F3B4000E53DE /* Launch Screen beta.storyboard */; };
 		A23B9D9C2538F64F000E53DE /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A23B9D962538E569000E53DE /* Launch Screen.storyboard */; };
 		A281C088253846110012082E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
+		973000000000000000000002 /* GoldWalletLegacySecureStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 973000000000000000000005 /* GoldWalletLegacySecureStorage.m */; };
 		A281C089253846110012082E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		A281C08A253846110012082E /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		A281C08D253846110012082E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
@@ -38,6 +40,7 @@
 		B519CCDD2660E6FB00E4A69C /* GoogleService-Info-dev.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5110A6C264C2F510048A80D /* GoogleService-Info-dev.plist */; };
 		B519CCE82660E76800E4A69C /* GoldWalletStage-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B519CCE72660E76800E4A69C /* GoldWalletStage-Info.plist */; };
 		B53FB7B0264C3EF000463BE5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
+		973000000000000000000003 /* GoldWalletLegacySecureStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 973000000000000000000005 /* GoldWalletLegacySecureStorage.m */; };
 		B53FB7B1264C3EF000463BE5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		B53FB7B2264C3EF000463BE5 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		B53FB7B5264C3EF000463BE5 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
@@ -50,6 +53,7 @@
 		B53FB7C1264C3EF000463BE5 /* Launch Screen beta.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A23B9D982538F3B4000E53DE /* Launch Screen beta.storyboard */; };
 		B53FB7C2264C3EF000463BE5 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A23B9D962538E569000E53DE /* Launch Screen.storyboard */; };
 		B57F8EE0264A847500D41CF9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
+		973000000000000000000004 /* GoldWalletLegacySecureStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 973000000000000000000005 /* GoldWalletLegacySecureStorage.m */; };
 		B57F8EE1264A847500D41CF9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		B57F8EE2264A847500D41CF9 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		B57F8EE4264A847500D41CF9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
@@ -155,6 +159,7 @@
 		13B07F961A680F5B00A75B9A /* GoldWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoldWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = GoldWallet/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = GoldWallet/AppDelegate.m; sourceTree = "<group>"; };
+		973000000000000000000005 /* GoldWalletLegacySecureStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GoldWalletLegacySecureStorage.m; path = GoldWallet/GoldWalletLegacySecureStorage.m; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = GoldWallet/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = GoldWallet/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = GoldWallet/main.m; sourceTree = "<group>"; };
@@ -294,6 +299,7 @@
 				32F0A2502310B0910095C559 /* GoldWallet.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
+				973000000000000000000005 /* GoldWalletLegacySecureStorage.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
@@ -1280,6 +1286,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				973000000000000000000001 /* GoldWalletLegacySecureStorage.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				32B5A32A2334450100F8D608 /* Bridge.swift in Sources */,
 			);
@@ -1290,6 +1297,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A281C088253846110012082E /* AppDelegate.m in Sources */,
+				973000000000000000000002 /* GoldWalletLegacySecureStorage.m in Sources */,
 				A281C089253846110012082E /* main.m in Sources */,
 				A281C08A253846110012082E /* Bridge.swift in Sources */,
 			);
@@ -1300,6 +1308,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B53FB7B0264C3EF000463BE5 /* AppDelegate.m in Sources */,
+				973000000000000000000003 /* GoldWalletLegacySecureStorage.m in Sources */,
 				B53FB7B1264C3EF000463BE5 /* main.m in Sources */,
 				B53FB7B2264C3EF000463BE5 /* Bridge.swift in Sources */,
 			);
@@ -1310,6 +1319,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B57F8EE0264A847500D41CF9 /* AppDelegate.m in Sources */,
+				973000000000000000000004 /* GoldWalletLegacySecureStorage.m in Sources */,
 				B57F8EE1264A847500D41CF9 /* main.m in Sources */,
 				B57F8EE2264A847500D41CF9 /* Bridge.swift in Sources */,
 			);

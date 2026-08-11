@@ -25,6 +25,11 @@ export const removedPodfileLockChecks = [
     matchNames: ['CodePush', 'react-native-code-push'],
     reason: 'after the CodePush removal',
   },
+  {
+    podName: 'react-native-secure-key-store',
+    matchNames: ['react-native-secure-key-store'],
+    reason: 'after replacing the third-party package with the first-party migration bridge',
+  },
 ];
 
 export const trackedPodPackagePairs = [

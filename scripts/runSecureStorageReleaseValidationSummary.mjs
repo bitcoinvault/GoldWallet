@@ -4,7 +4,9 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidReleaseSmokeEvidenceOptions } from './androidReleaseSmokeEvidence.mjs';
 import { getAndroidCreateWalletSmokeSummaryErrors } from './checkAndroidCreateWalletSmokeSummary.mjs';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
-import { getAndroidReleaseNetworkBlockerSummaryErrors } from './androidReleaseNetworkBlockerSummaryGuard.mjs';
+import { getAndroidDevNetworkBlockerSummaryErrors } from './androidDevNetworkBlockerSummaryGuard.mjs';
+import { getSecureStorageFirstPartyMigrationSummaryErrors } from './secureStorageFirstPartyMigrationSummaryGuard.mjs';
+import { sha256File, sha256MigrationInputs } from './secureStorageFirstPartyMigrationEvidence.mjs';
 import { getSecureStorageMigrationSummaryErrors } from './secureStorageMigrationSummaryGuard.mjs';
 import { getSecureStorageRemovalReadinessSummaryErrors } from './secureStorageRemovalReadinessSummaryGuard.mjs';
 import { getSecureStorageReleaseValidationSummaryErrors } from './secureStorageReleaseValidationSummaryGuard.mjs';
@@ -18,7 +20,8 @@ const androidSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev
 const androidReleaseSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-release-summary.txt');
 const androidReleaseCreateWalletSmokeSummaryPath = path.join(root, 'local-docs', 'android-create-wallet-smoke-dev-release-summary.txt');
 const androidReleaseSignedSmokeApkPath = path.join(root, 'local-docs', 'android-smoke-dev-release-signed.apk');
-const androidReleaseNetworkBlockerSummaryPath = path.join(root, 'local-docs', 'android-release-network-blocker-summary.txt');
+const androidDevNetworkBlockerSummaryPath = path.join(root, 'local-docs', 'android-dev-network-blocker-summary.txt');
+const firstPartyMigrationSummaryPath = path.join(root, 'local-docs', 'secure-storage-first-party-migration-summary.txt');
 const controlledNetworkBlockerOutcome = 'blocked-by-electrum-certificate-expired';
 
 const readSummary = summaryPath => {
@@ -49,7 +52,8 @@ const collectEvidence = () => {
   const androidSmokeSummary = readSummary(androidSmokeSummaryPath);
   const androidReleaseSmokeSummary = readSummary(androidReleaseSmokeSummaryPath);
   const androidReleaseCreateWalletSmokeSummary = readSummary(androidReleaseCreateWalletSmokeSummaryPath);
-  const androidReleaseNetworkBlockerSummary = readSummary(androidReleaseNetworkBlockerSummaryPath);
+  const androidDevNetworkBlockerSummary = readSummary(androidDevNetworkBlockerSummaryPath);
+  const firstPartyMigrationSummary = readSummary(firstPartyMigrationSummaryPath);
   const migrationErrors = migrationSummary ? getSecureStorageMigrationSummaryErrors(migrationSummary) : ['missing secure-storage migration summary'];
   const removalErrors = removalSummary
     ? getSecureStorageRemovalReadinessSummaryErrors(removalSummary)
@@ -66,9 +70,15 @@ const collectEvidence = () => {
         expectedArtifactBase: 'android-create-wallet-smoke-dev-release',
       })
     : ['missing Android release create-wallet smoke summary'];
-  const androidReleaseNetworkBlockerErrors = androidReleaseNetworkBlockerSummary
-    ? getAndroidReleaseNetworkBlockerSummaryErrors(androidReleaseNetworkBlockerSummary)
-    : ['missing Android release network blocker summary'];
+  const androidDevNetworkBlockerErrors = androidDevNetworkBlockerSummary
+    ? getAndroidDevNetworkBlockerSummaryErrors(androidDevNetworkBlockerSummary)
+    : ['missing Android dev network blocker summary'];
+  const firstPartyMigrationErrors = firstPartyMigrationSummary
+    ? getSecureStorageFirstPartyMigrationSummaryErrors(firstPartyMigrationSummary, {
+        candidateApkSha256: sha256File(path.join(root, 'local-docs', 'secure-storage-first-party-migration-prod-release.apk')),
+        migrationSourceSha256: sha256MigrationInputs(root),
+      })
+    : ['missing secure-storage first-party migration summary'];
 
   return {
     migrationSummary,
@@ -76,13 +86,15 @@ const collectEvidence = () => {
     androidSmokeSummary,
     androidReleaseSmokeSummary,
     androidReleaseCreateWalletSmokeSummary,
-    androidReleaseNetworkBlockerSummary,
+    androidDevNetworkBlockerSummary,
+    firstPartyMigrationSummary,
     migrationErrors,
     removalErrors,
     androidSmokeErrors,
     androidReleaseSmokeErrors,
     androidReleaseCreateWalletSmokeErrors,
-    androidReleaseNetworkBlockerErrors,
+    androidDevNetworkBlockerErrors,
+    firstPartyMigrationErrors,
   };
 };
 
@@ -95,12 +107,14 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
   const androidReleaseSmokeValid = evidence.androidReleaseSmokeErrors.length === 0;
   const androidReleaseCreateWalletSmokePresent = evidence.androidReleaseCreateWalletSmokeSummary.length > 0;
   const androidReleaseCreateWalletSmokeValid = evidence.androidReleaseCreateWalletSmokeErrors.length === 0;
+  const firstPartyMigrationSummaryPresent = evidence.firstPartyMigrationSummary.length > 0;
+  const firstPartyMigrationSummaryValid = evidence.firstPartyMigrationErrors.length === 0;
   const androidDevSmokeStorageStepsCompleted = androidDevSmokeStorageStepLabels.every(
     label => getLineValue(evidence.androidSmokeSummary, label) === 'yes',
   );
   const controlledNetworkBlockerAccepted =
-    evidence.androidReleaseNetworkBlockerErrors.length === 0 &&
-    getLineValue(evidence.androidReleaseNetworkBlockerSummary, 'Release blocker outcome') === controlledNetworkBlockerOutcome &&
+    evidence.androidDevNetworkBlockerErrors.length === 0 &&
+    getLineValue(evidence.androidDevNetworkBlockerSummary, 'Dev blocker outcome') === controlledNetworkBlockerOutcome &&
     androidSmokePresent &&
     !androidSmokeValid &&
     getLineValue(evidence.androidSmokeSummary, 'Android smoke outcome') === 'failed' &&
@@ -112,7 +126,12 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     androidReleaseCreateWalletSmokeValid;
   const fullAndroidRuntimeProofReady = androidSmokeValid && androidReleaseEvidenceReady;
   const evidenceReady =
-    migrationSummaryValid && removalSummaryValid && androidSmokePresent && (androidSmokeValid || controlledNetworkBlockerAccepted);
+    migrationSummaryValid &&
+    removalSummaryValid &&
+    firstPartyMigrationSummaryPresent &&
+    firstPartyMigrationSummaryValid &&
+    androidSmokePresent &&
+    (androidSmokeValid || controlledNetworkBlockerAccepted);
 
   return [
     'Secure-storage release validation summary',
@@ -121,6 +140,8 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Legacy secure-storage package: ${getLineValue(evidence.migrationSummary, 'Legacy secure-storage package') || '<missing>'}`,
     `Migration summary valid: ${migrationSummaryValid ? 'yes' : 'no'}`,
     `Removal readiness summary valid: ${removalSummaryValid ? 'yes' : 'no'}`,
+    `First-party migration summary present: ${firstPartyMigrationSummaryPresent ? 'yes' : 'no'}`,
+    `First-party migration summary valid: ${firstPartyMigrationSummaryValid ? 'yes' : 'no'}`,
     `Android dev smoke summary present: ${androidSmokePresent ? 'yes' : 'no'}`,
     `Android dev smoke summary valid: ${androidSmokeValid ? 'yes' : 'no'}`,
     `Android smoke artifact base: ${getLineValue(evidence.androidSmokeSummary, 'Artifact base') || '<missing>'}`,
@@ -136,7 +157,7 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
       getLineValue(evidence.androidReleaseCreateWalletSmokeSummary, 'Android create-wallet smoke outcome') || '<missing>'
     }`,
     `Controlled network blocker outcome: ${
-      getLineValue(evidence.androidReleaseNetworkBlockerSummary, 'Release blocker outcome') || '<missing>'
+      getLineValue(evidence.androidDevNetworkBlockerSummary, 'Dev blocker outcome') || '<missing>'
     }`,
     `Controlled network blocker accepted: ${yesNoFromBoolean(controlledNetworkBlockerAccepted)}`,
     `Android dev smoke secure-storage steps completed: ${yesNoFromBoolean(androidDevSmokeStorageStepsCompleted)}`,
@@ -145,8 +166,12 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     `Keychain primary write: ${yesNo(getLineValue(evidence.migrationSummary, 'Keychain primary write'))}`,
     `Legacy fallback reads active: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy fallback reads active'))}`,
     `Legacy writes disabled: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy package absent'))}`,
-    'Legacy cleanup after successful migration: no',
-    'Legacy fallback instrumentation active: no',
+    `Legacy cleanup after successful migration: ${yesNo(
+      getLineValue(evidence.firstPartyMigrationSummary, 'Legacy cleanup evidence derived from runtime'),
+    )}`,
+    `Legacy fallback instrumentation active: ${yesNo(
+      getLineValue(evidence.firstPartyMigrationSummary, 'Legacy fallback instrumentation observed'),
+    )}`,
     `Removal release validation claimed: ${yesNo(getLineValue(evidence.removalSummary, 'Removal release validation claimed'))}`,
     `Legacy package removal ready: ${yesNo(getLineValue(evidence.removalSummary, 'Legacy package removal ready'))}`,
     `Android warning source still expected: ${yesNo(getLineValue(evidence.removalSummary, 'Android warning source still expected'))}`,
@@ -160,14 +185,16 @@ const formatSummary = ({ evidence, generatedAt = new Date().toISOString() }) => 
     ...evidence.androidReleaseSmokeErrors.map(error => `- ${error}`),
     `Android release create-wallet smoke summary errors: ${evidence.androidReleaseCreateWalletSmokeErrors.length}`,
     ...evidence.androidReleaseCreateWalletSmokeErrors.map(error => `- ${error}`),
-    `Android release network blocker summary errors: ${evidence.androidReleaseNetworkBlockerErrors.length}`,
-    ...evidence.androidReleaseNetworkBlockerErrors.map(error => `- ${error}`),
+    `Android dev network blocker summary errors: ${evidence.androidDevNetworkBlockerErrors.length}`,
+    ...evidence.androidDevNetworkBlockerErrors.map(error => `- ${error}`),
+    `First-party migration summary errors: ${evidence.firstPartyMigrationErrors.length}`,
+    ...evidence.firstPartyMigrationErrors.map(error => `- ${error}`),
     `Secure-storage release validation evidence ready: ${evidenceReady ? 'yes' : 'no'}`,
     `Android release evidence ready: ${androidReleaseEvidenceReady ? 'yes' : 'no'}`,
-    'Secret values printed: no',
+    `Secret values printed: ${yesNo(getLineValue(evidence.firstPartyMigrationSummary, 'Secret values printed')) === 'yes' ? 'yes' : 'no'}`,
     controlledNetworkBlockerAccepted
-      ? 'Required action: fix the dev/testnet Electrum TLS certificate and rerun full Android dev and release smoke; keep the validated Keychain-only secure-storage baseline.'
-      : 'Required action: none; keep the validated Keychain-only secure-storage baseline.',
+      ? 'Required action: fix the dev/testnet Electrum TLS certificate and rerun full Android dev and release smoke; keep the first-party migration bridge through a validated cross-platform rollout window.'
+      : 'Required action: keep the first-party migration bridge through a validated cross-platform rollout window before removing fallback reads.',
     '',
   ].join('\n');
 };

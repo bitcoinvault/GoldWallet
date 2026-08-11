@@ -359,8 +359,6 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.3.2):
     - React-Core
-  - react-native-secure-key-store (2.0.10):
-    - React-Core
   - react-native-slider (2.0.0-rc.1):
     - React
   - react-native-tcp-socket (6.0.6):
@@ -525,7 +523,6 @@ DEPENDENCIES:
   - react-native-config (from `../node_modules/react-native-config`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - react-native-version-number (from `../node_modules/react-native-version-number`)
@@ -640,8 +637,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-secure-key-store:
-    :path: "../node_modules/react-native-secure-key-store"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
   react-native-tcp-socket:
@@ -762,7 +757,6 @@ SPEC CHECKSUMS:
   react-native-config: 72d948053a442779b3178fddd571e37f118ef606
   react-native-netinfo: 92e6e4476eb8bf6fc2d7c0a6ca0a1406f663d73a
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
-  react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-slider: 884693dd50f84745baa511ecdcde4c16f32182fb
   react-native-tcp-socket: e724380c910c2e704816ec817ed28f1342246ff7
   react-native-version-number: b415bbec6a13f2df62bf978e85bc0d699462f37f

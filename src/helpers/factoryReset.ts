@@ -5,7 +5,7 @@ import { BlueApp } from 'app/legacy';
 import { BiometricService, PinSessionVerifier, SecureStorageService, StoreService } from 'app/services';
 import { persistor, store } from 'app/state/store';
 
-export const factoryReset = () => {
+export const factoryReset = () =>
   persistor
     .purge()
     .then(async () => {
@@ -19,9 +19,10 @@ export const factoryReset = () => {
       BiometricService.deleteBiometrics();
       PinSessionVerifier.clear();
       StoreService.wipeStore();
-      SecureStorageService.removeSecuredPassword(CONST.pin);
-      SecureStorageService.removeSecuredPassword(CONST.transactionPassword);
-      return;
+      return Promise.all([
+        SecureStorageService.removeSecuredPassword(CONST.pin),
+        SecureStorageService.removeSecuredPassword(CONST.transactionPassword),
+      ]);
     })
     .then(() => {
       store.dispatch({
@@ -29,4 +30,3 @@ export const factoryReset = () => {
       });
       return RNExitApp.exitApp();
     });
-};

@@ -9,7 +9,8 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
     'Stores PIN',
     'Stores transaction password hash',
     'Keychain primary write',
-    'Legacy secure-storage runtime removed',
+    'Legacy third-party runtime removed',
+    'First-party migration bridge active',
     'Secure-storage migration baseline stable',
   ];
 
@@ -20,12 +21,12 @@ export const getSecureStorageMigrationSummaryErrors = summary => {
   requiredYes.forEach(label => {
     if (value(summary, label) !== 'yes') errors.push(`${label} must be yes`);
   });
-  if (value(summary, 'Legacy secure-storage fallback reads active') !== 'no') errors.push('Legacy secure-storage fallback reads active must be no');
+  if (value(summary, 'Legacy secure-storage fallback reads active') !== 'yes') errors.push('Legacy secure-storage fallback reads active must be yes during the migration window');
   if (value(summary, 'Focused validation script') !== 'test:storage-network:focused') errors.push('Focused validation script must be test:storage-network:focused');
   for (const command of ['yarn test:secure-storage:unit', 'yarn test:storage', 'yarn test:authenticator', 'yarn test:wallet-core:offline']) {
     if (!value(summary, 'Focused validation command').includes(command)) errors.push(`Focused validation command must include ${command}`);
   }
   if (value(summary, 'Errors') !== '0') errors.push('Errors must be 0');
-  if (!value(summary, 'Required action').includes('keep secure storage on the validated Keychain-only baseline')) errors.push('Required action must preserve the Keychain-only baseline');
+  if (!value(summary, 'Required action').includes('validated cross-platform rollout window')) errors.push('Required action must preserve the cross-platform migration window');
   return errors;
 };

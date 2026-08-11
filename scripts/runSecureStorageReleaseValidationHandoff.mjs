@@ -5,12 +5,20 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { getAndroidEmbeddedSmokeSummaryErrors } from './androidSmokeSummaryGuard.mjs';
 import { getSecureStorageMigrationSummaryErrors } from './secureStorageMigrationSummaryGuard.mjs';
 import { getSecureStorageRemovalReadinessSummaryErrors } from './secureStorageRemovalReadinessSummaryGuard.mjs';
+import { getSecureStorageFirstPartyMigrationSummaryErrors } from './secureStorageFirstPartyMigrationSummaryGuard.mjs';
+import { sha256File, sha256MigrationInputs } from './secureStorageFirstPartyMigrationEvidence.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const migrationSummaryPath = path.join(root, 'local-docs', 'secure-storage-migration-summary.txt');
 const removalSummaryPath = path.join(root, 'local-docs', 'secure-storage-removal-readiness-summary.txt');
 const androidSmokeSummaryPath = path.join(root, 'local-docs', 'android-smoke-dev-summary.txt');
+const firstPartyMigrationSummaryPath = path.join(root, 'local-docs', 'secure-storage-first-party-migration-summary.txt');
+const firstPartyMigrationCandidateApkPath = path.join(
+  root,
+  'local-docs',
+  'secure-storage-first-party-migration-prod-release.apk',
+);
 
 const defaultOptions = {
   dryRun: false,
@@ -61,6 +69,7 @@ export const getSecureStorageReleaseValidationCommands = (options = defaultOptio
     yarnStep('Validate secure-storage migration summary', 'secure-storage:migration:check-summary'),
     yarnStep('Audit secure-storage removal readiness', 'secure-storage:removal-readiness:audit'),
     yarnStep('Validate secure-storage removal readiness summary', 'secure-storage:removal-readiness:check-summary'),
+    yarnStep('Validate hash-bound first-party migration evidence', 'secure-storage:first-party-migration:check-summary'),
     yarnStep('Run focused secure-storage unit contract', 'test:secure-storage:unit'),
     yarnStep('Run wallet storage integration contract', 'test:storage'),
     yarnStep('Run authenticator storage contract', 'test:authenticator'),
@@ -100,6 +109,8 @@ const readSummary = summaryPath => {
 export const getSecureStorageReleaseValidationReadinessErrors = ({
   migrationSummary,
   removalSummary,
+  firstPartyMigrationSummary,
+  expectedFirstPartyMigrationEvidence = {},
   androidSmokeSummary,
 }) => {
   const errors = [];
@@ -113,8 +124,9 @@ export const getSecureStorageReleaseValidationReadinessErrors = ({
 
     [
       'Keychain primary write: yes',
-      'Legacy secure-storage fallback reads active: no',
-      'Legacy secure-storage runtime removed: yes',
+      'Legacy secure-storage fallback reads active: yes',
+      'Legacy third-party runtime removed: yes',
+      'First-party migration bridge active: yes',
       'Secure-storage migration baseline stable: yes',
     ].forEach(expected => {
       if (!migrationSummary.includes(expected)) {
@@ -131,13 +143,25 @@ export const getSecureStorageReleaseValidationReadinessErrors = ({
     });
 
     [
-      'Removal release validation claimed: yes',
+      'Removal release validation claimed: no',
       'Legacy package removal ready: yes',
-      'Required action: none; keep the removed legacy backend from returning.',
+      'Fallback removal ready: no',
+      'Required action: ship and validate the cross-platform migration window before removing the first-party fallback bridge.',
     ].forEach(expected => {
       if (!removalSummary.includes(expected)) {
         errors.push(`Secure-storage removal readiness summary must include: ${expected}`);
       }
+    });
+  }
+
+  if (!firstPartyMigrationSummary) {
+    errors.push('Secure-storage first-party migration summary is missing; run secure-storage:first-party-migration:verify first');
+  } else {
+    getSecureStorageFirstPartyMigrationSummaryErrors(
+      firstPartyMigrationSummary,
+      expectedFirstPartyMigrationEvidence,
+    ).forEach(error => {
+      errors.push(`Secure-storage first-party migration summary is invalid: ${error}`);
     });
   }
 
@@ -222,7 +246,7 @@ const main = () => {
   if (options.dryRun) {
     console.log('Secure-storage release validation handoff dry run');
     console.log(`Android dev build and emulator smoke: ${options.skipAndroidSmoke ? 'skipped' : 'included'}`);
-    console.log('This handoff validates the final Keychain-only secure-storage posture.');
+    console.log('This handoff validates the Keychain-primary secure-storage migration-window posture.');
     commands.forEach((step, index) => {
       console.log(`${index + 1}. ${step.label}`);
       console.log(`   ${renderSecureStorageReleaseValidationCommand(step)}`);
@@ -242,6 +266,11 @@ const main = () => {
   const readinessErrors = getSecureStorageReleaseValidationReadinessErrors({
     migrationSummary: readSummary(migrationSummaryPath),
     removalSummary: readSummary(removalSummaryPath),
+    firstPartyMigrationSummary: readSummary(firstPartyMigrationSummaryPath),
+    expectedFirstPartyMigrationEvidence: {
+      candidateApkSha256: sha256File(firstPartyMigrationCandidateApkPath),
+      migrationSourceSha256: sha256MigrationInputs(root),
+    },
     androidSmokeSummary: readSummary(androidSmokeSummaryPath),
   });
 
@@ -252,7 +281,7 @@ const main = () => {
   }
 
   console.log('\nSecure-storage release validation handoff completed.');
-  console.log('Legacy secure-storage removal and the Keychain-only runtime are validated.');
+  console.log('Third-party legacy package removal and the first-party migration window are validated.');
   return 0;
 };
 
