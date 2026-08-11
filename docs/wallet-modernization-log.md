@@ -10,6 +10,63 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.970 - ESLint and TypeScript ESLint patch cohort
+
+- Branch: `feature/bem-37-970-lint-tooling-patches`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade ESLint from `10.8.0` to latest checked `10.8.1` and the aligned TypeScript ESLint parser/plugin pair from `8.65.0` to latest checked `8.67.0`.
+- Strengthen the existing compatibility guard with installed-version, parser/plugin alignment, Node and peer-range checks plus an actual flat-config load through the ESLint API.
+- Run that compatibility guard from `precommit` and refresh the exact tooling, direct-outdated, and TypeScript 7 contracts without changing unrelated dependencies.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-11 reports `eslint@10.8.1` and `@typescript-eslint/parser` / `@typescript-eslint/eslint-plugin@8.67.0` as latest stable releases. Their engine and peer ranges accept the repository Node `24.16.0`, ESLint `10.8.1`, and TypeScript `6.0.3` baseline.
+- The actual `ESLint.calculateConfigForFile()` path loads `eslint.config.mjs`, the legacy `.eslintrc` bridge, and the TypeScript ESLint plugin for a tracked TypeScript source.
+- A fresh parent-branch lint audit and the updated branch both scan 333 files and report the same controlled historical baseline of 36,522 `prettier/prettier` findings. This branch does not reformat source files or increase the baseline.
+- The live tooling snapshot tracks 25 packages and reports the upgraded parser, plugin, and ESLint runtime as `installed == latest`. The live direct-outdated snapshot falls from 27 to 24 entries: 20 known blockers, 4 exotic/git-pinned entries, and 0 review-required entries.
+- TypeScript `7.0.2` remains separately blocked: TypeScript ESLint `8.67.0` still peers below `6.1.0`, `ts-jest@29.4.12` peers below TypeScript 7, and the isolated latest-cohort install still fails with `ERESOLVE`.
+- JDK 17 Android dev assembly passes all 877 tasks against RN `0.86.2`, compile/target SDK 36, and the updated lockfile.
+- Full embedded emulator smoke installs and launches the fresh APK, completes Terms, PIN, transaction-password, and email-skip onboarding, and reports no fatal JavaScript or Android runtime crash. Dashboard, Camera/QR, tabs, and Terms WebView remain unclaimed because the dev/testnet Electrum TLS certificate for `electrumx.testnet.btcv.stage.rnd.land:443` expired on 2026-06-23 and leaves the app on the controlled `No network` screen.
+- The dedicated no-network smoke passes on `emulator-5554`; the guarded blocker audit classifies the remaining full-smoke failure as `blocked-by-electrum-certificate-expired` rather than a package/runtime regression.
+- iOS files and native dependencies are unchanged. iOS runtime/archive validation remains a macOS/Xcode follow-up and is not claimed by this tooling milestone.
+
+Validation:
+
+- `npm view eslint version engines peerDependencies --json`
+- `npm view @typescript-eslint/parser version engines peerDependencies --json`
+- `npm view @typescript-eslint/eslint-plugin version engines peerDependencies --json`
+- `corepack yarn install --frozen-lockfile`
+- `corepack yarn check:eslint-config-compatibility`
+- `corepack yarn lint-staged:tooling:audit`
+- `corepack yarn husky:tooling:audit`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn direct-outdated:snapshot:check-summary`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:typescript7-compatibility-probe-guard`
+- `corepack yarn typescript7:compatibility-probe:audit`
+- `corepack yarn typescript7:compatibility-probe:check-summary`
+- `corepack yarn lint:baseline:audit` on the parent and updated branches
+- `corepack yarn typescript:check`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `corepack yarn android:dev:check-light`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `corepack yarn android:dev:smoke:embedded` on `Medium_Phone_API_36.0` (blocked after onboarding by the expired dev/testnet Electrum certificate)
+- `corepack yarn android:dev:smoke:no-network:embedded` on `Medium_Phone_API_36.0` (passed reduced no-network runtime proof)
+- `corepack yarn check:android-dev-network-blocker-summary-guard`
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+- `corepack yarn check:modernization-log-ids`
+- staged `corepack yarn precommit`
+- `git diff --check`
+
 ### BEM-37.969 - JSDOM type and outdated-contract refresh
 
 - Branch: `feature/bem-37-969-jsdom-types-30`
