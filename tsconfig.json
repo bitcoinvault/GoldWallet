@@ -26,6 +26,7 @@
     "node_modules",
     "babel.config.js",
     "jest.config.js",
+    "tests/node",
     "scripts",
     "sourcemap.ios.js",
     "sourcemap.android.js"

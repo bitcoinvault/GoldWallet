@@ -14,18 +14,25 @@ const requiredKnownEntries = [
   ['@babel/preset-react', 'devDependencies'],
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
+  ['@babel/traverse', 'resolutionDependencies'],
   ['@types/react', 'resolutionDependencies'],
   ['@types/react', 'devDependencies'],
+  ['@typescript-eslint/eslint-plugin', 'devDependencies'],
+  ['@typescript-eslint/parser', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
+  ['caniuse-lite', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
+  ['eslint', 'devDependencies'],
   ['plist', 'resolutionDependencies'],
+  ['protobufjs', 'resolutionDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
   ['typescript', 'devDependencies'],
+  ['undici', 'resolutionDependencies'],
 ];
 const requiredKnownEntryKeys = requiredKnownEntries.map(([name, type]) => `${name}|${type}`);
 
@@ -271,6 +278,33 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     !entryLines.some(line => line.startsWith('- prettier: ') && line.includes('dedicated formatting/tooling branch') && line.includes('no broad formatting churn') && line.includes('precommit'))
   ) {
     errors.push('Prettier drift must remain tied to a dedicated formatting/tooling branch decision without broad formatting churn');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- protobufjs: ')) &&
+    !entryLines.some(
+      line =>
+        line.startsWith('- protobufjs: ') &&
+        line.includes('dedicated Firebase/storage-network branch') &&
+        line.includes('focused tests') &&
+        line.includes('Android build') &&
+        line.includes('emulator smoke proof'),
+    )
+  ) {
+    errors.push('protobufjs drift must remain tied to a dedicated Firebase/storage-network branch with focused and Android proof');
+  }
+
+  if (
+    entryLines.some(line => line.startsWith('- undici: ')) &&
+    !entryLines.some(
+      line =>
+        line.startsWith('- undici: ') &&
+        line.includes('dedicated Sentry/tooling branch') &&
+        line.includes('release-service prerequisite summaries') &&
+        line.includes('no credentialed upload claim'),
+    )
+  ) {
+    errors.push('undici drift must remain tied to a dedicated Sentry/tooling branch without a credentialed upload claim');
   }
 
   if (
