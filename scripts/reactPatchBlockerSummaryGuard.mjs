@@ -34,6 +34,7 @@ export const getReactPatchBlockerSummaryErrors = summary => {
   const repoReact = getLineValue(summary, 'Repo react');
   const repoReactTestRenderer = getLineValue(summary, 'Repo react-test-renderer');
   const repoReactTypes = getLineValue(summary, 'Repo @types/react');
+  const repoReactTypesResolution = getLineValue(summary, 'Repo @types/react resolution');
   const targetReactPeer = getLineValue(summary, 'RN target React peer');
   const latestReact = getLineValue(summary, 'Latest react');
   const latestReactTestRenderer = getLineValue(summary, 'Latest react-test-renderer');
@@ -64,7 +65,8 @@ export const getReactPatchBlockerSummaryErrors = summary => {
     ['React Native version', reactNativeVersion, '0.87.0'],
     ['Repo react', repoReact, '19.2.3'],
     ['Repo react-test-renderer', repoReactTestRenderer, '19.2.3'],
-    ['Repo @types/react', repoReactTypes, '19.2.17'],
+    ['Repo @types/react', repoReactTypes, '19.2.18'],
+    ['Repo @types/react resolution', repoReactTypesResolution, '19.2.18'],
     ['RN target React peer', targetReactPeer, '^19.2.3'],
     ['Expected React from renderer', expectedReactFromRenderer, '19.2.3'],
   ].forEach(([label, actual, expected]) => {

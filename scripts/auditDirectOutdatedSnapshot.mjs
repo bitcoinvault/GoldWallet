@@ -118,6 +118,10 @@ const knownDecisions = new Map([
     'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
   ],
   [
+    'react-native-safe-area-context',
+    'blocked - native safe-area minor drift requires a dedicated navigation/layout branch with TypeScript, Android build, screen-layout, and emulator navigation proof',
+  ],
+  [
     'react-native-screens',
     'blocked - native screens patch drift requires a dedicated navigation/native-screens branch with stack/tab navigation and Android emulator proof',
   ],

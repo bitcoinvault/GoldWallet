@@ -15,8 +15,6 @@ const requiredKnownEntries = [
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
   ['@babel/traverse', 'resolutionDependencies'],
-  ['@types/react', 'resolutionDependencies'],
-  ['@types/react', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
@@ -25,6 +23,7 @@ const requiredKnownEntries = [
   ['plist', 'resolutionDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
+  ['react-native-safe-area-context', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
   ['typescript', 'devDependencies'],
@@ -197,6 +196,20 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     !entryLines.some(line => line.startsWith('- react-native-gesture-handler: ') && line.includes('dedicated navigation/gesture smoke branch'))
   ) {
     errors.push('react-native-gesture-handler drift must remain tied to a dedicated navigation/gesture smoke branch decision');
+  }
+
+  const safeAreaLine = entryLines.find(line => line.startsWith('- react-native-safe-area-context: '));
+  if (
+    safeAreaLine &&
+    (!safeAreaLine.includes('dedicated navigation/layout branch') ||
+      !safeAreaLine.includes('TypeScript') ||
+      !safeAreaLine.includes('Android build') ||
+      !safeAreaLine.includes('screen-layout') ||
+      !safeAreaLine.includes('emulator navigation proof'))
+  ) {
+    errors.push(
+      'react-native-safe-area-context drift must remain tied to a dedicated navigation/layout branch with TypeScript, Android build, screen-layout, and emulator navigation proof',
+    );
   }
 
   if (

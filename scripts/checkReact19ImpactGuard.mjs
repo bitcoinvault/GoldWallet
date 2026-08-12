@@ -14,8 +14,11 @@ const validEnvironment = {
     react: '19.2.3',
   },
   devDependencies: {
-    '@types/react': '19.2.17',
+    '@types/react': '19.2.18',
     'react-test-renderer': '19.2.3',
+  },
+  resolutions: {
+    '@types/react': '19.2.18',
   },
   scripts: {
     'react19:impact:audit': 'node scripts/auditReact19Impact.mjs',
@@ -51,6 +54,11 @@ const assertRejected = (label, environment, expectedError) => {
 assertAccepted('Valid React 19 impact fixture', validEnvironment);
 assertRejected('Wrong React fixture', { ...validEnvironment, dependencies: { react: '19.2.8' } }, 'react@19.2.8');
 assertRejected('Wrong React types fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react': '18.2.6' } }, '@types/react@18.2.6');
+assertRejected(
+  'Mismatched React types resolution fixture',
+  { ...validEnvironment, resolutions: { '@types/react': '19.2.17' } },
+  'resolution @types/react@19.2.17 does not match',
+);
 assertRejected('Missing script fixture', { ...validEnvironment, scripts: {} }, 'react19:impact:audit');
 assertRejected('Missing class component fixture', { ...validEnvironment, inventory: { ...validEnvironment.inventory, classComponentFiles: [] } }, 'class component surfaces');
 assertRejected(

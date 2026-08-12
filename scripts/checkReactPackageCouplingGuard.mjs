@@ -18,6 +18,9 @@ const validEnvironment = {
     '@types/react': expectedReactPackageCoupling.reactTypes,
     'react-test-renderer': expectedReactPackageCoupling.reactTestRenderer,
   },
+  resolutions: {
+    '@types/react': expectedReactPackageCoupling.reactTypes,
+  },
   scripts: {
     'react:package-coupling:audit': 'node scripts/auditReactPackageCoupling.mjs',
     'check:react-package-coupling-guard': 'node scripts/checkReactPackageCouplingGuard.mjs',
@@ -49,6 +52,11 @@ const assertRejected = (label, environment, expectedError) => {
 assertAccepted('Valid React package coupling fixture', validEnvironment);
 assertRejected('Wrong React fixture', { ...validEnvironment, dependencies: { react: '19.2.8' } }, 'react@19.2.8');
 assertRejected('Wrong React types fixture', { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react': '18.2.6' } }, '@types/react@18.2.6');
+assertRejected(
+  'Mismatched React types resolution fixture',
+  { ...validEnvironment, resolutions: { '@types/react': '19.2.17' } },
+  'resolution @types/react@19.2.17 does not match',
+);
 assertRejected(
   'External React Native types fixture',
   { ...validEnvironment, devDependencies: { ...validEnvironment.devDependencies, '@types/react-native': '^0.63.37' } },
