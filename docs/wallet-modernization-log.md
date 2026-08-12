@@ -10,6 +10,41 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.981 - Browserslist data resolution refresh
+
+- Branch: `feature/bem-37-981-caniuse-lite-1809`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh the root Yarn resolution for `caniuse-lite` from `1.0.30001806` to the current stable `1.0.30001809` dataset without changing Babel, Metro, Browserslist, or application runtime code.
+- Keep the single hoisted `@babel/helper-compilation-targets -> browserslist -> caniuse-lite` owner path and refresh the direct-outdated contract.
+- Prove dependency integrity, Babel/Metro transform behavior, Android New Architecture assembly, and emulator startup after the resolution change.
+
+Findings:
+
+- npm reports `caniuse-lite@1.0.30001809` as `latest`, published on 2026-08-07, with registry SHA-512 integrity `sha512-xxWVywk6a6Arlk+hymeycyn/VgqEfLDxupvhH/xiY5SJ/18kmi9o6MiO320DCUzypORHLtvh0I4i04tUhCNHNQ==`.
+- The package is data-only in this owner path. GoldWallet reaches it through `@babel/helper-compilation-targets` and `browserslist`; no application source imports it directly.
+- The direct-outdated guard keeps a synthetic future-drift fixture after removing `caniuse-lite` from the active expected set. The fixture also closes a prior coverage gap by requiring the documented baseline-audit rationale in addition to the branch, lockfile, and bundle-transform proof.
+- Babel 8, TypeScript 7, React patch drift, `plist@5`, and `bl@7` remain separate compatibility blockers and are not mixed into this resolution refresh.
+- The live direct-outdated contract falls from 20 to 19 entries: 15 known blockers, 4 exotic/git-pinned entries, and 0 review-required entries.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --immutable`
+- `corepack yarn why caniuse-lite`
+- `corepack yarn check:direct-outdated-snapshot-summary-guard`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn react-native bundle --platform android --dev false --entry-file index.js --bundle-output local-docs\bem-37-981\index.android.bundle --assets-dest local-docs\bem-37-981\assets --reset-cache`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- Visual inspection of the captured `No network` screen on `emulator-5554`; the fallback UI rendered without clipping, overlap, blank content, or an error overlay
+- `corepack yarn prepush`
+- `git diff --check`
+
 ### BEM-37.980 - Safe Area Context 5.9 native layout refresh
 
 - Branch: `feature/bem-37-980-safe-area-5-9-0`
