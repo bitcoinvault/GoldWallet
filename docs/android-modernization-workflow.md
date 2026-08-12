@@ -2,6 +2,10 @@
 
 Use this workflow for Android maintenance branches under `upgrade/wallet-modernization`.
 
+`masked-view:migration:audit` refreshes `local-docs/android-warning-audit-summary.txt` before reading it. This keeps the RN baseline preflight deterministic in a fresh worktree instead of depending on ignored warning evidence copied from another checkout.
+
+`secure-storage:release-validation:summary` refreshes and validates the migration and removal-readiness summaries before aggregating them. A fresh worktree therefore cannot produce an invalid secure-storage aggregate merely because ignored prerequisite summaries have not been copied from another checkout.
+
 ## Branching
 
 - Start from `upgrade/wallet-modernization`.

@@ -22,7 +22,7 @@ Branch: `feature/bem-37-masked-view-navigation-proof`
 
 ## Required Validation
 
-- `corepack yarn masked-view:migration:audit`
+- `corepack yarn masked-view:migration:audit` (refreshes ignored Android warning evidence before the masked-view audit consumes it, so the command works from a fresh worktree)
 - `corepack yarn masked-view:migration:check-summary`
 - `corepack yarn android:dev:check-light`
 - `JAVA_HOME=D:\tmp\jdks\temurin17\jdk-17.0.19+10 corepack yarn android:dev:assemble`
