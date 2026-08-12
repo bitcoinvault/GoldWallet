@@ -10,6 +10,44 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.986 - Sentry production Android symbolication recovery
+
+- Branch: `feature/bem-37-986-sentry-prod-android-symbolication`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Recover source-map symbolication for the exact production Android release `io.goldwallet.wallet@6.5.3+15`, distribution `15`.
+- Bind the upload to the current `prodRelease` AAB-embedded JavaScript bundle and its deterministic Sentry debug ID before writing to Sentry.
+- Prove server-side symbolication with a neutral production canary event that contains no wallet or identifying user data.
+
+Findings:
+
+- Production event `1c4ded379f8643469d6311f0b8e84e44` contained debug ID `1c3098e1-96d8-49f7-9fa1-70c975b32642` and `js_no_source`. Sentry's source-map diagnostics reported the matching source file and source map as absent.
+- A fresh JDK 17 local signing proof generated the same deterministic debug ID. Its strict candidate manifest binds AAB SHA-256 `68f62ecbdf7f4b852ea0b5957e39af9aea9a364c4aeee573c127f8ed09e58739`, the byte-identical generated/AAB-embedded bundle, source-map SHA-256, clean-before-build provenance, release, distribution, and secret-safe no-upload state. The production runner rejects a missing, stale, or mismatched manifest before preparing an upload.
+- The runner fails closed on project, release, distribution, reference-event, debug-ID, AAB/bundle, source-map, credential, and partial-artifact mismatches. Execution requires both `--execute` and an explicit 32-character reference event ID; dry-run performs no Sentry write.
+- The production upload used project `goldwallet-prod-android` (`5875213`), release `io.goldwallet.wallet@6.5.3+15`, distribution `15`, and artifact bundle `b978969b-dcca-5ab7-a27d-3763becce9d8`. Sentry CLI completed processing and reported the same debug ID for the script and source map.
+- Post-upload source-map diagnostics reported both exact-debug-ID artifacts present. Synthetic event `60ba82f88a774b74b3c3b9d67e257d21` was symbolicated from `app:///index.android.bundle` to `App.tsx:41`; the processed event retained the expected production release/dist and no wallet or identifying user data.
+- Independent review found three release-safety gaps in the first implementation: inherited `SENTRY_URL` could redirect the token-bearing CLI, a structurally valid but stale map was not bound to the AAB, and a post-upload timeout could make the workflow impossible to resume. The final runner case-insensitively replaces all Sentry endpoint/identity variables with controlled production values, requires the candidate manifest, writes an ignored post-upload checkpoint, fails on partial artifacts, and treats two existing exact-debug-ID artifacts as verification-only state.
+- A verification-only rerun attempted no upload and symbolicated fresh event `de49ca579b094d1ca107dffc51aee3ea` to `App.tsx:41`, proving that interrupted post-upload runs can be safely resumed.
+- Sentry documentation states that artifacts uploaded after an event do not retroactively annotate that existing event. The fresh synthetic event is therefore the authoritative server-side acceptance proof; future events carrying this debug ID are covered.
+- iOS source-map/dSYM upload and event symbolication remain separate and unclaimed because this Windows host cannot produce or validate the final iOS archive.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --immutable`
+- JDK 17 `ANDROID_SERIAL=emulator-5554 corepack yarn android:upload-signing:proof` (`504 s`; signed AAB, candidate manifest, 16 KB artifact checks, and complete embedded runtime smoke passed)
+- JDK 17 `corepack yarn android:dev:assemble` (fresh `devDebug` APK)
+- `node --check` for production symbolication module, runner, and guard
+- `corepack yarn check:sentry-production-android-symbolication-guard`
+- JDK 17 `corepack yarn sentry:production-android-symbolication:dry-run`
+- Authenticated Sentry source-map diagnostics for the production reference event before upload
+- JDK 17 `corepack yarn sentry:production-android-symbolication:execute --reference-event-id=1c4ded379f8643469d6311f0b8e84e44`
+- Authenticated Sentry source-map diagnostics after upload and processed synthetic-event verification
+- Verification-only rerun of the same execute command (no second upload; fresh processed synthetic event passed)
+- `corepack yarn prepush` (all repository guard, TypeScript, unit, QR, storage, authenticator, offline-wallet, and crypto checks passed)
+- Independent read-only review, all three findings fixed, and re-review (`NO FINDINGS`)
+
 ### BEM-37.985 - Android release validation single-writer guard
 
 - Branch: `feature/bem-37-985-android-release-single-writer`
