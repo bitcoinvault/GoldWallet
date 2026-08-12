@@ -8,11 +8,14 @@ import {
   getAndroidReleaseInputFingerprintFileCount,
 } from './androidReleaseSummaryGuard.mjs';
 import { getAndroidReleaseGradleRetryReason } from './androidReleaseGradleRetry.mjs';
+import { acquireAndroidReleaseValidationLock } from './androidReleaseValidationLock.mjs';
 import { getAndroidSdkResolution } from './runAndroidGradle.mjs';
+import { runStreamingChildProcess } from './streamChildProcess.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const summaryPath = path.join(root, 'local-docs', 'android-release-dev-summary.txt');
+const lockPath = path.join(root, 'local-docs', 'android-release-validation.lock');
 const javaCommand = process.env.JAVA_HOME
   ? path.join(process.env.JAVA_HOME, 'bin', process.platform === 'win32' ? 'java.exe' : 'java')
   : 'java';
@@ -127,20 +130,28 @@ const env = {
   SENTRY_DISABLE_AUTO_UPLOAD: 'true',
 };
 
-const runGradleTaskWithBoundedRetry = task => {
+const runGradleTaskWithBoundedRetry = async (task, validationLock) => {
   const attempts = [];
   let retryReason = 'none';
   let result;
 
   for (let attempt = 1; attempt <= maxGradleAttempts; attempt += 1) {
-    result = spawnSync(process.execPath, [path.join(root, 'scripts', 'runAndroidGradle.mjs'), task, '--stacktrace'], {
-      cwd: root,
-      env,
-      encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
-    });
-    process.stdout.write(result.stdout || '');
-    process.stderr.write(result.stderr || '');
+    let childPidRegistered = false;
+    try {
+      result = await runStreamingChildProcess({
+        command: process.execPath,
+        args: [path.join(root, 'scripts', 'runAndroidGradle.mjs'), task, '--stacktrace'],
+        cwd: root,
+        env,
+        maxBuffer: 64 * 1024 * 1024,
+        onSpawn: childPid => {
+          validationLock.setChildPid(childPid);
+          childPidRegistered = true;
+        },
+      });
+    } finally {
+      if (childPidRegistered) validationLock.setChildPid(null);
+    }
 
     attempts.push({
       status: result.status ?? 1,
@@ -173,95 +184,113 @@ const runGradleTaskWithBoundedRetry = task => {
   };
 };
 
-const startedAt = new Date().toISOString();
-const variantResults = requestedVariants.map(variant => {
-  const cleanedGeneratedReactPaths = getGeneratedReactPaths(variant);
-  cleanedGeneratedReactPaths.forEach(generatedPath => {
-    rmSync(generatedPath, { recursive: true, force: true });
-  });
+const run = async () => {
+  let validationLock;
+  try {
+    validationLock = acquireAndroidReleaseValidationLock({ lockPath });
+  } catch (error) {
+    console.error(error.message);
+    return 1;
+  }
 
-  const task = `:app:assemble${capitalize(variant)}Release`;
-  const { result, attempts, retryReason } = runGradleTaskWithBoundedRetry(task);
-  const apkPath = getApkPath(variant);
-  const apkEvidence = getFileEvidence(apkPath);
-  const bundleEvidence = getFileEvidence(getReleaseBundlePath(variant));
-  const sourcemapEvidence = getFileEvidence(getReleaseSourcemapPath(variant));
+  console.log(`Android release validation lock acquired: ${path.relative(root, lockPath)}`);
 
-  return {
-    variant,
-    task,
-    status: result.status ?? 1,
-    error: result.error?.message || '',
-    attempts,
-    retryReason,
-    apk: apkEvidence,
-    bundle: bundleEvidence,
-    sourcemap: sourcemapEvidence,
-    cleanedGeneratedReactPaths,
-  };
-});
-const javaVersion = spawnSync(javaCommand, ['-version'], {
-  cwd: root,
-  encoding: 'utf8',
-});
-const javaVersionLine =
-  `${javaVersion.stderr || ''}${javaVersion.stdout || ''}`.split(/\r?\n/)[0]?.trim() || 'unavailable';
-const summary = [
-  'Android release validation',
-  `Generated at: ${new Date().toISOString()}`,
-  `Started at: ${startedAt}`,
-  `Variants: ${requestedVariants.join(', ')}`,
-  `Variant count: ${variantResults.length}`,
-  `Java executable: ${javaCommand}`,
-  `Java version: ${javaVersionLine}`,
-  `Android Gradle Plugin: ${androidToolchainEvidence.agp}`,
-  `Gradle wrapper: ${androidToolchainEvidence.gradle}`,
-  `Kotlin Gradle Plugin: ${androidToolchainEvidence.kotlin}`,
-  `Compile SDK: ${androidToolchainEvidence.compileSdk}`,
-  `Target SDK: ${androidToolchainEvidence.targetSdk}`,
-  `Android SDK resolution source: ${androidSdkResolution.source}`,
-  `Explicit ANDROID_HOME present: ${androidSdkResolution.explicitAndroidHomePresent ? 'yes' : 'no'}`,
-  `Explicit ANDROID_SDK_ROOT present: ${androidSdkResolution.explicitAndroidSdkRootPresent ? 'yes' : 'no'}`,
-  `Android local.properties present: ${androidLocalPropertiesPresent ? 'yes' : 'no'}`,
-  `Release input fingerprint: ${getAndroidReleaseInputFingerprint(root)}`,
-  `Release input fingerprint files: ${getAndroidReleaseInputFingerprintFileCount(root)}`,
-  'Sentry auto upload disabled for local build: yes',
-  'Sentry release upload validation: not claimed',
-  `Gradle retry max attempts: ${maxGradleAttempts}`,
-  `Gradle retry exit codes: ${transientGradleRetryExitCodes.join(', ') || 'none'}`,
-  ...variantResults.flatMap(result => [
-    `Variant ${result.variant} Gradle task: ${result.task}`,
-    `Variant ${result.variant} exit code: ${result.status}`,
-    `Variant ${result.variant} Gradle attempts: ${result.attempts.length}`,
-    `Variant ${result.variant} Gradle attempt exit codes: ${result.attempts.map(attempt => attempt.status).join(', ')}`,
-    `Variant ${result.variant} Gradle retry reason: ${result.retryReason}`,
-    `Variant ${result.variant} Release APK: ${path.relative(root, result.apk.path)}`,
-    `Variant ${result.variant} Release APK exists: ${result.apk.exists ? 'yes' : 'no'}`,
-    `Variant ${result.variant} Release APK bytes: ${result.apk.size}`,
-    `Variant ${result.variant} Release APK sha256: ${result.apk.sha256}`,
-    `Variant ${result.variant} Release JS bundle: ${path.relative(root, result.bundle.path)}`,
-    `Variant ${result.variant} Release JS bundle exists: ${result.bundle.exists ? 'yes' : 'no'}`,
-    `Variant ${result.variant} Release JS bundle bytes: ${result.bundle.size}`,
-    `Variant ${result.variant} Release JS bundle sha256: ${result.bundle.sha256}`,
-    `Variant ${result.variant} Release source map: ${path.relative(root, result.sourcemap.path)}`,
-    `Variant ${result.variant} Release source map exists: ${result.sourcemap.exists ? 'yes' : 'no'}`,
-    `Variant ${result.variant} Release source map bytes: ${result.sourcemap.size}`,
-    `Variant ${result.variant} Release source map sha256: ${result.sourcemap.sha256}`,
-    `Variant ${result.variant} cleaned generated React paths: ${result.cleanedGeneratedReactPaths.map(cleanedPath => path.relative(root, cleanedPath)).join(', ')}`,
-    `Variant ${result.variant} spawn error: ${result.error || 'none'}`,
-  ]),
-  'Required Sentry upload follow-up: provide sentry.properties/defaults.org/defaults.project/auth.token or SENTRY_AUTH_TOKEN before claiming source-map upload validation.',
-  '',
-].join('\n');
+  try {
+    const startedAt = new Date().toISOString();
+    const variantResults = [];
 
-mkdirSync(path.dirname(summaryPath), { recursive: true });
-writeFileSync(summaryPath, summary);
-console.log(`Android release validation summary written to ${path.relative(root, summaryPath)}`);
+    for (const variant of requestedVariants) {
+      const cleanedGeneratedReactPaths = getGeneratedReactPaths(variant);
+      cleanedGeneratedReactPaths.forEach(generatedPath => {
+        rmSync(generatedPath, { recursive: true, force: true });
+      });
 
-const failedResult = variantResults.find(
-  result => result.status !== 0 || !result.apk.exists || !result.bundle.exists || !result.sourcemap.exists,
-);
+      const task = `:app:assemble${capitalize(variant)}Release`;
+      const { result, attempts, retryReason } = await runGradleTaskWithBoundedRetry(task, validationLock);
+      const apkPath = getApkPath(variant);
 
-if (failedResult) {
-  process.exit(failedResult.status || 1);
-}
+      variantResults.push({
+        variant,
+        task,
+        status: result.status ?? 1,
+        error: result.error?.message || '',
+        attempts,
+        retryReason,
+        apk: getFileEvidence(apkPath),
+        bundle: getFileEvidence(getReleaseBundlePath(variant)),
+        sourcemap: getFileEvidence(getReleaseSourcemapPath(variant)),
+        cleanedGeneratedReactPaths,
+      });
+    }
+
+    const javaVersion = spawnSync(javaCommand, ['-version'], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+    const javaVersionLine =
+      `${javaVersion.stderr || ''}${javaVersion.stdout || ''}`.split(/\r?\n/)[0]?.trim() || 'unavailable';
+    const summary = [
+      'Android release validation',
+      `Generated at: ${new Date().toISOString()}`,
+      `Started at: ${startedAt}`,
+      `Variants: ${requestedVariants.join(', ')}`,
+      `Variant count: ${variantResults.length}`,
+      `Java executable: ${javaCommand}`,
+      `Java version: ${javaVersionLine}`,
+      `Android Gradle Plugin: ${androidToolchainEvidence.agp}`,
+      `Gradle wrapper: ${androidToolchainEvidence.gradle}`,
+      `Kotlin Gradle Plugin: ${androidToolchainEvidence.kotlin}`,
+      `Compile SDK: ${androidToolchainEvidence.compileSdk}`,
+      `Target SDK: ${androidToolchainEvidence.targetSdk}`,
+      `Android SDK resolution source: ${androidSdkResolution.source}`,
+      `Explicit ANDROID_HOME present: ${androidSdkResolution.explicitAndroidHomePresent ? 'yes' : 'no'}`,
+      `Explicit ANDROID_SDK_ROOT present: ${androidSdkResolution.explicitAndroidSdkRootPresent ? 'yes' : 'no'}`,
+      `Android local.properties present: ${androidLocalPropertiesPresent ? 'yes' : 'no'}`,
+      `Release input fingerprint: ${getAndroidReleaseInputFingerprint(root)}`,
+      `Release input fingerprint files: ${getAndroidReleaseInputFingerprintFileCount(root)}`,
+      'Sentry auto upload disabled for local build: yes',
+      'Sentry release upload validation: not claimed',
+      `Gradle retry max attempts: ${maxGradleAttempts}`,
+      `Gradle retry exit codes: ${transientGradleRetryExitCodes.join(', ') || 'none'}`,
+      ...variantResults.flatMap(result => [
+        `Variant ${result.variant} Gradle task: ${result.task}`,
+        `Variant ${result.variant} exit code: ${result.status}`,
+        `Variant ${result.variant} Gradle attempts: ${result.attempts.length}`,
+        `Variant ${result.variant} Gradle attempt exit codes: ${result.attempts.map(attempt => attempt.status).join(', ')}`,
+        `Variant ${result.variant} Gradle retry reason: ${result.retryReason}`,
+        `Variant ${result.variant} Release APK: ${path.relative(root, result.apk.path)}`,
+        `Variant ${result.variant} Release APK exists: ${result.apk.exists ? 'yes' : 'no'}`,
+        `Variant ${result.variant} Release APK bytes: ${result.apk.size}`,
+        `Variant ${result.variant} Release APK sha256: ${result.apk.sha256}`,
+        `Variant ${result.variant} Release JS bundle: ${path.relative(root, result.bundle.path)}`,
+        `Variant ${result.variant} Release JS bundle exists: ${result.bundle.exists ? 'yes' : 'no'}`,
+        `Variant ${result.variant} Release JS bundle bytes: ${result.bundle.size}`,
+        `Variant ${result.variant} Release JS bundle sha256: ${result.bundle.sha256}`,
+        `Variant ${result.variant} Release source map: ${path.relative(root, result.sourcemap.path)}`,
+        `Variant ${result.variant} Release source map exists: ${result.sourcemap.exists ? 'yes' : 'no'}`,
+        `Variant ${result.variant} Release source map bytes: ${result.sourcemap.size}`,
+        `Variant ${result.variant} Release source map sha256: ${result.sourcemap.sha256}`,
+        `Variant ${result.variant} cleaned generated React paths: ${result.cleanedGeneratedReactPaths.map(cleanedPath => path.relative(root, cleanedPath)).join(', ')}`,
+        `Variant ${result.variant} spawn error: ${result.error || 'none'}`,
+      ]),
+      'Required Sentry upload follow-up: provide sentry.properties/defaults.org/defaults.project/auth.token or SENTRY_AUTH_TOKEN before claiming source-map upload validation.',
+      '',
+    ].join('\n');
+
+    mkdirSync(path.dirname(summaryPath), { recursive: true });
+    writeFileSync(summaryPath, summary);
+    console.log(`Android release validation summary written to ${path.relative(root, summaryPath)}`);
+
+    const failedResult = variantResults.find(
+      result =>
+        result.status !== 0 || result.error || !result.apk.exists || !result.bundle.exists || !result.sourcemap.exists,
+    );
+
+    return failedResult ? failedResult.status || 1 : 0;
+  } finally {
+    validationLock.release();
+    console.log('Android release validation lock released.');
+  }
+};
+
+process.exitCode = await run();

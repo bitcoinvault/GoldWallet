@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.985 - Android release validation single-writer guard
+
+- Branch: `feature/bem-37-985-android-release-single-writer`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Serialize Android release validation inside one worktree before any generated release output is removed or rebuilt.
+- Track the validator and its active Gradle child so an interrupted parent shell cannot make a still-running native build look stale.
+- Preserve live Gradle output, bounded retry classification, and the existing release-summary contract.
+
+Findings:
+
+- The BEM-37.984 release proof exposed a same-worktree writer collision after a timed-out parent command left its Gradle child running and a second validator started against the same codegen/CMake outputs.
+- The validator now acquires an atomic ignored lock directory before touching generated outputs. A concurrent invocation fails immediately and reports active process IDs without modifying release artifacts.
+- Lock ownership uses a random token. Stale recovery is allowed only when neither the owner nor recorded child is alive; malformed state and ownership changes fail closed.
+- Gradle is now spawned asynchronously so stdout and stderr remain visible while the child PID is tracked. Captured output remains bounded for the existing retry classifier, and child ownership is cleared in `finally` after process completion.
+- A real `prodRelease` validation held owner PID `106444` and Gradle child PID `140236`; a simultaneous contender exited `1` before artifact work and named both active PIDs. The primary build completed successfully in `7m 2s`, wrote valid APK/bundle/source-map evidence, and removed the lock.
+- After the stale-reclaimer race fix, a final exact-code `prodRelease` validation held owner PID `88948` and child PID `126048`; its contender was rejected with exit `1`, while the primary build completed successfully in `3m 11s` and released the lock.
+- Independent review first found and reproduced a stale-reclaimer takeover race plus a mixed `status: 0`/stream-error classification gap. The final implementation uses an exclusive generation-specific reclaim marker with token and liveness rechecks, and treats any child-process error as validation failure. Re-review reported no findings.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --immutable`
+- `node --check` for the release runner, lock helper, streaming child helper, and guard
+- `corepack yarn check:android-release-validation-lock-guard`
+- `corepack yarn android:dev:check-artifact-guard`
+- Concurrent real-validator rejection while JDK 17 `ANDROID_RELEASE_VARIANTS=prod corepack yarn android:dev:release:validate-local` was active
+- JDK 17 `ANDROID_RELEASE_VARIANTS=prod corepack yarn android:dev:release:validate-local` (`BUILD SUCCESSFUL`)
+- `ANDROID_RELEASE_VARIANTS=prod corepack yarn android:dev:release:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` (`36,917` accepted baseline errors, `0` warnings, no increase)
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:unit --runInBand` (`15` suites, `69` tests)
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `corepack yarn prepush`
+- Independent read-only review and re-review (`NO FINDINGS` after both findings were fixed)
+- `git diff --check`
+
 ### BEM-37.984 - Sentry Android breadcrumb timestamp compatibility
 
 - Branch: `feature/bem-37-984-sentry-breadcrumb-timestamps`
