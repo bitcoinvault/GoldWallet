@@ -12,7 +12,7 @@ const apkRelativePath = path.join('local-docs', 'fixture-dev-release.apk');
 const apkPath = path.join(fixtureRoot, apkRelativePath);
 
 const badging = [
-  "package: name='io.goldwallet.wallet.dev' versionCode='42' versionName='9.8.7' compileSdkVersion='36'",
+  "package: name='io.goldwallet.wallet.dev' versionCode='42' versionName='9.8.7' compileSdkVersion='37'",
   "minSdkVersion:'26'",
   "targetSdkVersion:'36'",
   "uses-permission: name='android.permission.POST_NOTIFICATIONS'",
@@ -60,10 +60,10 @@ try {
     path.join(fixtureRoot, 'android', 'build.gradle'),
     [
       'ext {',
-      "  buildToolsVersion = '36.0.0'",
+      "  buildToolsVersion = '37.0.0'",
       '  minSdkVersion = 26',
       '  targetSdkVersion = 36',
-      '  compileSdkVersion = 36',
+      '  compileSdkVersion = 37',
       '}',
       '',
     ].join('\n'),

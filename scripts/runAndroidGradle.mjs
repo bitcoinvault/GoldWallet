@@ -204,7 +204,7 @@ const main = () => {
 
   if (Number(javaMajorVersion) !== 17) {
     console.error(
-      `GoldWallet Android build requires JDK 17 after the AGP 8.13 upgrade. Current JDK major version is ${javaMajorVersion}.`,
+      `GoldWallet Android build requires JDK 17 for React Native 0.87 and AGP 9.2. Current JDK major version is ${javaMajorVersion}.`,
     );
     console.error('Set JAVA_HOME to JDK 17 before running Android Gradle.');
     return 1;

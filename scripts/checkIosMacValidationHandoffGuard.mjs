@@ -271,7 +271,7 @@ const readyReleaseSummary = [
   'Generated at: 2026-06-10T00:00:00.000Z',
   'Static iOS release files valid: yes',
   'Ready for macOS archive validation: yes',
-  'React Native version: 0.86.2',
+  'React Native version: 0.87.0',
   'React Native minimum iOS: 15.1',
   'React Native minimum Xcode: 16.1',
   'Firebase Apple SDK: 12.17.0',
@@ -299,7 +299,7 @@ const readyReleaseSummary = [
 const blockedReleaseSummary = readyReleaseSummary
   .replace('Ready for macOS archive validation: yes', 'Ready for macOS archive validation: no')
   .replace('Podfile.lock refresh required: no', 'Podfile.lock refresh required: yes')
-  .replace('Podfile.lock drift issues: 0', 'Podfile.lock drift issues: 1\n- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.2')
+  .replace('Podfile.lock drift issues: 0', 'Podfile.lock drift issues: 1\n- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.87.0')
   .replace('xcodebuild version: Xcode 26.2; Build version 17C52', 'xcodebuild version: <not available on this machine>')
   .replace('xcodebuild supported: yes', 'xcodebuild supported: no')
   .replace('Warnings: 0', 'Warnings: 1\n- iOS compile/archive validation is blocked on this machine: xcodebuild requires macOS with Xcode.')

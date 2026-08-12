@@ -4,25 +4,25 @@ This matrix defines how to move the app foundation forward without upgrading eve
 
 ## Current Baseline
 
-- React Native: `0.86.2`
+- React Native: `0.87.0`
 - React: `19.2.3`
-- RN Babel preset: `0.86.2`
-- RN Metro config: `0.86.2`
+- RN Babel preset: `0.87.0`
+- RN Metro config: `0.87.0`
 - Metro/dev Node runtime: `24.16.0`
-- Android compile SDK: `36`
+- Android compile SDK: `37`
 - Android target SDK: `36`
-- Android Gradle Plugin: `8.13.2`
-- Gradle wrapper: `8.13`
+- Android Gradle Plugin: `9.2.1`
+- Gradle wrapper: `9.4.1`
 
 ## Latest Snapshot
 
-- npm `react-native@latest`: `0.86.2`
+- npm `react-native@latest`: `0.87.0`
 - npm `react-native@next`: `0.87.0-rc.4`
 - npm `react-native@nightly` last observed: `0.88.0-nightly-20260810-8415753e2`
-- `react-native@0.86.2` peer React: `^19.2.3`
-- `react-native@0.86.2` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`
-- Snapshot recorded: `2026-08-10`
-- Latest live verification: `2026-08-10`, outcome `matched`, mismatches `0`
+- `react-native@0.87.0` peer React: `^19.2.3`
+- `react-native@0.87.0` Node engine: `^22.13.0 || ^24.3.0 || >= 26.0.0`
+- Snapshot recorded: `2026-08-11`
+- Latest live verification: `2026-08-11`, outcome `matched`, mismatches `0`
 - `react-native@next` is currently a prerelease channel and is not the default wallet target.
 - Exact nightly drift is informational; the live gate enforces the nightly prerelease tag shape without requiring a daily snapshot commit.
 
@@ -65,22 +65,29 @@ Why:
 
 Status:
 
-- This is now the current foundation checkpoint.
+- This is the completed predecessor foundation checkpoint; Milestone C supersedes it.
 - It keeps React pinned to `19.2.3` while `react-native-renderer` stays on `19.2.3`; package-only React `19.2.8` remains blocked by renderer coupling.
 - It records AGP `9.3.1`, Gradle `9.6.1`, stable Kotlin `2.4.10`, and Kotlin metadata release `2.4.20-Beta2` as not yet adoptable because the React Native Gradle plugin `0.86.2` path cannot compile through the Gradle 9 embedded Kotlin metadata path. The real isolated Gradle `9.6.1` probe failed in `:gradle-plugin:settings-plugin:compileKotlin` while compiling `ReactSettingsExtension.kt`.
-- The validated Android foundation remains AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17` until a future RN Gradle plugin baseline clears that blocker.
+- The RN `0.86.2` checkpoint used AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile/target SDK `36`, and JDK `17`; this is historical evidence, not the current toolchain contract.
 - Live npm metadata checked on `2026-08-10` keeps stable `latest` on `0.86.2`, while `next` moved to `0.87.0-rc.4` and nightly was observed at `0.88.0-nightly-20260810-8415753e2`; those remain planning channels, not the default wallet target. BEM-37.962 proves that RC4 can build through AsyncStorage on AGP 9.2.1 with the documented temporary `android.builtInKotlin=false` and `android.newDsl=false` compatibility flags, but those flags expire with AGP 10 and the dev/testnet runtime remains externally blocked by the expired Electrum certificate.
 
-### Milestone C: Future current line
+### Milestone C: RN 0.87.0 Latest Foundation
 
-- Target React Native: future current stable line after the next baseline has been proven.
-- React peer: checked from the future stable RN package at branch time.
-- Node engine: checked from the future stable RN package at branch time.
+- Target React Native: `0.87.0`
+- React peer: `^19.2.3`
+- Node engine: `^22.13.0 || ^24.3.0 || >= 26.0.0`
 
 Why:
 
-- This is the next destination after Milestone B has a stable package target and has been proven in the wallet.
-- Treat future RN lines as full foundation branches, not package-only React/RN edits.
+- RN `0.87.0` is the current npm `latest`, so the RC4 probe can move to a stable full-foundation acceptance branch.
+- The complete RN package cohort, Android toolchain, AsyncStorage KSP alignment, release builds, emulator runtime, and iOS handoff must move together.
+
+Status:
+
+- This is the current foundation acceptance candidate on `feature/bem-37-974-rn-087-stable`.
+- Android debug and all four local release variants build with AGP `9.2.1`, Gradle `9.4.1`, Kotlin `2.2.10`, compile SDK `37`, target SDK `36`, and JDK `17`.
+- The no-network emulator smoke passes; the ordinary dev/testnet dashboard path remains externally blocked by the expired Electrum TLS certificate.
+- Windows iOS static validation is required for this milestone, while simulator/archive acceptance still requires macOS, Xcode, CocoaPods, and a refreshed `Podfile.lock`.
 
 ## Validation Gates
 

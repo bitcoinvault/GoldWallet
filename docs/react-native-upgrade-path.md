@@ -18,20 +18,20 @@ Plist major compatibility is tracked by `corepack yarn plist:major-compatibility
 
 ## Current Baseline
 
-- React Native: `0.86.2`
+- React Native: `0.87.0`
 - React: `19.2.3`
-- RN Babel preset: `0.86.2`
-- RN Metro config: `0.86.2`
+- RN Babel preset: `0.87.0`
+- RN Metro config: `0.87.0`
 - Metro/dev Node runtime: `24.16.0`
-- Android compile SDK: `36`
+- Android compile SDK: `37`
 - Android target SDK: `36`
-- Android build tools: `36.0.0`
-- Android Gradle Plugin: `8.13.2`
-- Gradle wrapper: `8.13`
+- Android build tools: `37.0.0`
+- Android Gradle Plugin: `9.2.1`
+- Gradle wrapper: `9.4.1`
 
 The current baseline is the first RN foundation checkpoint, not the final modernization target. It also should not walk every minor version one by one. The goal is a controlled milestone-jump path toward a current supported React Native line after the dependency and native tooling blockers are understood.
 
-Current Android template/toolchain baseline compiles and targets SDK 36 on AGP 8.13.2.
+Current Android template/toolchain baseline compiles with SDK 37 and targets SDK 36 on AGP 9.2.1.
 
 ## Upgrade Principles
 
@@ -40,7 +40,7 @@ Current Android template/toolchain baseline compiles and targets SDK 36 on AGP 8
 - Keep target SDK changes tied to the React Native/toolchain path that owns Android template and debug receiver behavior.
 - Run emulator smoke for every runtime, dependency, native, or Metro-affecting branch.
 - Re-check the latest stable React Native release during the actual RN baseline branch instead of hardcoding it in this document.
-- Prefer milestone jumps over version-by-version package work. Current milestone target is the validated `0.86.x` line. As of the 2026-08-10 live probe, npm `latest` is `0.86.2`; `0.87.0-rc.4` remains a prerelease planning signal and the exact nightly version remains informational rather than the default wallet upgrade target. BEM-37.962 proves that the RC4 Android cohort builds with AGP 9's documented temporary legacy Kotlin/DSL opt-outs, while full dev/testnet runtime acceptance remains blocked by the expired external Electrum certificate.
+- Prefer milestone jumps over version-by-version package work. Current milestone target is the stable `0.87.x` line. As of the 2026-08-11 live probe, npm `latest` is `0.87.0`; `0.87.0-rc.4` remains a historical prerelease tag and the exact nightly version remains informational rather than the default wallet upgrade target. BEM-37.962 proved the RC4 Android cohort, and BEM-37.974 promotes that work to a stable acceptance candidate with the same explicit AGP 9 compatibility bridge. Full dev/testnet network acceptance remains externally constrained by the expired external Electrum certificate.
 
 ## Required Work Before The Next RN Step
 

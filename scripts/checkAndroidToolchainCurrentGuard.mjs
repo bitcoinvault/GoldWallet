@@ -32,15 +32,15 @@ const assertRejected = (label, values, expectedError) => {
 
 assertAccepted('Valid Android toolchain current-state fixture', validValues);
 assertRejected('Bad Java fixture', { ...validValues, javaMajor: '21' }, 'javaMajor');
-assertRejected('Bad AGP fixture', { ...validValues, agp: '9.2.1' }, 'agp');
-assertRejected('Bad Gradle fixture', { ...validValues, gradle: '9.5.1' }, 'gradle');
-assertRejected('Bad Kotlin fixture', { ...validValues, kotlin: '2.4.0' }, 'kotlin');
+assertRejected('Bad AGP fixture', { ...validValues, agp: '8.13.2' }, 'agp');
+assertRejected('Bad Gradle fixture', { ...validValues, gradle: '8.13' }, 'gradle');
+assertRejected('Bad Kotlin fixture', { ...validValues, kotlin: '2.1.20' }, 'kotlin');
 assertRejected('Bad build tools fixture', { ...validValues, buildTools: '35.0.0' }, 'buildTools');
 assertRejected('Bad min SDK fixture', { ...validValues, minSdk: '23' }, 'minSdk');
 assertRejected('Bad compile SDK fixture', { ...validValues, compileSdk: '35' }, 'compileSdk');
 assertRejected('Bad target SDK fixture', { ...validValues, targetSdk: '35' }, 'targetSdk');
 assertRejected('Bad NDK fixture', { ...validValues, ndk: '26.1.10909125' }, 'ndk');
-assertRejected('Bad RN Gradle plugin fixture', { ...validValues, rnGradlePlugin: '0.87.0' }, 'rnGradlePlugin');
+assertRejected('Bad RN Gradle plugin fixture', { ...validValues, rnGradlePlugin: '0.86.2' }, 'rnGradlePlugin');
 assertRejected('Disabled New Architecture fixture', { ...validValues, newArchEnabled: 'false' }, 'newArchEnabled');
 assertRejected('Disabled Hermes fixture', { ...validValues, hermesEnabled: 'false' }, 'hermesEnabled');
 assertRejected('Missing JDK guard fixture', { ...validValues, jdkGuardPresent: false }, 'JDK 17 Gradle guard');

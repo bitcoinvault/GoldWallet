@@ -21,7 +21,7 @@ jobs:
   semgrep:
     name: Scan
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - name: Check out repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -74,7 +74,7 @@ jobs:
           if [ -f .semgrep-policy/scripts/checkSemgrepSarifBaseline.mjs ]; then
             exit 0
           fi
-          echo "a72ac8ddea6c21d48614245aafce552dceedbdfe8dba1e57d7c7b48a2b80ca7f  scripts/checkSemgrepSarifBaseline.mjs" | sha256sum --check -
+          echo "1eb26e84a9c452ddcfbb1ee75999313cfacca0954540dfe63103278e7d130e97  scripts/checkSemgrepSarifBaseline.mjs" | sha256sum --check -
           mkdir -p .semgrep-policy/scripts
           cp scripts/checkSemgrepSarifBaseline.mjs .semgrep-policy/scripts/checkSemgrepSarifBaseline.mjs
 

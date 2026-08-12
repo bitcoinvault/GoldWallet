@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 
 export const migrationInputPaths = [
@@ -17,8 +17,16 @@ export const migrationInputPaths = [
   'validation/legacySecureStorageMigrationProbeEntry.js',
 ];
 
+const isFile = filePath => Boolean(filePath && existsSync(filePath) && statSync(filePath).isFile());
+
 export const sha256File = filePath =>
-  existsSync(filePath) ? createHash('sha256').update(readFileSync(filePath)).digest('hex') : '<missing>';
+  isFile(filePath) ? createHash('sha256').update(readFileSync(filePath)).digest('hex') : '<missing>';
+
+export const getFileEvidence = filePath => ({
+  present: isFile(filePath),
+  bytes: isFile(filePath) ? statSync(filePath).size : 0,
+  sha256: sha256File(filePath),
+});
 
 export const sha256MigrationInputs = root => {
   const hash = createHash('sha256');

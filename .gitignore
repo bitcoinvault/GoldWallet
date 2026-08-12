@@ -79,6 +79,9 @@ sentry.properties
 sourcemap.ios.js
 sourcemap.android.js
 
+# Local security scan output
+*.sarif
+
 *.log
 *.hprof
 

@@ -72,9 +72,9 @@ try {
   errors.push(`current Babel 7 / React Native preset transform failed: ${error instanceof Error ? error.message : String(error)}`);
 }
 
-if (packageJson.devDependencies?.['@react-native/babel-preset'] !== '0.86.2') {
+if (packageJson.devDependencies?.['@react-native/babel-preset'] !== '0.87.0') {
   errors.push(
-    `package.json devDependencies.@react-native/babel-preset must stay on 0.86.2 for this blocker evidence. Found ${
+    `package.json devDependencies.@react-native/babel-preset must stay on 0.87.0 for this blocker evidence. Found ${
       packageJson.devDependencies?.['@react-native/babel-preset'] || '<missing>'
     }`,
   );
@@ -120,4 +120,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('Babel 8 migration probe evidence matches the current RN 0.86 Babel 7 blocker.');
+console.log('Babel 8 migration probe evidence matches the current RN 0.87 Babel 7 blocker.');

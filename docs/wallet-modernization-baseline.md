@@ -18,7 +18,7 @@ All modernization work should be developed on focused task branches and merged i
 - App version: `6.5.1` (`versionCode 14`), sourced from `android/release-version.properties`
 - Public Google Play baseline: `6.5.2` observed 2026-07-16; the next production candidate requires a newer `versionName` and a `versionCode` above the value supplied from Play Console
 - Google Play internal handoff: official API client wired in read-only dry-run mode; execution requires ignored service-account credentials, real upload signing, a monotonic release version, a passed live Electrum release gate, and explicit commit confirmation
-- React Native: `0.86.2`
+- React Native: `0.87.0`
 - React: `19.2.3`
 - TypeScript: `6.0.3`
 - Jest: `30.4.2`
@@ -27,8 +27,8 @@ All modernization work should be developed on focused task branches and merged i
 - ts-jest: `29.4.12`
 - Detox: `20.51.4`
 - Google API tooling: `@googleapis/androidpublisher 37.0.0` for Play release handoff and `googleapis 174.0.1` for the Gmail OAuth helper (Node-only development tooling)
-- RN Babel preset: `0.86.2`
-- RN Metro config: `0.86.2`
+- RN Babel preset: `0.87.0`
+- RN Metro config: `0.87.0`
 - Android New Architecture: enabled
 - Hermes: enabled
 - JSC flavor declaration: `org.webkit:android-jsc:+` remains present as the inactive fallback path while Hermes is enabled.
@@ -41,13 +41,13 @@ Current stack:
 - Repository Node hint: `.nvmrc` -> `24.16.0`
 - Yarn: `1.22.22` via Corepack
 - Git hooks: Husky `9.1.7` with repo-owned `.husky/pre-commit` running `.nvmrc` Node through `npx -y -p node@... -p yarn@1.22.22 yarn precommit`; `.husky/pre-push` forwards to `yarn prepush`
-- Android build JDK: JDK 17 required by the AGP 8.13 baseline
-- Android Gradle Plugin: `8.13.2`
-- Gradle wrapper: `8.13`
-- Android compile SDK: `36`
+- Android build JDK: JDK 17 required by the React Native 0.87 / AGP 9.2 baseline
+- Android Gradle Plugin: `9.2.1`
+- Gradle wrapper: `9.4.1`
+- Android compile SDK: `37`
 - Android target SDK: `36`
 - Android min SDK: `26`
-- Kotlin: `2.1.20`
+- Kotlin: `2.2.10`
 - NDK: `27.1.12297006`
 
 Observed incompatibilities:
@@ -60,12 +60,12 @@ Target direction:
 
 - Keep the current Metro/dev runtime aligned with `.nvmrc` and RN package engine requirements.
 - Use JDK 17 for local Android modernization work.
-- SDK 36 is now part of the RN/AGP 8.13 Android foundation baseline.
-- React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.86.2` toward a current supported line instead of walking every minor version or jumping blindly to latest.
+- Compile SDK 37 and target SDK 36 are part of the RN 0.87 / AGP 9.2 Android foundation baseline.
+- React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`; continue with milestone jumps from RN `0.87.0` toward a current supported line instead of walking every minor version or jumping blindly to latest.
 - React Native target snapshot is tracked in `docs/react-native-target-snapshot.md`; refresh it when an actual RN baseline branch starts.
 - Wallet/crypto runtime package risk is tracked in `docs/wallet-crypto-runtime-audit.md` and checked with `corepack yarn wallet:crypto-runtime:audit`.
-- RN `0.86.2` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; use `corepack yarn rn:076-foundation:audit` before changing RN packages.
-- The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.86.2` latest, `0.87.0-rc.4` next, a valid prerelease nightly tag, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
+- RN `0.87.0` foundation scope is tracked in `docs/react-native-076-foundation-plan.md`; the legacy-named `corepack yarn rn:076-foundation:audit` validates the current foundation contract before changing RN packages.
+- The latest live npm target snapshot check matched the recorded React Native target snapshot: `react-native@0.87.0` latest, `0.87.0-rc.4` next, a valid prerelease nightly tag, React peer `^19.2.3`, and Node engine `^22.13.0 || ^24.3.0 || >= 26.0.0`.
 - Node runtime transition audit is tracked in `docs/node-runtime-transition-audit.md`.
 - React 19 impact audit is tracked in `docs/react19-impact-audit.md`; use it before changing React/RN package versions.
 - React package coupling audit is tracked in `docs/react-package-coupling-audit.md`; use it to keep React, renderer, and type packages moving together.
@@ -76,11 +76,11 @@ Target direction:
 
 ## Current Android Build Setup
 
-- Root Android Gradle Plugin: `com.android.tools.build:gradle:8.13.2`
+- Root Android Gradle Plugin: `com.android.tools.build:gradle:9.2.1`
 - Firebase Crashlytics Gradle plugin: `3.0.7`
 - Google Services Gradle plugin: `4.5.0`
-- Build tools configured as `36.0.0`
-- Android environment audit requires local `platforms;android-36` and `build-tools;36.0.0`.
+- Build tools configured as `37.0.0`
+- Android environment audit requires local `platforms;android-37` and `build-tools;37.0.0`.
 - Flavors: `dev`, `stage`, `prod`, `beta`
 - Current verified build command:
 
@@ -94,7 +94,7 @@ corepack yarn android:dev:verify
 
 ## Current Metro Setup
 
-Metro should be started with Node 24 for the current React Native 0.86 stack:
+Metro should be started with Node 24 for the current React Native 0.87 stack:
 
 ```powershell
 $env:Path='D:\tmp\node\node-v24.16.0-win-x64;' + $env:Path
@@ -120,7 +120,7 @@ High-risk native dependencies:
 
 - `@react-native-firebase/*` is now on the checked latest `26.2.0` package family; Firebase release delivery remains a runtime validation item, not a package-version blocker. RN Firebase 26.1 introduced automatic Firebase SPM resolution on RN >= 0.75, and 26.2 fixes that optional archive path plus restores the iOS Crashlytics dSYM upload phase. The iOS Podfile explicitly keeps CocoaPods until the SPM archive path is validated on macOS/Xcode. The unchanged Firebase Apple SDK `12.17.0` raises the effective Xcode floor to `26.2`, and the macOS prerequisite audit verifies that stricter dependency requirement instead of relying only on React Native's `16.1` minimum.
 - `react-native-camera` was replaced by `react-native-camera-kit`; the scanner is now on the checked latest `18.0.1` patch, which fixes iOS motion-manager teardown and retention issues without changing the Android scanner API.
-- Navigation/layout packages are on the RN `0.86.2` checkpoint versions checked on 2026-08-10: `@react-navigation/native@7.3.16`, `@react-navigation/stack@7.10.22`, `@react-navigation/bottom-tabs@7.18.16`, `@react-navigation/devtools@7.1.12`, `react-native-gesture-handler@3.1.0`, `react-native-screens@4.27.0`, and `react-native-safe-area-context@5.8.1`; future bumps should stay tied to navigation smoke validation.
+- Navigation/layout packages remain on the versions checked on 2026-08-10 and validated with the RN `0.87.0` foundation: `@react-navigation/native@7.3.16`, `@react-navigation/stack@7.10.22`, `@react-navigation/bottom-tabs@7.18.16`, `@react-navigation/devtools@7.1.12`, `react-native-gesture-handler@3.1.0`, `react-native-screens@4.27.0`, and `react-native-safe-area-context@5.8.1`; future bumps should stay tied to navigation smoke validation.
 - `react-native-svg@15.15.5` is paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4`; future SVG/QR changes need the guarded QR render-screen validation.
 - `react-native-share@12.3.1`, `react-native-vector-icons@10.3.0`, `react-native-webview@14.0.1`, `react-native-bootsplash@7.3.2`, and `react-native-fast-image@8.6.3` are checked native packages whose future work should focus on release/device behavior, not generic warning cleanup.
 - `react-native-prompt-android` still requires Jetifier because it uses old Android support imports before transformation.
@@ -156,7 +156,7 @@ Passing:
 - `corepack yarn plist:major-compatibility:audit`
 - `corepack yarn plist:major-compatibility:check-summary`
 - `corepack yarn android:dev:check-light`
-- Metro dev runtime audit verifies the Node 24 `.nvmrc`, React Native `0.86.2`, RN Babel/Metro config packages, start script, and documentation baseline.
+- Metro dev runtime audit verifies the Node 24 `.nvmrc`, React Native `0.87.0`, RN Babel/Metro config packages, start script, and documentation baseline.
 - RN baseline preflight runs the Camera/QR validation handoff dry-run and now regenerates/checks `local-docs/camera-qr-validation-summary.txt` after candidate and migration summaries, so scanner readiness evidence cannot drift out of the main RN modernization gate.
 - Android lightweight check runs `check:node-runtime-version`, the Android warning baseline guard, Android warning artifact guard, Android dev environment audit self-check, Android toolchain current-state guard self-check, Android toolchain current-state check, Metro dev runtime audit self-check, React Native upgrade path audit self-check, React Native upgrade path audit, React Native renderer exact-version guard self-check, React Native renderer exact-version guard, camera usage self-check/inventory guard, QR scanner caller self-check/inventory guard, QR scanner validation script guard, QR render usage self-check/inventory guard, QR render validation script guard, legacy Android autolink self-check/guard, Sentry usage self-check/inventory guard, Sentry release integration self-check/guard, CodePush usage self-check/inventory guard, Firebase usage self-check/inventory guard, Firebase Messaging modular API guard, iOS push notification usage self-check/inventory guard, release-service env key self-check/guard, Android env mapping self-check/guard, iOS scheme config self-check/guard, iOS release-config doc guard, explorer/env readiness self-check/guard, store metadata readiness self-check/guard, rebranding release-config readiness self-check/guard, storage/network usage self-check/guard, storage/network validation script self-check/guard, Electrum endpoint readiness guard, Electrum certificate workflow guard, GitHub security workflow guard, Electrum runtime observation parser guard, Electrum Metro observation path guard, wallet crypto validation script guard, transaction details amount label guard, native module inventory self-check/inventory guard, native module upgrade-plan self-check/coverage guard, git dependency snapshot guard, wallet crypto latest snapshot guard, direct outdated snapshot guard, security resolution baseline guard, BL resolution guard, BL current resolution check, node-fetch resolution guard, secure-storage removal readiness guard, RN nodeify shim self-check/inventory guard, modernization log ID guard self-check, modernization log ID guard, lightweight check documentation guard, TypeScript check, and diff whitespace check.
 - The Android lightweight gate includes the App Center retirement self-check/source guard, rejecting retired dependencies, Android/iOS configuration files, Android resource switches, and Xcode resource references.
@@ -167,7 +167,7 @@ Passing:
 - `corepack yarn android:dev:assemble` on JDK 17
 - `corepack yarn android:dev:verify` on a connected Android emulator
 - `android:dev:verify` runs the embedded dev smoke path after rebuilding the APK, so the default verification flow validates the bundled APK without requiring Metro.
-- `corepack yarn android:dev:release:verify-local` currently rebuilds and validates `dev`, `stage`, `prod`, and `beta` release APK, JS bundle, source-map, and manifest evidence with JDK 17, AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, compile SDK `36`, target SDK `36`, and Sentry auto-upload disabled.
+- BEM-37.974 refreshed all four local release variants with JDK 17, RN `0.87.0`, AGP `9.2.1`, Gradle `9.4.1`, Kotlin `2.2.10`, compile SDK `37`, target SDK `36`, and Sentry auto-upload disabled. The release-summary, APK-manifest, Keychain presence, and retired App Center absence checks pass for dev, stage, prod, and beta artifacts.
 - Latest local Android release build evidence on `2026-08-11` from `BEM-37.973` proves the Keychain-primary migration-window runtime. A current `prodRelease` installed over the hash-verified retained historical legacy-only APK without clearing data; PIN, transaction-password hash, encrypted flag, and wallet data migrated through the first-party bridge, were removed from the old store only after successful Keychain writes, and the wallet remained accessible after storage-password and PIN verification. The proof is tied to candidate APK and migration-input hashes. Failed Keychain reads do not consume stale fallback data, and a Keychain deletion marker prevents failed legacy cleanup from restoring deleted state. The third-party package remains absent; first-party fallback removal, iOS runtime migration, Sentry upload, and funded transaction validation remain unclaimed.
 - `BEM-37.892` adds variant-aware release smoke validation for `dev`, `stage`, `prod`, and `beta`. On 2026-07-14, `corepack yarn android:prod:release:smoke:verify` passed twice on `emulator-5554` without Metro for package `io.goldwallet.wallet`: first-run terms, PIN, transaction password, email skip, empty dashboard, Create/Import navigation, CameraKit QR scanner, all bottom tabs, Settings Terms WebView, screenshot capture, and fatal/runtime logcat checks all passed. This proves the current `prodRelease` mainnet runtime baseline but does not clear the separate dev/testnet Electrum blocker or claim funded transaction validation.
 - `BEM-37.893` extends the variant-aware release path through real local wallet creation. On 2026-07-14, the `prodRelease` create-wallet smoke reached a standard-wallet mnemonic backup and the default 3-key vault public-key integration screen on `emulator-5554`, with no create-wallet error UI or fatal/runtime logcat findings. The generated checker binds the summary to the signed production smoke APK. This remains empty-wallet validation only; funded transaction delivery is still blocked on test-wallet availability.
@@ -193,11 +193,11 @@ Passing:
 - Removed Android warning sources include the stale app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, the previous Sentry `execResult` finding, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, two `@react-native-community/slider` `jcenter()` entries, `react-native-device-info` `jcenter()`, `react-native-vector-icons` `jcenter()`, `@react-native-community/toolbar-android` `jcenter()`, and `react-native-prompt-android` `jcenter()`.
 - The current CameraKit scanner migration state is covered by `corepack yarn camera:qr-migration:audit`; Sentry Gradle/source-map wiring is still covered by `corepack yarn sentry:android-warning:audit` even though the active warning audit no longer reports Sentry `execResult`.
 - The latest live RN target snapshot check reports `Live check outcome: matched` with `Mismatches: 0`.
-- Latest live RN target snapshot check on `2026-08-10` matched the recorded `2026-08-10` snapshot: `react-native@0.86.2` latest, `0.87.0-rc.4` next, a valid prerelease nightly tag, React peer `^19.2.3`, and Node engine `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`. Exact nightly drift is informational and no longer forces daily snapshot-only commits.
-- Latest live foundation dependency cohort snapshots were refreshed from npm through `2026-08-11`. Wallet/crypto keeps only the BitcoinVault `bitcoinjs-lib` fork intentionally pinned; storage/network reports 9 current entries after `BEM-37.932`; tooling reports 25 tracked entries with `jsdom@30.0.1`, `@types/jsdom@30.0.0`, `@typescript-eslint@8.67.0`, `eslint@10.8.1`, and `lint-staged@17.3.0`. TypeScript 7 remains assigned to a dedicated compiler/RN/Metro branch: its compatibility probe still reports 3 peer-range blockers across `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, and `ts-jest@29.4.12`; the plist major compatibility probe keeps `plist@3.1.1` / `simple-plist@1.3.1` because latest `plist@5.0.0` breaks the current CommonJS owner path; and the Android toolchain target remains blocked at AGP `9.3.1` / Gradle `9.6.1` by the RN Gradle plugin `0.86.2` Kotlin metadata path while the validated baseline remains AGP `8.13.2` / Gradle `8.13` / Kotlin `2.1.20`.
+- Latest live RN target snapshot check on `2026-08-11` matched the recorded `2026-08-11` snapshot: `react-native@0.87.0` latest, `0.87.0-rc.4` next, a valid prerelease nightly tag, React peer `^19.2.3`, and Node engine `^22.13.0 || ^24.3.0 || >= 26.0.0`. Exact nightly drift is informational and no longer forces daily snapshot-only commits.
+- Latest live foundation dependency cohort snapshots were refreshed from npm through `2026-08-11`. Wallet/crypto keeps only the BitcoinVault `bitcoinjs-lib` fork intentionally pinned; storage/network reports 9 current entries after `BEM-37.932`; tooling reports 25 tracked entries with `jsdom@30.0.1`, `@types/jsdom@30.0.0`, `@typescript-eslint@8.67.0`, `eslint@10.8.1`, and `lint-staged@17.3.0`. TypeScript 7 remains assigned to a dedicated compiler/RN/Metro branch because of its recorded `@typescript-eslint` and `ts-jest` peer blockers. The RN `0.87.0` foundation adopts AGP `9.2.1` / Gradle `9.4.1` and aligns Kotlin/KSP at `2.2.10`; newer Android toolchain movement remains a separate compatibility branch.
 - Security resolution baselines after `BEM-37.863` through `BEM-37.972` pin patched transitive versions for the recorded security owner paths. The current Sentry CLI path resolves `undici@8.10.0`, the independent jsdom path retains `undici@8.9.0`, and the Firebase/Firestore proto-loader path resolves `protobufjs@8.7.2`. `check:sentry-cli-transport` guards owner-context resolution, the Sentry SDK/CLI dependency chain, Node engine, CommonJS transport APIs, local HTTP response streaming, and the active packaged CLI binary/version; `check:protobufjs-owner-path` guards the Firebase owner chain, encode/decode, and proto-loader service definitions. The lockfile baseline continues to reject the known vulnerable versions enumerated by `check:security-resolution-baselines`. `corepack yarn audit --json --level high` last reported `0` critical and `0` high findings, down from `22` critical and `148` high before the security branches; the Yarn Classic audit endpoint outage remains recorded separately rather than being treated as a fresh audit pass.
 - The TypeScript 7 compatibility probe was hardened on `2026-07-12`: `typescript@7.0.2` still satisfies the repo Node `v24.16.0`, but remains blocked by `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, and `ts-jest` peer ranges. An isolated normal npm install of the latest TypeScript/tooling cohort now fails with `ERESOLVE`; the legacy-peer fallback installs only to confirm the actual latest peer ceilings.
-- The Babel 8 migration probe was hardened on `2026-07-12`: the full latest Babel 8 cohort installs in an isolated temp prefix and matches live latest metadata, but the RN `0.86.2` preset transform still fails with `BABEL_VERSION_UNSUPPORTED` in the `@babel/plugin-transform-flow-strip-types` path.
+- The Babel 8 migration probe was refreshed on `2026-08-11`: the full latest Babel 8 cohort installs in an isolated temp prefix and matches live latest metadata, but the RN `0.87.0` preset transform still fails with `BABEL_VERSION_UNSUPPORTED` in the `@babel/plugin-transform-flow-strip-types` path.
 - `corepack yarn android:dev:check-artifacts` verifies the latest smoke and warning-audit summaries, their referenced local artifacts, and any listed targeted warning sources against the Android warning baseline guard
 - `corepack yarn android:dev:check-artifact-guard` verifies the warning-summary source guard with known-source, zero-warning, mismatched-count, and unexpected-source cases
 - `corepack yarn android:dev:audit-smoke` runs the Android environment audit, refreshes warning audit, embedded emulator smoke, and artifact checker evidence in one pass
@@ -220,7 +220,7 @@ Known gaps:
 2. Continue CameraKit QR scanner validation on Android hardware and iOS after a Mac pod refresh; removed camera, masked-view, and Flipper pods are no longer present in `ios/Podfile.lock`, but broader iOS pod drift remains. Use `ios:mac-validation:handoff --all-schemes` on macOS for full shared-scheme simulator coverage after the pod refresh.
 3. Handle Sentry Gradle/source-map behavior in a dedicated release tooling branch.
 4. Upgrade native modules in controlled groups using `docs/native-module-upgrade-plan.md`.
-5. Continue from RN `0.86.2` on the current supported line, then move only to newer supported lines with the same build and emulator proof.
+5. Continue from RN `0.87.0` on the current supported line, then move only to newer supported lines with the same build and emulator proof.
 6. Keep future target SDK moves tied to the RN/toolchain path that owns Android template and debug receiver behavior.
 7. Upgrade iOS Podfile/deployment target and validate schemes.
 8. Add BTC network support and UI switching.

@@ -551,26 +551,26 @@ export const getAndroidReleaseSummaryErrors = (summary, root = process.cwd(), op
     errors.push(`Java version must report JDK 17. Received: ${javaVersion || 'missing'}`);
   }
 
-  if (androidGradlePlugin !== '8.13.2') {
+  if (androidGradlePlugin !== '9.2.1') {
     errors.push(
-      `Android Gradle Plugin must be 8.13.2 for the validated release baseline. Received: ${androidGradlePlugin || 'missing'}`,
+      `Android Gradle Plugin must be 9.2.1 for the validated release baseline. Received: ${androidGradlePlugin || 'missing'}`,
     );
   }
 
-  if (gradleWrapper !== '8.13') {
+  if (gradleWrapper !== '9.4.1') {
     errors.push(
-      `Gradle wrapper must be 8.13 for the validated release baseline. Received: ${gradleWrapper || 'missing'}`,
+      `Gradle wrapper must be 9.4.1 for the validated release baseline. Received: ${gradleWrapper || 'missing'}`,
     );
   }
 
-  if (kotlinGradlePlugin !== '2.1.20') {
+  if (kotlinGradlePlugin !== '2.2.10') {
     errors.push(
-      `Kotlin Gradle Plugin must be 2.1.20 for the validated release baseline. Received: ${kotlinGradlePlugin || 'missing'}`,
+      `Kotlin Gradle Plugin must be 2.2.10 for the validated release baseline. Received: ${kotlinGradlePlugin || 'missing'}`,
     );
   }
 
-  if (compileSdk !== '36') {
-    errors.push(`Compile SDK must be 36 for the validated release baseline. Received: ${compileSdk || 'missing'}`);
+  if (compileSdk !== '37') {
+    errors.push(`Compile SDK must be 37 for the validated release baseline. Received: ${compileSdk || 'missing'}`);
   }
 
   if (targetSdk !== '36') {

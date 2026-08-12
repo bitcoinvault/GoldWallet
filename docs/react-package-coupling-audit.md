@@ -13,7 +13,7 @@ Test/type coupling audit is tracked in `docs/test-type-coupling-audit.md`.
 - Current react-test-renderer: `19.2.3`
 - Current bundled React Native renderer: `19.2.3`
 - Target React peer from RN target snapshot: `^19.2.3`
-- React `19.2.8` remains blocked on this RN `0.86.2` baseline because `react-native-renderer` is exact-version sensitive at `19.2.3`.
+- React `19.2.8` remains blocked on this RN `0.87.0` baseline because `react-native-renderer` is exact-version sensitive at `19.2.3`.
 - The generated live blocker summary is written to `local-docs/react-patch-blocker-summary.txt`; it records live npm metadata for `react`, `react-test-renderer`, and `@types/react`, then tests the package-only latest React patch candidate against the current bundled React Native renderer version.
 - Current package-only candidate proof: `react@19.2.8` with `react-test-renderer@19.2.8` is rejected because `React package version 19.2.8 does not match React Native renderer exact version 19.2.3`.
 

@@ -49,7 +49,7 @@ const readyAudit = {
   warnings: [],
   podfileLockDriftIssues: [],
   removedPodfileLockDriftIssues: [],
-  reactNativeVersion: '0.86.2',
+  reactNativeVersion: '0.87.0',
   rnMinIosVersion: '15.1',
   rnMinXcodeVersion: '16.1',
   firebaseAppleSdkVersion: '12.17.0',

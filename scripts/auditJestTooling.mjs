@@ -17,7 +17,7 @@ const expectedDevDependencies = {
   'jest-environment-node': '30.4.1',
   'ts-jest': '29.4.12',
   '@types/jest': '30.0.0',
-  '@react-native/jest-preset': '0.86.2',
+  '@react-native/jest-preset': '0.87.0',
 };
 const expectedInstalledPackages = {
   jest: '30.4.2',
@@ -28,7 +28,7 @@ const expectedInstalledPackages = {
   'jest-mock': '30.4.1',
   'ts-jest': '29.4.12',
   '@types/jest': '30.0.0',
-  '@react-native/jest-preset': '0.86.2',
+  '@react-native/jest-preset': '0.87.0',
 };
 const checkedLatest = {
   jest: '30.4.2',

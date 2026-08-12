@@ -26,4 +26,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('Navigation runtime cohort matches the validated RN 0.86 baseline.');
+console.log('Navigation runtime cohort matches the validated RN 0.87 baseline.');

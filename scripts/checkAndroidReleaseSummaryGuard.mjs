@@ -174,10 +174,10 @@ const validSummary = [
   'Variant count: 4',
   'Java executable: D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10\\bin\\java.exe',
   'Java version: openjdk version "17.0.19" 2026-04-15',
-  'Android Gradle Plugin: 8.13.2',
-  'Gradle wrapper: 8.13',
-  'Kotlin Gradle Plugin: 2.1.20',
-  'Compile SDK: 36',
+  'Android Gradle Plugin: 9.2.1',
+  'Gradle wrapper: 9.4.1',
+  'Kotlin Gradle Plugin: 2.2.10',
+  'Compile SDK: 37',
   'Target SDK: 36',
   'Android SDK resolution source: LOCALAPPDATA',
   'Explicit ANDROID_HOME present: no',
@@ -326,10 +326,10 @@ assertAccepted(
     'Variant count: 1',
     'Java executable: D:\\tmp\\jdks\\temurin17\\jdk-17.0.19+10\\bin\\java.exe',
     'Java version: openjdk version "17.0.19" 2026-04-15',
-    'Android Gradle Plugin: 8.13.2',
-    'Gradle wrapper: 8.13',
-    'Kotlin Gradle Plugin: 2.1.20',
-    'Compile SDK: 36',
+    'Android Gradle Plugin: 9.2.1',
+    'Gradle wrapper: 9.4.1',
+    'Kotlin Gradle Plugin: 2.2.10',
+    'Compile SDK: 37',
     'Target SDK: 36',
     'Android SDK resolution source: LOCALAPPDATA',
     'Explicit ANDROID_HOME present: no',
@@ -435,23 +435,23 @@ assertRejected(
 );
 assertRejected(
   'Bad Android Gradle Plugin fixture',
-  validSummary.replace('Android Gradle Plugin: 8.13.2', 'Android Gradle Plugin: 9.2.1'),
-  'Android Gradle Plugin must be 8.13.2',
+  validSummary.replace('Android Gradle Plugin: 9.2.1', 'Android Gradle Plugin: 8.13.2'),
+  'Android Gradle Plugin must be 9.2.1',
 );
 assertRejected(
   'Bad Gradle wrapper fixture',
-  validSummary.replace('Gradle wrapper: 8.13', 'Gradle wrapper: 9.5.1'),
-  'Gradle wrapper must be 8.13',
+  validSummary.replace('Gradle wrapper: 9.4.1', 'Gradle wrapper: 8.13'),
+  'Gradle wrapper must be 9.4.1',
 );
 assertRejected(
   'Bad Kotlin Gradle Plugin fixture',
-  validSummary.replace('Kotlin Gradle Plugin: 2.1.20', 'Kotlin Gradle Plugin: 2.4.0'),
-  'Kotlin Gradle Plugin must be 2.1.20',
+  validSummary.replace('Kotlin Gradle Plugin: 2.2.10', 'Kotlin Gradle Plugin: 2.1.20'),
+  'Kotlin Gradle Plugin must be 2.2.10',
 );
 assertRejected(
   'Bad Compile SDK fixture',
-  validSummary.replace('Compile SDK: 36', 'Compile SDK: 35'),
-  'Compile SDK must be 36',
+  validSummary.replace('Compile SDK: 37', 'Compile SDK: 36'),
+  'Compile SDK must be 37',
 );
 assertRejected(
   'Bad Target SDK fixture',

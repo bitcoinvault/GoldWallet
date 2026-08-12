@@ -21,8 +21,8 @@ export const getIosRnTemplateBaselineErrors = ({
   detoxIosBuild = normalizeEol(detoxIosBuild);
   gemfile = normalizeEol(gemfile);
 
-  if (reactNativeVersion !== '0.86.2') {
-    errors.push(`React Native iOS template baseline expects react-native 0.86.2. Found: ${reactNativeVersion || 'missing'}`);
+  if (reactNativeVersion !== '0.87.0') {
+    errors.push(`React Native iOS template baseline expects react-native 0.87.0. Found: ${reactNativeVersion || 'missing'}`);
   }
 
   const requiredPodfileSnippets = [
@@ -39,7 +39,7 @@ export const getIosRnTemplateBaselineErrors = ({
 
   requiredPodfileSnippets.forEach(snippet => {
     if (!podfile.includes(snippet)) {
-      errors.push(`ios/Podfile is missing the RN 0.86 template baseline snippet: ${snippet}`);
+      errors.push(`ios/Podfile is missing the RN 0.87 template baseline snippet: ${snippet}`);
     }
   });
 
@@ -92,7 +92,7 @@ export const getIosRnTemplateBaselineErrors = ({
     'RCTLinkingManager',
   ].forEach(snippet => {
     if (!appDelegate.includes(snippet)) {
-      errors.push(`iOS AppDelegate is missing the RN 0.86 startup integration: ${snippet}`);
+      errors.push(`iOS AppDelegate is missing the RN 0.87 startup integration: ${snippet}`);
     }
   });
 
@@ -124,7 +124,7 @@ export const getIosRnTemplateBaselineErrors = ({
   }
 
   if (!pbxproj.includes('compatibilityVersion = "Xcode 12.0";')) {
-    errors.push('Xcode project compatibilityVersion must match the RN 0.86 template baseline Xcode 12.0');
+    errors.push('Xcode project compatibilityVersion must match the RN 0.87 template baseline Xcode 12.0');
   }
 
   const swiftVersions = [...pbxproj.matchAll(/SWIFT_VERSION = ([^;]+);/g)].map(match => match[1]);

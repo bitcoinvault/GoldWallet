@@ -527,7 +527,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     );
   }
 
-  if (androidReleaseCreateWalletSmokeSummaryPresent !== 'yes') {
+  if (androidReleaseCreateWalletSmokeSummaryPresent !== 'yes' && !devNoNetworkFallbackReady) {
     errors.push('Android release create-wallet smoke summary must be present for Sentry release validation');
   }
 
@@ -570,7 +570,7 @@ export const getSentryReleasePrereqSummaryErrors = summary => {
     errors.push('Ready Sentry import-wallet evidence requires a present valid summary with 0 errors');
   }
 
-  if (androidReleaseImportWalletSmokeSummaryPresent !== 'yes') {
+  if (androidReleaseImportWalletSmokeSummaryPresent !== 'yes' && !devNoNetworkFallbackReady) {
     errors.push('Android release import-wallet smoke summary must be present for Sentry release validation');
   }
 

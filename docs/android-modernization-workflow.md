@@ -18,7 +18,7 @@ Use JDK 17 for local Android work:
 $env:JAVA_HOME = 'D:\tmp\jdks\temurin17\jdk-17.0.19+10'
 ```
 
-The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to `java` from `PATH`. The AGP 8.13 baseline requires JDK 17. It accepts a valid `ANDROID_HOME`/`ANDROID_SDK_ROOT`, fails fast when explicit paths are missing or inconsistent, and uses the standard Windows/macOS/Linux SDK location only when neither variable is set. On Windows it falls back to `%LOCALAPPDATA%\Android\Sdk`; this keeps fresh Git worktrees buildable without committing `android/local.properties` while preventing a broken explicit configuration from being silently masked.
+The Android Gradle runner checks `JAVA_HOME\bin\java.exe` before falling back to `java` from `PATH`. The React Native 0.87 / AGP 9.2 baseline requires JDK 17. It accepts a valid `ANDROID_HOME`/`ANDROID_SDK_ROOT`, fails fast when explicit paths are missing or inconsistent, and uses the standard Windows/macOS/Linux SDK location only when neither variable is set. On Windows it falls back to `%LOCALAPPDATA%\Android\Sdk`; this keeps fresh Git worktrees buildable without committing `android/local.properties` while preventing a broken explicit configuration from being silently masked.
 
 ## Checks
 
@@ -34,7 +34,7 @@ For a quick local toolchain sanity check before Android build/smoke work:
 corepack yarn android:dev:env-audit
 ```
 
-The environment audit verifies JDK 17, adb access, the required validation scripts, and the Android SDK 36 platform/build-tools directories used by the current Android baseline.
+The environment audit verifies JDK 17, adb access, the required validation scripts, and the Android SDK 37 platform/build-tools directories used by the current Android baseline.
 
 The environment audit checks the active Node version, `.nvmrc`, `JAVA_HOME`/Java major version, Android SDK/ADB discovery, Gradle wrappers, required validation helper files, and the package scripts used by the Android validation workflow, including the RN upgrade path audit scripts. It warns when Metro/dev runtime is not on Node 24 and fails when Java/ADB or required helper files are missing.
 
@@ -44,9 +44,9 @@ Use `corepack yarn metro:dev-runtime:audit` to verify that `.nvmrc`, React Nativ
 
 When a terminal is still on a different global Node version, use `corepack yarn node:runtime:yarn <script>` to run a Yarn script under the exact Node version from `.nvmrc` through Corepack. This is useful for network-backed latest snapshots such as `corepack yarn node:runtime:yarn direct-outdated:snapshot:audit`, because those summaries intentionally fail if they are generated with a non-baseline Node runtime. `check:node-runtime-yarn-runner-guard` keeps the wrapper pinned to `.nvmrc` and non-interactive `npm exec --package node@<version>` instead of silently falling back to the shell's global Node.
 
-Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.86.2` package baseline, Android SDK 36 toolchain baseline, and related documentation still agree.
+Use `corepack yarn rn:upgrade-path:audit` before starting a React Native baseline branch to verify that the staged upgrade path, current RN `0.87.0` package baseline, Android compile SDK 37 / target SDK 36 toolchain baseline, and related documentation still agree.
 
-Use the legacy-named `corepack yarn rn:076-foundation:audit` before the next React Native foundation branch to verify that the RN `0.86.2` checkpoint still includes React 19, Node 24, Metro/Babel, Android template, iOS Podfile, and package-only blocker scope.
+Use the legacy-named `corepack yarn rn:076-foundation:audit` before the next React Native foundation branch to verify that the RN `0.87.0` checkpoint still includes React 19, Node 24, Metro/Babel, Android template, iOS Podfile, and package-only blocker scope.
 
 Use `corepack yarn react:renderer-version:audit` before any React package movement to verify that `react` still matches the exact version required by the bundled `react-native-renderer`.
 
@@ -64,9 +64,9 @@ The generated React patch blocker summary does more than record npm latest metad
 
 `bl:resolution:audit` keeps the direct `bl` resolution blocker concrete. In addition to npm metadata it installs the current latest `bl` package in a temporary isolated probe directory, verifies that the current `bl@6.1.6` CommonJS runtime still works for guarded consumers, records whether the latest package exports `bl/package.json`, and records bare CJS `require('bl')` versus bare ESM import behavior. This keeps the `bl@7` decision tied to actual export-map compatibility rather than a generic outdated-package label.
 
-`android:toolchain-target:audit` records the currently validated Android toolchain, the live latest stable AGP, current Gradle, latest stable Kotlin target, and any newer Kotlin metadata release that is still prerelease-only. The current RN `0.86.2` baseline intentionally stays on AGP `8.13.2`, Gradle `8.13`, and Kotlin `2.1.20` because the checked AGP `9.3.1` path requires Gradle `9.4.1+`, while direct probes with Gradle `9.4.1`, `9.6.0`, and `9.6.1` fail compiling the included React Native Gradle plugin against newer embedded Kotlin runtime metadata. The latest AGP `9.3.1` / Gradle `9.6.1` / Kotlin `2.4.10` probe failed in `:gradle-plugin:settings-plugin:compileKotlin` while compiling `ReactSettingsExtension.kt`. The generated summary derives the direct probe tuple from live metadata and validates the committed BEM-37.938 evidence entry against that tuple, the failing task, the Kotlin metadata mismatch, and the current baseline so future live metadata drift forces a new probe instead of silently reusing stale blocker text.
+The BEM-37.938 `android:toolchain-target:audit` evidence records the previous RN `0.86.2` blocker against AGP `9.3.1`, Gradle `9.6.1`, and Kotlin `2.4.10`; that historical probe was cleared for the supported RN 0.87 template tuple by moving to AGP `9.2.1`, Gradle `9.4.1`, and Kotlin `2.2.10`. Do not reuse the BEM-37.938 compiler failure as evidence about a newer RN 0.87 toolchain target. A future move beyond the current supported tuple requires a fresh isolated probe plus Android assemble, release validation, and emulator smoke.
 
-Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 24 Metro/dev runtime remains aligned with React Native `0.86.2` and the tooling baseline. Do not change `.nvmrc` as a standalone cleanup; keep it tied to a dedicated Node/tooling or React Native baseline branch.
+Use `corepack yarn node:runtime-transition:audit` to verify that the current Node 24 Metro/dev runtime remains aligned with React Native `0.87.0` and the tooling baseline. Do not change `.nvmrc` as a standalone cleanup; keep it tied to a dedicated Node/tooling or React Native baseline branch.
 
 Run React Native baseline preflight from the `.nvmrc` Node runtime. `android:dev:check-light`, `rn:baseline:preflight`, `rn:baseline:preflight:online`, Git `precommit`, and Git `prepush` all run `check:node-runtime-version` first to fail fast when a terminal is still using a non-`.nvmrc` Node runtime. The preflight also includes `corepack yarn lint-staged:tooling:audit`, `corepack yarn husky:tooling:audit`, `corepack yarn prettier:tooling:audit`, and `corepack yarn jest:tooling:audit`, so hook wiring, formatter integration, and Jest runtime resolutions are checked with the same Node 24 shell before larger RN/dependency branches.
 
@@ -317,7 +317,7 @@ On Windows, `android:dev:audit-warnings` falls back to the local `D:\tmp\jdks\te
 
 The warning audit writes the full log to `local-docs/android-warning-audit.log`, writes the compact targeted summary to `local-docs/android-warning-audit-summary.txt`, and prints targeted warning sources. The compact summary includes a generated timestamp, the full log path, timeout, exit code, baseline guard exit code, targeted warning count, unexpected targeted warning count, and remaining targeted sources. Set `ANDROID_WARNING_AUDIT_TIMEOUT_MS` to override the per-audit Gradle timeout. If the Gradle subprocess fails before producing output, the audit records the spawn error or signal in both artifacts.
 
-After running both warning audit and smoke, use the artifact checker for a quick consistency check. The checker accepts `0` targeted Android warning findings, because that is the desired future state after dependency cleanup. Until then, the audit allows only the known RN `0.86.2` native-module `jcenter()` source captured in `androidWarningBaselineGuard.mjs`; new targeted warning sources fail the guard. The artifact checker also verifies that the warning summary count matches the listed sources and that listed sources still pass the same baseline guard.
+After running both warning audit and smoke, use the artifact checker for a quick consistency check. The checker accepts `0` targeted Android warning findings, because that is the desired future state after dependency cleanup. The current RN `0.87.0` baseline has no allowed targeted Android warning source; new targeted warning sources fail the guard. The artifact checker also verifies that the warning summary count matches the listed sources and that listed sources still pass the same baseline guard.
 
 ```powershell
 corepack yarn android:dev:check-artifacts
@@ -433,5 +433,5 @@ Smoke pass means:
 - Removed Android warning sources: app `buildToolsVersion 28.0.3`, Clipboard `jcenter()`, Biometrics `jcenter()`, the previous Sentry `execResult` finding, `react-native-exit-app` `jcenter()`, `react-native-localize` `jcenter()`, `@react-native-community/slider` `jcenter()` from root/buildscript repositories, `react-native-device-info` `jcenter()`, `react-native-vector-icons` `jcenter()`, `@react-native-community/toolbar-android` `jcenter()`, and `react-native-prompt-android` `jcenter()`.
 - `react-native-camera` cleanup moved to the dedicated CameraKit QR migration branch.
 - Sentry release/source-map behavior still requires real `sentry.properties` generated with `SENTRY_AUTH_TOKEN`; the prerequisite summary records the installed Sentry SDK version and Android/iOS release integration wiring without printing secrets.
-- The current RN `0.86.2` warning baseline contains zero targeted Android Gradle warning sources after removal of the validated legacy secure-storage module.
+- The current RN `0.87.0` warning baseline contains zero targeted Android Gradle warning sources after removal of the validated legacy secure-storage module.
 - `docs/android-warning-baseline-followups.md` records the remaining warning sources and guards them against accidental warning-only replacements.

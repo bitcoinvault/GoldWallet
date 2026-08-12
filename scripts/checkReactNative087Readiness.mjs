@@ -25,8 +25,8 @@ const stableReactNativeCohort = [
 ];
 
 stableReactNativeCohort.forEach(packageName => {
-  if (packageVersions[packageName] !== '0.86.2') {
-    errors.push(`Production ${packageName} must remain on stable 0.86.2 until RN 0.87 acceptance is complete.`);
+  if (packageVersions[packageName] !== '0.87.0') {
+    errors.push(`Production ${packageName} must match the stable React Native 0.87.0 cohort.`);
   }
 });
 
@@ -34,23 +34,31 @@ if (packageJson.dependencies?.['@react-native-async-storage/async-storage'] !== 
   errors.push('The RN 0.87 blocker evidence expects latest AsyncStorage 3.1.1.');
 }
 
-if (!rootBuildGradle.includes('classpath("com.android.tools.build:gradle:8.13.2")')) {
-  errors.push('Production Android Gradle Plugin must remain on the validated 8.13.2 baseline.');
+if (!rootBuildGradle.includes('classpath("com.android.tools.build:gradle:9.2.1")')) {
+  errors.push('React Native 0.87 requires the validated Android Gradle Plugin 9.2.1 baseline.');
 }
 
-if (!rootBuildGradle.includes("kotlinVersion = '2.1.20'")) {
-  errors.push('Production Kotlin must remain on the validated 2.1.20 baseline.');
+if (!rootBuildGradle.includes("kotlinVersion = '2.2.10'")) {
+  errors.push('React Native 0.87 and AGP 9.2 require the validated Kotlin 2.2.10 baseline.');
 }
 
-if (!gradleWrapper.includes('distributionUrl=https\\://services.gradle.org/distributions/gradle-8.13-all.zip')) {
-  errors.push('Production Gradle wrapper must remain on the validated 8.13 baseline.');
+if (!rootBuildGradle.includes("kspVersion = '2.2.10-2.0.2'")) {
+  errors.push('AsyncStorage must use KSP 2.2.10-2.0.2 aligned with the Kotlin 2.2.10 application baseline.');
+}
+
+if (!gradleWrapper.includes('distributionUrl=https\\://services.gradle.org/distributions/gradle-9.4.1-all.zip')) {
+  errors.push('React Native 0.87 requires the validated Gradle 9.4.1 wrapper baseline.');
 }
 
 ['android.builtInKotlin', 'android.newDsl'].forEach(propertyName => {
-  if (new RegExp(`^\\s*${propertyName.replace('.', '\\.') }\\s*=`, 'm').test(gradleProperties)) {
-    errors.push(`${propertyName} is an RN 0.87 probe-only AGP 9 compatibility flag and must not be enabled in production.`);
+  if (!new RegExp(`^\\s*${propertyName.replace('.', '\\.') }\\s*=\\s*false\\s*$`, 'm').test(gradleProperties)) {
+    errors.push(`${propertyName}=false is required by the current AGP 9 compatibility checkpoint.`);
   }
 });
+
+if (!/^\s*edgeToEdgeEnabled\s*=\s*true\s*$/m.test(gradleProperties)) {
+  errors.push('edgeToEdgeEnabled=true is required by the stable React Native 0.87 Android template baseline.');
+}
 
 if (yarnLock.includes('0.87.0-rc.4')) {
   errors.push('yarn.lock still contains the RN 0.87 RC4 probe cohort.');
@@ -90,15 +98,20 @@ if ((appBuildGradle.match(/proguard-android-optimize\.txt/g) || []).length !== 2
 }
 
 const requiredDocSnippets = [
-  'Current stable target: `react-native@0.86.2`',
-  'Probed next target: `react-native@0.87.0-rc.4`',
-  'Required Android cohort: AGP `9.2.1`, Gradle `9.4.1`, Kotlin `2.2.0`',
+  'Current stable target: `react-native@0.87.0`',
+  'Previous probe target: `react-native@0.87.0-rc.4`',
+  'Required Android cohort: AGP `9.2.1`, Gradle `9.4.1`, Kotlin `2.2.10`',
   'Required temporary AGP compatibility flags: `android.builtInKotlin=false`, `android.newDsl=false`',
-  'Production upgrade decision: pending stable release and complete runtime acceptance',
+  'Production upgrade decision: Android acceptance passed; macOS iOS validation remains required',
+  'all `14` unit suites (`68` tests)',
+  'The signed `prodRelease` APK passed onboarding',
+  'migrated PIN, transaction password, encrypted flag, and wallet data into Keychain',
+  'The full `rn:baseline:preflight` passed',
+  '`ios/Podfile.lock` has `13` dependency-drift entries',
   'allows `assembleDevDebug` to complete',
   'all `795` executed Gradle tasks',
   'external dev/testnet Electrum certificate expired on 2026-06-23',
-  'Do not move production to a prerelease RN package',
+  'The production cohort contains no prerelease RN package',
 ];
 
 if (!existsSync(readinessDocPath)) {
@@ -117,4 +130,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('React Native 0.87 RC4 readiness evidence is guarded; production remains on stable 0.86.2 pending full acceptance.');
+console.log('React Native 0.87 stable cohort, Android toolchain, compatibility flags, and readiness evidence are guarded.');

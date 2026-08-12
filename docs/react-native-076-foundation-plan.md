@@ -1,42 +1,42 @@
 # React Native Foundation Checkpoint
 
-This document records the completed React Native foundation checkpoint. The filename and package script keep the old `076` name for compatibility with existing guards, but the guarded baseline is now RN `0.86.2`.
+This document records the completed React Native foundation checkpoint. The filename and package script keep the old `076` name for compatibility with existing guards, but the guarded baseline is now RN `0.87.0`.
 
 ## Current Baseline
 
-- React Native: `0.86.2`
+- React Native: `0.87.0`
 - React: `19.2.3`
-- RN Babel preset: `0.86.2`
-- RN Metro config: `0.86.2`
+- RN Babel preset: `0.87.0`
+- RN Metro config: `0.87.0`
 - Metro/dev Node runtime: `24.16.0`
-- Android compile SDK: `36`
+- Android compile SDK: `37`
 - Android target SDK: `36`
-- Android Gradle Plugin: `8.13.2`
-- Gradle wrapper: `8.13`
+- Android Gradle Plugin: `9.2.1`
+- Gradle wrapper: `9.4.1`
 
 ## Completed Package Set
 
 Completed first foundation checkpoint package set:
 
-- `react-native@0.86.2`
+- `react-native@0.87.0`
 - `react@19.2.3`
 - `react-test-renderer@19.2.3`
 - `@types/react@19.2.17`
-- `@react-native/babel-preset@0.86.2`
-- `@react-native/metro-config@0.86.2`
-- `@react-native/typescript-config@0.86.2`
-- `@react-native/gradle-plugin@0.86.2`
-- `@react-native/codegen@0.86.2`
+- `@react-native/babel-preset@0.87.0`
+- `@react-native/metro-config@0.87.0`
+- `@react-native/typescript-config@0.87.0`
+- `@react-native/gradle-plugin@0.87.0`
+- `@react-native/codegen@0.87.0`
 
 Important metadata:
 
-- `react-native@0.86.2` peers: React `^19.2.3`; the app pins React `19.2.3` to match `react-native-renderer`.
-- `react-native@0.86.2` Node engine: `^20.19.4 || ^22.13.0 || ^24.3.0 || >= 25.0.0`.
-- The repository keeps Metro/dev runtime on Node `24.16.0`, which satisfies the RN `0.86.2` engine range and the recorded target snapshot.
+- `react-native@0.87.0` peers: React `^19.2.3`; the app pins React `19.2.3` to match `react-native-renderer`.
+- `react-native@0.87.0` Node engine: `^22.13.0 || ^24.3.0 || >= 26.0.0`.
+- The repository keeps Metro/dev runtime on Node `24.16.0`, which satisfies the RN `0.87.0` engine range and the recorded target snapshot.
 
 ## Completed Template Scope
 
-The RN `0.86.2` checkpoint includes package and template/native migration together:
+The RN `0.87.0` checkpoint includes package and template/native migration together:
 
 - Node/dev runtime move from the old Node 16/22 baselines to Node 24 LTS for Metro and RN tooling.
 - Babel config migration from `metro-react-native-babel-preset` to the RN 0.86 preset stack.
