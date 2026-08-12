@@ -10,6 +10,58 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.976 - React Native 0.87 snapshot coherence
+
+- Branch: `feature/bem-37-976-rn-087-snapshot-coherence`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Align active foundation, direct-outdated, Node, React patch, and Android toolchain target contracts with the completed React Native `0.87.0` baseline.
+- Keep live latest-version discovery separate from durable direct-probe evidence so metadata drift fails closed instead of being reported as an unexecuted compatibility test.
+- Re-run the current latest-first Android toolchain probe without committing blocked toolchain versions.
+- Keep the encrypted-storage password prompt reliable during the React Native startup lifecycle and guard the versioned native patch after a real upgrade-in-place migration exposed a launch race.
+
+Findings:
+
+- The current stable React Native foundation is `0.87.0`; the six React Native-owned packages removed from the direct-outdated list are current rather than silently ignored blockers.
+- The validated Android baseline is AGP `9.2.1`, Gradle `9.4.1`, and Kotlin `2.2.10`, with compile SDK `37`, target SDK `36`, and JDK 17.
+- The toolchain contract now separates the current AGP `9.2.x` minimum Gradle `9.4.1` from the latest AGP `9.3.x` minimum Gradle `9.5.0`; the direct latest-first probe used Gradle `9.7.0`.
+- A direct latest-first probe on React Native `0.87.0` with AGP `9.3.1`, Gradle `9.7.0`, Kotlin `2.4.10`, and JDK 17 reached `:gradle-plugin:settings-plugin:compileKotlin` and failed while compiling `node_modules/@react-native/gradle-plugin/settings-plugin/src/main/kotlin/com/facebook/react/ReactSettingsExtension.kt`.
+- Gradle `9.7.0` supplies Kotlin metadata `2.4.0`; the React Native Gradle plugin compiles with Kotlin `2.2.0` and can read metadata only up to `2.3.0`.
+- The temporary probe values were restored. No blocked Android toolchain version is committed, and the next target must wait for an RN Gradle plugin compiler path compatible with Gradle `9.7.0` metadata.
+- A first clean historical-storage migration attempt migrated PIN, transaction password, and the encrypted flag, but remained on the splash screen because `react-native-prompt-android` could queue the password dialog before `onHostResume()` in a short-lived `FragmentManagerHelper`. The next lifecycle callback created another helper and lost the pending dialog.
+- The versioned prompt patch now retains pending arguments and callback at module scope across Android Activity replacement, resolves the current Activity `FragmentManager` only when displaying the dialog, and unregisters the lifecycle listener plus clears pending state during module invalidation. The fail-closed Jetifier/prompt guard checks both the patch and installed Java source so a clean install cannot silently restore the race, retain a stale Activity helper, or leak lifecycle state.
+- A clean rerun installed the historical APK, persisted an encrypted wallet, installed the RN `0.87.0` candidate with `adb install -r`, displayed and accepted the storage-password prompt, rejected an incorrect PIN, accepted the correct PIN, retained the wallet, migrated and removed all four legacy values, and reported no fatal/runtime findings or secret leakage.
+- Final locally signed `prodRelease` smoke covered onboarding, empty-wallet CTAs, tabs, QR scanner, and Terms WebView. Create-wallet smoke covered mnemonic protection, restart/PIN persistence, and the default vault path; public watch-only import smoke covered success, restart/PIN, and persistence. All three are bound to the final signed APK digest.
+- Dev/testnet full network proof remains externally blocked by the expired Electrum TLS certificate. The controlled no-network debug and release paths pass without fatal/runtime findings; this does not replace a future connected Electrum rerun.
+- Windows static iOS validation passes, but `ios/Podfile.lock` still has 13 dependency drifts and runtime/archive delivery remains unclaimed until the documented macOS Xcode 26.2+/CocoaPods handoff runs.
+
+Validation:
+
+- expected compatibility failure from JDK 17 `node scripts/runAndroidGradle.mjs :gradle-plugin:settings-plugin:compileKotlin --stacktrace` with temporary AGP `9.3.1`, Gradle `9.7.0`, and Kotlin `2.4.10`; temporary values restored
+- Node `24.16.0` `corepack yarn install --frozen-lockfile`
+- `corepack yarn check:jetifier-retirement-guard`
+- `corepack yarn check:jetifier-retirement`
+- `ANDROID_SECURE_STORAGE_HISTORICAL_SEED_APK=<ignored-seed-apk> ANDROID_SERIAL=emulator-5554 corepack yarn secure-storage:first-party-migration:verify`
+- JDK 17 `corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `corepack yarn android:prod:release:check-create-wallet-smoke-summary`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:import-wallet-smoke:embedded`
+- `corepack yarn android:prod:release:check-import-wallet-smoke-summary`
+- Node `24.16.0` / JDK 17 `corepack yarn rn:baseline:preflight` reached the Android dev smoke gate; the final rerun stopped on the externally expired dev/testnet Electrum TLS certificate, while the dedicated debug/release no-network smoke and blocker-summary guards passed
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded` plus the dev network-blocker audit/check
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:release:smoke:no-network:embedded` plus the release network-blocker audit/check
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit`
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:unit --runInBand` (`14` suites, `68` tests)
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn prepush`
+- `corepack yarn ios:static:verify`
+- `git diff --check`
+
 ### BEM-37.975 - Jetifier retirement
 
 - Branch: `feature/bem-37-975-jetifier-retirement`

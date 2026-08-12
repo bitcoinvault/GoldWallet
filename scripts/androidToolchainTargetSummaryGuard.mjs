@@ -30,7 +30,8 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
   const latestStableAgp = getLineValue(summary, 'Latest stable Android Gradle Plugin');
   const currentGradle = getLineValue(summary, 'Current Gradle wrapper');
   const latestGradle = getLineValue(summary, 'Latest Gradle current');
-  const minimumAgp9Gradle = getLineValue(summary, 'AGP 9 minimum Gradle wrapper');
+  const currentAgpMinimumGradle = getLineValue(summary, 'Current AGP minimum Gradle wrapper');
+  const latestAgpMinimumGradle = getLineValue(summary, 'Latest AGP minimum Gradle wrapper');
   const currentKotlin = getLineValue(summary, 'Current Kotlin Gradle Plugin');
   const latestKotlin = getLineValue(summary, 'Latest Kotlin Gradle Plugin');
   const kotlinMetadataRelease = getLineValue(summary, 'Latest Kotlin metadata release');
@@ -69,7 +70,8 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     ['Latest stable Android Gradle Plugin', latestStableAgp],
     ['Current Gradle wrapper', currentGradle],
     ['Latest Gradle current', latestGradle],
-    ['AGP 9 minimum Gradle wrapper', minimumAgp9Gradle],
+    ['Current AGP minimum Gradle wrapper', currentAgpMinimumGradle],
+    ['Latest AGP minimum Gradle wrapper', latestAgpMinimumGradle],
     ['Current Kotlin Gradle Plugin', currentKotlin],
     ['Latest Kotlin Gradle Plugin', latestKotlin],
     ['React Native Gradle plugin', rnGradlePlugin],
@@ -94,20 +96,28 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     errors.push(`Latest Kotlin metadata release prerelease must be yes or no. Received: ${kotlinMetadataReleasePrerelease || 'missing'}`);
   }
 
-  if (currentAgp !== '8.13.2') {
-    errors.push(`Current Android Gradle Plugin must remain 8.13.2 until the AGP 9 blocker is cleared. Received: ${currentAgp || 'missing'}`);
+  if (currentAgp !== '9.2.1') {
+    errors.push(`Current Android Gradle Plugin must match the validated 9.2.1 baseline. Received: ${currentAgp || 'missing'}`);
   }
 
-  if (currentGradle !== '8.13') {
-    errors.push(`Current Gradle wrapper must remain 8.13 until the AGP 9 blocker is cleared. Received: ${currentGradle || 'missing'}`);
+  if (currentGradle !== '9.4.1') {
+    errors.push(`Current Gradle wrapper must match the validated 9.4.1 baseline. Received: ${currentGradle || 'missing'}`);
   }
 
-  if (currentKotlin !== '2.1.20') {
-    errors.push(`Current Kotlin Gradle Plugin must remain 2.1.20 until the AGP 9 blocker is cleared. Received: ${currentKotlin || 'missing'}`);
+  if (currentAgpMinimumGradle !== '9.4.1') {
+    errors.push(`Current AGP minimum Gradle wrapper must match AGP 9.2 at 9.4.1. Received: ${currentAgpMinimumGradle || 'missing'}`);
   }
 
-  if (rnGradlePlugin !== '0.86.2') {
-    errors.push(`React Native Gradle plugin must match the RN 0.86.2 baseline. Received: ${rnGradlePlugin || 'missing'}`);
+  if (latestStableAgp.startsWith('9.3.') && latestAgpMinimumGradle !== '9.5.0') {
+    errors.push(`Latest AGP minimum Gradle wrapper must match AGP 9.3 at 9.5.0. Received: ${latestAgpMinimumGradle || 'missing'}`);
+  }
+
+  if (currentKotlin !== '2.2.10') {
+    errors.push(`Current Kotlin Gradle Plugin must match the validated 2.2.10 baseline. Received: ${currentKotlin || 'missing'}`);
+  }
+
+  if (rnGradlePlugin !== '0.87.0') {
+    errors.push(`React Native Gradle plugin must match the RN 0.87.0 baseline. Received: ${rnGradlePlugin || 'missing'}`);
   }
 
   if (directProbeAgp !== latestStableAgp) {
@@ -146,12 +156,12 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     errors.push(`React Native Gradle plugin Kotlin metadata ceiling must be a semver-like version. Received: ${rnKotlinMetadataCeiling || 'missing'}`);
   }
 
-  if (!directProbeEvidence.includes('docs/wallet-modernization-log.md') || !directProbeEvidence.includes('BEM-37.938')) {
-    errors.push(`Direct AGP 9 probe evidence must point to the committed BEM-37.938 log entry. Received: ${directProbeEvidence || 'missing'}`);
+  if (!directProbeEvidence.includes('docs/wallet-modernization-log.md') || !directProbeEvidence.includes('BEM-37.976')) {
+    errors.push(`Direct AGP 9 probe evidence must point to the BEM-37.976 log entry. Received: ${directProbeEvidence || 'missing'}`);
   }
 
-  if (directProbeEvidenceStatus !== 'committed') {
-    errors.push(`Direct AGP 9 probe evidence status must be committed. Received: ${directProbeEvidenceStatus || 'missing'}`);
+  if (directProbeEvidenceStatus !== 'recorded') {
+    errors.push(`Direct AGP 9 probe evidence status must be recorded. Received: ${directProbeEvidenceStatus || 'missing'}`);
   }
 
   if (!/^\d+$/.test(directProbeEvidenceRequiredSnippets)) {
@@ -160,7 +170,7 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     errors.push(
       `Direct AGP 9 probe evidence required snippets count is ${directProbeEvidenceRequiredSnippets}, but listed ${directProbeEvidenceRequiredSnippetLines.length}`,
     );
-  } else if (Number(directProbeEvidenceRequiredSnippets) < 8) {
+  } else if (Number(directProbeEvidenceRequiredSnippets) < 9) {
     errors.push('Direct AGP 9 probe evidence must require the live tuple, failure task, metadata mismatch, and current baseline snippets');
   }
 
@@ -178,9 +188,10 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     `AGP \`${directProbeAgp}\``,
     `Gradle \`${directProbeGradle}\``,
     `Kotlin \`${directProbeKotlin}\``,
+    `React Native \`${rnGradlePlugin}\``,
     directProbeTask,
-    'Kotlin metadata `2.3.0`',
-    'up to `2.2.0`',
+    `Kotlin metadata \`${directProbeKotlinRuntimeMetadata}\``,
+    `up to \`${rnKotlinMetadataCeiling}\``,
     `AGP \`${currentAgp}\`, Gradle \`${currentGradle}\`, and Kotlin \`${currentKotlin}\``,
   ].forEach(snippet => {
     if (!directProbeEvidenceRequiredSnippetLines.includes(snippet)) {
@@ -189,7 +200,7 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
   });
 
   if (targetBlocked !== 'yes') {
-    errors.push(`Latest Android toolchain target must stay blocked for this RN 0.86.2 baseline. Received: ${targetBlocked || 'missing'}`);
+    errors.push(`Latest Android toolchain target must stay blocked for this RN 0.87.0 baseline. Received: ${targetBlocked || 'missing'}`);
   }
 
   if (!/^\d+$/.test(blockerCount)) {
@@ -202,14 +213,14 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
     errors.push('Blockers must mention the React Native Gradle plugin Kotlin metadata incompatibility');
   }
 
-  if (!blockerLines.some(line => line.startsWith(`AGP ${latestStableAgp} requires Gradle ${minimumAgp9Gradle}`))) {
-    errors.push('Blockers must tie the latest stable AGP value to the AGP 9 minimum Gradle wrapper');
+  if (!blockerLines.some(line => line.startsWith(`AGP ${latestStableAgp} requires Gradle ${latestAgpMinimumGradle}`))) {
+    errors.push('Blockers must tie the latest stable AGP value to its minimum Gradle wrapper');
   }
 
   if (
     !blockerLines.some(
       line =>
-        line.includes(`Gradle ${minimumAgp9Gradle}`) &&
+        line.includes(`Gradle ${latestAgpMinimumGradle}`) &&
         line.includes(directProbeGradle) &&
         line.includes(`React Native Gradle plugin ${rnGradlePlugin}`),
     )
@@ -234,7 +245,7 @@ export const getAndroidToolchainTargetSummaryErrors = summary => {
   }
 
   if (!requiredAction.includes('React Native Gradle plugin') || !requiredAction.includes('AGP 9')) {
-    errors.push('Required action must mention React Native Gradle plugin and AGP 9');
+    errors.push('Required action must mention React Native Gradle plugin and the validated AGP 9 baseline');
   }
 
   return errors;

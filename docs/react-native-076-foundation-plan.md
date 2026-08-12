@@ -39,8 +39,8 @@ Important metadata:
 The RN `0.87.0` checkpoint includes package and template/native migration together:
 
 - Node/dev runtime move from the old Node 16/22 baselines to Node 24 LTS for Metro and RN tooling.
-- Babel config migration from `metro-react-native-babel-preset` to the RN 0.86 preset stack.
-- Metro config migration to the RN 0.86 Metro config package.
+- Babel config migration from `metro-react-native-babel-preset` to the RN 0.87 preset stack.
+- Metro config migration to the RN 0.87 Metro config package.
 - Android Gradle settings and plugin wiring for `@react-native/gradle-plugin`.
 - Android app Gradle/template drift, including autolinking, codegen, packaging, manifest, and debug build behavior.
 - iOS Podfile/template drift recorded explicitly; Windows can audit files, but Mac runner/device validation remains required before calling iOS complete.

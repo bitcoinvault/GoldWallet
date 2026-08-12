@@ -23,7 +23,7 @@ const rendererInfo = {
 const validEnvironment = {
   dependencies: {
     react: '19.2.3',
-    'react-native': '0.86.2',
+    'react-native': '0.87.0',
   },
   devDependencies: {
     'react-test-renderer': '19.2.3',

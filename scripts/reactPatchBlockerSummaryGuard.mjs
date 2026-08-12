@@ -61,7 +61,7 @@ export const getReactPatchBlockerSummaryErrors = summary => {
   }
 
   [
-    ['React Native version', reactNativeVersion, '0.86.2'],
+    ['React Native version', reactNativeVersion, '0.87.0'],
     ['Repo react', repoReact, '19.2.3'],
     ['Repo react-test-renderer', repoReactTestRenderer, '19.2.3'],
     ['Repo @types/react', repoReactTypes, '19.2.17'],

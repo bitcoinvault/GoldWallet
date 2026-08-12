@@ -56,7 +56,7 @@ export const requiredReactNativeTargetSnapshotSnippets = [
   ['docs/react-native-foundation-target-matrix.md', 'BEM-37.962 proves that RC4 can build through AsyncStorage on AGP 9.2.1'],
   ['docs/react-native-087-readiness.md', 'Checked: 2026-08-11'],
   ['docs/react-native-087-readiness.md', 'Current stable target: `react-native@0.87.0`'],
-  ['docs/react-native-087-readiness.md', 'Production upgrade decision: stable acceptance candidate under validation'],
+  ['docs/react-native-087-readiness.md', 'Production upgrade decision: Android acceptance passed; macOS iOS validation remains required'],
   ['docs/wallet-modernization-log.md', '### BEM-37.962 - React Native 0.87 RC4 acceptance probe'],
   ['docs/wallet-modernization-log.md', 'RN `0.86.2` as stable `latest`, `0.87.0-rc.4` as prerelease `next`'],
   ['docs/wallet-modernization-log.md', 'No RC package, AGP 9 toolchain, compatibility flag, generated APK, screenshot, or local probe artifact is included in the production diff.'],
@@ -80,7 +80,7 @@ const currentSnapshotFieldChecks = [
     'docs/react-native-087-readiness.md',
     'production upgrade decision',
     /^(?:- )?Production upgrade decision: (.+)$/m,
-    'stable acceptance candidate under validation',
+    'Android acceptance passed; macOS iOS validation remains required',
   ],
   ['docs/react-native-upgrade-path.md', 'live probe date', /As of the (\d{4}-\d{2}-\d{2}) live probe/, '2026-08-11'],
   [

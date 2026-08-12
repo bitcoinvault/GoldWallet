@@ -28,7 +28,7 @@ const validWindowsSummary = [
   'iOS runtime delivery validation: not claimed',
   'Blockers: 4',
   '- Current platform is win32; iOS archive/simulator validation requires macOS with Xcode.',
-  '- xcodebuild is not available; the effective iOS dependency baseline requires Xcode 26.2+ (React Native 0.86.2 minimum 16.1; Firebase Apple SDK 12.17.0 minimum 26.2).',
+  '- xcodebuild is not available; the effective iOS dependency baseline requires Xcode 26.2+ (React Native 0.87.0 minimum 16.1; Firebase Apple SDK 12.17.0 minimum 26.2).',
   '- CocoaPods is not available via pod or bundle exec pod; ios/Podfile.lock cannot be refreshed here.',
   '- ios/Podfile.lock has 13 active drift issues; run pod install on macOS before archive validation.',
   'Required action: run this prerequisite audit on macOS with Xcode and CocoaPods, refresh ios/Podfile.lock with pod install, then run iOS archive/simulator validation before claiming iOS runtime delivery.',

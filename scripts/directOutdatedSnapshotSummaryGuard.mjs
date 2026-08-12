@@ -15,12 +15,6 @@ const requiredKnownEntries = [
   ['@babel/preset-typescript', 'devDependencies'],
   ['@babel/runtime', 'devDependencies'],
   ['@babel/traverse', 'resolutionDependencies'],
-  ['@react-native/babel-preset', 'devDependencies'],
-  ['@react-native/codegen', 'devDependencies'],
-  ['@react-native/gradle-plugin', 'devDependencies'],
-  ['@react-native/jest-preset', 'devDependencies'],
-  ['@react-native/metro-config', 'devDependencies'],
-  ['@react-native/typescript-config', 'devDependencies'],
   ['@types/react', 'resolutionDependencies'],
   ['@types/react', 'devDependencies'],
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
@@ -181,7 +175,7 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
     !babelEntryLines.every(
       line =>
         line.includes('Babel 8 is a major Metro/RN transform migration') &&
-        line.includes('current RN 0.86 Babel preset depends on the Babel 7 plugin stack') &&
+        line.includes('current RN 0.87 Babel preset depends on the Babel 7 plugin stack') &&
         line.includes('dedicated RN/Metro/Babel branch'),
     )
   ) {

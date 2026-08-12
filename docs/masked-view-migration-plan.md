@@ -10,7 +10,7 @@ Checked on: 2026-07-21
 - Replacement package: not required.
 - Current navigation packages: `@react-navigation/native@7.3.16`, `@react-navigation/stack@7.10.22`, `@react-navigation/bottom-tabs@7.18.16`, and `@react-navigation/devtools@7.1.12`.
 - `@react-navigation/stack@7.10.22` no longer requires `@react-native-community/masked-view`.
-- `react-native-gesture-handler@3.1.0` is the latest checked version validated with the RN `0.86.2` New Architecture baseline; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces.
+- `react-native-gesture-handler@3.1.0` is the latest checked version validated with the RN `0.87.0` New Architecture baseline; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces.
 - TypeScript was raised to `5.4.5` so the React Navigation 7 declaration syntax is parsed while preserving the existing strictness compatibility setting.
 - The app has no direct `src` imports of either masked-view package.
 
