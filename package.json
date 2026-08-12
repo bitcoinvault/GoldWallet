@@ -621,7 +621,7 @@
     "react-native-prompt-android": "git+https://github.com/marcosrdz/react-native-prompt-android.git#87bf3adb5f22b4d1ecaa517e93347101372398f5",
     "react-native-qrcode-svg": "6.3.21",
     "react-native-rate": "1.2.12",
-    "react-native-safe-area-context": "5.8.1",
+    "react-native-safe-area-context": "5.9.0",
     "react-native-screens": "4.27.0",
     "react-native-share": "12.3.1",
     "react-native-svg": "15.15.5",

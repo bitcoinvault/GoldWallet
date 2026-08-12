@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.980 - Safe Area Context 5.9 native layout refresh
+
+- Branch: `feature/bem-37-980-safe-area-5-9-0`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade `react-native-safe-area-context` from `5.8.1` to current stable `5.9.0` without changing the React Navigation, Screens, Gesture Handler, or application layout implementation.
+- Refresh the navigation runtime, native module, iOS drift, direct-outdated, and modernization baseline contracts.
+- Validate the shared `ScreenTemplate` safe-area owner path through Android New Architecture build and emulator navigation/layout smoke.
+
+Findings:
+
+- npm reports `5.9.0` as `latest`, published on 2026-08-12, with unrestricted `react` and `react-native` peers; the installed graph contains one hoisted package instance.
+- Upstream `5.8.1...5.9.0` contains five commits. The native change adopts AGP `9.2.1` and separates generated Java from Fabric/Paper Kotlin source sets, matching this repo's AGP `9.2.1`, RN `0.87.0`, and New Architecture baseline.
+- The remaining upstream fixes cover web resize, nested provider frame/insets, and detached measurement elements. GoldWallet's direct owner is `src/components/ScreenTemplate.tsx`; application source does not require an API migration.
+- The dev/testnet connected smoke remains externally blocked because `electrumx.testnet.btcv.stage.rnd.land:443` presents a certificate that expired on 2026-06-23. The controlled dev no-network smoke still reaches the expected fallback UI without fatal/runtime findings.
+- A separately assembled `prodDebug` APK completed onboarding and validated the empty-wallet dashboard, Create/Import CTAs, all four bottom tabs, QR scanner, and Terms WebView without Metro or fatal/runtime findings. The captured dashboard has correct top/bottom safe-area spacing and no clipped or overlapping controls.
+- iOS runtime is not claimed on Windows. The stale `ios/Podfile.lock` still records `react-native-safe-area-context 3.3.2`; macOS CocoaPods refresh and scheme build remain required before an iOS release claim.
+- The live direct-outdated contract falls from 21 to 20 entries: 16 known blockers, 4 exotic/git-pinned entries, and 0 review-required entries.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --immutable`
+- `corepack yarn check:navigation-runtime-cohort-guard`
+- `corepack yarn check:navigation-runtime-cohort`
+- `corepack yarn check:native-module-inventory-guard`
+- `corepack yarn check:native-module-inventory`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn ios:release:readiness:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- JDK 17 `node scripts/runAndroidGradle.mjs :app:assembleProdDebug -x lint`
+- `ANDROID_SERIAL=emulator-5554`, package `io.goldwallet.wallet`, and the generated `prodDebug` APK through `node scripts/androidSmokeDevEmbedded.mjs`; onboarding, empty-wallet CTAs, tabs, QR scanner, and Terms WebView passed
+- Visual inspection of the final `Wallets` dashboard screenshot on `emulator-5554` confirmed correct `ScreenTemplate` and system safe-area layout
+- `corepack yarn prepush`
+- `git diff --check`
+
 ### BEM-37.979 - React 19 type patch alignment
 
 - Branch: `feature/bem-37-979-react-types-19-2-18`
