@@ -34,7 +34,7 @@ export const requiredReact19ImpactDocs = [
 
 export const requiredReact19ImpactSnippets = [
   ['docs/react19-impact-audit.md', 'Current React: `19.2.3`'],
-  ['docs/react19-impact-audit.md', 'Current React types: `19.2.17`'],
+  ['docs/react19-impact-audit.md', 'Current React types: `19.2.18`'],
   ['docs/react19-impact-audit.md', 'Current react-test-renderer: `19.2.3`'],
   ['docs/react19-impact-audit.md', 'Target React peer from RN target snapshot: `^19.2.3`'],
   ['docs/react19-impact-audit.md', 'Class component surfaces exist and must be smoke-tested after the React/RN baseline changes.'],
@@ -45,15 +45,23 @@ export const requiredReact19ImpactSnippets = [
   ['docs/wallet-modernization-baseline.md', 'React 19 impact audit is tracked in `docs/react19-impact-audit.md`'],
 ];
 
-export const getReact19ImpactIssues = ({ dependencies, devDependencies, scripts, docs, existingDocs, inventory }) => {
+export const getReact19ImpactIssues = ({ dependencies, devDependencies, resolutions, scripts, docs, existingDocs, inventory }) => {
   const errors = [];
 
   if (dependencies.react !== '19.2.3') {
     errors.push(`package.json has react@${dependencies.react || '<missing>'}; expected current React baseline 19.2.3`);
   }
 
-  if (devDependencies['@types/react'] !== '19.2.17') {
-    errors.push(`package.json has @types/react@${devDependencies['@types/react'] || '<missing>'}; expected current React types baseline 19.2.17`);
+  if (devDependencies['@types/react'] !== '19.2.18') {
+    errors.push(`package.json has @types/react@${devDependencies['@types/react'] || '<missing>'}; expected current React types baseline 19.2.18`);
+  }
+
+  if (resolutions['@types/react'] !== devDependencies['@types/react']) {
+    errors.push(
+      `package.json resolution @types/react@${resolutions['@types/react'] || '<missing>'} does not match the direct React types baseline ${
+        devDependencies['@types/react'] || '<missing>'
+      }`,
+    );
   }
 
   if (devDependencies['react-test-renderer'] !== '19.2.3') {
@@ -124,6 +132,7 @@ const collectEnvironment = () => {
   return {
     dependencies: packageJson.dependencies || {},
     devDependencies: packageJson.devDependencies || {},
+    resolutions: packageJson.resolutions || {},
     scripts: packageJson.scripts || {},
     docs,
     existingDocs,

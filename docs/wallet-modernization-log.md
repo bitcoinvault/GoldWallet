@@ -10,6 +10,43 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.979 - React 19 type patch alignment
+
+- Branch: `feature/bem-37-979-react-types-19-2-18`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the direct and root-resolution React type baseline from `@types/react@19.2.17` to current `19.2.18`.
+- Keep runtime `react@19.2.3` and `react-test-renderer@19.2.3` pinned to the exact renderer bundled with React Native `0.87.0`.
+- Refresh the active React impact, package-coupling, foundation, and dependency-strategy contracts without rewriting historical milestone evidence.
+
+Findings:
+
+- npm reports `@types/react@19.2.18` as both `latest` and the TypeScript `6.0` dist-tag; its runtime-independent dependency remains `csstype`.
+- Yarn must keep the direct dev dependency and root `resolutions` value identical so all wildcard React type consumers resolve to one package instance.
+- React impact, package-coupling, and live patch-blocker contracts now reject a stale or missing root `@types/react` resolution instead of validating only the direct dependency.
+- This type-only patch does not make the independently blocked `react@19.2.8` runtime patch safe; RN `0.87.0` still bundles renderer `19.2.3`.
+- Refreshing the live direct-outdated snapshot also exposed `react-native-safe-area-context@5.9.0` above the validated `5.8.1` baseline. That native layout change is deliberately deferred to a dedicated navigation branch with screen-layout and emulator navigation proof.
+- The direct-outdated summary guard now rejects safe-area decisions that omit the dedicated branch, TypeScript, Android build, screen-layout, or emulator-navigation evidence boundary.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --immutable`
+- `corepack yarn react19:impact:audit`
+- `corepack yarn react:package-coupling:audit`
+- `corepack yarn react:renderer-version:audit`
+- `corepack yarn react:patch-blocker:audit`
+- `corepack yarn direct-outdated:snapshot:audit`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn prepush`
+- `git diff --check`
+
 ### BEM-37.978 - Windows New Architecture native-path preflight
 
 - Branch: `feature/bem-37-978-windows-native-path-guard`

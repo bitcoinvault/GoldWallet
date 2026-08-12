@@ -84,24 +84,6 @@ const validEntries = [
       'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
-    name: '@types/react',
-    current: '19.2.17',
-    wanted: '19.2.17',
-    latest: '19.2.18',
-    type: 'resolutionDependencies',
-    decision:
-      'blocked - React type patch drift must stay aligned with the React Native renderer baseline and move in a dedicated React/RN type branch with TypeScript and unit proof',
-  },
-  {
-    name: '@types/react',
-    current: '19.2.17',
-    wanted: '19.2.17',
-    latest: '19.2.18',
-    type: 'devDependencies',
-    decision:
-      'blocked - React type patch drift must stay aligned with the React Native renderer baseline and move in a dedicated React/RN type branch with TypeScript and unit proof',
-  },
-  {
     name: 'babel-plugin-polyfill-regenerator',
     current: '0.6.8',
     wanted: '0.6.8',
@@ -121,7 +103,7 @@ const validEntries = [
     name: 'bl',
     current: '6.1.6',
     wanted: '6.1.6',
-    latest: '7.0.7',
+    latest: '7.0.12',
     type: 'resolutionDependencies',
     decision: 'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   },
@@ -165,6 +147,15 @@ const validEntries = [
     latest: 'exotic',
     type: 'dependencies',
     decision: 'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
+  },
+  {
+    name: 'react-native-safe-area-context',
+    current: '5.8.1',
+    wanted: '5.8.1',
+    latest: '5.9.0',
+    type: 'dependencies',
+    decision:
+      'blocked - native safe-area minor drift requires a dedicated navigation/layout branch with TypeScript, Android build, screen-layout, and emulator navigation proof',
   },
   {
     name: 'react-test-renderer',
@@ -230,10 +221,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 22', 'Entries: 21'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 21', 'Entries: 20'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 22', 'Entries: 23').replace(
+  validSummary.replace('Entries: 21', 'Entries: 22').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -257,6 +248,19 @@ assertRejected(
   validSummary.replace('TypeScript 7 major drift', 'generic TypeScript patch'),
   'TypeScript major drift',
 );
+[
+  ['dedicated navigation/layout branch', 'generic native branch'],
+  ['TypeScript', 'type checks'],
+  ['Android build', 'native checks'],
+  ['screen-layout', 'layout checks'],
+  ['emulator navigation proof', 'runtime checks'],
+].forEach(([requiredText, replacement]) => {
+  assertRejected(
+    `Missing safe-area rationale fixture: ${requiredText}`,
+    validSummary.replace(requiredText, replacement),
+    'react-native-safe-area-context drift',
+  );
+});
 assertRejected(
   'Review required fixture',
   validSummary.replace('Review-required entries: 0', 'Review-required entries: 1'),

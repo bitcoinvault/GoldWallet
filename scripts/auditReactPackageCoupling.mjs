@@ -10,7 +10,7 @@ const read = relativePath => readFileSync(path.join(root, relativePath), 'utf8')
 export const expectedReactPackageCoupling = {
   react: '19.2.3',
   blockedReactPatch: '19.2.8',
-  reactTypes: '19.2.17',
+  reactTypes: '19.2.18',
   reactNativeTypes: 'bundled',
   reactTestRenderer: '19.2.3',
   targetReactPeer: '^19.2.3',
@@ -28,7 +28,7 @@ export const requiredReactPackageCouplingSnippets = [
   ['docs/react-package-coupling-audit.md', 'Current React: `19.2.3`'],
   ['docs/react-package-coupling-audit.md', 'Latest React patch checked on 2026-07-11: `19.2.8`'],
   ['docs/react-package-coupling-audit.md', 'React `19.2.8` remains blocked on this RN `0.87.0` baseline because `react-native-renderer` is exact-version sensitive at `19.2.3`.'],
-  ['docs/react-package-coupling-audit.md', 'Current React types: `19.2.17`'],
+  ['docs/react-package-coupling-audit.md', 'Current React types: `19.2.18`'],
   ['docs/react-package-coupling-audit.md', 'Current React Native types: bundled with `react-native@0.87.0`'],
   ['docs/react-package-coupling-audit.md', 'Current react-test-renderer: `19.2.3`'],
   ['docs/react-package-coupling-audit.md', 'Current bundled React Native renderer: `19.2.3`'],
@@ -43,7 +43,7 @@ export const requiredReactPackageCouplingSnippets = [
   ['docs/wallet-modernization-baseline.md', 'React package coupling audit is tracked in `docs/react-package-coupling-audit.md`'],
 ];
 
-export const getReactPackageCouplingIssues = ({ dependencies, devDependencies, scripts, docs, existingDocs }) => {
+export const getReactPackageCouplingIssues = ({ dependencies, devDependencies, resolutions, scripts, docs, existingDocs }) => {
   const errors = [];
 
   if (dependencies.react !== expectedReactPackageCoupling.react) {
@@ -54,6 +54,14 @@ export const getReactPackageCouplingIssues = ({ dependencies, devDependencies, s
     errors.push(
       `package.json has @types/react@${devDependencies['@types/react'] || '<missing>'}; expected current React types baseline ${
         expectedReactPackageCoupling.reactTypes
+      }`,
+    );
+  }
+
+  if (resolutions['@types/react'] !== devDependencies['@types/react']) {
+    errors.push(
+      `package.json resolution @types/react@${resolutions['@types/react'] || '<missing>'} does not match direct @types/react@${
+        devDependencies['@types/react'] || '<missing>'
       }`,
     );
   }
@@ -125,6 +133,7 @@ const collectEnvironment = () => {
   return {
     dependencies: packageJson.dependencies || {},
     devDependencies: packageJson.devDependencies || {},
+    resolutions: packageJson.resolutions || {},
     scripts: packageJson.scripts || {},
     docs,
     existingDocs,
