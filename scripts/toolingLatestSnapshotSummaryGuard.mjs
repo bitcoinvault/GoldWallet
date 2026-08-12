@@ -43,7 +43,6 @@ const requiredToolingEntries = [
   'mailosaur',
   'jsdom',
   '@types/jsdom',
-  'jetifier',
   '@typescript-eslint/eslint-plugin',
   '@typescript-eslint/parser',
   'eslint',
@@ -191,10 +190,6 @@ export const getToolingLatestSnapshotSummaryErrors = summary => {
 
   if (!entryLines.some(line => line.startsWith('@types/jsdom: package '))) {
     errors.push('summary must include E2E mail DOM parser type tooling');
-  }
-
-  if (!entryLines.some(line => line.includes('jetifier'))) {
-    errors.push('summary must include AndroidX migration tooling');
   }
 
   if (!entryLines.some(line => line.startsWith('detox: package '))) {

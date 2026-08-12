@@ -69,11 +69,6 @@ const trackedTooling = [
     decision: 'current - latest JSDOM declarations verified against the E2E mail parser and TypeScript baseline',
   },
   {
-    name: 'jetifier',
-    source: 'devDependencies',
-    decision: 'current - latest AndroidX migration helper verified with postinstall, Android build, and emulator smoke',
-  },
-  {
     name: '@typescript-eslint/eslint-plugin',
     source: 'devDependencies',
     decision: 'current - parser/plugin pair verified through the ESLint 10 flat-config bridge',
