@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { formatAdbFailureReason, runAdbProcessWithRetry } from './androidAdbRetry.mjs';
 import { getAndroidDataStoragePreflight, renderAndroidDataStorageFailure } from './androidDataStoragePreflight.mjs';
 import { getRequiredAndroidRuntimePageSize, parseAndroidRuntimePageSize } from './androidRuntimePageSize.mjs';
+import { isSentryTimestampDeserializationError } from './androidSentryLogFindings.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -1222,8 +1223,10 @@ try {
   append(`Captured ${capturedLogcatLines} recent logcat lines.`);
   const failingLines = logcat
     .split(/\r?\n/)
-    .filter(line =>
-      /AndroidRuntime|FATAL EXCEPTION|ReactNativeJS.*(Error|TypeError|ReferenceError)|E ReactNative/.test(line),
+    .filter(
+      line =>
+        /AndroidRuntime|FATAL EXCEPTION|ReactNativeJS.*(Error|TypeError|ReferenceError)|E ReactNative/.test(line) ||
+        isSentryTimestampDeserializationError(line),
     )
     .filter(
       line =>

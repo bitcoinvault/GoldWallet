@@ -10,6 +10,47 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.984 - Sentry Android breadcrumb timestamp compatibility
+
+- Branch: `feature/bem-37-984-sentry-breadcrumb-timestamps`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Resolve the nonfatal native `RNSentry` timestamp-deserialization errors exposed by the candidate `6.5.3 (15)` 16 KB runtime proof.
+- Keep the application on current `@sentry/react-native@8.22.0` and fix the GoldWallet adapter contract rather than changing release credentials, DSNs, upload behavior, or unrelated observability configuration.
+- Make startup, create-wallet, and import-wallet Android smoke flows fail closed if the known native timestamp error reappears.
+
+Findings:
+
+- Live npm metadata on 2026-08-12 reports `@sentry/react-native@8.22.0` as latest, matching the installed SDK.
+- `logger/index.ts` supplied `new Date().getTime()` as a breadcrumb timestamp. That value is milliseconds since epoch, while the Sentry breadcrumb contract uses epoch seconds and the Android bridge converts numeric seconds to milliseconds. The extra factor of `1000` produced dates around year `58500` and `timestamp is not millis format` errors in `RNSentryBreadcrumb.fromMap`.
+- GoldWallet no longer supplies a timestamp for these breadcrumbs; the current Sentry SDK assigns the timestamp in its own supported units.
+- A shared native-log classifier recognizes both lines of the observed Sentry timestamp failure and is applied by startup, create-wallet, and import-wallet smoke flows. Its guard also rejects unrelated Sentry and Electrum lines and prevents reintroducing the app-owned millisecond timestamp.
+- An isolated `prodRelease` build passed after an earlier interrupted Gradle process was allowed to finish and the conflicting run was not reused as evidence. The first parallelized release attempt produced invalid mixed output because two Gradle writers touched the same worktree; the final evidence comes only from the subsequent single-writer `prod` run.
+- The locally signed `prodRelease` APK completed onboarding, PIN and transaction-password setup, empty-dashboard Create/Import navigation, QR scanner, all tabs, and Terms WebView on the API 36 16 KB emulator. The fail-closed startup scan passed, and a separate post-flow logcat scan against the actual app PID reported zero `RNSentry`, timestamp-deserialization, fatal, or React Native runtime findings.
+- Visual inspection of the final dashboard screenshot found no blank content, error overlay, clipping, or overlap. Sentry upload and server-side event acceptance were not attempted or claimed.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --immutable`
+- Live npm latest checks for `@sentry/react-native` and `@sentry/cli`
+- `corepack yarn check:sentry-release-integration`
+- `corepack yarn test:unit --runInBand` (`15` suites, `69` tests)
+- Focused `tests/unit/logger.test.ts` (`1` test)
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` (`36,881` accepted baseline errors, `0` warnings, no increase)
+- `corepack yarn check:modernization-log-ids`
+- JDK 17 `corepack yarn android:dev:assemble`
+- JDK 17 `ANDROID_RELEASE_VARIANTS=prod corepack yarn android:dev:release:validate-local`
+- JDK 17 `ANDROID_SERIAL=emulator-5556 ANDROID_SMOKE_REQUIRED_PAGE_SIZE=16384 corepack yarn android:prod:release:smoke:embedded`
+- Post-flow app-PID logcat scan (`0` relevant `RNSentry` lines; `0` fatal/timestamp findings)
+- Visual inspection of `local-docs/android-smoke-prod-release.png`
+- Independent read-only review (`NO FINDINGS`)
+- `corepack yarn prepush`
+- `git diff --check`
+
 ### BEM-37.983 - Android 6.5.3 signed-AAB 16 KB runtime proof
 
 - Branch: `feature/bem-37-983-android-6-5-3-16kb-proof`
