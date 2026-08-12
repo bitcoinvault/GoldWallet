@@ -10,6 +10,54 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.982 - Provisional Android 6.5.3 release candidate
+
+- Branch: `feature/bem-37-982-android-release-6-5-3`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Move the repository-owned Android release metadata from stale `6.5.1 (14)` to provisional candidate `6.5.3 (15)`, one semantic patch above the public Google Play `6.5.2` listing.
+- Refresh the dated public Play baseline and active release documentation without claiming that provisional `versionCode 15` is monotonic against the private Play Console state.
+- Rebuild every Android release flavor, verify candidate metadata in every APK manifest, and exercise the embedded `prodRelease` bundle on the API 36 emulator.
+
+Findings:
+
+- The official Google Play listing was rechecked on 2026-08-12 and still advertises `6.5.2`; candidate `6.5.3` is therefore semantically ahead of the public release.
+- The versioning audit accepts `6.5.3 (15)` under the shared Node/Gradle SemVer and Play limit contract, but correctly remains fail-closed because `GOLDWALLET_PLAY_LATEST_VERSION_CODE` is absent. Version code `15` is provisional until release ownership checks the latest code in Play Console.
+- The complete lightweight Play handoff remains blocked by three explicit prerequisites: authoritative latest Play version code, real upload-signing configuration, and an ignored Play service-account JSON file. No Google authentication, edit, upload, validation, or commit was attempted.
+- Fresh `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` builds generated APKs, embedded Metro bundles, and source maps. `aapt2` reports `versionName='6.5.3'` and `versionCode='15'` for all four package variants.
+- The locally debug-signed `prodRelease` APK completed first-run onboarding, PIN and transaction-password setup, empty-wallet Create/Import navigation, all four tabs, QR scanner open/close, and Terms WebView navigation on `emulator-5554` without Metro or fatal/runtime logcat findings. Visual inspection of the final dashboard screenshot found no clipping, overlap, blank content, or error overlay.
+- Independent review closed stale active README guidance that still described `6.5.1 (14)` as the branch output and unconditionally required both version fields to change. Release instructions now identify `6.5.3 (15)` as provisional, name the missing private Play Console code as the blocker, and require metadata changes only when the audit proves they are needed.
+- This is release-candidate preparation only. Upload-key signing, Play acceptance, staged rollout, funded BTCV transaction validation, and iOS archive validation remain unclaimed.
+
+Validation:
+
+- Official Google Play listing check for package `io.goldwallet.wallet` on 2026-08-12
+- Node `24.16.0` `corepack yarn install --immutable`
+- `corepack yarn check:android-release-versioning-guard`
+- JDK 17 `corepack yarn check:android-release-version-gradle-contract`
+- `corepack yarn check:sentry-android-candidate-evidence-guard`
+- `corepack yarn android:release-version:audit`
+- `corepack yarn android:release-version:check-summary`
+- JDK 17 `corepack yarn android:release-readiness:check-light`
+- JDK 17 `corepack yarn android:dev:release:validate-local`
+- `corepack yarn android:dev:release:check-summary`
+- `corepack yarn android:dev:release:check-apk-manifest`
+- Android SDK `aapt2 dump badging` for the `devRelease`, `stageRelease`, `prodRelease`, and `betaRelease` APKs
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:embedded`
+- `corepack yarn android:prod:release:check-smoke-summary`
+- Visual inspection of `local-docs/android-smoke-prod-release.png`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` (`36,881` accepted baseline errors, no increase)
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:unit --runInBand` (`14` suites, `68` tests)
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `corepack yarn prepush`
+- `git diff --check`
+
 ### BEM-37.981 - Browserslist data resolution refresh
 
 - Branch: `feature/bem-37-981-caniuse-lite-1809`
