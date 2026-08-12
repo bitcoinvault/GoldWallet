@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { formatAdbFailureReason, runAdbProcessWithRetry } from './androidAdbRetry.mjs';
+import { isSentryTimestampDeserializationError } from './androidSentryLogFindings.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -436,10 +437,11 @@ const captureLogcat = () => {
   capturedLogcatLines = logcat.split(/\r?\n/).filter(Boolean).length;
   const failingLines = logcat
     .split(/\r?\n/)
-    .filter(line =>
-      /AndroidRuntime|FATAL EXCEPTION|ReactNativeJS.*(TypeError|ReferenceError|SyntaxError)|E ReactNative|EmptyParameterException/.test(
-        line,
-      ),
+    .filter(
+      line =>
+        /AndroidRuntime|FATAL EXCEPTION|ReactNativeJS.*(TypeError|ReferenceError|SyntaxError)|E ReactNative|EmptyParameterException/.test(
+          line,
+        ) || isSentryTimestampDeserializationError(line),
     );
 
   if (failingLines.length > 0) {

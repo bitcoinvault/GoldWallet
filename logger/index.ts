@@ -60,7 +60,6 @@ const log = (config: LogConfig & { level: LEVEL }) => {
     Sentry.addBreadcrumb({
       ...config,
       level: getSentryLevel(config.level),
-      timestamp: new Date().getTime(),
     });
   }
 };
