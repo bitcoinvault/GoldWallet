@@ -15,8 +15,8 @@ All modernization work should be developed on focused task branches and merged i
 ## Current Application Snapshot
 
 - App name/package: `goldwallet`
-- App version: `6.5.1` (`versionCode 14`), sourced from `android/release-version.properties`
-- Public Google Play baseline: `6.5.2` observed 2026-07-16; the next production candidate requires a newer `versionName` and a `versionCode` above the value supplied from Play Console
+- Provisional Android release candidate: `6.5.3` (`versionCode 15`), sourced from `android/release-version.properties`
+- Public Google Play baseline: `6.5.2` rechecked 2026-08-12; the candidate semantic version is newer, while release readiness still requires confirmation that its `versionCode` is above the latest value from Play Console
 - Google Play internal handoff: official API client wired in read-only dry-run mode; execution requires ignored service-account credentials, real upload signing, a monotonic release version, a passed live Electrum release gate, and explicit commit confirmation
 - React Native: `0.87.0`
 - React: `19.2.3`
