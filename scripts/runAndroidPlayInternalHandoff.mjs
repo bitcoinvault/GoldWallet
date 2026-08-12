@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
+import { createHash } from 'crypto';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -13,11 +14,13 @@ import {
   resolveAndroidPlayInternalHandoff,
   runAndroidPlayEditWorkflow,
 } from './androidPlayInternalHandoff.mjs';
-import {
-  acquireAndroidPlayRunLock,
-  createAndroidPlayCandidateSnapshot,
-} from './androidPlayCandidateArtifact.mjs';
+import { acquireAndroidPlayRunLock, createAndroidPlayCandidateSnapshot } from './androidPlayCandidateArtifact.mjs';
 import { assertGoogleApiToolingCohort } from './googleApiToolingCohort.mjs';
+import { getSentryProductionAndroidReleaseGateErrors } from './sentryProductionAndroidSymbolication.mjs';
+import {
+  getSentryAndroidCandidateEvidenceConfig,
+  parseSentryAndroidCandidateEvidenceManifest,
+} from './sentryAndroidCandidateEvidence.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const summaryPath = path.join(root, 'local-docs', 'android-play-internal-handoff-summary.txt');
@@ -48,6 +51,16 @@ const renderSummary = (readiness, result = {}, error = '') =>
     `Execution ready: ${readiness.ready ? 'yes' : 'no'}`,
     'Electrum release gate required: yes',
     `Electrum release gate result: ${electrumReleaseGateResult}`,
+    'Sentry production release gate required: yes',
+    `Sentry production release gate result: ${sentryReleaseGateResult}`,
+    `Sentry candidate AAB SHA-256: ${sentryReleaseGateEvidence?.aabSha256 || 'not-claimed'}`,
+    `Sentry candidate release: ${sentryReleaseGateEvidence?.release || 'not-claimed'}`,
+    `Sentry candidate distribution: ${sentryReleaseGateEvidence?.dist || 'not-claimed'}`,
+    `Sentry candidate identity: ${sentryReleaseGateEvidence?.candidateIdentity || 'not-claimed'}`,
+    `Sentry candidate manifest SHA-256: ${sentryReleaseGateEvidence?.candidateManifestSha256 || 'not-claimed'}`,
+    `Sentry embedded bundle SHA-256: ${sentryReleaseGateEvidence?.embeddedBundleSha256 || 'not-claimed'}`,
+    `Sentry generated bundle SHA-256: ${sentryReleaseGateEvidence?.generatedBundleSha256 || 'not-claimed'}`,
+    `Sentry source map SHA-256: ${sentryReleaseGateEvidence?.sourceMapSha256 || 'not-claimed'}`,
     `Signed AAB present: ${existsSync(readiness.signedAabPath) ? 'yes' : 'no'}`,
     `Signed AAB bytes: ${existsSync(readiness.signedAabPath) ? statSync(readiness.signedAabPath).size : 0}`,
     `Handoff lock acquired: ${runLock ? 'yes' : 'not-claimed'}`,
@@ -75,6 +88,8 @@ const renderSummary = (readiness, result = {}, error = '') =>
 
 let readiness;
 let electrumReleaseGateResult = 'not-claimed';
+let sentryReleaseGateResult = 'not-claimed';
+let sentryReleaseGateEvidence;
 let runLock;
 let candidateSnapshot;
 let candidateConfirmationMatches = false;
@@ -94,14 +109,15 @@ try {
   runLock = acquireAndroidPlayRunLock({ lockPath: readiness.runLockPath });
 
   electrumReleaseGateResult = 'failed';
-  run('validate Electrum release gate', process.execPath, ['scripts/auditElectrumEndpointReadiness.mjs', '--require-ready']);
+  run('validate Electrum release gate', process.execPath, [
+    'scripts/auditElectrumEndpointReadiness.mjs',
+    '--require-ready',
+  ]);
   electrumReleaseGateResult = 'passed';
-  run(
-    'build verified production signed AAB',
-    process.execPath,
-    ['scripts/runAndroidSignedBundle.mjs'],
-    { ...process.env, GOLDWALLET_PLAY_LOCK_TOKEN: runLock.token },
-  );
+  run('build verified production signed AAB', process.execPath, ['scripts/runAndroidSignedBundle.mjs'], {
+    ...process.env,
+    GOLDWALLET_PLAY_LOCK_TOKEN: runLock.token,
+  });
   run('validate candidate-bound signed AAB runtime evidence', process.execPath, [
     'scripts/checkAndroidProductionSignedBundleSummary.mjs',
   ]);
@@ -109,7 +125,11 @@ try {
     throw new Error('Verified production signed AAB is missing after the signing runner');
   }
   const signedSummary = readFileSync(path.join(root, 'local-docs', 'android-prod-signed-bundle-summary.txt'), 'utf8');
-  for (const evidence of ['AAB JAR signature: verified', 'AAB version metadata match: passed', 'Production release version ready: yes']) {
+  for (const evidence of [
+    'AAB JAR signature: verified',
+    'AAB version metadata match: passed',
+    'Production release version ready: yes',
+  ]) {
     if (!signedSummary.includes(evidence)) throw new Error(`Signed AAB summary is missing: ${evidence}`);
   }
   const signedVersionCode = Number(signedSummary.match(/^Version code: (\d+)$/m)?.[1]);
@@ -140,6 +160,67 @@ try {
   if (options.commit && !candidateConfirmationMatches) {
     throw new Error(`Set GOLDWALLET_PLAY_COMMIT_CONFIRMATION to ${expectedCandidateConfirmation}`);
   }
+
+  sentryReleaseGateResult = 'failed';
+  const sentryCandidateConfig = getSentryAndroidCandidateEvidenceConfig(root, {
+    aabPath: readiness.signedAabPath,
+    artifactBase: 'android-prod-signed-bundle-sentry',
+  });
+  const sentryCandidateManifestContent = readFileSync(sentryCandidateConfig.manifestPath, 'utf8');
+  const sentryCandidate = parseSentryAndroidCandidateEvidenceManifest(
+    sentryCandidateManifestContent,
+    sentryCandidateConfig,
+  );
+  if (
+    sentryCandidate.candidateType !== 'production-signed-candidate' ||
+    sentryCandidate.aab.sha256 !== candidateSnapshot.sha256
+  ) {
+    throw new Error('Production Sentry manifest does not match the immutable Play candidate');
+  }
+  const sentryCandidateManifestSha256 = createHash('sha256').update(sentryCandidateManifestContent).digest('hex');
+  run(
+    'validate exact-candidate production Sentry release gate',
+    process.execPath,
+    [
+      'scripts/runSentryProductionAndroidSymbolication.mjs',
+      '--execute',
+      '--release-gate',
+      `--expected-aab-sha256=${candidateSnapshot.sha256}`,
+    ],
+    { ...process.env, GOLDWALLET_PLAY_LOCK_TOKEN: runLock.token },
+  );
+  const sentrySummary = readFileSync(
+    path.join(root, 'local-docs', 'sentry-production-android-release-gate-summary.txt'),
+    'utf8',
+  );
+  const expectedSentryRelease = `${PLAY_PACKAGE_NAME}@${candidateSnapshot.versionName}+${candidateSnapshot.versionCode}`;
+  const sentryErrors = getSentryProductionAndroidReleaseGateErrors({
+    summary: sentrySummary,
+    expected: {
+      release: expectedSentryRelease,
+      dist: String(candidateSnapshot.versionCode),
+      aabSha256: candidateSnapshot.sha256,
+      candidateIdentity: sentryCandidate.candidateIdentity,
+      candidateManifestSha256: sentryCandidateManifestSha256,
+      embeddedBundleSha256: sentryCandidate.embeddedBundle.sha256,
+      generatedBundleSha256: sentryCandidate.generatedBundle.sha256,
+      sourceMapSha256: sentryCandidate.sourceMap.sha256,
+    },
+  });
+  if (sentryErrors.length > 0) {
+    throw new Error(`Production Sentry release gate failed: ${sentryErrors.join('; ')}`);
+  }
+  sentryReleaseGateEvidence = {
+    aabSha256: candidateSnapshot.sha256,
+    release: expectedSentryRelease,
+    dist: String(candidateSnapshot.versionCode),
+    candidateIdentity: sentryCandidate.candidateIdentity,
+    candidateManifestSha256: sentryCandidateManifestSha256,
+    embeddedBundleSha256: sentryCandidate.embeddedBundle.sha256,
+    generatedBundleSha256: sentryCandidate.generatedBundle.sha256,
+    sourceMapSha256: sentryCandidate.sourceMap.sha256,
+  };
+  sentryReleaseGateResult = 'passed';
 
   const googleAuth = new auth.GoogleAuth({
     keyFilename: readiness.serviceAccountPath,

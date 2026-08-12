@@ -81,7 +81,12 @@ export const parseAndroidPlayHandoffArgs = args => {
   return { execute, commit, mode: commit ? 'execute-commit' : execute ? 'execute-validate' : 'dry-run' };
 };
 
-export const resolveAndroidPlayInternalHandoff = ({ root, env = process.env, options, ignoredPathCheck = isGitIgnored }) => {
+export const resolveAndroidPlayInternalHandoff = ({
+  root,
+  env = process.env,
+  options,
+  ignoredPathCheck = isGitIgnored,
+}) => {
   const release = resolveAndroidPlayReleaseReadiness({ root, env });
   const signing = resolveAndroidUploadSigningConfiguration({ root, env });
   const status = env.GOLDWALLET_PLAY_RELEASE_STATUS || 'draft';
@@ -123,7 +128,9 @@ export const resolveAndroidPlayInternalHandoff = ({ root, env = process.env, opt
       blockers.push('Move the service-account JSON outside the repository or to a path confirmed by git check-ignore.');
     }
     if (!serviceAccountValidation.valid) {
-      blockers.push(`Provide a structurally valid Google service-account credential JSON (${serviceAccountValidation.status}).`);
+      blockers.push(
+        `Provide a structurally valid Google service-account credential JSON (${serviceAccountValidation.status}).`,
+      );
     }
   }
   return {
@@ -199,10 +206,7 @@ export const runAndroidPlayEditWorkflow = async ({
     const uploadedEvidence = await candidateUpload.evidence;
     const uploadedAabSha256 = uploadedEvidence?.sha256 || '';
     const uploadedAabBytes = uploadedEvidence?.bytes || 0;
-    if (
-      expectedAabSha256 &&
-      (uploadedAabSha256 !== expectedAabSha256 || uploadedAabBytes !== expectedAabBytes)
-    ) {
+    if (expectedAabSha256 && (uploadedAabSha256 !== expectedAabSha256 || uploadedAabBytes !== expectedAabBytes)) {
       throw new Error('Android Play candidate upload stream does not match the immutable snapshot manifest');
     }
     const uploadedVersionCode = Number(uploaded.data.versionCode);
@@ -213,11 +217,7 @@ export const runAndroidPlayEditWorkflow = async ({
     const currentTrack = await client.edits.tracks.get({ packageName, editId, track: PLAY_TRACK });
     const currentReleases = currentTrack.data.releases || [];
     const retainedVersionCodes = [
-      ...new Set(
-        currentReleases
-          .flatMap(release => release.versionCodes || [])
-          .map(candidate => String(candidate)),
-      ),
+      ...new Set(currentReleases.flatMap(release => release.versionCodes || []).map(candidate => String(candidate))),
     ].sort((left, right) => Number(left) - Number(right));
     if (retainedVersionCodes.some(candidate => !/^[1-9]\d*$/.test(candidate))) {
       throw new Error('Google Play internal track contains an invalid active versionCode');
@@ -309,6 +309,7 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
     `Service account validation status: ${readiness.serviceAccountValidation.status}`,
     `Execution ready: ${readiness.ready ? 'yes' : 'no'}`,
     'Electrum release gate required: yes',
+    'Sentry production release gate required: yes',
     'Service account values printed: no',
   ];
   const errors = requiredLines
@@ -326,6 +327,28 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
   }
   if (/^API edit validated: yes$/m.test(summary) && electrumReleaseGateResult !== 'passed') {
     errors.push('Google Play API validation requires a passed Electrum release gate');
+  }
+  const sentryReleaseGateResult = summary.match(
+    /^Sentry production release gate result: (not-claimed|passed|failed)$/m,
+  )?.[1];
+  const sentryCandidateAabSha256 = summary.match(/^Sentry candidate AAB SHA-256: ([a-f0-9]{64}|not-claimed)$/m)?.[1];
+  const sentryCandidateRelease = summary.match(/^Sentry candidate release: (.+)$/m)?.[1];
+  const sentryCandidateDistribution = summary.match(/^Sentry candidate distribution: (.+)$/m)?.[1];
+  const sentryIdentityFields = [
+    'Sentry candidate identity',
+    'Sentry candidate manifest SHA-256',
+    'Sentry embedded bundle SHA-256',
+    'Sentry generated bundle SHA-256',
+    'Sentry source map SHA-256',
+  ].map(label => summary.match(new RegExp(`^${label}: ([a-f0-9]{64}|not-claimed)$`, 'm'))?.[1]);
+  if (
+    !sentryReleaseGateResult ||
+    !sentryCandidateAabSha256 ||
+    !sentryCandidateRelease ||
+    !sentryCandidateDistribution ||
+    sentryIdentityFields.some(value => !value)
+  ) {
+    errors.push('Android Play internal handoff summary has invalid production Sentry release-gate evidence');
   }
   const serviceAccountPlayAccess = summary.match(/^Service account Play access: (confirmed|not claimed)$/m)?.[1];
   if (!serviceAccountPlayAccess) {
@@ -369,6 +392,16 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
     ) {
       errors.push('Validated Play upload must use one locked immutable candidate snapshot');
     }
+    if (
+      sentryReleaseGateResult !== 'passed' ||
+      sentryCandidateAabSha256 !== candidateSnapshotSha256 ||
+      sentryCandidateRelease !==
+        `${PLAY_PACKAGE_NAME}@${readiness.release.release.versionName}+${readiness.release.release.versionCode}` ||
+      sentryCandidateDistribution !== String(readiness.release.release.versionCode) ||
+      sentryIdentityFields.some(value => value === 'not-claimed')
+    ) {
+      errors.push('Google Play API validation requires production Sentry proof for the exact immutable candidate');
+    }
   } else if (
     readiness.options.mode === 'dry-run' &&
     (handoffLockAcquired !== 'not-claimed' ||
@@ -381,9 +414,19 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
   ) {
     errors.push('Android Play dry-run must not claim candidate lock, snapshot, or upload evidence');
   }
-  const cleanupEvidence = [...summary.matchAll(/^Uncommitted edit cleanup: (not-applicable|attempted|succeeded|failed)$/gm)].map(
-    match => match[1],
-  );
+  if (
+    readiness.options.mode === 'dry-run' &&
+    (sentryReleaseGateResult !== 'not-claimed' ||
+      sentryCandidateAabSha256 !== 'not-claimed' ||
+      sentryCandidateRelease !== 'not-claimed' ||
+      sentryCandidateDistribution !== 'not-claimed' ||
+      sentryIdentityFields.some(value => value !== 'not-claimed'))
+  ) {
+    errors.push('Android Play dry-run must not claim production Sentry release-gate execution');
+  }
+  const cleanupEvidence = [
+    ...summary.matchAll(/^Uncommitted edit cleanup: (not-applicable|attempted|succeeded|failed)$/gm),
+  ].map(match => match[1]);
   if (cleanupEvidence.length !== 1) {
     errors.push('Android Play internal handoff summary must contain exactly one edit-cleanup record');
   } else if (apiEditValidated && readiness.options.mode === 'execute-validate' && cleanupEvidence[0] !== 'succeeded') {
@@ -391,7 +434,9 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
   } else if (/^API edit committed: yes$/m.test(summary) && cleanupEvidence[0] !== 'not-applicable') {
     errors.push('Committed Play edit must not claim uncommitted-edit cleanup');
   }
-  const retainedEvidence = [...summary.matchAll(/^Previous active version codes retained: (.+)$/gm)].map(match => match[1]);
+  const retainedEvidence = [...summary.matchAll(/^Previous active version codes retained: (.+)$/gm)].map(
+    match => match[1],
+  );
   const submittedEvidence = [...summary.matchAll(/^Track version codes submitted: (.+)$/gm)].map(match => match[1]);
   if (retainedEvidence.length !== 1 || submittedEvidence.length !== 1) {
     errors.push('Android Play internal handoff summary must contain exactly one track-version preservation record');
@@ -421,6 +466,9 @@ export const getAndroidPlayInternalHandoffSummaryErrors = (summary, readiness) =
   }
   if (electrumReleaseGateResult === 'failed' && !/^Failure: yes; see console output$/m.test(summary)) {
     errors.push('A failed Electrum release gate must mark the Play handoff as failed');
+  }
+  if (sentryReleaseGateResult === 'failed' && !/^Failure: yes; see console output$/m.test(summary)) {
+    errors.push('A failed production Sentry release gate must mark the Play handoff as failed');
   }
   return errors;
 };

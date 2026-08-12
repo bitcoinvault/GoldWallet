@@ -65,6 +65,8 @@ assert(runner.includes('createAndroidPlayCandidateSnapshot'));
 assert(runner.includes('expectedAabSha256: candidateSnapshot.sha256'));
 assert(runner.includes('expectedAabBytes: candidateSnapshot.bytes'));
 assert(runner.includes('GOLDWALLET_PLAY_LOCK_TOKEN: runLock.token'));
+assert(runner.includes('getSentryProductionAndroidReleaseGateErrors'));
+assert(runner.includes("candidateType !== 'production-signed-candidate'"));
 assert(runner.includes('${readiness.expectedConfirmationPrefix}:${candidateSnapshot.sha256}'));
 assert(
   runner.indexOf('expectedCandidateConfirmation') < runner.indexOf('new auth.GoogleAuth'),
@@ -78,9 +80,10 @@ assert(signedBundleRunner.includes('if (standalonePlayLock) standalonePlayLock.r
 assert(!runner.includes('private_key'), 'Runner must not print or parse service-account private key material');
 const playDryRunIndex = runner.indexOf('if (!options.execute)');
 const googleApiPreflightIndex = runner.indexOf('assertGoogleApiToolingCohort();');
-const electrumReleaseGateIndex = runner.indexOf("['scripts/auditElectrumEndpointReadiness.mjs', '--require-ready']");
-const signedBundleIndex = runner.indexOf("['scripts/runAndroidSignedBundle.mjs']");
+const electrumReleaseGateIndex = runner.indexOf("run('validate Electrum release gate'");
+const signedBundleIndex = runner.indexOf("run('build verified production signed AAB'");
 const signedBundleSummaryIndex = runner.indexOf('scripts/checkAndroidProductionSignedBundleSummary.mjs');
+const sentryReleaseGateIndex = runner.indexOf("'--release-gate'");
 assert(electrumReleaseGateIndex > playDryRunIndex, 'Play dry-run must finish before the live Electrum release gate');
 assert(googleApiPreflightIndex > 0, 'Google API tooling preflight must run');
 assert(
@@ -96,16 +99,31 @@ assert(
   'Google API tooling preflight must pass before Google authentication',
 );
 assert(electrumReleaseGateIndex < signedBundleIndex, 'Electrum release gate must pass before the signed AAB build');
-assert(signedBundleSummaryIndex > signedBundleIndex, 'Candidate-bound runtime evidence must be checked after the signed AAB build');
+assert(
+  signedBundleSummaryIndex > signedBundleIndex,
+  'Candidate-bound runtime evidence must be checked after the signed AAB build',
+);
 assert(
   signedBundleSummaryIndex < runner.indexOf('new auth.GoogleAuth'),
   'Candidate-bound runtime evidence must pass before Google authentication',
+);
+assert(sentryReleaseGateIndex > signedBundleSummaryIndex, 'Sentry must consume the verified signed candidate');
+assert(
+  sentryReleaseGateIndex < runner.indexOf('new auth.GoogleAuth'),
+  'Exact-candidate Sentry proof must pass before Google authentication',
 );
 
 const workflow = read('scripts/androidPlayInternalHandoff.mjs');
 assert(workflow.includes('GOLDWALLET_PLAY_SERVICE_ACCOUNT_JSON'));
 assert(runner.includes('GOLDWALLET_PLAY_COMMIT_CONFIRMATION'));
-for (const method of ['edits.insert', 'edits.bundles.upload', 'edits.tracks.update', 'edits.validate', 'edits.commit', 'edits.delete']) {
+for (const method of [
+  'edits.insert',
+  'edits.bundles.upload',
+  'edits.tracks.update',
+  'edits.validate',
+  'edits.commit',
+  'edits.delete',
+]) {
   assert(workflow.includes(method), `Play workflow must support ${method}`);
 }
 assert(workflow.includes("PLAY_TRACK = 'internal'"), 'Play workflow must be restricted to the internal track');
@@ -314,7 +332,10 @@ try {
     commit: false,
     streamFactory: () => 'fixture-stream',
   });
-  assert.deepStrictEqual(validateFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'track', 'validate', 'delete']);
+  assert.deepStrictEqual(
+    validateFake.calls.map(([name]) => name),
+    ['insert', 'upload', 'track-get', 'track', 'validate', 'delete'],
+  );
   assert.deepStrictEqual(validateResult, {
     editValidated: true,
     editCommitted: false,
@@ -391,7 +412,10 @@ try {
     }),
     /upload stream does not match/,
   );
-  assert.deepStrictEqual(changedDuringUploadFake.calls.map(([name]) => name), ['insert', 'upload', 'delete']);
+  assert.deepStrictEqual(
+    changedDuringUploadFake.calls.map(([name]) => name),
+    ['insert', 'upload', 'delete'],
+  );
 
   const mixedReleases = [
     { name: 'served', versionCodes: ['12'], status: 'completed', inAppUpdatePriority: 2 },
@@ -437,7 +461,10 @@ try {
     commit: true,
     streamFactory: () => 'fixture-stream',
   });
-  assert.deepStrictEqual(commitFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'track', 'validate', 'commit']);
+  assert.deepStrictEqual(
+    commitFake.calls.map(([name]) => name),
+    ['insert', 'upload', 'track-get', 'track', 'validate', 'commit'],
+  );
   assert.strictEqual(commitResult.editCommitted, true);
 
   const mismatchFake = createFakeClient({ uploadedVersionCode: 16 });
@@ -453,7 +480,10 @@ try {
     }),
     /uploaded versionCode 16; expected 15/,
   );
-  assert.deepStrictEqual(mismatchFake.calls.map(([name]) => name), ['insert', 'upload', 'delete']);
+  assert.deepStrictEqual(
+    mismatchFake.calls.map(([name]) => name),
+    ['insert', 'upload', 'delete'],
+  );
 
   const invalidTrackFake = createFakeClient({ activeReleases: [{ versionCodes: ['invalid'], status: 'completed' }] });
   await assert.rejects(
@@ -468,7 +498,10 @@ try {
     }),
     /invalid active versionCode/,
   );
-  assert.deepStrictEqual(invalidTrackFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'delete']);
+  assert.deepStrictEqual(
+    invalidTrackFake.calls.map(([name]) => name),
+    ['insert', 'upload', 'track-get', 'delete'],
+  );
 
   const trackGetFailureFake = createFakeClient({ failTrackGet: true });
   await assert.rejects(
@@ -483,7 +516,10 @@ try {
     }),
     error => error.message.includes('fixture track get failure') && error.playEditCleanupStatus === 'succeeded',
   );
-  assert.deepStrictEqual(trackGetFailureFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'delete']);
+  assert.deepStrictEqual(
+    trackGetFailureFake.calls.map(([name]) => name),
+    ['insert', 'upload', 'track-get', 'delete'],
+  );
 
   const cleanupFailureFake = createFakeClient({ failTrackUpdate: true, failDelete: true });
   await assert.rejects(
@@ -498,7 +534,10 @@ try {
     }),
     error => error.message.includes('cleanup also failed') && error.playEditCleanupStatus === 'failed',
   );
-  assert.deepStrictEqual(cleanupFailureFake.calls.map(([name]) => name), ['insert', 'upload', 'track-get', 'track', 'delete']);
+  assert.deepStrictEqual(
+    cleanupFailureFake.calls.map(([name]) => name),
+    ['insert', 'upload', 'track-get', 'track', 'delete'],
+  );
 
   const validationFailureFake = createFakeClient({ failValidate: true });
   await assert.rejects(
@@ -513,14 +552,10 @@ try {
     }),
     /fixture validation failure/,
   );
-  assert.deepStrictEqual(validationFailureFake.calls.map(([name]) => name), [
-    'insert',
-    'upload',
-    'track-get',
-    'track',
-    'validate',
-    'delete',
-  ]);
+  assert.deepStrictEqual(
+    validationFailureFake.calls.map(([name]) => name),
+    ['insert', 'upload', 'track-get', 'track', 'validate', 'delete'],
+  );
 
   const safeSummary = [
     'Android Google Play internal handoff',
@@ -540,6 +575,16 @@ try {
     'Execution ready: yes',
     'Electrum release gate required: yes',
     'Electrum release gate result: passed',
+    'Sentry production release gate required: yes',
+    'Sentry production release gate result: passed',
+    `Sentry candidate AAB SHA-256: ${'a'.repeat(64)}`,
+    'Sentry candidate release: io.goldwallet.wallet@6.5.3+15',
+    'Sentry candidate distribution: 15',
+    `Sentry candidate identity: ${'b'.repeat(64)}`,
+    `Sentry candidate manifest SHA-256: ${'c'.repeat(64)}`,
+    `Sentry embedded bundle SHA-256: ${'d'.repeat(64)}`,
+    `Sentry generated bundle SHA-256: ${'d'.repeat(64)}`,
+    `Sentry source map SHA-256: ${'e'.repeat(64)}`,
     'Handoff lock acquired: yes',
     'Candidate snapshot ready: yes',
     'Candidate snapshot bytes: 123',
@@ -569,9 +614,25 @@ try {
       commitReadiness,
     ).some(error => error.includes('exact immutable candidate digest')),
   );
+  assert(
+    getAndroidPlayInternalHandoffSummaryErrors(
+      safeSummary.replace(
+        `Sentry candidate AAB SHA-256: ${'a'.repeat(64)}`,
+        `Sentry candidate AAB SHA-256: ${'b'.repeat(64)}`,
+      ),
+      validateReadiness,
+    ).some(error => error.includes('exact immutable candidate')),
+    'Play validation must reject Sentry evidence for another AAB',
+  );
   for (const mutatedSummary of [
-    safeSummary.replace('Previous active version codes retained: 13,14', 'Previous active version codes retained: 14,13'),
-    safeSummary.replace('Previous active version codes retained: 13,14', 'Previous active version codes retained: 13,13,14'),
+    safeSummary.replace(
+      'Previous active version codes retained: 13,14',
+      'Previous active version codes retained: 14,13',
+    ),
+    safeSummary.replace(
+      'Previous active version codes retained: 13,14',
+      'Previous active version codes retained: 13,13,14',
+    ),
     safeSummary.replace('Track version codes submitted: 13,14,15', 'Track version codes submitted: 13,14,15,99'),
     safeSummary.replace('Track version codes submitted: 13,14,15', 'Track version codes submitted: 13,15'),
   ]) {
@@ -617,7 +678,20 @@ try {
   });
   assert(
     getAndroidPlayInternalHandoffSummaryErrors(
-      safeSummary.replace('Mode: execute-validate', 'Mode: dry-run'),
+      safeSummary
+        .replace('Mode: execute-validate', 'Mode: dry-run')
+        .replace('Sentry production release gate result: passed', 'Sentry production release gate result: not-claimed')
+        .replace(`Sentry candidate AAB SHA-256: ${'a'.repeat(64)}`, 'Sentry candidate AAB SHA-256: not-claimed')
+        .replace('Sentry candidate release: io.goldwallet.wallet@6.5.3+15', 'Sentry candidate release: not-claimed')
+        .replace('Sentry candidate distribution: 15', 'Sentry candidate distribution: not-claimed')
+        .replace(`Sentry candidate identity: ${'b'.repeat(64)}`, 'Sentry candidate identity: not-claimed')
+        .replace(
+          `Sentry candidate manifest SHA-256: ${'c'.repeat(64)}`,
+          'Sentry candidate manifest SHA-256: not-claimed',
+        )
+        .replace(`Sentry embedded bundle SHA-256: ${'d'.repeat(64)}`, 'Sentry embedded bundle SHA-256: not-claimed')
+        .replace(`Sentry generated bundle SHA-256: ${'d'.repeat(64)}`, 'Sentry generated bundle SHA-256: not-claimed')
+        .replace(`Sentry source map SHA-256: ${'e'.repeat(64)}`, 'Sentry source map SHA-256: not-claimed'),
       dryRunReadiness,
     ).some(error => error.includes('dry-run must not claim Electrum release-gate execution')),
     'Play dry-run must keep Electrum execution unclaimed',

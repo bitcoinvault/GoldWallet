@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { TraceMap, eachMapping } from '@jridgewell/trace-mapping';
 
 import { getAndroidAppBundleProjectMetadata } from './androidAppBundleValidation.mjs';
+import { assertAndroidPlayRunLockOwnership, resolveAndroidPlaySharedPaths } from './androidPlayCandidateArtifact.mjs';
 import { getSentryAndroidCanaryUploadEvidence } from './sentryAndroidUploadCanary.mjs';
 import {
   getSentryAndroidCandidateEvidenceConfig,
@@ -31,16 +32,13 @@ import {
   getSentryProductionAndroidUploadArgs,
   getSourceMapDebugEvidence,
   prepareSentryProductionAndroidArtifacts,
+  parseSentryProductionAndroidArgs,
+  pollSentryProductionDiagnostics,
   renderSentryProductionAndroidSummary,
-  validateReferenceEventId,
 } from './sentryProductionAndroidSymbolication.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
-const execute = args.includes('--execute');
-const eventArguments = args.filter(arg => arg.startsWith('--reference-event-id='));
-const unknown = args.filter(arg => arg !== '--execute' && !arg.startsWith('--reference-event-id='));
-const referenceEventValue = eventArguments[0]?.slice('--reference-event-id='.length) || '';
 const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 const getEnvValue = (content, key) =>
   content
@@ -75,15 +73,23 @@ const fetchJson = async ({ url, token, label }) => {
 };
 
 try {
-  if (unknown.length > 0) throw new Error(`Unsupported argument(s): ${unknown.join(', ')}`);
-  if (eventArguments.length > 1) throw new Error('Duplicate --reference-event-id argument');
-  if (!execute && eventArguments.length > 0) throw new Error('--reference-event-id is only accepted with --execute');
-  const referenceEventId = execute ? validateReferenceEventId(referenceEventValue) : null;
+  const { execute, releaseGate, referenceEventId, expectedAabSha256 } = parseSentryProductionAndroidArgs(args);
+  if (releaseGate) {
+    assertAndroidPlayRunLockOwnership({
+      lockPath: resolveAndroidPlaySharedPaths(root).runLockPath,
+      token: process.env.GOLDWALLET_PLAY_LOCK_TOKEN,
+    });
+  }
   const metadata = getAndroidAppBundleProjectMetadata(root);
-  const baseConfig = getSentryProductionAndroidConfig({ root, metadata });
+  const defaultConfig = getSentryProductionAndroidConfig({ root, metadata });
+  const baseConfig = releaseGate
+    ? { ...defaultConfig, aabPath: path.join(root, 'local-docs', 'android-prod-signed-bundle.aab') }
+    : defaultConfig;
   const candidateConfig = getSentryAndroidCandidateEvidenceConfig(root, {
     aabPath: baseConfig.aabPath,
-    artifactBase: 'android-upload-signing-proof-prod-release-sentry',
+    artifactBase: releaseGate
+      ? 'android-prod-signed-bundle-sentry'
+      : 'android-upload-signing-proof-prod-release-sentry',
   });
   if (!existsSync(candidateConfig.manifestPath)) {
     throw new Error('Fresh candidate-bound Sentry manifest is missing; run android:upload-signing:proof first');
@@ -93,7 +99,7 @@ try {
     manifestContent,
     config: candidateConfig,
     metadata,
-    candidateType: 'local-signing-proof',
+    candidateType: releaseGate ? 'production-signed-candidate' : 'local-signing-proof',
     generatedReactOutputsCleaned: true,
     sentryAutoUploadDisabled: true,
     sentryUploadAttempted: false,
@@ -108,14 +114,25 @@ try {
     bundlePath: candidate.generatedBundle.path,
     sourceMapPath: candidate.sourceMap.path,
   };
-  const outputPath = execute ? config.summaryPath : config.dryRunSummaryPath;
+  const outputPath = releaseGate
+    ? config.releaseGateSummaryPath
+    : execute
+      ? config.summaryPath
+      : config.dryRunSummaryPath;
   rmSync(outputPath, { force: true });
 
   const javaHome = process.env.JAVA_HOME;
   if (!javaHome) throw new Error('JAVA_HOME must point to JDK 17 for exact AAB inspection');
   const jarCommand = path.join(javaHome, 'bin', process.platform === 'win32' ? 'jar.exe' : 'jar');
   if (!existsSync(jarCommand)) throw new Error(`JDK jar executable is missing: ${jarCommand}`);
-  const artifacts = prepareSentryProductionAndroidArtifacts({ config, jarCommand });
+  const artifacts = {
+    ...prepareSentryProductionAndroidArtifacts({ config, jarCommand }),
+    candidateIdentity: candidate.candidateIdentity,
+    candidateManifestSha256: createHash('sha256').update(manifestContent).digest('hex'),
+  };
+  if (releaseGate && artifacts.aabSha256 !== expectedAabSha256) {
+    throw new Error('Production Sentry release gate AAB digest does not match the immutable Play candidate');
+  }
   const map = JSON.parse(readFileSync(config.uploadSourceMapPath, 'utf8'));
   const mappings = [];
   eachMapping(new TraceMap(map), mapping => mappings.push(mapping));
@@ -143,42 +160,7 @@ try {
     const projectErrors = getSentryProductionAndroidProjectErrors(project);
     if (projectErrors.length > 0) throw new Error(projectErrors.join('; '));
 
-    const referenceEvent = await fetchJson({
-      url: `${apiRoot}/events/${referenceEventId}/`,
-      token: credential.token,
-      label: 'Sentry production reference event lookup',
-    });
-    const referenceErrors = getReferenceProductionEventErrors({
-      event: referenceEvent,
-      expected: {
-        eventId: referenceEventId,
-        projectId: config.projectId,
-        release: config.release,
-        dist: config.dist,
-        debugId: artifacts.debugId,
-      },
-    });
-    if (referenceErrors.length > 0) throw new Error(referenceErrors.join('; '));
-    beforeDebug = getSourceMapDebugEvidence({
-      response: await fetchJson({
-        url: `${apiRoot}/events/${referenceEventId}/source-map-debug/`,
-        token: credential.token,
-        label: 'Sentry pre-upload source-map debug lookup',
-      }),
-      debugId: artifacts.debugId,
-    });
-    if (!beforeDebug.hasDebugIds || !beforeDebug.matchingDebugId) {
-      throw new Error('Reference event source-map diagnostics do not contain the expected production debug ID');
-    }
-    if (beforeDebug.sourceFilePresent !== beforeDebug.sourceMapPresent) {
-      throw new Error(
-        'Reference event has only one matching production source-map artifact; refusing partial recovery',
-      );
-    }
-    if (beforeDebug.sourceFilePresent && beforeDebug.sourceMapPresent) {
-      afterDebug = beforeDebug;
-      console.log('Exact production source-map artifacts already exist; continuing in verification-only mode.');
-    } else {
+    if (releaseGate) {
       const cliPath = path.join(root, 'node_modules', '@sentry', 'cli', 'bin', 'sentry-cli');
       const output = runCli({ cliPath, uploadArgs, token: credential.token, config });
       uploadAttempted = true;
@@ -187,17 +169,63 @@ try {
         config: { ...config, canaryRelease: config.release, debugId: artifacts.debugId },
       });
       if (!uploadEvidence.passed) throw new Error(uploadEvidence.errors.join('; '));
-      afterDebug = getSourceMapDebugEvidence({
+    } else {
+      const referenceEvent = await fetchJson({
+        url: `${apiRoot}/events/${referenceEventId}/`,
+        token: credential.token,
+        label: 'Sentry production reference event lookup',
+      });
+      const referenceErrors = getReferenceProductionEventErrors({
+        event: referenceEvent,
+        expected: {
+          eventId: referenceEventId,
+          projectId: config.projectId,
+          release: config.release,
+          dist: config.dist,
+          debugId: artifacts.debugId,
+        },
+      });
+      if (referenceErrors.length > 0) throw new Error(referenceErrors.join('; '));
+      beforeDebug = getSourceMapDebugEvidence({
         response: await fetchJson({
           url: `${apiRoot}/events/${referenceEventId}/source-map-debug/`,
           token: credential.token,
-          label: 'Sentry post-upload source-map debug lookup',
+          label: 'Sentry pre-upload source-map debug lookup',
         }),
         debugId: artifacts.debugId,
       });
-    }
-    if (!afterDebug.matchingDebugId || !afterDebug.sourceFilePresent || !afterDebug.sourceMapPresent) {
-      throw new Error('Sentry source-map debug API did not bind both uploaded artifacts to the production debug ID');
+      if (!beforeDebug.hasDebugIds || !beforeDebug.matchingDebugId) {
+        throw new Error('Reference event source-map diagnostics do not contain the expected production debug ID');
+      }
+      if (beforeDebug.sourceFilePresent !== beforeDebug.sourceMapPresent) {
+        throw new Error(
+          'Reference event has only one matching production source-map artifact; refusing partial recovery',
+        );
+      }
+      if (beforeDebug.sourceFilePresent && beforeDebug.sourceMapPresent) {
+        afterDebug = beforeDebug;
+        console.log('Exact production source-map artifacts already exist; continuing in verification-only mode.');
+      } else {
+        const cliPath = path.join(root, 'node_modules', '@sentry', 'cli', 'bin', 'sentry-cli');
+        const output = runCli({ cliPath, uploadArgs, token: credential.token, config });
+        uploadAttempted = true;
+        uploadEvidence = getSentryAndroidCanaryUploadEvidence({
+          output,
+          config: { ...config, canaryRelease: config.release, debugId: artifacts.debugId },
+        });
+        if (!uploadEvidence.passed) throw new Error(uploadEvidence.errors.join('; '));
+        afterDebug = getSourceMapDebugEvidence({
+          response: await fetchJson({
+            url: `${apiRoot}/events/${referenceEventId}/source-map-debug/`,
+            token: credential.token,
+            label: 'Sentry post-upload source-map debug lookup',
+          }),
+          debugId: artifacts.debugId,
+        });
+      }
+      if (!afterDebug.matchingDebugId || !afterDebug.sourceFilePresent || !afterDebug.sourceMapPresent) {
+        throw new Error('Sentry source-map debug API did not bind both uploaded artifacts to the production debug ID');
+      }
     }
     mkdirSync(path.dirname(config.checkpointPath), { recursive: true });
     writeFileSync(
@@ -211,6 +239,7 @@ try {
         afterDebug,
         uploadEvidence,
         uploadAttempted,
+        operation: releaseGate ? 'release-gate' : 'recovery',
       }),
     );
 
@@ -292,6 +321,31 @@ try {
         `Production Sentry event was not symbolicated: ${symbolicationEvidence?.errors.join('; ') || 'event not indexed'}`,
       );
     }
+    if (releaseGate) {
+      afterDebug = await pollSentryProductionDiagnostics({
+        fetchResponse: () =>
+          fetch(`${apiRoot}/events/${syntheticEventId}/source-map-debug/`, {
+            headers: { Authorization: `Bearer ${credential.token}` },
+          }),
+        toEvidence: response => getSourceMapDebugEvidence({ response, debugId: artifacts.debugId }),
+        isComplete: evidence =>
+          evidence.hasDebugIds &&
+          evidence.matchingDebugId &&
+          evidence.artifactBundlePresent &&
+          evidence.sourceFilePresent &&
+          evidence.sourceMapPresent,
+        wait,
+      });
+      if (
+        !afterDebug.hasDebugIds ||
+        !afterDebug.matchingDebugId ||
+        !afterDebug.artifactBundlePresent ||
+        !afterDebug.sourceFilePresent ||
+        !afterDebug.sourceMapPresent
+      ) {
+        throw new Error('Sentry release gate did not bind both production artifacts to the synthetic event debug ID');
+      }
+    }
   }
 
   const summary = renderSentryProductionAndroidSummary({
@@ -305,6 +359,7 @@ try {
     uploadAttempted,
     syntheticEventId,
     symbolicationEvidence,
+    operation: releaseGate ? 'release-gate' : 'recovery',
   });
   mkdirSync(path.dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, summary);
