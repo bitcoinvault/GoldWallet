@@ -51,10 +51,10 @@ assertRejected(
     ...validEnvironment,
     docs: {
       ...validEnvironment.docs,
-      'docs/react-native-target-snapshot.md': validEnvironment.docs['docs/react-native-target-snapshot.md'].replace('npm `latest`: `0.86.2`', ''),
+      'docs/react-native-target-snapshot.md': validEnvironment.docs['docs/react-native-target-snapshot.md'].replace('npm `latest`: `0.87.0`', ''),
     },
   },
-  'npm `latest`: `0.86.2`',
+  'npm `latest`: `0.87.0`',
 );
 assertRejected(
   'Contradictory current RC fixture',

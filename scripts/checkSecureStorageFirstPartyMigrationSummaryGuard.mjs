@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import {
+  getFileEvidence,
   migrationInputPaths,
   sha256MigrationInputs,
 } from './secureStorageFirstPartyMigrationEvidence.mjs';
@@ -79,6 +80,10 @@ assert(
   ),
   'Inaccessible migrated wallet must fail',
 );
+
+assert(getFileEvidence('').present === false, 'Missing migration evidence path must be reported as absent');
+assert(getFileEvidence(root).present === false, 'Migration evidence directory must be reported as absent');
+assert(getFileEvidence(root).sha256 === '<missing>', 'Migration evidence directory must not be hashed');
 
 const lineEndingFixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'goldwallet-migration-evidence-'));
 const lfRoot = path.join(lineEndingFixtureRoot, 'lf');

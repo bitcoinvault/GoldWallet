@@ -67,4 +67,4 @@ mutations.forEach(([label, mutation]) => {
   }
 });
 
-console.log('iOS React Native 0.86 template baseline and mutation checks are valid.');
+console.log('iOS React Native 0.87 template baseline and mutation checks are valid.');

@@ -22,7 +22,7 @@ Upgrade this layer before chasing most library majors:
 
 - React Native, React, Metro, Babel presets/runtime, TypeScript, Jest transform stack.
 - Android Gradle Plugin, Gradle wrapper, Kotlin/Java settings, compile/target SDK.
-- The current Android baseline stays on AGP `8.13.2`, Gradle `8.13`, Kotlin `2.1.20`, SDK `36`, and JDK `17`; use `corepack yarn android:toolchain-target:audit` before another Android toolchain branch. Live metadata on 2026-07-15 showed AGP `9.3.0`, Gradle `9.6.1`, stable Kotlin Gradle Plugin `2.4.10`, and Kotlin metadata release `2.4.20-Beta1` as prerelease-only. A real isolated AGP `9.3.0` / Gradle `9.6.1` / Kotlin `2.4.10` probe still failed in the React Native Gradle plugin `:gradle-plugin:settings-plugin:compileKotlin` path. The AGP 9 path stays blocked until a future React Native Gradle plugin baseline can compile against Gradle 9's embedded Kotlin metadata.
+- The current RN 0.87 Android baseline uses AGP `9.2.1`, Gradle `9.4.1`, Kotlin `2.2.10`, compile SDK `37`, target SDK `36`, and JDK `17`. The BEM-37.938 AGP `9.3.x` / Gradle `9.6.1` / Kotlin `2.4.10` failure belongs to the previous RN `0.86.2` compiler path and must not be reused as a current blocker. Before another Android toolchain branch, run a fresh isolated latest-target probe against the RN `0.87.0` Gradle plugin, then validate assemble, all release variants, and emulator runtime.
 - Direct React Native CLI tooling is on checked latest `20.2.0` after `BEM-37.821`; future `@react-native-community/cli*` drift should still be handled in a dedicated RN CLI/tooling branch with Android assemble, Metro startup, emulator smoke, and iOS static handoff proof.
 - iOS CocoaPods, Xcode project settings, deployment targets, native template drift.
 
@@ -121,4 +121,4 @@ One branch can contain multiple packages when they belong to the same layer and 
 
 ## Start Here
 
-The next coding branch should continue from the foundation layer or a blocker-removal branch that directly supports that layer, not another isolated package. Use `docs/react-native-foundation-target-matrix.md` as the target matrix. The current completed milestone jump is RN `0.86.2`, not every intermediate RN minor. Future RN work should target the next stable line only after branch-time evidence supports that target.
+The next coding branch should continue from the foundation layer or a blocker-removal branch that directly supports that layer, not another isolated package. Use `docs/react-native-foundation-target-matrix.md` as the target matrix. The current completed milestone jump is RN `0.87.0`, not every intermediate RN minor. Future RN work should target the next stable line only after branch-time evidence supports that target.

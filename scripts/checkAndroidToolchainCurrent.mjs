@@ -8,15 +8,15 @@ const root = path.resolve(__dirname, '..');
 
 export const expectedAndroidToolchainCurrentState = {
   javaMajor: 17,
-  agp: '8.13.2',
-  gradle: '8.13',
-  kotlin: '2.1.20',
-  buildTools: '36.0.0',
+  agp: '9.2.1',
+  gradle: '9.4.1',
+  kotlin: '2.2.10',
+  buildTools: '37.0.0',
   minSdk: '26',
-  compileSdk: '36',
+  compileSdk: '37',
   targetSdk: '36',
   ndk: '27.1.12297006',
-  rnGradlePlugin: '0.86.2',
+  rnGradlePlugin: '0.87.0',
   newArchEnabled: 'true',
   hermesEnabled: 'true',
 };
@@ -72,7 +72,7 @@ export const collectAndroidToolchainCurrentState = () => {
     hermesEnabled: getProperty(gradleProperties, 'hermesEnabled'),
     jdkGuardPresent:
       androidBuildGradle.includes('currentJavaMajorVersion != 17') &&
-      androidBuildGradle.includes('GoldWallet Android build requires JDK 17 after the AGP 8.13 upgrade'),
+      androidBuildGradle.includes('GoldWallet Android build requires JDK 17 for React Native 0.87 and AGP 9.2'),
     javaError: java.error,
   };
 
@@ -122,7 +122,7 @@ const printReport = audit => {
     process.exit(1);
   }
 
-  console.log('Android toolchain current state matches the validated AGP 8.13 / Gradle 8.13 / JDK 17 baseline.');
+  console.log('Android toolchain current state matches the React Native 0.87 / AGP 9.2 / Gradle 9.4.1 / JDK 17 baseline.');
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

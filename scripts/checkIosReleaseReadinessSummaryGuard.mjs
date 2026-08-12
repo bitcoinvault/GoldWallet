@@ -1,7 +1,7 @@
 import { getIosReleaseReadinessSummaryErrors } from './iosReleaseReadinessSummaryGuard.mjs';
 
 const currentPodfileLockDriftLines = [
-  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.2',
+  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.87.0',
   '- ios/Podfile.lock has RNBootSplash 3.2.5; package.json has react-native-bootsplash 7.3.2',
   '- ios/Podfile.lock has react-native-config 1.4.4; package.json has react-native-config 1.6.1',
   '- ios/Podfile.lock has RNCAsyncStorage 1.15.7; package.json has @react-native-async-storage/async-storage 3.1.1',
@@ -21,7 +21,7 @@ const validWindowsSummary = [
   'Generated at: 2026-05-30T12:34:56.789Z',
   'Static iOS release files valid: yes',
   'Ready for macOS archive validation: no',
-  'React Native version: 0.86.2',
+  'React Native version: 0.87.0',
   'React Native minimum iOS: 15.1',
   'React Native minimum Xcode: 16.1',
   'Firebase Apple SDK: 12.17.0',
@@ -128,7 +128,7 @@ assertRejected(
 );
 assertRejected(
   'Wrong React Native fixture',
-  validWindowsSummary.replace('React Native version: 0.86.2', 'React Native version: 0.84.0'),
+  validWindowsSummary.replace('React Native version: 0.87.0', 'React Native version: 0.86.2'),
   'React Native version',
 );
 assertRejected(

@@ -18,7 +18,7 @@ const approved = {
   uploadArtifact: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1',
   semanticPullRequest: 'amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1',
   semgrepImage: 'semgrep/semgrep:1.170.0@sha256:c98f8829eea377274ee4b10656458b078b88232469b2ff913f091c2317347c9d',
-  semgrepBootstrapCheckerSha256: 'a72ac8ddea6c21d48614245aafce552dceedbdfe8dba1e57d7c7b48a2b80ca7f',
+  semgrepBootstrapCheckerSha256: '1eb26e84a9c452ddcfbb1ee75999313cfacca0954540dfe63103278e7d130e97',
 };
 
 const expectedBranches = ['develop', 'main', 'stage'];
@@ -302,8 +302,8 @@ const validateSemgrep = source => {
   if (/^\s+(?!security-events:)[a-z-]+:\s*write\s*$/m.test(source)) {
     errors.push('Semgrep: unapproved write permission detected');
   }
-  if (!/^\s{4}timeout-minutes:\s*30\s*$/m.test(job)) {
-    errors.push('Semgrep: scan job timeout must be 30 minutes');
+  if (!/^\s{4}timeout-minutes:\s*90\s*$/m.test(job)) {
+    errors.push('Semgrep: scan job timeout must be 90 minutes');
   }
   if (collectImages(source).length !== 0) errors.push('Semgrep: scanner must run via Docker on the Ubuntu host');
   if (!/persist-credentials:\s*false/.test(getStep(source, 'Check out repository'))) {
@@ -589,6 +589,12 @@ const mutationFixtures =
           validateSemgrep,
           workflows.semgrep.replace(approved.semgrepImage, 'semgrep/semgrep:latest'),
           'approved pinned Docker image',
+        ],
+        [
+          'Semgrep timeout regression',
+          validateSemgrep,
+          workflows.semgrep.replace('timeout-minutes: 90', 'timeout-minutes: 30'),
+          'scan job timeout must be 90 minutes',
         ],
         [
           'Semgrep nosem suppression LF regression',

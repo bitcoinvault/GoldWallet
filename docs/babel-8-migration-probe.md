@@ -1,16 +1,16 @@
 # Babel 8 Migration Probe
 
-This document records the current Babel 8 blocker for the React Native `0.86.2` wallet baseline.
+This document records the current Babel 8 blocker for the React Native `0.87.0` wallet baseline.
 
 ## Current Baseline
 
-- React Native: `0.86.2`
-- `@react-native/babel-preset`: `0.86.2`
+- React Native: `0.87.0`
+- `@react-native/babel-preset`: `0.87.0`
 - Direct Babel tooling: `7.29.7`
 - Babel resolutions: `@babel/core@7.29.7`, `@babel/traverse@7.29.8`
 - Node runtime used for the probe: repo `.nvmrc` baseline `24.16.0`
 
-The static blocker check also executes separate representative transforms through the current `@babel/core@7.29.7`, `@babel/traverse@7.29.8`, and `@react-native/babel-preset@0.86.2` path: a `.tsx` probe for TypeScript plus JSX, and a `.js` Flow probe containing `opaque type` and variance syntax. This keeps supported Babel 7 patch movement separate from the incompatible Babel 8 major probe and proves the Flow-strip path directly.
+The static blocker check also executes separate representative transforms through the current `@babel/core@7.29.7`, `@babel/traverse@7.29.8`, and `@react-native/babel-preset@0.87.0` path: a `.tsx` probe for TypeScript plus JSX, and a `.js` Flow probe containing `opaque type` and variance syntax. This keeps supported Babel 7 patch movement separate from the incompatible Babel 8 major probe and proves the Flow-strip path directly.
 
 ## Current Latest Target
 
@@ -122,7 +122,7 @@ $node=(npx -y -p node@24.16.0 node -p "process.execPath").Trim()
 
 ## Decision
 
-Keep Babel 8 blocked on the current RN `0.86.2` baseline. The 2026-08-02 target refresh keeps this as a React Native preset/plugin-stack blocker, not a Node engine blocker or a partial package probe. It should only be retried in a dedicated RN/Metro/Babel branch after a React Native preset line supports Babel 8 plugins, or after a controlled migration replaces the RN preset/plugin stack and proves:
+Keep Babel 8 blocked on the current RN `0.87.0` baseline. The RN 0.87 refresh keeps this as a React Native preset/plugin-stack blocker, not a Node engine blocker or a partial package probe. It should only be retried in a dedicated RN/Metro/Babel branch after a React Native preset line supports Babel 8 plugins, or after a controlled migration replaces the RN preset/plugin stack and proves:
 
 - direct Babel transform,
 - Jest focused tests,

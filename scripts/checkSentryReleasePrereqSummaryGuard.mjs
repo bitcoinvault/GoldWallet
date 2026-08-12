@@ -298,6 +298,12 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid not-ready Sentry release prerequisite summary fixture', notReadySummary);
 assertAccepted('Valid not-ready no-network Sentry release prerequisite summary fixture', notReadyNoNetworkSummary);
+assertAccepted(
+  'Controlled no-network blocker without unreachable wallet-flow summaries fixture',
+  notReadyNoNetworkSummary
+    .replace('Android release create-wallet smoke summary present: yes', 'Android release create-wallet smoke summary present: no')
+    .replace('Android release import-wallet smoke summary present: yes', 'Android release import-wallet smoke summary present: no'),
+);
 assertAccepted('Valid ready Sentry release prerequisite summary fixture', readySummary);
 assertRejected('Missing header fixture', notReadySummary.replace('Sentry release prerequisite audit', 'Bad header'), 'summary header');
 assertRejected('Bad timestamp fixture', notReadySummary.replace('Generated at: 2026-05-28T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');

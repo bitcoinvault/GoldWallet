@@ -10,7 +10,7 @@ The first ever Bitcoin Vault wallet.
 * Node.js `24.16.0` is the current development runtime. Use the version from `.nvmrc`.
 * Yarn `1.22.x` via Corepack.
 * For Android: 
-    * Java SE Development Kit (JDK) 17. The AGP 8.13 baseline and Android build guard require JDK 17 exactly.
+    * Java SE Development Kit (JDK) 17. The React Native 0.87 / AGP 9.2 baseline and Android build guard require JDK 17 exactly.
     * Android SDK
     * Android SDK Platform
     * Android Virtual Device

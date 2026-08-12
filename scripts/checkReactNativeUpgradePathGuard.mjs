@@ -120,7 +120,7 @@ assertRejected(
 assertRejected(
   'Wrong Gradle wrapper fixture',
   { ...validEnvironment, gradleWrapperProperties: 'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-all.zip' },
-  'Gradle wrapper 8.13',
+  'Gradle wrapper 9.4.1',
 );
 assertRejected(
   'Missing foundation target online refresh package script fixture',

@@ -1,11 +1,11 @@
 import { spawnSync } from 'child_process';
 import { randomUUID } from 'crypto';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { getAndroidReleaseSmokeVariantConfig } from './androidReleaseSmokeVariant.mjs';
-import { sha256File, sha256MigrationInputs } from './secureStorageFirstPartyMigrationEvidence.mjs';
+import { getFileEvidence, sha256File, sha256MigrationInputs } from './secureStorageFirstPartyMigrationEvidence.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputDir = path.join(root, 'local-docs');
@@ -69,12 +69,6 @@ const lineValue = (content, label) => {
   return line ? line.slice(label.length + 2).trim() : '';
 };
 
-const evidence = filePath => ({
-  present: Boolean(filePath && existsSync(filePath)),
-  bytes: filePath && existsSync(filePath) ? statSync(filePath).size : 0,
-  sha256: sha256File(filePath),
-});
-
 const run = (label, command, args, env = {}, capture = false) => {
   append(`\n> ${label}`);
   const result = spawnSync(command, args, {
@@ -132,8 +126,8 @@ const ensureSeedProcess = () => {
 };
 
 const writeSummary = exitCode => {
-  const seed = evidence(seedApkPath);
-  const candidate = evidence(candidateApkPath);
+  const seed = getFileEvidence(seedApkPath);
+  const candidate = getFileEvidence(candidateApkPath);
   const summary = [
     'Secure-storage first-party migration validation',
     `Generated at: ${new Date().toISOString()}`,

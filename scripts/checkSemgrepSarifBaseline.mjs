@@ -10,7 +10,7 @@ const MAX_INPUT_BYTES = 10 * 1024 * 1024;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const allowedParserWarningFiles = new Map([
   ['android/app/gradlew', '8c4c04dd98db1f00d49456dd162418a39312c5cb13d6865d783deb483bd1ed22'],
-  ['android/gradlew', '9fa7ab9a407275d3b5eb2ad6aaa5224745648db307a166f5947ba1cf9be3c4dd'],
+  ['android/gradlew', 'aed171fb114f82e6eaea4970a245a200e0582a7dcc8ec0891ca41b6e4a62b754'],
 ]);
 
 class InputError extends Error {}

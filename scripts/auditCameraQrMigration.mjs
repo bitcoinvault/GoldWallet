@@ -185,7 +185,7 @@ export const collectCameraQrMigrationAudit = () => {
 
   if (rootQrcodeVersion !== '1.5.4') {
     readinessIssues.push(
-      `package.json resolutions has qrcode@${rootQrcodeVersion || '<missing>'}; expected current RN 0.86 QR renderer baseline 1.5.4`,
+      `package.json resolutions has qrcode@${rootQrcodeVersion || '<missing>'}; expected current RN 0.87 QR renderer baseline 1.5.4`,
     );
   }
 

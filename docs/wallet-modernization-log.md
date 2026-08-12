@@ -10,6 +10,57 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.974 - React Native 0.87 stable foundation
+
+- Branch: `feature/bem-37-974-rn-087-stable`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Upgrade the complete React Native-owned package cohort from `0.86.2` to the current stable `0.87.0` release in one coordinated milestone, together with React and `react-test-renderer` `19.2.3`.
+- Move Android to the RN 0.87-supported foundation: AGP `9.2.1`, Gradle `9.4.1`, Kotlin `2.2.10`, KSP `2.2.10-2.0.2`, build tools `37.0.0`, compile SDK `37`, target SDK `36`, JDK `17`, New Architecture, Hermes, and edge-to-edge.
+- Refresh current-version guards, release manifests, RN template contracts, dependency strategy, Metro/Jest audits, Babel 8 probe evidence, and iOS static readiness without mixing wallet feature or rebranding work into the upgrade.
+- Preserve AsyncStorage historical migration through the documented AGP 9 compatibility bridge and strengthen first-party secure-storage evidence handling for missing/non-file APK paths.
+
+Findings:
+
+- Live npm metadata checked on 2026-08-11 reports `react-native@0.87.0` on `latest`; all seven RN-owned runtime/tooling packages are aligned to that stable version and the lockfile contains no RN prerelease cohort.
+- AsyncStorage `3.1.1` still requires the legacy Kotlin/new-DSL opt-outs under AGP 9. The explicit `android.builtInKotlin=false` and `android.newDsl=false` bridge is accepted only until the dependency supports AGP 10 defaults; local removal of KSP/Room migration logic is not acceptable for historical wallet data.
+- Frozen install, TypeScript, rn-nodeify shims, `14/14` unit suites with `68/68` tests, focused storage/network tests, controlled lint baseline, Android debug assembly, and the complete RN baseline preflight pass.
+- All four Android release variants (`dev`, `stage`, `prod`, `beta`) build successfully. APK manifests, embedded bundles, source maps, Keychain inclusion, legacy secure-storage exclusion, and retired App Center exclusion pass for every variant.
+- The signed production release passes onboarding, dashboard, Create/Import navigation, QR scanner open/close, all tabs, Terms WebView, standard wallet creation, the 3-key vault entry path, watch-only import, PIN rejection/acceptance, and persistence after restart on `emulator-5554` without Metro or fatal runtime findings.
+- The hash-bound upgrade-in-place test installs the historical production APK, creates encrypted legacy wallet state, installs the RN 0.87 candidate with `adb install -r`, migrates PIN, transaction password, encryption flag, and wallet data to Keychain, removes migrated legacy values, and confirms wallet access after restart.
+- The dev/testnet full dev and devRelease smokes remain externally blocked because `electrumx.testnet.btcv.stage.rnd.land:443` presents a certificate expired on 2026-06-23. Both no-network smokes pass and the blocker summaries remain explicit reduced proof; production release runtime is independently green.
+- iOS static validation passes for eight schemes and current release-service wiring. Windows cannot refresh the 13-entry Podfile.lock drift or run Xcode; simulator/archive validation remains explicitly unclaimed pending macOS, Xcode `26.2+`, and CocoaPods.
+- Babel 8 remains blocked by the current RN `0.87.0` Babel preset/plugin peer contract; the isolated probe reproduces the expected `BABEL_VERSION_UNSUPPORTED` result rather than forcing an unsupported major.
+- The checksum-pinned Semgrep `1.170.0` whole-repository scan timed out after `45` minutes without producing SARIF, so this milestone does not claim a full local scan pass. The fail-closed GitHub job timeout was raised from `30` to `90` minutes and guarded against regression; scanner success, SARIF creation, trusted-policy loading, baseline validation, upload, and final enforcement remain mandatory. A bounded scan with the identical security packs and suppression-disabled flags covered every changed code/config file and every reviewed baseline-owner file (`62` files, `164` effective rules); all `23` findings were individually matched to the reviewed baseline with `0` stale and `0` unreviewed entries. The first Ubuntu CI run must still prove full-scan duration and completion.
+
+Validation:
+
+- `npm view react-native version dist-tags --json`
+- Node `24.16.0` `corepack yarn install --frozen-lockfile`
+- `corepack yarn check:rn-087-readiness`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- JDK 17 `corepack yarn android:dev:assemble`
+- JDK 17 `corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:release:smoke:no-network:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:verify`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:import-wallet-smoke:embedded`
+- `ANDROID_SECURE_STORAGE_HISTORICAL_SEED_APK=<ignored-seed-apk> ANDROID_SERIAL=emulator-5554 corepack yarn secure-storage:first-party-migration:verify`
+- `corepack yarn ios:static:verify`
+- `corepack yarn rn:baseline:preflight`
+- checksum-pinned Semgrep `1.170.0` selected-file scan with the repository workflow's seven packs, `--disable-nosem`, and `--x-ignore-semgrepignore-files`
+- `node scripts/checkSemgrepSarifBaseline.mjs semgrep-selected.sarif .github/semgrep-baseline.json` (`23` reviewed, `0` stale, `0` unreviewed; local SARIF not committed)
+- `corepack yarn check:semgrep-sarif-baseline-guard`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.970 - ESLint and TypeScript ESLint patch cohort
 
 - Branch: `feature/bem-37-970-lint-tooling-patches`

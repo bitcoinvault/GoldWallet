@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import React, { useEffect } from 'react';
-import { StatusBar, AppState, AppStateStatus, NativeEventSubscription } from 'react-native';
+import { AppState, AppStateStatus, NativeEventSubscription } from 'react-native';
 import RNBootSplash from 'react-native-bootsplash';
 
 import App from './App';
@@ -35,12 +35,7 @@ const Main = () => {
     };
   }, []);
 
-  return (
-    <>
-      <StatusBar backgroundColor="rgba(0,0,0,0)" translucent />
-      <App />
-    </>
-  );
+  return <App />;
 };
 
 export default Main;
