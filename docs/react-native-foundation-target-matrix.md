@@ -84,7 +84,7 @@ Why:
 
 Status:
 
-- This is the current foundation acceptance candidate on `feature/bem-37-974-rn-087-stable`.
+- This is the completed current foundation baseline, integrated through `feature/bem-37-974-rn-087-stable`.
 - Android debug and all four local release variants build with AGP `9.2.1`, Gradle `9.4.1`, Kotlin `2.2.10`, compile SDK `37`, target SDK `36`, and JDK `17`.
 - The no-network emulator smoke passes; the ordinary dev/testnet dashboard path remains externally blocked by the expired Electrum TLS certificate.
 - Windows iOS static validation is required for this milestone, while simulator/archive acceptance still requires macOS, Xcode, CocoaPods, and a refreshed `Podfile.lock`.

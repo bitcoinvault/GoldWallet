@@ -8,7 +8,7 @@ const validSummary = [
   'Sentry Android warning wiring valid: yes',
   'Sentry Android warning baseline stable: yes',
   'Warnings: 4',
-  '- Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.86.2 baseline.',
+  '- Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.87.0 baseline.',
   '- Sentry 8.22.0 routes Android Gradle integration through sentry.gradle.kts; release source-map and dSYM behavior still require credentialed validation.',
   '- Sentry 8.22.0 still performs release bundle task argument extraction; check Android release Gradle output for "Could not extract bundle task arguments" before claiming source-map upload.',
   '- Sentry is on 8.22.0; source-map and dSYM behavior still require release validation with local Sentry credentials.',

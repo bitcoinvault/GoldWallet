@@ -1,6 +1,6 @@
 # Native Module Upgrade Plan
 
-This plan scopes `BEM-36 - Native modules upgrade` on the current React Native `0.86.2` baseline.
+This plan scopes `BEM-36 - Native modules upgrade` on the current React Native `0.87.0` baseline.
 
 The current dependency inventory is guarded by:
 
@@ -10,7 +10,7 @@ corepack yarn check:native-module-inventory
 
 If a native dependency version changes, update `scripts/nativeModuleInventoryGuard.mjs`, this plan, and the branch notes in `docs/wallet-modernization-log.md` in the same mini-branch.
 
-React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.86.2` branch. Run `corepack yarn rn:baseline:preflight` before an RN baseline branch so the current native-module, release-service, Metro, RN target snapshot, and warning-source audits are checked together.
+React Native upgrade path is tracked in `docs/react-native-upgrade-path.md`. Use that document before moving the RN baseline so native module updates stay sequenced with the current `0.87.0` branch. Run `corepack yarn rn:baseline:preflight` before an RN baseline branch so the current native-module, release-service, Metro, RN target snapshot, and warning-source audits are checked together.
 
 ## Current Constraints
 
@@ -64,13 +64,13 @@ Branch shape:
 - `react-native-bootsplash` is on latest checked `7.3.2` after `BEM-37.761`; future splash work should focus on release launch-screen behavior and iOS validation, not another immediate package bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
 - `react-native-safe-area-context` is on checked latest `5.8.1` after `BEM-37.967`; future safe-area work should focus on layout validation and the next RN baseline.
-- `react-native-screens` is on checked latest `4.27.0` after `BEM-37.967`; the package satisfies the RN `0.86.2` baseline and keeps future changes tied to Android navigation smoke.
-- `react-native-svg` is on checked `15.15.5` after `BEM-36.119`, paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4` resolution after `BEM-37.158`; the QR renderer branch remains guarded on the RN `0.86.2` baseline.
+- `react-native-screens` is on checked latest `4.27.0` after `BEM-37.967`; the package satisfies the RN `0.87.0` baseline and keeps future changes tied to Android navigation smoke.
+- `react-native-svg` is on checked `15.15.5` after `BEM-36.119`, paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4` resolution after `BEM-37.158`; the QR renderer branch remains guarded on the RN `0.87.0` baseline.
 - For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.
 - `react-native-fast-image` is on latest checked `8.6.3` after `BEM-36.53`; future image work should focus on cached image behavior and any RN baseline-driven replacement rather than another 8.x package bump.
-- `@react-native-community/slider` is on checked `5.2.0` after `BEM-37.108`; the app has no source imports for Slider, and the package no longer contributes Android `jcenter()` warnings on the RN `0.86.2` baseline.
+- `@react-native-community/slider` is on checked `5.2.0` after `BEM-37.108`; the app has no source imports for Slider, and the package no longer contributes Android `jcenter()` warnings on the RN `0.87.0` baseline.
 - `react-native-vector-icons` is on checked latest `10.3.0` after `BEM-37.110`; the package no longer requires `@react-native-community/toolbar-android` and no longer contributes an Android `jcenter()` warning. Future icon work should focus on the package's per-icon-family migration guidance and iOS font validation rather than another warning-only cleanup.
-- `react-native-gesture-handler` is on latest checked `3.1.0` as of 2026-07-18; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces on the current RN `0.86.2` New Architecture baseline.
+- `react-native-gesture-handler` is on latest checked `3.1.0` as of 2026-07-18; the earlier RN `0.76.9` Kotlin/codegen blocker no longer reproduces on the current RN `0.87.0` New Architecture baseline.
 - `@react-native-community/masked-view` was removed after moving the navigation proof to React Navigation 7; the current `@react-navigation/stack@7.10.22` package no longer requires the old community masked-view runtime path.
 - `corepack yarn masked-view:migration:audit` now guards the completed removal state and keeps the warning baseline at one remaining targeted source.
 
@@ -103,10 +103,10 @@ Branch shape:
 - `@react-native-community/netinfo` is on latest checked stable `12.0.1` after `BEM-37.168`; future NetInfo work should focus on Electrum/network behavior and RN baseline changes rather than another blind package bump.
 - `@react-native-async-storage/async-storage` is on latest checked stable `3.1.1` after `BEM-37.169`; the Jest mock import moved to `@react-native-async-storage/async-storage/jest`, and future AsyncStorage work should focus on persistence behavior and platform validation.
 - `react-native-background-timer` is pinned to the already-resolved `2.4.1` after `BEM-36.67`; future timer work should validate timeout-button behavior and wait for a broader RN/runtime baseline.
-- `react-native-config` is on latest checked `1.6.1` after `BEM-37.167`; the earlier Android API compile blocker is resolved on the RN `0.86.2` baseline. Future config work should focus on flavor/env behavior, release-service keys, and platform validation.
+- `react-native-config` is on latest checked `1.6.1` after `BEM-37.167`; the earlier Android API compile blocker is resolved on the RN `0.87.0` baseline. Future config work should focus on flavor/env behavior, release-service keys, and platform validation.
 - `react-native-device-info` is on checked `15.0.2` after `BEM-37.109`; the app's used APIs remain available (`isEmulator`, `isPinOrFingerprintSet`, app/build metadata), and the package no longer contributes an Android `jcenter()` warning.
-- `react-native-exit-app` is on checked `2.0.0` after `BEM-37.106`; the package no longer contributes an Android `jcenter()` warning on the RN `0.86.2` baseline. Future exit-app work should validate factory reset and terms rejection behavior.
-- `react-native-localize` is on checked `3.7.0` after `BEM-37.107`; the package no longer contributes an Android `jcenter()` warning on the RN `0.86.2` baseline. Future localization work should focus on app language behavior and RN baseline changes.
+- `react-native-exit-app` is on checked `2.0.0` after `BEM-37.106`; the package no longer contributes an Android `jcenter()` warning on the RN `0.87.0` baseline. Future exit-app work should validate factory reset and terms rejection behavior.
+- `react-native-localize` is on checked `3.7.0` after `BEM-37.107`; the package no longer contributes an Android `jcenter()` warning on the RN `0.87.0` baseline. Future localization work should focus on app language behavior and RN baseline changes.
 - `react-native-keychain@10.0.0` is the only current write backend. A first-party read/remove-only bridge keeps the exact historical Android and iOS schemas available during the migration rollout window without restoring `react-native-secure-key-store`.
 - `corepack yarn check:secure-storage-legacy-removal` prevents the removed package and adapter from returning while requiring Android/iOS bridge registration, historical schema markers, fail-closed Keychain-read handling, deletion-marker protection, native commit checking, and awaited factory-reset cleanup.
 - `corepack yarn secure-storage:release-validation:handoff` validates the Keychain-primary migration-window posture and focused wallet storage contracts.
@@ -120,7 +120,7 @@ Branch shape:
 ### Debug Tooling Removed From Runtime
 
 - `react-native-flipper`, `redux-flipper`, and `flipper-plugin-redux-debugger` are removed after `BEM-37.324` instead of bumped to `react-native-flipper@0.273.0`.
-- `react-native-flipper@0.273.0` is npm `latest`, but still peers React `^16.8.0 || ^17.0.0 || ^18.0.0`; the current RN `0.86.2` baseline uses React `19.2.3`.
+- `react-native-flipper@0.273.0` is npm `latest`, but still peers React `^16.8.0 || ^17.0.0 || ^18.0.0`; the current RN `0.87.0` baseline uses React `19.2.3`.
 - Android Flipper bootstrap was already disabled before this cleanup; the branch removes the remaining package, Gradle, manifest, debug source, iOS Podfile/AppDelegate, and Redux middleware wiring.
 - `corepack yarn check:flipper-removal` guards the completed removal state. `ios/Podfile.lock` still requires a macOS `pod install` refresh together with the other stale iOS pod drift.
 

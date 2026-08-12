@@ -40,7 +40,7 @@ const requiredSnippets = [
 
 const errors = requiredSnippets.filter(snippet => !plan.includes(snippet));
 
-if (!plan.includes('The active RN `0.86.2` Android warning audit no longer reports Sentry `execResult`')) {
+if (!plan.includes('The active RN `0.87.0` Android warning audit no longer reports Sentry `execResult`')) {
   errors.push('Plan must keep the current RN/Sentry warning state visible.');
 }
 

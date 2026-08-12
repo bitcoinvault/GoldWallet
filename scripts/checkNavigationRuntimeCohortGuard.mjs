@@ -7,7 +7,7 @@ import {
 
 const dependencies = {
   react: '19.2.3',
-  'react-native': '0.86.2',
+  'react-native': '0.87.0',
   ...Object.fromEntries(expectedNavigationRuntimeVersions),
 };
 const installedPackages = {
@@ -77,10 +77,10 @@ assert(
       ...installedPackages,
       'react-native-safe-area-context': {
         ...installedPackages['react-native-safe-area-context'],
-        peerDependencies: { react: '*', 'react-native': '>=0.87.0' },
+        peerDependencies: { react: '*', 'react-native': '>=0.88.0' },
       },
     },
-  }).some(error => error.includes('react-native-safe-area-context peer react-native range >=0.87.0 does not accept 0.86.2')),
+  }).some(error => error.includes('react-native-safe-area-context peer react-native range >=0.88.0 does not accept 0.87.0')),
 );
 assert(
   getNavigationRuntimeCohortErrors({

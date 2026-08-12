@@ -7,6 +7,7 @@ export const getJetifierRetirementErrors = ({
   promptPatch,
   installedPromptBuildGradle,
   installedPromptJava,
+  installedPromptModuleJava,
   productionAndroidSources,
   productionAndroidSourceFileCount,
   prodReleaseRuntimeClasspath,
@@ -41,13 +42,54 @@ export const getJetifierRetirementErrors = ({
   for (const requiredPatchLine of [
     'diff --git a/node_modules/react-native-prompt-android/android/build.gradle b/node_modules/react-native-prompt-android/android/build.gradle',
     'diff --git a/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptFragment.java b/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptFragment.java',
+    'diff --git a/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptModule.java b/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptModule.java',
     '-    implementation "com.android.support:appcompat-v7:27.1.1"',
     '+    implementation "androidx.appcompat:appcompat:1.7.1"',
     '-import android.support.v7.app.AlertDialog;',
     '+import androidx.appcompat.app.AlertDialog;',
+    '+    private Bundle mPendingArguments;',
+    '+    private Callback mPendingCallback;',
+    '+    public void invalidate() {',
+    '+        getReactApplicationContext().removeLifecycleEventListener(this);',
+    '+            mPendingArguments = args;',
+    '+            mPendingCallback = callback;',
+    '        return new FragmentManagerHelper(activity.getFragmentManager());',
   ]) {
     if (!promptPatch.includes(requiredPatchLine)) {
       errors.push(`react-native-prompt-android patch must contain: ${requiredPatchLine}`);
+    }
+  }
+
+  if (typeof installedPromptModuleJava !== 'string' || installedPromptModuleJava.length === 0) {
+    errors.push('installed react-native-prompt-android module source is required for fail-closed validation');
+  } else {
+    if (!installedPromptModuleJava.includes('private Bundle mPendingArguments;')) {
+      errors.push('installed react-native-prompt-android must retain pending prompt arguments across host resume');
+    }
+    if (!installedPromptModuleJava.includes('private Callback mPendingCallback;')) {
+      errors.push('installed react-native-prompt-android must retain the pending prompt callback across Activity replacement');
+    }
+    if (!installedPromptModuleJava.includes('return new FragmentManagerHelper(activity.getFragmentManager());')) {
+      errors.push('installed react-native-prompt-android must resolve the current Activity FragmentManager when showing a prompt');
+    }
+    const onHostResumeBody = installedPromptModuleJava.match(/public void onHostResume\(\)\s*\{([\s\S]*?)\}/)?.[1] || '';
+    if (!onHostResumeBody.includes('showPendingAlert();')) {
+      errors.push('installed react-native-prompt-android must deliver pending prompt state during host resume');
+    }
+    if (!installedPromptModuleJava.includes('fragmentManagerHelper.showNewAlert(arguments, callback);')) {
+      errors.push('installed react-native-prompt-android must hand pending arguments and callback to the current FragmentManager helper');
+    }
+    if (!installedPromptModuleJava.includes('public void invalidate()') ||
+        !installedPromptModuleJava.includes('removeLifecycleEventListener(this)')) {
+      errors.push('installed react-native-prompt-android must unregister its lifecycle listener during invalidation');
+    }
+    if (!installedPromptModuleJava.includes('mPendingArguments = null;') ||
+        !installedPromptModuleJava.includes('mPendingCallback = null;')) {
+      errors.push('installed react-native-prompt-android must clear pending prompt state during invalidation');
+    }
+    const onHostDestroyBody = installedPromptModuleJava.match(/public void onHostDestroy\(\)\s*\{([\s\S]*?)\}/)?.[1] || '';
+    if (onHostDestroyBody.includes('mPendingArguments = null') || onHostDestroyBody.includes('mPendingCallback = null')) {
+      errors.push('installed react-native-prompt-android must preserve pending prompt state across Activity replacement');
     }
   }
 

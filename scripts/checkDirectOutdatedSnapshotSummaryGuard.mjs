@@ -9,7 +9,7 @@ const validEntries = [
     latest: '8.0.4',
     type: 'devDependencies',
     decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
     name: '@babel/core',
@@ -18,7 +18,7 @@ const validEntries = [
     latest: '8.0.1',
     type: 'resolutionDependencies',
     decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
     name: '@babel/core',
@@ -27,7 +27,7 @@ const validEntries = [
     latest: '8.0.1',
     type: 'devDependencies',
     decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
     name: '@babel/plugin-transform-runtime',
@@ -36,7 +36,7 @@ const validEntries = [
     latest: '8.0.1',
     type: 'devDependencies',
     decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
     name: '@babel/preset-env',
@@ -45,7 +45,7 @@ const validEntries = [
     latest: '8.0.2',
     type: 'devDependencies',
     decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
     name: '@babel/preset-react',
@@ -54,7 +54,7 @@ const validEntries = [
     latest: '8.0.1',
     type: 'devDependencies',
     decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
     name: '@babel/preset-typescript',
@@ -63,7 +63,7 @@ const validEntries = [
     latest: '8.0.1',
     type: 'devDependencies',
     decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
     name: '@babel/runtime',
@@ -72,7 +72,7 @@ const validEntries = [
     latest: '8.0.0',
     type: 'devDependencies',
     decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
   {
     name: '@babel/traverse',
@@ -81,24 +81,8 @@ const validEntries = [
     latest: '8.0.4',
     type: 'resolutionDependencies',
     decision:
-      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+      'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   },
-  ...[
-    '@react-native/babel-preset',
-    '@react-native/codegen',
-    '@react-native/gradle-plugin',
-    '@react-native/jest-preset',
-    '@react-native/metro-config',
-    '@react-native/typescript-config',
-  ].map(name => ({
-    name,
-    current: '0.86.2',
-    wanted: '0.86.2',
-    latest: '0.87.0',
-    type: 'devDependencies',
-    decision:
-      'blocked - React Native 0.87 framework packages must move together in a dedicated RN 0.87 runtime branch with aligned codegen, Gradle plugin, Metro, Babel, TypeScript config, Android build, and emulator smoke proof',
-  })),
   {
     name: '@types/react',
     current: '19.2.17',
@@ -246,10 +230,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 28', 'Entries: 27'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 22', 'Entries: 21'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 28', 'Entries: 29').replace(
+  validSummary.replace('Entries: 22', 'Entries: 23').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -287,11 +271,6 @@ assertRejected(
   'Missing bl blocker fixture',
   validSummary.replace('CommonJS transitive consumers', 'generic major update'),
   'CommonJS transitive consumer',
-);
-assertRejected(
-  'Split React Native framework cohort fixture',
-  validSummary.replace('React Native 0.87 framework packages must move together', 'generic React Native update'),
-  'React Native 0.87 framework drift',
 );
 assertRejected(
   'Secret printed fixture',

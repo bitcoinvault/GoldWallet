@@ -31,31 +31,31 @@ const knownDecisions = new Map([
   ],
   [
     '@babel/cli',
-    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
     '@babel/core',
-    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
     '@babel/plugin-transform-runtime',
-    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
     '@babel/preset-env',
-    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
     '@babel/preset-react',
-    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
     '@babel/preset-typescript',
-    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
     '@babel/runtime',
-    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
     'babel-plugin-polyfill-regenerator',
@@ -63,7 +63,7 @@ const knownDecisions = new Map([
   ],
   [
     '@babel/traverse',
-    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.86 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
+    'blocked - Babel 8 is a major Metro/RN transform migration; current RN 0.87 Babel preset depends on the Babel 7 plugin stack and needs a dedicated RN/Metro/Babel branch',
   ],
   [
     '@react-native/babel-preset',

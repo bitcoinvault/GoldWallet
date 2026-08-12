@@ -3,7 +3,7 @@ index 6ecf7ec..fac9f18 100644
 --- a/node_modules/react-native-prompt-android/android/build.gradle
 +++ b/node_modules/react-native-prompt-android/android/build.gradle
 @@ -22,7 +22,7 @@ android {
- 
+
  repositories {
      mavenLocal()
 -    jcenter()
@@ -11,9 +11,15 @@ index 6ecf7ec..fac9f18 100644
      maven {
          // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
          url "$projectDir/../../../node_modules/react-native/android"
-@@ -33 +33 @@ dependencies {
+@@ -30,7 +30,7 @@ repositories {
+ }
+
+ dependencies {
 -    implementation "com.android.support:appcompat-v7:27.1.1"
 +    implementation "androidx.appcompat:appcompat:1.7.1"
+     implementation 'com.facebook.react:react-native:+'
+     implementation fileTree( dir: "libs", includes: ['*.jar'] )
+ }
 diff --git a/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptFragment.java b/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptFragment.java
 index 4a662a7..04fedde 100644
 --- a/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptFragment.java
@@ -27,3 +33,151 @@ index 4a662a7..04fedde 100644
  import android.text.InputType;
  import android.view.LayoutInflater;
  import android.view.WindowManager;
+diff --git a/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptModule.java b/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptModule.java
+index 960b8d7..0944fa2 100644
+--- a/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptModule.java
++++ b/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptModule.java
+@@ -51,6 +51,10 @@ public class RNPromptModule extends ReactContextBaseJavaModule implements Lifecy
+             KEY_BUTTON_NEUTRAL, DialogInterface.BUTTON_NEUTRAL);
+
+     private boolean mIsInForeground;
++    @Nullable
++    private Bundle mPendingArguments;
++    @Nullable
++    private Callback mPendingCallback;
+
+     public RNPromptModule(ReactApplicationContext reactContext) {
+         super(reactContext);
+@@ -74,29 +78,27 @@ public class RNPromptModule extends ReactContextBaseJavaModule implements Lifecy
+
+     @Override
+     public void onHostDestroy() {
++        mIsInForeground = false;
+     }
+
+     @Override
+     public void onHostResume() {
+         mIsInForeground = true;
+-        // Check if a dialog has been created while the host was paused, so that we can show it now.
+-        FragmentManagerHelper fragmentManagerHelper = getFragmentManagerHelper();
+-        if (fragmentManagerHelper != null) {
+-            fragmentManagerHelper.showPendingAlert();
+-        } else {
+-            FLog.w(DialogModule.class, "onHostResume called but no FragmentManager found");
+-        }
++        showPendingAlert();
++    }
++
++    @Override
++    public void invalidate() {
++        getReactApplicationContext().removeLifecycleEventListener(this);
++        mIsInForeground = false;
++        mPendingArguments = null;
++        mPendingCallback = null;
++        super.invalidate();
+     }
+
+
+     @ReactMethod
+     public void promptWithArgs(ReadableMap options, final Callback callback) {
+-        final FragmentManagerHelper fragmentManagerHelper = getFragmentManagerHelper();
+-        if (fragmentManagerHelper == null) {
+-            FLog.w(RNPromptModule.class, "Tried to show an alert while not attached to an Activity");
+-            return;
+-        }
+-
+         final Bundle args = new Bundle();
+         if (options.hasKey(KEY_TITLE)) {
+             args.putString(RNPromptFragment.ARG_TITLE, options.getString(KEY_TITLE));
+@@ -139,7 +141,31 @@ public class RNPromptModule extends ReactContextBaseJavaModule implements Lifecy
+         if (options.hasKey(KEY_PLACEHOLDER)) {
+             args.putString(KEY_PLACEHOLDER, options.getString(KEY_PLACEHOLDER));
+         }
+-        fragmentManagerHelper.showNewAlert(mIsInForeground, args, callback);
++        final FragmentManagerHelper fragmentManagerHelper = getFragmentManagerHelper();
++        if (mIsInForeground && fragmentManagerHelper != null) {
++            fragmentManagerHelper.showNewAlert(args, callback);
++        } else {
++            mPendingArguments = args;
++            mPendingCallback = callback;
++        }
++    }
++
++    private void showPendingAlert() {
++        if (mPendingArguments == null) {
++            return;
++        }
++
++        final FragmentManagerHelper fragmentManagerHelper = getFragmentManagerHelper();
++        if (fragmentManagerHelper == null) {
++            FLog.w(DialogModule.class, "onHostResume called but no FragmentManager found");
++            return;
++        }
++
++        final Bundle arguments = mPendingArguments;
++        final Callback callback = mPendingCallback;
++        mPendingArguments = null;
++        mPendingCallback = null;
++        fragmentManagerHelper.showNewAlert(arguments, callback);
+     }
+
+
+@@ -150,23 +176,10 @@ public class RNPromptModule extends ReactContextBaseJavaModule implements Lifecy
+         @Nullable
+         android.app.FragmentManager mFragmentManager;
+
+-        private
+-        @Nullable
+-        RNPromptFragment mFragmentToShow;
+-
+-
+         public FragmentManagerHelper(android.app.FragmentManager fragmentManager) {
+             mFragmentManager = fragmentManager;
+         }
+
+-        public void showPendingAlert() {
+-            if (mFragmentToShow == null) {
+-                return;
+-            }
+-            mFragmentToShow.show(mFragmentManager, FRAGMENT_TAG);
+-            mFragmentToShow = null;
+-        }
+-
+         private void dismissExisting() {
+             if (mFragmentManager != null) {
+                 RNPromptFragment oldFragment =
+@@ -177,7 +190,7 @@ public class RNPromptModule extends ReactContextBaseJavaModule implements Lifecy
+             }
+         }
+
+-        public void showNewAlert(boolean isInForeground, Bundle arguments, Callback actionCallback) {
++        public void showNewAlert(Bundle arguments, Callback actionCallback) {
+             dismissExisting();
+
+             PromptFragmentListener actionListener =
+@@ -187,14 +200,10 @@ public class RNPromptModule extends ReactContextBaseJavaModule implements Lifecy
+             promptFragment.setListener(actionListener);
+             promptFragment.setArguments(arguments);
+
+-            if (isInForeground) {
+-                if (arguments.containsKey(KEY_CANCELABLE)) {
+-                    promptFragment.setCancelable(arguments.getBoolean(KEY_CANCELABLE));
+-                }
+-                promptFragment.show(mFragmentManager, FRAGMENT_TAG);
+-            } else {
+-                mFragmentToShow = promptFragment;
++            if (arguments.containsKey(KEY_CANCELABLE)) {
++                promptFragment.setCancelable(arguments.getBoolean(KEY_CANCELABLE));
+             }
++            promptFragment.show(mFragmentManager, FRAGMENT_TAG);
+         }
+     }
+
+@@ -244,6 +253,7 @@ public class RNPromptModule extends ReactContextBaseJavaModule implements Lifecy
+         if (activity == null) {
+             return null;
+         }
++
+         return new FragmentManagerHelper(activity.getFragmentManager());
+     }
+ }

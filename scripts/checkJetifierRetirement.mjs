@@ -71,6 +71,9 @@ const errors = getJetifierRetirementErrors({
   installedPromptJava: readRequired(
     'node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptFragment.java',
   ),
+  installedPromptModuleJava: readRequired(
+    'node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptModule.java',
+  ),
   productionAndroidSources: productionSourceInventory.contents,
   productionAndroidSourceFileCount: productionSourceInventory.fileCount,
   prodReleaseRuntimeClasspath: gradleResult.stdout,

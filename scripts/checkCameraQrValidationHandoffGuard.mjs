@@ -227,7 +227,7 @@ const migrationSummary = [
   'iOS camera Podfile.lock cleanup complete: yes',
   'iOS broader Podfile.lock refresh required: yes',
   'iOS broader Podfile.lock drift issues: 1',
-  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.86.2',
+  '- ios/Podfile.lock has React-Core 0.65.3; package.json has react-native 0.87.0',
   'iOS removed Podfile.lock drift issues: 0',
   'Camera QR migration wiring valid: yes',
   'Camera QR migration baseline stable: yes',

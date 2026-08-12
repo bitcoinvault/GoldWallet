@@ -90,7 +90,7 @@ export const collectSentryAndroidWarningAudit = () => {
     .filter(({ line }) => line.includes('bundleTask.getProperties()') || line.includes('DefaultGroovyMethods.getProperties(bundleTask)'));
   const getPropertiesLineNumbers = getPropertiesLines.map(({ lineNumber }) => lineNumber);
   if (warningSummary && !activeSentryWarning) {
-    warnings.push('Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.86.2 baseline.');
+    warnings.push('Latest Android warning audit does not report an active Sentry execResult warning on the RN 0.87.0 baseline.');
   }
 
   if (sentryVersion === expectedSentryReactNativeVersion && exists(sentryGradleKtsPath)) {

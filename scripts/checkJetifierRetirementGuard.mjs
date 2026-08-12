@@ -11,13 +11,34 @@ const validInput = {
   promptPatch: [
     'diff --git a/node_modules/react-native-prompt-android/android/build.gradle b/node_modules/react-native-prompt-android/android/build.gradle',
     'diff --git a/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptFragment.java b/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptFragment.java',
+    'diff --git a/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptModule.java b/node_modules/react-native-prompt-android/android/src/main/java/im/shimo/react/prompt/RNPromptModule.java',
     '-    implementation "com.android.support:appcompat-v7:27.1.1"',
     '+    implementation "androidx.appcompat:appcompat:1.7.1"',
     '-import android.support.v7.app.AlertDialog;',
     '+import androidx.appcompat.app.AlertDialog;',
+    '+    private Bundle mPendingArguments;',
+    '+    private Callback mPendingCallback;',
+    '+    public void invalidate() {',
+    '+        getReactApplicationContext().removeLifecycleEventListener(this);',
+    '+            mPendingArguments = args;',
+    '+            mPendingCallback = callback;',
+    '        return new FragmentManagerHelper(activity.getFragmentManager());',
   ].join('\n'),
   installedPromptBuildGradle: 'implementation "androidx.appcompat:appcompat:1.7.1"',
   installedPromptJava: 'import androidx.appcompat.app.AlertDialog;',
+  installedPromptModuleJava: [
+    'private Bundle mPendingArguments;',
+    'private Callback mPendingCallback;',
+    'public void onHostResume() { showPendingAlert(); }',
+    'private void showPendingAlert() {',
+    'fragmentManagerHelper.showNewAlert(arguments, callback);',
+    'public void onHostDestroy() { mIsInForeground = false; }',
+    'return new FragmentManagerHelper(activity.getFragmentManager());',
+    'public void invalidate() {',
+    'removeLifecycleEventListener(this);',
+    'mPendingArguments = null;',
+    'mPendingCallback = null;',
+  ].join('\n'),
   productionAndroidSources: 'FILE: android/app/src/main/java/App.java\npackage io.goldwallet.wallet;',
   productionAndroidSourceFileCount: 1,
   prodReleaseRuntimeClasspath:
@@ -104,6 +125,54 @@ assertRejected(
   'Missing installed prompt source fixture',
   { ...validInput, installedPromptJava: undefined },
   'Java source is required',
+);
+assertRejected(
+  'Prompt lifecycle regression fixture',
+  { ...validInput, installedPromptModuleJava: 'return new FragmentManagerHelper(activity.getFragmentManager());' },
+  'must retain pending prompt arguments across host resume',
+);
+assertRejected(
+  'Prompt Activity replacement regression fixture',
+  {
+    ...validInput,
+    installedPromptModuleJava: validInput.installedPromptModuleJava.replace(
+      'public void onHostDestroy() { mIsInForeground = false; }',
+      'public void onHostDestroy() { mPendingArguments = null; mPendingCallback = null; }',
+    ),
+  },
+  'must preserve pending prompt state across Activity replacement',
+);
+assertRejected(
+  'Prompt invalidation regression fixture',
+  {
+    ...validInput,
+    installedPromptModuleJava: validInput.installedPromptModuleJava.replace('removeLifecycleEventListener(this);', ''),
+  },
+  'must unregister its lifecycle listener during invalidation',
+);
+assertRejected(
+  'Prompt resume delivery regression fixture',
+  {
+    ...validInput,
+    installedPromptModuleJava: validInput.installedPromptModuleJava.replace('showPendingAlert();', ''),
+  },
+  'must deliver pending prompt state during host resume',
+);
+assertRejected(
+  'Prompt pending handoff regression fixture',
+  {
+    ...validInput,
+    installedPromptModuleJava: validInput.installedPromptModuleJava.replace(
+      'fragmentManagerHelper.showNewAlert(arguments, callback);',
+      '',
+    ),
+  },
+  'must hand pending arguments and callback to the current FragmentManager helper',
+);
+assertRejected(
+  'Missing installed prompt module fixture',
+  { ...validInput, installedPromptModuleJava: undefined },
+  'module source is required',
 );
 assertRejected(
   'Production source regression fixture',
