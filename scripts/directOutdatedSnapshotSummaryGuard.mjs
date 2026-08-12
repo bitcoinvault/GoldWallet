@@ -18,7 +18,6 @@ const requiredKnownEntries = [
   ['babel-plugin-polyfill-regenerator', 'devDependencies'],
   ['bitcoinjs-lib', 'dependencies'],
   ['bl', 'resolutionDependencies'],
-  ['caniuse-lite', 'resolutionDependencies'],
   ['electrum-client', 'dependencies'],
   ['plist', 'resolutionDependencies'],
   ['react', 'dependencies'],
@@ -268,7 +267,14 @@ export const getDirectOutdatedSnapshotSummaryErrors = summary => {
 
   if (
     entryLines.some(line => line.startsWith('- caniuse-lite: ')) &&
-    !entryLines.some(line => line.startsWith('- caniuse-lite: ') && line.includes('dedicated tooling/resolution branch') && line.includes('lockfile') && line.includes('bundle-transform proof'))
+    !entryLines.some(
+      line =>
+        line.startsWith('- caniuse-lite: ') &&
+        line.includes('dedicated tooling/resolution branch') &&
+        line.includes('lockfile') &&
+        line.includes('baseline audit') &&
+        line.includes('bundle-transform proof'),
+    )
   ) {
     errors.push('caniuse-lite drift must remain tied to a dedicated tooling/resolution branch decision with lockfile and bundle-transform proof');
   }

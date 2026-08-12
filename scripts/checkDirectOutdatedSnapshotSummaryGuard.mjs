@@ -108,15 +108,6 @@ const validEntries = [
     decision: 'blocked - CommonJS transitive consumers still require the validated bl 6 resolution before the ESM/export-map v7 line',
   },
   {
-    name: 'caniuse-lite',
-    current: '1.0.30001806',
-    wanted: '1.0.30001806',
-    latest: '1.0.30001809',
-    type: 'resolutionDependencies',
-    decision:
-      'blocked - Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof',
-  },
-  {
     name: 'electrum-client',
     current: '2.0.0',
     wanted: 'exotic',
@@ -212,10 +203,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 20', 'Entries: 19'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 19', 'Entries: 18'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 20', 'Entries: 21').replace(
+  validSummary.replace('Entries: 19', 'Entries: 20').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -241,7 +232,7 @@ assertRejected(
 );
 const safeAreaDecision =
   'blocked - native safe-area minor drift requires a dedicated navigation/layout branch with TypeScript, Android build, screen-layout, and emulator navigation proof';
-const safeAreaSummary = validSummary.replace('Entries: 20', 'Entries: 21').replace(
+const safeAreaSummary = validSummary.replace('Entries: 19', 'Entries: 20').replace(
   'Secret values printed: no',
   `- react-native-safe-area-context: current 5.8.1, wanted 5.8.1, latest 5.9.0, type dependencies, decision ${safeAreaDecision}\nSecret values printed: no`,
 );
@@ -256,6 +247,24 @@ const safeAreaSummary = validSummary.replace('Entries: 20', 'Entries: 21').repla
     `Missing safe-area rationale fixture: ${requiredText}`,
     safeAreaSummary.replace(safeAreaDecision, safeAreaDecision.replace(requiredText, replacement)),
     'react-native-safe-area-context drift',
+  );
+});
+const caniuseDecision =
+  'blocked - Browserslist data resolution drift requires a dedicated tooling/resolution branch with lockfile, baseline audit, and bundle-transform proof';
+const caniuseSummary = validSummary.replace('Entries: 19', 'Entries: 20').replace(
+  'Secret values printed: no',
+  `- caniuse-lite: current 1.0.30001809, wanted 1.0.30001809, latest 1.0.30001810, type resolutionDependencies, decision ${caniuseDecision}\nSecret values printed: no`,
+);
+[
+  ['dedicated tooling/resolution branch', 'generic tooling branch'],
+  ['lockfile', 'dependency metadata'],
+  ['baseline audit', 'basic checks'],
+  ['bundle-transform proof', 'runtime proof'],
+].forEach(([requiredText, replacement]) => {
+  assertRejected(
+    `Missing caniuse-lite rationale fixture: ${requiredText}`,
+    caniuseSummary.replace(caniuseDecision, caniuseDecision.replace(requiredText, replacement)),
+    'caniuse-lite drift',
   );
 });
 assertRejected(
