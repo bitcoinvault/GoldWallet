@@ -10,6 +10,31 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.978 - Windows New Architecture native-path preflight
+
+- Branch: `feature/bem-37-978-windows-native-path-guard`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Fail before Gradle on Windows when a GoldWallet checkout makes the current RN Firebase generated C++ path exceed Ninja's native path budget.
+- Keep the check centralized in the guarded Gradle runner so debug, release, and probe builds share the same protection.
+
+Findings:
+
+- The RN `0.87.0` New Architecture build failed from `D:\wt\GoldWallet\bem-37-977-rn087-release-readiness` because generated RN Firebase C++ source paths exceeded the Windows limit; Ninja rejected the analytics source at 267 characters as longer than 260 characters.
+- Crashlytics owns the longest current modeled RN Firebase source path. The preflight validates all four installed Firebase probes, accepts at most 259 characters, and fails closed if a dependency update removes or relocates a modeled source.
+- The same source builds from short roots such as `D:\q978`. Both the guarded Gradle runner and all eight public debug/release `react-native run-android` commands reject an unsafe checkout before CMake configuration and compilation consume several minutes.
+
+Validation:
+
+- `corepack yarn check:android-native-path-budget-guard`
+- direct boundary fixtures for 259-character accepted and 260-character rejected Windows paths
+- injected Gradle runner test proving an over-budget checkout spawns neither Java nor Gradle
+- JDK 17 `corepack yarn android:dev:assemble`
+- `corepack yarn prepush`
+- `git diff --check`
+
 ### BEM-37.977 - React Native 0.87 release-readiness refresh
 
 - Branch: `feature/bem-37-977-rn087-release-readiness`

@@ -2,6 +2,7 @@ import { spawnSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { getAndroidNativePathBudget, getAndroidNativePathBudgetError } from './androidNativePathBudget.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -164,17 +165,29 @@ export const getAndroidGradleEnvironment = ({
   };
 };
 
-const main = () => {
-  const androidDir = path.join(root, 'android');
-  const gradleCommand = process.platform === 'win32' ? 'gradlew.bat' : './gradlew';
-  const args = process.argv.slice(2);
+export const runAndroidGradle = ({
+  args = process.argv.slice(2),
+  rootPath = root,
+  platform = process.platform,
+  pathExists = existsSync,
+  spawn = spawnSync,
+} = {}) => {
+  const androidDir = path.join(rootPath, 'android');
+  const gradleCommand = platform === 'win32' ? 'gradlew.bat' : './gradlew';
 
   if (args.length === 0) {
     console.error('Usage: node scripts/runAndroidGradle.mjs <gradle-args...>');
     return 1;
   }
 
-  const expectedNodeVersion = normalizeVersion(readFileSync(path.join(root, '.nvmrc'), 'utf8'));
+  const nativePathBudget = getAndroidNativePathBudget({ rootPath, platform, pathExists });
+  const nativePathBudgetError = getAndroidNativePathBudgetError(nativePathBudget);
+  if (nativePathBudgetError) {
+    console.error(nativePathBudgetError);
+    return 1;
+  }
+
+  const expectedNodeVersion = normalizeVersion(readFileSync(path.join(rootPath, '.nvmrc'), 'utf8'));
   const currentNodeVersion = normalizeVersion(process.version);
 
   if (currentNodeVersion !== expectedNodeVersion) {
@@ -186,10 +199,10 @@ const main = () => {
   }
 
   const javaCommand = process.env.JAVA_HOME
-    ? path.join(process.env.JAVA_HOME, 'bin', process.platform === 'win32' ? 'java.exe' : 'java')
+    ? path.join(process.env.JAVA_HOME, 'bin', platform === 'win32' ? 'java.exe' : 'java')
     : 'java';
 
-  const javaVersion = spawnSync(javaCommand, ['-version'], {
+  const javaVersion = spawn(javaCommand, ['-version'], {
     encoding: 'utf8',
   });
   const javaVersionOutput = `${javaVersion.stderr || ''}${javaVersion.stdout || ''}`;
@@ -224,11 +237,11 @@ const main = () => {
     console.log(`Android SDK resolved from ${androidSdkResolution.source}: ${androidSdkResolution.root}`);
   }
 
-  const result = spawnSync(gradleCommand, args, {
+  const result = spawn(gradleCommand, args, {
     cwd: androidDir,
     env: gradleEnvironment,
     stdio: 'inherit',
-    shell: process.platform === 'win32',
+    shell: platform === 'win32',
   });
 
   if (result.error) {
@@ -240,5 +253,5 @@ const main = () => {
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  process.exit(main());
+  process.exit(runAndroidGradle());
 }

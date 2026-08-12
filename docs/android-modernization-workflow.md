@@ -2,6 +2,8 @@
 
 Use this workflow for Android maintenance branches under `upgrade/wallet-modernization`.
 
+On Windows, keep New Architecture worktrees short. Every guarded Gradle invocation and all eight public `react-native run-android` scripts check the installed RN Firebase generated C++ source paths against Ninja's 259-character budget and fail before Gradle when the checkout root is unsafe. The probe fails closed when a modeled dependency source is missing, so a dependency update cannot silently reuse a stale path contract. Use a short path such as `D:\q978`; enabling Windows long paths does not remove Ninja's observed source-path failure.
+
 `masked-view:migration:audit` refreshes `local-docs/android-warning-audit-summary.txt` before reading it. This keeps the RN baseline preflight deterministic in a fresh worktree instead of depending on ignored warning evidence copied from another checkout.
 
 `secure-storage:release-validation:summary` refreshes and validates the migration and removal-readiness summaries before aggregating them. A fresh worktree therefore cannot produce an invalid secure-storage aggregate merely because ignored prerequisite summaries have not been copied from another checkout.
