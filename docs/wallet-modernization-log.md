@@ -10,6 +10,49 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.975 - Jetifier retirement
+
+- Branch: `feature/bem-37-975-jetifier-retirement`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Remove the deprecated global `jetifier` postinstall transformation and the `android.enableJetifier` Gradle switch after the React Native `0.87.0` foundation upgrade.
+- Keep the wallet-critical `react-native-prompt-android` module linked while replacing its legacy Android Support AppCompat dependency and `AlertDialog` import with an explicit versioned AndroidX patch.
+- Add fail-closed source, lockfile, package, Gradle, installed-module, and mutation guards so a legacy Support dependency or an accidental Jetifier reintroduction cannot silently enter the Android build.
+- Remove Jetifier from the live tooling snapshot instead of reporting retired tooling as current.
+
+Findings:
+
+- A forced frozen dependency relink completes without invoking Jetifier. The relink restores Detox test-only Support references that the old global transform rewrote, while `patch-package` independently converts the production prompt module to `androidx.appcompat:appcompat:1.7.1` and `androidx.appcompat.app.AlertDialog`.
+- Android debug assembly and all four release variants (`dev`, `stage`, `prod`, `beta`) compile without Jetifier. Release manifest, embedded bundle/source-map, Keychain inclusion, legacy secure-storage exclusion, and retired App Center exclusion checks pass.
+- The signed production release passes standard wallet creation, restart, wrong/correct PIN handling, persistence, and the vault entry path on `emulator-5554` without fatal runtime findings.
+- The hash-bound first-party migration test installs the retained historical release, creates legacy encrypted wallet state, builds the current no-Jetifier production candidate, updates it with `adb install -r`, and confirms that the native storage-password prompt accepts the fixture password. PIN, transaction password, encrypted flag, and wallet data migrate to Keychain and are removed from legacy storage; the persisted wallet remains accessible without fatal runtime findings or secret output.
+- Historical `android.support.test` references remain only in Detox test sources and do not enter the GoldWallet production dependency graph. The `android.support.FILE_PROVIDER_PATHS` strings used by Android providers are stable metadata identifiers, not Support Library class imports.
+- iOS source and dependencies are unchanged. Static iOS validation is required for regression coverage, but simulator/archive behavior remains unclaimed on Windows.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --force --frozen-lockfile`
+- `corepack yarn check:jetifier-retirement-guard`
+- `corepack yarn check:jetifier-retirement`
+- `corepack yarn check:tooling-latest-snapshot-summary-guard`
+- `corepack yarn tooling:latest-snapshot:audit`
+- `corepack yarn tooling:latest-snapshot:check-summary`
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn test:unit --runInBand`
+- `corepack yarn test:storage-network:focused`
+- `corepack yarn lint:baseline:audit`
+- JDK 17 `corepack yarn android:dev:assemble`
+- JDK 17 `corepack yarn android:dev:release:verify-local`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `ANDROID_SECURE_STORAGE_HISTORICAL_SEED_APK=<ignored-seed-apk> ANDROID_SERIAL=emulator-5554 corepack yarn secure-storage:first-party-migration:verify`
+- `corepack yarn ios:static:verify`
+- `corepack yarn prepush`
+- `corepack yarn check:modernization-log-ids`
+- `git diff --check`
+
 ### BEM-37.974 - React Native 0.87 stable foundation
 
 - Branch: `feature/bem-37-974-rn-087-stable`
