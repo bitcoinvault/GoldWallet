@@ -10,6 +10,40 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.987 - exact-candidate Sentry gate before Android Play handoff
+
+- Branch: `feature/bem-37-987-sentry-play-release-gate`
+- Parent: `upgrade/wallet-modernization`
+
+Scope:
+
+- Turn the production Android symbolication workflow proven in BEM-37.986 into a fail-closed gate for every future Google Play candidate.
+- Bind Sentry upload and processed-event symbolication evidence to the immutable production-signed AAB snapshot before any authenticated Google Play API call.
+- Preserve the separate reference-event recovery mode used for historical production events.
+
+Findings and implementation:
+
+- The Play handoff already serialized release validation, created an immutable signed-AAB snapshot, and compared the uploaded bytes with that snapshot, but it did not require source-map availability for the same candidate.
+- The Sentry runner now has an explicit `--release-gate` execution mode. It consumes the `production-signed-candidate` manifest, rejects an AAB SHA-256 different from the Play snapshot, uploads the exact embedded bundle/source map with strict processing, emits a data-free synthetic event, and verifies both source-map diagnostics and the processed `App.tsx` frame.
+- The Play execute and commit paths invoke this gate after the signed candidate and snapshot are fixed but before Google authentication. The consumed summary must match the exact AAB SHA-256, release, distribution, production organization/project, debug ID, synthetic event, and successful source-map/event checks.
+- Independent review found and closed six contract gaps: production-versus-local candidate selection, shared Play lock ownership, complete bundle/map identity, eventual-consistency polling, strict summary parsing, and normalization of absolute Sentry source paths. Retryable diagnostics `404`, `429`, and `5xx` responses are bounded and honor `Retry-After`; authentication and other permanent failures remain fatal.
+- Dry-run performs no Sentry or Google write and keeps all production gate evidence unclaimed. Production execution remains blocked until the Play version input, upload-signing configuration, and ignored service-account credential are available.
+- The production Sentry write path itself is not re-executed in this milestone because no production-signed candidate can be built without those release inputs. BEM-37.986 remains the live credentialed proof of the shared upload and event-symbolication path; the new candidate-binding and Play-ordering contracts are covered by fail-closed guards.
+
+Validation:
+
+- `node scripts/checkSentryProductionAndroidSymbolicationGuard.mjs`
+- `node scripts/checkAndroidPlayInternalHandoffGuard.mjs`
+- `corepack yarn android:play:internal:dry-run`
+- `corepack yarn android:play:internal:check-summary`
+- baseline TypeScript, lint, modernization-log, unit, and storage/network checks passed; 15/15 unit suites and 69/69 tests passed
+- fresh JDK 17 `devDebug` assembly passed on the short Windows worktree after a worktree-local frozen dependency install
+- the full emulator smoke completed onboarding, PIN, and transaction-password setup without fatal or React Native runtime findings, then correctly stopped at `No network`; the dev/testnet Electrum TLS certificate expired on June 23, 2026, so the full dashboard smoke remains blocked by external infrastructure
+- `corepack yarn android:dev:smoke:no-network:embedded`
+- `corepack yarn android:dev:network-blocker:audit`
+- `corepack yarn android:dev:network-blocker:check-summary`
+- the controlled no-network smoke and blocker summary passed; this reduced path is not claimed as full Android runtime proof
+
 ### BEM-37.986 - Sentry production Android symbolication recovery
 
 - Branch: `feature/bem-37-986-sentry-prod-android-symbolication`
