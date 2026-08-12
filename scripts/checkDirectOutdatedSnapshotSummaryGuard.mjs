@@ -149,15 +149,6 @@ const validEntries = [
     decision: 'exotic - prompt fork remains wallet-critical for encrypted storage startup; keep Android native prompt linkage guarded',
   },
   {
-    name: 'react-native-safe-area-context',
-    current: '5.8.1',
-    wanted: '5.8.1',
-    latest: '5.9.0',
-    type: 'dependencies',
-    decision:
-      'blocked - native safe-area minor drift requires a dedicated navigation/layout branch with TypeScript, Android build, screen-layout, and emulator navigation proof',
-  },
-  {
     name: 'react-test-renderer',
     current: '19.2.3',
     wanted: '19.2.3',
@@ -221,10 +212,10 @@ assertRejected(
   validSummary.replace(`Node version: ${process.version}`, 'Node version: v22.18.0'),
   'repo .nvmrc baseline',
 );
-assertRejected('Bad entry count fixture', validSummary.replace('Entries: 21', 'Entries: 20'), 'Entries count');
+assertRejected('Bad entry count fixture', validSummary.replace('Entries: 20', 'Entries: 19'), 'Entries count');
 assertRejected(
   'Unexpected direct outdated entry fixture',
-  validSummary.replace('Entries: 21', 'Entries: 22').replace(
+  validSummary.replace('Entries: 20', 'Entries: 21').replace(
     'Secret values printed: no',
     '- extra-package: current 1.0.0, wanted 1.0.0, latest 1.0.1, type dependencies, decision blocked - dedicated compatibility branch required\nSecret values printed: no',
   ),
@@ -248,6 +239,12 @@ assertRejected(
   validSummary.replace('TypeScript 7 major drift', 'generic TypeScript patch'),
   'TypeScript major drift',
 );
+const safeAreaDecision =
+  'blocked - native safe-area minor drift requires a dedicated navigation/layout branch with TypeScript, Android build, screen-layout, and emulator navigation proof';
+const safeAreaSummary = validSummary.replace('Entries: 20', 'Entries: 21').replace(
+  'Secret values printed: no',
+  `- react-native-safe-area-context: current 5.8.1, wanted 5.8.1, latest 5.9.0, type dependencies, decision ${safeAreaDecision}\nSecret values printed: no`,
+);
 [
   ['dedicated navigation/layout branch', 'generic native branch'],
   ['TypeScript', 'type checks'],
@@ -257,7 +254,7 @@ assertRejected(
 ].forEach(([requiredText, replacement]) => {
   assertRejected(
     `Missing safe-area rationale fixture: ${requiredText}`,
-    validSummary.replace(requiredText, replacement),
+    safeAreaSummary.replace(safeAreaDecision, safeAreaDecision.replace(requiredText, replacement)),
     'react-native-safe-area-context drift',
   );
 });

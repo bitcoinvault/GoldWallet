@@ -43,7 +43,7 @@ Current expectation:
 - `@react-native-community/masked-view` -> removed
 - `react-native-bootsplash` -> `7.3.2`
 - `react-native-fast-image` -> `8.6.3`
-- `react-native-safe-area-context` -> `5.8.1`
+- `react-native-safe-area-context` -> `5.9.0`
 - `react-native-screens` -> `4.27.0`
 - `react-native-svg` -> `15.15.5`
 - `@react-native-community/slider` -> `5.2.0`
@@ -63,7 +63,7 @@ Branch shape:
 - Validate TypeScript, Android build, emulator dashboard smoke, wallet list, send/receive navigation, and QR display.
 - `react-native-bootsplash` is on latest checked `7.3.2` after `BEM-37.761`; future splash work should focus on release launch-screen behavior and iOS validation, not another immediate package bump.
 - `@react-native-community/blur` is on latest checked `4.4.1` after `BEM-36.55`; future blur work should focus on visual regressions in layered/modal surfaces and RN baseline changes.
-- `react-native-safe-area-context` is on checked latest `5.8.1` after `BEM-37.967`; future safe-area work should focus on layout validation and the next RN baseline.
+- `react-native-safe-area-context` is on checked latest `5.9.0` after `BEM-37.980`; future safe-area work should focus on layout validation and the next RN baseline.
 - `react-native-screens` is on checked latest `4.27.0` after `BEM-37.967`; the package satisfies the RN `0.87.0` baseline and keeps future changes tied to Android navigation smoke.
 - `react-native-svg` is on checked `15.15.5` after `BEM-36.119`, paired with `react-native-qrcode-svg@6.3.21` and root `qrcode@1.5.4` resolution after `BEM-37.158`; the QR renderer branch remains guarded on the RN `0.87.0` baseline.
 - For `react-native-svg` changes, manually check the guarded QR render screens: contact QR, export wallet secret, export xpub, authenticator options, and receive coins.

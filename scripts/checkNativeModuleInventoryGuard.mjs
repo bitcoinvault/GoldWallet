@@ -9,8 +9,8 @@ if (expectedNativeModuleDependencies.get('react-native-gesture-handler') !== '3.
   process.exit(1);
 }
 
-if (expectedNativeModuleDependencies.get('react-native-safe-area-context') !== '5.8.1') {
-  console.error('Native module inventory should require react-native-safe-area-context@5.8.1.');
+if (expectedNativeModuleDependencies.get('react-native-safe-area-context') !== '5.9.0') {
+  console.error('Native module inventory should require react-native-safe-area-context@5.9.0.');
   process.exit(1);
 }
 
@@ -40,7 +40,7 @@ const outdatedScreensFixture = {
 
 const outdatedSafeAreaFixture = {
   ...expectedDependencies,
-  'react-native-safe-area-context': '5.8.0',
+  'react-native-safe-area-context': '5.8.1',
 };
 
 const assertAccepted = (label, dependencies) => {

@@ -106,7 +106,7 @@
 - `sentry:rn-bundle-task-compat:audit` reports `Sentry RN bundle task compatibility ready: yes` through the repo-owned legacy args shim for RN `0.86.2`.
 - Android release build and APK manifest evidence is current for `dev`, `stage`, `prod`, and `beta`, but Sentry release smoke evidence remains not ready because the full dashboard and release create-wallet proofs are blocked by the dev/testnet `No network` state.
 - The reduced signed `devRelease` no-network smoke proof is valid and the network blocker summary is classified as `blocked-by-electrum-certificate-expired`, so the Sentry preflight may pass only as a controlled `not ready` state.
-- iOS static readiness remains valid, but iOS macOS archive validation is not ready on this Windows host; `ios/Podfile.lock` has 13 active drift issues, including `react-native-safe-area-context 3.3.2` versus package `5.8.1` and `RNScreens 3.6.0` versus package `4.27.0`.
+- iOS static readiness remains valid, but iOS macOS archive validation is not ready on this Windows host; `ios/Podfile.lock` has 13 active drift issues, including `react-native-safe-area-context 3.3.2` versus package `5.9.0` and `RNScreens 3.6.0` versus package `4.27.0`.
 - `sentry.properties`, `android/sentry.properties`, `ios/sentry.properties`, and `SENTRY_AUTH_TOKEN` are missing, so source-map/dSYM upload validation remains explicitly not claimed.
 
 ## 2026-07-11 Preflight Refresh

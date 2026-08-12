@@ -6,7 +6,7 @@ export const expectedNavigationRuntimeVersions = new Map([
   ['@react-navigation/native', '7.3.16'],
   ['@react-navigation/stack', '7.10.22'],
   ['react-native-gesture-handler', '3.1.0'],
-  ['react-native-safe-area-context', '5.8.1'],
+  ['react-native-safe-area-context', '5.9.0'],
   ['react-native-screens', '4.27.0'],
 ]);
 

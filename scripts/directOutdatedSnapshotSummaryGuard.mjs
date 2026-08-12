@@ -23,7 +23,6 @@ const requiredKnownEntries = [
   ['plist', 'resolutionDependencies'],
   ['react', 'dependencies'],
   ['react-native-prompt-android', 'dependencies'],
-  ['react-native-safe-area-context', 'dependencies'],
   ['react-test-renderer', 'devDependencies'],
   ['rn-nodeify', 'devDependencies'],
   ['typescript', 'devDependencies'],

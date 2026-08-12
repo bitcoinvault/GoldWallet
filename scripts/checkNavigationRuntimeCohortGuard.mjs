@@ -60,7 +60,7 @@ const installedPackages = {
     peerDependencies: { react: '*', 'react-native': '*' },
   },
   'react-native-safe-area-context': {
-    version: '5.8.1',
+    version: '5.9.0',
     peerDependencies: { react: '*', 'react-native': '*' },
   },
   'react-native-screens': {
@@ -122,7 +122,7 @@ assert(
         },
       },
     },
-  }).some(error => error.includes('@react-navigation/stack peer react-native-safe-area-context range >=6.0.0 does not accept 5.8.1')),
+  }).some(error => error.includes('@react-navigation/stack peer react-native-safe-area-context range >=6.0.0 does not accept 5.9.0')),
 );
 assert(
   getNavigationRuntimeCohortErrors({
