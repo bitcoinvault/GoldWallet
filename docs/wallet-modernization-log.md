@@ -10,6 +10,55 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.977 - React Native 0.87 release-readiness refresh
+
+- Branch: `feature/bem-37-977-rn087-release-readiness`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Refresh Android debug, all-variant release, Camera/QR, create-wallet, and encrypted-storage migration evidence on the merged React Native `0.87.0` foundation.
+- Make masked-view and secure-storage aggregate audits deterministic in a fresh worktree instead of depending on ignored `local-docs` artifacts from another checkout.
+- Keep external Electrum, iOS/macOS, Sentry credential, Play version/signing, and Play service-account blockers explicit rather than treating local build success as production release approval.
+
+Findings:
+
+- A long worktree path failed native CMake/Ninja codegen with `Filename longer than 260 characters`; the same source built successfully after moving the branch to `D:\q977`. GoldWallet New Architecture worktrees must remain short on Windows.
+- The RN `0.87.0` dev debug APK assembles successfully. Full dev smoke installs and launches the app, completes onboarding, and reaches `No network`; logcat confirms the existing expired TLS certificate for `electrumx.testnet.btcv.stage.rnd.land:443`, while controlled no-network smoke passes without fatal/runtime findings.
+- All four Android release APK variants build and pass manifest, embedded bundle/source-map, Keychain inclusion, legacy secure-storage exclusion, and retired App Center exclusion checks.
+- Locally signed `prodRelease` smoke passes onboarding, empty-wallet CTAs, tabs, CameraKit QR scanner open/close, and Terms WebView. The create-wallet smoke passes standard mnemonic creation, restart, incorrect/correct PIN behavior, wallet persistence, and the default 3-key vault public-key handoff.
+- Hash-bound first-party migration validation installs the retained historical `6.5.1` seed APK, creates encrypted wallet state, installs the current RN `0.87.0` candidate with `adb install -r`, rejects an incorrect PIN, accepts the configured PIN, and retains the wallet without fatal/runtime findings.
+- `masked-view:migration:audit` previously failed in a fresh worktree because it read `local-docs/android-warning-audit-summary.txt` without generating it. The command now refreshes Android warning evidence first; the resulting audit reports zero targeted Gradle warnings.
+- `secure-storage:release-validation:summary` previously ran before its migration and removal-readiness prerequisites in the RN preflight. The public command now refreshes and validates both prerequisite summaries before aggregation, with a guard that enforces command order.
+- iOS runtime/archive validation remains unclaimed on Windows; `ios/Podfile.lock` has 13 active drifts and requires the documented macOS Xcode 26.2+/CocoaPods handoff.
+- Production Play delivery remains unclaimed until the candidate version is raised above public Play `6.5.2`, production upload signing is supplied, and service-account access is configured. Credentialed Sentry upload/symbolication remains a separate secret-backed validation.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --immutable`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:embedded` (expected external Electrum TLS blocker after successful app launch/onboarding)
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:smoke:no-network:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn camera:qr-validation:handoff --include-android-release-smoke --android-release-variant=prod`
+- `ANDROID_SECURE_STORAGE_HISTORICAL_SEED_APK=<ignored-seed-apk> ANDROID_SERIAL=emulator-5554 corepack yarn secure-storage:first-party-migration:verify`
+- `corepack yarn check:masked-view-migration-summary-guard`
+- `corepack yarn masked-view:migration:audit`
+- `corepack yarn masked-view:migration:check-summary`
+- `corepack yarn check:secure-storage-release-validation-summary-guard`
+- `corepack yarn secure-storage:release-validation:summary`
+- `corepack yarn secure-storage:release-validation:check-summary`
+- JDK 17 `corepack yarn android:dev:release:verify-local` (dev, stage, prod, and beta)
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:smoke:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:create-wallet-smoke:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:prod:release:import-wallet-smoke:embedded`
+- `ANDROID_SERIAL=emulator-5554 corepack yarn android:dev:release:smoke:no-network:embedded`
+- `corepack yarn android:dev:release:network-blocker:audit` and `corepack yarn android:dev:release:network-blocker:check-summary` (expired Electrum certificate classified)
+- `corepack yarn prepush`
+- `corepack yarn ios:static:verify` (static checks pass; macOS runtime/archive validation remains unclaimed)
+- `corepack yarn release-services:validation:handoff --skip-android-release`
+- `corepack yarn android:release-readiness:check-light`
+- `corepack yarn rn:baseline:preflight`
+
 ### BEM-37.976 - React Native 0.87 snapshot coherence
 
 - Branch: `feature/bem-37-976-rn-087-snapshot-coherence`

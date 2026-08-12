@@ -1,4 +1,5 @@
 import { getMaskedViewMigrationSummaryErrors } from './maskedViewMigrationSummaryGuard.mjs';
+import { maskedViewMigrationAuditSteps } from './runMaskedViewMigrationAudit.mjs';
 
 const validSummary = [
   'Masked-view migration audit',
@@ -15,7 +16,10 @@ const validSummary = [
 ].join('\n');
 
 const invalidSummary = validSummary
-  .replace('Current masked-view package: <removed>', 'Current masked-view package: @react-native-community/masked-view@0.1.11')
+  .replace(
+    'Current masked-view package: <removed>',
+    'Current masked-view package: @react-native-community/masked-view@0.1.11',
+  )
   .replace('Masked-view migration baseline stable: yes', 'Masked-view migration baseline stable: no')
   .replace(
     'Required action: none; masked-view migration is complete after navigation validation.',
@@ -44,6 +48,20 @@ const assertRejected = (label, summary, expectedError) => {
 
 assertAccepted('Valid masked-view migration summary fixture', validSummary);
 assertRejected('Invalid masked-view package fixture', invalidSummary, 'Current masked-view package');
-assertRejected('Missing header fixture', validSummary.replace('Masked-view migration audit', 'Bad header'), 'summary header');
+assertRejected(
+  'Missing header fixture',
+  validSummary.replace('Masked-view migration audit', 'Bad header'),
+  'summary header',
+);
+
+const auditScripts = maskedViewMigrationAuditSteps.map(step => step.args.at(-1));
+if (
+  auditScripts.length !== 2 ||
+  auditScripts[0] !== 'android:dev:audit-warnings' ||
+  !auditScripts[1].endsWith('auditMaskedViewMigration.mjs')
+) {
+  console.error('Masked-view migration audit must refresh Android warning evidence before reading it.');
+  process.exit(1);
+}
 
 console.log('Masked-view migration summary guard checks are valid.');

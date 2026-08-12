@@ -1,4 +1,5 @@
 import { getSecureStorageReleaseValidationSummaryErrors } from './secureStorageReleaseValidationSummaryGuard.mjs';
+import { secureStorageReleaseSummaryRefreshSteps } from './runSecureStorageReleaseValidationSummaryRefresh.mjs';
 
 const validSummary = [
   'Secure-storage release validation summary',
@@ -51,16 +52,31 @@ const validSummary = [
 const releaseEvidenceMissingSummary = validSummary
   .replace('Android release smoke summary present: yes', 'Android release smoke summary present: no')
   .replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no')
-  .replace('Android release smoke artifact base: android-smoke-dev-release', 'Android release smoke artifact base: <missing>')
+  .replace(
+    'Android release smoke artifact base: android-smoke-dev-release',
+    'Android release smoke artifact base: <missing>',
+  )
   .replace('Android release smoke outcome: passed', 'Android release smoke outcome: <missing>')
-  .replace('Android release create-wallet smoke summary present: yes', 'Android release create-wallet smoke summary present: no')
-  .replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no')
+  .replace(
+    'Android release create-wallet smoke summary present: yes',
+    'Android release create-wallet smoke summary present: no',
+  )
+  .replace(
+    'Android release create-wallet smoke summary valid: yes',
+    'Android release create-wallet smoke summary valid: no',
+  )
   .replace(
     'Android release create-wallet smoke artifact base: android-create-wallet-smoke-dev-release',
     'Android release create-wallet smoke artifact base: <missing>',
   )
-  .replace('Android release create-wallet smoke outcome: passed', 'Android release create-wallet smoke outcome: <missing>')
-  .replace('Android release smoke summary errors: 0', 'Android release smoke summary errors: 1\n- missing Android release smoke summary')
+  .replace(
+    'Android release create-wallet smoke outcome: passed',
+    'Android release create-wallet smoke outcome: <missing>',
+  )
+  .replace(
+    'Android release smoke summary errors: 0',
+    'Android release smoke summary errors: 1\n- missing Android release smoke summary',
+  )
   .replace(
     'Android release create-wallet smoke summary errors: 0',
     'Android release create-wallet smoke summary errors: 1\n- missing Android release create-wallet smoke summary',
@@ -73,14 +89,23 @@ const controlledBlockerSummary = validSummary
   .replace('Android smoke outcome: passed', 'Android smoke outcome: failed')
   .replace('Android release smoke summary valid: yes', 'Android release smoke summary valid: no')
   .replace('Android release smoke outcome: passed', 'Android release smoke outcome: failed')
-  .replace('Android release create-wallet smoke summary valid: yes', 'Android release create-wallet smoke summary valid: no')
+  .replace(
+    'Android release create-wallet smoke summary valid: yes',
+    'Android release create-wallet smoke summary valid: no',
+  )
   .replace('Android release create-wallet smoke outcome: passed', 'Android release create-wallet smoke outcome: failed')
-  .replace('Controlled network blocker outcome: <none>', 'Controlled network blocker outcome: blocked-by-electrum-certificate-expired')
+  .replace(
+    'Controlled network blocker outcome: <none>',
+    'Controlled network blocker outcome: blocked-by-electrum-certificate-expired',
+  )
   .replace('Controlled network blocker accepted: no', 'Controlled network blocker accepted: yes')
   .replace('Full Android runtime proof ready: yes', 'Full Android runtime proof ready: no')
   .replace('Android dev smoke summary errors: 0', 'Android dev smoke summary errors: 8')
   .replace('Android release smoke summary errors: 0', 'Android release smoke summary errors: 8')
-  .replace('Android release create-wallet smoke summary errors: 0', 'Android release create-wallet smoke summary errors: 2')
+  .replace(
+    'Android release create-wallet smoke summary errors: 0',
+    'Android release create-wallet smoke summary errors: 2',
+  )
   .replace('Android release evidence ready: yes', 'Android release evidence ready: no')
   .replace(
     'Required action: keep the first-party migration bridge through a validated cross-platform rollout window before removing fallback reads.',
@@ -108,13 +133,36 @@ const assertRejected = (label, summary, expectedError) => {
 };
 
 assertAccepted('Valid secure-storage release validation summary fixture', validSummary);
-assertAccepted('Secure-storage release validation summary without optional release evidence fixture', releaseEvidenceMissingSummary);
+assertAccepted(
+  'Secure-storage release validation summary without optional release evidence fixture',
+  releaseEvidenceMissingSummary,
+);
 assertAccepted('Secure-storage controlled Electrum blocker fixture', controlledBlockerSummary);
-assertRejected('Missing header fixture', validSummary.replace('Secure-storage release validation summary', 'Bad summary'), 'summary header');
-assertRejected('Bad timestamp fixture', validSummary.replace('Generated at: 2026-06-11T00:00:00.000Z', 'Generated at: now'), 'ISO timestamp');
-assertRejected('Bad current package fixture', validSummary.replace('react-native-keychain@10.0.0', 'react-native-keychain@9.0.0'), 'Current secure-storage package');
-assertRejected('Invalid migration summary fixture', validSummary.replace('Migration summary valid: yes', 'Migration summary valid: no'), 'Migration summary must be valid');
-assertRejected('Invalid removal summary fixture', validSummary.replace('Removal readiness summary valid: yes', 'Removal readiness summary valid: no'), 'Removal readiness summary must be valid');
+assertRejected(
+  'Missing header fixture',
+  validSummary.replace('Secure-storage release validation summary', 'Bad summary'),
+  'summary header',
+);
+assertRejected(
+  'Bad timestamp fixture',
+  validSummary.replace('Generated at: 2026-06-11T00:00:00.000Z', 'Generated at: now'),
+  'ISO timestamp',
+);
+assertRejected(
+  'Bad current package fixture',
+  validSummary.replace('react-native-keychain@10.0.0', 'react-native-keychain@9.0.0'),
+  'Current secure-storage package',
+);
+assertRejected(
+  'Invalid migration summary fixture',
+  validSummary.replace('Migration summary valid: yes', 'Migration summary valid: no'),
+  'Migration summary must be valid',
+);
+assertRejected(
+  'Invalid removal summary fixture',
+  validSummary.replace('Removal readiness summary valid: yes', 'Removal readiness summary valid: no'),
+  'Removal readiness summary must be valid',
+);
 assertRejected(
   'Missing first-party migration fixture',
   validSummary.replace('First-party migration summary present: yes', 'First-party migration summary present: no'),
@@ -125,8 +173,16 @@ assertRejected(
   validSummary.replace('First-party migration summary valid: yes', 'First-party migration summary valid: no'),
   'First-party migration summary must be valid',
 );
-assertRejected('Missing smoke fixture', validSummary.replace('Android dev smoke summary present: yes', 'Android dev smoke summary present: no'), 'Android dev smoke summary must be present');
-assertRejected('Failed smoke fixture', validSummary.replace('Android smoke outcome: passed', 'Android smoke outcome: failed'), 'Android smoke outcome must be passed');
+assertRejected(
+  'Missing smoke fixture',
+  validSummary.replace('Android dev smoke summary present: yes', 'Android dev smoke summary present: no'),
+  'Android dev smoke summary must be present',
+);
+assertRejected(
+  'Failed smoke fixture',
+  validSummary.replace('Android smoke outcome: passed', 'Android smoke outcome: failed'),
+  'Android smoke outcome must be passed',
+);
 assertRejected(
   'Failed release smoke fixture',
   validSummary.replace('Android release smoke outcome: passed', 'Android release smoke outcome: failed'),
@@ -134,7 +190,10 @@ assertRejected(
 );
 assertRejected(
   'Failed release create-wallet smoke fixture',
-  validSummary.replace('Android release create-wallet smoke outcome: passed', 'Android release create-wallet smoke outcome: failed'),
+  validSummary.replace(
+    'Android release create-wallet smoke outcome: passed',
+    'Android release create-wallet smoke outcome: failed',
+  ),
   'Android release create-wallet smoke outcome',
 );
 assertRejected(
@@ -144,7 +203,10 @@ assertRejected(
 );
 assertRejected(
   'Controlled blocker without storage steps fixture',
-  controlledBlockerSummary.replace('Android dev smoke secure-storage steps completed: yes', 'Android dev smoke secure-storage steps completed: no'),
+  controlledBlockerSummary.replace(
+    'Android dev smoke secure-storage steps completed: yes',
+    'Android dev smoke secure-storage steps completed: no',
+  ),
   'Controlled network blocker accepted requires completed Android dev secure-storage steps',
 );
 assertRejected(
@@ -152,14 +214,48 @@ assertRejected(
   controlledBlockerSummary.replace('Full Android runtime proof ready: no', 'Full Android runtime proof ready: yes'),
   'Full Android runtime proof must remain no',
 );
-assertRejected('Fallback removed fixture', validSummary.replace('Legacy fallback reads active: yes', 'Legacy fallback reads active: no'), 'Legacy fallback reads must remain active');
+assertRejected(
+  'Fallback removed fixture',
+  validSummary.replace('Legacy fallback reads active: yes', 'Legacy fallback reads active: no'),
+  'Legacy fallback reads must remain active',
+);
 assertRejected(
   'No fallback instrumentation fixture',
   validSummary.replace('Legacy fallback instrumentation active: yes', 'Legacy fallback instrumentation active: no'),
   'Legacy fallback instrumentation',
 );
-assertRejected('Removal overclaimed fixture', validSummary.replace('Removal release validation claimed: no', 'Removal release validation claimed: yes'), 'must remain unclaimed');
-assertRejected('Removal not ready fixture', validSummary.replace('Legacy package removal ready: yes', 'Legacy package removal ready: no'), 'Legacy package removal must remain ready');
-assertRejected('Secret printed fixture', validSummary.replace('Secret values printed: no', 'Secret values printed: yes'), 'must not print secret values');
+assertRejected(
+  'Removal overclaimed fixture',
+  validSummary.replace('Removal release validation claimed: no', 'Removal release validation claimed: yes'),
+  'must remain unclaimed',
+);
+assertRejected(
+  'Removal not ready fixture',
+  validSummary.replace('Legacy package removal ready: yes', 'Legacy package removal ready: no'),
+  'Legacy package removal must remain ready',
+);
+assertRejected(
+  'Secret printed fixture',
+  validSummary.replace('Secret values printed: no', 'Secret values printed: yes'),
+  'must not print secret values',
+);
+
+const refreshScripts = secureStorageReleaseSummaryRefreshSteps.map(step => step.args.at(-1));
+const expectedRefreshScripts = [
+  'secure-storage:migration:audit',
+  'secure-storage:migration:check-summary',
+  'secure-storage:removal-readiness:audit',
+  'secure-storage:removal-readiness:check-summary',
+];
+if (
+  refreshScripts.length !== 5 ||
+  expectedRefreshScripts.some((script, index) => refreshScripts[index] !== script) ||
+  !refreshScripts[4].endsWith('runSecureStorageReleaseValidationSummary.mjs')
+) {
+  console.error(
+    'Secure-storage release summary must refresh and validate migration/removal evidence before aggregation.',
+  );
+  process.exit(1);
+}
 
 console.log('Secure-storage release validation summary guard checks are valid.');
