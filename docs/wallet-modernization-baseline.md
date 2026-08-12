@@ -17,6 +17,7 @@ All modernization work should be developed on focused task branches and merged i
 - App name/package: `goldwallet`
 - Provisional Android release candidate: `6.5.3` (`versionCode 15`), sourced from `android/release-version.properties`
 - Public Google Play baseline: `6.5.2` rechecked 2026-08-12; the candidate semantic version is newer, while release readiness still requires confirmation that its `versionCode` is above the latest value from Play Console
+- Android 16 KB runtime proof: candidate `6.5.3 (15)` passed the exact locally signed `prodRelease` AAB path on the API 36 `GoldWallet_API_36_16K` AVD on 2026-08-12; this proves artifact alignment and 16 KB execution, not production upload-key identity or Play acceptance
 - Google Play internal handoff: official API client wired in read-only dry-run mode; execution requires ignored service-account credentials, real upload signing, a monotonic release version, a passed live Electrum release gate, and explicit commit confirmation
 - React Native: `0.87.0`
 - React: `19.2.3`

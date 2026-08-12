@@ -10,6 +10,46 @@ This document tracks staged wallet modernization work branch by branch.
 
 ## Completed Branches
 
+### BEM-37.983 - Android 6.5.3 signed-AAB 16 KB runtime proof
+
+- Branch: `feature/bem-37-983-android-6-5-3-16kb-proof`
+- Parent branch: `upgrade/wallet-modernization`
+
+Scope:
+
+- Recreate the candidate-bound local signing, App Bundle, Sentry bundle/source-map, and 16 KB runtime proof after Android release metadata moved to provisional `6.5.3 (15)`.
+- Exercise the exact signed `prodRelease` AAB path on a real API 36 16 KB emulator without using production signing credentials, Sentry credentials, or Google Play access.
+- Preserve all binary artifacts, summaries, screenshots, and the temporary tool copy under ignored `local-docs`; commit only the durable validation status and limitations.
+
+Findings:
+
+- `GoldWallet_API_36_16K` booted headless as `emulator-5556` and reported kernel page size `16384` bytes.
+- The first proof attempt built the signed AAB successfully but stopped fail-closed because pinned official `bundletool 1.18.3` was absent from the new worktree. The existing ignored copy from the integration checkout matched the repository-pinned SHA-256 `a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29`; copying that verified binary into this worktree's ignored `local-docs/tools` closed the environment prerequisite without changing repository source.
+- The repeated proof generated a signed `prodRelease` AAB with `versionName 6.5.3`, `versionCode 15`, a verified JAR signature, matching configured proof certificate, successful bundletool validation, and `PAGE_ALIGNMENT_16K`.
+- The universal APK passed 16 KB ZIP alignment and checked 60 native libraries plus 169 64-bit ELF `LOAD` segments. The exact AAB and universal APK were SHA-256-bound to a complete embedded runtime smoke on the 16 KB kernel.
+- First-run onboarding, PIN and transaction-password setup, empty-wallet Create/Import flows, all four tabs, QR scanner, and Terms WebView passed without Metro errors, fatal crashes, or findings matched by the smoke fail-fast filters. Logcat did contain nonfatal `RNSentry` timestamp-deserialization errors; they did not interrupt the tested flow but remain a separate Sentry runtime follow-up. Visual inspection found no clipping, overlap, blank content, or error overlay.
+- Candidate-bound Sentry evidence uses release `io.goldwallet.wallet@6.5.3+15` and dist `15`; the embedded and freshly generated bundles have the same SHA-256. Automatic upload was disabled and no Sentry upload was attempted or claimed.
+- The temporary random PKCS12 keystore was removed after the run. The proof does not establish production upload-key identity, Play App Signing identity, Play Console acceptance, Sentry upload acceptance, or release readiness.
+
+Validation:
+
+- Node `24.16.0` `corepack yarn install --immutable`
+- `ANDROID_SERIAL=emulator-5556 adb shell getconf PAGE_SIZE` (`16384`)
+- JDK 17 `ANDROID_SERIAL=emulator-5556 corepack yarn android:16kb:runtime:verify`
+- `corepack yarn android:upload-signing:check-proof`
+- `corepack yarn android:16kb:runtime:check-summary`
+- Visual inspection of `local-docs/android-upload-signing-proof-prod-release-runtime-smoke.png`
+- Verification that `local-docs/android-upload-signing-proof.p12` was removed
+- `corepack yarn check:rn-nodeify-shims`
+- `corepack yarn typescript:check`
+- `corepack yarn lint:baseline:audit` (`36,881` accepted baseline errors, no increase)
+- `corepack yarn check:modernization-log-ids`
+- `corepack yarn test:unit --runInBand` (`14` suites, `68` tests)
+- `corepack yarn test:storage-network:focused`
+- JDK 17 `corepack yarn android:dev:assemble`
+- `corepack yarn prepush`
+- `git diff --check`
+
 ### BEM-37.982 - Provisional Android 6.5.3 release candidate
 
 - Branch: `feature/bem-37-982-android-release-6-5-3`
